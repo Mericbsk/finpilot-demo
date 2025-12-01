@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrokeAI - Ön Kayıt & Talep Toplama</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        .card-shadow-strong { box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15); }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ai-primary': '#4f46e5',
+                        'ai-success': '#10b981',
+                        'ai-danger': '#ef4444',
+                        'ai-neutral': '#6b7280',
+                    },
+                    keyframes: {
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.6s ease-out',
+                    }
+                }
+            }
+        }
+        async function submitWaitlist(event) {
+            event.preventDefault();
+            const email = document.getElementById('email-input').value;
+            const feedback = document.getElementById('feedback-input').value;
+            const messageBox = document.getElementById('message-box');
+            if (!email) {
+                messageBox.textContent = 'Lütfen e-posta adresinizi giriniz.';
+                messageBox.className = 'mt-4 p-3 bg-ai-danger/10 text-ai-danger rounded-lg font-medium animate-fade-in-up';
+                return;
+            }
+            const submitButton = document.getElementById('submit-button');
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Gönderiliyor...`;
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            const successMessage = `Harika! ${email} adresinizle ön kayıt listemize katıldınız. Lansman öncesi bilgilendirmeler e-posta kutunuza gelecek.`;
+            messageBox.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-ai-success">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>${successMessage}</span>
+                </div>
+            `;
+            messageBox.className = 'mt-4 p-4 bg-ai-success/10 text-ai-success rounded-xl border border-ai-success/30 font-semibold animate-fade-in-up';
+            document.getElementById('waitlist-form').reset();
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+        }
+    </script>
+</head>
+<body class="p-4 md:p-8">
+    <header class="mb-12">
+        <div class="flex justify-between items-center max-w-3xl mx-auto py-4">
+            <h1 class="text-2xl font-bold text-ai-primary flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-7 h-7 mr-2 text-ai-primary">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                </svg>
+                FinPilot
+            </h1>
+        </div>
+    </header>
+    <!-- Hero & Ürün Tanıtımı -->
+    <section class="max-w-3xl mx-auto text-center py-12 animate-fade-in-up">
+        <span class="inline-block text-sm font-semibold tracking-wider uppercase text-ai-primary mb-3 px-3 py-1 bg-ai-primary/10 rounded-full">QUANT GÜCÜ ARTIK SİZİNLE</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-6">
+            <span class="text-ai-primary">FinPilot Finansal Yapay Zeka Paneli</span>
+        </h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+            Karmaşık grafikleri ve analizleri unutun. FinPilot, binlerce veriyi işleyip size <b>trafik ışığı basitliğinde</b> net al/sat/bekle sinyalleri sunar. Derin Pekiştirmeli Öğrenme (DRL) ve Walk-Forward Optimizasyon (WFO) ile sürekli evrilen, güvenilir ve kişiselleştirilebilir bir yatırım asistanı.
+        </p>
+        <!-- Özellikler Kartları -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="p-6 bg-ai-success/10 rounded-xl border-t-4 border-ai-success">
+                <div class="flex items-center justify-center w-12 h-12 rounded-full bg-ai-success text-white mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.305 4.305a11.25 11.25 0 015.353-6.66l-3.6-5.859c-.27-.44-.09-.993.36-1.144L21 2.25l-.75 4.5c-.15.45.39.72.63.39l4.5-3.6z" />
+                    </svg>
+                </div>
+                <h4 class="text-lg font-bold text-ai-success mb-2">Trafik Işığı Sinyalleri</h4>
+                <p class="text-gray-600">Al, Sat, Bekle kararlarını net ve anlaşılır şekilde sunar.</p>
+            </div>
+            <div class="p-6 bg-ai-primary/10 rounded-xl border-t-4 border-ai-primary">
+                <div class="flex items-center justify-center w-12 h-12 rounded-full bg-ai-primary text-white mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h4 class="text-lg font-bold text-ai-primary mb-2">DRL & WFO Motoru</h4>
+                <p class="text-gray-600">Piyasaları oyun gibi öğrenen, sürekli doğrulama yapan yapay zeka altyapısı.</p>
+            </div>
+            <div class="p-6 bg-ai-neutral/10 rounded-xl border-t-4 border-ai-neutral">
+                <div class="flex items-center justify-center w-12 h-12 rounded-full bg-ai-neutral text-white mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25L12 21m0 0l-3.75-3.75M12 21V3" />
+                    </svg>
+                </div>
+                <h4 class="text-lg font-bold text-ai-neutral mb-2">Kişiselleştirme & Adaptasyon</h4>
+                <p class="text-gray-600">Risk iştahınıza ve yatırım tarzınıza göre anında uyum sağlar.</p>
+            </div>
+        </div>
+        <!-- Ön Kayıt Formu -->
+        <form id="waitlist-form" onsubmit="submitWaitlist(event)" class="space-y-4">
+            <input type="email" id="email-input" required placeholder="E-posta adresiniz (Zorunlu)" class="w-full p-4 rounded-xl border-none focus:ring-4 focus:ring-indigo-300 transition duration-150 shadow-lg text-gray-800">
+            <textarea id="feedback-input" rows="3" placeholder="Geri bildirim / En çok hangi özelliği istersiniz?" class="w-full p-4 rounded-xl border-none focus:ring-4 focus:ring-indigo-300 transition duration-150 shadow-lg text-gray-800"></textarea>
+            <button type="submit" id="submit-button" class="bg-ai-success text-white text-lg font-bold px-8 py-4 rounded-xl hover:bg-emerald-600 transition duration-300 shadow-xl shadow-ai-success/40 w-full flex items-center justify-center mx-auto">
+                Ön Kayıt Ol ve Talebimi Gönder
+            </button>
+        </form>
+        <div id="message-box" class="mt-4"></div>
+    </section>
+
+    <!-- Detaylı Bilgilendirme Bölümü -->
+    <section class="max-w-3xl mx-auto py-10 px-4 bg-white rounded-2xl card-shadow-strong mb-10">
+        <h3 class="text-2xl font-bold text-ai-primary mb-4 text-center">Neler Sunuyoruz?</h3>
+        <ul class="list-disc list-inside text-gray-700 text-lg mb-6">
+            <li><b>Yapay Zeka Destekli Panel:</b> Binlerce hisse ve veri kaynağını analiz eden, size en güçlü al/sat/bekle sinyallerini sunan akıllı bir yatırım asistanı.</li>
+            <li><b>Derin Pekiştirmeli Öğrenme (DRL):</b> Piyasaları bir oyun gibi öğrenen, yeni trendleri ve riskleri anında algılayan gelişmiş algoritma altyapısı.</li>
+            <li><b>Walk-Forward Optimizasyon (WFO):</b> Sinyallerin ve stratejilerin sürekli doğrulanmasını sağlayan, geçmişe değil geleceğe odaklanan test sistemi.</li>
+            <li><b>Trafik Işığı Basitliği:</b> Karmaşık analizleri sadeleştirerek, herkesin kolayca anlayabileceği net eylem önerileri sunar.</li>
+            <li><b>Kişiselleştirme & Risk Yönetimi:</b> Yatırım tarzınıza ve risk iştahınıza göre panelin önerileri anında uyum sağlar.</li>
+            <li><b>Şeffaflık & Güvenlik:</b> Tüm sinyaller geçmiş performans ve doğruluk oranı ile birlikte sunulur. Verileriniz gizli ve güvende tutulur.</li>
+            <li><b>Hızlı & Kolay Kullanım:</b> Web tabanlı panel ile herhangi bir cihazdan, teknik bilgiye gerek olmadan yatırım kararlarınızı yönetebilirsiniz.</li>
+        </ul>
+        <div class="text-gray-600 text-base text-center">
+            BrokeAI ile yatırım kararlarınızı bilimsel, hızlı ve güvenli şekilde alın. Sinyallerin arkasındaki teknolojiyi ve şeffaflığı her zaman görebilirsiniz. Lansman öncesi ön kayıt olarak ilk deneyenlerden biri olun!
+        </div>
+    </section>
+
+    <!-- Finansal Okuryazarlık & Sinyal Analizi Bölümü -->
+    <section class="max-w-3xl mx-auto py-10 px-4 bg-white rounded-2xl card-shadow-strong mb-10">
+        <h3 class="text-2xl font-bold text-ai-primary mb-4 text-center">Finansal Okuryazarlık & Sinyal Analizi</h3>
+        <!-- Örnek Sinyal Kartı: AAPL -->
+        <div class="mb-8 p-6 rounded-xl bg-ai-success/10 border-l-4 border-ai-success">
+            <div class="flex items-center mb-2">
+                <span class="font-bold text-ai-success text-lg mr-2">AAPL</span>
+                <span class="px-2 py-1 rounded bg-ai-success text-white text-xs font-semibold">AL</span>
+                <span class="ml-4 text-gray-600 text-sm">Risk/Ödül: <span title="Risk/Ödül oranı, kaybettiğiniz her 1 TL'ye karşılık kazanmayı hedeflediğiniz miktardır." class="underline decoration-dotted cursor-help">2.7</span></span>
+            </div>
+            <div class="text-gray-800 mb-2"><b>TL;DR:</b> Trend güçlü, momentum taze, HMM alımı destekliyor.</div>
+            <div class="text-gray-700 mb-2"><b>Detay:</b> 200 EMA üzerinde, RSI 65, volatilite normal.</div>
+            <div class="text-gray-700 mb-2"><b>İleri Analiz:</b> HMM bullish regime, DRL skoru 0.88, Kelly %5 öneriyor.</div>
+            <div class="mt-2">
+                <span class="inline-block px-3 py-1 rounded bg-ai-primary/10 text-ai-primary text-xs font-semibold mr-2" title="Trend: Fiyatın genel yönü.">Trend</span>
+                <span class="inline-block px-3 py-1 rounded bg-ai-neutral/10 text-ai-neutral text-xs font-semibold mr-2" title="Momentum: Fiyatın ivmesi.">Momentum</span>
+                <span class="inline-block px-3 py-1 rounded bg-ai-danger/10 text-ai-danger text-xs font-semibold" title="Volatilite: Fiyatın oynaklığı.">Volatilite</span>
+            </div>
+            <div class="mt-4">
+                <div class="p-3 rounded bg-ai-success/20 text-ai-success font-medium mb-2">Pozisyon Büyüklüğü Nasıl Ayarlanır? Kelly kriterine göre, portföyünüzün en fazla %5'i ile işlem önerilir.</div>
+                <div class="p-3 rounded bg-ai-primary/20 text-ai-primary font-medium mb-2">R/R Oranı Nedir? Risk/Ödül oranı, riskinizin 2.7 katı kadar kazanç potansiyeli sunar.</div>
+                <div class="p-3 rounded bg-ai-neutral/20 text-ai-neutral font-medium">AAPL neden AL? Apple, 200 EMA üzerinde güçlü trendde. Son 3 günde %2.5 yükseldi, hacim normalin 1.8 katı. HMM rejim analizi ‘bullish regime’ gösteriyor.</div>
+            </div>
+        </div>
+        <!-- Örnek Sinyal Kartı: MSFT -->
+        <div class="mb-8 p-6 rounded-xl bg-ai-danger/10 border-l-4 border-ai-danger">
+            <div class="flex items-center mb-2">
+                <span class="font-bold text-ai-danger text-lg mr-2">MSFT</span>
+                <span class="px-2 py-1 rounded bg-ai-danger text-white text-xs font-semibold">SAT</span>
+                <span class="ml-4 text-gray-600 text-sm">Risk/Ödül: <span title="Risk/Ödül oranı, kaybettiğiniz her 1 TL'ye karşılık kazanmayı hedeflediğiniz miktardır." class="underline decoration-dotted cursor-help">0.8</span></span>
+            </div>
+            <div class="text-gray-800 mb-2"><b>TL;DR:</b> Trend zayıf, momentum düşük, HMM satışı destekliyor.</div>
+            <div class="text-gray-700 mb-2"><b>Detay:</b> 50 EMA altı, RSI 40, volatilite yüksek.</div>
+            <div class="text-gray-700 mb-2"><b>İleri Analiz:</b> HMM bearish regime, DRL skoru 0.42, Kelly %2 öneriyor.</div>
+            <div class="mt-2">
+                <span class="inline-block px-3 py-1 rounded bg-ai-primary/10 text-ai-primary text-xs font-semibold mr-2" title="Trend: Fiyatın genel yönü.">Trend</span>
+                <span class="inline-block px-3 py-1 rounded bg-ai-neutral/10 text-ai-neutral text-xs font-semibold mr-2" title="Momentum: Fiyatın ivmesi.">Momentum</span>
+                <span class="inline-block px-3 py-1 rounded bg-ai-danger/10 text-ai-danger text-xs font-semibold" title="Volatilite: Fiyatın oynaklığı.">Volatilite</span>
+            </div>
+            <div class="mt-4">
+                <div class="p-3 rounded bg-ai-danger/20 text-ai-danger font-medium mb-2">Pozisyonu Kapatma Zamanı: Trend ve momentum zayıfsa, pozisyonu küçültmek veya tamamen kapatmak mantıklı olabilir.</div>
+                <div class="p-3 rounded bg-ai-primary/20 text-ai-primary font-medium mb-2">Volatilite Nedir? Fiyatın ne kadar oynak olduğunu gösterir. Yüksek volatilite, riskin ve fırsatın arttığı anlamına gelir.</div>
+                <div class="p-3 rounded bg-ai-neutral/20 text-ai-neutral font-medium">MSFT neden SAT? Microsoft, 50 EMA altına düştü. Momentum zayıf, RSI 40’ın altında. HMM rejim analizi ‘bearish regime’ sinyali verdi.</div>
+            </div>
+        </div>
+        <!-- Finansal Okuryazarlık Mini Sözlük -->
+        <div class="mt-8">
+            <h4 class="text-lg font-bold text-ai-primary mb-2">Mini Sözlük</h4>
+            <ul class="list-disc list-inside text-gray-700 text-base">
+                <li><b>Trend:</b> Fiyatın genel yönü.</li>
+                <li><b>Momentum:</b> Fiyatın ivmesi, hareketin gücü.</li>
+                <li><b>Volatilite:</b> Fiyatın oynaklığı, risk ve fırsat göstergesi.</li>
+                <li><b>Risk/Ödül Oranı:</b> Potansiyel kayıp ve kazanç arasındaki oran.</li>
+                <li><b>Stop-Loss:</b> Zararı sınırlayan otomatik satış noktası.</li>
+                <li><b>Take-Profit:</b> Kârı realize eden otomatik satış noktası.</li>
+            </ul>
+        </div>
+    </section>
+    <footer class="max-w-3xl mx-auto text-center py-8 border-t border-gray-200">
+        <p class="text-sm text-gray-500 mb-2">© 2025 BrokeAI. Tüm hakları saklıdır.</p>
+        <p class="text-xs text-gray-400">Yasal Uyarı: Bu bir finansal danışmanlık hizmeti değildir. Yatırım kararları kişisel risk analizinize göre verilmelidir.</p>
+    </footer>
+</body>
+</html>

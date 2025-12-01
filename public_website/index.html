@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FinPilot: AI-Powered Trading Cockpit. Manage risk, scan markets, and learn financial literacy with our advanced terminal.">
+    <meta name="keywords" content="trading, ai, finance, stock market, risk management, financial literacy">
+    <title>FinPilot - AI Powered Trading Cockpit</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">FinPilot</div>
+        <div class="nav-links">
+            <a href="index.html" data-i18n="nav_home">Home</a>
+            <a href="about.html" data-i18n="nav_about">About</a>
+            <a href="contact.html" data-i18n="nav_contact">Contact</a>
+            <select id="language-select" class="lang-select" title="Select Language">
+                <option value="en">EN</option>
+                <option value="tr">TR</option>
+                <option value="de">DE</option>
+            </select>
+        </div>
+        <a href="#beta" class="cta-button small" data-i18n="nav_early_access">Early Access</a>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1 data-i18n="hero_title">AI-Powered <span class="highlight">Trading Cockpit</span></h1>
+            <p data-i18n="hero_desc">Manage risk automatically, rank opportunities, and connect decisions to data. FinPilot turns complex market data into a clear roadmap for you.</p>
+            <div class="hero-buttons">
+                <a href="#beta" class="cta-button" data-i18n="hero_beta">Join Beta</a>
+                <a href="#features" class="secondary-button" data-i18n="hero_features">Explore Features</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="placeholder-image">
+                <div class="mockup-header">
+                    <div class="mockup-dot red"></div>
+                    <div class="mockup-dot yellow"></div>
+                    <div class="mockup-dot green"></div>
+                </div>
+                <div class="mockup-body">
+                    <div class="mockup-chart">
+                        <div class="candle down"></div>
+                        <div class="candle up"></div>
+                        <div class="candle down"></div>
+                        <div class="candle up"></div>
+                        <div class="candle up-long"></div>
+                        <div class="candle down"></div>
+                        <div class="candle up"></div>
+                    </div>
+                    <div class="mockup-sidebar">
+                        <div class="mockup-item"></div>
+                        <div class="mockup-item"></div>
+                        <div class="mockup-item"></div>
+                        <div class="mockup-item"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <h2 data-i18n="feat_title">Why FinPilot?</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon">⚡</div>
+                <h3 data-i18n="feat_1_title">Instant Scan Engine</h3>
+                <p data-i18n="feat_1_desc">Scans 500+ symbols in seconds with ML models. Liquid segments and momentum thresholds are automatically calibrated.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h3 data-i18n="feat_2_title">Risk Pilot Automation</h3>
+                <p data-i18n="feat_2_desc">Suggests lot sizes based on Kelly, ATR, and volatility limits. Automatically determines stop-loss & take-profit levels.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3 data-i18n="feat_3_title">Transparent Analytics</h3>
+                <p data-i18n="feat_3_desc">Metrics and data sources for every signal on a single card. Verify ideas quickly with sentiment & on-chain data.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="finsense" class="features">
+        <h2 data-i18n="fin_title">FinSense: Financial Literacy</h2>
+        <p class="section-desc" data-i18n="fin_desc">Don't just trade, learn. FinPilot explains the 'Why' behind every move.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon">🎓</div>
+                <h3 data-i18n="fin_1_title">Interactive Dictionary</h3>
+                <p data-i18n="fin_1_desc">Learn complex financial terms instantly while analyzing charts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🧠</div>
+                <h3 data-i18n="fin_2_title">Strategy Decoder</h3>
+                <p data-i18n="fin_2_desc">Understand how algorithms work with plain language explanations.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="beta" class="cta-section">
+        <h2 data-i18n="beta_title">Try the Future Financial Terminal First</h2>
+        <p data-i18n="beta_desc">Join a limited number of beta users and help us shape FinPilot.</p>
+        <form class="beta-form" id="betaForm" action="send_email.php" method="POST">
+            <input type="email" name="email" data-i18n="beta_placeholder" placeholder="Your email address" required>
+            <button type="submit" class="cta-button" data-i18n="beta_btn">Request Early Access</button>
+        </form>
+        <p class="form-success" id="formSuccess" data-i18n="form_success">Thanks! You've been added to the waitlist.</p>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+            <a href="terms.html" data-i18n="footer_terms">Terms of Use</a>
+        </div>
+        <p data-i18n="footer_rights">&copy; 2025 FinPilot. All rights reserved.</p>
+    </footer>
+    <script src="translations.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+symbol,price,score,regime,direction,atr,entry_ok,timestamp,stop_loss,take_profit,position_size,risk_reward,stop_loss_percent
+AAPL,230.02,0,True,True,0.564755,False,2025-09-11 19:45,228.89,232.28,177,2.0,0.49
+MSFT,501.2,0,True,False,1.097666,False,2025-09-11 19:45,499.0,505.59,91,2.0,0.44
+TSLA,368.795,0,True,True,2.131858,False,2025-09-11 19:45,364.53,377.32,46,2.0,1.16
+NVDA,177.09,0,True,True,0.554178,False,2025-09-11 19:45,175.98,179.31,180,2.0,0.63
+SPY,657.59,0,True,True,0.587155,False,2025-09-11 19:45,656.42,659.94,170,2.0,0.18

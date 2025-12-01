@@ -1,0 +1,6 @@
+pip-requirements
+stable-baselines3[extra]>=2.2,<3.0
+shimmy>=2.0,<3.0
+shap>=0.45,<0.46
+scikit-learn>=1.5,<1.6
+numpy>=1.26,<2.0

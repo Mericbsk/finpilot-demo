@@ -1,0 +1,15 @@
+{
+    "risk_score": 10,
+    "portfolio_size": 10000,
+    "max_loss_pct": 10,
+    "strategy": "Agresif",
+    "market": "NASDAQ",
+    "telegram_active": true,
+    "telegram_id": "",
+    "timeframe": "Günlük",
+    "indicators": {
+        "ema": true,
+        "rsi": false,
+        "atr": true
+    }
+}

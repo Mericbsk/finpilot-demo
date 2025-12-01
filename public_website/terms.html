@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kullanım Şartları - FinPilot</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .legal-content {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .legal-content h2 {
+            color: var(--primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .legal-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .legal-content ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+        .legal-content li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">FinPilot</div>
+        <div class="nav-links">
+            <a href="index.html" data-i18n="nav_home">Home</a>
+            <a href="about.html" data-i18n="nav_about">About</a>
+            <a href="contact.html" data-i18n="nav_contact">Contact</a>
+            <select id="language-select" class="lang-select" title="Select Language">
+                <option value="en">EN</option>
+                <option value="tr">TR</option>
+                <option value="de">DE</option>
+            </select>
+        </div>
+        <a href="index.html#beta" class="cta-button small" data-i18n="nav_early_access">Early Access</a>
+    </nav>
+
+    <div class="legal-content">
+        <h1 data-i18n="terms_title">Terms of Use</h1>
+        <p data-i18n="terms_date">Last Updated: October 20, 2025</p>
+
+        <h2 data-i18n="terms_accept_title">1. Acceptance</h2>
+        <p data-i18n="terms_accept_text">By using FinPilot services, you are deemed to have accepted these Terms of Use. If you do not agree to these terms, please do not use our services.</p>
+
+        <h2 data-i18n="terms_desc_title">2. Description of Service</h2>
+        <p data-i18n="terms_desc_text">FinPilot is a platform offering financial analysis and educational tools. The information we provide does not constitute investment advice.</p>
+
+        <h2 data-i18n="terms_user_title">3. User Responsibilities</h2>
+        <p data-i18n="terms_user_text">Users are responsible for account security and their actions on the platform. Misuse of the platform is prohibited.</p>
+
+        <h2 data-i18n="terms_disclaimer_title">4. Disclaimer</h2>
+        <p data-i18n="terms_disclaimer_text">FinPilot does not guarantee the accuracy or completeness of the data provided. You are solely responsible for your financial decisions.</p>
+
+        <h2 data-i18n="terms_changes_title">5. Changes</h2>
+        <p data-i18n="terms_changes_text">We may update these terms from time to time. Changes become effective on the date they are posted.</p>
+
+        <h2 data-i18n="terms_contact_title">6. Contact</h2>
+        <p data-i18n="terms_contact_text">For questions, please contact us at <a href="mailto:finpilot@finpilot.at" style="color: var(--primary);">finpilot@finpilot.at</a>.</p>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+            <a href="terms.html" class="active" data-i18n="footer_terms">Terms of Use</a>
+        </div>
+        <p data-i18n="footer_rights">&copy; 2025 FinPilot. All rights reserved.</p>
+    </footer>
+    <script src="translations.js"></script>
+</body>
+</html>

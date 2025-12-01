@@ -1,0 +1,6 @@
+symbol,price,score,regime,direction,atr,entry_ok,timestamp
+AAPL,230.02,0,True,True,0.564755,False,2025-09-11 19:45
+MSFT,501.2,0,True,False,1.097666,False,2025-09-11 19:45
+TSLA,368.795,0,True,True,2.131858,False,2025-09-11 19:45
+NVDA,177.09,0,True,True,0.554178,False,2025-09-11 19:45
+SPY,657.59,0,True,True,0.587155,False,2025-09-11 19:45

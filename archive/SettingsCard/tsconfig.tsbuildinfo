@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/advanceddropdown.tsx","./src/components/modetoggle.tsx","./src/components/notificationswitch.tsx","./src/components/portfolioinput.tsx","./src/components/riskslider.tsx","./src/components/settingscard.tsx","./src/store/settingsstore.ts","./src/types/settings.ts","./vite.config.ts"],"version":"5.9.3"}

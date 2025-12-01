@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  finpilot:
+    build: .
+    container_name: finpilot_app
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      - TZ=Europe/Istanbul
+      # API Key'leri buraya ekleyebilirsiniz veya .env dosyasından çekebilirsiniz
+      # - GOOGLE_API_KEY=your_key_here
+    volumes:
+      - ./data:/app/data  # Verilerin kalıcı olması için
+      - ./user_settings.json:/app/user_settings.json # Ayarların korunması için
