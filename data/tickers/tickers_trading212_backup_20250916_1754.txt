@@ -1,0 +1,12 @@
+# Trading 212 sembolleri (opsiyonel)
+# Her satıra bir sembol yazın. Örnekler:
+# AAPL
+# MSFT
+# TSLA
+#
+# Not: Buradaki semboller `tickers.txt` ile birleştirilir ve yinelenenler otomatik temizlenir.
+
+# Eklenenler (otomatik):
+TNGX
+WINA
+BETR

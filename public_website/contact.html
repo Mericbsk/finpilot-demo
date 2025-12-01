@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - FinPilot</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .contact-hero { min-height: 60vh; }
+        .contact-grid { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .contact-card { flex: 1; min-width: 300px; max-width: 400px; text-align: center; }
+        .contact-link { color: var(--primary-color); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">FinPilot</div>
+        <div class="nav-links">
+            <a href="index.html" data-i18n="nav_home">Home</a>
+            <a href="about.html" data-i18n="nav_about">About</a>
+            <a href="contact.html" class="active" data-i18n="nav_contact">Contact</a>
+            <select id="language-select" class="lang-select" title="Select Language">
+                <option value="en">EN</option>
+                <option value="tr">TR</option>
+                <option value="de">DE</option>
+            </select>
+        </div>
+        <a href="index.html#beta" class="cta-button small" data-i18n="nav_early_access">Early Access</a>
+    </nav>
+
+    <section class="hero contact-hero">
+        <div class="hero-content">
+            <h1 data-i18n="contact_title">Contact Us</h1>
+            <p data-i18n="contact_desc">Contact us for your questions, suggestions or collaborations.</p>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="feature-grid contact-grid">
+            <div class="feature-card contact-card">
+                <div class="icon">📧</div>
+                <h3 data-i18n="contact_email_title">Email</h3>
+                <p data-i18n="contact_email_desc">For general inquiries and support:</p>
+                <a href="mailto:finpilot@finpilot.at" class="contact-link">finpilot@finpilot.at</a>
+            </div>
+            
+            <div class="feature-card contact-card">
+                <div class="icon">💼</div>
+                <h3 data-i18n="contact_linkedin_title">LinkedIn</h3>
+                <p data-i18n="contact_linkedin_desc">To follow developments and join our network:</p>
+                <a href="#" class="contact-link">FinPilot LinkedIn</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+            <a href="terms.html" data-i18n="footer_terms">Terms of Use</a>
+        </div>
+        <p data-i18n="footer_rights">&copy; 2025 FinPilot. All rights reserved.</p>
+    </footer>
+    <script src="translations.js"></script>
+</body>
+</html>

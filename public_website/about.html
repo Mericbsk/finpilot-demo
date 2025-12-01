@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - FinPilot</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .about-hero { min-height: 60vh; }
+        .about-content { max-width: 800px; margin: 0 auto; text-align: center; }
+        .about-grid { max-width: 800px; margin: 0 auto; display: block; }
+        .about-card { margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">FinPilot</div>
+        <div class="nav-links">
+            <a href="index.html" data-i18n="nav_home">Home</a>
+            <a href="about.html" class="active" data-i18n="nav_about">About</a>
+            <a href="contact.html" data-i18n="nav_contact">Contact</a>
+            <select id="language-select" class="lang-select" title="Select Language">
+                <option value="en">EN</option>
+                <option value="tr">TR</option>
+                <option value="de">DE</option>
+            </select>
+        </div>
+        <a href="index.html#beta" class="cta-button small" data-i18n="nav_early_access">Early Access</a>
+    </nav>
+
+    <section class="hero about-hero">
+        <div class="hero-content about-content">
+            <h1 data-i18n="about_title">Our Story & Vision</h1>
+            <p data-i18n="about_desc">We set out to make financial freedom accessible to everyone.</p>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="feature-grid about-grid">
+            <div class="feature-card about-card">
+                <h3 data-i18n="about_feat_1_title">🚀 Journey Starting with Vibe Coding</h3>
+                <p data-i18n="about_feat_1_desc">FinPilot was born with the 'Vibe Coding' philosophy...</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 data-i18n="about_feat_2_title">👁️ Our Vision</h3>
+                <p data-i18n="about_feat_2_desc">In the future, every individual should have a personal 'Financial Autopilot'...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+            <a href="terms.html" data-i18n="footer_terms">Terms of Use</a>
+        </div>
+        <p data-i18n="footer_rights">&copy; 2025 FinPilot. All rights reserved.</p>
+    </footer>
+    <script src="translations.js"></script>
+</body>
+</html>

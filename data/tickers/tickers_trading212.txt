@@ -1,0 +1,6 @@
+# Trading 212 sembolleri (sade liste)
+# Not: Bu liste `tickers.txt` ile birleştirilir ve yinelenenler otomatik temizlenir.
+
+TNGX
+WINA
+BETR

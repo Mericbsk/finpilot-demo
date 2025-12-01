@@ -1,0 +1,183 @@
+# 🌐 Çekirdek 100 (Core 43 + 57 ekleme)
+# --- Core Tech / Growth (kept)
+ASST
+NVDA
+TSLA
+GOOGL
+META
+AMZN
+AAPL
+MSFT
+NFLX
+AMD
+SMCI
+AVGO
+ARM
+PLTR
+SNOW
+CRM
+ORCL
+ADBE
+NOW
+WDAY
+VEEV
+ZM
+OKTA
+FTNT
+NET
+DDOG
+MDB
+TEAM
+INTU
+ADP
+
+# --- High Vol / New Economy (kept)
+COIN
+RBLX
+CRWD
+ZS
+PANW
+ABNB
+UBER
+SHOP
+RIOT
+MARA
+MSTR
+SOFI
+RIVN
+LCID
+
+# --- Health / Pharma (kept)
+MRNA
+BNTX
+UNH
+JNJ
+PFE
+LLY
+MRK
+ABBV
+TMO
+DHR
+ISRG
+CVS
+
+# --- Banks (kept)
+JPM
+BAC
+GS
+WFC
+MS
+C
+SCHW
+
+# --- Energy / Renewables (kept)
+XOM
+CVX
+COP
+SLB
+OXY
+DVN
+EOG
+EQT
+FSLR
+ENPH
+
+# --- Fintech / Payments (kept)
+PYPL
+V
+MA
+AXP
+
+# --- ETFs (kept)
+SPY
+QQQ
+IWM
+DIA
+XLK
+XLF
+XLV
+XLE
+XLY
+XLI
+XLP
+XLB
+XLU
+XLC
+XLRE
+SMH
+SOXX
+
+# ================== 57 Additions (widely available) ==================
+# Tech / Semis
+INTC
+QCOM
+TXN
+MU
+ASML
+TSM
+SAP
+
+# Health / Staples
+AMGN
+GILD
+BMY
+REGN
+ZTS
+PG
+KO
+PEP
+
+# Financials
+BLK
+BK
+USB
+PNC
+
+# Energy / Utilities / Materials
+NEE
+DUK
+BP
+SHEL
+TOT
+RIO
+BHP
+VALE
+
+# Consumer / Discretionary
+COST
+WMT
+TGT
+HD
+LOW
+NKE
+MCD
+SBUX
+BKNG
+TJX
+ROST
+CMG
+PM
+MO
+
+# Industrials / Defense
+CAT
+DE
+GE
+BA
+LMT
+RTX
+NOC
+HON
+ETN
+
+# Telco / Infra
+VZ
+T
+CSCO
+
+# Intl ETFs / Bonds
+VNQ
+EFA
+EEM
+TLT
+HYG
