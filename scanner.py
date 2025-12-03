@@ -752,29 +752,48 @@ def evaluate_symbol(symbol, kelly_fraction=0.5):
     try:
         # Tüm timeframe verilerini çek (ana zaman dilimi 15m)
         df_15m = add_indicators(fetch(symbol, "15m", 10))
-        df_1h = add_indicators(fetch(symbol, "1h", 30))
-        df_4h = add_indicators(fetch(symbol, "4h", 60))
-        df_1d = add_indicators(fetch(symbol, "15m", 30))  # 1d yerine 15m, 30 gün (daha güncel)
+        df_1h = add_indicators(fetch(symbol, "1h", 60))
+        df_4h = add_indicators(fetch(symbol, "4h", 100))
+        df_1d = add_indicators(fetch(symbol, "1d", 400))  # GERÇEK GÜNLÜK VERİ (EMA200 için)
 
-        if len(df_15m) < 30 or len(df_1h) < 20 or len(df_4h) < 30 or len(df_1d) < 30:
-            print(f"[INFO] Yetersiz veri: {symbol} - 15m:{len(df_15m)}, 1h:{len(df_1h)}, 4h:{len(df_4h)}, 1d:{len(df_1d)}")
+        if len(df_15m) < 30 or len(df_1h) < 20 or len(df_4h) < 30 or len(df_1d) < 200:
+            # print(f"[INFO] Yetersiz veri: {symbol}") # Gürültüyü azaltmak için kapalı
             return None
 
-        # Temel trend kontrolü using scalar comparisons
+        # 1. AŞAMA: TREND FİLTRESİ (Daily Trend - SIKI MOD)
+        # Backtest'teki başarılı mantık: Fiyat > EMA200 VE Fiyat > EMA50
         try:
-            c1_val = safe_float(df_1d['Close'].iloc[-1])
-            e200_val = safe_float(df_1d['ema200'].iloc[-1])
-            regime = c1_val > e200_val
+            c_daily = safe_float(df_1d['Close'].iloc[-1])
+            e200_daily = safe_float(df_1d['ema200'].iloc[-1])
+            e50_daily = safe_float(df_1d['ema50'].iloc[-1])
+            
+            regime = (c_daily > e200_daily)
+            direction = (c_daily > e50_daily)
         except Exception:
             regime = False
-        try:
-            c4_val = safe_float(df_4h['Close'].iloc[-1])
-            e50_val = safe_float(df_4h['ema50'].iloc[-1])
-            direction = c4_val > e50_val
-        except Exception:
             direction = False
 
-        score = int(signal_score_row(df_15m))
+        # 2. AŞAMA: MOMENTUM VE HACİM SKORU (Daily - Backtest Mantığı)
+        # RSI 30-70, Vol > Avg*1.2, MACD > 0 & Rising
+        score = 0
+        try:
+            if len(df_1d) >= 2:
+                row = df_1d.iloc[-1]
+                prev = df_1d.iloc[-2]
+                
+                # RSI Sinyali (30-70 arası)
+                if 30 <= safe_float(row['rsi']) <= 70:
+                    score += 1
+                
+                # Hacim Sinyali (Ortalamadan %20 fazla)
+                if safe_float(row['Volume']) > safe_float(row['vol_med20']) * 1.2:
+                    score += 1
+                    
+                # MACD Sinyali (Pozitif ve Artan)
+                if safe_float(row['macd_hist']) > 0 and safe_float(row['macd_hist']) > safe_float(prev['macd_hist']):
+                    score += 1
+        except Exception:
+            score = 0
         last_price = df_15m['Close'].iloc[-1]
         atr_val = df_15m['atr'].iloc[-1]
 
@@ -832,26 +851,39 @@ def evaluate_symbol(symbol, kelly_fraction=0.5):
         momentum_confluence = bool(momentum_confluence)
         momentum_ratio = float(momentum_ratio or 0.0)
 
-        # 🎯 Sıkı filtre sistemi (Kullanıcı Ayarlarına Göre Dinamik)
-        # Daha gevşek sinyal mantığı
-        min_score_threshold = PARAMS["min_score"]
+        # 🎯 4 AŞAMALI FİLTRE (Backtest Onaylı Sistem)
+        # 1. Piyasa: Global filtre (Main loop'ta kontrol ediliyor)
+        # 2. Trend: Fiyat > EMA200 ve Fiyat > EMA50 (regime ve direction)
+        # 3. Momentum: Score >= 2 (RSI, MACD, Volume'den en az 2'si)
+        # 4. MTF: Ekstra onay (Zorunlu değil ama puanı artırır)
         
-        high_quality_signal = bool(
-            regime and direction and
-            (score >= min_score_threshold) and
-            (filter_score >= SETTINGS.get("min_filter_score", 1)) and
-            timeframe_aligned and
-            (alignment_ratio >= SETTINGS.get("min_alignment_ratio", 0.5)) and
-            momentum_confluence and
-            (momentum_ratio >= SETTINGS.get("min_momentum_ratio", 0.3))
-        )
-
-        # 💎 Premium semboller daha esnek
-        is_premium_symbol = symbol in ['SPY', 'QQQ', 'GOOGL', 'NVDA', 'AAPL', 'MSFT']
-        if is_premium_symbol:
-            entry_ok = bool(regime and direction and (score >= 1) and (filter_score >= 0))
+        # Backtest'te sadece Trend ve Score >= 2 yeterliydi.
+        # Canlı taramada MTF uyumunu da ekleyerek güvenliği artırıyoruz.
+        
+        min_score_threshold = 2 # Backtest'teki başarılı eşik
+        
+        # Temel Sinyal (Backtest Mantığı)
+        core_signal = bool(regime and direction and (score >= min_score_threshold))
+        
+        # MTF Onayı (Ekstra Güvenlik)
+        # Eğer MTF uyumu yoksa, sinyal kalitesi düşer ama trend çok güçlüyse (Score=3) yine de girilebilir.
+        mtf_ok = (alignment_ratio >= 0.66) # 3 zaman diliminden 2'si uyumlu
+        
+        if core_signal:
+            if score == 3:
+                # Tüm göstergeler (RSI, MACD, Vol) onaylıysa MTF'ye bakma, gir.
+                entry_ok = True
+            elif score == 2 and mtf_ok:
+                # 2 gösterge onaylıysa MTF onayı ara.
+                entry_ok = True
+            else:
+                entry_ok = False
         else:
-            entry_ok = bool(high_quality_signal)
+            entry_ok = False
+
+        # 💎 Premium semboller için esneklik (Opsiyonel, şimdilik kapalı tutalım, sistem disiplinli olsun)
+        is_premium_symbol = symbol in ['SPY', 'QQQ', 'GOOGL', 'NVDA', 'AAPL', 'MSFT']
+        high_quality_signal = entry_ok # For compatibility with return dict
 
         # 💧 Likidite filtresi (basit): fiyat ve 10g ort. hacim eşiği
         try:
@@ -883,7 +915,7 @@ def evaluate_symbol(symbol, kelly_fraction=0.5):
         risk_data = calculate_risk_management(
             price=safe_float(last_price),
             atr=safe_float(atr_val) if pd.notna(atr_val) else 0.01,
-            momentum_score=momentum_score
+            momentum_score=int(momentum_score)
         )
 
         # Alternatif veri ve rejim entegrasyonu

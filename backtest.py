@@ -178,6 +178,8 @@ class SimpleBacktest:
         # Endeks belirle
         if any(s.endswith('.IS') for s in symbols):
             self.index_symbol = 'XU100.IS'
+        elif any(s.endswith('.DE') for s in symbols):
+            self.index_symbol = '^GDAXI' # DAX Performance Index
         else:
             self.index_symbol = '^IXIC' # NASDAQ Composite
             
@@ -402,29 +404,30 @@ class SimpleBacktest:
             # Temel kontroller
             last_row = df_slice.iloc[-1]
             
-            # Trend kontrolü (200 EMA) - kullanılmıyor (gevşetildi)
-            # regime = safe_float(last_row['Close']) > safe_float(last_row['ema200'])
+            # Trend kontrolü (200 EMA) - SIKI MOD
+            regime = safe_float(last_row['Close']) > safe_float(last_row['ema200'])
             
-            # Yön kontrolü (50 EMA) - kullanılmıyor (gevşetildi)
-            # direction = safe_float(last_row['Close']) > safe_float(last_row['ema50'])
+            # Yön kontrolü (50 EMA) - SIKI MOD
+            direction = safe_float(last_row['Close']) > safe_float(last_row['ema50'])
             
             # Basit sinyal skoru
             score = 0
             if len(df_slice) >= 2:
                 prev_row = df_slice.iloc[-2]
                 
-                # RSI sinyali (daha gevşek 30–55)
-                if 30 <= safe_float(last_row['rsi']) <= 55:
+                # RSI sinyali (Metindeki kural: 30-70 arası)
+                if 30 <= safe_float(last_row['rsi']) <= 70:
                     self.debug_counts['score_rsi'] += 1
                     score += 1
                     
-                # Volume sinyali
+                # Volume sinyali (Metindeki kural: Ortalamadan %20 fazla)
                 if safe_float(last_row['Volume']) > safe_float(last_row['vol_med20']) * 1.2:
                     self.debug_counts['score_vol'] += 1
                     score += 1
                     
-                # MACD sinyali
-                if safe_float(last_row['macd_hist']) > safe_float(prev_row['macd_hist']):
+                # MACD sinyali (Metindeki kural: Pozitif ve Artan)
+                # Histogram > 0 (Pozitif bölge) VE Histogram > Önceki (Artışta)
+                if safe_float(last_row['macd_hist']) > 0 and safe_float(last_row['macd_hist']) > safe_float(prev_row['macd_hist']):
                     self.debug_counts['score_macd'] += 1
                     score += 1
             
@@ -485,8 +488,12 @@ class SimpleBacktest:
             
             filter_score = sum([volume_spike, price_momentum, trend_strength])
             
-            # Giriş koşulu (test için çok gevşek): Skor>=1 veya Filtre>=1
-            entry_ok = bool((score >= 1) or (filter_score >= 1))
+            # Giriş koşulu (4 AŞAMALI FİLTRE - BACKTEST VERSİYONU):
+            # 1. Trend Filtresi: Fiyat > EMA200 VE Fiyat > EMA50 (Kesin Şart)
+            # 2. Momentum/Hacim: Skor en az 2 olmalı (RSI, MACD veya Hacimden en az 2'si onay vermeli)
+            # Not: Backtest'te intraday verisi olmadığı için MTF (Aşama 4) yerine günlük trend gücüne bakıyoruz.
+            
+            entry_ok = bool(regime and direction and (score >= 2))
             
             if entry_ok:
                 self.debug_counts['entry_true'] += 1
