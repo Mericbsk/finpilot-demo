@@ -73,7 +73,12 @@ TRANSLATIONS = {
         "chart_title": "Technical View",
         "strong_buy": "STRONG BUY",
         "strong_sell": "STRONG SELL",
-        "hold": "HOLD"
+        "hold": "HOLD",
+        "chart_error": "Not enough data to display chart.",
+        "default_summary": "AI analysis is currently neutral for this stock.",
+        "default_catalyst": "No specific catalyst detected.",
+        "default_risk": "Standard market volatility applies.",
+        "tech_error": "Technical indicators could not be calculated."
     },
     "de": {
         "page_title": "FinPilot Global Demo",
@@ -148,7 +153,12 @@ TRANSLATIONS = {
         "chart_title": "Technische Ansicht",
         "strong_buy": "STARK KAUFEN",
         "strong_sell": "STARK VERKAUFEN",
-        "hold": "HALTEN"
+        "hold": "HALTEN",
+        "chart_error": "Nicht genügend Daten für das Diagramm.",
+        "default_summary": "Die KI-Analyse ist derzeit neutral für diese Aktie.",
+        "default_catalyst": "Kein spezifischer Katalysator erkannt.",
+        "default_risk": "Es gilt die übliche Marktvolatilität.",
+        "tech_error": "Technische Indikatoren konnten nicht berechnet werden."
     },
     "tr": {
         "page_title": "FinPilot Global Demo",
@@ -223,7 +233,12 @@ TRANSLATIONS = {
         "chart_title": "Teknik Görünüm",
         "strong_buy": "GÜÇLÜ AL",
         "strong_sell": "GÜÇLÜ SAT",
-        "hold": "TUT"
+        "hold": "TUT",
+        "chart_error": "Grafik için yeterli veri yok.",
+        "default_summary": "Bu hisse için AI analizi şu anda nötr.",
+        "default_catalyst": "Belirgin bir tetikleyici tespit edilmedi.",
+        "default_risk": "Standart piyasa volatilitesi geçerli.",
+        "tech_error": "Teknik indikatörler hesaplanamadı."
     }
 }
 
