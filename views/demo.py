@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 import plotly.graph_objects as go
+from views.translations import TRANSLATIONS, STOCK_INSIGHTS, ACADEMY_TERMS, DEFAULT_TERM
 
 @st.cache_data(ttl=300)
 def get_stock_history(symbol, period="6mo"):
@@ -222,22 +223,42 @@ def get_live_stock_data(symbols):
     return stock_data
 
 def render_demo_page():
-    st.markdown("""
+    # Language Selector
+    lang_options = {"English": "en", "Deutsch": "de", "Türkçe": "tr"}
+    
+    # Initialize session state for language if not exists
+    if 'language' not in st.session_state:
+        st.session_state.language = 'en'
+        
+    # Sidebar for language selection (or top right if preferred, but sidebar is cleaner)
+    with st.sidebar:
+        st.markdown("### 🌐 Language / Sprache / Dil")
+        selected_lang_label = st.selectbox(
+            "Select Language",
+            options=list(lang_options.keys()),
+            index=list(lang_options.values()).index(st.session_state.language)
+        )
+        st.session_state.language = lang_options[selected_lang_label]
+        
+    lang = st.session_state.language
+    t = TRANSLATIONS[lang]
+
+    st.markdown(f"""
     <div style='text-align: center; padding: 20px;'>
-        <h1 style='color: #00e6e6;'>🚀 FinPilot Global Demo</h1>
-        <p style='color: #cbd5f5; font-size: 1.2em;'>NASDAQ & S&P 500 Devleri İçin Yapay Zeka Analizi</p>
+        <h1 style='color: #00e6e6;'>{t["title"]}</h1>
+        <p style='color: #cbd5f5; font-size: 1.2em;'>{t["subtitle"]}</p>
     </div>
     """, unsafe_allow_html=True)
 
     # Live Data Fetching
-    with st.spinner('Canlı piyasa verileri alınıyor...'):
+    with st.spinner(t["loading_data"]):
         market_info = get_live_market_data()
         
-        symbols = ["NVDA", "TSLA", "AAPL", "AMD", "AMZN", "MSFT", "META", "GOOGL", "NFLX", "COIN"]
+        symbols = ["NVDA", "TSLA", "AAPL", "AMD", "AMZN", "MSFT", "META", "GOOGL", "NFLX", "JPM"]
         stock_info = get_live_stock_data(symbols)
 
     # --- Adım 1: Piyasa Nabzı ---
-    st.markdown("### 1. Küresel Piyasa Nabzı")
+    st.markdown(f"### {t['market_pulse']}")
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -245,24 +266,24 @@ def render_demo_page():
     with col2:
         st.metric(label="S&P 500", value=market_info["S&P 500"]["value"], delta=market_info["S&P 500"]["delta"])
     with col3:
-        st.metric(label="VIX (Korku Endeksi)", value=market_info["VIX"]["value"], delta=market_info["VIX"]["delta"], delta_color="inverse")
+        st.metric(label=t["vix_name"], value=market_info["VIX"]["value"], delta=market_info["VIX"]["delta"], delta_color="inverse")
     with col4:
-        st.metric(label="AI Risk İştahı", value="Yüksek", delta="Boğa")
+        st.metric(label=t["ai_risk"], value=t["risk_high"], delta=t["risk_bull"])
 
-    st.info("💡 **Yapay Zeka Yorumu:** Teknoloji sektörü öncülüğünde momentum güçlü. Düzeltmeler alım fırsatı olarak değerlendiriliyor.")
+    st.info(f"💡 **{t['ai_comment_title']}:** {t['ai_comment_text']}")
 
     st.markdown("---")
 
     # --- Adım 2: Fırsat Tarayıcı (Live Data) ---
-    st.markdown("### 2. Günün Öne Çıkan 10 Fırsatı")
-    st.write("FinPilot, Amerikan borsalarındaki en likit hisseleri tarayarak anlık fırsatları listeledi.")
+    st.markdown(f"### {t['scanner_title']}")
+    st.write(t['scanner_desc'])
 
     # Prepare DataFrame from live data
     demo_rows = []
     company_map = {
         "NVDA": "NVIDIA", "TSLA": "Tesla", "AAPL": "Apple", "AMD": "AMD", 
         "AMZN": "Amazon", "MSFT": "Microsoft", "META": "Meta", 
-        "GOOGL": "Alphabet", "NFLX": "Netflix", "COIN": "Coinbase"
+        "GOOGL": "Alphabet", "NFLX": "Netflix", "JPM": "JPMorgan"
     }
     
     for sym in symbols:
@@ -270,27 +291,47 @@ def render_demo_page():
         default_data = {"price": 0, "change": 0, "score": 50, "signal": "NÖTR", "trend": "-"}
         data = stock_info.get(sym, default_data)
         
+        # Translate signal if possible, or keep as is if it comes from backend (backend returns TR currently)
+        # Ideally backend should return code, but for now let's map simple ones if needed or just display
+        # The backend `calculate_ai_score` returns TR strings. We might want to map them.
+        # For now, let's keep it simple and maybe map the column headers.
+        
+        # Mapping signals for display
+        signal_map = {
+            "GÜÇLÜ AL": t["strong_buy"],
+            "AL": t["buy"],
+            "NÖTR": t["neutral"],
+            "SAT": t["sell"],
+            "GÜÇLÜ SAT": t["strong_sell"],
+            "TUT": t["hold"]
+        }
+        display_signal = signal_map.get(data["signal"], data["signal"])
+
         demo_rows.append({
-            "Sembol": sym,
-            "Şirket": company_map.get(sym, sym),
-            "Fiyat": f"${data['price']:.2f}",
-            "Değişim": f"%{data['change']:.2f}",
-            "AI Skoru": data["score"],
-            "Sinyal": data["signal"],
-            "Trend": data["trend"]
+            t["col_symbol"]: sym,
+            t["col_company"]: company_map.get(sym, sym),
+            t["col_price"]: f"${data['price']:.2f}",
+            t["col_change"]: f"%{data['change']:.2f}",
+            t["col_score"]: data["score"],
+            t["col_signal"]: display_signal,
+            t["col_trend"]: data["trend"]
         })
 
     df_demo = pd.DataFrame(demo_rows)
     
     st.dataframe(df_demo, use_container_width=True, hide_index=True)
 
-    selected_symbol = st.selectbox("Detaylı analiz için bir hisse seçin:", df_demo["Sembol"].tolist())
-    selected_data = df_demo[df_demo["Sembol"] == selected_symbol].iloc[0]
+    selected_symbol = st.selectbox(t["select_stock"], df_demo[t["col_symbol"]].tolist())
+    # We need to find the original symbol from the selected row (which might have translated headers)
+    # But the selectbox uses the column values, which are symbols (e.g. NVDA), so it's fine.
+    
+    # However, to get the data back from df_demo, we need to use the translated column name
+    selected_data = df_demo[df_demo[t["col_symbol"]] == selected_symbol].iloc[0]
 
     st.markdown("---")
 
     # --- Adım 3: Detaylı Analiz (Enhanced) ---
-    st.markdown(f"### 3. {selected_symbol} - Yapay Zeka Derinlemesine Analiz")
+    st.markdown(f"### 3. {selected_symbol} - {t['analysis_title']}")
 
     # Layout: Left (Chart & Tech), Right (AI Logic & Trade Setup)
     col_main, col_side = st.columns([2, 1])
@@ -329,8 +370,8 @@ def render_demo_page():
             ))
 
             fig.update_layout(
-                title=f"{selected_symbol} - Teknik Görünüm",
-                yaxis_title="Fiyat ($)",
+                title=f"{selected_symbol} - {t['chart_title']}",
+                yaxis_title=t["col_price"],
                 xaxis_rangeslider_visible=False,
                 height=400,
                 margin=dict(l=0, r=0, t=30, b=0),
@@ -340,106 +381,58 @@ def render_demo_page():
             )
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.warning("Grafik verisi yüklenemedi.")
+            st.warning(t["chart_error"])
         
-        st.markdown("#### 🧠 FinPilot AI Derin Analiz Raporu")
+        st.markdown(f"#### 🧠 {t['report_title']}")
         
         # Genişletilmiş AI Yorum Mantığı
-        ai_insights = {
-            "NVDA": {
-                "summary": "Yapay zeka çiplerine olan talep patlaması, veri merkezi gelirlerini rekor seviyelere taşıyor. Sektör lideri konumu korunuyor.",
-                "catalyst": "Kurumsal 'Smart Money' girişi son 2 haftada %15 arttı. Yeni Blackwell çip serisi beklentisi fiyatlanıyor.",
-                "risk": "Aşırı değerleme (High Valuation) riski mevcut. $120 altı kapanışlarda kar realizasyonu hızlanabilir."
-            },
-            "TSLA": {
-                "summary": "Elektrikli araç pazarındaki fiyat rekabetine rağmen, otonom sürüş (FSD) ve robotik projeleri uzun vadeli hikayeyi canlı tutuyor.",
-                "catalyst": "$220-$230 bandında güçlü bir 'Toplama' (Accumulation) sinyali tespit edildi. RSI pozitif uyumsuzluk gösteriyor.",
-                "risk": "Kısa vadeli kar marjı baskıları devam ediyor. Volatilite yüksek, stop seviyelerine sadık kalınmalı."
-            },
-            "AAPL": {
-                "summary": "Hizmet gelirlerindeki artış ve ekosistem gücü hisseyi defansif bir liman yapıyor. Vision Pro ve AI entegrasyonu yeni büyüme alanı.",
-                "catalyst": "Geri alım programı (Buyback) hisse başına karı destekliyor. $210 seviyesi kurumsal alıcılar için güçlü destek.",
-                "risk": "Çin pazarındaki satışların yavaşlaması ve antitröst davaları baskı yaratabilir."
-            },
-            "AMD": {
-                "summary": "Nvidia'nın en güçlü rakibi olarak MI300 çipleriyle pazar payı kapma mücadelesinde. Veri merkezi yatırımları AMD'ye kayıyor.",
-                "catalyst": "Teknik olarak düşen trend kırılımı gerçekleşti. Hacimli yükseliş boğa tuzağı olmadığını teyit ediyor.",
-                "risk": "Yarı iletken sektöründeki genel bir satış dalgası hisseyi sert etkileyebilir."
-            },
-            "AMZN": {
-                "summary": "AWS bulut gelirlerindeki istikrar ve e-ticaret tarafındaki verimlilik artışı karlılığı destekliyor.",
-                "catalyst": "Yapay zeka odaklı veri merkezi yatırımları uzun vadeli büyümeyi garantiliyor. $180 direnci hacimli geçildi.",
-                "risk": "Tüketici harcamalarındaki olası bir yavaşlama perakende kanadını baskılayabilir."
-            },
-            "MSFT": {
-                "summary": "Copilot yapay zeka asistanının ofis ürünlerine entegrasyonu, yazılım gelirlerinde yeni bir döngü başlattı.",
-                "catalyst": "Azure bulut büyümesi beklentilerin üzerinde. Kurumsal talep güçlü kalmaya devam ediyor.",
-                "risk": "Düzenleyici kurumların (Regülasyon) yapay zeka üzerindeki baskısı artabilir."
-            },
-            "META": {
-                "summary": "Reklam gelirlerindeki toparlanma ve 'Verimlilik Yılı' stratejisi bilançoyu güçlendirdi.",
-                "catalyst": "Yapay zeka destekli reklam hedefleme algoritmaları dönüşüm oranlarını artırıyor. F/K oranı hala makul seviyede.",
-                "risk": "Metaverse harcamalarının karlılık üzerindeki baskısı yatırımcıları endişelendirebilir."
-            },
-            "GOOGL": {
-                "summary": "Arama motoru hakimiyeti ve Gemini AI modelindeki gelişmeler rekabet gücünü koruyor.",
-                "catalyst": "YouTube reklam gelirleri ve Cloud büyümesi pozitif sürpriz yapabilir. Hisse geri alım programı destekleyici.",
-                "risk": "Yapay zeka tabanlı arama rekabeti (ChatGPT vb.) pazar payı kaybı riski yaratıyor."
-            },
-            "NFLX": {
-                "summary": "Şifre paylaşımı kısıtlamasının başarısı ve reklamlı abonelik modeli abone sayısını artırıyor.",
-                "catalyst": "İçerik kütüphanesinin gücü ve global büyüme, nakit akışını (Free Cash Flow) pozitif etkiliyor.",
-                "risk": "İçerik üretim maliyetlerinin artması ve yayıncılık sektöründeki doygunluk."
-            },
-            "COIN": {
-                "summary": "Kripto para piyasasındaki boğa döngüsü ve ETF onayları işlem hacimlerini patlattı.",
-                "catalyst": "Bitcoin fiyatındaki yükselişle doğrudan korelasyon gösteriyor. Kurumsal saklama hizmetleri geliri artıyor.",
-                "risk": "SEC ile devam eden yasal süreçler ve kripto piyasasındaki ani sert düşüşler."
-            }
-        }
+        # Use imported STOCK_INSIGHTS
+        current_insights = STOCK_INSIGHTS.get(lang, STOCK_INSIGHTS['en'])
 
         # Seçilen sembol için insight al, yoksa varsayılanı kullan
         default_insight = {
-            "summary": f"{selected_symbol} hissesinde yükseliş trendi momentum kazanıyor. Sektörel rotasyon bu hisse lehine dönüyor.",
-            "catalyst": "Hacim osilatörleri ve trend göstergeleri uyumlu bir 'AL' sinyali üretiyor.",
-            "risk": "Piyasa genelindeki olası bir düzeltmede beta katsayısı yüksek olduğu için sert tepki verebilir."
+            "summary": f"{selected_symbol} {t['default_summary']}",
+            "catalyst": t['default_catalyst'],
+            "risk": t['default_risk']
         }
         
         if selected_symbol:
-            insight = ai_insights.get(selected_symbol, default_insight)
+            insight = current_insights.get(selected_symbol, default_insight)
         else:
             insight = default_insight
 
         # Tabs for detailed analysis
-        tab1, tab2, tab3 = st.tabs(["📋 AI Strateji Özeti", "📈 Teknik Sinyaller", "🌍 Temel & Sentiment"])
+        tab1, tab2, tab3 = st.tabs([t["tab_strategy"], t["tab_tech"], t["tab_fund"]])
 
         with tab1:
             # Daha görsel ve yapılandırılmış AI yorumu
             st.markdown(f"""
             <div style="background-color: rgba(0, 230, 230, 0.05); padding: 15px; border-radius: 10px; border-left: 5px solid #00e6e6; margin-bottom: 15px;">
-                <strong style="color: #00e6e6; font-size: 1.1em;">🤖 Ana Senaryo:</strong><br>
+                <strong style="color: #00e6e6; font-size: 1.1em;">🤖 {t['main_scenario']}:</strong><br>
                 <span style="color: #cbd5f5;">{insight['summary']}</span>
             </div>
             """, unsafe_allow_html=True)
             
             col_i1, col_i2 = st.columns(2)
             with col_i1:
-                st.info(f"**🚀 Tetikleyici (Catalyst):**\n\n{insight['catalyst']}")
+                st.info(f"**🚀 {t['catalyst']}:**\n\n{insight['catalyst']}")
             with col_i2:
-                st.warning(f"**⚠️ Risk Faktörü:**\n\n{insight['risk']}")
+                st.warning(f"**⚠️ {t['risk_factor']}:**\n\n{insight['risk']}")
 
             st.markdown("---")
             
             c1, c2 = st.columns(2)
             with c1:
-                st.markdown("**🔑 Kritik Destek Seviyeleri**")
-                price_val = float(selected_data['Fiyat'].replace('$','').replace(',',''))
-                st.write(f"1. Destek: ${(price_val * 0.98):.2f}")
-                st.write(f"2. Destek: ${(price_val * 0.95):.2f}")
+                st.markdown(f"**🔑 {t['support_levels']}**")
+                # Clean price string to float
+                price_str = str(selected_data[t['col_price']]).replace('$','').replace(',','')
+                price_val = float(price_str)
+                st.write(f"1. {t['support']}: ${(price_val * 0.98):.2f}")
+                st.write(f"2. {t['support']}: ${(price_val * 0.95):.2f}")
             with c2:
-                st.markdown("**🚀 Kritik Direnç Seviyeleri**")
-                st.write(f"1. Direnç: ${(price_val * 1.05):.2f}")
-                st.write(f"2. Direnç: ${(price_val * 1.10):.2f}")
+                st.markdown(f"**🚀 {t['resistance_levels']}**")
+                st.write(f"1. {t['resistance']}: ${(price_val * 1.05):.2f}")
+                st.write(f"2. {t['resistance']}: ${(price_val * 1.10):.2f}")
 
         with tab2:
             if df_tech is not None:
@@ -448,97 +441,70 @@ def render_demo_page():
                 sma50_val = last_row['SMA50']
                 price_val = last_row['Close']
                 
-                rsi_signal = "AŞIRI ALIM (SAT)" if rsi_val > 70 else "AŞIRI SATIM (AL)" if rsi_val < 30 else "NÖTR"
-                sma_signal = "AL (Trend Pozitif)" if price_val > sma50_val else "SAT (Trend Negatif)"
+                rsi_signal = t["sig_overbought"] if rsi_val > 70 else t["sig_oversold"] if rsi_val < 30 else t["sig_neutral"]
+                sma_signal = t["sig_trend_pos"] if price_val > sma50_val else t["sig_trend_neg"]
                 
                 tech_data = {
-                    "İndikatör": ["RSI (14)", "SMA (50)", "Bollinger Bantları", "Momentum"],
-                    "Değer": [f"{rsi_val:.1f}", f"${sma50_val:.2f}", "Bandın İçinde", "Pozitif"],
-                    "Sinyal": [rsi_signal, sma_signal, "NÖTR", "AL"]
+                    t["tech_indicator"]: ["RSI (14)", "SMA (50)", t["tech_bb"], t["tech_mom"]],
+                    t["tech_value"]: [f"{rsi_val:.1f}", f"${sma50_val:.2f}", t["val_inside"], t["val_positive"]],
+                    t["tech_signal"]: [rsi_signal, sma_signal, t["sig_neutral"], t["sig_buy"]]
                 }
                 st.table(pd.DataFrame(tech_data))
             else:
-                st.write("Teknik veriler hesaplanamadı.")
+                st.write(t["tech_error"])
         
         with tab3:
             col_s1, col_s2 = st.columns(2)
             with col_s1:
-                st.metric("Haber Duyarlılığı", "Pozitif", "+0.8")
-                st.caption("Son 24 saatteki 150+ haber kaynağı tarandı.")
+                st.metric(t["news_sentiment"], t["positive"], "+0.8")
+                st.caption(t["news_desc"])
             with col_s2:
-                st.metric("Sosyal Medya Hacmi", "Yüksek", "+%12")
-                st.caption("Twitter ve Reddit üzerindeki tartışma yoğunluğu.")
+                st.metric(t["social_vol"], t["high"], "+%12")
+                st.caption(t["social_desc"])
             
-            st.markdown("**📊 Temel Çarpanlar**")
-            st.progress(0.85, text="Büyüme Skoru: 8.5/10")
-            st.progress(0.70, text="Karlılık Skoru: 7.0/10")
+            st.markdown(f"**📊 {t['fund_multiples']}**")
+            st.progress(0.85, text=f"{t['growth_score']}: 8.5/10")
+            st.progress(0.70, text=f"{t['profit_score']}: 7.0/10")
 
     with col_side:
+        # Clean price for calculation
+        price_str = str(selected_data[t['col_price']]).replace('$','').replace(',','')
+        price_val = float(price_str)
+        
         st.markdown(f"""
         <div style='background-color: rgba(30, 41, 59, 0.8); padding: 20px; border-radius: 15px; border: 1px solid #334155;'>
-            <h2 style='color: #00e6e6; margin-top:0;'>{selected_data['Sinyal']}</h2>
-            <div style='font-size: 4em; font-weight: bold; color: #f8fafc;'>{selected_data['AI Skoru']}</div>
-            <div style='color: #94a3b8;'>/ 100 AI Skoru</div>
+            <h2 style='color: #00e6e6; margin-top:0;'>{selected_data[t['col_signal']]}</h2>
+            <div style='font-size: 4em; font-weight: bold; color: #f8fafc;'>{selected_data[t['col_score']]}</div>
+            <div style='color: #94a3b8;'>/ 100 {t['col_score']}</div>
             <hr style='border-color: #475569;'>
             <div style='margin-bottom: 10px;'>
-                <span style='color: #cbd5f5;'>🎯 Hedef Fiyat:</span>
-                <span style='float: right; color: #4ade80; font-weight: bold;'>${(float(selected_data['Fiyat'].replace('$','')) * 1.15):.2f}</span>
+                <span style='color: #cbd5f5;'>🎯 {t['target_price']}:</span>
+                <span style='float: right; color: #4ade80; font-weight: bold;'>${(price_val * 1.15):.2f}</span>
             </div>
             <div style='margin-bottom: 10px;'>
-                <span style='color: #cbd5f5;'>🛡️ Stop Loss:</span>
-                <span style='float: right; color: #f87171; font-weight: bold;'>${(float(selected_data['Fiyat'].replace('$','')) * 0.95):.2f}</span>
+                <span style='color: #cbd5f5;'>🛡️ {t['stop_loss']}:</span>
+                <span style='float: right; color: #f87171; font-weight: bold;'>${(price_val * 0.95):.2f}</span>
             </div>
             <div style='margin-top: 20px;'>
-                <button style='width: 100%; background-color: #00e6e6; color: #0f172a; border: none; padding: 10px; border-radius: 5px; font-weight: bold;'>İşlem Planını Kopyala</button>
+                <button style='width: 100%; background-color: #00e6e6; color: #0f172a; border: none; padding: 10px; border-radius: 5px; font-weight: bold;'>{t['copy_plan']}</button>
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        st.info("Bu analiz son 15 dakikadaki piyasa verilerine dayanmaktadır.")
+        st.info(t["data_disclaimer"])
 
     # --- Adım 4: FinSense Entegrasyonu (Contextual) ---
     st.markdown("---")
-    st.markdown("### 4. 🎓 FinSense Akademi: Yatırımcı IQ'nuzu Yükseltin")
+    st.markdown(f"### 4. 🎓 {t['academy_title']}")
     
-    term_map = {
-        "NVDA": {
-            "term": "Volatilite (Oynaklık)",
-            "desc": "Fiyatların belirli bir sürede ne kadar hızlı ve sert değiştiğinin ölçüsüdür.",
-            "why": "Yüksek volatilite risk demektir ama profesyoneller için büyük kazanç fırsatıdır. Acemi yatırımcıyı panikletir, profesyoneli zengin eder.",
-            "pro_tip": "FinPilot'un 'Regime Detection' modülü, volatilitenin ne zaman tehlikeli, ne zaman fırsat olduğunu ayırt eder."
-        },
-        "TSLA": {
-            "term": "Momentum",
-            "desc": "Bir hissenin fiyat değişim hızıdır. Bir arabanın ivmesi gibidir.",
-            "why": "Güçlü momentum, trendin devam etme olasılığını artırır. Trendin tersine işlem açmak (ayı tuzağı) en büyük hatadır.",
-            "pro_tip": "FinPilot, momentumun zayıfladığı ve trendin döneceği 'kritik anları' yapay zeka ile tespit eder."
-        },
-        "AAPL": {
-            "term": "Defansif Büyüme",
-            "desc": "Hem güvenli liman olup hem de büyümeye devam edebilen nadir şirket yapısıdır.",
-            "why": "Piyasa çökerken portföyünüzü korur, yükselirken getiri sağlar. Her portföyün sigortasıdır.",
-            "pro_tip": "FinPilot, portföyünüzdeki 'Riskli' ve 'Güvenli' hisse dengesini otomatik olarak optimize eder."
-        },
-        "COIN": {
-            "term": "Korelasyon",
-            "desc": "İki farklı varlığın (örn. Bitcoin ve Coinbase) fiyat hareketlerinin birbirine benzerliğidir.",
-            "why": "Eğer portföyünüzde hem Bitcoin hem COIN varsa, aslında aynı riski iki kere almış olursunuz.",
-            "pro_tip": "FinPilot, portföyünüzdeki 'Gizli Riskleri' ve korelasyonları tarayarak sizi uyarır."
-        }
-    }
-    
-    default_term = {
-        "term": "Trend Takibi",
-        "desc": "Fiyatların genel yönünü (Yükseliş, Düşüş veya Yatay) analiz etme yöntemidir.",
-        "why": "'Trend senin dostundur.' Borsada para kaybetmenin en kolay yolu inatlaşmak, kazanmanın yolu ise akıntıya uyum sağlamaktır.",
-        "pro_tip": "İnsanlar duygusaldır, FinPilot ise matematiktir. Algoritmalarımız trendi duygusuzca takip eder."
-    }
+    # Use imported ACADEMY_TERMS
+    current_terms = ACADEMY_TERMS.get(lang, ACADEMY_TERMS['en'])
     
     # Ensure selected_symbol is not None before accessing dictionary
     if selected_symbol:
-        term_data = term_map.get(selected_symbol, default_term)
+        term_data = current_terms.get(selected_symbol, DEFAULT_TERM[lang])
     else:
-        term_data = default_term
+        term_data = DEFAULT_TERM[lang]
 
     with st.container():
         col_edu_1, col_edu_2 = st.columns([1, 2])
@@ -552,25 +518,25 @@ def render_demo_page():
             """, unsafe_allow_html=True)
             
         with col_edu_2:
-            st.info(f"💡 **Neden Önemli?**\n\n{term_data['why']}")
-            st.success(f"🚀 **FinPilot Farkı:**\n\n{term_data['pro_tip']}")
+            st.info(f"💡 **{t['why_important']}**\n\n{term_data['why']}")
+            st.success(f"🚀 **{t['finpilot_diff']}**\n\n{term_data['pro_tip']}")
 
     # --- Adım 5: Call to Action ---
     st.markdown("---")
-    st.markdown("""
+    st.markdown(f"""
     <div style='background: linear-gradient(90deg, rgba(15,23,42,1) 0%, rgba(30,41,59,1) 100%); padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #334155;'>
-        <h2 style='color: #f8fafc;'>Profesyonel Yatırımcı Gibi Analiz Edin</h2>
+        <h2 style='color: #f8fafc;'>{t['cta_title']}</h2>
         <p style='color: #cbd5f5; font-size: 1.1em; max-width: 600px; margin: 0 auto 20px auto;'>
-            FinPilot'un tam sürümü ile BIST, NASDAQ ve Kripto piyasalarında 1000+ varlığı tarayın, kendi stratejilerinizi oluşturun ve riskinizi yönetin.
+            {t['cta_desc']}
         </p>
         <div style='display: flex; justify-content: center; gap: 20px;'>
-            <button style='background-color: #00e6e6; color: #0f172a; border: none; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>Ücretsiz Başla</button>
-            <button style='background-color: transparent; color: #00e6e6; border: 2px solid #00e6e6; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>Özellikleri İncele</button>
+            <button style='background-color: #00e6e6; color: #0f172a; border: none; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t['btn_start']}</button>
+            <button style='background-color: transparent; color: #00e6e6; border: 2px solid #00e6e6; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t['btn_explore']}</button>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
     st.write("")
-    if st.button("⬅️ Ana Panele Dön"):
+    if st.button(f"⬅️ {t['btn_back']}"):
         st.session_state.show_demo = False
         st.rerun()

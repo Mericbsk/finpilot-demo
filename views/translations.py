@@ -1,0 +1,505 @@
+
+TRANSLATIONS = {
+    "en": {
+        "page_title": "FinPilot Global Demo",
+        "subtitle": "AI Analysis for NASDAQ & S&P 500 Giants",
+        "market_pulse": "Global Market Pulse",
+        "vix_name": "VIX (Fear Index)",
+        "ai_risk": "AI Risk Appetite",
+        "risk_high": "High",
+        "risk_bull": "Bullish",
+        "ai_comment_title": "AI Comment",
+        "ai_comment_text": "Momentum is strong led by the tech sector. Corrections are viewed as buying opportunities.",
+        "scanner_title": "Top 10 Opportunities of the Day",
+        "scanner_desc": "FinPilot scanned the most liquid stocks in US markets to list instant opportunities.",
+        "col_symbol": "Symbol",
+        "col_company": "Company",
+        "col_price": "Price",
+        "col_change": "Change",
+        "col_score": "AI Score",
+        "col_signal": "Signal",
+        "col_trend": "Trend",
+        "select_stock": "Select a stock for detailed analysis:",
+        "analysis_title": "AI Deep Dive Analysis",
+        "report_title": "FinPilot AI Deep Analysis Report",
+        "tab_strategy": "AI Strategy Summary",
+        "tab_tech": "Technical Signals",
+        "tab_fund": "Fundamental & Sentiment",
+        "main_scenario": "Main Scenario",
+        "catalyst": "Catalyst",
+        "risk_factor": "Risk Factor",
+        "support_levels": "Critical Support Levels",
+        "resistance_levels": "Critical Resistance Levels",
+        "support": "Support",
+        "resistance": "Resistance",
+        "tech_indicator": "Indicator",
+        "tech_value": "Value",
+        "tech_signal": "Signal",
+        "tech_rsi": "RSI (14)",
+        "tech_sma": "SMA (50)",
+        "tech_bb": "Bollinger Bands",
+        "tech_mom": "Momentum",
+        "val_inside": "Inside Band",
+        "val_positive": "Positive",
+        "sig_overbought": "OVERBOUGHT (SELL)",
+        "sig_oversold": "OVERSOLD (BUY)",
+        "sig_neutral": "NEUTRAL",
+        "sig_buy": "BUY",
+        "sig_sell": "SELL",
+        "sig_trend_pos": "BUY (Positive Trend)",
+        "sig_trend_neg": "SELL (Negative Trend)",
+        "news_sentiment": "News Sentiment",
+        "positive": "Positive",
+        "news_desc": "Scanned 150+ news sources in last 24h.",
+        "social_vol": "Social Media Volume",
+        "high": "High",
+        "social_desc": "Discussion intensity on Twitter and Reddit.",
+        "fund_multiples": "Fundamental Multiples",
+        "growth_score": "Growth Score",
+        "profit_score": "Profitability Score",
+        "target_price": "Target Price",
+        "stop_loss": "Stop Loss",
+        "copy_plan": "Copy Trading Plan",
+        "data_disclaimer": "This analysis is based on market data from the last 15 minutes.",
+        "academy_title": "FinSense Academy: Boost Your Investor IQ",
+        "why_important": "Why it matters?",
+        "finpilot_diff": "FinPilot Difference",
+        "cta_title": "Analyze Like a Pro",
+        "cta_desc": "Scan 1000+ assets in BIST and NASDAQ markets with FinPilot full version, create your own strategies and manage your risk.",
+        "btn_start": "Start for Free",
+        "btn_explore": "Explore Features",
+        "btn_back": "Back to Main Panel",
+        "loading_data": "Fetching live market data...",
+        "chart_title": "Technical View",
+        "strong_buy": "STRONG BUY",
+        "strong_sell": "STRONG SELL",
+        "hold": "HOLD"
+    },
+    "de": {
+        "page_title": "FinPilot Global Demo",
+        "subtitle": "KI-Analyse für NASDAQ & S&P 500 Giganten",
+        "market_pulse": "Globaler Marktpuls",
+        "vix_name": "VIX (Angstindex)",
+        "ai_risk": "KI-Risikoappetit",
+        "risk_high": "Hoch",
+        "risk_bull": "Bullisch",
+        "ai_comment_title": "KI-Kommentar",
+        "ai_comment_text": "Das Momentum ist stark, angeführt vom Technologiesektor. Korrekturen werden als Kaufgelegenheiten gesehen.",
+        "scanner_title": "Top 10 Chancen des Tages",
+        "scanner_desc": "FinPilot hat die liquidesten Aktien der US-Märkte gescannt, um sofortige Chancen aufzulisten.",
+        "col_symbol": "Symbol",
+        "col_company": "Unternehmen",
+        "col_price": "Preis",
+        "col_change": "Änderung",
+        "col_score": "KI-Score",
+        "col_signal": "Signal",
+        "col_trend": "Trend",
+        "select_stock": "Wählen Sie eine Aktie für eine detaillierte Analyse:",
+        "analysis_title": "KI-Tiefenanalyse",
+        "report_title": "FinPilot KI-Tiefenanalysebericht",
+        "tab_strategy": "KI-Strategie-Zusammenfassung",
+        "tab_tech": "Technische Signale",
+        "tab_fund": "Fundamental & Stimmung",
+        "main_scenario": "Hauptszenario",
+        "catalyst": "Katalysator",
+        "risk_factor": "Risikofaktor",
+        "support_levels": "Kritische Unterstützungsniveaus",
+        "resistance_levels": "Kritische Widerstandsniveaus",
+        "support": "Unterstützung",
+        "resistance": "Widerstand",
+        "tech_indicator": "Indikator",
+        "tech_value": "Wert",
+        "tech_signal": "Signal",
+        "tech_rsi": "RSI (14)",
+        "tech_sma": "SMA (50)",
+        "tech_bb": "Bollinger Bänder",
+        "tech_mom": "Momentum",
+        "val_inside": "Innerhalb des Bandes",
+        "val_positive": "Positiv",
+        "sig_overbought": "ÜBERKAUFT (VERKAUFEN)",
+        "sig_oversold": "ÜBERVERKAUFT (KAUFEN)",
+        "sig_neutral": "NEUTRAL",
+        "sig_buy": "KAUFEN",
+        "sig_sell": "VERKAUFEN",
+        "sig_trend_pos": "KAUFEN (Positiver Trend)",
+        "sig_trend_neg": "VERKAUFEN (Negativer Trend)",
+        "news_sentiment": "Nachrichtenstimmung",
+        "positive": "Positiv",
+        "news_desc": "150+ Nachrichtenquellen in den letzten 24h gescannt.",
+        "social_vol": "Social-Media-Volumen",
+        "high": "Hoch",
+        "social_desc": "Diskussionsintensität auf Twitter und Reddit.",
+        "fund_multiples": "Fundamentale Multiplikatoren",
+        "growth_score": "Wachstumsscore",
+        "profit_score": "Profitabilitätsscore",
+        "target_price": "Kursziel",
+        "stop_loss": "Stop Loss",
+        "copy_plan": "Handelsplan kopieren",
+        "data_disclaimer": "Diese Analyse basiert auf Marktdaten der letzten 15 Minuten.",
+        "academy_title": "FinSense Akademie: Steigern Sie Ihren Investoren-IQ",
+        "why_important": "Warum ist das wichtig?",
+        "finpilot_diff": "Der FinPilot-Unterschied",
+        "cta_title": "Analysieren wie ein Profi",
+        "cta_desc": "Scannen Sie 1000+ Vermögenswerte in BIST und NASDAQ Märkten mit der FinPilot Vollversion, erstellen Sie eigene Strategien und verwalten Sie Ihr Risiko.",
+        "btn_start": "Kostenlos starten",
+        "btn_explore": "Funktionen erkunden",
+        "btn_back": "Zurück zum Hauptpanel",
+        "loading_data": "Live-Marktdaten werden abgerufen...",
+        "chart_title": "Technische Ansicht",
+        "strong_buy": "STARK KAUFEN",
+        "strong_sell": "STARK VERKAUFEN",
+        "hold": "HALTEN"
+    },
+    "tr": {
+        "page_title": "FinPilot Global Demo",
+        "subtitle": "NASDAQ & S&P 500 Devleri İçin Yapay Zeka Analizi",
+        "market_pulse": "Küresel Piyasa Nabzı",
+        "vix_name": "VIX (Korku Endeksi)",
+        "ai_risk": "AI Risk İştahı",
+        "risk_high": "Yüksek",
+        "risk_bull": "Boğa",
+        "ai_comment_title": "Yapay Zeka Yorumu",
+        "ai_comment_text": "Teknoloji sektörü öncülüğünde momentum güçlü. Düzeltmeler alım fırsatı olarak değerlendiriliyor.",
+        "scanner_title": "Günün Öne Çıkan 10 Fırsatı",
+        "scanner_desc": "FinPilot, Amerikan borsalarındaki en likit hisseleri tarayarak anlık fırsatları listeledi.",
+        "col_symbol": "Sembol",
+        "col_company": "Şirket",
+        "col_price": "Fiyat",
+        "col_change": "Değişim",
+        "col_score": "AI Skoru",
+        "col_signal": "Sinyal",
+        "col_trend": "Trend",
+        "select_stock": "Detaylı analiz için bir hisse seçin:",
+        "analysis_title": "Yapay Zeka Derinlemesine Analiz",
+        "report_title": "FinPilot AI Derin Analiz Raporu",
+        "tab_strategy": "AI Strateji Özeti",
+        "tab_tech": "Teknik Sinyaller",
+        "tab_fund": "Temel & Sentiment",
+        "main_scenario": "Ana Senaryo",
+        "catalyst": "Tetikleyici (Catalyst)",
+        "risk_factor": "Risk Faktörü",
+        "support_levels": "Kritik Destek Seviyeleri",
+        "resistance_levels": "Kritik Direnç Seviyeleri",
+        "support": "Destek",
+        "resistance": "Direnç",
+        "tech_indicator": "İndikatör",
+        "tech_value": "Değer",
+        "tech_signal": "Sinyal",
+        "tech_rsi": "RSI (14)",
+        "tech_sma": "SMA (50)",
+        "tech_bb": "Bollinger Bantları",
+        "tech_mom": "Momentum",
+        "val_inside": "Bandın İçinde",
+        "val_positive": "Pozitif",
+        "sig_overbought": "AŞIRI ALIM (SAT)",
+        "sig_oversold": "AŞIRI SATIM (AL)",
+        "sig_neutral": "NÖTR",
+        "sig_buy": "AL",
+        "sig_sell": "SAT",
+        "sig_trend_pos": "AL (Trend Pozitif)",
+        "sig_trend_neg": "SAT (Trend Negatif)",
+        "news_sentiment": "Haber Duyarlılığı",
+        "positive": "Pozitif",
+        "news_desc": "Son 24 saatteki 150+ haber kaynağı tarandı.",
+        "social_vol": "Sosyal Medya Hacmi",
+        "high": "Yüksek",
+        "social_desc": "Twitter ve Reddit üzerindeki tartışma yoğunluğu.",
+        "fund_multiples": "Temel Çarpanlar",
+        "growth_score": "Büyüme Skoru",
+        "profit_score": "Karlılık Skoru",
+        "target_price": "Hedef Fiyat",
+        "stop_loss": "Stop Loss",
+        "copy_plan": "İşlem Planını Kopyala",
+        "data_disclaimer": "Bu analiz son 15 dakikadaki piyasa verilerine dayanmaktadır.",
+        "academy_title": "FinSense Akademi: Yatırımcı IQ'nuzu Yükseltin",
+        "why_important": "Neden Önemli?",
+        "finpilot_diff": "FinPilot Farkı",
+        "cta_title": "Profesyonel Yatırımcı Gibi Analiz Edin",
+        "cta_desc": "FinPilot'un tam sürümü ile BIST ve NASDAQ piyasalarında 1000+ varlığı tarayın, kendi stratejilerinizi oluşturun ve riskinizi yönetin.",
+        "btn_start": "Ücretsiz Başla",
+        "btn_explore": "Özellikleri İncele",
+        "btn_back": "Ana Panele Dön",
+        "loading_data": "Canlı piyasa verileri alınıyor...",
+        "chart_title": "Teknik Görünüm",
+        "strong_buy": "GÜÇLÜ AL",
+        "strong_sell": "GÜÇLÜ SAT",
+        "hold": "TUT"
+    }
+}
+
+STOCK_INSIGHTS = {
+    "NVDA": {
+        "en": {
+            "summary": "Explosive demand for AI chips is driving data center revenues to record highs. Market leadership remains unchallenged.",
+            "catalyst": "Institutional 'Smart Money' inflow increased by 15% in the last 2 weeks. Anticipation for the new Blackwell chip series is being priced in.",
+            "risk": "High Valuation risk exists. Profit taking may accelerate on closes below $120."
+        },
+        "de": {
+            "summary": "Die explosive Nachfrage nach KI-Chips treibt die Rechenzentrumsumsätze auf Rekordhöhen. Die Marktführerschaft bleibt unangefochten.",
+            "catalyst": "Der Zufluss von institutionellem 'Smart Money' ist in den letzten 2 Wochen um 15% gestiegen. Die Erwartung der neuen Blackwell-Chipserie wird eingepreist.",
+            "risk": "Es besteht ein hohes Bewertungsrisiko. Gewinnmitnahmen könnten sich bei Schlusskursen unter 120 $ beschleunigen."
+        },
+        "tr": {
+            "summary": "Yapay zeka çiplerine olan talep patlaması, veri merkezi gelirlerini rekor seviyelere taşıyor. Sektör lideri konumu korunuyor.",
+            "catalyst": "Kurumsal 'Smart Money' girişi son 2 haftada %15 arttı. Yeni Blackwell çip serisi beklentisi fiyatlanıyor.",
+            "risk": "Aşırı değerleme (High Valuation) riski mevcut. $120 altı kapanışlarda kar realizasyonu hızlanabilir."
+        }
+    },
+    "TSLA": {
+        "en": {
+            "summary": "Despite price competition in the EV market, autonomous driving (FSD) and robotics projects keep the long-term story alive.",
+            "catalyst": "A strong 'Accumulation' signal was detected in the $220-$230 band. RSI shows positive divergence.",
+            "risk": "Short-term margin pressures persist. Volatility is high, stop levels should be strictly adhered to."
+        },
+        "de": {
+            "summary": "Trotz Preiskampf im EV-Markt halten autonomes Fahren (FSD) und Robotik-Projekte die langfristige Story am Leben.",
+            "catalyst": "Ein starkes 'Akkumulations'-Signal wurde im Bereich 220-230 $ erkannt. RSI zeigt positive Divergenz.",
+            "risk": "Kurzfristiger Margendruck hält an. Die Volatilität ist hoch, Stop-Levels sollten strikt eingehalten werden."
+        },
+        "tr": {
+            "summary": "Elektrikli araç pazarındaki fiyat rekabetine rağmen, otonom sürüş (FSD) ve robotik projeleri uzun vadeli hikayeyi canlı tutuyor.",
+            "catalyst": "$220-$230 bandında güçlü bir 'Toplama' (Accumulation) sinyali tespit edildi. RSI pozitif uyumsuzluk gösteriyor.",
+            "risk": "Kısa vadeli kar marjı baskıları devam ediyor. Volatilite yüksek, stop seviyelerine sadık kalınmalı."
+        }
+    },
+    "AAPL": {
+        "en": {
+            "summary": "Growth in services revenue and ecosystem strength make the stock a defensive haven. Vision Pro and AI integration are new growth areas.",
+            "catalyst": "Buyback program supports earnings per share. The $210 level is strong support for institutional buyers.",
+            "risk": "Slowdown in sales in the Chinese market and antitrust lawsuits could create pressure."
+        },
+        "de": {
+            "summary": "Das Wachstum der Serviceumsätze und die Stärke des Ökosystems machen die Aktie zu einem defensiven Hafen. Vision Pro und KI-Integration sind neue Wachstumsbereiche.",
+            "catalyst": "Das Rückkaufprogramm stützt den Gewinn pro Aktie. Das Niveau von 210 $ ist eine starke Unterstützung für institutionelle Käufer.",
+            "risk": "Eine Verlangsamung der Verkäufe auf dem chinesischen Markt und Kartellklagen könnten Druck erzeugen."
+        },
+        "tr": {
+            "summary": "Hizmet gelirlerindeki artış ve ekosistem gücü hisseyi defansif bir liman yapıyor. Vision Pro ve AI entegrasyonu yeni büyüme alanı.",
+            "catalyst": "Geri alım programı (Buyback) hisse başına karı destekliyor. $210 seviyesi kurumsal alıcılar için güçlü destek.",
+            "risk": "Çin pazarındaki satışların yavaşlaması ve antitröst davaları baskı yaratabilir."
+        }
+    },
+    "AMD": {
+        "en": {
+            "summary": "Fighting to grab market share with MI300 chips as Nvidia's strongest competitor. Data center investments are shifting to AMD.",
+            "catalyst": "Technically, a downtrend breakout has occurred. High volume rise confirms it's not a bull trap.",
+            "risk": "A general sell-off wave in the semiconductor sector could impact the stock severely."
+        },
+        "de": {
+            "summary": "Kämpft als stärkster Konkurrent von Nvidia mit MI300-Chips um Marktanteile. Rechenzentrumsinvestitionen verlagern sich zu AMD.",
+            "catalyst": "Technisch gesehen ist ein Ausbruch aus dem Abwärtstrend erfolgt. Der Anstieg bei hohem Volumen bestätigt, dass es sich nicht um eine Bullenfalle handelt.",
+            "risk": "Eine allgemeine Verkaufswelle im Halbleitersektor könnte die Aktie stark treffen."
+        },
+        "tr": {
+            "summary": "Nvidia'nın en güçlü rakibi olarak MI300 çipleriyle pazar payı kapma mücadelesinde. Veri merkezi yatırımları AMD'ye kayıyor.",
+            "catalyst": "Teknik olarak düşen trend kırılımı gerçekleşti. Hacimli yükseliş boğa tuzağı olmadığını teyit ediyor.",
+            "risk": "Yarı iletken sektöründeki genel bir satış dalgası hisseyi sert etkileyebilir."
+        }
+    },
+    "AMZN": {
+        "en": {
+            "summary": "Stability in AWS cloud revenues and efficiency gains in e-commerce support profitability.",
+            "catalyst": "AI-focused data center investments guarantee long-term growth. The $180 resistance was passed with volume.",
+            "risk": "A potential slowdown in consumer spending could pressure the retail wing."
+        },
+        "de": {
+            "summary": "Stabilität bei den AWS-Cloud-Umsätzen und Effizienzsteigerungen im E-Commerce stützen die Profitabilität.",
+            "catalyst": "KI-fokussierte Rechenzentrumsinvestitionen garantieren langfristiges Wachstum. Der Widerstand bei 180 $ wurde mit Volumen durchbrochen.",
+            "risk": "Eine mögliche Verlangsamung der Verbraucherausgaben könnte den Einzelhandelsbereich unter Druck setzen."
+        },
+        "tr": {
+            "summary": "AWS bulut gelirlerindeki istikrar ve e-ticaret tarafındaki verimlilik artışı karlılığı destekliyor.",
+            "catalyst": "Yapay zeka odaklı veri merkezi yatırımları uzun vadeli büyümeyi garantiliyor. $180 direnci hacimli geçildi.",
+            "risk": "Tüketici harcamalarındaki olası bir yavaşlama perakende kanadını baskılayabilir."
+        }
+    },
+    "MSFT": {
+        "en": {
+            "summary": "Integration of Copilot AI assistant into office products has started a new cycle in software revenues.",
+            "catalyst": "Azure cloud growth is above expectations. Corporate demand remains strong.",
+            "risk": "Pressure from regulatory bodies on artificial intelligence may increase."
+        },
+        "de": {
+            "summary": "Die Integration des Copilot KI-Assistenten in Office-Produkte hat einen neuen Zyklus bei den Softwareumsätzen eingeleitet.",
+            "catalyst": "Das Azure-Cloud-Wachstum liegt über den Erwartungen. Die Unternehmensnachfrage bleibt stark.",
+            "risk": "Der Druck der Regulierungsbehörden auf künstliche Intelligenz könnte zunehmen."
+        },
+        "tr": {
+            "summary": "Copilot yapay zeka asistanının ofis ürünlerine entegrasyonu, yazılım gelirlerinde yeni bir döngü başlattı.",
+            "catalyst": "Azure bulut büyümesi beklentilerin üzerinde. Kurumsal talep güçlü kalmaya devam ediyor.",
+            "risk": "Düzenleyici kurumların (Regülasyon) yapay zeka üzerindeki baskısı artabilir."
+        }
+    },
+    "META": {
+        "en": {
+            "summary": "Recovery in ad revenues and the 'Year of Efficiency' strategy have strengthened the balance sheet.",
+            "catalyst": "AI-powered ad targeting algorithms are increasing conversion rates. P/E ratio is still at a reasonable level.",
+            "risk": "Pressure of Metaverse spending on profitability may worry investors."
+        },
+        "de": {
+            "summary": "Die Erholung der Werbeeinnahmen und die Strategie des 'Jahres der Effizienz' haben die Bilanz gestärkt.",
+            "catalyst": "KI-gestützte Werbe-Targeting-Algorithmen erhöhen die Konversionsraten. Das KGV liegt immer noch auf einem vernünftigen Niveau.",
+            "risk": "Der Druck der Metaverse-Ausgaben auf die Profitabilität könnte Investoren beunruhigen."
+        },
+        "tr": {
+            "summary": "Reklam gelirlerindeki toparlanma ve 'Verimlilik Yılı' stratejisi bilançoyu güçlendirdi.",
+            "catalyst": "Yapay zeka destekli reklam hedefleme algoritmaları dönüşüm oranlarını artırıyor. F/K oranı hala makul seviyede.",
+            "risk": "Metaverse harcamalarının karlılık üzerindeki baskısı yatırımcıları endişelendirebilir."
+        }
+    },
+    "GOOGL": {
+        "en": {
+            "summary": "Search engine dominance and developments in the Gemini AI model maintain competitive power.",
+            "catalyst": "YouTube ad revenues and Cloud growth could provide a positive surprise. Share buyback program is supportive.",
+            "risk": "AI-based search competition (ChatGPT etc.) creates a risk of market share loss."
+        },
+        "de": {
+            "summary": "Die Dominanz der Suchmaschine und Entwicklungen beim Gemini KI-Modell erhalten die Wettbewerbskraft.",
+            "catalyst": "YouTube-Werbeeinnahmen und Cloud-Wachstum könnten positiv überraschen. Das Aktienrückkaufprogramm wirkt unterstützend.",
+            "risk": "KI-basierter Suchwettbewerb (ChatGPT usw.) schafft das Risiko von Marktanteilsverlusten."
+        },
+        "tr": {
+            "summary": "Arama motoru hakimiyeti ve Gemini AI modelindeki gelişmeler rekabet gücünü koruyor.",
+            "catalyst": "YouTube reklam gelirleri ve Cloud büyümesi pozitif sürpriz yapabilir. Hisse geri alım programı destekleyici.",
+            "risk": "Yapay zeka tabanlı arama rekabeti (ChatGPT vb.) pazar payı kaybı riski yaratıyor."
+        }
+    },
+    "NFLX": {
+        "en": {
+            "summary": "Success of password sharing crackdown and ad-supported subscription model is increasing subscriber numbers.",
+            "catalyst": "Strength of content library and global growth positively impact Free Cash Flow.",
+            "risk": "Rising content production costs and saturation in the streaming sector."
+        },
+        "de": {
+            "summary": "Der Erfolg des Vorgehens gegen das Teilen von Passwörtern und das werbefinanzierte Abomodell steigern die Abonnentenzahlen.",
+            "catalyst": "Die Stärke der Inhaltsbibliothek und das globale Wachstum wirken sich positiv auf den Free Cash Flow aus.",
+            "risk": "Steigende Kosten für die Produktion von Inhalten und Sättigung im Streaming-Sektor."
+        },
+        "tr": {
+            "summary": "Şifre paylaşımı kısıtlamasının başarısı ve reklamlı abonelik modeli abone sayısını artırıyor.",
+            "catalyst": "İçerik kütüphanesinin gücü ve global büyüme, nakit akışını (Free Cash Flow) pozitif etkiliyor.",
+            "risk": "İçerik üretim maliyetlerinin artması ve yayıncılık sektöründeki doygunluk."
+        }
+    },
+    "JPM": {
+        "en": {
+            "summary": "Banking giant benefiting most from the high interest rate environment. Balance sheet is solid as a 'Fortress'.",
+            "catalyst": "Increase in net interest income and resilience in credit card spending support profitability.",
+            "risk": "Recession concerns and potential increase in credit default rates."
+        },
+        "de": {
+            "summary": "Bankengigant, der am meisten vom Hochzinsumfeld profitiert. Die Bilanz ist solide wie eine 'Festung'.",
+            "catalyst": "Der Anstieg des Zinsüberschusses und die Widerstandsfähigkeit bei Kreditkartenausgaben stützen die Profitabilität.",
+            "risk": "Rezessionssorgen und möglicher Anstieg der Kreditausfallraten."
+        },
+        "tr": {
+            "summary": "Yüksek faiz ortamından en çok faydalanan banka devi. Bilançosu 'Kale' gibi sağlam.",
+            "catalyst": "Net faiz gelirlerindeki artış ve kredi kartı harcamalarındaki dirençlilik karlılığı destekliyor.",
+            "risk": "Resesyon endişeleri ve kredi batık oranlarındaki olası artış."
+        }
+    }
+}
+
+ACADEMY_TERMS = {
+    "NVDA": {
+        "en": {
+            "term": "Volatility",
+            "desc": "A measure of how fast and hard prices change over a certain period.",
+            "why": "High volatility means risk but is a huge profit opportunity for professionals. It panics the novice, enriches the pro.",
+            "pro_tip": "FinPilot's 'Regime Detection' module distinguishes when volatility is dangerous and when it is an opportunity."
+        },
+        "de": {
+            "term": "Volatilität",
+            "desc": "Ein Maß dafür, wie schnell und stark sich Preise über einen bestimmten Zeitraum ändern.",
+            "why": "Hohe Volatilität bedeutet Risiko, ist aber eine riesige Gewinnchance für Profis. Sie versetzt Anfänger in Panik, bereichert den Profi.",
+            "pro_tip": "FinPilots 'Regime Detection'-Modul unterscheidet, wann Volatilität gefährlich ist und wann sie eine Chance darstellt."
+        },
+        "tr": {
+            "term": "Volatilite (Oynaklık)",
+            "desc": "Fiyatların belirli bir sürede ne kadar hızlı ve sert değiştiğinin ölçüsüdür.",
+            "why": "Yüksek volatilite risk demektir ama profesyoneller için büyük kazanç fırsatıdır. Acemi yatırımcıyı panikletir, profesyoneli zengin eder.",
+            "pro_tip": "FinPilot'un 'Regime Detection' modülü, volatilitenin ne zaman tehlikeli, ne zaman fırsat olduğunu ayırt eder."
+        }
+    },
+    "TSLA": {
+        "en": {
+            "term": "Momentum",
+            "desc": "The speed of price change of a stock. Like the acceleration of a car.",
+            "why": "Strong momentum increases the likelihood of the trend continuing. Trading against the trend (bear trap) is the biggest mistake.",
+            "pro_tip": "FinPilot detects 'critical moments' when momentum weakens and the trend is about to turn using AI."
+        },
+        "de": {
+            "term": "Momentum",
+            "desc": "Die Geschwindigkeit der Preisänderung einer Aktie. Wie die Beschleunigung eines Autos.",
+            "why": "Starkes Momentum erhöht die Wahrscheinlichkeit, dass der Trend anhält. Gegen den Trend zu handeln (Bärenfalle) ist der größte Fehler.",
+            "pro_tip": "FinPilot erkennt mit KI 'kritische Momente', in denen das Momentum schwächelt und der Trend zu drehen droht."
+        },
+        "tr": {
+            "term": "Momentum",
+            "desc": "Bir hissenin fiyat değişim hızıdır. Bir arabanın ivmesi gibidir.",
+            "why": "Güçlü momentum, trendin devam etme olasılığını artırır. Trendin tersine işlem açmak (ayı tuzağı) en büyük hatadır.",
+            "pro_tip": "FinPilot, momentumun zayıfladığı ve trendin döneceği 'kritik anları' yapay zeka ile tespit eder."
+        }
+    },
+    "AAPL": {
+        "en": {
+            "term": "Defensive Growth",
+            "desc": "A rare company structure that is both a safe haven and continues to grow.",
+            "why": "Protects your portfolio when the market crashes, provides returns when it rises. It is the insurance of every portfolio.",
+            "pro_tip": "FinPilot automatically optimizes the balance of 'Risky' and 'Safe' stocks in your portfolio."
+        },
+        "de": {
+            "term": "Defensives Wachstum",
+            "desc": "Eine seltene Unternehmensstruktur, die sowohl ein sicherer Hafen ist als auch weiter wächst.",
+            "why": "Schützt Ihr Portfolio, wenn der Markt einbricht, liefert Rendite, wenn er steigt. Es ist die Versicherung jedes Portfolios.",
+            "pro_tip": "FinPilot optimiert automatisch das Gleichgewicht von 'Riskanten' und 'Sicheren' Aktien in Ihrem Portfolio."
+        },
+        "tr": {
+            "term": "Defansif Büyüme",
+            "desc": "Hem güvenli liman olup hem de büyümeye devam edebilen nadir şirket yapısıdır.",
+            "why": "Piyasa çökerken portföyünüzü korur, yükselirken getiri sağlar. Her portföyün sigortasıdır.",
+            "pro_tip": "FinPilot, portföyünüzdeki 'Riskli' ve 'Güvenli' hisse dengesini otomatik olarak optimize eder."
+        }
+    },
+    "JPM": {
+        "en": {
+            "term": "Dividend Yield",
+            "desc": "The company distributing a portion of its profits to its partners (you) as cash.",
+            "why": "Provides regular cash flow even if the stock price falls. The best friend of compound interest.",
+            "pro_tip": "FinPilot finds not just high dividend payers, but companies that are 'growing' their dividends."
+        },
+        "de": {
+            "term": "Dividendenrendite",
+            "desc": "Das Unternehmen schüttet einen Teil seines Gewinns als Bargeld an seine Partner (Sie) aus.",
+            "why": "Sorgt für regelmäßigen Cashflow, auch wenn der Aktienkurs fällt. Der beste Freund des Zinseszinses.",
+            "pro_tip": "FinPilot findet nicht nur hohe Dividendenzahler, sondern Unternehmen, die ihre Dividenden 'steigern'."
+        },
+        "tr": {
+            "term": "Temettü Verimi",
+            "desc": "Şirketin karının bir kısmını ortaklarına (size) nakit olarak dağıtmasıdır.",
+            "why": "Hisse fiyatı düşse bile düzenli nakit akışı sağlar. Bileşik getirinin en büyük dostudur.",
+            "pro_tip": "FinPilot, sadece yüksek temettü verenleri değil, temettüsünü 'büyüten' şirketleri bulur."
+        }
+    }
+}
+
+DEFAULT_TERM = {
+    "en": {
+        "term": "Trend Following",
+        "desc": "A method of analyzing the general direction of prices (Up, Down, or Sideways).",
+        "why": "'The trend is your friend.' The easiest way to lose money in the stock market is to be stubborn, the way to win is to go with the flow.",
+        "pro_tip": "Humans are emotional, FinPilot is mathematics. Our algorithms follow the trend emotionlessly."
+    },
+    "de": {
+        "term": "Trendfolge",
+        "desc": "Eine Methode zur Analyse der allgemeinen Preisrichtung (Aufwärts, Abwärts oder Seitwärts).",
+        "why": "'Der Trend ist dein Freund.' Der einfachste Weg, an der Börse Geld zu verlieren, ist stur zu sein, der Weg zu gewinnen, ist mit dem Strom zu schwimmen.",
+        "pro_tip": "Menschen sind emotional, FinPilot ist Mathematik. Unsere Algorithmen folgen dem Trend emotionslos."
+    },
+    "tr": {
+        "term": "Trend Takibi",
+        "desc": "Fiyatların genel yönünü (Yükseliş, Düşüş veya Yatay) analiz etme yöntemidir.",
+        "why": "'Trend senin dostundur.' Borsada para kaybetmenin en kolay yolu inatlaşmak, kazanmanın yolu ise akıntıya uyum sağlamaktır.",
+        "pro_tip": "İnsanlar duygusaldır, FinPilot ise matematiktir. Algoritmalarımız trendi duygusuzca takip eder."
+    }
+}
