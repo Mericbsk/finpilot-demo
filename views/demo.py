@@ -142,7 +142,7 @@ def get_live_market_data():
 
     try:
         tickers = list(indices.values())
-        data = yf.download(tickers, period="5d", progress=False)['Close']
+        data = yf.download(tickers, period="5d", progress=False, auto_adjust=False)['Close']
         
         if not data.empty:
             # NASDAQ
@@ -183,7 +183,7 @@ def get_live_stock_data(symbols):
     
     try:
         # Toplu veri çekme (6 aylık - indikatörler için)
-        data = yf.download(symbols, period="6mo", group_by='ticker', progress=False)
+        data = yf.download(symbols, period="6mo", group_by='ticker', progress=False, auto_adjust=False)
         
         for sym in symbols:
             try:
