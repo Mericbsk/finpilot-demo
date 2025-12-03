@@ -245,7 +245,7 @@ def render_demo_page():
 
     st.markdown(f"""
     <div style='text-align: center; padding: 20px;'>
-        <h1 style='color: #00e6e6;'>{t["title"]}</h1>
+        <h1 style='color: #00e6e6;'>{t["page_title"]}</h1>
         <p style='color: #cbd5f5; font-size: 1.2em;'>{t["subtitle"]}</p>
     </div>
     """, unsafe_allow_html=True)
