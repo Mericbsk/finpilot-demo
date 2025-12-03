@@ -319,7 +319,7 @@ def render_demo_page():
 
     df_demo = pd.DataFrame(demo_rows)
     
-    st.dataframe(df_demo, use_container_width=True, hide_index=True)
+    st.dataframe(df_demo, hide_index=True)
 
     selected_symbol = st.selectbox(t["select_stock"], df_demo[t["col_symbol"]].tolist())
     # We need to find the original symbol from the selected row (which might have translated headers)
@@ -387,8 +387,7 @@ def render_demo_page():
         
         # Genişletilmiş AI Yorum Mantığı
         # Use imported STOCK_INSIGHTS
-        current_insights = STOCK_INSIGHTS.get(lang, STOCK_INSIGHTS['en'])
-
+        
         # Seçilen sembol için insight al, yoksa varsayılanı kullan
         default_insight = {
             "summary": f"{selected_symbol} {t['default_summary']}",
@@ -396,10 +395,10 @@ def render_demo_page():
             "risk": t['default_risk']
         }
         
-        if selected_symbol:
-            insight = current_insights.get(selected_symbol, default_insight)
-        else:
-            insight = default_insight
+        insight = default_insight
+        if selected_symbol and selected_symbol in STOCK_INSIGHTS:
+            symbol_insights = STOCK_INSIGHTS[selected_symbol]
+            insight = symbol_insights.get(lang, symbol_insights.get('en', default_insight))
 
         # Tabs for detailed analysis
         tab1, tab2, tab3 = st.tabs([t["tab_strategy"], t["tab_tech"], t["tab_fund"]])
@@ -498,13 +497,11 @@ def render_demo_page():
     st.markdown(f"### 4. 🎓 {t['academy_title']}")
     
     # Use imported ACADEMY_TERMS
-    current_terms = ACADEMY_TERMS.get(lang, ACADEMY_TERMS['en'])
+    term_data = DEFAULT_TERM[lang]
     
-    # Ensure selected_symbol is not None before accessing dictionary
-    if selected_symbol:
-        term_data = current_terms.get(selected_symbol, DEFAULT_TERM[lang])
-    else:
-        term_data = DEFAULT_TERM[lang]
+    if selected_symbol and selected_symbol in ACADEMY_TERMS:
+        symbol_terms = ACADEMY_TERMS[selected_symbol]
+        term_data = symbol_terms.get(lang, symbol_terms.get('en', DEFAULT_TERM[lang]))
 
     with st.container():
         col_edu_1, col_edu_2 = st.columns([1, 2])
