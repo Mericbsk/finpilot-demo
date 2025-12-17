@@ -10,3 +10,5 @@ venv/
 *.log
 data/logs/
 .DS_Store
+
+.streamlit/secrets.toml

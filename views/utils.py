@@ -1318,4 +1318,7 @@ def get_gemini_research(symbol: str, language: str = "tr") -> str:
         return response.text
 
     except Exception as e:
-        return f"Araştırma sırasında hata oluştu: {str(e)}"
+        error_msg = str(e)
+        if "403" in error_msg and "leaked" in error_msg:
+            return "⚠️ API Anahtarı Hatası: Kullandığınız Google API anahtarı sızdırıldığı için bloke edilmiş. Lütfen Google AI Studio'dan yeni bir anahtar alıp `.streamlit/secrets.toml` dosyasındaki `GOOGLE_API_KEY` değerini güncelleyin."
+        return f"Araştırma sırasında hata oluştu: {error_msg}"
