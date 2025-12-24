@@ -1262,8 +1262,8 @@ def get_gemini_research(symbol: str, language: str = "tr") -> str:
 
         # 2. Gemini ile Analiz
         genai.configure(api_key=api_key)
-        # gemini-2.0-flash bazen kota sorunları çıkarabiliyor, 1.5-flash daha stabil
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # gemini-1.5-flash bulunamadı, gemini-2.0-flash-lite deniyoruz (daha hafif ve hızlı)
+        model = genai.GenerativeModel('gemini-2.0-flash-lite')
         
         prompts = {
             "tr": f"""
@@ -1326,4 +1326,6 @@ def get_gemini_research(symbol: str, language: str = "tr") -> str:
             return "⚠️ API Erişim Hatası: Anahtarınız 'HTTP Referrer' kısıtlamasına sahip ancak bu uygulama bir tarayıcı değil. Lütfen Google Cloud Console'dan anahtar kısıtlamasını 'None' (veya IP bazlı) olarak değiştirin."
         if "429" in error_msg:
             return "⚠️ Kota Aşımı: Google Gemini API ücretsiz kota sınırına ulaşıldı veya seçilen model (gemini-2.0-flash) hesabınızda kullanılamıyor. Kod otomatik olarak 'gemini-1.5-flash' modeline geçiş yapacak şekilde güncellendi, lütfen tekrar deneyin."
+        if "404" in error_msg and "not found" in error_msg:
+             return "⚠️ Model Bulunamadı: Seçilen model (gemini-2.0-flash-lite) şu an kullanılamıyor. Google, modelleri sık sık güncelliyor. Lütfen 'views/utils.py' dosyasındaki model adını kontrol edin (örn: gemini-2.0-flash)."
         return f"Araştırma sırasında hata oluştu: {error_msg}"
