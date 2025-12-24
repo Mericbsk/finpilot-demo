@@ -1262,7 +1262,8 @@ def get_gemini_research(symbol: str, language: str = "tr") -> str:
 
         # 2. Gemini ile Analiz
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        # gemini-2.0-flash bazen kota sorunları çıkarabiliyor, 1.5-flash daha stabil
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         prompts = {
             "tr": f"""
@@ -1323,4 +1324,6 @@ def get_gemini_research(symbol: str, language: str = "tr") -> str:
             return "⚠️ API Anahtarı Hatası: Kullandığınız Google API anahtarı sızdırıldığı için bloke edilmiş. Lütfen Google AI Studio'dan yeni bir anahtar alıp `.streamlit/secrets.toml` dosyasındaki `GOOGLE_API_KEY` değerini güncelleyin."
         if "API_KEY_HTTP_REFERRER_BLOCKED" in error_msg or "Requests from referer <empty> are blocked" in error_msg:
             return "⚠️ API Erişim Hatası: Anahtarınız 'HTTP Referrer' kısıtlamasına sahip ancak bu uygulama bir tarayıcı değil. Lütfen Google Cloud Console'dan anahtar kısıtlamasını 'None' (veya IP bazlı) olarak değiştirin."
+        if "429" in error_msg:
+            return "⚠️ Kota Aşımı: Google Gemini API ücretsiz kota sınırına ulaşıldı veya seçilen model (gemini-2.0-flash) hesabınızda kullanılamıyor. Kod otomatik olarak 'gemini-1.5-flash' modeline geçiş yapacak şekilde güncellendi, lütfen tekrar deneyin."
         return f"Araştırma sırasında hata oluştu: {error_msg}"
