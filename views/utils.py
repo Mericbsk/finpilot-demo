@@ -1321,4 +1321,6 @@ def get_gemini_research(symbol: str, language: str = "tr") -> str:
         error_msg = str(e)
         if "403" in error_msg and "leaked" in error_msg:
             return "⚠️ API Anahtarı Hatası: Kullandığınız Google API anahtarı sızdırıldığı için bloke edilmiş. Lütfen Google AI Studio'dan yeni bir anahtar alıp `.streamlit/secrets.toml` dosyasındaki `GOOGLE_API_KEY` değerini güncelleyin."
+        if "API_KEY_HTTP_REFERRER_BLOCKED" in error_msg or "Requests from referer <empty> are blocked" in error_msg:
+            return "⚠️ API Erişim Hatası: Anahtarınız 'HTTP Referrer' kısıtlamasına sahip ancak bu uygulama bir tarayıcı değil. Lütfen Google Cloud Console'dan anahtar kısıtlamasını 'None' (veya IP bazlı) olarak değiştirin."
         return f"Araştırma sırasında hata oluştu: {error_msg}"
