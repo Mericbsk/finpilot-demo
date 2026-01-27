@@ -54,8 +54,22 @@ UI_TRANSLATIONS = {
         "demo_vs_pro": "🎯 Demo vs Pro",
         "free_demo": "Free Demo",
         "finpilot_pro": "FinPilot Pro",
-        "demo_features": ["✅ 100+ popular stocks", "✅ Basic AI analysis", "✅ Technical indicators", "❌ Real-time data", "❌ Portfolio tracking", "❌ Custom scanning"],
-        "pro_features_list": ["✅ 1000+ stocks (BIST & NASDAQ)", "✅ Advanced AI + DRL models", "✅ Real-time data", "✅ Personal portfolio tracking", "✅ Custom scan filters", "✅ Telegram notifications"],
+        "demo_features": [
+            "✅ 100+ popular stocks",
+            "✅ Basic AI analysis",
+            "✅ Technical indicators",
+            "❌ Real-time data",
+            "❌ Portfolio tracking",
+            "❌ Custom scanning",
+        ],
+        "pro_features_list": [
+            "✅ 1000+ stocks (BIST & NASDAQ)",
+            "✅ Advanced AI + DRL models",
+            "✅ Real-time data",
+            "✅ Personal portfolio tracking",
+            "✅ Custom scan filters",
+            "✅ Telegram notifications",
+        ],
         "ready_for_pro": "🚀 Ready for Pro Version?",
         "cta_desc": "Join the early access list, get <strong style='color: #00e6e6;'>50% discount</strong> at launch!",
         "join_early_access": "🎯 Join Early Access List",
@@ -73,6 +87,8 @@ UI_TRANSLATIONS = {
         "categories_desc": "Choose a category to analyze stocks",
         "stocks": "stocks",
         "selected_category": "✅ **{name}** selected ({count} stocks)",
+        "analyze": "📈 Analyze",
+        "quick_picks": "⚡ Quick Picks",
     },
     "de": {
         "try_pro": "🚀 FinPilot Pro testen!",
@@ -92,8 +108,22 @@ UI_TRANSLATIONS = {
         "demo_vs_pro": "🎯 Demo vs Pro",
         "free_demo": "Kostenlose Demo",
         "finpilot_pro": "FinPilot Pro",
-        "demo_features": ["✅ 100+ Aktien", "✅ KI-Analyse", "✅ Technische Indikatoren", "❌ Echtzeitdaten", "❌ Portfolio", "❌ Scannen"],
-        "pro_features_list": ["✅ 1000+ Aktien", "✅ Erweiterte KI + DRL", "✅ Echtzeitdaten", "✅ Portfolio-Verfolgung", "✅ Scanfilter", "✅ Telegram"],
+        "demo_features": [
+            "✅ 100+ Aktien",
+            "✅ KI-Analyse",
+            "✅ Technische Indikatoren",
+            "❌ Echtzeitdaten",
+            "❌ Portfolio",
+            "❌ Scannen",
+        ],
+        "pro_features_list": [
+            "✅ 1000+ Aktien",
+            "✅ Erweiterte KI + DRL",
+            "✅ Echtzeitdaten",
+            "✅ Portfolio-Verfolgung",
+            "✅ Scanfilter",
+            "✅ Telegram",
+        ],
         "ready_for_pro": "🚀 Bereit für Pro?",
         "cta_desc": "Early Access Liste beitreten, <strong style='color: #00e6e6;'>50% Rabatt</strong>!",
         "join_early_access": "🎯 Early Access beitreten",
@@ -111,6 +141,8 @@ UI_TRANSLATIONS = {
         "categories_desc": "Kategorie wählen",
         "stocks": "Aktien",
         "selected_category": "✅ **{name}** ({count} Aktien)",
+        "analyze": "📈 Analysieren",
+        "quick_picks": "⚡ Schnellauswahl",
     },
     "tr": {
         "try_pro": "🚀 FinPilot Pro'yu Deneyin!",
@@ -130,8 +162,22 @@ UI_TRANSLATIONS = {
         "demo_vs_pro": "🎯 Demo vs Pro",
         "free_demo": "Ücretsiz Demo",
         "finpilot_pro": "FinPilot Pro",
-        "demo_features": ["✅ 100+ hisse", "✅ AI analizi", "✅ Teknik indikatörler", "❌ Gerçek zamanlı", "❌ Portföy", "❌ Tarama"],
-        "pro_features_list": ["✅ 1000+ hisse", "✅ Gelişmiş AI + DRL", "✅ Gerçek zamanlı", "✅ Portföy takibi", "✅ Tarama filtreleri", "✅ Telegram"],
+        "demo_features": [
+            "✅ 100+ hisse",
+            "✅ AI analizi",
+            "✅ Teknik indikatörler",
+            "❌ Gerçek zamanlı",
+            "❌ Portföy",
+            "❌ Tarama",
+        ],
+        "pro_features_list": [
+            "✅ 1000+ hisse",
+            "✅ Gelişmiş AI + DRL",
+            "✅ Gerçek zamanlı",
+            "✅ Portföy takibi",
+            "✅ Tarama filtreleri",
+            "✅ Telegram",
+        ],
         "ready_for_pro": "🚀 Pro'ya Hazır mısınız?",
         "cta_desc": "Erken erişim listesine katılın, <strong style='color: #00e6e6;'>%50 indirim</strong>!",
         "join_early_access": "🎯 Erken Erişime Katıl",
@@ -149,6 +195,8 @@ UI_TRANSLATIONS = {
         "categories_desc": "Kategori seçin",
         "stocks": "hisse",
         "selected_category": "✅ **{name}** ({count} hisse)",
+        "analyze": "📈 Analiz Et",
+        "quick_picks": "⚡ Hızlı Seçim",
     },
 }
 
@@ -172,7 +220,8 @@ def t_list(key):
 # 🎨 CUSTOM CSS
 # ============================================
 
-st.markdown("""
+st.markdown(
+    """
 <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -184,7 +233,9 @@ st.markdown("""
     .demo-badge {background: #fbbf24; color: #0f172a; padding: 3px 10px; border-radius: 5px; font-size: 12px; font-weight: bold;}
     .pro-badge {background: #00e6e6; color: #0f172a; padding: 3px 10px; border-radius: 5px; font-size: 12px; font-weight: bold;}
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # ============================================
 # 📁 DATA STORAGE
@@ -203,13 +254,15 @@ def save_to_waitlist(email, name="", source="demo"):
                 waitlist = json.load(f)
         if any(w["email"].lower() == email.lower() for w in waitlist):
             return False
-        waitlist.append({
-            "email": email.lower(),
-            "name": name,
-            "source": source,
-            "timestamp": datetime.now().isoformat(),
-            "language": st.session_state.get("language", "en"),
-        })
+        waitlist.append(
+            {
+                "email": email.lower(),
+                "name": name,
+                "source": source,
+                "timestamp": datetime.now().isoformat(),
+                "language": st.session_state.get("language", "en"),
+            }
+        )
         with open(WAITLIST_FILE, "w") as f:
             json.dump(waitlist, f, indent=2)
         return True
@@ -232,15 +285,19 @@ def get_waitlist_count():
 # 🎯 UI COMPONENTS
 # ============================================
 
+
 def render_signup_banner():
-    st.markdown(f"""
+    st.markdown(
+        f"""
     <div class="signup-banner">
         <div>
             <h3>{t("try_pro")}</h3>
             <p>{t("pro_features")}</p>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_language_selector():
@@ -248,8 +305,14 @@ def render_language_selector():
         st.markdown(f"### {t('language')}")
         languages = {"English": "en", "Deutsch": "de", "Türkçe": "tr"}
         current_lang = st.session_state.get("language", "en")
-        current_index = list(languages.values()).index(current_lang) if current_lang in languages.values() else 0
-        selected = st.selectbox("Language", list(languages.keys()), index=current_index, label_visibility="collapsed")
+        current_index = (
+            list(languages.values()).index(current_lang)
+            if current_lang in languages.values()
+            else 0
+        )
+        selected = st.selectbox(
+            "Language", list(languages.keys()), index=current_index, label_visibility="collapsed"
+        )
         new_lang = languages[selected]
         if new_lang != current_lang:
             st.session_state.language = new_lang
@@ -279,30 +342,106 @@ def render_waitlist_sidebar():
 
 
 def render_category_selector():
-    """Render stock category selector."""
+    """Render compact stock category selector with quick picks."""
     try:
-        from views.components.demo_presets import DEMO_CATEGORIES, get_categories_by_group, DEMO_STATS
+        from views.components.demo_presets import (
+            DEMO_CATEGORIES,
+            DEMO_STATS,
+            get_categories_by_group,
+        )
+
         lang = st.session_state.get("language", "en")
-        st.markdown(f"### {t('stock_categories')}")
-        st.caption(f"{t('categories_desc')} • {DEMO_STATS['total_categories']} categories • {DEMO_STATS['unique_stocks']} stocks")
-        
+
+        # Compact header
+        col_title, col_stats = st.columns([2, 1])
+        with col_title:
+            st.markdown(f"### {t('stock_categories')}")
+        with col_stats:
+            st.caption(
+                f"📊 {DEMO_STATS['total_categories']} categories • {DEMO_STATS['unique_stocks']} stocks"
+            )
+
+        # Quick picks - popular categories as horizontal chips
+        quick_picks = [
+            "magnificent_7",
+            "ai_revolution",
+            "dividend_kings",
+            "clean_energy",
+            "fintech_disruptors",
+        ]
+
+        st.markdown(
+            """
+        <style>
+        .quick-pick-container { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+        .category-chip {
+            background: linear-gradient(135deg, rgba(0,230,230,0.15), rgba(14,165,233,0.1));
+            border: 1px solid rgba(0,230,230,0.3); border-radius: 20px; padding: 8px 16px;
+            color: #f8fafc; font-size: 0.9em; cursor: pointer; transition: all 0.2s;
+        }
+        .category-chip:hover { border-color: #00e6e6; background: rgba(0,230,230,0.25); }
+        .category-chip.selected { border-color: #00e6e6; background: rgba(0,230,230,0.3); }
+        </style>
+        """,
+            unsafe_allow_html=True,
+        )
+
+        # Quick picks row
+        quick_cols = st.columns(len(quick_picks))
+        for idx, key in enumerate(quick_picks):
+            if key in DEMO_CATEGORIES:
+                cat = DEMO_CATEGORIES[key]
+                cat_name = cat.names.get(lang, cat.names["en"])
+                with quick_cols[idx]:
+                    if st.button(
+                        f"{cat.icon} {cat_name}", key=f"quick_{key}", use_container_width=True
+                    ):
+                        st.session_state.selected_demo_category = key
+
+        # Compact dropdown for all categories
         groups = get_categories_by_group(lang)
+        all_categories = []
         for group_name, categories in groups.items():
-            with st.expander(f"📁 {group_name}", expanded=False):
-                cols = st.columns(3)
-                for idx, cat in enumerate(categories):
-                    with cols[idx % 3]:
-                        cat_name = cat.names.get(lang, cat.names["en"])
-                        cat_desc = cat.descriptions.get(lang, cat.descriptions["en"])
-                        if st.button(f"{cat.icon} {cat_name}", key=f"cat_{cat.key}", help=f"{cat_desc} ({len(cat.symbols)} {t('stocks')})", use_container_width=True):
-                            st.session_state.selected_demo_category = cat.key
-        
+            for cat in categories:
+                cat_name = cat.names.get(lang, cat.names["en"])
+                all_categories.append(
+                    (f"{cat.icon} {cat_name} ({len(cat.symbols)})", cat.key, group_name)
+                )
+
+        # Group selector + category selector in one row
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            group_names = list(groups.keys())
+            selected_group = st.selectbox("📁", group_names, index=0, label_visibility="collapsed")
+
+        with col2:
+            # Get categories for selected group
+            group_cats = groups.get(selected_group, [])
+            cat_options = [
+                f"{c.icon} {c.names.get(lang, c.names['en'])} ({len(c.symbols)})"
+                for c in group_cats
+            ]
+            cat_keys = [c.key for c in group_cats]
+
+            if cat_options:
+                selected_idx = st.selectbox(
+                    "🎯",
+                    range(len(cat_options)),
+                    format_func=lambda i: cat_options[i],
+                    index=0,
+                    label_visibility="collapsed",
+                )
+                if st.button(t("analyze"), key="analyze_btn", type="primary"):
+                    st.session_state.selected_demo_category = cat_keys[selected_idx]
+
+        # Show selected category
         if "selected_demo_category" in st.session_state:
             cat_key = st.session_state.selected_demo_category
             if cat_key in DEMO_CATEGORIES:
                 cat = DEMO_CATEGORIES[cat_key]
                 cat_name = cat.names.get(lang, cat.names["en"])
-                st.success(t("selected_category", name=cat_name, count=len(cat.symbols)))
+                cat_desc = cat.descriptions.get(lang, cat.descriptions["en"])
+                st.success(f"✅ **{cat_name}** • {len(cat.symbols)} {t('stocks')} • {cat_desc}")
                 return cat.symbols
         return None
     except ImportError:
@@ -315,39 +454,52 @@ def render_feature_comparison():
     col1, col2 = st.columns(2)
     with col1:
         features = "".join(f"<li>{f}</li>" for f in t_list("demo_features"))
-        st.markdown(f"""
+        st.markdown(
+            f"""
         <div class="waitlist-card">
             <span class="demo-badge">DEMO</span>
             <h4 style="color: #f8fafc; margin-top: 15px;">{t("free_demo")}</h4>
             <ul style="color: #cbd5f5;">{features}</ul>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
     with col2:
         features = "".join(f"<li>{f}</li>" for f in t_list("pro_features_list"))
-        st.markdown(f"""
+        st.markdown(
+            f"""
         <div class="waitlist-card" style="border-color: #00e6e6;">
             <span class="pro-badge">PRO</span>
             <h4 style="color: #00e6e6; margin-top: 15px;">{t("finpilot_pro")}</h4>
             <ul style="color: #cbd5f5;">{features}</ul>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
 
 def render_cta_section():
     st.markdown("---")
-    st.markdown(f"""
+    st.markdown(
+        f"""
     <div style='background: linear-gradient(90deg, rgba(0,230,230,0.1) 0%, rgba(14,165,233,0.1) 100%);
                 padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #00e6e6;'>
         <h2 style='color: #f8fafc;'>{t("ready_for_pro")}</h2>
         <p style='color: #cbd5f5; font-size: 1.1em;'>{t("cta_desc")}</p>
     </div>
-    """, unsafe_allow_html=True)
-    
+    """,
+        unsafe_allow_html=True,
+    )
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.form("cta_waitlist", clear_on_submit=True):
-            email = st.text_input(t("email"), placeholder=t("email_placeholder"), label_visibility="collapsed")
-            if st.form_submit_button(t("join_early_access"), use_container_width=True, type="primary"):
+            email = st.text_input(
+                t("email"), placeholder=t("email_placeholder"), label_visibility="collapsed"
+            )
+            if st.form_submit_button(
+                t("join_early_access"), use_container_width=True, type="primary"
+            ):
                 if email and "@" in email:
                     if save_to_waitlist(email, source="cta"):
                         st.success(t("cta_success"))
@@ -360,7 +512,8 @@ def render_cta_section():
 
 def render_footer():
     st.markdown("---")
-    st.markdown(f"""
+    st.markdown(
+        f"""
     <div style='text-align: center; color: #64748b; padding: 20px;'>
         <p>{t("copyright")}</p>
         <p style='font-size: 12px;'>{t("disclaimer")}</p>
@@ -370,33 +523,37 @@ def render_footer():
             <a href="#" style="color: #00e6e6;">{t("contact")}</a>
         </p>
     </div>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================
 # 🚀 MAIN APPLICATION
 # ============================================
 
+
 def main():
     # Initialize language (English default)
     if "language" not in st.session_state:
         st.session_state.language = "en"
-    
+
     render_signup_banner()
     render_language_selector()
     render_waitlist_sidebar()
-    
+
     selected_symbols = render_category_selector()
     if selected_symbols:
         st.session_state.demo_symbols = selected_symbols
-    
+
     try:
         from views.demo import render_demo_page
+
         render_demo_page()
     except Exception as e:
         st.error(t("demo_error", error=str(e)))
         st.info(t("demo_retry"))
-    
+
     render_feature_comparison()
     render_cta_section()
     render_footer()
