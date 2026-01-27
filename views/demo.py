@@ -278,36 +278,26 @@ def render_demo_page():
     with st.spinner(t["loading_data"]):
         market_info = get_live_market_data()
 
-        # Her kategoriden 10'ar hisse seç (toplam 80 hisse demo için çok - 5'er hisse alalım)
-        # Kullanıcı seçtiği kategoriye göre farklı listeler gösteren bir sistem
-
-        # Kategori seçici
-        demo_categories = {
-            "🔥 Popüler": ["tech_giants", "ai_leaders"],
-            "💼 Sektörler": ["semiconductors", "finance_banks", "biotech_large"],
-            "🎯 Tematik": ["ev_mobility", "cloud_saas", "crypto_blockchain"],
-            "📈 Strateji": ["high_dividend", "growth_momentum", "value_picks"],
-        }
-
-        # Sidebar'da kategori seçimi
-        selected_category = st.sidebar.selectbox(
-            "🎯 Demo Kategorisi", list(demo_categories.keys()), index=0
-        )
-
-        # Seçilen kategoriden sembolleri al (her preset'ten 5'er tane)
-        category_presets = demo_categories[selected_category]
-        symbols = []
-        for preset_key in category_presets:
-            preset = STOCK_PRESETS.get(preset_key)
-            if preset:
-                symbols.extend(preset.symbols[:5])  # Her preset'ten ilk 5
-
-        # Fazla varsa 10'a sınırla
-        symbols = symbols[:10]
+        # demo_standalone.py'den seçilen kategori varsa onu kullan
+        if "demo_symbols" in st.session_state and st.session_state.demo_symbols:
+            symbols = st.session_state.demo_symbols[:10]  # Max 10 hisse
+        else:
+            # Varsayılan: Magnificent 7 + AI Leaders
+            symbols = [
+                "AAPL",
+                "MSFT",
+                "GOOGL",
+                "AMZN",
+                "NVDA",
+                "META",
+                "TSLA",
+                "PLTR",
+                "AI",
+                "CRWD",
+            ]
 
         stock_info = get_live_stock_data(symbols)
 
-    # --- Adım 1: Piyasa Nabzı ---
     st.markdown(f"### {t['market_pulse']}")
     col1, col2, col3, col4 = st.columns(4)
 
@@ -445,7 +435,6 @@ def render_demo_page():
         "ABBV": "AbbVie",
         # Growth
         "SHOP": "Shopify",
-        "SQ": "Block",
         "ROKU": "Roku",
         "SPOT": "Spotify",
         "UBER": "Uber",
