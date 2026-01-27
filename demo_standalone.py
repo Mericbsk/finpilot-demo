@@ -2,10 +2,13 @@
 FinPilot Demo - Standalone Public Version
 ==========================================
 
-Sadece demo sayfasını içeren, internete yüklenmeye hazır versiyon.
-Waitlist/email toplama özelliği ile.
+Public demo with:
+- 30 categories, 100+ unique stocks
+- Multi-language support (EN/DE/TR) - English default
+- Waitlist/email collection
+- Feature comparison
 
-Kullanım:
+Usage:
     streamlit run demo_standalone.py
 """
 
@@ -13,7 +16,6 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-import pandas as pd
 import streamlit as st
 
 # Page config - MUST be first Streamlit command
@@ -29,299 +31,375 @@ st.set_page_config(
     },
 )
 
-# Custom CSS for better branding
-st.markdown(
-    """
+# ============================================
+# 🌐 TRANSLATIONS
+# ============================================
+
+UI_TRANSLATIONS = {
+    "en": {
+        "try_pro": "🚀 Try FinPilot Pro!",
+        "pro_features": "1000+ stocks, real-time data, personal portfolio tracking",
+        "language": "🌐 Language",
+        "early_access": "📧 Early Access",
+        "early_access_desc": "Be among the first to try Pro!",
+        "email": "Email",
+        "email_placeholder": "example@email.com",
+        "name": "Name (optional)",
+        "name_placeholder": "Your name",
+        "join": "🎯 Join",
+        "join_error": "Enter a valid email",
+        "join_success": "✅ Added to list!",
+        "join_already": "📧 Already registered!",
+        "waiting_count": "👥 {count} people waiting",
+        "demo_vs_pro": "🎯 Demo vs Pro",
+        "free_demo": "Free Demo",
+        "finpilot_pro": "FinPilot Pro",
+        "demo_features": ["✅ 100+ popular stocks", "✅ Basic AI analysis", "✅ Technical indicators", "❌ Real-time data", "❌ Portfolio tracking", "❌ Custom scanning"],
+        "pro_features_list": ["✅ 1000+ stocks (BIST & NASDAQ)", "✅ Advanced AI + DRL models", "✅ Real-time data", "✅ Personal portfolio tracking", "✅ Custom scan filters", "✅ Telegram notifications"],
+        "ready_for_pro": "🚀 Ready for Pro Version?",
+        "cta_desc": "Join the early access list, get <strong style='color: #00e6e6;'>50% discount</strong> at launch!",
+        "join_early_access": "🎯 Join Early Access List",
+        "cta_success": "🎉 Great! You're on the list!",
+        "cta_already": "👋 You're already on our list!",
+        "cta_error": "Enter a valid email address",
+        "copyright": "© 2026 FinPilot. All rights reserved.",
+        "disclaimer": "⚠️ Not investment advice. You are responsible for your own financial decisions.",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "contact": "Contact",
+        "demo_error": "Error loading demo: {error}",
+        "demo_retry": "Please refresh the page or try again later.",
+        "stock_categories": "📊 Stock Categories",
+        "categories_desc": "Choose a category to analyze stocks",
+        "stocks": "stocks",
+        "selected_category": "✅ **{name}** selected ({count} stocks)",
+    },
+    "de": {
+        "try_pro": "🚀 FinPilot Pro testen!",
+        "pro_features": "1000+ Aktien, Echtzeitdaten, Portfolio-Verfolgung",
+        "language": "🌐 Sprache",
+        "early_access": "📧 Früher Zugang",
+        "early_access_desc": "Gehören Sie zu den Ersten!",
+        "email": "E-Mail",
+        "email_placeholder": "beispiel@email.com",
+        "name": "Name (optional)",
+        "name_placeholder": "Ihr Name",
+        "join": "🎯 Beitreten",
+        "join_error": "Gültige E-Mail eingeben",
+        "join_success": "✅ Zur Liste hinzugefügt!",
+        "join_already": "📧 Bereits registriert!",
+        "waiting_count": "👥 {count} Personen warten",
+        "demo_vs_pro": "🎯 Demo vs Pro",
+        "free_demo": "Kostenlose Demo",
+        "finpilot_pro": "FinPilot Pro",
+        "demo_features": ["✅ 100+ Aktien", "✅ KI-Analyse", "✅ Technische Indikatoren", "❌ Echtzeitdaten", "❌ Portfolio", "❌ Scannen"],
+        "pro_features_list": ["✅ 1000+ Aktien", "✅ Erweiterte KI + DRL", "✅ Echtzeitdaten", "✅ Portfolio-Verfolgung", "✅ Scanfilter", "✅ Telegram"],
+        "ready_for_pro": "🚀 Bereit für Pro?",
+        "cta_desc": "Early Access Liste beitreten, <strong style='color: #00e6e6;'>50% Rabatt</strong>!",
+        "join_early_access": "🎯 Early Access beitreten",
+        "cta_success": "🎉 Großartig! Sie sind auf der Liste!",
+        "cta_already": "👋 Sie sind bereits registriert!",
+        "cta_error": "Gültige E-Mail eingeben",
+        "copyright": "© 2026 FinPilot. Alle Rechte vorbehalten.",
+        "disclaimer": "⚠️ Keine Anlageberatung.",
+        "privacy": "Datenschutz",
+        "terms": "Nutzungsbedingungen",
+        "contact": "Kontakt",
+        "demo_error": "Fehler: {error}",
+        "demo_retry": "Bitte aktualisieren Sie die Seite.",
+        "stock_categories": "📊 Aktienkategorien",
+        "categories_desc": "Kategorie wählen",
+        "stocks": "Aktien",
+        "selected_category": "✅ **{name}** ({count} Aktien)",
+    },
+    "tr": {
+        "try_pro": "🚀 FinPilot Pro'yu Deneyin!",
+        "pro_features": "1000+ hisse, gerçek zamanlı veri, portföy takibi",
+        "language": "🌐 Dil",
+        "early_access": "📧 Erken Erişim",
+        "early_access_desc": "Pro'yu ilk deneyenlerden olun!",
+        "email": "E-posta",
+        "email_placeholder": "ornek@email.com",
+        "name": "İsim (opsiyonel)",
+        "name_placeholder": "Adınız",
+        "join": "🎯 Katıl",
+        "join_error": "Geçerli e-posta girin",
+        "join_success": "✅ Listeye eklendi!",
+        "join_already": "📧 Zaten kayıtlısınız!",
+        "waiting_count": "👥 {count} kişi bekliyor",
+        "demo_vs_pro": "🎯 Demo vs Pro",
+        "free_demo": "Ücretsiz Demo",
+        "finpilot_pro": "FinPilot Pro",
+        "demo_features": ["✅ 100+ hisse", "✅ AI analizi", "✅ Teknik indikatörler", "❌ Gerçek zamanlı", "❌ Portföy", "❌ Tarama"],
+        "pro_features_list": ["✅ 1000+ hisse", "✅ Gelişmiş AI + DRL", "✅ Gerçek zamanlı", "✅ Portföy takibi", "✅ Tarama filtreleri", "✅ Telegram"],
+        "ready_for_pro": "🚀 Pro'ya Hazır mısınız?",
+        "cta_desc": "Erken erişim listesine katılın, <strong style='color: #00e6e6;'>%50 indirim</strong>!",
+        "join_early_access": "🎯 Erken Erişime Katıl",
+        "cta_success": "🎉 Harika! Listeye eklendiniz!",
+        "cta_already": "👋 Zaten listemizdesiniz!",
+        "cta_error": "Geçerli e-posta girin",
+        "copyright": "© 2026 FinPilot. Tüm hakları saklıdır.",
+        "disclaimer": "⚠️ Yatırım tavsiyesi değildir.",
+        "privacy": "Gizlilik",
+        "terms": "Şartlar",
+        "contact": "İletişim",
+        "demo_error": "Hata: {error}",
+        "demo_retry": "Sayfayı yenileyin.",
+        "stock_categories": "📊 Hisse Kategorileri",
+        "categories_desc": "Kategori seçin",
+        "stocks": "hisse",
+        "selected_category": "✅ **{name}** ({count} hisse)",
+    },
+}
+
+
+def t(key, **kwargs):
+    """Get translated string."""
+    lang = st.session_state.get("language", "en")
+    text = UI_TRANSLATIONS.get(lang, UI_TRANSLATIONS["en"]).get(key, key)
+    if kwargs:
+        text = text.format(**kwargs)
+    return text
+
+
+def t_list(key):
+    """Get translated list."""
+    lang = st.session_state.get("language", "en")
+    return UI_TRANSLATIONS.get(lang, UI_TRANSLATIONS["en"]).get(key, [])
+
+
+# ============================================
+# 🎨 CUSTOM CSS
+# ============================================
+
+st.markdown("""
 <style>
-    /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-
-    /* Custom colors */
-    .stApp {
-        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-    }
-
-    /* Signup banner */
-    .signup-banner {
-        background: linear-gradient(90deg, #00e6e6 0%, #0ea5e9 100%);
-        padding: 15px 25px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .signup-banner h3 {
-        color: #0f172a;
-        margin: 0;
-    }
-
-    .signup-banner p {
-        color: #1e293b;
-        margin: 0;
-    }
-
-    /* Waitlist form */
-    .waitlist-card {
-        background: rgba(30, 41, 59, 0.9);
-        border: 1px solid #334155;
-        border-radius: 15px;
-        padding: 25px;
-        margin: 20px 0;
-    }
-
-    /* Feature badges */
-    .demo-badge {
-        background: #fbbf24;
-        color: #0f172a;
-        padding: 3px 10px;
-        border-radius: 5px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-
-    .pro-badge {
-        background: #00e6e6;
-        color: #0f172a;
-        padding: 3px 10px;
-        border-radius: 5px;
-        font-size: 12px;
-        font-weight: bold;
-    }
+    .stApp {background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);}
+    .signup-banner {background: linear-gradient(90deg, #00e6e6 0%, #0ea5e9 100%); padding: 15px 25px; border-radius: 10px; margin-bottom: 20px;}
+    .signup-banner h3 {color: #0f172a; margin: 0;}
+    .signup-banner p {color: #1e293b; margin: 0;}
+    .waitlist-card {background: rgba(30,41,59,0.9); border: 1px solid #334155; border-radius: 15px; padding: 25px; margin: 20px 0;}
+    .demo-badge {background: #fbbf24; color: #0f172a; padding: 3px 10px; border-radius: 5px; font-size: 12px; font-weight: bold;}
+    .pro-badge {background: #00e6e6; color: #0f172a; padding: 3px 10px; border-radius: 5px; font-size: 12px; font-weight: bold;}
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
-# Waitlist data storage
+# ============================================
+# 📁 DATA STORAGE
+# ============================================
+
 WAITLIST_FILE = "data/waitlist.json"
 
 
-def save_to_waitlist(email: str, name: str = "", source: str = "demo") -> bool:
+def save_to_waitlist(email, name="", source="demo"):
     """Save email to waitlist."""
     try:
         Path("data").mkdir(exist_ok=True)
-
-        # Load existing
         waitlist = []
         if Path(WAITLIST_FILE).exists():
             with open(WAITLIST_FILE, "r") as f:
                 waitlist = json.load(f)
-
-        # Check if already exists
         if any(w["email"].lower() == email.lower() for w in waitlist):
-            return False  # Already registered
-
-        # Add new entry
-        waitlist.append(
-            {
-                "email": email.lower(),
-                "name": name,
-                "source": source,
-                "timestamp": datetime.now().isoformat(),
-                "ip": "anonymous",  # Privacy first
-            }
-        )
-
-        # Save
+            return False
+        waitlist.append({
+            "email": email.lower(),
+            "name": name,
+            "source": source,
+            "timestamp": datetime.now().isoformat(),
+            "language": st.session_state.get("language", "en"),
+        })
         with open(WAITLIST_FILE, "w") as f:
             json.dump(waitlist, f, indent=2)
-
         return True
-    except Exception as e:
-        st.error(f"Kayıt hatası: {e}")
+    except Exception:
         return False
 
 
+def get_waitlist_count():
+    """Get current waitlist count."""
+    try:
+        if Path(WAITLIST_FILE).exists():
+            with open(WAITLIST_FILE, "r") as f:
+                return len(json.load(f))
+    except Exception:
+        pass
+    return 0
+
+
+# ============================================
+# 🎯 UI COMPONENTS
+# ============================================
+
 def render_signup_banner():
-    """Render the signup/waitlist banner at top."""
-    st.markdown(
-        """
+    st.markdown(f"""
     <div class="signup-banner">
         <div>
-            <h3>🚀 FinPilot Pro'yu Deneyin!</h3>
-            <p>1000+ hisse, gerçek zamanlı veri, kişisel portföy takibi</p>
+            <h3>{t("try_pro")}</h3>
+            <p>{t("pro_features")}</p>
         </div>
     </div>
-    """,
-        unsafe_allow_html=True,
-    )
+    """, unsafe_allow_html=True)
+
+
+def render_language_selector():
+    with st.sidebar:
+        st.markdown(f"### {t('language')}")
+        languages = {"English": "en", "Deutsch": "de", "Türkçe": "tr"}
+        current_lang = st.session_state.get("language", "en")
+        current_index = list(languages.values()).index(current_lang) if current_lang in languages.values() else 0
+        selected = st.selectbox("Language", list(languages.keys()), index=current_index, label_visibility="collapsed")
+        new_lang = languages[selected]
+        if new_lang != current_lang:
+            st.session_state.language = new_lang
+            st.rerun()
 
 
 def render_waitlist_sidebar():
-    """Render waitlist signup form in sidebar."""
     with st.sidebar:
         st.markdown("---")
-        st.markdown("### 📧 Erken Erişim")
-        st.caption("Pro versiyonu ilk deneyenlerden olun!")
-
+        st.markdown(f"### {t('early_access')}")
+        st.caption(t("early_access_desc"))
         with st.form("waitlist_form", clear_on_submit=True):
-            email = st.text_input("E-posta", placeholder="ornek@email.com")
-            name = st.text_input("İsim (opsiyonel)", placeholder="Adınız")
-
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                submitted = st.form_submit_button("🎯 Katıl", use_container_width=True)
-
-            if submitted:
+            email = st.text_input(t("email"), placeholder=t("email_placeholder"))
+            name = st.text_input(t("name"), placeholder=t("name_placeholder"))
+            if st.form_submit_button(t("join"), use_container_width=True):
                 if not email or "@" not in email:
-                    st.error("Geçerli e-posta girin")
+                    st.error(t("join_error"))
                 else:
-                    success = save_to_waitlist(email, name)
-                    if success:
-                        st.success("✅ Listeye eklendi!")
+                    if save_to_waitlist(email, name):
+                        st.success(t("join_success"))
                         st.balloons()
                     else:
-                        st.info("📧 Zaten kayıtlısınız!")
+                        st.info(t("join_already"))
+        count = get_waitlist_count()
+        if count > 0:
+            st.caption(t("waiting_count", count=count))
 
-        # Show waitlist count
-        try:
-            if Path(WAITLIST_FILE).exists():
-                with open(WAITLIST_FILE, "r") as f:
-                    count = len(json.load(f))
-                if count > 0:
-                    st.caption(f"👥 {count} kişi bekliyor")
-        except:
-            pass
+
+def render_category_selector():
+    """Render stock category selector."""
+    try:
+        from views.components.demo_presets import DEMO_CATEGORIES, get_categories_by_group, DEMO_STATS
+        lang = st.session_state.get("language", "en")
+        st.markdown(f"### {t('stock_categories')}")
+        st.caption(f"{t('categories_desc')} • {DEMO_STATS['total_categories']} categories • {DEMO_STATS['unique_stocks']} stocks")
+        
+        groups = get_categories_by_group(lang)
+        for group_name, categories in groups.items():
+            with st.expander(f"📁 {group_name}", expanded=False):
+                cols = st.columns(3)
+                for idx, cat in enumerate(categories):
+                    with cols[idx % 3]:
+                        cat_name = cat.names.get(lang, cat.names["en"])
+                        cat_desc = cat.descriptions.get(lang, cat.descriptions["en"])
+                        if st.button(f"{cat.icon} {cat_name}", key=f"cat_{cat.key}", help=f"{cat_desc} ({len(cat.symbols)} {t('stocks')})", use_container_width=True):
+                            st.session_state.selected_demo_category = cat.key
+        
+        if "selected_demo_category" in st.session_state:
+            cat_key = st.session_state.selected_demo_category
+            if cat_key in DEMO_CATEGORIES:
+                cat = DEMO_CATEGORIES[cat_key]
+                cat_name = cat.names.get(lang, cat.names["en"])
+                st.success(t("selected_category", name=cat_name, count=len(cat.symbols)))
+                return cat.symbols
+        return None
+    except ImportError:
+        st.warning("Demo presets not available")
+        return None
 
 
 def render_feature_comparison():
-    """Show Demo vs Pro features."""
-    st.markdown("### 🎯 Demo vs Pro")
-
+    st.markdown(f"### {t('demo_vs_pro')}")
     col1, col2 = st.columns(2)
-
     with col1:
-        st.markdown(
-            """
+        features = "".join(f"<li>{f}</li>" for f in t_list("demo_features"))
+        st.markdown(f"""
         <div class="waitlist-card">
             <span class="demo-badge">DEMO</span>
-            <h4 style="color: #f8fafc; margin-top: 15px;">Ücretsiz Demo</h4>
-            <ul style="color: #cbd5f5;">
-                <li>✅ 10 popüler hisse</li>
-                <li>✅ Temel AI analizi</li>
-                <li>✅ Teknik indikatörler</li>
-                <li>❌ Gerçek zamanlı veri</li>
-                <li>❌ Portföy takibi</li>
-                <li>❌ Kişisel tarama</li>
-            </ul>
+            <h4 style="color: #f8fafc; margin-top: 15px;">{t("free_demo")}</h4>
+            <ul style="color: #cbd5f5;">{features}</ul>
         </div>
-        """,
-            unsafe_allow_html=True,
-        )
-
+        """, unsafe_allow_html=True)
     with col2:
-        st.markdown(
-            """
+        features = "".join(f"<li>{f}</li>" for f in t_list("pro_features_list"))
+        st.markdown(f"""
         <div class="waitlist-card" style="border-color: #00e6e6;">
             <span class="pro-badge">PRO</span>
-            <h4 style="color: #00e6e6; margin-top: 15px;">FinPilot Pro</h4>
-            <ul style="color: #cbd5f5;">
-                <li>✅ 1000+ hisse (BIST & NASDAQ)</li>
-                <li>✅ Gelişmiş AI + DRL modelleri</li>
-                <li>✅ Gerçek zamanlı veri</li>
-                <li>✅ Kişisel portföy takibi</li>
-                <li>✅ Özel tarama filtreleri</li>
-                <li>✅ Telegram bildirimleri</li>
-            </ul>
+            <h4 style="color: #00e6e6; margin-top: 15px;">{t("finpilot_pro")}</h4>
+            <ul style="color: #cbd5f5;">{features}</ul>
         </div>
-        """,
-            unsafe_allow_html=True,
-        )
+        """, unsafe_allow_html=True)
 
 
 def render_cta_section():
-    """Render call-to-action with email signup."""
     st.markdown("---")
-
-    st.markdown(
-        """
+    st.markdown(f"""
     <div style='background: linear-gradient(90deg, rgba(0,230,230,0.1) 0%, rgba(14,165,233,0.1) 100%);
                 padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #00e6e6;'>
-        <h2 style='color: #f8fafc;'>🚀 Pro Versiyona Hazır mısınız?</h2>
-        <p style='color: #cbd5f5; font-size: 1.1em; max-width: 600px; margin: 0 auto 20px auto;'>
-            Erken erişim listesine katılın, lansmanda <strong style="color: #00e6e6;">%50 indirim</strong> kazanın!
-        </p>
+        <h2 style='color: #f8fafc;'>{t("ready_for_pro")}</h2>
+        <p style='color: #cbd5f5; font-size: 1.1em;'>{t("cta_desc")}</p>
     </div>
-    """,
-        unsafe_allow_html=True,
-    )
-
-    # Centered email form
+    """, unsafe_allow_html=True)
+    
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         with st.form("cta_waitlist", clear_on_submit=True):
-            email = st.text_input(
-                "E-posta adresiniz", placeholder="ornek@email.com", label_visibility="collapsed"
-            )
-
-            if st.form_submit_button(
-                "🎯 Erken Erişim Listesine Katıl", use_container_width=True, type="primary"
-            ):
+            email = st.text_input(t("email"), placeholder=t("email_placeholder"), label_visibility="collapsed")
+            if st.form_submit_button(t("join_early_access"), use_container_width=True, type="primary"):
                 if email and "@" in email:
-                    success = save_to_waitlist(email, source="cta")
-                    if success:
-                        st.success("🎉 Harika! Listeye eklendiniz. Lansmanı kaçırmayacaksınız!")
+                    if save_to_waitlist(email, source="cta"):
+                        st.success(t("cta_success"))
                         st.balloons()
                     else:
-                        st.info("👋 Zaten listemizdesiniz!")
+                        st.info(t("cta_already"))
                 else:
-                    st.error("Geçerli bir e-posta adresi girin")
+                    st.error(t("cta_error"))
 
 
-def main():
-    """Main demo application."""
-
-    # Signup banner at top
-    render_signup_banner()
-
-    # Waitlist form in sidebar
-    render_waitlist_sidebar()
-
-    # Language selector in sidebar
-    with st.sidebar:
-        st.markdown("### 🌐 Language")
-        lang = st.selectbox(
-            "Dil Seçin", ["English", "Türkçe", "Deutsch"], index=1, label_visibility="collapsed"
-        )
-        lang_map = {"English": "en", "Türkçe": "tr", "Deutsch": "de"}
-        st.session_state.language = lang_map[lang]
-
-    # Import and render demo page
-    try:
-        from views.demo import render_demo_page
-
-        render_demo_page()
-    except Exception as e:
-        st.error(f"Demo yüklenirken hata: {e}")
-        st.info("Lütfen sayfayı yenileyin veya daha sonra tekrar deneyin.")
-
-    # Feature comparison
-    render_feature_comparison()
-
-    # CTA section
-    render_cta_section()
-
-    # Footer
+def render_footer():
     st.markdown("---")
-    st.markdown(
-        """
+    st.markdown(f"""
     <div style='text-align: center; color: #64748b; padding: 20px;'>
-        <p>© 2026 FinPilot. Tüm hakları saklıdır.</p>
+        <p>{t("copyright")}</p>
+        <p style='font-size: 12px;'>{t("disclaimer")}</p>
         <p style='font-size: 12px;'>
-            ⚠️ Yatırım tavsiyesi değildir. Finansal kararlarınızdan kendiniz sorumlusunuz.
-        </p>
-        <p style='font-size: 12px;'>
-            <a href="#" style="color: #00e6e6;">Gizlilik Politikası</a> |
-            <a href="#" style="color: #00e6e6;">Kullanım Şartları</a> |
-            <a href="#" style="color: #00e6e6;">İletişim</a>
+            <a href="#" style="color: #00e6e6;">{t("privacy")}</a> |
+            <a href="#" style="color: #00e6e6;">{t("terms")}</a> |
+            <a href="#" style="color: #00e6e6;">{t("contact")}</a>
         </p>
     </div>
-    """,
-        unsafe_allow_html=True,
-    )
+    """, unsafe_allow_html=True)
+
+
+# ============================================
+# 🚀 MAIN APPLICATION
+# ============================================
+
+def main():
+    # Initialize language (English default)
+    if "language" not in st.session_state:
+        st.session_state.language = "en"
+    
+    render_signup_banner()
+    render_language_selector()
+    render_waitlist_sidebar()
+    
+    selected_symbols = render_category_selector()
+    if selected_symbols:
+        st.session_state.demo_symbols = selected_symbols
+    
+    try:
+        from views.demo import render_demo_page
+        render_demo_page()
+    except Exception as e:
+        st.error(t("demo_error", error=str(e)))
+        st.info(t("demo_retry"))
+    
+    render_feature_comparison()
+    render_cta_section()
+    render_footer()
 
 
 if __name__ == "__main__":
