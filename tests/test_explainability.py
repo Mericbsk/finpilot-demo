@@ -10,7 +10,7 @@ from drl.analysis import (
 
 
 def _sample_history():
-    idx = pd.date_range("2025-01-01", periods=8, freq="H", tz="UTC")
+    idx = pd.date_range("2025-01-01", periods=8, freq="h", tz="UTC")
     return pd.DataFrame(
         {
             "sentiment_score": [0.1, 0.1, 0.12, 0.2, 0.24, 0.28, 0.32, 0.36],

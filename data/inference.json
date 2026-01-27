@@ -1,0 +1,67 @@
+{
+  "AAPL": {
+    "timestamp": "2026-01-24T11:55:06.010693",
+    "price": 247.97,
+    "ai_score": 56.7,
+    "signal": "HOLD",
+    "confidence": 0.73,
+    "regime": "RANGE",
+    "features": {
+      "rsi": 51.48,
+      "sentiment": 0.45,
+      "w_flow": 434.07
+    }
+  },
+  "BTC-USD": {
+    "timestamp": "2026-01-24T11:55:06.817968",
+    "price": 89484.88,
+    "ai_score": 35.0,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "regime": "RANGE",
+    "features": {
+      "rsi": 59.68,
+      "sentiment": -1.0,
+      "w_flow": 668.83
+    }
+  },
+  "NVDA": {
+    "timestamp": "2026-01-24T11:55:07.332605",
+    "price": 187.67,
+    "ai_score": 58.2,
+    "signal": "HOLD",
+    "confidence": 0.67,
+    "regime": "TREND",
+    "features": {
+      "rsi": 74.19,
+      "sentiment": -0.12,
+      "w_flow": 0.0
+    }
+  },
+  "TSLA": {
+    "timestamp": "2026-01-24T11:55:07.832611",
+    "price": 449.07,
+    "ai_score": 20.0,
+    "signal": "SELL",
+    "confidence": 0.6,
+    "regime": "RANGE",
+    "features": {
+      "rsi": 75.21,
+      "sentiment": -1.0,
+      "w_flow": 0.0
+    }
+  },
+  "ETH-USD": {
+    "timestamp": "2026-01-24T11:55:08.428307",
+    "price": 2958.59,
+    "ai_score": 35.0,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "regime": "RANGE",
+    "features": {
+      "rsi": 66.8,
+      "sentiment": -1.0,
+      "w_flow": 896.87
+    }
+  }
+}

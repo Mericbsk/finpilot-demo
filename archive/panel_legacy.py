@@ -1,6 +1,6 @@
-
 import datetime
 import glob
+import math
 import os
 import re
 from functools import lru_cache
@@ -8,7 +8,6 @@ from html import escape
 from pathlib import Path
 from textwrap import dedent
 
-import math
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
@@ -17,12 +16,11 @@ import yfinance as yf
 import scanner
 from scanner import build_explanation, build_reason, compute_recommendation_score, load_symbols
 
-
 st.set_page_config(page_title="FinPilot Panel", layout="wide", page_icon="🛫")
+
 
 def is_advanced_view() -> bool:
     return st.session_state.get("view_mode", "advanced") == "advanced"
-
 
 
 GLOBAL_CSS = """
@@ -839,7 +837,7 @@ if "view_mode_choice" not in st.session_state:
 
 
 def render_finpilot_landing():
-        hero_section = """
+    hero_section = """
         <div class='layout-grid'>
             <div style='background: linear-gradient(100deg,#131b2b 55%,#1e2b40 100%); border-radius:24px; padding:50px 36px; margin-bottom:36px; box-shadow:0 24px 60px -32px rgba(8,47,73,0.65);'>
                 <div style='display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:32px;'>
@@ -895,7 +893,7 @@ def render_finpilot_landing():
         </div>
         """
 
-        features_section = """
+    features_section = """
         <div class='layout-grid'>
             <div style='display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; margin-bottom:40px;'>
                 <div class='feature-card' style='background:rgba(15,23,42,0.75); border-radius:18px; padding:26px 24px; box-shadow:0 22px 52px -32px rgba(14,165,233,0.45);'>
@@ -935,7 +933,7 @@ def render_finpilot_landing():
         </div>
         """
 
-        checklist_html = """
+    checklist_html = """
         <div class='layout-grid'>
             <div class='action-checklist'>
                 <h3>📋 Pilot'un Aksiyon Kontrol Listesi</h3>
@@ -969,18 +967,18 @@ def render_finpilot_landing():
         </div>
         """
 
-        st.markdown(hero_section, unsafe_allow_html=True)
-        st.markdown(features_section, unsafe_allow_html=True)
-        st.markdown(checklist_html, unsafe_allow_html=True)
+    st.markdown(hero_section, unsafe_allow_html=True)
+    st.markdown(features_section, unsafe_allow_html=True)
+    st.markdown(checklist_html, unsafe_allow_html=True)
 
-        action_cols = st.columns([1, 1, 1])
-        with action_cols[1]:
-                if st.button("Panele Geç", key="landing_enter_panel"):
-                        st.session_state.has_seen_landing = True
-                        trigger_rerun()
+    action_cols = st.columns([1, 1, 1])
+    with action_cols[1]:
+        if st.button("Panele Geç", key="landing_enter_panel"):
+            st.session_state.has_seen_landing = True
+            trigger_rerun()
 
-        st.caption("🎉 Bu tanıtım ekranı sadece ilk oturumda gösterilir.")
-        st.stop()
+    st.caption("🎉 Bu tanıtım ekranı sadece ilk oturumda gösterilir.")
+    st.stop()
 
 
 if not st.session_state.has_seen_landing:
@@ -1037,7 +1035,9 @@ def render_settings_card(height: int = 860):
     markup, error = load_settingscard_markup()
     if error:
         st.warning(error)
-        st.info("`SettingsCard/dist/` içeriğini oluşturmak için projede `npm run build` çalıştırın.")
+        st.info(
+            "`SettingsCard/dist/` içeriğini oluşturmak için projede `npm run build` çalıştırın."
+        )
         return
 
     if not markup:
@@ -1113,13 +1113,17 @@ def build_zscore_chip(data: dict) -> str:
     except (TypeError, ValueError):  # noqa: PERF203
         return ""
 
-    threshold = data.get("momentum_z_effective") or scanner.SETTINGS.get("momentum_z_threshold", 1.5)
+    threshold = data.get("momentum_z_effective") or scanner.SETTINGS.get(
+        "momentum_z_threshold", 1.5
+    )
     try:
         threshold_val = float(threshold)
     except (TypeError, ValueError):
         threshold_val = float(scanner.SETTINGS.get("momentum_z_threshold", 1.5))
 
-    baseline = data.get("momentum_baseline_window") or scanner.SETTINGS.get("momentum_baseline_window", 60)
+    baseline = data.get("momentum_baseline_window") or scanner.SETTINGS.get(
+        "momentum_baseline_window", 60
+    )
     try:
         baseline = int(baseline)
     except (TypeError, ValueError):
@@ -1158,7 +1162,9 @@ def build_zscore_chip(data: dict) -> str:
     horizon_text = f"{horizon} periyot" if horizon else "Son getiri"
     baseline_text = f"{baseline} periyot"
     rarity_text = (
-        f"Bu hareket, geçmiş dağılımın %{unusual_pct:.1f} dilimi içinde." if unusual_pct is not None else ""
+        f"Bu hareket, geçmiş dağılımın %{unusual_pct:.1f} dilimi içinde."
+        if unusual_pct is not None
+        else ""
     )
     threshold_text = f"Eşik: ±{threshold_val:.1f}σ"
     if segment_label:
@@ -1200,7 +1206,9 @@ def build_signal_strength_chip(data: dict) -> str:
 def build_regime_chip(data: dict) -> str:
     regime = data.get("regime")
     if regime in (None, "", "NaN", "-"):
-        return build_status_chip("Rejim · —", variant="neutral", icon="🧭", tooltip="Rejim bilgisi mevcut değil.")
+        return build_status_chip(
+            "Rejim · —", variant="neutral", icon="🧭", tooltip="Rejim bilgisi mevcut değil."
+        )
 
     regime_text = str(regime)
     lower = regime_text.lower()
@@ -1252,7 +1260,9 @@ def render_buyable_cards(df: pd.DataFrame, limit: int = 6):
 
     featured = df.copy()
     if "recommendation_score" in featured.columns:
-        featured = featured.sort_values(["entry_ok", "recommendation_score"], ascending=[False, False])
+        featured = featured.sort_values(
+            ["entry_ok", "recommendation_score"], ascending=[False, False]
+        )
 
     for _, row in featured.head(limit).iterrows():
         data = row.to_dict()
@@ -1284,7 +1294,9 @@ def render_buyable_cards(df: pd.DataFrame, limit: int = 6):
         sentiment_hint = escape(get_sentiment_hint(sentiment))
         onchain_text = format_decimal(onchain)
         z_threshold_val = data.get("momentum_z_effective")
-        z_threshold_text = format_decimal(z_threshold_val) if z_threshold_val not in (None, "-") else "-"
+        z_threshold_text = (
+            format_decimal(z_threshold_val) if z_threshold_val not in (None, "-") else "-"
+        )
         segment_key = data.get("momentum_liquidity_segment")
         segment_display = {
             "high_liquidity": "Yüksek hacim",
@@ -1292,15 +1304,25 @@ def render_buyable_cards(df: pd.DataFrame, limit: int = 6):
             "low_liquidity": "Düşük hacim",
         }.get(segment_key, segment_key or "—")
         dynamic_samples = data.get("momentum_dynamic_samples") or 0
-        baseline_window = data.get("momentum_baseline_window") or scanner.SETTINGS.get("momentum_baseline_window", 60)
-        dynamic_hint = f"Dinamik kalibrasyon: pencere {baseline_window}, örnek {dynamic_samples}" if dynamic_samples else f"Dinamik kalibrasyon: pencere {baseline_window}"
+        baseline_window = data.get("momentum_baseline_window") or scanner.SETTINGS.get(
+            "momentum_baseline_window", 60
+        )
+        dynamic_hint = (
+            f"Dinamik kalibrasyon: pencere {baseline_window}, örnek {dynamic_samples}"
+            if dynamic_samples
+            else f"Dinamik kalibrasyon: pencere {baseline_window}"
+        )
         dynamic_hint = escape(dynamic_hint)
         z_threshold_badge = ""
         if z_threshold_text != "-":
-            z_threshold_badge = f"<span class='badge info' title='{dynamic_hint}'>Eşik: ±{z_threshold_text}σ</span>"
+            z_threshold_badge = (
+                f"<span class='badge info' title='{dynamic_hint}'>Eşik: ±{z_threshold_text}σ</span>"
+            )
         segment_badge = ""
         if segment_display:
-            segment_badge = f"<span class='badge hold'>Segment: {escape(str(segment_display))}</span>"
+            segment_badge = (
+                f"<span class='badge hold'>Segment: {escape(str(segment_display))}</span>"
+            )
         chips = compose_signal_chips(data)
         chip_row_html = ""
         if chips:
@@ -1501,10 +1523,18 @@ def render_symbol_snapshot(df: pd.DataFrame, limit: int = 6):
         return
 
     total_symbols = len(df)
-    entry_series = pd.Series(df.get("entry_ok", [])) if "entry_ok" in df.columns else pd.Series(dtype="bool")
-    buyable_count = int(entry_series.fillna(False).astype(bool).sum()) if not entry_series.empty else 0
+    entry_series = (
+        pd.Series(df.get("entry_ok", [])) if "entry_ok" in df.columns else pd.Series(dtype="bool")
+    )
+    buyable_count = (
+        int(entry_series.fillna(False).astype(bool).sum()) if not entry_series.empty else 0
+    )
     buyable_ratio = (buyable_count / total_symbols * 100.0) if total_symbols else 0.0
-    rr_series = pd.Series(df.get("risk_reward", [])) if "risk_reward" in df.columns else pd.Series(dtype="float")
+    rr_series = (
+        pd.Series(df.get("risk_reward", []))
+        if "risk_reward" in df.columns
+        else pd.Series(dtype="float")
+    )
     avg_rr = rr_series.dropna().mean() if not rr_series.empty else None
     last_timestamp = None
     if "timestamp" in df.columns:
@@ -1516,7 +1546,9 @@ def render_symbol_snapshot(df: pd.DataFrame, limit: int = 6):
     col_total, col_buyable, col_rr = st.columns(3)
     col_total.metric("Toplam Sembol", f"{total_symbols}")
     buyable_delta = f"%{format_decimal(buyable_ratio, precision=1)}"
-    col_buyable.metric("Alım Fırsatı", f"{buyable_count}", delta=buyable_delta if total_symbols else None)
+    col_buyable.metric(
+        "Alım Fırsatı", f"{buyable_count}", delta=buyable_delta if total_symbols else None
+    )
     col_rr.metric("Ortalama R/R", format_decimal(avg_rr) if avg_rr is not None else "-")
     if last_timestamp is not None:
         st.caption(f"Son güncelleme: {last_timestamp.strftime('%Y-%m-%d %H:%M')}")
@@ -1540,14 +1572,16 @@ def render_symbol_snapshot(df: pd.DataFrame, limit: int = 6):
             else "background:rgba(148,163,184,0.18); border:1px solid rgba(148,163,184,0.35); color:#cbd5f5;"
         )
         badge_html = (
-            f"<span style=\"display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px;"
-            f" font-size:0.75rem; font-weight:600; letter-spacing:0.04em; {badge_style}\">{badge_label}</span>"
+            f'<span style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px;'
+            f' font-size:0.75rem; font-weight:600; letter-spacing:0.04em; {badge_style}">{badge_label}</span>'
         )
         timestamp_raw = row.get("timestamp")
         if isinstance(timestamp_raw, (pd.Timestamp, datetime.datetime)):
             timestamp_display = timestamp_raw.strftime("%Y-%m-%d %H:%M")
         else:
-            timestamp_display = str(timestamp_raw) if timestamp_raw not in (None, "", "NaT") else "-"
+            timestamp_display = (
+                str(timestamp_raw) if timestamp_raw not in (None, "", "NaT") else "-"
+            )
         timestamp_display = escape(timestamp_display)
 
         cards.append(
@@ -1598,7 +1632,11 @@ def render_signal_history_overview(df: pd.DataFrame, limit: int = 5):
         return
 
     total_signals = len(df)
-    buy_mask = df["Alım?"].astype(str).str.lower().isin({"1", "true", "evet", "al", "yes"}) if "Alım?" in df.columns else pd.Series(dtype=bool)
+    buy_mask = (
+        df["Alım?"].astype(str).str.lower().isin({"1", "true", "evet", "al", "yes"})
+        if "Alım?" in df.columns
+        else pd.Series(dtype=bool)
+    )
     buyable_count = int(buy_mask.sum()) if not buy_mask.empty else 0
     success_rate = (buyable_count / total_signals * 100.0) if total_signals else 0.0
     avg_score = None
@@ -1616,8 +1654,12 @@ def render_signal_history_overview(df: pd.DataFrame, limit: int = 5):
 
     col_total, col_buyable, col_score = st.columns(3)
     col_total.metric("Toplam Sinyal", f"{total_signals}")
-    col_buyable.metric("Alım Fırsatı", f"{buyable_count}", delta=f"%{success_rate:.1f}" if total_signals else None)
-    col_score.metric("Ortalama Skor", format_decimal(avg_score, precision=1) if avg_score is not None else "-")
+    col_buyable.metric(
+        "Alım Fırsatı", f"{buyable_count}", delta=f"%{success_rate:.1f}" if total_signals else None
+    )
+    col_score.metric(
+        "Ortalama Skor", format_decimal(avg_score, precision=1) if avg_score is not None else "-"
+    )
     if last_date is not None:
         st.caption(f"Veri güncellendi: {last_date.strftime('%Y-%m-%d %H:%M')}")
 
@@ -1641,8 +1683,8 @@ def render_signal_history_overview(df: pd.DataFrame, limit: int = 5):
             else "background:rgba(148,163,184,0.18); border:1px solid rgba(148,163,184,0.35); color:#cbd5f5;"
         )
         badge_html = (
-            f"<span style=\"display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px;"
-            f" font-size:0.72rem; font-weight:600; letter-spacing:0.04em; {badge_style}\">{badge_label}</span>"
+            f'<span style="display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px;'
+            f' font-size:0.72rem; font-weight:600; letter-spacing:0.04em; {badge_style}">{badge_label}</span>'
         )
 
         cards.append(
@@ -1682,6 +1724,7 @@ def render_signal_history_overview(df: pd.DataFrame, limit: int = 5):
             unsafe_allow_html=True,
         )
 
+
 def render_progress_tracker(container, status: str, has_source: bool, has_results: bool):
     """Render the process tracker with detailed guidance cards."""
 
@@ -1692,7 +1735,7 @@ def render_progress_tracker(container, status: str, has_source: bool, has_result
             "icon": "▶️",
             "what": "Tarama motorunu seçtiğiniz portföy ayarları, risk parametreleri ve tarama modu ile başlatıyoruz.",
             "why": "Sistem hangi strateji ve risk çerçevesiyle çalışacağını bu adımda bilir.",
-            "message": "\"Taramayı Çalıştır\" butonuna bastığınızda analiz süreci seçtiğiniz parametrelerle tetiklenir.",
+            "message": '"Taramayı Çalıştır" butonuna bastığınızda analiz süreci seçtiğiniz parametrelerle tetiklenir.',
         },
         {
             "key": "data",
@@ -1700,7 +1743,7 @@ def render_progress_tracker(container, status: str, has_source: bool, has_result
             "icon": "📥",
             "what": "Sembol listenizi (örneğin CSV dosyası) sisteme alıp doğruluyoruz.",
             "why": "Analiz motoru yalnızca sağladığınız veri seti üzerinden çalışır; doğruluk sonuçların güvenilirliğini belirler.",
-            "message": "\"CSV Yükle\" veya \"Son Shortlist’i Yükle\" ile veri sağlayarak filtrelemeye hazır hale getirin.",
+            "message": '"CSV Yükle" veya "Son Shortlist’i Yükle" ile veri sağlayarak filtrelemeye hazır hale getirin.',
         },
         {
             "key": "results",
@@ -1736,7 +1779,9 @@ def render_progress_tracker(container, status: str, has_source: bool, has_result
     status_text = status_text_map.get(status, status.title())
 
     if active_index is None:
-        current_stage_desc = "Tüm adımlar başarıyla tamamlandı. Kartlardan sonuç detaylarını inceleyebilirsiniz."
+        current_stage_desc = (
+            "Tüm adımlar başarıyla tamamlandı. Kartlardan sonuç detaylarını inceleyebilirsiniz."
+        )
         progress_class = "completed"
     else:
         current_title = steps[active_index]["title"]
@@ -1978,7 +2023,7 @@ def render_mobile_symbol_cards(df: pd.DataFrame):
         chip_row_html = ""
         if chips:
             chip_row_html = "<div class='status-chip-row'>" + "".join(chips) + "</div>"
-        symbol_label = escape(str(row_dict.get('symbol', '-')))
+        symbol_label = escape(str(row_dict.get("symbol", "-")))
         timestamp_raw = row_dict.get("timestamp")
         if isinstance(timestamp_raw, (pd.Timestamp, datetime.datetime)):
             timestamp_display = timestamp_raw.strftime("%Y-%m-%d %H:%M")
@@ -2022,7 +2067,9 @@ def render_mobile_symbol_cards(df: pd.DataFrame):
 
     if cards:
         st.markdown(
-            "<div class='mobile-card-stack mobile-card-stack--symbols'>" + "".join(cards) + "</div>",
+            "<div class='mobile-card-stack mobile-card-stack--symbols'>"
+            + "".join(cards)
+            + "</div>",
             unsafe_allow_html=True,
         )
 
@@ -2105,7 +2152,9 @@ def render_mobile_recommendation_cards(df: pd.DataFrame):
 
     if cards:
         st.markdown(
-            "<div class='mobile-card-stack mobile-card-stack--recommendations'>" + "".join(cards) + "</div>",
+            "<div class='mobile-card-stack mobile-card-stack--recommendations'>"
+            + "".join(cards)
+            + "</div>",
             unsafe_allow_html=True,
         )
 
@@ -2150,7 +2199,9 @@ elif page == "Kişiselleştirme":
     st.markdown(
         "Risk profili, strateji tercihi ve bildirim seçenekleri gibi tüm FinPilot ayarlarını bu sayfadan yönetebilirsiniz."
     )
-    st.caption("Ayarlarınızı güncelledikten sonra panodaki analizleri yenileyerek son durumu görebilirsiniz.")
+    st.caption(
+        "Ayarlarınızı güncelledikten sonra panodaki analizleri yenileyerek son durumu görebilirsiniz."
+    )
     render_settings_card()
 
 # --- Geçmiş Sinyaller Sayfası ---
@@ -2161,41 +2212,57 @@ elif page == "Geçmiş Sinyaller":
     if os.path.exists(signal_log_path):
         log_df = pd.read_csv(signal_log_path, header=None)
         log_df.columns = [
-            "Tarih", "Sembol", "Fiyat", "Stop-Loss", "Take-Profit", "Skor", "Güç", "Rejim", "Sentiment", "Onchain", "Alım?", "Özet", "Neden"
+            "Tarih",
+            "Sembol",
+            "Fiyat",
+            "Stop-Loss",
+            "Take-Profit",
+            "Skor",
+            "Güç",
+            "Rejim",
+            "Sentiment",
+            "Onchain",
+            "Alım?",
+            "Özet",
+            "Neden",
         ]
         # Filtreler
-        col1, col2, col3 = st.columns([2,2,2])
-        unique_dates = log_df['Tarih'].unique().tolist()
+        col1, col2, col3 = st.columns([2, 2, 2])
+        unique_dates = log_df["Tarih"].unique().tolist()
         selected_date = col1.selectbox("Tarih Seç", ["Tümü"] + unique_dates)
-        unique_symbols = log_df['Sembol'].unique().tolist()
+        unique_symbols = log_df["Sembol"].unique().tolist()
         selected_symbol = col2.selectbox("Sembol Seç", ["Tümü"] + unique_symbols)
-        regime_options = log_df['Rejim'].unique().tolist()
+        regime_options = log_df["Rejim"].unique().tolist()
         selected_regime = col3.selectbox("Rejim Filtrele", ["Tümü"] + regime_options)
 
         filtered = log_df.copy()
         if selected_date != "Tümü":
-            filtered = filtered[filtered['Tarih'] == selected_date]
+            filtered = filtered[filtered["Tarih"] == selected_date]
         if selected_symbol != "Tümü":
-            filtered = filtered[filtered['Sembol'] == selected_symbol]
+            filtered = filtered[filtered["Sembol"] == selected_symbol]
         if selected_regime != "Tümü":
-            filtered = filtered[filtered['Rejim'] == selected_regime]
+            filtered = filtered[filtered["Rejim"] == selected_regime]
 
         # 1. Getiri & Hedefleme
-        avg_gain = (filtered['Take-Profit'] - filtered['Fiyat']).mean() if len(filtered) > 0 else 0
-        cagr = ((filtered['Take-Profit'] / filtered['Fiyat']).mean() - 1) * 100 if len(filtered) > 0 else 0
-        take_profit = filtered['Take-Profit'].mean() if len(filtered) > 0 else 0
+        avg_gain = (filtered["Take-Profit"] - filtered["Fiyat"]).mean() if len(filtered) > 0 else 0
+        cagr = (
+            ((filtered["Take-Profit"] / filtered["Fiyat"]).mean() - 1) * 100
+            if len(filtered) > 0
+            else 0
+        )
+        take_profit = filtered["Take-Profit"].mean() if len(filtered) > 0 else 0
 
         # 2. Risk & Uçurum
-        avg_loss = (filtered['Fiyat'] - filtered['Stop-Loss']).mean() if len(filtered) > 0 else 0
+        avg_loss = (filtered["Fiyat"] - filtered["Stop-Loss"]).mean() if len(filtered) > 0 else 0
         rr_ratio = avg_gain / avg_loss if avg_loss != 0 else 0
         kelly = (rr_ratio - (1 - rr_ratio)) / rr_ratio if rr_ratio > 0 else 0
-        max_drawdown = avg_loss # örnek, daha gelişmiş hesaplama eklenebilir
+        max_drawdown = avg_loss  # örnek, daha gelişmiş hesaplama eklenebilir
 
         # 3. Strateji & Uyum
         total_signals = len(filtered)
-        success_signals = filtered[filtered['Alım?']].shape[0] if total_signals > 0 else 0
+        success_signals = filtered[filtered["Alım?"]].shape[0] if total_signals > 0 else 0
         win_rate = (success_signals / total_signals * 100) if total_signals > 0 else 0
-        avg_score = filtered['Skor'].mean() if total_signals > 0 else 0
+        avg_score = filtered["Skor"].mean() if total_signals > 0 else 0
 
         st.markdown("### 🚦 Risk/Ödül Kartı")
         rr_color = "#10b981" if rr_ratio >= 2 else ("#f59e42" if rr_ratio >= 1 else "#ef4444")
@@ -2210,7 +2277,7 @@ elif page == "Geçmiş Sinyaller":
         st.markdown("### 🤖 Strateji & Uyum")
         st.markdown(f"Başarı Oranı (Win Rate): %{win_rate:.1f} | Ortalama Skor: {avg_score:.2f}")
 
-        st.dataframe(filtered, width='stretch')
+        st.dataframe(filtered, width="stretch")
 
         # Simülasyon ve Pozisyon Girişi
         st.markdown("---")
@@ -2221,8 +2288,9 @@ elif page == "Geçmiş Sinyaller":
 
 
 # --- Detay Analiz: Ana içerikten sonra, geniş ve ortada ---
-    # ...removed unreachable/indented code...
-    # ...existing code...
+# ...removed unreachable/indented code...
+# ...existing code...
+
 
 def latest_csv(prefix: str):
     if prefix == "shortlist":
@@ -2231,15 +2299,19 @@ def latest_csv(prefix: str):
         search_dir = os.path.join(os.getcwd(), "data", "suggestions")
     else:
         search_dir = os.getcwd()
-        
-    files = sorted(glob.glob(os.path.join(search_dir, f"{prefix}_*.csv")), key=os.path.getmtime, reverse=True)
+
+    files = sorted(
+        glob.glob(os.path.join(search_dir, f"{prefix}_*.csv")), key=os.path.getmtime, reverse=True
+    )
     return files[0] if files else None
+
 
 def load_csv(path: str):
     try:
         return pd.read_csv(path)
     except Exception:
         return pd.DataFrame()
+
 
 REGIME_HINT_CATALOG = {
     "trend": "Trend modu: Fiyat yukarı yönlü momentumda, trend takip stratejileri avantaj sağlar.",
@@ -2260,6 +2332,7 @@ SENTIMENT_HINT_CATALOG = {
     "mixed": "Karışık sentiment: Göstergeler çelişkili, ek doğrulama gerekli.",
 }
 
+
 def _lookup_hint(value, catalog, default):
     if value in (None, ""):
         return default
@@ -2269,11 +2342,22 @@ def _lookup_hint(value, catalog, default):
             return hint
     return default
 
+
 def get_regime_hint(value):
-    return _lookup_hint(value, REGIME_HINT_CATALOG, "Rejim metriği, trend analizi sonucunu ve piyasa yapısını gösterir.")
+    return _lookup_hint(
+        value,
+        REGIME_HINT_CATALOG,
+        "Rejim metriği, trend analizi sonucunu ve piyasa yapısını gösterir.",
+    )
+
 
 def get_sentiment_hint(value):
-    return _lookup_hint(value, SENTIMENT_HINT_CATALOG, "Sentiment metriği, haber ve veri akışından türetilen piyasa hissiyatını özetler.")
+    return _lookup_hint(
+        value,
+        SENTIMENT_HINT_CATALOG,
+        "Sentiment metriği, haber ve veri akışından türetilen piyasa hissiyatını özetler.",
+    )
+
 
 def detect_symbol_column(df: pd.DataFrame):
     cols = {c.lower(): c for c in df.columns}
@@ -2282,12 +2366,14 @@ def detect_symbol_column(df: pd.DataFrame):
             return cols[name]
     return None
 
+
 def extract_symbols_from_df(df: pd.DataFrame):
     cand = detect_symbol_column(df)
     if cand is None:
         return []
     series = df[cand].dropna().astype(str).map(lambda x: x.strip().upper())
     return [s for s in series.unique().tolist() if s]
+
 
 # Sidebar - Portföy Ayarları
 with st.sidebar:
@@ -2298,7 +2384,9 @@ with st.sidebar:
     kelly_fraction = st.slider("Kelly (0.1-1.0)", min_value=0.1, max_value=1.0, value=0.5, step=0.1)
 
     st.markdown("**Tarama Modu**")
-    aggressive_mode = st.toggle("Agresif Mod", value=False, help="Daha fazla fırsat için eşikleri gevşetir.")
+    aggressive_mode = st.toggle(
+        "Agresif Mod", value=False, help="Daha fazla fırsat için eşikleri gevşetir."
+    )
 
     st.markdown("**Veri Ayarları**")
     use_adjusted = st.toggle("Temettü/Bölünme Ayarlı Fiyat", value=True)
@@ -2310,18 +2398,18 @@ with st.sidebar:
         "Lookback Penceresi (gün)",
         options=lookback_options,
         value=60,
-        help="Z-skor hesabında kullanılacak tarih aralığını belirler."
+        help="Z-skor hesabında kullanılacak tarih aralığını belirler.",
     )
     dynamic_window_ui = st.select_slider(
         "Dinamik Pencere (gün)",
         options=[40, 60, 80, 100, 120, 160],
         value=60,
-        help="Rolling pencere uzunluğu, adaptif eşikleri kalibre eder."
+        help="Rolling pencere uzunluğu, adaptif eşikleri kalibre eder.",
     )
     dynamic_enabled_ui = st.toggle(
         "Dinamik z-eşiği",
         value=True,
-        help="Z-eşiği, son pencere dağılımına göre otomatik ayarlansın."
+        help="Z-eşiği, son pencere dağılımına göre otomatik ayarlansın.",
     )
     dynamic_quantile_ui = st.slider(
         "Dinamik Eşik Yüzdesi",
@@ -2329,18 +2417,19 @@ with st.sidebar:
         max_value=0.995,
         value=0.975,
         step=0.005,
-        help="Yüzdelik 0.95-0.99 aralığında daha sıkı, 0.90-0.94 daha esnek sinyal üretir."
+        help="Yüzdelik 0.95-0.99 aralığında daha sıkı, 0.90-0.94 daha esnek sinyal üretir.",
     )
     segment_enabled_ui = st.toggle(
-        "Likidite bazlı presetler",
-        value=True,
-        help="Hacme göre ±σ eşiklerini otomatik seç."
+        "Likidite bazlı presetler", value=True, help="Hacme göre ±σ eşiklerini otomatik seç."
     )
-    st.caption("20/60/120 günlük lookback karşılaştırmaları için baseline seçeneğini değiştirerek basit backtest yapılabilir.")
+    st.caption(
+        "20/60/120 günlük lookback karşılaştırmaları için baseline seçeneğini değiştirerek basit backtest yapılabilir."
+    )
 
     st.markdown("**Telegram Uyarı Durumu**")
     try:
         from telegram_config import BOT_TOKEN, CHAT_ID
+
         if BOT_TOKEN != "YOUR_BOT_TOKEN_HERE" and CHAT_ID != "YOUR_CHAT_ID_HERE":
             st.success("Telegram aktif!")
             send_panel_telegram = st.toggle("Telegram'a gönder", value=True)
@@ -2353,7 +2442,9 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("### Yardım ve İpuçları")
-    st.info("Portföy, risk ve Kelly ayarlarını portföy büyüklüğüne göre seçin. Agresif mod daha fazla sinyal üretir. Telegram ile anlık bildirim alabilirsiniz.")
+    st.info(
+        "Portföy, risk ve Kelly ayarlarını portföy büyüklüğüne göre seçin. Agresif mod daha fazla sinyal üretir. Telegram ile anlık bildirim alabilirsiniz."
+    )
     settings = scanner.DEFAULT_SETTINGS.copy()
     if aggressive_mode:
         overrides = scanner.AGGRESSIVE_OVERRIDES.copy()
@@ -2401,22 +2492,30 @@ with col1:
         "completed": ("Hazır", "badge-success"),
         "error": ("Hata", "badge-error"),
     }
-    badge_text, badge_class = status_badge_map.get(status_for_label, (status_for_label, "badge-idle"))
+    badge_text, badge_class = status_badge_map.get(
+        status_for_label, (status_for_label, "badge-idle")
+    )
 
     with st.container():
         st.markdown("<div class='cta-sticky'>", unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1.7, 1.1, 1.1])
         with c1:
             st.markdown("<div class='cta-primary'>", unsafe_allow_html=True)
-            run_btn = st.button(primary_label, key="run_btn", disabled=status_for_label == "loading")
+            run_btn = st.button(
+                primary_label, key="run_btn", disabled=status_for_label == "loading"
+            )
             st.markdown("</div>", unsafe_allow_html=True)
         with c2:
             st.markdown("<div class='cta-secondary'>", unsafe_allow_html=True)
-            refresh_btn = st.button("🔄 Yenile", key="refresh_btn", disabled=status_for_label == "loading")
+            refresh_btn = st.button(
+                "🔄 Yenile", key="refresh_btn", disabled=status_for_label == "loading"
+            )
             st.markdown("</div>", unsafe_allow_html=True)
         with c3:
             st.markdown("<div class='cta-tertiary'>", unsafe_allow_html=True)
-            load_btn = st.button("📥 Son Shortlist'i Yükle", key="load_btn", disabled=status_for_label == "loading")
+            load_btn = st.button(
+                "📥 Son Shortlist'i Yükle", key="load_btn", disabled=status_for_label == "loading"
+            )
             st.markdown("</div>", unsafe_allow_html=True)
         badge_html = f"<span class='status-badge {badge_class}'>{badge_text}</span>"
         st.markdown(f"<div class='status-bar'>Durum: {badge_html}</div>", unsafe_allow_html=True)
@@ -2439,9 +2538,15 @@ with col1:
     st.markdown("<div class='section-gap'></div>", unsafe_allow_html=True)
     with st.expander("📥 Veri Kaynağı", expanded=False):
         st.markdown("<div class='upload-shell'>", unsafe_allow_html=True)
-        uploaded_csv = st.file_uploader("CSV yükle (Symbol/Ticker sütunu)", type=["csv"], key="csv_uploader_main")
-        st.caption("📎 Beklenen şema: **Symbol** veya **Ticker** başlıklı bir sütun. İsteğe bağlı ek sütunlar yok sayılır.")
-        st.caption("ℹ️ CSV UTF-8 formatında olmalı; tekrar eden semboller otomatik benzersizleştirilir.")
+        uploaded_csv = st.file_uploader(
+            "CSV yükle (Symbol/Ticker sütunu)", type=["csv"], key="csv_uploader_main"
+        )
+        st.caption(
+            "📎 Beklenen şema: **Symbol** veya **Ticker** başlıklı bir sütun. İsteğe bağlı ek sütunlar yok sayılır."
+        )
+        st.caption(
+            "ℹ️ CSV UTF-8 formatında olmalı; tekrar eden semboller otomatik benzersizleştirilir."
+        )
         if uploaded_csv is not None:
             uploaded_csv.seek(0)
             try:
@@ -2451,7 +2556,9 @@ with col1:
                 if symbol_col:
                     st.success(f"✅ {row_count} satır algılandı. Sembol sütunu: `{symbol_col}`")
                 else:
-                    st.warning("⚠️ 'Symbol' veya 'Ticker' sütunu algılanamadı. Lütfen dosyayı kontrol edin.")
+                    st.warning(
+                        "⚠️ 'Symbol' veya 'Ticker' sütunu algılanamadı. Lütfen dosyayı kontrol edin."
+                    )
                 st.dataframe(preview_df.head(5), use_container_width=True)
             except Exception as preview_err:
                 st.error(f"Ön izleme başarısız: {preview_err}")
@@ -2459,7 +2566,11 @@ with col1:
                 uploaded_csv.seek(0)
         else:
             st.caption("Örnek CSV:\n```\nSymbol\nAAPL\nMSFT\nNVDA\n```")
-        csv_scan_btn = st.button("▶️ CSV'yi Tara", key="csv_scan_btn", disabled=(uploaded_csv is None or status_for_label == "loading"))
+        csv_scan_btn = st.button(
+            "▶️ CSV'yi Tara",
+            key="csv_scan_btn",
+            disabled=(uploaded_csv is None or status_for_label == "loading"),
+        )
         st.markdown("</div>", unsafe_allow_html=True)
 
     if run_btn:
@@ -2467,16 +2578,17 @@ with col1:
         st.session_state["scan_message"] = "Tarama başlatıldı."
         with st.spinner("Semboller analiz ediliyor..."):
             import datetime
+
             symbols = load_symbols()
             backtest_kelly = kelly_fraction if kelly_fraction else 0.5
             results = scanner.evaluate_symbols_parallel(symbols, kelly_fraction=backtest_kelly)
             df = pd.DataFrame(results)
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             if not df.empty:
-                df['timestamp'] = now
-            st.session_state['scan_df'] = df
-            st.session_state['scan_src'] = 'live'
-            st.session_state['scan_time'] = now
+                df["timestamp"] = now
+            st.session_state["scan_df"] = df
+            st.session_state["scan_src"] = "live"
+            st.session_state["scan_time"] = now
         st.session_state["scan_status"] = "completed" if not df.empty else "idle"
         st.session_state["scan_message"] = f"{len(df)} sembol analiz edildi."
     elif refresh_btn:
@@ -2485,69 +2597,79 @@ with col1:
         st.session_state["scan_message"] = "Tarama yenileniyor."
         with st.spinner("Yeniden analiz ediliyor..."):
             import datetime
+
             symbols = load_symbols()
             results = scanner.evaluate_symbols_parallel(symbols)
             df = pd.DataFrame(results)
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             if not df.empty:
-                df['timestamp'] = now
-            st.session_state['scan_df'] = df
-            st.session_state['scan_src'] = 'live'
-            st.session_state['scan_time'] = now
+                df["timestamp"] = now
+            st.session_state["scan_df"] = df
+            st.session_state["scan_src"] = "live"
+            st.session_state["scan_time"] = now
         st.session_state["scan_status"] = "completed" if not df.empty else "idle"
         st.session_state["scan_message"] = "Tarama yenilendi."
     elif load_btn:
         st.session_state["scan_status"] = "loading"
-        path = latest_csv('shortlist')
+        path = latest_csv("shortlist")
         if path:
             import datetime
+
             df = load_csv(path)
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             if not df.empty:
-                df['timestamp'] = now
-            st.session_state['scan_df'] = df
-            st.session_state['scan_src'] = os.path.basename(path)
+                df["timestamp"] = now
+            st.session_state["scan_df"] = df
+            st.session_state["scan_src"] = os.path.basename(path)
             st.success(f"Son CSV yüklendi: {os.path.basename(path)}")
-            st.session_state['scan_time'] = now
+            st.session_state["scan_time"] = now
             st.session_state["scan_status"] = "completed" if not df.empty else "idle"
             st.session_state["scan_message"] = f"CSV'den {len(df)} satır yüklendi."
         else:
             st.warning("Yüklenecek shortlist CSV bulunamadı.")
-            df = st.session_state.get('scan_df', pd.DataFrame())
+            df = st.session_state.get("scan_df", pd.DataFrame())
             st.session_state["scan_status"] = "error"
     elif csv_scan_btn and uploaded_csv is not None:
         try:
             st.session_state["scan_status"] = "loading"
             import datetime
+
             uploaded_csv.seek(0)
             df_in = pd.read_csv(uploaded_csv)
             symbols = extract_symbols_from_df(df_in)
             if not symbols:
                 st.error("❌ CSV içinde 'Symbol' veya 'Ticker' sütunu bulunamadı.")
                 st.session_state["scan_status"] = "error"
-                df = st.session_state.get('scan_df', pd.DataFrame())
+                df = st.session_state.get("scan_df", pd.DataFrame())
             else:
                 with st.spinner(f"CSV'den {len(symbols)} sembol analiz ediliyor..."):
                     results = scanner.evaluate_symbols_parallel(symbols)
                     df = pd.DataFrame(results)
                     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                     if not df.empty:
-                        df['timestamp'] = now
-                    st.session_state['scan_df'] = df
-                    st.session_state['scan_src'] = f"csv:{getattr(uploaded_csv, 'name', 'uploaded.csv')}"
-                    st.session_state['scan_time'] = now
-                    st.session_state['scan_status'] = "completed" if not df.empty else "idle"
-                    st.session_state['scan_message'] = f"CSV'den {len(df)} sembol analiz edildi."
+                        df["timestamp"] = now
+                    st.session_state["scan_df"] = df
+                    st.session_state["scan_src"] = (
+                        f"csv:{getattr(uploaded_csv, 'name', 'uploaded.csv')}"
+                    )
+                    st.session_state["scan_time"] = now
+                    st.session_state["scan_status"] = "completed" if not df.empty else "idle"
+                    st.session_state["scan_message"] = f"CSV'den {len(df)} sembol analiz edildi."
 
                 if send_panel_telegram and df is not None and not df.empty:
                     try:
                         from telegram_alerts import TelegramNotifier
                         from telegram_config import BOT_TOKEN, CHAT_ID
+
                         telegram = TelegramNotifier(BOT_TOKEN, CHAT_ID)
                         if telegram.is_configured():
                             df_rec = df.copy()
-                            df_rec["recommendation_score"] = df_rec.apply(compute_recommendation_score, axis=1)
-                            df_rec = df_rec.sort_values(["entry_ok", "recommendation_score"], ascending=[False, False])
+                            df_rec["recommendation_score"] = df_rec.apply(
+                                compute_recommendation_score, axis=1
+                            )
+                            df_rec = df_rec.sort_values(
+                                ["entry_ok", "recommendation_score"], ascending=[False, False]
+                            )
                             top10 = df_rec.head(10).copy()
                             telegram.send_recommendations(top10)
                             buyable = df[df["entry_ok"]]
@@ -2557,14 +2679,14 @@ with col1:
                         st.warning(f"Telegram gönderimi başarısız: {_e}")
         except Exception as e:
             st.error(f"CSV okunamadı: {e}")
-            df = st.session_state.get('scan_df', pd.DataFrame())
+            df = st.session_state.get("scan_df", pd.DataFrame())
             st.session_state["scan_status"] = "error"
     else:
-        df = st.session_state.get('scan_df', pd.DataFrame())
+        df = st.session_state.get("scan_df", pd.DataFrame())
 
     current_status = st.session_state.get("scan_status", "idle")
-    scan_src = st.session_state.get('scan_src')
-    df = st.session_state.get('scan_df', pd.DataFrame())
+    scan_src = st.session_state.get("scan_src")
+    df = st.session_state.get("scan_df", pd.DataFrame())
 
     render_progress_tracker(
         progress_slot,
@@ -2583,7 +2705,10 @@ with col1:
         tooltip_slot.empty()
 
     if current_status == "loading":
-        st.markdown("<div class='feature-card' style='height:120px; background:#212e44;'></div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='feature-card' style='height:120px; background:#212e44;'></div>",
+            unsafe_allow_html=True,
+        )
         st.stop()
 
     if df is None or df.empty:
@@ -2599,20 +2724,23 @@ with col1:
             )
             df = get_demo_scan_results()
         else:
-            st.markdown("""
+            st.markdown(
+                """
             <div class='analysis-empty' style='text-align:center; margin:32px 0;'>
                 <h3>🔍 Uygun hisse bulunamadı</h3>
                 <p style='color:rgba(226,232,240,0.75);'>Filtreleri gevşetmeyi deneyin veya taramayı yeniden başlatın.</p>
                 <p style='color:rgba(148,163,184,0.75); font-size:0.85rem;'>İpucu: Risk eşiğini artırabilir veya hacim filtrelerini genişletebilirsiniz.</p>
             </div>
-            """, unsafe_allow_html=True)
+            """,
+                unsafe_allow_html=True,
+            )
             st.stop()
 
-    if st.session_state.get('error', None):
+    if st.session_state.get("error", None):
         st.toast(f"Hata: {st.session_state['error']}", icon="❌")
 
-    scan_time = st.session_state.get('scan_time')
-    scan_src = st.session_state.get('scan_src')
+    scan_time = st.session_state.get("scan_time")
+    scan_src = st.session_state.get("scan_src")
     scan_message = st.session_state.get("scan_message")
     if scan_time:
         st.info(f"Son tarama zamanı: {scan_time} | Kaynak: {scan_src}")
@@ -2638,7 +2766,9 @@ with col1:
     st.session_state.view_mode = "advanced" if selected_view == "Gelişmiş" else "simple"
     show_advanced = is_advanced_view()
     if not show_advanced:
-        st.caption("Basit görünümde gelişmiş tablolar gizlendi. 'Gelişmiş' moduna geçerek tüm analitiği açabilirsiniz.")
+        st.caption(
+            "Basit görünümde gelişmiş tablolar gizlendi. 'Gelişmiş' moduna geçerek tüm analitiği açabilirsiniz."
+        )
 
     buyable = df[df["entry_ok"]]
     if len(buyable) > 0:
@@ -2655,13 +2785,24 @@ with col1:
             "timestamp",
         ]
         buyable_display = buyable[display_cols].copy()
-        buyable_display.columns = ["Sembol", "Fiyat", "Skor", "Stop-Loss", "Take-Profit", "Lot", "R/R", "Zaman"]
+        buyable_display.columns = [
+            "Sembol",
+            "Fiyat",
+            "Skor",
+            "Stop-Loss",
+            "Take-Profit",
+            "Lot",
+            "R/R",
+            "Zaman",
+        ]
         buyable_display["Strength"] = buyable.apply(scanner.compute_recommendation_strength, axis=1)
         if "regime" in buyable.columns:
             buyable_display["Rejim"] = buyable["regime"].fillna("-")
 
         st.markdown("### 🟢 Alım Fırsatları Tablosu")
-        st.caption("Durum yongaları sinyal gücü, rejim ve risk/ödül durumunu gösterir. Sıralama için aşağıdaki ham tabloyu kullanabilirsiniz.")
+        st.caption(
+            "Durum yongaları sinyal gücü, rejim ve risk/ödül durumunu gösterir. Sıralama için aşağıdaki ham tabloyu kullanabilirsiniz."
+        )
         render_buyable_table(buyable)
         if show_advanced:
             with st.expander("Ham tablo (sıralanabilir)"):
@@ -2682,18 +2823,28 @@ with col1:
             st.markdown("#### 🎯 Kart görünümü")
             render_buyable_cards(buyable)
     else:
-        st.info("Şu anda alım kriterlerini karşılayan sembol bulunmuyor. Filtreleri güncellemek için üstteki CTA'ları kullanabilirsiniz.")
+        st.info(
+            "Şu anda alım kriterlerini karşılayan sembol bulunmuyor. Filtreleri güncellemek için üstteki CTA'ları kullanabilirsiniz."
+        )
 
     render_summary_panel(df, buyable)
 
-    simple_cols = ["symbol", "price", "score", "filter_score", "entry_ok", "risk_reward", "timestamp"]
+    simple_cols = [
+        "symbol",
+        "price",
+        "score",
+        "filter_score",
+        "entry_ok",
+        "risk_reward",
+        "timestamp",
+    ]
     df_simple = df[simple_cols].copy()
     df_simple.columns = ["Sembol", "Fiyat", "Skor", "Filtre", "Alım?", "R/R", "Zaman"]
 
     if show_advanced:
         st.markdown("### 📋 Tüm Semboller")
         st.markdown("<div class='desktop-table'>", unsafe_allow_html=True)
-        st.dataframe(df_simple, width='stretch')
+        st.dataframe(df_simple, width="stretch")
         st.markdown("</div>", unsafe_allow_html=True)
         render_mobile_symbol_cards(df)
 
@@ -2701,8 +2852,12 @@ with col1:
         df_rec = df.copy()
         if not df_rec.empty:
             df_rec["recommendation_score"] = df_rec.apply(compute_recommendation_score, axis=1)
-            df_rec["strength"] = df_rec["recommendation_score"].map(scanner.compute_recommendation_strength)
-            df_rec = df_rec.sort_values(["entry_ok", "recommendation_score"], ascending=[False, False])
+            df_rec["strength"] = df_rec["recommendation_score"].map(
+                scanner.compute_recommendation_strength
+            )
+            df_rec = df_rec.sort_values(
+                ["entry_ok", "recommendation_score"], ascending=[False, False]
+            )
             top10 = df_rec.head(10).copy()
 
             def safe_explanation(row):
@@ -2723,105 +2878,157 @@ with col1:
 
             top10["why"] = top10.apply(safe_explanation, axis=1)
             top10["reason"] = top10.apply(safe_reason, axis=1)
-            show_cols = ["symbol", "price", "recommendation_score", "strength", "entry_ok", "regime", "sentiment", "onchain_metric", "why", "reason"]
+            show_cols = [
+                "symbol",
+                "price",
+                "recommendation_score",
+                "strength",
+                "entry_ok",
+                "regime",
+                "sentiment",
+                "onchain_metric",
+                "why",
+                "reason",
+            ]
             pretty = top10[show_cols].copy()
-            pretty.columns = ["Sembol", "Fiyat", "Skor", "Güç (0-100)", "Alım?", "Rejim", "Sentiment", "Onchain", "Özet", "Neden"]
+            pretty.columns = [
+                "Sembol",
+                "Fiyat",
+                "Skor",
+                "Güç (0-100)",
+                "Alım?",
+                "Rejim",
+                "Sentiment",
+                "Onchain",
+                "Özet",
+                "Neden",
+            ]
             st.markdown("#### 📋 Sonuç Tablosu Açıklaması")
-            st.caption("Tabloda en güçlü alım fırsatları, rejim, sentiment ve onchain metrikleri ile birlikte gösterilir. 'Alım?' sütunu öneri durumunu belirtir.")
+            st.caption(
+                "Tabloda en güçlü alım fırsatları, rejim, sentiment ve onchain metrikleri ile birlikte gösterilir. 'Alım?' sütunu öneri durumunu belirtir."
+            )
             st.markdown("<div class='desktop-table'>", unsafe_allow_html=True)
-            st.dataframe(pretty, width='stretch')
+            st.dataframe(pretty, width="stretch")
             st.markdown("</div>", unsafe_allow_html=True)
             render_mobile_recommendation_cards(pretty)
 
-            import datetime
             import csv
+            import datetime
+
             signal_log_path = os.path.join(os.getcwd(), "data", "logs", "signal_log.csv")
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-            if st.session_state.get('scan_src', None) == 'live':
-                with open(signal_log_path, "a", newline='', encoding="utf-8") as f:
+            if st.session_state.get("scan_src", None) == "live":
+                with open(signal_log_path, "a", newline="", encoding="utf-8") as f:
                     writer = csv.writer(f)
                     for _, row in top10.iterrows():
-                        writer.writerow([
-                            now,
-                            row['symbol'],
-                            row['price'],
-                            row.get('stop_loss', ''),
-                            row.get('take_profit', ''),
-                            row.get('recommendation_score', ''),
-                            row.get('strength', ''),
-                            row.get('regime', ''),
-                            row.get('sentiment', ''),
-                            row.get('onchain_metric', ''),
-                            row.get('entry_ok', ''),
-                            row.get('why', ''),
-                            row.get('reason', '')
-                        ])
+                        writer.writerow(
+                            [
+                                now,
+                                row["symbol"],
+                                row["price"],
+                                row.get("stop_loss", ""),
+                                row.get("take_profit", ""),
+                                row.get("recommendation_score", ""),
+                                row.get("strength", ""),
+                                row.get("regime", ""),
+                                row.get("sentiment", ""),
+                                row.get("onchain_metric", ""),
+                                row.get("entry_ok", ""),
+                                row.get("why", ""),
+                                row.get("reason", ""),
+                            ]
+                        )
     else:
         st.markdown("### 📋 Semboller (Basit)")
-        st.caption("Basit görünümde en güçlü sembollerin hızlı özeti gösterilir. Tüm detaylar için 'Gelişmiş' moduna geçin.")
+        st.caption(
+            "Basit görünümde en güçlü sembollerin hızlı özeti gösterilir. Tüm detaylar için 'Gelişmiş' moduna geçin."
+        )
         render_symbol_snapshot(df)
         render_mobile_symbol_cards(df.head(6))
 
 with col2:
     if not show_advanced:
         st.markdown("## 🧭 Gelişmiş Analitik")
-        st.info("Basit görünümde gelişmiş performans analizi gizlenir. Tüm detaylara erişmek için 'Gelişmiş' moduna geçebilirsiniz.")
+        st.info(
+            "Basit görünümde gelişmiş performans analizi gizlenir. Tüm detaylara erişmek için 'Gelişmiş' moduna geçebilirsiniz."
+        )
     else:
 
         st.markdown("## � Gelişmiş Öneri Performans Analizi")
         # scan_df panelde mevcutsa, gelişmiş analiz modülünü doğrudan entegre et
-        if 'scan_df' in st.session_state and st.session_state['scan_df'] is not None and not st.session_state['scan_df'].empty:
+        if (
+            "scan_df" in st.session_state
+            and st.session_state["scan_df"] is not None
+            and not st.session_state["scan_df"].empty
+        ):
             import scanner
-            df = st.session_state['scan_df']
+
+            df = st.session_state["scan_df"]
             # Demo/mock data if empty
             if df is None or df.empty:
                 demo_data = {
-                    'symbol': ['AAPL', 'MSFT', 'GOOGL'],
-                    'price': [170.5, 320.1, 135.2],
-                    'close': [171.0, 321.0, 136.0],
-                    'entry_ok': [True, False, True],
-                    'risk_reward': [2.1, 1.8, 2.5],
-                    'regime': ['Trend', 'Yan', 'Trend'],
-                    'kelly_fraction': [0.5, 0.3, 0.7],
-                    'score': [88, 75, 92],
-                    'filter_score': [3, 2, 3],
-                    'recommendation_score': [95, 80, 98],
-                    'strength': [90, 70, 95],
-                    'sentiment': [0.7, 0.2, 0.8],
-                    'onchain_metric': [60, 40, 75],
-                    'timestamp': ['2025-10-14 09:00', '2025-10-14 09:00', '2025-10-14 09:00'],
-                    'why': ['Güçlü trend', 'Yan piyasa', 'Yüksek momentum'],
-                    'reason': ['ML/DRL onaylı', 'Filtre düşük', 'Sentiment yüksek'],
+                    "symbol": ["AAPL", "MSFT", "GOOGL"],
+                    "price": [170.5, 320.1, 135.2],
+                    "close": [171.0, 321.0, 136.0],
+                    "entry_ok": [True, False, True],
+                    "risk_reward": [2.1, 1.8, 2.5],
+                    "regime": ["Trend", "Yan", "Trend"],
+                    "kelly_fraction": [0.5, 0.3, 0.7],
+                    "score": [88, 75, 92],
+                    "filter_score": [3, 2, 3],
+                    "recommendation_score": [95, 80, 98],
+                    "strength": [90, 70, 95],
+                    "sentiment": [0.7, 0.2, 0.8],
+                    "onchain_metric": [60, 40, 75],
+                    "timestamp": ["2025-10-14 09:00", "2025-10-14 09:00", "2025-10-14 09:00"],
+                    "why": ["Güçlü trend", "Yan piyasa", "Yüksek momentum"],
+                    "reason": ["ML/DRL onaylı", "Filtre düşük", "Sentiment yüksek"],
                     # Eksik sütunlar için varsayılan değerler:
-                    'time': ['2025-10-14 09:00', '2025-10-14 09:00', '2025-10-14 09:00'],
-                    'signal_type': ['AL', 'BEKLE', 'AL'],
-                    'strategy': ['ML', 'DRL', 'ML'],
-                    'note': ['Demo', 'Demo', 'Demo'],
-                    'volatility': [0.15, 0.22, 0.18],
-                    'sharpe': [1.2, 0.8, 1.5],
-                    'sortino': [1.5, 1.0, 1.7],
+                    "time": ["2025-10-14 09:00", "2025-10-14 09:00", "2025-10-14 09:00"],
+                    "signal_type": ["AL", "BEKLE", "AL"],
+                    "strategy": ["ML", "DRL", "ML"],
+                    "note": ["Demo", "Demo", "Demo"],
+                    "volatility": [0.15, 0.22, 0.18],
+                    "sharpe": [1.2, 0.8, 1.5],
+                    "sortino": [1.5, 1.0, 1.7],
                 }
                 df = pd.DataFrame(demo_data)
                 st.info("Demo verilerle gösterim: Canlı veri yoksa örnek sinyaller yüklendi.")
             # Canlı veri için eksik sütunları ekle
-            required_cols = ['time','signal_type','strategy','note','volatility','sharpe','sortino']
+            required_cols = [
+                "time",
+                "signal_type",
+                "strategy",
+                "note",
+                "volatility",
+                "sharpe",
+                "sortino",
+            ]
             for col in required_cols:
                 if col not in df.columns:
-                    df[col] = ['-' for _ in range(len(df))]
+                    df[col] = ["-" for _ in range(len(df))]
             # KeyError 'close' fix
-            if 'close' not in df.columns:
-                if 'Close' in df.columns:
-                    df['close'] = df['Close']
-                elif 'price' in df.columns:
-                    df['close'] = df['price']
+            if "close" not in df.columns:
+                if "Close" in df.columns:
+                    df["close"] = df["Close"]
+                elif "price" in df.columns:
+                    df["close"] = df["price"]
             user_portfolio = None
             start_date = None
             end_date = None
             top_n = 10
-            scanner.analyze_recommendations(df, user_portfolio=user_portfolio, start_date=start_date, end_date=end_date, top_n=top_n)
+            scanner.analyze_recommendations(
+                df,
+                user_portfolio=user_portfolio,
+                start_date=start_date,
+                end_date=end_date,
+                top_n=top_n,
+            )
 
             # --- Sembol seçimi ve detay analizi (tek ve hatasız) ---
-            selected = st.selectbox("Detay için sembol seç:", df["symbol"].tolist(), key="detail_symbol_panel")
+            selected = st.selectbox(
+                "Detay için sembol seç:", df["symbol"].tolist(), key="detail_symbol_panel"
+            )
             if selected:
                 row = df[df["symbol"] == selected].iloc[0]
                 # Örnek JSON veri (gerçek API ile entegre edilecek)
@@ -2829,31 +3036,52 @@ with col2:
                     "aciklamaKatmanlari": {
                         "tldr": "Trend güçlü, momentum taze, HMM alımı destekliyor.",
                         "basit": "200 EMA üzerinde, RSI 65, volatilite normal.",
-                        "ileri": "HMM bullish regime, DRL skoru 0.88, Kelly %5 öneriyor."
+                        "ileri": "HMM bullish regime, DRL skoru 0.88, Kelly %5 öneriyor.",
                     },
                     "egitim": {
                         "aksiyonKartlari": [
-                            {"baslik": "Pozisyon Büyüklüğü Nasıl Ayarlanır?", "icerik": "Kelly kriterine göre, portföyünüzün en fazla %5'i ile işlem önerilir."}
+                            {
+                                "baslik": "Pozisyon Büyüklüğü Nasıl Ayarlanır?",
+                                "icerik": "Kelly kriterine göre, portföyünüzün en fazla %5'i ile işlem önerilir.",
+                            }
                         ],
                         "sozlukKartlari": [
-                            {"baslik": "R/R Oranı Nedir? (2.7)", "icerik": "Risk/Ödül oranı, riskinizin 2.7 katı kadar kazanç potansiyeli sunar."}
+                            {
+                                "baslik": "R/R Oranı Nedir? (2.7)",
+                                "icerik": "Risk/Ödül oranı, riskinizin 2.7 katı kadar kazanç potansiyeli sunar.",
+                            }
                         ],
                         "ornekAnalizKartlari": [
-                            {"baslik": f"{selected} neden AL?", "icerik": "Apple, 200 EMA üzerinde güçlü trendde. Son 3 günde %2.5 yükseldi, hacim normalin 1.8 katı. HMM rejim analizi ‘bullish regime’ gösteriyor."}
-                        ]
-                    }
+                            {
+                                "baslik": f"{selected} neden AL?",
+                                "icerik": "Apple, 200 EMA üzerinde güçlü trendde. Son 3 günde %2.5 yükseldi, hacim normalin 1.8 katı. HMM rejim analizi ‘bullish regime’ gösteriyor.",
+                            }
+                        ],
+                    },
                 }
                 with st.expander(f"Detay: {selected}", expanded=True):
                     st.markdown("### Mum Grafiği ve Sinyal Noktaları")
                     try:
-                        df_chart = yf.download(selected, interval="1d", period="60d", progress=False)
-                        if df_chart is not None and hasattr(df_chart, 'empty') and not df_chart.empty:
+                        df_chart = yf.download(
+                            selected, interval="1d", period="60d", progress=False
+                        )
+                        if (
+                            df_chart is not None
+                            and hasattr(df_chart, "empty")
+                            and not df_chart.empty
+                        ):
                             import altair as alt
-                            chart = alt.Chart(df_chart.reset_index()).mark_line(color='#1f77b4').encode(
-                                x='Date:T',
-                                y=alt.Y('Close:Q', title='Kapanış Fiyatı'),
-                                tooltip=['Date:T', 'Close:Q']
-                            ).properties(title=f"{selected} Son 60 Gün Mum Grafiği")
+
+                            chart = (
+                                alt.Chart(df_chart.reset_index())
+                                .mark_line(color="#1f77b4")
+                                .encode(
+                                    x="Date:T",
+                                    y=alt.Y("Close:Q", title="Kapanış Fiyatı"),
+                                    tooltip=["Date:T", "Close:Q"],
+                                )
+                                .properties(title=f"{selected} Son 60 Gün Mum Grafiği")
+                            )
                             st.altair_chart(chart, use_container_width=True)
                         else:
                             st.warning("Grafik için yeterli veri yok.")
@@ -2864,37 +3092,49 @@ with col2:
                 st.markdown(f"**Detay:** {example_json['aciklamaKatmanlari']['basit']}")
                 st.markdown(f"**İleri Analiz:** {example_json['aciklamaKatmanlari']['ileri']}")
                 # Eğitim kartları
-                for card in example_json['egitim']['aksiyonKartlari']:
+                for card in example_json["egitim"]["aksiyonKartlari"]:
                     st.info(f"**{card['baslik']}**\n{card['icerik']}")
-                for card in example_json['egitim']['sozlukKartlari']:
+                for card in example_json["egitim"]["sozlukKartlari"]:
                     st.warning(f"**{card['baslik']}**\n{card['icerik']}")
-                for card in example_json['egitim']['ornekAnalizKartlari']:
+                for card in example_json["egitim"]["ornekAnalizKartlari"]:
                     st.success(f"**{card['baslik']}**\n{card['icerik']}")
                 st.button("Portföye Ekle", key=f"add_{selected}")
                 st.button("Telegram'a Gönder", key=f"telegram_{selected}")
         # --- Gelişmiş Detay Görünümü (Expander/Modal) ---
-        selected = st.selectbox("Detay için sembol seç:", df["symbol"].tolist(), key="detail_symbol")
+        selected = st.selectbox(
+            "Detay için sembol seç:", df["symbol"].tolist(), key="detail_symbol"
+        )
         if selected:
             row = df[df["symbol"] == selected].iloc[0]
             with st.expander(f"Detay: {selected}", expanded=False):
                 st.markdown("### Mum Grafiği ve Sinyal Noktaları")
                 try:
                     df_chart = yf.download(selected, interval="1d", period="60d", progress=False)
-                    if df_chart is not None and hasattr(df_chart, 'empty') and not df_chart.empty:
+                    if df_chart is not None and hasattr(df_chart, "empty") and not df_chart.empty:
                         import altair as alt
-                        chart = alt.Chart(df_chart.reset_index()).mark_line(color='#1f77b4').encode(
-                            x='Date:T',
-                            y=alt.Y('Close:Q', title='Kapanış Fiyatı'),
-                            tooltip=['Date:T', 'Close:Q']
-                        ).properties(title=f"{selected} Son 60 Gün Mum Grafiği")
+
+                        chart = (
+                            alt.Chart(df_chart.reset_index())
+                            .mark_line(color="#1f77b4")
+                            .encode(
+                                x="Date:T",
+                                y=alt.Y("Close:Q", title="Kapanış Fiyatı"),
+                                tooltip=["Date:T", "Close:Q"],
+                            )
+                            .properties(title=f"{selected} Son 60 Gün Mum Grafiği")
+                        )
                         st.altair_chart(chart, use_container_width=True)
                     else:
                         st.warning("Grafik için yeterli veri yok.")
                 except Exception:
                     st.error("Grafik yüklenemedi.")
                 st.markdown(f"**Geçerli Rejim:** {row.get('regime','-')}")
-                st.markdown(f"**Risk Uyarısı:** Kelly Kriteri Pozisyonu: {row.get('kelly_fraction','-')}")
-                st.markdown(f"**WFO Doğrulaması:** Out-of-Sample Başarı: {row.get('wfo_success','-')}")
+                st.markdown(
+                    f"**Risk Uyarısı:** Kelly Kriteri Pozisyonu: {row.get('kelly_fraction','-')}"
+                )
+                st.markdown(
+                    f"**WFO Doğrulaması:** Out-of-Sample Başarı: {row.get('wfo_success','-')}"
+                )
                 st.button("Portföye Ekle")
                 st.button("Telegram'a Gönder")
 
@@ -2907,7 +3147,19 @@ if os.path.exists(signal_log_path):
     try:
         log_df = pd.read_csv(signal_log_path, header=None)
         log_df.columns = [
-            "Tarih", "Sembol", "Fiyat", "Stop-Loss", "Take-Profit", "Skor", "Güç", "Rejim", "Sentiment", "Onchain", "Alım?", "Özet", "Neden"
+            "Tarih",
+            "Sembol",
+            "Fiyat",
+            "Stop-Loss",
+            "Take-Profit",
+            "Skor",
+            "Güç",
+            "Rejim",
+            "Sentiment",
+            "Onchain",
+            "Alım?",
+            "Özet",
+            "Neden",
         ]
         log_df["__timestamp"] = pd.to_datetime(log_df["Tarih"], errors="coerce")
         log_df = log_df.sort_values("__timestamp", ascending=False)
@@ -2986,13 +3238,15 @@ if os.path.exists(grid_path):
         df_grid = None
 if df_wfo is not None and not df_wfo.empty:
     st.markdown("#### WFO Grid Search Sonuçları")
-    st.dataframe(df_wfo.tail(5), width='stretch')
+    st.dataframe(df_wfo.tail(5), width="stretch")
 elif df_grid is not None and not df_grid.empty:
     st.markdown("#### Grid Search Sonuçları")
-    st.dataframe(df_grid.head(5), width='stretch')
+    st.dataframe(df_grid.head(5), width="stretch")
 else:
     st.info("Henüz optimizasyon sonucu bulunamadı.")
-live_symbol = st.text_input("Canlı fiyat için sembol girin (ör: AAPL, MSFT, TSLA)", value="AAPL", key="yahoo_live_symbol")
+live_symbol = st.text_input(
+    "Canlı fiyat için sembol girin (ör: AAPL, MSFT, TSLA)", value="AAPL", key="yahoo_live_symbol"
+)
 if live_symbol:
     try:
         ticker = yf.Ticker(live_symbol)
@@ -3001,22 +3255,26 @@ if live_symbol:
         hist_close = ticker.history(period="2d")
         shown = False
         if not hist_1m.empty:
-            price_1m = hist_1m['Close'][-1]
+            price_1m = hist_1m["Close"][-1]
             date_1m = hist_1m.index[-1].strftime("%Y-%m-%d %H:%M")
             st.info(f"1dk: {price_1m} | {date_1m} (15dk gecikmeli olabilir)")
-            st.caption("Son bar zamanı genellikle ABD piyasası kapanış saatidir (Türkiye saatiyle 23:00, yaz/kış değişebilir). Piyasa kapalıysa veri güncellenmez.")
+            st.caption(
+                "Son bar zamanı genellikle ABD piyasası kapanış saatidir (Türkiye saatiyle 23:00, yaz/kış değişebilir). Piyasa kapalıysa veri güncellenmez."
+            )
             shown = True
         if not hist_15m.empty:
-            price_15m = hist_15m['Close'][-1]
+            price_15m = hist_15m["Close"][-1]
             date_15m = hist_15m.index[-1].strftime("%Y-%m-%d %H:%M")
             st.info(f"15dk: {price_15m} | {date_15m} (15dk gecikmeli olabilir)")
-            st.caption("Son bar zamanı genellikle ABD piyasası kapanış saatidir (Türkiye saatiyle 23:00, yaz/kış değişebilir). Piyasa kapalıysa veri güncellenmez.")
+            st.caption(
+                "Son bar zamanı genellikle ABD piyasası kapanış saatidir (Türkiye saatiyle 23:00, yaz/kış değişebilir). Piyasa kapalıysa veri güncellenmez."
+            )
             shown = True
         if not hist_close.empty:
-            price_close = hist_close['Close'][-1]
+            price_close = hist_close["Close"][-1]
             date_close = hist_close.index[-1].strftime("%Y-%m-%d %H:%M")
             st.success(f"Kapanış: {price_close} | {date_close}")
-            if (pd.Timestamp.now().date() != hist_close.index[-1].date()):
+            if pd.Timestamp.now().date() != hist_close.index[-1].date():
                 st.warning("⚠️ Bu fiyat son kapanış fiyatıdır, gün içi canlı değildir.")
             shown = True
         if not shown:
@@ -3033,20 +3291,21 @@ with st.expander("🔬 Karşılaştırmalı Strateji Analizi ve Rejim Geçişler
     df_grid = pd.read_csv(grid_path) if os.path.exists(grid_path) else pd.DataFrame()
     if not df_wfo.empty:
         st.markdown("#### WFO Grid Search Sonuçları (Son 20)")
-        st.dataframe(df_wfo.tail(20), width='stretch')
-        if 'regime' in df_wfo.columns and 'timestamp' in df_wfo.columns:
+        st.dataframe(df_wfo.tail(20), width="stretch")
+        if "regime" in df_wfo.columns and "timestamp" in df_wfo.columns:
             st.markdown("#### Rejim Geçişleri (WFO)")
-            st.line_chart(df_wfo.set_index('timestamp')['regime'])
+            st.line_chart(df_wfo.set_index("timestamp")["regime"])
     if not df_grid.empty:
         st.markdown("#### Grid Search Sonuçları (Son 20)")
-        st.dataframe(df_grid.tail(20), width='stretch')
-    if not df_wfo.empty and 'score' in df_wfo.columns and 'kelly_fraction' in df_wfo.columns:
+        st.dataframe(df_grid.tail(20), width="stretch")
+    if not df_wfo.empty and "score" in df_wfo.columns and "kelly_fraction" in df_wfo.columns:
         st.markdown("#### Kelly Fraksiyonu ve Skor Heatmap")
         import altair as alt
-        heatmap = alt.Chart(df_wfo).mark_rect().encode(
-            x='kelly_fraction:O',
-            y='score:O',
-            color='regime:Q'
+
+        heatmap = (
+            alt.Chart(df_wfo)
+            .mark_rect()
+            .encode(x="kelly_fraction:O", y="score:O", color="regime:Q")
         )
         st.altair_chart(heatmap, use_container_width=True)
 

@@ -5,6 +5,7 @@ feature engineering pipeline, and the walk-forward trainer.  By default it runs
 on a synthetic dataset so developers can exercise the training loop without
 connecting to live data providers.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -19,12 +20,7 @@ from drl.config import DEFAULT_CONFIG, MarketEnvConfig
 from drl.feature_pipeline import FeatureFrame
 from drl.market_env import EpisodeData
 from drl.observability import PrometheusSettings, configure_prometheus
-from drl.training import (
-    TrainResult,
-    WalkForwardConfig,
-    WalkForwardSplit,
-    WalkForwardTrainer,
-)
+from drl.training import TrainResult, WalkForwardConfig, WalkForwardSplit, WalkForwardTrainer
 
 
 @dataclass
@@ -70,9 +66,7 @@ def _generate_synthetic_dataframe(params: SyntheticParams, config: MarketEnvConf
     rolling_std = df["close"].rolling(20).std().fillna(1.0)
     df["bb_upper"] = rolling_mean + 2 * rolling_std
     df["bb_lower"] = rolling_mean - 2 * rolling_std
-    df["atr"] = (
-        df["close"].rolling(14).max() - df["close"].rolling(14).min()
-    ).fillna(0.5)
+    df["atr"] = (df["close"].rolling(14).max() - df["close"].rolling(14).min()).fillna(0.5)
     df["volume_avg_20"] = df["volume"].rolling(20).mean().bfill()
 
     # Regime labelling (cyclical)
@@ -120,7 +114,9 @@ def _episode_from_slice(df: pd.DataFrame, config: MarketEnvConfig) -> EpisodeDat
 # ----------------------------------------------------------------------
 # Walk-forward execution
 # ----------------------------------------------------------------------
-def _create_splits(df: pd.DataFrame, config: MarketEnvConfig, n_splits: int) -> List[WalkForwardSplit]:
+def _create_splits(
+    df: pd.DataFrame, config: MarketEnvConfig, n_splits: int
+) -> List[WalkForwardSplit]:
     """Partition the dataframe into sequential walk-forward windows."""
 
     if n_splits < 1:
@@ -146,7 +142,9 @@ def _create_splits(df: pd.DataFrame, config: MarketEnvConfig, n_splits: int) -> 
             )
         )
     if not splits:
-        raise ValueError("Could not construct any walk-forward splits; adjust n_splits or dataset length")
+        raise ValueError(
+            "Could not construct any walk-forward splits; adjust n_splits or dataset length"
+        )
     return splits
 
 
@@ -244,7 +242,9 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         dest="track_mlflow",
         help="Track metrics in MLflow if available",
     )
-    parser.add_argument("--mlflow-experiment", default="FinPilot-DRL", help="MLflow experiment name")
+    parser.add_argument(
+        "--mlflow-experiment", default="FinPilot-DRL", help="MLflow experiment name"
+    )
     parser.add_argument(
         "--save-pipeline-artifacts",
         action="store_true",
@@ -328,5 +328,3 @@ if __name__ == "__main__":  # pragma: no cover - manual invocation helper
 
 
 __all__ = ["SyntheticParams", "run_demo_training", "parse_args", "main"]
-
-

@@ -1,16 +1,129 @@
+# ============================================
+# 🚀 FinPilot Docker Compose Configuration
+# Production-ready multi-service setup
+# ============================================
+
 version: '3.8'
 
 services:
+  # ============================================
+  # 📊 Main Application - Streamlit Dashboard
+  # ============================================
   finpilot:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
     container_name: finpilot_app
-    restart: always
+    restart: unless-stopped
     ports:
       - "8501:8501"
     environment:
       - TZ=Europe/Istanbul
-      # API Key'leri buraya ekleyebilirsiniz veya .env dosyasından çekebilirsiniz
-      # - GOOGLE_API_KEY=your_key_here
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
     volumes:
-      - ./data:/app/data  # Verilerin kalıcı olması için
-      - ./user_settings.json:/app/user_settings.json # Ayarların korunması için
+      - ./data:/app/data
+      - ./user_settings.json:/app/user_settings.json:ro
+      - finpilot_logs:/app/logs
+    networks:
+      - finpilot_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+  # ============================================
+  # 🤖 Scanner Service - Background Job
+  # ============================================
+  scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: finpilot_scanner
+    restart: unless-stopped
+    command: ["python", "scanner.py"]
+    environment:
+      - TZ=Europe/Istanbul
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - finpilot_network
+    depends_on:
+      - finpilot
+    profiles:
+      - scanner  # Only run with: docker-compose --profile scanner up
+
+  # ============================================
+  # 📱 Telegram Bot Service
+  # ============================================
+  telegram_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: finpilot_telegram
+    restart: unless-stopped
+    command: ["python", "telegram_bot_runner.py"]
+    environment:
+      - TZ=Europe/Istanbul
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    networks:
+      - finpilot_network
+    depends_on:
+      - finpilot
+    profiles:
+      - telegram  # Only run with: docker-compose --profile telegram up
+
+  # ============================================
+  # 🗄️ Redis Cache (Optional)
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: finpilot_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - finpilot_network
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    profiles:
+      - cache  # Only run with: docker-compose --profile cache up
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# ============================================
+# 🌐 Networks
+# ============================================
+networks:
+  finpilot_network:
+    driver: bridge
+
+# ============================================
+# 💾 Volumes
+# ============================================
+volumes:
+  finpilot_logs:
+    driver: local
+  redis_data:
+    driver: local

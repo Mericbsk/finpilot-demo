@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1"/>
+      <stop offset="100%" style="stop-color:#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="chartGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#22C55E"/>
+      <stop offset="100%" style="stop-color:#4ADE80"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="url(#bgGrad)"/>
+
+  <!-- Chart lines -->
+  <g fill="none" stroke="url(#chartGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main chart line -->
+    <path d="M 80 350 L 140 300 L 200 320 L 260 240 L 320 260 L 380 180 L 432 120"/>
+
+    <!-- Arrow at end -->
+    <path d="M 415 105 L 432 120 L 417 137"/>
+  </g>
+
+  <!-- Pilot/Dashboard elements -->
+  <circle cx="140" cy="300" r="10" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="260" cy="240" r="10" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="380" cy="180" r="10" fill="#FFFFFF" opacity="0.9"/>
+
+  <!-- Text: FP -->
+  <text x="256" y="440"
+        font-family="Inter, -apple-system, sans-serif"
+        font-size="72"
+        font-weight="800"
+        fill="#FFFFFF"
+        text-anchor="middle">
+    FP
+  </text>
+</svg>

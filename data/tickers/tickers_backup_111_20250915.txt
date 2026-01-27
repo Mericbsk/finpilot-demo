@@ -31,7 +31,7 @@ SOFI
 RIVN
 LCID
 
-# 💻 GÜÇLÜ TECH - STABİL BÜYÜME  
+# 💻 GÜÇLÜ TECH - STABİL BÜYÜME
 CRM
 ORCL
 ADBE

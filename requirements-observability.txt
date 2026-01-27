@@ -1,2 +1,13 @@
+# FinPilot Observability Dependencies
+# Install: pip install -r requirements-observability.txt
+
+# Monitoring & Metrics
 mlflow>=2.9,<3.0
 prometheus-client>=0.20,<0.21
+psutil>=5.9,<6.0
+
+# Distributed Cache
+redis>=5.0,<6.0
+
+# Error Tracking (opsiyonel - Sentry DSN gerektirir)
+sentry-sdk>=1.38,<2.0

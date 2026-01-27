@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 from datetime import datetime
+
 import pandas as pd
 
 import scanner
@@ -9,7 +10,9 @@ import scanner
 
 def parse_args():
     p = argparse.ArgumentParser(description="Scan a CSV of symbols and select suitable ones")
-    p.add_argument("--input", required=True, help="Path to CSV file containing a 'Symbol' or 'Ticker' column")
+    p.add_argument(
+        "--input", required=True, help="Path to CSV file containing a 'Symbol' or 'Ticker' column"
+    )
     p.add_argument("--aggressive", action="store_true", help="Use aggressive thresholds")
     return p.parse_args()
 
@@ -51,6 +54,7 @@ def main():
         sys.exit(0)
 
     import pandas as _pd
+
     df = _pd.DataFrame(results)
     df = df.sort_values(["entry_ok", "score"], ascending=[False, False])
 
@@ -72,7 +76,9 @@ def main():
     try:
         df_rec = df.copy()
         df_rec["recommendation_score"] = df_rec.apply(scanner.compute_recommendation_score, axis=1)
-        df_rec["strength"] = df_rec["recommendation_score"].map(scanner.compute_recommendation_strength)
+        df_rec["strength"] = df_rec["recommendation_score"].map(
+            scanner.compute_recommendation_strength
+        )
         df_rec = df_rec.sort_values(["entry_ok", "recommendation_score"], ascending=[False, False])
         top10 = df_rec.head(10).copy()
         top10["why"] = top10.apply(lambda r: scanner.build_explanation(r.to_dict()), axis=1)
@@ -81,8 +87,10 @@ def main():
         print(f"Öneriler CSV kaydedildi: {out_sug}")
         print("\n--- Öneriler (Top 10) ---")
         for i, rec in enumerate(top10.to_dict(orient="records"), 1):
-            strength = int(rec.get('strength', 0))
-            print(f"{i}. {rec.get('symbol')} | Skor: {rec.get('recommendation_score'):.2f} ({strength}/100) | Entry: {'Evet' if rec.get('entry_ok') else 'Hayır'}")
+            strength = int(rec.get("strength", 0))
+            print(
+                f"{i}. {rec.get('symbol')} | Skor: {rec.get('recommendation_score'):.2f} ({strength}/100) | Entry: {'Evet' if rec.get('entry_ok') else 'Hayır'}"
+            )
             print(f"   -> {rec.get('why')}")
             print(f"   -> {rec.get('reason')}")
 
@@ -91,6 +99,7 @@ def main():
         try:
             from telegram_alerts import TelegramNotifier
             from telegram_config import BOT_TOKEN, CHAT_ID
+
             telegram = TelegramNotifier(BOT_TOKEN, CHAT_ID)
             if not telegram.is_configured():
                 telegram = None
@@ -113,7 +122,7 @@ def main():
 
             try:
                 # Çoklamayı önlemek için en fazla 3 sinyali tekil mesaj gönder
-                for info in buyable.head(3).to_dict(orient='records'):
+                for info in buyable.head(3).to_dict(orient="records"):
                     telegram.send_signal_alert(info)
             except Exception as _ti:
                 print(f"⚠️ Sinyal(ler) Telegram'a gönderilemedi: {_ti}")

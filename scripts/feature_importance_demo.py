@@ -10,6 +10,7 @@ Persist CSV reports for global and regime-specific importances:
 
     python -m scripts.feature_importance_demo --output-dir reports/
 """
+
 from __future__ import annotations
 
 import argparse
@@ -49,12 +50,23 @@ def _run_demo_training(args: argparse.Namespace):
             "Demo training requires stable-baselines3. Install it via "
             "'pip install stable-baselines3'."
         ) from exc
+
+
 def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Compute SHAP-based feature importance.")
     parser.add_argument("--output-dir", type=Path, help="Directory to write CSV summaries to.")
-    parser.add_argument("--sample-size", type=int, default=1024, help="Sample size for SHAP computation.")
-    parser.add_argument("--splits", type=int, default=2, help="Walk-forward splits when running demo training.")
-    parser.add_argument("--timesteps", type=int, default=20_000, help="Training timesteps per split for the demo run.")
+    parser.add_argument(
+        "--sample-size", type=int, default=1024, help="Sample size for SHAP computation."
+    )
+    parser.add_argument(
+        "--splits", type=int, default=2, help="Walk-forward splits when running demo training."
+    )
+    parser.add_argument(
+        "--timesteps",
+        type=int,
+        default=20_000,
+        help="Training timesteps per split for the demo run.",
+    )
     parser.add_argument("--algorithm", choices=["PPO", "SAC"], default="PPO")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--synthetic-length", type=int, default=768)
@@ -64,7 +76,6 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
 
 def main(argv: Optional[list[str]] = None) -> int:
     args = parse_args(argv)
-
 
     results = _run_demo_training(args)
 

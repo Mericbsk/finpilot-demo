@@ -1,0 +1,108 @@
+# ============================================
+# 🐳 Docker Ignore File
+# Exclude unnecessary files from Docker build
+# ============================================
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Documentation
+docs/_build/
+*.md
+!README.md
+
+# Data & Logs (will be mounted as volumes)
+data/
+logs/
+*.log
+*.csv
+
+# Secrets (NEVER include in image)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Archives
+archive/
+*.tar
+*.tar.gz
+*.zip
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Build artifacts
+*.pyc
+*.pyo
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# CI/CD
+.github/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Tests (optional - uncomment to exclude)
+# tests/

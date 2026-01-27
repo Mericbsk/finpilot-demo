@@ -8,7 +8,7 @@ const translations = {
         hero_desc: "Manage risk automatically, rank opportunities, and connect decisions to data. FinPilot turns complex market data into a clear roadmap for you.",
         hero_beta: "Join Beta",
         hero_features: "Explore Features",
-        
+
         feat_title: "Why FinPilot?",
         feat_1_title: "Instant Scan Engine",
         feat_1_desc: "Scans 500+ symbols in seconds with ML models. Liquid segments and momentum thresholds are automatically calibrated.",
@@ -16,24 +16,24 @@ const translations = {
         feat_2_desc: "Suggests lot sizes based on Kelly, ATR, and volatility limits. Automatically determines stop-loss & take-profit levels.",
         feat_3_title: "Transparent Analytics",
         feat_3_desc: "Metrics and data sources for every signal on a single card. Verify ideas quickly with sentiment & on-chain data.",
-        
+
         fin_title: "FinSense: Financial Literacy",
         fin_desc: "Don't just trade, learn. FinPilot explains the 'Why' behind every move.",
         fin_1_title: "Interactive Dictionary",
         fin_1_desc: "Learn complex financial terms instantly while analyzing charts.",
         fin_2_title: "Strategy decoder",
         fin_2_desc: "Understand how algorithms work with plain language explanations.",
-        
+
         beta_title: "Try the Future Financial Terminal First",
         beta_desc: "Join a limited number of beta users and help us shape FinPilot.",
         beta_placeholder: "Your email address",
         beta_btn: "Request Early Access",
         form_success: "Thanks! You've been added to the waitlist.",
-        
+
         footer_privacy: "Privacy Policy",
         footer_terms: "Terms of Use",
         footer_rights: "© 2025 FinPilot. All rights reserved.",
-        
+
         // About Page
         about_title: "Our Story & Vision",
         about_desc: "In the investment world, knowledge is power, and we are here to distribute this power to everyone. FinPilot levels the financial playing field by fitting professional analysis capabilities into everyone's pocket.",
@@ -41,7 +41,7 @@ const translations = {
         about_feat_1_desc: "I started with a clear question in mind: 'Why should financial literacy be so hard?' I wanted to build a structure where people around the world could analyze companies in depth and foresee market movements. FinPilot is an autopilot that teaches terms to those with little financial literacy while simultaneously saying 'Look, there is an opportunity here' with powerful algorithms running in the background. This is not just software; it is a movement to create financial awareness.",
         about_feat_2_title: "Our Vision",
         about_feat_2_desc: "Our vision is to take financial consultancy and education out of being a luxury and make it a right accessible to everyone. By combining technology with education, FinPilot aims to be a global learning and decision support mechanism that enables people to take their financial futures into their own hands.",
-        
+
         // Contact Page
         contact_title: "Contact Us",
         contact_desc: "Contact us for your questions, suggestions or collaborations.",
@@ -96,7 +96,7 @@ const translations = {
         hero_desc: "Riskini otomatik yönet, fırsatları sırala, kararlarını veriye bağla. FinPilot, karmaşık borsa verilerini sizin için net bir yol haritasına dönüştürür.",
         hero_beta: "Beta'ya Katıl",
         hero_features: "Özellikleri Keşfet",
-        
+
         feat_title: "Neden FinPilot?",
         feat_1_title: "Anlık Tarama Motoru",
         feat_1_desc: "500+ sembolü saniyeler içinde ML modelleriyle tarar. Likit segment ve momentum eşikleri otomatik kalibre edilir.",
@@ -104,24 +104,24 @@ const translations = {
         feat_2_desc: "Kelly, ATR ve volatilite limitlerine göre lot büyüklüğü önerir. Stop-loss & take-profit seviyelerini otomatik belirler.",
         feat_3_title: "Şeffaf Analitik Kokpiti",
         feat_3_desc: "Her sinyalin metrik ve veri kaynağı tek kartta görünür. Sentiment & on-chain verileriyle fikirlerini hızla doğrularsın.",
-        
+
         fin_title: "FinSense: Finansal Okuryazarlık",
         fin_desc: "Sadece işlem yapma, öğren. FinPilot her hareketin arkasındaki 'Neden'i açıklar.",
         fin_1_title: "İnteraktif Sözlük",
         fin_1_desc: "Grafikleri analiz ederken karmaşık finansal terimleri anında öğrenin.",
         fin_2_title: "Strateji Çözücü",
         fin_2_desc: "Algoritmaların nasıl çalıştığını yalın dil açıklamalarıyla anlayın.",
-        
+
         beta_title: "Geleceğin Finans Terminalini İlk Siz Deneyin",
         beta_desc: "Sınırlı sayıda beta kullanıcısı arasına katılın ve FinPilot'u şekillendirmemize yardımcı olun.",
         beta_placeholder: "E-posta adresiniz",
         beta_btn: "Erken Erişim İste",
         form_success: "Teşekkürler! Bekleme listesine eklendiniz.",
-        
+
         footer_privacy: "Gizlilik Politikası",
         footer_terms: "Kullanım Şartları",
         footer_rights: "© 2025 FinPilot. Tüm hakları saklıdır.",
-        
+
         // About Page
         about_title: "Hikayemiz & Vizyonumuz",
         about_desc: "Yatırım dünyasında bilgi güçtür ve biz bu gücü herkese dağıtmak için buradayız. FinPilot, profesyonel analiz yeteneklerini herkesin cebine sığdırarak finansal oyun alanını eşitler.",
@@ -129,7 +129,7 @@ const translations = {
         about_feat_1_desc: "Yola çıkarken aklımda net bir soru vardı: 'Neden finansal okuryazarlık bu kadar zor olsun?' Dünyanın dört bir yanındaki insanların, şirketleri derinlemesine analiz edebileceği ve piyasa hareketlerini öngörebileceği bir yapı kurmak istedim. FinPilot, finansal okuryazarlığı az olanlara terimleri öğretirken, aynı zamanda arka planda çalışan güçlü algoritmalarla onlara 'Bak, burada bir fırsat var' diyebilen bir otopilottur. Bu, sadece bir yazılım değil, finansal farkındalık yaratma hareketidir.",
         about_feat_2_title: "Vizyonumuz",
         about_feat_2_desc: "Vizyonumuz, finansal danışmanlığı ve eğitimi lüks olmaktan çıkarıp herkesin erişebileceği bir hak haline getirmektir. FinPilot, teknolojiyi eğitimle birleştirerek, insanların finansal geleceklerini kendi ellerine almalarını sağlayan küresel bir öğrenme ve karar destek mekanizması olmayı hedeflemektedir.",
-        
+
         // Contact Page
         contact_title: "Bize Ulaşın",
         contact_desc: "Sorularınız, önerileriniz veya iş birlikleri için bizimle iletişime geçin.",
@@ -184,7 +184,7 @@ const translations = {
         hero_desc: "Risiko automatisch verwalten, Chancen bewerten und Entscheidungen mit Daten verknüpfen. FinPilot verwandelt komplexe Marktdaten in einen klaren Fahrplan.",
         hero_beta: "Beta Beitreten",
         hero_features: "Funktionen Entdecken",
-        
+
         feat_title: "Warum FinPilot?",
         feat_1_title: "Sofort-Scan-Engine",
         feat_1_desc: "Scannt 500+ Symbole in Sekunden mit ML-Modellen. Liquide Segmente und Momentum-Schwellen werden automatisch kalibriert.",
@@ -192,24 +192,24 @@ const translations = {
         feat_2_desc: "Schlägt Positionsgrößen basierend auf Kelly, ATR und Volatilitätslimits vor. Bestimmt automatisch Stop-Loss & Take-Profit.",
         feat_3_title: "Transparentes Analyse-Cockpit",
         feat_3_desc: "Metriken und Datenquellen für jedes Signal auf einer Karte. Überprüfen Sie Ideen schnell mit Sentiment- & On-Chain-Daten.",
-        
+
         fin_title: "FinSense: Finanzkompetenz",
         fin_desc: "Nicht nur handeln, sondern lernen. FinPilot erklärt das 'Warum' hinter jeder Bewegung.",
         fin_1_title: "Interaktives Wörterbuch",
         fin_1_desc: "Lernen Sie komplexe Finanzbegriffe sofort während der Analyse.",
         fin_2_title: "Strategie-Decoder",
         fin_2_desc: "Verstehen Sie, wie Algorithmen funktionieren, mit einfachen Erklärungen.",
-        
+
         beta_title: "Testen Sie das Finanzterminal der Zukunft",
         beta_desc: "Werden Sie einer der wenigen Beta-Nutzer und helfen Sie uns, FinPilot zu gestalten.",
         beta_placeholder: "Ihre E-Mail-Adresse",
         beta_btn: "Frühzugang Anfordern",
         form_success: "Danke! Sie wurden auf die Warteliste gesetzt.",
-        
+
         footer_privacy: "Datenschutz",
         footer_terms: "Nutzungsbedingungen",
         footer_rights: "© 2025 FinPilot. Alle Rechte vorbehalten.",
-        
+
         // About Page
         about_title: "Unsere Geschichte & Vision",
         about_desc: "In der Investmentwelt ist Wissen Macht, und wir sind hier, um diese Macht an alle zu verteilen. FinPilot gleicht das finanzielle Spielfeld aus, indem es professionelle Analysefähigkeiten in jedermanns Tasche bringt.",
@@ -217,7 +217,7 @@ const translations = {
         about_feat_1_desc: "Ich begann mit einer klaren Frage im Kopf: 'Warum sollte Finanzkompetenz so schwer sein?' Ich wollte eine Struktur aufbauen, in der Menschen auf der ganzen Welt Unternehmen eingehend analysieren und Marktbewegungen vorhersehen können. FinPilot ist ein Autopilot, der Begriffe für diejenigen mit geringer Finanzkompetenz lehrt und gleichzeitig mit leistungsstarken Algorithmen im Hintergrund sagt: 'Schau, hier ist eine Gelegenheit'. Dies ist nicht nur Software; es ist eine Bewegung zur Schaffung von Finanzbewusstsein.",
         about_feat_2_title: "Unsere Vision",
         about_feat_2_desc: "Unsere Vision ist es, Finanzberatung und Bildung aus dem Luxusbereich herauszuholen und zu einem für alle zugänglichen Recht zu machen. Durch die Kombination von Technologie und Bildung möchte FinPilot ein globaler Lern- und Entscheidungsunterstützungsmechanismus sein, der es Menschen ermöglicht, ihre finanzielle Zukunft selbst in die Hand zu nehmen.",
-        
+
         // Contact Page
         contact_title: "Kontaktieren Sie Uns",
         contact_desc: "Kontaktieren Sie uns für Fragen, Vorschläge oder Kooperationen.",
@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(betaForm) {
         betaForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const form = e.target;
             const data = new FormData(form);
             const action = form.action;

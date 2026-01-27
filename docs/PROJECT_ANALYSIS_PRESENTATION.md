@@ -1,5 +1,5 @@
 # FinPilot: Proje Durum Analizi ve Stratejik Yol Haritası
-**Tarih:** 28 Kasım 2025  
+**Tarih:** 28 Kasım 2025
 **Durum:** Beta Aşaması (MVP+)
 
 ---
@@ -7,12 +7,12 @@
 ## 1. Yönetici Özeti (Executive Summary)
 **Vizyon:** Bireysel yatırımcılar için kurumsal kalitede, Yapay Zeka destekli ve anlaşılır bir finansal analiz terminali oluşturmak. "Bloomberg Terminali'nin herkes için olan versiyonu."
 
-**Mevcut Durum:** 
+**Mevcut Durum:**
 - Streamlit tabanlı çalışan bir MVP (Minimum Viable Product) var.
 - Kullanıcılar hisse tarayabiliyor, teknik analiz yapabiliyor ve AI destekli raporlar alabiliyor.
 - Web sitesi (Landing Page) ve Beta kayıt sistemi aktif.
 
-**Temel Farklılaşma (USP):** 
+**Temel Farklılaşma (USP):**
 - **FinPilot Edge:** Sadece teknik veri değil, piyasadan "ayrışma" puanı sunması.
 - **Hibrit Analiz:** Klasik indikatörleri (RSI, MACD) modern AI yorumlarıyla (Gemini/LLM) birleştirmesi.
 
@@ -37,7 +37,7 @@
 Sistem şu an **Momentum** ve **Trend** odaklı çalışıyor.
 1.  **Filtreleme:** Hacim artışı ve hareketli ortalama (EMA) üzerinde olan hisseleri seçiyor.
 2.  **Rejim Tespiti:** Piyasanın "Yükseliş", "Düşüş" veya "Yatay" olduğunu algılayıp stratejiyi ona göre değiştiriyor.
-3.  **Risk Yönetimi (ATR):** 
+3.  **Risk Yönetimi (ATR):**
     - Stop Loss: `2 x ATR` (Gürültüden kaçınmak için geniş).
     - Take Profit: `4 x ATR` (Risk/Ödül Oranı ~2).
 

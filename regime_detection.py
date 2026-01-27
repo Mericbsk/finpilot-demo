@@ -1,6 +1,7 @@
 import numpy as np
-from hmmlearn import hmm
 import pandas as pd
+from hmmlearn import hmm
+
 
 def detect_market_regime(prices: pd.Series, n_components=2) -> int:
     """
@@ -14,10 +15,12 @@ def detect_market_regime(prices: pd.Series, n_components=2) -> int:
     hidden_states = model.predict(returns)
     return hidden_states[-1]
 
+
 # Panel ve scanner entegrasyonu için örnek kullanım:
 if __name__ == "__main__":
     import yfinance as yf
+
     symbol = "AAPL"
     df = yf.download(symbol, period="6mo", interval="1d")
-    regime = detect_market_regime(df['Close'])
+    regime = detect_market_regime(df["Close"])
     print(f"{symbol} son rejim etiketi: {regime}")

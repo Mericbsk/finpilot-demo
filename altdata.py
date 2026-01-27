@@ -5,6 +5,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+import yfinance as yf
 
 
 def _rng_for_symbol(symbol: str) -> np.random.Generator:
@@ -13,8 +14,58 @@ def _rng_for_symbol(symbol: str) -> np.random.Generator:
 
 
 def get_altdata_history(symbol: str, *, periods: int = 24, freq: str = "H") -> pd.DataFrame:
-    """Generate a deterministic pseudo-history for sentiment and whale flow."""
+    """Generate alt-data history using Real Market Data (via yfinance) where possible."""
 
+    # Map frequency to yfinance interval
+    interval_map = {"H": "1h", "D": "1d", "15T": "15m"}
+    yf_interval = interval_map.get(freq, "1h")
+
+    # Calculate start date based on periods
+    # Note: 730 hours is approx 1 month (max for 1h interval on yfinance free tier is usually 730 days, but hourly is limited)
+    try:
+        # Fetch real data
+        df = yf.download(symbol, period="1mo", interval=yf_interval, progress=False)
+
+        if not df.empty and len(df) >= periods:
+            df = df.tail(periods).copy()
+
+            # 1. Feature: "Sentiment" Proxy -> RSI (Relative Strength Index)
+            # Normalized to -1.0 to 1.0 range
+            delta = df["Close"].diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            rs = gain / loss
+            rsi = 100 - (100 / (1 + rs))
+
+            # Normalize RSI (0-100) to (-1 to 1)
+            # RSI 50 -> 0.0, RSI 70 -> 0.4, RSI 30 -> -0.4
+            sentiment = ((rsi.fillna(50) - 50) / 50.0).values
+            sentiment = np.clip(sentiment, -1.0, 1.0)  # Ensure bounds
+
+            # 2. Feature: "Whale Flow" Proxy -> Volume * Close (Dollar Volume)
+            # Normalized/Scaled logarithmically
+            dollar_vol = (df["Volume"] * df["Close"]).astype(float)
+            # Simple Z-score like scaling relative to recent mean, shifted to look like 'flow'
+            whale_flow = (dollar_vol / dollar_vol.mean()) * 100.0
+            whale_flow = whale_flow.fillna(100.0).values
+
+            # Create the DataFrame with the exact index required
+            # Retain the exact timestamp index from yfinance if aligned, or reindex?
+            # The current system expects a specific length.
+            return pd.DataFrame(
+                {
+                    "sentiment_score": sentiment,
+                    "onchain_tx_volume": whale_flow,
+                },
+                index=df.index,
+            )
+
+    except Exception as e:
+        print(
+            f"Warning: Failed to fetch real altdata for {symbol}: {e}. Falling back to synthetic."
+        )
+
+    # Fallback to Mock Data (Original Logic)
     rng = _rng_for_symbol(symbol)
     index = pd.date_range(end=pd.Timestamp.utcnow(), periods=periods, freq=freq)
 

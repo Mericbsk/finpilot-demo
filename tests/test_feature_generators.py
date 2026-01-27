@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from drl.feature_generators import (
     WeightedSentimentConfig,
@@ -24,16 +24,24 @@ def test_calculate_weighted_sentiment_matches_manual_ewm():
     config = WeightedSentimentConfig(decay=0.4, min_periods=1)
     result = calculate_weighted_sentiment(frame, config=config)
 
-    weighted_values = (frame["sentiment_score"] * frame["news_volume"]).ewm(
-        alpha=config.decay,
-        adjust=False,
-        min_periods=config.min_periods,
-    ).mean()
-    normaliser = frame["news_volume"].ewm(
-        alpha=config.decay,
-        adjust=False,
-        min_periods=config.min_periods,
-    ).mean()
+    weighted_values = (
+        (frame["sentiment_score"] * frame["news_volume"])
+        .ewm(
+            alpha=config.decay,
+            adjust=False,
+            min_periods=config.min_periods,
+        )
+        .mean()
+    )
+    normaliser = (
+        frame["news_volume"]
+        .ewm(
+            alpha=config.decay,
+            adjust=False,
+            min_periods=config.min_periods,
+        )
+        .mean()
+    )
     expected = weighted_values / normaliser
 
     pd.testing.assert_series_equal(result, expected.rename(config.result_col))

@@ -1,8 +1,10 @@
 import streamlit as st
+
 from .utils import trigger_rerun
 
+
 def render_finpilot_landing():
-        hero_section = """
+    hero_section = """
         <div class='layout-grid'>
             <div style='background: linear-gradient(100deg,#131b2b 55%,#1e2b40 100%); border-radius:24px; padding:50px 36px; margin-bottom:36px; box-shadow:0 24px 60px -32px rgba(8,47,73,0.65);'>
                 <div style='display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:32px;'>
@@ -58,7 +60,7 @@ def render_finpilot_landing():
         </div>
         """
 
-        features_section = """
+    features_section = """
         <div class='layout-grid'>
             <div style='display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; margin-bottom:40px;'>
                 <div class='feature-card' style='background:rgba(15,23,42,0.75); border-radius:18px; padding:26px 24px; box-shadow:0 22px 52px -32px rgba(14,165,233,0.45);'>
@@ -109,7 +111,7 @@ def render_finpilot_landing():
         </div>
         """
 
-        checklist_html = """
+    checklist_html = """
         <div class='layout-grid'>
             <div class='action-checklist'>
                 <h3>📋 Pilot'un Aksiyon Kontrol Listesi</h3>
@@ -143,23 +145,24 @@ def render_finpilot_landing():
         </div>
         """
 
-        st.markdown(hero_section, unsafe_allow_html=True)
-        st.markdown(features_section, unsafe_allow_html=True)
-        st.markdown(checklist_html, unsafe_allow_html=True)
+    st.markdown(hero_section, unsafe_allow_html=True)
+    st.markdown(features_section, unsafe_allow_html=True)
+    st.markdown(checklist_html, unsafe_allow_html=True)
 
-        action_cols = st.columns([1, 1, 1])
-        with action_cols[1]:
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("Panele Geç", key="landing_enter_panel", use_container_width=True):
-                    st.session_state.has_seen_landing = True
-                    trigger_rerun()
-            with c2:
-                if st.button("Canlı Demo", key="landing_enter_demo", use_container_width=True):
-                    st.session_state.show_demo = True
-                    trigger_rerun()
+    action_cols = st.columns([1, 1, 1])
+    with action_cols[1]:
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("🚀 Panele Geç", key="landing_enter_panel", use_container_width=True):
+                st.session_state.has_seen_landing = True
+                trigger_rerun()
+        with c2:
+            if st.button("🎯 Canlı Demo", key="landing_enter_demo", use_container_width=True):
+                st.session_state.has_seen_landing = True
+                st.session_state.current_page = "demo"
+                trigger_rerun()
 
-        st.caption("🎉 Bu tanıtım ekranı sadece ilk oturumda gösterilir.")
-        st.stop()
-
-
+    st.caption(
+        "🎉 Bu tanıtım ekranı sadece ilk oturumda gösterilir. Tekrar görmek için tarayıcı önbelleğini temizleyin."
+    )
+    st.stop()

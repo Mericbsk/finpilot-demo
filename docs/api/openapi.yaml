@@ -1,0 +1,668 @@
+openapi: 3.0.3
+info:
+  title: FinPilot Trading System API
+  description: |
+    ## Overview
+    FinPilot is a multi-strategy market scanner and trading signal system.
+
+    ## Authentication
+    API uses JWT tokens for authentication. Include the token in the `Authorization` header:
+    ```
+    Authorization: Bearer <token>
+    ```
+
+    ## Rate Limiting
+    - Default: 100 requests per minute
+    - Authenticated: 1000 requests per minute
+
+    ## Errors
+    All errors follow a consistent format:
+    ```json
+    {
+      "error": "ErrorType",
+      "message": "Human-readable message",
+      "details": {}
+    }
+    ```
+  version: 1.1.0
+  contact:
+    name: FinPilot Team
+    email: support@finpilot.dev
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8501
+    description: Local development server
+  - url: https://api.finpilot.dev
+    description: Production server
+
+tags:
+  - name: Scanner
+    description: Market scanning and signal generation
+  - name: Signals
+    description: Trading signal management
+  - name: Settings
+    description: User settings and configuration
+  - name: Auth
+    description: Authentication and authorization
+  - name: Health
+    description: System health and metrics
+
+paths:
+  /api/v1/scan:
+    post:
+      tags:
+        - Scanner
+      summary: Run market scan
+      description: |
+        Execute a market scan with specified parameters.
+        Returns matching tickers based on technical criteria.
+      operationId: runScan
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanRequest'
+            examples:
+              momentum_scan:
+                summary: Momentum scan
+                value:
+                  strategy: momentum
+                  market: US
+                  min_volume: 1000000
+                  min_price: 5.0
+                  timeframe: 1d
+              swing_scan:
+                summary: Swing trading scan
+                value:
+                  strategy: swing
+                  market: US
+                  rsi_threshold: 30
+                  timeframe: 4h
+      responses:
+        '200':
+          description: Scan completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/scan/{scan_id}:
+    get:
+      tags:
+        - Scanner
+      summary: Get scan results
+      description: Retrieve results of a previously executed scan
+      operationId: getScanResults
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique scan identifier
+      responses:
+        '200':
+          description: Scan results retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/signals:
+    get:
+      tags:
+        - Signals
+      summary: List trading signals
+      description: Get list of generated trading signals
+      operationId: listSignals
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of signals to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Offset for pagination
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [long, short, neutral]
+          description: Filter by signal type
+        - name: min_confidence
+          in: query
+          schema:
+            type: number
+            minimum: 0
+            maximum: 1
+          description: Minimum confidence threshold
+      responses:
+        '200':
+          description: Signals retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignalList'
+
+  /api/v1/signals/{signal_id}:
+    get:
+      tags:
+        - Signals
+      summary: Get signal details
+      description: Retrieve detailed information about a specific signal
+      operationId: getSignal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: signal_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Signal details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Signal'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/settings:
+    get:
+      tags:
+        - Settings
+      summary: Get user settings
+      description: Retrieve current user settings and preferences
+      operationId: getSettings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Settings retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+
+    put:
+      tags:
+        - Settings
+      summary: Update user settings
+      description: Update user settings and preferences
+      operationId: updateSettings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSettings'
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: User login
+      description: Authenticate user and get JWT token
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refresh token
+      description: Get new access token using refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Get system health status
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: System unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /ready:
+    get:
+      tags:
+        - Health
+      summary: Readiness check
+      description: Check if system is ready to accept traffic
+      operationId: readyCheck
+      responses:
+        '200':
+          description: System ready
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+        '503':
+          description: System not ready
+
+  /metrics:
+    get:
+      tags:
+        - Health
+      summary: Prometheus metrics
+      description: Get Prometheus-compatible metrics
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Metrics in Prometheus format
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  # HELP finpilot_scans_total Total number of scans
+                  # TYPE finpilot_scans_total counter
+                  finpilot_scans_total 42
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ScanRequest:
+      type: object
+      required:
+        - strategy
+      properties:
+        strategy:
+          type: string
+          enum: [momentum, swing, breakout, reversal, volume_spike]
+          description: Scanning strategy to use
+        market:
+          type: string
+          enum: [US, TR, CRYPTO]
+          default: US
+          description: Target market
+        min_volume:
+          type: integer
+          minimum: 0
+          default: 100000
+          description: Minimum daily volume
+        min_price:
+          type: number
+          minimum: 0
+          default: 1.0
+          description: Minimum stock price
+        max_price:
+          type: number
+          minimum: 0
+          description: Maximum stock price
+        timeframe:
+          type: string
+          enum: [1m, 5m, 15m, 1h, 4h, 1d, 1w]
+          default: 1d
+          description: Timeframe for analysis
+        rsi_threshold:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: RSI threshold for signals
+        tickers:
+          type: array
+          items:
+            type: string
+          description: Specific tickers to scan (optional)
+
+    ScanResponse:
+      type: object
+      properties:
+        scan_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [completed, partial, failed]
+        strategy:
+          type: string
+        executed_at:
+          type: string
+          format: date-time
+        duration_ms:
+          type: integer
+        total_scanned:
+          type: integer
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScanMatch'
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ScanMatch:
+      type: object
+      properties:
+        ticker:
+          type: string
+        price:
+          type: number
+        change_percent:
+          type: number
+        volume:
+          type: integer
+        signal:
+          $ref: '#/components/schemas/Signal'
+        indicators:
+          type: object
+          properties:
+            rsi:
+              type: number
+            macd:
+              type: number
+            sma_20:
+              type: number
+            sma_50:
+              type: number
+            atr:
+              type: number
+
+    Signal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ticker:
+          type: string
+        type:
+          type: string
+          enum: [long, short, neutral]
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        entry_price:
+          type: number
+        stop_loss:
+          type: number
+        take_profit:
+          type: number
+        risk_reward:
+          type: number
+        timeframe:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        reasons:
+          type: array
+          items:
+            type: string
+
+    SignalList:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        signals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Signal'
+
+    UserSettings:
+      type: object
+      properties:
+        scan_defaults:
+          type: object
+          properties:
+            market:
+              type: string
+            min_volume:
+              type: integer
+            timeframe:
+              type: string
+        notifications:
+          type: object
+          properties:
+            telegram_enabled:
+              type: boolean
+            telegram_chat_id:
+              type: string
+            email_enabled:
+              type: boolean
+            email_address:
+              type: string
+        theme:
+          type: string
+          enum: [light, dark, system]
+        language:
+          type: string
+          enum: [en, tr]
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+        password:
+          type: string
+          format: password
+          minLength: 8
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          default: Bearer
+        expires_in:
+          type: integer
+          description: Token expiry in seconds
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        checks:
+          type: object
+          properties:
+            database:
+              type: string
+              enum: [ok, error]
+            cache:
+              type: string
+              enum: [ok, error]
+            external_apis:
+              type: string
+              enum: [ok, error]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        request_id:
+          type: string
+          format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: ValidationError
+            message: Invalid request parameters
+            details:
+              field: min_volume
+              issue: must be a positive integer
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: AuthenticationError
+            message: Invalid or expired token
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: NotFoundError
+            message: Resource not found
+
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per minute
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Unix timestamp when limit resets
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: RateLimitError
+            message: Too many requests
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: InternalError
+            message: An unexpected error occurred

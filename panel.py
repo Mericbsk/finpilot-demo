@@ -2,14 +2,13 @@ import hashlib
 from pathlib import Path
 from typing import List, Optional
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
 import yfinance as yf
 
 from altdata import get_altdata_history
 from drl.analysis import RegimeStats, build_narrative_payload, summarize_alternative_signals
 from scanner import evaluate_symbol, load_symbols
-
 
 WORKSPACE_ROOT = Path(__file__).resolve().parent
 SHORTLIST_PATTERN = "shortlist_*.csv"
@@ -253,7 +252,11 @@ with st.sidebar:
     st.markdown("### 🔀 Sayfa Seç")
     mode_labels = _mode_labels()
     current_label = next(
-        (mode_cfg["label"] for mode_cfg in MODES if mode_cfg["key"] == st.session_state.dashboard_mode),
+        (
+            mode_cfg["label"]
+            for mode_cfg in MODES
+            if mode_cfg["key"] == st.session_state.dashboard_mode
+        ),
         mode_labels[0],
     )
     selected_label = st.radio(
@@ -288,7 +291,7 @@ with st.sidebar:
         """
         **📊 Ana Filtreler:**
         - 🟢 Uzun vadeli trend (200 EMA üstü)
-        - 🟡 Orta vadeli trend (50 EMA üstü) 
+        - 🟡 Orta vadeli trend (50 EMA üstü)
         - 🔴 Kısa vadeli sinyaller (2+ sinyal)
 
         **✨ Ek Güçlü Filtreler:**
@@ -306,8 +309,12 @@ with st.sidebar:
 portfolio_value = float(st.session_state.portfolio_value)
 risk_percent = float(st.session_state.risk_percent)
 mode = st.session_state.dashboard_mode
-mode_icon = next((mode_cfg["label"].split()[0] for mode_cfg in MODES if mode_cfg["key"] == mode), "📊")
-mode_label_text = next((mode_cfg["label"].split(" ", 1)[1] for mode_cfg in MODES if mode_cfg["key"] == mode), mode)
+mode_icon = next(
+    (mode_cfg["label"].split()[0] for mode_cfg in MODES if mode_cfg["key"] == mode), "📊"
+)
+mode_label_text = next(
+    (mode_cfg["label"].split(" ", 1)[1] for mode_cfg in MODES if mode_cfg["key"] == mode), mode
+)
 
 if mode == "Kişiselleştirme":
     st.markdown("# ⚙️ Şu an: Kişiselleştirme")
@@ -329,7 +336,10 @@ if mode == "Kişiselleştirme":
         strategy_focus = st.multiselect(
             "Odaklanmak istediğiniz stratejiler",
             strategy_options,
-            default=[s for s in personalization_state.get("strategy_focus", []) if s in strategy_options] or ["Trend Takibi"],
+            default=[
+                s for s in personalization_state.get("strategy_focus", []) if s in strategy_options
+            ]
+            or ["Trend Takibi"],
         )
 
         st.subheader("Bildirimler")
@@ -605,7 +615,7 @@ col1, col2 = st.columns([3, 2])
 
 with col1:
     st.markdown("<h2 id='analysis-results'>📊 Analiz Sonuçları</h2>", unsafe_allow_html=True)
-    
+
     # Veri toplama
     with st.spinner("Semboller analiz ediliyor..."):
         symbols = st.session_state.get("active_symbols") or load_symbols()
@@ -631,25 +641,32 @@ with col1:
             st.success(f"🟢 **{len(buyable)} ALIM FIRSATI!**")
 
             # Sade tablo
-            display_cols = ["symbol", "price", "stop_loss", "take_profit", "position_size", "risk_reward"]
+            display_cols = [
+                "symbol",
+                "price",
+                "stop_loss",
+                "take_profit",
+                "position_size",
+                "risk_reward",
+            ]
             buyable_display = buyable[display_cols].copy()
             buyable_display.columns = ["Sembol", "Fiyat", "Stop-Loss", "Take-Profit", "Lot", "R/R"]
 
-            st.dataframe(buyable_display, width='stretch')
+            st.dataframe(buyable_display, width="stretch")
 
         # Tüm sonuçlar (sade)
         st.markdown("### 📋 Tüm Semboller")
         simple_cols = ["symbol", "price", "score", "entry_ok", "risk_reward"]
         df_simple = df[simple_cols].copy()
         df_simple.columns = ["Sembol", "Fiyat", "Skor", "Alım?", "R/R"]
-        st.dataframe(df_simple, width='stretch')
+        st.dataframe(df_simple, width="stretch")
 
 with col2:
     st.markdown("## 🔍 Detay Analiz")
-    
-    if 'df' in locals() and len(df) > 0:
+
+    if "df" in locals() and len(df) > 0:
         selected = st.selectbox("Sembol Seç:", df["symbol"].tolist())
-        
+
         if selected:
             row = df[df["symbol"] == selected].iloc[0]
             history = get_altdata_history(selected, periods=36, freq="H")
@@ -678,16 +695,16 @@ with col2:
                 current_price=price,
                 max_allowed_drawdown=risk_percent / 100.0,
             )
-            
+
             # Alım Önerisi - Sade
-            if row['entry_ok']:
+            if row["entry_ok"]:
                 st.success("🟢 ALIM ÖNERİSİ")
             else:
                 st.warning("🟡 BEKLEYİN")
-            
+
             # Risk Bilgileri - Sade ve Net
             st.markdown("### 🛡️ Risk Planı")
-            
+
             col_a, col_b = st.columns(2)
             with col_a:
                 st.metric("Giriş", f"${price}")
@@ -711,18 +728,18 @@ with col2:
                 f"{active_personalization.get('risk_profile', 'Dengeli')} profiliniz ve portföy %{risk_percent:.1f} riski birlikte değerlendirildi."
             )
 
-            # ✨ Yeni Filtre Durumları 
+            # ✨ Yeni Filtre Durumları
             st.markdown("### ✨ Filtre Kontrol")
             filter_col1, filter_col2, filter_col3 = st.columns(3)
 
             with filter_col1:
-                icon = "🟢" if row.get('volume_spike', False) else "🔴"
+                icon = "🟢" if row.get("volume_spike", False) else "🔴"
                 st.write(f"{icon} Hacim")
             with filter_col2:
-                icon = "🟢" if row.get('price_momentum', False) else "🔴"
+                icon = "🟢" if row.get("price_momentum", False) else "🔴"
                 st.write(f"{icon} Momentum")
             with filter_col3:
-                icon = "🟢" if row.get('trend_strength', False) else "🔴"
+                icon = "🟢" if row.get("trend_strength", False) else "🔴"
                 st.write(f"{icon} Trend Gücü")
 
             st.info(f"📊 Filtre Skoru: {row.get('filter_score', 0)}/3")
@@ -738,20 +755,22 @@ with col2:
             reward_amount = take_profit - price
             total_risk = risk_amount * position_size
             total_reward = reward_amount * position_size
-            
-            st.markdown(f"""
+
+            st.markdown(
+                f"""
             **💰 Para Hesabı:**
             - Maksimum Kayıp: ${total_risk:.0f}
             - Potansiyel Kazanç: ${total_reward:.0f}
             - Risk Yüzdesi: {(total_risk/portfolio_value)*100:.1f}%
-            """)
-            
+            """
+            )
+
             # Grafik - Basit
             st.markdown("### 📊 Fiyat Grafiği")
             try:
                 df_chart = yf.download(selected, interval="1d", period="30d", progress=False)
                 if df_chart is not None and not df_chart.empty:
-                    st.line_chart(df_chart['Close'])
+                    st.line_chart(df_chart["Close"])
             except Exception:
                 st.warning("Grafik yüklenemedi")
 

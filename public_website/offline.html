@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - FinPilot</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366F1">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1E1E2E 0%, #2D2D44 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #E4E4E7;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #FFFFFF;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            color: #A1A1AA;
+        }
+
+        .retry-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #6366F1;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .retry-btn:hover {
+            background: #4F46E5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .cached-data {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .cached-data h3 {
+            font-size: 14px;
+            color: #A1A1AA;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cached-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cached-item:last-child {
+            border-bottom: none;
+        }
+
+        .symbol {
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .price {
+            color: #22C55E;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #A1A1AA;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #EF4444;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .features {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            text-align: left;
+        }
+
+        .feature {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .feature-desc {
+            font-size: 12px;
+            color: #71717A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>It looks like you've lost your internet connection. Don't worry - some features are still available offline.</p>
+
+        <button class="retry-btn" onclick="retryConnection()">
+            🔄 Try Again
+        </button>
+
+        <div class="status">
+            <span class="status-dot"></span>
+            <span>Waiting for connection...</span>
+        </div>
+
+        <div class="cached-data" id="cachedData" style="display: none;">
+            <h3>📊 Cached Data Available</h3>
+            <div id="cachedItems">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📋</div>
+                <div class="feature-title">Watchlist</div>
+                <div class="feature-desc">View cached stocks</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📈</div>
+                <div class="feature-title">Last Scan</div>
+                <div class="feature-desc">See recent results</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚙️</div>
+                <div class="feature-title">Settings</div>
+                <div class="feature-desc">Adjust preferences</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📚</div>
+                <div class="feature-title">Education</div>
+                <div class="feature-desc">Learn strategies</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Retry connection
+        function retryConnection() {
+            window.location.reload();
+        }
+
+        // Auto-retry when online
+        window.addEventListener('online', () => {
+            console.log('Connection restored!');
+            window.location.reload();
+        });
+
+        // Show cached data if available
+        async function loadCachedData() {
+            try {
+                const cache = await caches.open('finpilot-data-v1');
+                const keys = await cache.keys();
+
+                if (keys.length > 0) {
+                    const container = document.getElementById('cachedData');
+                    const items = document.getElementById('cachedItems');
+
+                    container.style.display = 'block';
+                    items.innerHTML = '<p style="color: #71717A; font-size: 14px;">Data from your last session is available.</p>';
+                }
+            } catch (error) {
+                console.log('No cached data available');
+            }
+        }
+
+        // Check for service worker updates
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then((registration) => {
+                console.log('Service Worker ready:', registration.scope);
+            });
+        }
+
+        loadCachedData();
+    </script>
+</body>
+</html>

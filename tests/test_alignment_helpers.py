@@ -8,7 +8,7 @@ from drl.alignment_helpers import align_frames, forward_fill, resample_frame
 def _build_df(values):
     return pd.DataFrame(
         {"value": values},
-        index=pd.date_range("2025-01-01", periods=len(values), freq="12H", tz="UTC"),
+        index=pd.date_range("2025-01-01", periods=len(values), freq="12h", tz="UTC"),
     )
 
 

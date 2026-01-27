@@ -1,0 +1,165 @@
+Defaulting to user installation because normal site-packages is not writeable
+Collecting stable-baselines3
+  Downloading stable_baselines3-2.7.1-py3-none-any.whl.metadata (4.8 kB)
+Collecting shimmy
+  Downloading Shimmy-2.0.0-py3-none-any.whl.metadata (3.5 kB)
+Collecting gymnasium<1.3.0,>=0.29.1 (from stable-baselines3)
+  Downloading gymnasium-1.2.3-py3-none-any.whl.metadata (10 kB)
+Requirement already satisfied: numpy<3.0,>=1.20 in /home/vscode/.local/lib/python3.11/site-packages (from stable-baselines3) (2.4.1)
+Collecting torch<3.0,>=2.3 (from stable-baselines3)
+  Downloading torch-2.10.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (31 kB)
+Collecting cloudpickle (from stable-baselines3)
+  Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+Requirement already satisfied: pandas in /home/vscode/.local/lib/python3.11/site-packages (from stable-baselines3) (2.3.3)
+Collecting matplotlib (from stable-baselines3)
+  Downloading matplotlib-3.10.8-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (52 kB)
+     ━━━━━━━━━━━━ 52.8/52.8   2.2 MB/s eta 0:00:00
+                  kB
+Requirement already satisfied: typing-extensions>=4.3.0 in /home/vscode/.local/lib/python3.11/site-packages (from gymnasium<1.3.0,>=0.29.1->stable-baselines3) (4.15.0)
+Collecting farama-notifications>=0.0.1 (from gymnasium<1.3.0,>=0.29.1->stable-baselines3)
+  Downloading Farama_Notifications-0.0.4-py3-none-any.whl.metadata (558 bytes)
+Collecting filelock (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading filelock-3.20.3-py3-none-any.whl.metadata (2.1 kB)
+Collecting sympy>=1.13.3 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx>=2.5.1 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading networkx-3.6.1-py3-none-any.whl.metadata (6.8 kB)
+Requirement already satisfied: jinja2 in /home/vscode/.local/lib/python3.11/site-packages (from torch<3.0,>=2.3->stable-baselines3) (3.1.6)
+Collecting fsspec>=0.8.5 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading fsspec-2026.1.0-py3-none-any.whl.metadata (10 kB)
+Collecting cuda-bindings==12.9.4 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading cuda_bindings-12.9.4-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.6 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.8.93 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-runtime-cu12==12.8.90 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-cupti-cu12==12.8.90 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cudnn-cu12==9.10.2.21 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cublas-cu12==12.8.4.1 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cufft-cu12==11.3.3.83 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-curand-cu12==10.3.9.90 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cusolver-cu12==11.7.3.90 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cusparse-cu12==12.5.8.93 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cusparselt-cu12==0.7.1 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl.metadata (7.0 kB)
+Collecting nvidia-nccl-cu12==2.27.5 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_nccl_cu12-2.27.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.0 kB)
+Collecting nvidia-nvshmem-cu12==3.4.5 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_nvshmem_cu12-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.1 kB)
+Collecting nvidia-nvtx-cu12==12.8.90 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-nvjitlink-cu12==12.8.93 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cufile-cu12==1.13.1.3 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting triton==3.6.0 (from torch<3.0,>=2.3->stable-baselines3)
+  Downloading triton-3.6.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
+Collecting cuda-pathfinder~=1.1 (from cuda-bindings==12.9.4->torch<3.0,>=2.3->stable-baselines3)
+  Downloading cuda_pathfinder-1.3.3-py3-none-any.whl.metadata (1.9 kB)
+Collecting contourpy>=1.0.1 (from matplotlib->stable-baselines3)
+  Downloading contourpy-1.3.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.5 kB)
+Collecting cycler>=0.10 (from matplotlib->stable-baselines3)
+  Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+Collecting fonttools>=4.22.0 (from matplotlib->stable-baselines3)
+  Downloading fonttools-4.61.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (114 kB)
+     ━━━━━━━━━━━━ 114.2/114.2 3.5 MB/s eta 0:00:00
+                  kB
+Collecting kiwisolver>=1.3.1 (from matplotlib->stable-baselines3)
+  Downloading kiwisolver-1.4.9-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.3 kB)
+Requirement already satisfied: packaging>=20.0 in /home/vscode/.local/lib/python3.11/site-packages (from matplotlib->stable-baselines3) (26.0)
+Requirement already satisfied: pillow>=8 in /home/vscode/.local/lib/python3.11/site-packages (from matplotlib->stable-baselines3) (12.1.0)
+Requirement already satisfied: pyparsing>=3 in /home/vscode/.local/lib/python3.11/site-packages (from matplotlib->stable-baselines3) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in /home/vscode/.local/lib/python3.11/site-packages (from matplotlib->stable-baselines3) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in /home/vscode/.local/lib/python3.11/site-packages (from pandas->stable-baselines3) (2025.2)
+Requirement already satisfied: tzdata>=2022.7 in /home/vscode/.local/lib/python3.11/site-packages (from pandas->stable-baselines3) (2025.3)
+Requirement already satisfied: six>=1.5 in /home/vscode/.local/lib/python3.11/site-packages (from python-dateutil>=2.7->matplotlib->stable-baselines3) (1.17.0)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch<3.0,>=2.3->stable-baselines3)
+  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/vscode/.local/lib/python3.11/site-packages (from jinja2->torch<3.0,>=2.3->stable-baselines3) (3.0.3)
+Downloading stable_baselines3-2.7.1-py3-none-any.whl (188 kB)
+   ━━━━━━━━━━━━ 188.0/188.0   5.1 MB/s eta 0:00:00
+                kB
+Downloading Shimmy-2.0.0-py3-none-any.whl (30 kB)
+Downloading gymnasium-1.2.3-py3-none-any.whl (952 kB)
+   ━━━━━━━━━━━━ 952.1/952.1  11.6 MB/s eta 0:00:00
+                kB
+Downloading cloudpickle-3.1.2-py3-none-any.whl (22 kB)
+Downloading torch-2.10.0-cp311-cp311-manylinux_2_28_x86_64.whl (915.6 MB)
+   ━━━━━━━━━━━━ 915.6/915.6   2.0 MB/s eta 0:00:00
+                MB
+Downloading cuda_bindings-12.9.4-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.2 MB)
+   ━━━━━━━━━━━━ 12.2/12.2 MB 14.7 MB/s eta 0:00:00
+Downloading nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl (594.3 MB)
+   ━━━━━━━━━━━━ 594.3/594.3   2.7 MB/s eta 0:00:00
+                MB
+Downloading nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (10.2 MB)
+   ━━━━━━━━━━━━ 10.2/10.2 MB 12.3 MB/s eta 0:00:00
+Downloading nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (88.0 MB)
+   ━━━━━━━━━━━━━ 88.0/88.0 MB 9.5 MB/s eta 0:00:00
+Downloading nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (954 kB)
+   ━━━━━━━━━━━━ 954.8/954.8   8.6 MB/s eta 0:00:00
+                kB
+Downloading nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl (706.8 MB)
+   ━━━━━━━━━━━━ 706.8/706.8   1.4 MB/s eta 0:00:00
+                MB
+Downloading nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (193.1 MB)
+   ━━━━━━━━━━━━ 193.1/193.1   6.7 MB/s eta 0:00:00
+                MB
+Downloading nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━ 1.2/1.2 MB 10.3 MB/s eta 0:00:00
+Downloading nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl (63.6 MB)
+   ━━━━━━━━━━━━ 63.6/63.6 MB 11.4 MB/s eta 0:00:00
+Downloading nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl (267.5 MB)
+   ━━━━━━━━━━━━ 267.5/267.5   4.2 MB/s eta 0:00:00
+                MB
+Downloading nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (288.2 MB)
+   ━━━━━━━━━━━━ 288.2/288.2   4.1 MB/s eta 0:00:00
+                MB
+Downloading nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl (287.2 MB)
+   ━━━━━━━━━━━━ 287.2/287.2   4.3 MB/s eta 0:00:00
+                MB
+Downloading nvidia_nccl_cu12-2.27.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (322.3 MB)
+   ━━━━━━━━━━━━ 322.3/322.3   4.0 MB/s eta 0:00:00
+                MB
+Downloading nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.3 MB)
+   ━━━━━━━━━━━━ 39.3/39.3 MB 11.8 MB/s eta 0:00:00
+Downloading nvidia_nvshmem_cu12-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (139.1 MB)
+   ━━━━━━━━━━━━ 139.1/139.1   6.6 MB/s eta 0:00:00
+                MB
+Downloading nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89 kB)
+   ━━━━━━━━━━━━━ 90.0/90.0 kB 3.7 MB/s eta 0:00:00
+Downloading triton-3.6.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (188.2 MB)
+   ━━━━━━━━━━━━ 188.2/188.2   5.4 MB/s eta 0:00:00
+                MB
+Downloading matplotlib-3.10.8-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (8.7 MB)
+   ━━━━━━━━━━━━━━ 8.7/8.7 MB 15.6 MB/s eta 0:00:00
+Downloading contourpy-1.3.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (355 kB)
+   ━━━━━━━━━━━━ 355.2/355.2   4.5 MB/s eta 0:00:00
+                kB
+Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Downloading Farama_Notifications-0.0.4-py3-none-any.whl (2.5 kB)
+Downloading fonttools-4.61.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.0 MB)
+   ━━━━━━━━━━━━━━ 5.0/5.0 MB 15.0 MB/s eta 0:00:00
+Downloading fsspec-2026.1.0-py3-none-any.whl (201 kB)
+   ━━━━━━━━━━━━ 201.8/201.8   5.0 MB/s eta 0:00:00
+                kB
+Downloading kiwisolver-1.4.9-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.4 MB)
+   ━━━━━━━━━━━━━━ 1.4/1.4 MB 11.9 MB/s eta 0:00:00
+Downloading networkx-3.6.1-py3-none-any.whl (2.1 MB)
+   ━━━━━━━━━━━━━━ 2.1/2.1 MB 14.3 MB/s eta 0:00:00
+Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+   ━━━━━━━━━━━━━━ 6.3/6.3 MB 13.7 MB/s eta 0:00:00
+Downloading filelock-3.20.3-py3-none-any.whl (16 kB)
+Downloading cuda_pathfinder-1.3.3-py3-none-any.whl (27 kB)
+Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+   ━━━━━━━━━━━━ 536.2/536.2   7.7 MB/s eta 0:00:00
+                kB
+Installing collected packages: nvidia-cusparselt-cu12, mpmath, farama-notifications, triton, sympy, nvidia-nvtx-cu12, nvidia-nvshmem-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, kiwisolver, fsspec, fonttools, filelock, cycler, cuda-pathfinder, contourpy, cloudpickle, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, matplotlib, gymnasium, cuda-bindings, shimmy, nvidia-cusolver-cu12, torch, stable-baselines3
+Successfully installed cloudpickle-3.1.2 contourpy-1.3.3 cuda-bindings-12.9.4 cuda-pathfinder-1.3.3 cycler-0.12.1 farama-notifications-0.0.4 filelock-3.20.3 fonttools-4.61.1 fsspec-2026.1.0 gymnasium-1.2.3 kiwisolver-1.4.9 matplotlib-3.10.8 mpmath-1.3.0 networkx-3.6.1 nvidia-cublas-cu12-12.8.4.1 nvidia-cuda-cupti-cu12-12.8.90 nvidia-cuda-nvrtc-cu12-12.8.93 nvidia-cuda-runtime-cu12-12.8.90 nvidia-cudnn-cu12-9.10.2.21 nvidia-cufft-cu12-11.3.3.83 nvidia-cufile-cu12-1.13.1.3 nvidia-curand-cu12-10.3.9.90 nvidia-cusolver-cu12-11.7.3.90 nvidia-cusparse-cu12-12.5.8.93 nvidia-cusparselt-cu12-0.7.1 nvidia-nccl-cu12-2.27.5 nvidia-nvjitlink-cu12-12.8.93 nvidia-nvshmem-cu12-3.4.5 nvidia-nvtx-cu12-12.8.90 shimmy-2.0.0 stable-baselines3-2.7.1 sympy-1.14.0 torch-2.10.0 triton-3.6.0

@@ -59,7 +59,7 @@ def render_settings_card(height: int = 860):
     components.html(markup, height=height, scrolling=True)
 """
 
-with open('views/utils.py', 'a', encoding='utf-8') as f:
+with open("views/utils.py", "a", encoding="utf-8") as f:
     f.write(content_to_append)
 
 print("Successfully appended settings card functions to views/utils.py")

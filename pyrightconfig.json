@@ -1,0 +1,27 @@
+{
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "archive"
+  ],
+  "extraPaths": [
+    ".",
+    "drl",
+    "scanner",
+    "core",
+    "auth",
+    "views"
+  ],
+  "pythonVersion": "3.11",
+  "pythonPlatform": "Linux",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "warning",
+  "reportOptionalMemberAccess": "warning",
+  "reportUnusedImport": "warning",
+  "reportUnusedVariable": "warning",
+  "reportGeneralTypeIssues": "warning"
+}

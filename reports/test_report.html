@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinPilot Backtest Report</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #60a5fa;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        header .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--bg-secondary);
+        }
+
+        .metric-card .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .metric-card .value.positive {
+            color: var(--success);
+        }
+
+        .metric-card .value.negative {
+            color: var(--danger);
+        }
+
+        .metric-card .value.neutral {
+            color: var(--text-primary);
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .badge.danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .badge.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .summary-box {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--bg-secondary);
+        }
+
+        .summary-box h3 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 FinPilot Backtest Report</h1>
+            <p class="subtitle">Test Strategy</p>
+            <div class="meta-info">
+                <span>📅 2023-01-01 → 2024-06-15</span>
+                <span>🕐 Oluşturulma: 2026-01-25 14:45:17</span>
+            </div>
+        </header>
+
+
+        <section class="section">
+            <h2>📈 Temel Performans Metrikleri</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="label">Toplam Getiri</div>
+                    <div class="value negative">-3.20%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Yıllık Getiri</div>
+                    <div class="value negative">-1.63%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Sharpe Oranı</div>
+                    <div class="value negative">-1.76</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Sortino Oranı</div>
+                    <div class="value neutral">-1.34</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Calmar Oranı</div>
+                    <div class="value neutral">-0.36</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Volatilite</div>
+                    <div class="value neutral">2.06%</div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <section class="section">
+            <h2>⚠️ Risk Metrikleri</h2>
+            <div class="two-column">
+                <div class="summary-box">
+                    <h3>Drawdown Analizi</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Maksimum Drawdown</span>
+                            <span style="color: var(--danger); font-weight: bold;">4.48%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="fill" style="width: 8.959999999999999%; background: var(--danger);"></div>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        Maksimum çekilme süresi: 485 gün
+                    </p>
+                </div>
+
+                <div class="summary-box">
+                    <h3>Risk Değerleri (VaR)</h3>
+                    <table>
+                        <tr>
+                            <td>VaR (95%)</td>
+                            <td style="text-align: right; color: var(--warning);">-0.21%</td>
+                        </tr>
+                        <tr>
+                            <td>CVaR (95%)</td>
+                            <td style="text-align: right; color: var(--danger);">-0.39%</td>
+                        </tr>
+                    </table>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 1rem;">
+                        %95 güven seviyesinde günlük risk değerleri
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+
+        <section class="section">
+            <h2>💹 İşlem İstatistikleri</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="label">Toplam İşlem</div>
+                    <div class="value neutral">19</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Kazanma Oranı</div>
+                    <div class="value neutral">42.1%</div>
+                    <div class="progress-bar" style="margin-top: 0.5rem;">
+                        <div class="fill" style="width: 42.1%; background: var(--success);"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Profit Factor</div>
+                    <div class="value">
+                        <span class="badge danger">0.50</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Ortalama Kazanç</div>
+                    <div class="value positive">3082.90%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Ortalama Kayıp</div>
+                    <div class="value negative">-4464.18%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Ortalama Tutma</div>
+                    <div class="value neutral">0.0 gün</div>
+                </div>
+            </div>
+        </section>
+
+
+
+
+
+        <section class="section">
+            <h2>🎲 Monte Carlo Simülasyonu</h2>
+            <div class="two-column">
+                <div class="summary-box">
+                    <h3>Equity Dağılımı (100 simülasyon)</h3>
+                    <table>
+                        <tr>
+                            <td>Ortalama</td>
+                            <td style="text-align: right; font-weight: bold;">$9,857.99</td>
+                        </tr>
+                        <tr>
+                            <td>Medyan</td>
+                            <td style="text-align: right;">$9,850.15</td>
+                        </tr>
+                        <tr>
+                            <td>5. Yüzdelik (En Kötü)</td>
+                            <td style="text-align: right; color: var(--danger);">$9,408.53</td>
+                        </tr>
+                        <tr>
+                            <td>95. Yüzdelik (En İyi)</td>
+                            <td style="text-align: right; color: var(--success);">$10,212.88</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="summary-box">
+                    <h3>Risk Olasılıkları</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Zarar Olasılığı</span>
+                            <span style="color: var(--warning);">76.0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="fill" style="width: 76.0%; background: var(--warning);"></div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Yıkım Olasılığı (&gt;50% kayıp)</span>
+                            <span style="color: var(--danger);">0.0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="fill" style="width: 0.0%; background: var(--danger);"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Beklenen Max Drawdown</span>
+                            <span>3.01%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <footer>
+            <p>FinPilot Backtest Report v2.0 | FinPilot AI</p>
+        </footer>
+    </div>
+</body>
+</html>

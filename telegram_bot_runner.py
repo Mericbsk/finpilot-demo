@@ -3,14 +3,15 @@ Telegram Bot Runner - Tek tıkla tarama (/scan)
 - Telefonunuzdan botunuza /scan yazın veya komut menüsünden seçin
 - Bu script taramayı çalıştırır, sonuç özetini ve CSV dosyasını geri yollar
 """
-import os
-import time
+
 import glob
+import os
 import subprocess
 import sys
+import time
 
-import requests
 import pandas as pd
+import requests
 
 from telegram_config import BOT_TOKEN, CHAT_ID
 
@@ -32,22 +33,28 @@ def tg_send_message(text: str):
 def tg_send_document(file_path: str, caption: str = ""):
     try:
         with open(file_path, "rb") as f:
-            resp = requests.post(f"{API_BASE}/sendDocument", data={
-                "chat_id": CHAT_ID,
-                "caption": caption
-            }, files={"document": f}, timeout=60)
+            resp = requests.post(
+                f"{API_BASE}/sendDocument",
+                data={"chat_id": CHAT_ID, "caption": caption},
+                files={"document": f},
+                timeout=60,
+            )
         return resp.ok
     except Exception:
         return False
 
 
 def latest_shortlist_csv(cwd: str) -> str | None:
-    files = sorted(glob.glob(os.path.join(cwd, "shortlist_*.csv")), key=os.path.getmtime, reverse=True)
+    files = sorted(
+        glob.glob(os.path.join(cwd, "shortlist_*.csv")), key=os.path.getmtime, reverse=True
+    )
     return files[0] if files else None
 
 
 def latest_suggestions_csv(cwd: str) -> str | None:
-    files = sorted(glob.glob(os.path.join(cwd, "suggestions_*.csv")), key=os.path.getmtime, reverse=True)
+    files = sorted(
+        glob.glob(os.path.join(cwd, "suggestions_*.csv")), key=os.path.getmtime, reverse=True
+    )
     return files[0] if files else None
 
 
@@ -62,7 +69,9 @@ def summarize_csv(csv_path: str) -> str:
             # En yüksek skor ve R/R'a göre sırala (mevcut kolonlara göre)
             sort_cols = [c for c in ["score", "risk_reward"] if c in buyable.columns]
             if sort_cols:
-                best_row = buyable.sort_values(sort_cols, ascending=[False] * len(sort_cols)).iloc[0]
+                best_row = buyable.sort_values(sort_cols, ascending=[False] * len(sort_cols)).iloc[
+                    0
+                ]
             else:
                 best_row = buyable.iloc[0]
             best = best_row.to_dict()
@@ -121,8 +130,9 @@ def run_scan_and_report(aggressive: bool = False):
             errors="replace",
             timeout=900,
             env=env,
+            shell=False,  # Security: explicit shell=False to prevent command injection
         )
-        success = (proc.returncode == 0)
+        success = proc.returncode == 0
     except subprocess.TimeoutExpired:
         tg_send_message("⏱️ Tarama zaman aşımına uğradı.")
         return
@@ -147,7 +157,9 @@ def run_scan_and_report(aggressive: bool = False):
     # Özet mesaj
     if csv_path and os.path.exists(csv_path):
         summary = summarize_csv(csv_path)
-        tg_send_message(f"✅ Tarama tamamlandı ({elapsed:.1f}s){' · Agresif' if aggressive else ''}\n\n{summary}")
+        tg_send_message(
+            f"✅ Tarama tamamlandı ({elapsed:.1f}s){' · Agresif' if aggressive else ''}\n\n{summary}"
+        )
         # CSV gönder
         tg_send_document(csv_path, caption=os.path.basename(csv_path))
     else:
@@ -165,10 +177,9 @@ def poll_updates():
     offset = None
     while True:
         try:
-            resp = requests.get(f"{API_BASE}/getUpdates", params={
-                "timeout": 50,
-                "offset": offset
-            }, timeout=60)
+            resp = requests.get(
+                f"{API_BASE}/getUpdates", params={"timeout": 50, "offset": offset}, timeout=60
+            )
             if not resp.ok:
                 time.sleep(2)
                 continue
@@ -191,10 +202,14 @@ def poll_updates():
                     tg_send_message("👋 Merhaba! /scan yazarak taramayı başlatabilirsiniz.")
                 elif text.lower().startswith("/scan"):
                     tokens = text.lower().split()
-                    is_aggr = any(t in ("aggressive", "--aggressive", "aggr", "a") for t in tokens[1:])
+                    is_aggr = any(
+                        t in ("aggressive", "--aggressive", "aggr", "a") for t in tokens[1:]
+                    )
                     run_scan_and_report(aggressive=is_aggr)
                 elif text.lower().startswith("/help"):
-                    tg_send_message("Kullanılabilir komutlar:\n/scan – Taramayı başlat\n/scan aggressive – Agresif mod\n/help – Yardım")
+                    tg_send_message(
+                        "Kullanılabilir komutlar:\n/scan – Taramayı başlat\n/scan aggressive – Agresif mod\n/help – Yardım"
+                    )
                 else:
                     tg_send_message("Anlaşılmadı. /scan veya /help deneyin.")
         except requests.exceptions.ReadTimeout:

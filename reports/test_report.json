@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "generated_at": "2026-01-25 14:45:17",
+    "strategy_name": "Test Strategy",
+    "period_start": "2023-01-01",
+    "period_end": "2024-06-15",
+    "generator": "FinPilot v2.0"
+  },
+  "metrics": {
+    "total_return": -0.032,
+    "annualized_return": -0.0163,
+    "volatility": 0.0206,
+    "max_drawdown": 0.0448,
+    "max_drawdown_duration": 485,
+    "sharpe_ratio": -1.76,
+    "sortino_ratio": -1.338,
+    "calmar_ratio": -0.363,
+    "var_95": -0.0021,
+    "cvar_95": -0.0039,
+    "total_trades": 19,
+    "win_rate": 0.421,
+    "profit_factor": 0.502,
+    "avg_win": 30.829,
+    "avg_loss": -44.6418,
+    "avg_holding_days": 0.0,
+    "best_trade": 72.797,
+    "worst_trade": -80.3675
+  },
+  "walk_forward": null,
+  "monte_carlo": {
+    "n_simulations": 100,
+    "confidence_level": 0.95,
+    "mean_equity": 9857.99,
+    "median_equity": 9850.15,
+    "std_equity": 230.98,
+    "equity_5th": 9408.53,
+    "equity_95th": 10212.88,
+    "prob_loss": 0.76,
+    "prob_ruin": 0.0,
+    "expected_max_drawdown": 0.0301
+  },
+  "trades_summary": {
+    "count": 0
+  }
+}
