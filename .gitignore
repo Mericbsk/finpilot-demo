@@ -12,3 +12,4 @@ data/logs/
 .DS_Store
 
 .streamlit/secrets.toml
+.streamlit/secrets.toml
