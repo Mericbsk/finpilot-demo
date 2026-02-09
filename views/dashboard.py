@@ -488,67 +488,71 @@ def render_scanner_page():
     if "preset_symbols" not in st.session_state:
         st.session_state["preset_symbols"] = None
 
-    preset_tabs = st.tabs(["🔥 Popüler", "💼 Sektörler", "🎯 Tematik", "📈 Strateji"])
+    preset_tabs = st.tabs(
+        ["🔥 Popüler", "💼 Sektörler", "🎯 Tematik", "📈 Strateji", "🌐 Bölgesel"]
+    )
+
+    def _render_preset_row(keys, prefix):
+        """Render a row of preset buttons (4 per row)."""
+        for row_start in range(0, len(keys), 4):
+            row_keys = keys[row_start : row_start + 4]
+            cols = st.columns(4)
+            for idx, key in enumerate(row_keys):
+                preset = STOCK_PRESETS[key]
+                with cols[idx]:
+                    if st.button(
+                        f"{preset.icon} {preset.name}",
+                        key=f"{prefix}_{key}",
+                        use_container_width=True,
+                        help=f"{preset.description} ({len(preset.symbols)} hisse)",
+                    ):
+                        st.session_state["preset_symbols"] = preset.symbols
+                        st.session_state["preset_name"] = preset.name
 
     with preset_tabs[0]:  # Popüler
-        pop_cols = st.columns(4)
-        popular_presets = ["tech_giants", "ai_leaders", "semiconductors", "growth_momentum"]
-        for idx, key in enumerate(popular_presets):
-            preset = STOCK_PRESETS[key]
-            with pop_cols[idx]:
-                if st.button(
-                    f"{preset.icon} {preset.name}",
-                    key=f"pop_{key}",
-                    use_container_width=True,
-                    help=f"{preset.description} ({len(preset.symbols)} hisse)",
-                ):
-                    st.session_state["preset_symbols"] = preset.symbols
-                    st.session_state["preset_name"] = preset.name
+        _render_preset_row(
+            ["tech_giants", "ai_leaders", "semiconductors", "growth_momentum", "trending_momentum"],
+            "pop",
+        )
 
     with preset_tabs[1]:  # Sektörler
-        sec_cols = st.columns(4)
-        sector_presets = ["biotech_large", "finance_banks", "energy_oil", "industrials"]
-        for idx, key in enumerate(sector_presets):
-            preset = STOCK_PRESETS[key]
-            with sec_cols[idx]:
-                if st.button(
-                    f"{preset.icon} {preset.name}",
-                    key=f"sec_{key}",
-                    use_container_width=True,
-                    help=f"{preset.description} ({len(preset.symbols)} hisse)",
-                ):
-                    st.session_state["preset_symbols"] = preset.symbols
-                    st.session_state["preset_name"] = preset.name
+        _render_preset_row(
+            [
+                "biotech_large",
+                "finance_banks",
+                "energy_oil",
+                "industrials",
+                "pharma_pipeline",
+                "medical_devices",
+                "enterprise_software",
+                "finance_diversified",
+            ],
+            "sec",
+        )
 
     with preset_tabs[2]:  # Tematik
-        theme_cols = st.columns(4)
-        theme_presets = ["ev_mobility", "space_defense", "crypto_blockchain", "cloud_saas"]
-        for idx, key in enumerate(theme_presets):
-            preset = STOCK_PRESETS[key]
-            with theme_cols[idx]:
-                if st.button(
-                    f"{preset.icon} {preset.name}",
-                    key=f"theme_{key}",
-                    use_container_width=True,
-                    help=f"{preset.description} ({len(preset.symbols)} hisse)",
-                ):
-                    st.session_state["preset_symbols"] = preset.symbols
-                    st.session_state["preset_name"] = preset.name
+        _render_preset_row(
+            ["ev_mobility", "space_defense", "crypto_blockchain", "cloud_saas"],
+            "theme",
+        )
 
     with preset_tabs[3]:  # Strateji
-        strat_cols = st.columns(4)
-        strat_presets = ["high_dividend", "value_picks", "small_cap_growth", "biotech_emerging"]
-        for idx, key in enumerate(strat_presets):
-            preset = STOCK_PRESETS[key]
-            with strat_cols[idx]:
-                if st.button(
-                    f"{preset.icon} {preset.name}",
-                    key=f"strat_{key}",
-                    use_container_width=True,
-                    help=f"{preset.description} ({len(preset.symbols)} hisse)",
-                ):
-                    st.session_state["preset_symbols"] = preset.symbols
-                    st.session_state["preset_name"] = preset.name
+        _render_preset_row(
+            [
+                "high_dividend",
+                "value_picks",
+                "small_cap_growth",
+                "biotech_emerging",
+                "trending_momentum",
+            ],
+            "strat",
+        )
+
+    with preset_tabs[4]:  # Bölgesel
+        _render_preset_row(
+            ["international_mix"],
+            "region",
+        )
 
     # Show selected preset info
     if st.session_state.get("preset_symbols"):

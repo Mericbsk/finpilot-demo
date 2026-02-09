@@ -181,3 +181,64 @@ EFA
 EEM
 TLT
 HYG
+
+# --- CSV Import (Şubat 2026) ---
+# Biotech & Pharma
+ABCL
+ABUS
+ABP
+ACRV
+ACRS
+AARD
+AGEN
+ALT
+AMRX
+ATRC
+AURA
+AVBP
+AVDL
+LMAT
+LNTH
+MIRM
+MRUS
+NAMS
+NMIH
+OCUL
+ADPT
+
+# Software & Tech
+ADSK
+ALAB
+AMBA
+BSY
+BL
+FIVN
+AEYE
+AKAM
+AIOT
+ABSI
+
+# Financials & Insurance
+AFBI
+AIFU
+AIRE
+AEI
+ACR
+ACRE
+AFCG
+AAME
+
+# Industrial & Materials
+AMSC
+ABAT
+ADP
+
+# Consumer & Other
+ACTG
+BATRA
+BATRK
+ALGN
+AEP
+AACG
+AFRI
+ACB
