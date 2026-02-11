@@ -23,6 +23,7 @@ from scanner import (
 
 from .components.export import render_export_button_row, render_export_panel
 from .components.helpers import CSVValidationResult, validate_csv_upload
+from .components.signal_tracker import log_signals_to_csv, render_signal_performance_tab
 from .components.stock_presets import (
     STOCK_PRESETS,
     get_preset_symbols,
@@ -695,6 +696,10 @@ def render_scanner_page():
         st.session_state["scan_time"] = now
         st.session_state["scan_status"] = "completed" if not df.empty else "idle"
         st.session_state["scan_message"] = f"{len(df)} sembol analiz edildi."
+        # Log signals for performance tracking
+        if not df.empty:
+            logged = log_signals_to_csv(df)
+            logger.info(f"Logged {logged} signals from live scan")
         st.rerun()
     elif preset_btn and st.session_state.get("preset_symbols"):
         # Preset scan with selected symbols
@@ -729,6 +734,10 @@ def render_scanner_page():
         st.session_state["scan_time"] = now
         st.session_state["scan_status"] = "completed" if not df.empty else "idle"
         st.session_state["scan_message"] = f"'{preset_name}': {len(df)} hisse analiz edildi."
+        # Log signals for performance tracking
+        if not df.empty:
+            logged = log_signals_to_csv(df)
+            logger.info(f"Logged {logged} signals from preset scan")
         st.rerun()
     elif refresh_btn:
         st.cache_data.clear()
@@ -822,6 +831,10 @@ def render_scanner_page():
                 st.session_state["scan_time"] = now
                 st.session_state["scan_status"] = "completed" if not df.empty else "idle"
                 st.session_state["scan_message"] = f"CSV'den {len(df)} sembol analiz edildi."
+                # Log signals for performance tracking
+                if not df.empty:
+                    logged = log_signals_to_csv(df)
+                    logger.info(f"Logged {logged} signals from CSV scan")
                 st.rerun()
         except Exception as e:
             st.error(f"CSV okunamadı: {e}")
@@ -1219,40 +1232,16 @@ def render_scanner_page():
 
     # --- TAB 4: Performans ---
     with tab_perf:
-        st.markdown("### 📈 Sistem Performansı ve Geçmiş")
+        render_signal_performance_tab()
 
-        # Geçmiş Sinyaller
-        signal_log_path = os.path.join(os.getcwd(), "data", "logs", "signal_log.csv")
-        if os.path.exists(signal_log_path):
-            try:
-                log_df = pd.read_csv(signal_log_path, header=None)
-                log_df.columns = [
-                    "Tarih",
-                    "Sembol",
-                    "Fiyat",
-                    "Stop-Loss",
-                    "Take-Profit",
-                    "Skor",
-                    "Güç",
-                    "Rejim",
-                    "Sentiment",
-                    "Onchain",
-                    "Alım?",
-                    "Özet",
-                    "Neden",
-                ]
-                st.dataframe(log_df.head(50), use_container_width=True)
-            except Exception:
-                st.error("Log dosyası okunamadı.")
-        else:
-            st.info("Henüz geçmiş sinyal kaydı yok.")
-
-        # Optimizasyon Sonuçları
-        wfo_path = os.path.join(os.getcwd(), "wfo_grid_search_results.csv")
-        if os.path.exists(wfo_path):
-            st.markdown("#### WFO Backtest Sonuçları")
-            wfo_df = pd.read_csv(wfo_path)
-            st.dataframe(wfo_df, use_container_width=True)
+        # Optimizasyon Sonuçları (ek bilgi)
+        with st.expander("📊 WFO Grid Search Sonuçları", expanded=False):
+            wfo_path = os.path.join(os.getcwd(), "wfo_grid_search_results.csv")
+            if os.path.exists(wfo_path):
+                wfo_df = pd.read_csv(wfo_path)
+                st.dataframe(wfo_df, use_container_width=True)
+            else:
+                st.info("WFO backtest sonuçları bulunamadı.")
 
     # --- TAB 5: FinSense Eğitim ---
     with tab_edu:

@@ -81,6 +81,7 @@ TRANSLATIONS = {
         "default_catalyst": "No specific catalyst detected.",
         "default_risk": "Standard market volatility applies.",
         "tech_error": "Technical indicators could not be calculated.",
+        "assets_label": "Assets",
     },
     "de": {
         "page_title": "FinPilot Global Demo",
@@ -164,6 +165,7 @@ TRANSLATIONS = {
         "default_catalyst": "Kein spezifischer Katalysator erkannt.",
         "default_risk": "Es gilt die übliche Marktvolatilität.",
         "tech_error": "Technische Indikatoren konnten nicht berechnet werden.",
+        "assets_label": "Vermögenswerte",
     },
     "tr": {
         "page_title": "FinPilot Global Demo",
@@ -247,6 +249,7 @@ TRANSLATIONS = {
         "default_catalyst": "Belirgin bir tetikleyici tespit edilmedi.",
         "default_risk": "Standart piyasa volatilitesi geçerli.",
         "tech_error": "Teknik indikatörler hesaplanamadı.",
+        "assets_label": "Varlık",
     },
 }
 

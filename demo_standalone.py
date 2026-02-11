@@ -37,6 +37,9 @@ st.set_page_config(
 
 UI_TRANSLATIONS = {
     "en": {
+        "hero_title": "FinPilot Global Demo",
+        "hero_subtitle": "AI-Powered Analysis for NASDAQ & S&P 500 Giants",
+        "hero_cta": "Analyze Like a Pro — Start for Free",
         "try_pro": "🚀 Try FinPilot Pro!",
         "pro_features": "1000+ stocks, real-time data, personal portfolio tracking",
         "language": "🌐 Language",
@@ -91,6 +94,9 @@ UI_TRANSLATIONS = {
         "quick_picks": "⚡ Quick Picks",
     },
     "de": {
+        "hero_title": "FinPilot Global Demo",
+        "hero_subtitle": "KI-gestützte Analyse für NASDAQ & S&P 500 Giganten",
+        "hero_cta": "Analysieren wie ein Profi — Kostenlos starten",
         "try_pro": "🚀 FinPilot Pro testen!",
         "pro_features": "1000+ Aktien, Echtzeitdaten, Portfolio-Verfolgung",
         "language": "🌐 Sprache",
@@ -145,6 +151,9 @@ UI_TRANSLATIONS = {
         "quick_picks": "⚡ Schnellauswahl",
     },
     "tr": {
+        "hero_title": "FinPilot Global Demo",
+        "hero_subtitle": "NASDAQ & S&P 500 Devleri için Yapay Zeka Analizi",
+        "hero_cta": "Profesyonel Gibi Analiz Et — Ücretsiz Başla",
         "try_pro": "🚀 FinPilot Pro'yu Deneyin!",
         "pro_features": "1000+ hisse, gerçek zamanlı veri, portföy takibi",
         "language": "🌐 Dil",
@@ -289,11 +298,41 @@ def get_waitlist_count():
 def render_signup_banner():
     st.markdown(
         f"""
-    <div class="signup-banner">
-        <div>
-            <h3>{t("try_pro")}</h3>
-            <p>{t("pro_features")}</p>
+    <div style='background: linear-gradient(135deg, rgba(15,23,42,1) 0%, rgba(30,41,59,0.95) 50%, rgba(15,23,42,1) 100%);
+                padding: 40px 32px 24px; border-radius: 24px; text-align: center;
+                border: 1px solid #334155; margin-bottom: 16px;
+                box-shadow: 0 20px 50px -20px rgba(0,230,230,0.08);'>
+        <div style='font-size: 3.2em; font-weight: 900; letter-spacing: 0.03em; margin-bottom: 4px;'>
+            <span style='color: #00e6e6;'>Fin</span><span style='color: #f8fafc;'>Pilot</span>
         </div>
+        <div style='color: #94a3b8; font-size: 1.15em; letter-spacing: 0.5px; margin-bottom: 6px;'>{t("hero_title")}</div>
+        <div style='color: #64748b; font-size: 0.95em; letter-spacing: 1px; margin-bottom: 16px;'>{t("hero_subtitle")}</div>
+        <div style='width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #00e6e6, transparent); margin: 0 auto 16px auto;'></div>
+        <div style='font-size: 0.85em; color: #00e6e6; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;'>🚀 {t("hero_cta")}</div>
+        <p style='color: #94a3b8; font-size: 0.95em; max-width: 620px; margin: 0 auto 8px auto; line-height: 1.5;'>{t("pro_features")}</p>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+
+    # Native Streamlit buttons (clickable)
+    btn_col1, btn_col2, btn_col3, btn_col4, btn_col5 = st.columns([2, 1.2, 0.3, 1.2, 2])
+    with btn_col2:
+        if st.button(
+            f"🚀 {t('try_pro')}", type="primary", use_container_width=True, key="hero_start"
+        ):
+            st.session_state.show_waitlist = True
+    with btn_col4:
+        if st.button(f"🔍 {t('analyze')}", use_container_width=True, key="hero_explore"):
+            st.session_state.show_categories = True
+
+    # Badge line
+    st.markdown(
+        """
+    <div style='text-align: center; margin: 4px 0 16px 0; display: flex; justify-content: center; gap: 28px; flex-wrap: wrap;'>
+        <span style='color: #475569; font-size: 0.85em;'>⚡ 1000+ Stocks</span>
+        <span style='color: #475569; font-size: 0.85em;'>📊 BIST & NASDAQ</span>
+        <span style='color: #475569; font-size: 0.85em;'>🤖 AI-Powered</span>
     </div>
     """,
         unsafe_allow_html=True,
@@ -549,7 +588,7 @@ def main():
     try:
         from views.demo import render_demo_page
 
-        render_demo_page()
+        render_demo_page(standalone=True)
     except Exception as e:
         st.error(t("demo_error", error=str(e)))
         st.info(t("demo_retry"))
