@@ -243,7 +243,7 @@ def get_live_stock_data(symbols):
     return stock_data
 
 
-def render_demo_page():
+def render_demo_page(standalone=False):
     # Language Selector
     lang_options = {"English": "en", "Deutsch": "de", "Türkçe": "tr"}
 
@@ -251,15 +251,17 @@ def render_demo_page():
     if "language" not in st.session_state:
         st.session_state.language = "en"
 
-    # Sidebar for language selection (or top right if preferred, but sidebar is cleaner)
-    with st.sidebar:
-        st.markdown("### 🌐 Language / Sprache / Dil")
-        selected_lang_label = st.selectbox(
-            "Select Language",
-            options=list(lang_options.keys()),
-            index=list(lang_options.values()).index(st.session_state.language),
-        )
-        st.session_state.language = lang_options[selected_lang_label]
+    # Skip hero + sidebar language selector when called from demo_standalone.py
+    if not standalone:
+        # Sidebar for language selection
+        with st.sidebar:
+            st.markdown("### 🌐 Language / Sprache / Dil")
+            selected_lang_label = st.selectbox(
+                "Select Language",
+                options=list(lang_options.keys()),
+                index=list(lang_options.values()).index(st.session_state.language),
+            )
+            st.session_state.language = lang_options[selected_lang_label]
 
     lang = st.session_state.language
     t = TRANSLATIONS[lang]
