@@ -12,9 +12,6 @@ Usage:
     streamlit run demo_standalone.py
 """
 
-import json
-from datetime import datetime
-from pathlib import Path
 
 import streamlit as st
 
@@ -247,47 +244,10 @@ st.markdown(
 )
 
 # ============================================
-# 📁 DATA STORAGE
+# 📁 DATA STORAGE (Google Sheets + JSON fallback)
 # ============================================
 
-WAITLIST_FILE = "data/waitlist.json"
-
-
-def save_to_waitlist(email, name="", source="demo"):
-    """Save email to waitlist."""
-    try:
-        Path("data").mkdir(exist_ok=True)
-        waitlist = []
-        if Path(WAITLIST_FILE).exists():
-            with open(WAITLIST_FILE, "r") as f:
-                waitlist = json.load(f)
-        if any(w["email"].lower() == email.lower() for w in waitlist):
-            return False
-        waitlist.append(
-            {
-                "email": email.lower(),
-                "name": name,
-                "source": source,
-                "timestamp": datetime.now().isoformat(),
-                "language": st.session_state.get("language", "en"),
-            }
-        )
-        with open(WAITLIST_FILE, "w") as f:
-            json.dump(waitlist, f, indent=2)
-        return True
-    except Exception:
-        return False
-
-
-def get_waitlist_count():
-    """Get current waitlist count."""
-    try:
-        if Path(WAITLIST_FILE).exists():
-            with open(WAITLIST_FILE, "r") as f:
-                return len(json.load(f))
-    except Exception:
-        pass
-    return 0
+from waitlist_sheets import save_to_waitlist, get_waitlist_count
 
 
 # ============================================
