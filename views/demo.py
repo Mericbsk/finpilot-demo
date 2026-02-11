@@ -717,25 +717,26 @@ def render_demo_page(standalone=False):
             st.info(f"💡 **{t['why_important']}**\n\n{term_data['why']}")
             st.success(f"🚀 **{t['finpilot_diff']}**\n\n{term_data['pro_tip']}")
 
-    # --- Adım 5: Call to Action ---
-    st.markdown("---")
-    st.markdown(
-        f"""
-    <div style='background: linear-gradient(90deg, rgba(15,23,42,1) 0%, rgba(30,41,59,1) 100%); padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #334155;'>
-        <h2 style='color: #f8fafc;'>{t['cta_title']}</h2>
-        <p style='color: #cbd5f5; font-size: 1.1em; max-width: 600px; margin: 0 auto 20px auto;'>
-            {t['cta_desc']}
-        </p>
-        <div style='display: flex; justify-content: center; gap: 20px;'>
-            <button style='background-color: #00e6e6; color: #0f172a; border: none; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t['btn_start']}</button>
-            <button style='background-color: transparent; color: #00e6e6; border: 2px solid #00e6e6; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t['btn_explore']}</button>
+    # --- Adım 5: Call to Action (skip in standalone mode - demo_standalone.py has its own) ---
+    if not standalone:
+        st.markdown("---")
+        st.markdown(
+            f"""
+        <div style='background: linear-gradient(90deg, rgba(15,23,42,1) 0%, rgba(30,41,59,1) 100%); padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #334155;'>
+            <h2 style='color: #f8fafc;'>{t['cta_title']}</h2>
+            <p style='color: #cbd5f5; font-size: 1.1em; max-width: 600px; margin: 0 auto 20px auto;'>
+                {t['cta_desc']}
+            </p>
+            <div style='display: flex; justify-content: center; gap: 20px;'>
+                <button style='background-color: #00e6e6; color: #0f172a; border: none; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t['btn_start']}</button>
+                <button style='background-color: transparent; color: #00e6e6; border: 2px solid #00e6e6; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t['btn_explore']}</button>
+            </div>
         </div>
-    </div>
-    """,
-        unsafe_allow_html=True,
-    )
+        """,
+            unsafe_allow_html=True,
+        )
 
-    st.write("")
-    if st.button(f"⬅️ {t['btn_back']}"):
-        st.session_state.show_demo = False
-        st.rerun()
+        st.write("")
+        if st.button(f"⬅️ {t['btn_back']}"):
+            st.session_state.show_demo = False
+            st.rerun()
