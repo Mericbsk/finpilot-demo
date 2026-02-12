@@ -24,6 +24,7 @@ from scanner import (
 from .components.export import render_export_button_row, render_export_panel
 from .components.helpers import CSVValidationResult, validate_csv_upload
 from .components.signal_tracker import log_signals_to_csv, render_signal_performance_tab
+from .scan_history import render_scan_history_page
 from .components.stock_presets import (
     STOCK_PRESETS,
     get_preset_symbols,
@@ -877,12 +878,13 @@ def render_scanner_page():
 
     # --- Ana İçerik Sekmeleri ---
     st.markdown("---")
-    tab_signals, tab_market, tab_ai, tab_perf, tab_edu = st.tabs(
+    tab_signals, tab_market, tab_ai, tab_perf, tab_history, tab_edu = st.tabs(
         [
             "🎯 Sinyaller (Action Zone)",
             "📊 Piyasa Tarayıcı",
             "🧠 AI Laboratuvarı",
             "📈 Performans & Geçmiş",
+            "📋 Scanner Geçmişi",
             "🎓 FinSense Eğitim",
         ]
     )
@@ -1243,6 +1245,10 @@ def render_scanner_page():
             else:
                 st.info("WFO backtest sonuçları bulunamadı.")
 
-    # --- TAB 5: FinSense Eğitim ---
+    # --- TAB 5: Scanner Geçmişi ---
+    with tab_history:
+        render_scan_history_page()
+
+    # --- TAB 6: FinSense Eğitim ---
     with tab_edu:
         render_finsense_page()
