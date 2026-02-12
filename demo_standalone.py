@@ -247,10 +247,44 @@ st.markdown(
 # 📁 DATA STORAGE (Google Sheets + JSON fallback)
 # ============================================
 
-from waitlist_sheets import save_to_waitlist, get_waitlist_count, migrate_json_to_sheets
+try:
+    from waitlist_sheets import save_to_waitlist, get_waitlist_count, migrate_json_to_sheets
+    # Auto-migrate existing JSON data to Google Sheets on startup
+    migrate_json_to_sheets()
+except Exception:
+    # Fallback: local-only waitlist if gspread not available
+    import json
+    from datetime import datetime
+    from pathlib import Path
 
-# Auto-migrate existing JSON data to Google Sheets on startup
-migrate_json_to_sheets()
+    WAITLIST_FILE = "data/waitlist.json"
+
+    def save_to_waitlist(email, name="", source="demo"):
+        try:
+            Path("data").mkdir(exist_ok=True)
+            waitlist = []
+            if Path(WAITLIST_FILE).exists():
+                with open(WAITLIST_FILE, "r") as f:
+                    waitlist = json.load(f)
+            if any(w["email"].lower() == email.lower() for w in waitlist):
+                return False
+            waitlist.append({"email": email.lower(), "name": name, "source": source,
+                             "timestamp": datetime.now().isoformat(),
+                             "language": st.session_state.get("language", "en")})
+            with open(WAITLIST_FILE, "w") as f:
+                json.dump(waitlist, f, indent=2)
+            return True
+        except Exception:
+            return False
+
+    def get_waitlist_count():
+        try:
+            if Path(WAITLIST_FILE).exists():
+                with open(WAITLIST_FILE, "r") as f:
+                    return len(json.load(f))
+        except Exception:
+            pass
+        return 0
 
 
 # ============================================

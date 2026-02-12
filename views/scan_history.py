@@ -22,7 +22,7 @@ SUGGESTIONS_DIR = os.path.join("data", "suggestions")
 # ─── DATA LOADING ──────────────────────────────────────────
 
 
-def _parse_scan_datetime(filename: str) -> datetime | None:
+def _parse_scan_datetime(filename: str):
     """Extract datetime from filename like shortlist_20251201_2111.csv"""
     try:
         base = os.path.basename(filename).replace(".csv", "")
