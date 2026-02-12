@@ -247,7 +247,10 @@ st.markdown(
 # 📁 DATA STORAGE (Google Sheets + JSON fallback)
 # ============================================
 
-from waitlist_sheets import save_to_waitlist, get_waitlist_count
+from waitlist_sheets import save_to_waitlist, get_waitlist_count, migrate_json_to_sheets
+
+# Auto-migrate existing JSON data to Google Sheets on startup
+migrate_json_to_sheets()
 
 
 # ============================================

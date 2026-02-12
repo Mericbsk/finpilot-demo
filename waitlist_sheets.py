@@ -163,3 +163,53 @@ def get_waitlist_count():
             logger.warning(f"Google Sheets okuma hatası: {e}")
 
     return _count_local()
+
+
+def migrate_json_to_sheets():
+    """
+    One-time migration: copy existing waitlist.json entries to Google Sheets.
+    Runs on app startup. Skips duplicates. Safe to call multiple times.
+    """
+    if not Path(WAITLIST_FILE).exists():
+        return 0
+
+    try:
+        with open(WAITLIST_FILE, "r") as f:
+            local_data = json.load(f)
+    except Exception:
+        return 0
+
+    if not local_data:
+        return 0
+
+    worksheet = _get_worksheet()
+    if worksheet is None:
+        logger.warning("Migration: Google Sheets bağlantısı yok, atlaniyor")
+        return 0
+
+    try:
+        existing_emails = [e.lower() for e in worksheet.col_values(1)]
+        migrated = 0
+
+        for entry in local_data:
+            email = entry.get("email", "").lower()
+            if not email or email in existing_emails:
+                continue
+
+            row = [
+                email,
+                entry.get("name", ""),
+                entry.get("source", ""),
+                entry.get("timestamp", ""),
+                entry.get("language", ""),
+            ]
+            worksheet.append_row(row, value_input_option="USER_ENTERED")
+            existing_emails.append(email)
+            migrated += 1
+
+        if migrated > 0:
+            logger.info(f"Migration: {migrated} kayıt JSON'dan Sheets'e aktarıldı")
+        return migrated
+    except Exception as e:
+        logger.warning(f"Migration hatası: {e}")
+        return 0
