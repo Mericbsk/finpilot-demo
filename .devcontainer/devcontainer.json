@@ -3,10 +3,11 @@
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
 
-  // ── Volume mount: venv'i container-local overlay FS'e taşır ──
-  // 9p (Windows host) yerine yerel disk kullanarak I/O darboğazını ortadan kaldırır
+  // ── Volume mounts: venv + proje kopyası → container-local overlay FS ──
+  // 9p (Windows host) yerine overlay disk kullanarak I/O darboğazını ortadan kaldırır
   "mounts": [
-    "source=borsa-venv,target=/opt/venv,type=volume"
+    "source=borsa-venv,target=/opt/venv,type=volume",
+    "source=borsa-app,target=/opt/app,type=volume"
   ],
 
   "customizations": {
@@ -27,12 +28,13 @@
     }
   },
 
-  // ── Build: venv'i Docker volume'a kur (overlay FS — hızlı I/O) ──
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; python3 -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt && /opt/venv/bin/pip install streamlit && echo '✅ Packages installed into /opt/venv (overlay FS)'",
+  // ── Build: venv + proje dosyalarını overlay FS volume'lara kur ──
+  "updateContentCommand": "sudo chown -R $(id -u):$(id -g) /opt/venv /opt/app 2>/dev/null; [ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; python3 -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt && /opt/venv/bin/pip install streamlit && echo '✅ venv ready'; cp -a . /opt/app/ && echo '✅ App files synced to /opt/app (overlay FS)'",
 
-  // ── Başlatma: /opt/venv kullanarak Streamlit çalıştır ──
+  // ── Başlatma: overlay FS'teki kopyadan çalıştır, düzenlemeler otomatik senkronize ──
   "postAttachCommand": {
-    "server": "/opt/venv/bin/streamlit run panel_new.py --server.enableCORS false --server.enableXsrfProtection false --server.headless true"
+    "sync": "cp -a . /opt/app/ 2>/dev/null; echo '✅ App synced'",
+    "server": "cd /opt/app && /opt/venv/bin/streamlit run panel_new.py --server.enableCORS false --server.enableXsrfProtection false --server.headless true"
   },
 
   "portsAttributes": {
