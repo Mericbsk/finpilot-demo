@@ -97,6 +97,10 @@ class MarketEnv(BaseEnv):
         self.pipeline = pipeline
         self._raw_features = episode.features
         self._feature_tensor = pipeline.transform(episode.features)
+        # Safety: ensure no NaN/Inf leaks into observations
+        self._feature_tensor = np.nan_to_num(
+            self._feature_tensor, nan=0.0, posinf=5.0, neginf=-5.0
+        )
         self._prices = episode.prices.astype(float).to_numpy()
         self._regimes = episode.regimes.tolist() if episode.regimes is not None else None
         self._timestamps = episode.timestamps.tolist() if episode.timestamps is not None else None

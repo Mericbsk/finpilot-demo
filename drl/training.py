@@ -40,11 +40,13 @@ from .persistence import (
 )
 
 try:  # pragma: no cover - optional heavy dependency
-    from stable_baselines3 import PPO, SAC  # type: ignore
+    from stable_baselines3 import A2C, PPO, SAC, TD3  # type: ignore
     from stable_baselines3.common.vec_env import DummyVecEnv  # type: ignore
 except Exception:  # pragma: no cover - missing SB3 is handled at runtime
     PPO = None
     SAC = None
+    TD3 = None
+    A2C = None
     DummyVecEnv = None
 
 if TYPE_CHECKING:  # pragma: no cover - for static type checking only
@@ -123,8 +125,9 @@ class WalkForwardTrainer:
             target_dir.mkdir(parents=True, exist_ok=True)
             self._artifact_dir = target_dir
 
-        if self.algo_config.algorithm not in {"PPO", "SAC"}:
-            raise ValueError("algorithm must be either 'PPO' or 'SAC'")
+        _SUPPORTED = {"PPO", "SAC", "TD3", "A2C"}
+        if self.algo_config.algorithm not in _SUPPORTED:
+            raise ValueError(f"algorithm must be one of {_SUPPORTED}")
 
         self._mlflow_settings = MLflowSettings(
             enabled=self.algo_config.track_mlflow,
@@ -219,7 +222,12 @@ class WalkForwardTrainer:
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
-    def _create_model(self, pipeline: FeaturePipeline, split: EpisodeData):
+    def _create_model(
+        self,
+        pipeline: FeaturePipeline,
+        split: EpisodeData,
+        callbacks: Optional[list] = None,
+    ):
         if PPO is None or DummyVecEnv is None:
             raise ImportError(
                 "stable-baselines3 is not installed. Run 'pip install stable-baselines3'"
@@ -230,27 +238,55 @@ class WalkForwardTrainer:
 
         vec_env = DummyVecEnv([_make_env])
         algo = self.algo_config.algorithm.upper()
-        hyperparams = dict(
+        common = dict(
             learning_rate=self.algo_config.learning_rate,
             gamma=self.algo_config.gamma,
         )
+        on_policy_extras = dict(
+            gae_lambda=self.algo_config.gae_lambda,
+            ent_coef=self.algo_config.ent_coef,
+            vf_coef=self.algo_config.vf_coef,
+        )
+
         if algo == "PPO":
-            hyperparams.update(
-                dict(
-                    gae_lambda=self.algo_config.gae_lambda,
-                    ent_coef=self.algo_config.ent_coef,
-                    vf_coef=self.algo_config.vf_coef,
-                )
+            model = PPO(
+                "MlpPolicy", vec_env, verbose=0,
+                seed=self.algo_config.seed, **common, **on_policy_extras,
             )
-            model = PPO("MlpPolicy", vec_env, verbose=0, seed=self.algo_config.seed, **hyperparams)
-        else:
+        elif algo == "A2C":
+            if A2C is None:
+                raise ImportError("stable-baselines3 A2C not available.")
+            model = A2C(
+                "MlpPolicy", vec_env, verbose=0,
+                seed=self.algo_config.seed, **common, **on_policy_extras,
+            )
+        elif algo == "SAC":
             if SAC is None:
                 raise ImportError(
-                    "stable-baselines3[SAC] extras required. Install 'pip install stable-baselines3[extra]'"
+                    "stable-baselines3 SAC extras required. "
+                    "Install 'pip install stable-baselines3[extra]'"
                 )
-            model = SAC("MlpPolicy", vec_env, verbose=0, seed=self.algo_config.seed, **hyperparams)
+            model = SAC(
+                "MlpPolicy", vec_env, verbose=0,
+                seed=self.algo_config.seed, **common,
+            )
+        elif algo == "TD3":
+            if TD3 is None:
+                raise ImportError(
+                    "stable-baselines3 TD3 extras required. "
+                    "Install 'pip install stable-baselines3[extra]'"
+                )
+            model = TD3(
+                "MlpPolicy", vec_env, verbose=0,
+                seed=self.algo_config.seed, **common,
+            )
+        else:
+            raise ValueError(f"Unsupported algorithm: {algo}")
 
-        model.learn(total_timesteps=self.algo_config.total_timesteps)
+        model.learn(
+            total_timesteps=self.algo_config.total_timesteps,
+            callback=callbacks,
+        )
         return model
 
     def _evaluate(

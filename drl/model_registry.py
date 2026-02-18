@@ -264,6 +264,14 @@ class ModelRegistry:
                 from stable_baselines3 import SAC
 
                 return SAC.load(metadata.model_path)
+            elif metadata.algorithm == "TD3":
+                from stable_baselines3 import TD3
+
+                return TD3.load(metadata.model_path)
+            elif metadata.algorithm == "A2C":
+                from stable_baselines3 import A2C
+
+                return A2C.load(metadata.model_path)
             else:
                 raise ValueError(f"Unknown algorithm: {metadata.algorithm}")
         except ImportError:

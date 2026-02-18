@@ -1,0 +1,82 @@
+{
+  "report_date": "2026-02-17T16:50:53.876552",
+  "test_period_days": 90,
+  "symbols_tested": 196,
+  "symbols_failed": 4,
+  "initial_capital": 100000,
+  "final_capital": 110692.59,
+  "total_pnl": 10711.5,
+  "total_return_pct": 10.71,
+  "max_drawdown_pct": 5.05,
+  "sharpe_ratio": 4.01,
+  "total_scans": 11368,
+  "entry_signals": 141,
+  "entry_rate_pct": 1.24,
+  "total_trades": 17,
+  "winning_trades": 14,
+  "losing_trades": 3,
+  "win_rate": 82.35,
+  "profit_factor": 6.93,
+  "avg_pnl": 630.09,
+  "avg_win": 894.17,
+  "avg_loss": -602.28,
+  "avg_holding_days": 44.8,
+  "symbol_performance": {
+    "LRCX": {
+      "trades": 3,
+      "total_pnl": 4062.9300000000003,
+      "avg_pnl": 1354.3100000000002,
+      "win_rate": 100.0,
+      "avg_hold": 53.666666666666664
+    },
+    "MU": {
+      "trades": 3,
+      "total_pnl": 3527.99,
+      "avg_pnl": 1175.9966666666667,
+      "win_rate": 100.0,
+      "avg_hold": 52.333333333333336
+    },
+    "SLB": {
+      "trades": 3,
+      "total_pnl": 2536.95,
+      "avg_pnl": 845.65,
+      "win_rate": 100.0,
+      "avg_hold": 58.333333333333336
+    },
+    "TGT": {
+      "trades": 3,
+      "total_pnl": 1698.0500000000002,
+      "avg_pnl": 566.0166666666668,
+      "win_rate": 100.0,
+      "avg_hold": 34.0
+    },
+    "GOOGL": {
+      "trades": 2,
+      "total_pnl": 692.43,
+      "avg_pnl": 346.215,
+      "win_rate": 100.0,
+      "avg_hold": 66.5
+    },
+    "HSY": {
+      "trades": 1,
+      "total_pnl": -378.51,
+      "avg_pnl": -378.51,
+      "win_rate": 0.0,
+      "avg_hold": 8.0
+    },
+    "WMT": {
+      "trades": 1,
+      "total_pnl": -637.17,
+      "avg_pnl": -637.17,
+      "win_rate": 0.0,
+      "avg_hold": 4.0
+    },
+    "AVGO": {
+      "trades": 1,
+      "total_pnl": -791.17,
+      "avg_pnl": -791.17,
+      "win_rate": 0.0,
+      "avg_hold": 21.0
+    }
+  }
+}

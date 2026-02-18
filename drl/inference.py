@@ -193,20 +193,29 @@ class DRLInference:
 
         Args:
             model_path: Path to the saved model
-            algorithm: Algorithm type ("PPO" or "SAC")
+            algorithm: Algorithm type ("PPO", "SAC", "TD3", or "A2C")
 
         Returns:
             True if loaded successfully
         """
         try:
-            if algorithm.upper() == "PPO":
+            algo = algorithm.upper()
+            if algo == "PPO":
                 from stable_baselines3 import PPO
 
                 self.model = PPO.load(model_path)
-            elif algorithm.upper() == "SAC":
+            elif algo == "SAC":
                 from stable_baselines3 import SAC
 
                 self.model = SAC.load(model_path)
+            elif algo == "TD3":
+                from stable_baselines3 import TD3
+
+                self.model = TD3.load(model_path)
+            elif algo == "A2C":
+                from stable_baselines3 import A2C
+
+                self.model = A2C.load(model_path)
             else:
                 raise ValueError(f"Unknown algorithm: {algorithm}")
 

@@ -11,11 +11,12 @@
 ## ✨ Features
 
 - 📊 **Multi-Timeframe Analysis** - 15m, 1h, 4h, and daily trend alignment
-- 🤖 **AI Research Assistant** - Groq-powered market insights
+- 🤖 **AI Financial Agent** - LLM-powered trading recommendations with master prompt system
+- 🧠 **DRL Integration** - Deep Reinforcement Learning for adaptive strategies
 - 📈 **Technical Indicators** - RSI, MACD, Bollinger Bands, EMA, ATR
 - 🎯 **Signal Generation** - Automated entry/exit signals with risk management
 - 📱 **Telegram Alerts** - Real-time notifications for trading signals
-- 🔄 **DRL Integration** - Deep Reinforcement Learning for adaptive strategies
+- 🛡️ **PilotShield Risk Controls** - Multi-layer risk management and position sizing
 
 ## 🏗️ Architecture
 

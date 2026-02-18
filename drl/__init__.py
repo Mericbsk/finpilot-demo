@@ -7,10 +7,14 @@ engine, including:
   normalized feature arrays that satisfy the MarketEnv contract.
 - ``market_env``: OpenAI Gym compatible trading environment with reward shaping
   and risk controls.
+- ``multi_asset_env``: Multi-asset portfolio management environment with softmax
+  weight allocation and diversification rewards.
 - ``config``: central configuration schema for feature sets, hyperparameters,
   and risk guardrails (PilotShield integration).
-- ``training``: walk-forward training, hyperparameter optimisation, and model
-  registry helpers.
+- ``training``: walk-forward training supporting PPO, SAC, TD3, A2C algorithms.
+- ``optuna_search``: Optuna-powered hyperparameter optimisation over the full
+  training loop using the production MarketEnv.
+- ``callbacks``: Curriculum learning and training metrics callbacks for SB3.
 - ``persistence``: serialisation utilities for feature pipelines and other
   preprocessing artefacts.
 - ``monitoring``: (optional) metrics hooks and drift detection utilities.

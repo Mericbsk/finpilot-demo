@@ -1,0 +1,75 @@
+{
+  "last_update": "2026-02-17T17:18:08.833268",
+  "strategies": {
+    "Scanner": {
+      "capital": 8302.5244045105,
+      "positions": {
+        "MSFT": {
+          "shares": 2,
+          "entry_price": 396.8099060058594,
+          "entry_date": "2026-02-17 17:18:06.936873"
+        },
+        "GOOGL": {
+          "shares": 3,
+          "entry_price": 300.7200012207031,
+          "entry_date": "2026-02-17 17:18:06.936873"
+        }
+      },
+      "trades": [
+        {
+          "date": "2026-02-17T17:18:06.936873",
+          "symbol": "MSFT",
+          "action": "BUY",
+          "shares": 2,
+          "price": 396.8099060058594,
+          "cost": 794.4134318237304
+        },
+        {
+          "date": "2026-02-17T17:18:06.936873",
+          "symbol": "GOOGL",
+          "action": "BUY",
+          "shares": 3,
+          "price": 300.7200012207031,
+          "cost": 903.0621636657714
+        }
+      ],
+      "daily_values": [
+        {
+          "date": "2026-02-17 17:18:06.936873",
+          "cash": 8302.5244045105,
+          "positions_value": 1695.7798156738281,
+          "total_value": 9998.304220184327,
+          "return_pct": -0.01695779815672722
+        }
+      ]
+    },
+    "DRL": {
+      "capital": 10000,
+      "positions": {},
+      "trades": [],
+      "daily_values": [
+        {
+          "date": "2026-02-17 17:18:06.936873",
+          "cash": 10000,
+          "positions_value": 0,
+          "total_value": 10000,
+          "return_pct": 0.0
+        }
+      ]
+    },
+    "Hybrid": {
+      "capital": 10000,
+      "positions": {},
+      "trades": [],
+      "daily_values": [
+        {
+          "date": "2026-02-17 17:18:06.936873",
+          "cash": 10000,
+          "positions_value": 0,
+          "total_value": 10000,
+          "return_pct": 0.0
+        }
+      ]
+    }
+  }
+}

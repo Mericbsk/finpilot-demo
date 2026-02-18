@@ -1,0 +1,117 @@
+{
+  "report_date": "2026-02-17T16:35:18.174101",
+  "test_period_days": 90,
+  "symbols_tested": 40,
+  "symbols_failed": 0,
+  "initial_capital": 100000,
+  "final_capital": 100923.23,
+  "total_pnl": 941.89,
+  "total_return_pct": 0.94,
+  "max_drawdown_pct": 5.33,
+  "sharpe_ratio": 0.45,
+  "total_scans": 2320,
+  "entry_signals": 27,
+  "entry_rate_pct": 1.16,
+  "total_trades": 22,
+  "winning_trades": 12,
+  "losing_trades": 10,
+  "win_rate": 54.55,
+  "profit_factor": 1.18,
+  "avg_pnl": 42.81,
+  "avg_win": 516.76,
+  "avg_loss": -525.92,
+  "avg_holding_days": 19.3,
+  "symbol_performance": {
+    "INTC": {
+      "trades": 4,
+      "total_pnl": 1951.08,
+      "avg_pnl": 487.77,
+      "win_rate": 75.0,
+      "avg_hold": 12.25
+    },
+    "XLI": {
+      "trades": 3,
+      "total_pnl": 935.44,
+      "avg_pnl": 311.81333333333333,
+      "win_rate": 100.0,
+      "avg_hold": 19.666666666666668
+    },
+    "GOOGL": {
+      "trades": 2,
+      "total_pnl": 692.43,
+      "avg_pnl": 346.215,
+      "win_rate": 100.0,
+      "avg_hold": 66.5
+    },
+    "MRK": {
+      "trades": 1,
+      "total_pnl": 589.5,
+      "avg_pnl": 589.5,
+      "win_rate": 100.0,
+      "avg_hold": 10.0
+    },
+    "WMT": {
+      "trades": 4,
+      "total_pnl": 441.64,
+      "avg_pnl": 110.41,
+      "win_rate": 75.0,
+      "avg_hold": 20.25
+    },
+    "NVDA": {
+      "trades": 1,
+      "total_pnl": -207.24,
+      "avg_pnl": -207.24,
+      "win_rate": 0.0,
+      "avg_hold": 7.0
+    },
+    "PEP": {
+      "trades": 1,
+      "total_pnl": -278.44,
+      "avg_pnl": -278.44,
+      "win_rate": 0.0,
+      "avg_hold": 13.0
+    },
+    "QCOM": {
+      "trades": 1,
+      "total_pnl": -283.47,
+      "avg_pnl": -283.47,
+      "win_rate": 0.0,
+      "avg_hold": 2.0
+    },
+    "GS": {
+      "trades": 1,
+      "total_pnl": -329.12,
+      "avg_pnl": -329.12,
+      "win_rate": 0.0,
+      "avg_hold": 28.0
+    },
+    "CVS": {
+      "trades": 1,
+      "total_pnl": -336.94,
+      "avg_pnl": -336.94,
+      "win_rate": 0.0,
+      "avg_hold": 6.0
+    },
+    "QQQ": {
+      "trades": 1,
+      "total_pnl": -441.91,
+      "avg_pnl": -441.91,
+      "win_rate": 0.0,
+      "avg_hold": 15.0
+    },
+    "SNOW": {
+      "trades": 1,
+      "total_pnl": -630.69,
+      "avg_pnl": -630.69,
+      "win_rate": 0.0,
+      "avg_hold": 1.0
+    },
+    "AVGO": {
+      "trades": 1,
+      "total_pnl": -1160.39,
+      "avg_pnl": -1160.39,
+      "win_rate": 0.0,
+      "avg_hold": 21.0
+    }
+  }
+}

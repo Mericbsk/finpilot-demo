@@ -159,7 +159,11 @@ class FeaturePipeline:
         rows: List[np.ndarray] = []
         for _, row in df.iterrows():
             rows.append(self._transform_row(row))
-        return np.vstack(rows).astype(self.config.target_dtype)
+        result = np.vstack(rows).astype(self.config.target_dtype)
+        # Safety: clamp NaN/Inf that can crash neural-network policies
+        result = np.nan_to_num(result, nan=0.0, posinf=5.0, neginf=-5.0)
+        result = np.clip(result, -10.0, 10.0)
+        return result
 
     def transform_row(self, row: Mapping[str, float]) -> np.ndarray:
         """Transform a single observation mapping into the feature vector."""
@@ -195,6 +199,9 @@ class FeaturePipeline:
                     norm = (val - typed["min"]) / typed["span"]
                 else:  # "none"
                     norm = val
+                # Guard against NaN/Inf from degenerate statistics
+                if not np.isfinite(norm):
+                    norm = 0.0
                 values.append(norm * spec.weight)
         return np.asarray(values, dtype=float)
 

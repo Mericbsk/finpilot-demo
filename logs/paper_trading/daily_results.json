@@ -1,0 +1,196 @@
+[
+  {
+    "date": "2026-02-17T17:18:08.856732",
+    "results": {
+      "Scanner": {
+        "total_return_pct": -0.01695779815672722,
+        "sharpe_ratio": 0,
+        "max_drawdown_pct": 0.0,
+        "win_rate_pct": 0,
+        "total_trades": 0,
+        "open_positions": 2,
+        "final_capital": 9998.304220184327
+      },
+      "DRL": {
+        "total_return_pct": 0.0,
+        "sharpe_ratio": 0,
+        "max_drawdown_pct": 0.0,
+        "win_rate_pct": 0,
+        "total_trades": 0,
+        "open_positions": 0,
+        "final_capital": "10000"
+      },
+      "Hybrid": {
+        "total_return_pct": 0.0,
+        "sharpe_ratio": 0,
+        "max_drawdown_pct": 0.0,
+        "win_rate_pct": 0,
+        "total_trades": 0,
+        "open_positions": 0,
+        "final_capital": "10000"
+      }
+    },
+    "signals": {
+      "AAPL": {
+        "Scanner": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.5,
+          "drl_action": "HOLD",
+          "drl_confidence": 0.5,
+          "final_action": "HOLD",
+          "final_confidence": 0.5,
+          "rsi": 46.368408153669,
+          "close": 261.70001220703125
+        },
+        "DRL": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.5,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.16207987",
+          "final_action": "HOLD",
+          "final_confidence": "0.16207987",
+          "rsi": 46.368408153669,
+          "close": 261.70001220703125
+        },
+        "Hybrid": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.5,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.16207987",
+          "final_action": "HOLD",
+          "final_confidence": "0.33103994",
+          "rsi": 46.368408153669,
+          "close": 261.70001220703125
+        }
+      },
+      "MSFT": {
+        "Scanner": {
+          "scanner_action": "BUY",
+          "scanner_confidence": 0.75,
+          "drl_action": "HOLD",
+          "drl_confidence": 0.5,
+          "final_action": "BUY",
+          "final_confidence": 0.75,
+          "rsi": 30.919312652915153,
+          "close": 396.8099060058594
+        },
+        "DRL": {
+          "scanner_action": "BUY",
+          "scanner_confidence": 0.75,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.15351747",
+          "final_action": "HOLD",
+          "final_confidence": "0.15351747",
+          "rsi": 30.919312652915153,
+          "close": 396.8099060058594
+        },
+        "Hybrid": {
+          "scanner_action": "BUY",
+          "scanner_confidence": 0.75,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.15351747",
+          "final_action": "HOLD",
+          "final_confidence": "0.3921105",
+          "rsi": 30.919312652915153,
+          "close": 396.8099060058594
+        }
+      },
+      "GOOGL": {
+        "Scanner": {
+          "scanner_action": "BUY",
+          "scanner_confidence": 0.75,
+          "drl_action": "HOLD",
+          "drl_confidence": 0.5,
+          "final_action": "BUY",
+          "final_confidence": 0.75,
+          "rsi": 29.268958134120467,
+          "close": 300.7200012207031
+        },
+        "DRL": {
+          "scanner_action": "BUY",
+          "scanner_confidence": 0.75,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.22777547",
+          "final_action": "HOLD",
+          "final_confidence": "0.22777547",
+          "rsi": 29.268958134120467,
+          "close": 300.7200012207031
+        },
+        "Hybrid": {
+          "scanner_action": "BUY",
+          "scanner_confidence": 0.75,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.22777547",
+          "final_action": "HOLD",
+          "final_confidence": "0.4366653",
+          "rsi": 29.268958134120467,
+          "close": 300.7200012207031
+        }
+      },
+      "TSLA": {
+        "Scanner": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.625,
+          "drl_action": "HOLD",
+          "drl_confidence": 0.5,
+          "final_action": "HOLD",
+          "final_confidence": 0.625,
+          "rsi": 40.27278258984252,
+          "close": 405.5899963378906
+        },
+        "DRL": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.625,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.036841486",
+          "final_action": "HOLD",
+          "final_confidence": "0.036841486",
+          "rsi": 40.27278258984252,
+          "close": 405.5899963378906
+        },
+        "Hybrid": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.625,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.036841486",
+          "final_action": "HOLD",
+          "final_confidence": "0.33092076",
+          "rsi": 40.27278258984252,
+          "close": 405.5899963378906
+        }
+      },
+      "NVDA": {
+        "Scanner": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.5,
+          "drl_action": "HOLD",
+          "drl_confidence": 0.5,
+          "final_action": "HOLD",
+          "final_confidence": 0.5,
+          "rsi": 48.70260195401229,
+          "close": 183.9868927001953
+        },
+        "DRL": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.5,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.028949628",
+          "final_action": "HOLD",
+          "final_confidence": "0.028949628",
+          "rsi": 48.70260195401229,
+          "close": 183.9868927001953
+        },
+        "Hybrid": {
+          "scanner_action": "HOLD",
+          "scanner_confidence": 0.5,
+          "drl_action": "HOLD",
+          "drl_confidence": "0.028949628",
+          "final_action": "HOLD",
+          "final_confidence": "0.2644748",
+          "rsi": 48.70260195401229,
+          "close": 183.9868927001953
+        }
+      }
+    }
+  }
+]
