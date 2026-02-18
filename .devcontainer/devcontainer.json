@@ -1,7 +1,14 @@
 {
-  "name": "Python 3",
+  "name": "FinPilot",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+
+  // ── Volume mount: venv'i container-local overlay FS'e taşır ──
+  // 9p (Windows host) yerine yerel disk kullanarak I/O darboğazını ortadan kaldırır
+  "mounts": [
+    "source=borsa-venv,target=/opt/venv,type=volume"
+  ],
+
   "customizations": {
     "codespaces": {
       "openFiles": [
@@ -10,17 +17,24 @@
       ]
     },
     "vscode": {
-      "settings": {},
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/venv/bin/python"
+      },
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance"
       ]
     }
   },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
+
+  // ── Build: venv'i Docker volume'a kur (overlay FS — hızlı I/O) ──
+  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; python3 -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt && /opt/venv/bin/pip install streamlit && echo '✅ Packages installed into /opt/venv (overlay FS)'",
+
+  // ── Başlatma: /opt/venv kullanarak Streamlit çalıştır ──
   "postAttachCommand": {
-    "server": "streamlit run panel_new.py --server.enableCORS false --server.enableXsrfProtection false"
+    "server": "/opt/venv/bin/streamlit run panel_new.py --server.enableCORS false --server.enableXsrfProtection false --server.headless true"
   },
+
   "portsAttributes": {
     "8501": {
       "label": "Application",
