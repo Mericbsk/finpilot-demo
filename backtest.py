@@ -8,9 +8,8 @@ import warnings
 from datetime import datetime, timedelta
 
 import pandas as pd
-import yfinance as yf
-
 import scanner
+import yfinance as yf
 from scanner import add_indicators, load_symbols, safe_float
 
 warnings.filterwarnings("ignore")
@@ -332,7 +331,7 @@ class SimpleBacktest:
             if self.data_cache:
                 lens = [len(d) for d in self.data_cache.values()]
                 print(
-                    f"ℹ️ Önbellek uzunlukları (min/avg/max): {min(lens)}/{sum(lens)//len(lens)}/{max(lens)}"
+                    f"ℹ️ Önbellek uzunlukları (min/avg/max): {min(lens)}/{sum(lens) // len(lens)}/{max(lens)}"
                 )
                 any_sym = next(iter(self.data_cache))
                 any_df = self.data_cache[any_sym]
@@ -689,7 +688,7 @@ class SimpleBacktest:
                     weighted_exit_price += exit_price * fraction
                     total_fraction += fraction
 
-                    exit_reasons.append(f"{reason}({int(fraction*100)}%)")
+                    exit_reasons.append(f"{reason}({int(fraction * 100)}%)")
                     last_exit_date = exit_date
 
                 avg_exit_price = weighted_exit_price / total_fraction if total_fraction > 0 else 0
@@ -858,17 +857,17 @@ class SimpleBacktest:
             if hasattr(self, "debug_counts"):
                 dc = self.debug_counts
                 print("\n🛠️ Tanılama:")
-                print(f"   • simulate_calls: {dc.get('simulate_calls',0)}")
+                print(f"   • simulate_calls: {dc.get('simulate_calls', 0)}")
                 print(
-                    f"   • df_missing: {dc.get('df_missing',0)} | slice_short: {dc.get('slice_short',0)} | exceptions: {dc.get('exceptions',0)}"
+                    f"   • df_missing: {dc.get('df_missing', 0)} | slice_short: {dc.get('slice_short', 0)} | exceptions: {dc.get('exceptions', 0)}"
                 )
                 print(
-                    f"   • score_rsi: {dc.get('score_rsi',0)} | score_vol: {dc.get('score_vol',0)} | score_macd: {dc.get('score_macd',0)}"
+                    f"   • score_rsi: {dc.get('score_rsi', 0)} | score_vol: {dc.get('score_vol', 0)} | score_macd: {dc.get('score_macd', 0)}"
                 )
                 print(
-                    f"   • filt_vol: {dc.get('filt_vol',0)} | filt_mom: {dc.get('filt_mom',0)} | filt_trend: {dc.get('filt_trend',0)}"
+                    f"   • filt_vol: {dc.get('filt_vol', 0)} | filt_mom: {dc.get('filt_mom', 0)} | filt_trend: {dc.get('filt_trend', 0)}"
                 )
-                print(f"   • entry_true: {dc.get('entry_true',0)}")
+                print(f"   • entry_true: {dc.get('entry_true', 0)}")
             if getattr(self, "signals_found", 0) > 0:
                 print("⚠️ Sinyal tespit edildi ancak işlem açılamadı (ATR/hacim/hesaplama).")
             print("❌ Hiç işlem bulunamadı!")
@@ -879,17 +878,17 @@ class SimpleBacktest:
         if hasattr(self, "debug_counts"):
             dc = self.debug_counts
             print("\n🛠️ Tanılama:")
-            print(f"   • simulate_calls: {dc.get('simulate_calls',0)}")
+            print(f"   • simulate_calls: {dc.get('simulate_calls', 0)}")
             print(
-                f"   • df_missing: {dc.get('df_missing',0)} | slice_short: {dc.get('slice_short',0)} | exceptions: {dc.get('exceptions',0)}"
+                f"   • df_missing: {dc.get('df_missing', 0)} | slice_short: {dc.get('slice_short', 0)} | exceptions: {dc.get('exceptions', 0)}"
             )
             print(
-                f"   • score_rsi: {dc.get('score_rsi',0)} | score_vol: {dc.get('score_vol',0)} | score_macd: {dc.get('score_macd',0)}"
+                f"   • score_rsi: {dc.get('score_rsi', 0)} | score_vol: {dc.get('score_vol', 0)} | score_macd: {dc.get('score_macd', 0)}"
             )
             print(
-                f"   • filt_vol: {dc.get('filt_vol',0)} | filt_mom: {dc.get('filt_mom',0)} | filt_trend: {dc.get('filt_trend',0)}"
+                f"   • filt_vol: {dc.get('filt_vol', 0)} | filt_mom: {dc.get('filt_mom', 0)} | filt_trend: {dc.get('filt_trend', 0)}"
             )
-            print(f"   • entry_true: {dc.get('entry_true',0)}")
+            print(f"   • entry_true: {dc.get('entry_true', 0)}")
 
         # Temel istatistikler
         total_trades = len(self.trades)
@@ -918,7 +917,7 @@ class SimpleBacktest:
         print("\n📊 İşlem İstatistikleri:")
         print(f"   • Toplam İşlem: {total_trades}")
         print(f"   • Kazanan: {winning_trades} ({win_rate:.1f}%)")
-        print(f"   • Kaybeden: {losing_trades} ({100-win_rate:.1f}%)")
+        print(f"   • Kaybeden: {losing_trades} ({100 - win_rate:.1f}%)")
         print(f"   • Ortalama Kazanç: ${avg_win:.2f}")
         print(f"   • Ortalama Kayıp: ${avg_loss:.2f}")
         # Sinyal sayısını tekrar göster (özet tablosu öncesi)
@@ -970,9 +969,9 @@ class SimpleBacktest:
                 max_dd = drawdown.min()
 
                 print("\n📈 Risk Ayarlı Metrikler:")
-                print(f"   • CAGR: {cagr*100:.2f}%")
+                print(f"   • CAGR: {cagr * 100:.2f}%")
                 print(f"   • Sharpe (günlük→yıllık): {sharpe:.2f}")
-                print(f"   • Max Drawdown: {max_dd*100:.2f}%")
+                print(f"   • Max Drawdown: {max_dd * 100:.2f}%")
         except Exception:
             pass
 

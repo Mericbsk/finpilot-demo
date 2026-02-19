@@ -13,7 +13,6 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import pandas as pd
 
 from drl.config import DEFAULT_CONFIG
 from drl.hybrid_engine import HybridEngine, ScannerSignal
@@ -65,7 +64,9 @@ def test_hybrid_engine():
     print(f"Symbol:            {hybrid_signal.symbol}")
     print(f"Scanner Action:    {hybrid_signal.scanner_signal.action}")
     print(f"Scanner Score:     {hybrid_signal.scanner_signal.score}/4")
-    print(f"DRL Prediction:    {hybrid_signal.drl_prediction.action.name if hybrid_signal.drl_prediction else 'N/A'}")
+    print(
+        f"DRL Prediction:    {hybrid_signal.drl_prediction.action.name if hybrid_signal.drl_prediction else 'N/A'}"
+    )
     print(f"Final Action:      {hybrid_signal.final_action}")
     print(f"Final Confidence:  {hybrid_signal.final_confidence:.1%}")
     print(f"Agreement:         {'✅ YES' if hybrid_signal.agreement else '⚠️ NO'}")
@@ -76,7 +77,9 @@ def test_hybrid_engine():
     print("\n✅ Hybrid engine test PASSED!")
     print("\n📝 Next Steps:")
     print("   1. Train DRL model: python ml_agent.py --algorithm PPO --timesteps 50000")
-    print("   2. Test with DRL:   python parallel_scanner.py --mode hybrid --model models/ppo_latest.zip")
+    print(
+        "   2. Test with DRL:   python parallel_scanner.py --mode hybrid --model models/ppo_latest.zip"
+    )
     print("   3. View dashboard:  streamlit run drl_comparison_dashboard.py")
 
     return True

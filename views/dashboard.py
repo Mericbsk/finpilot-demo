@@ -1,66 +1,38 @@
-import csv
 import datetime
 import glob
 import json
 import logging
 import os
-from html import escape
-from textwrap import dedent
 
-import altair as alt
 import pandas as pd
-import streamlit as st
-import yfinance as yf
-
 import scanner
+import streamlit as st
 from scanner import (
-    build_explanation,
-    build_reason,
     compute_recommendation_score,
     evaluate_symbols_parallel,
     load_symbols,
 )
 
-from .components.export import render_export_button_row, render_export_panel
-from .components.helpers import CSVValidationResult, validate_csv_upload
+from .components.export import render_export_panel
+from .components.helpers import validate_csv_upload
 from .components.signal_tracker import log_signals_to_csv, render_signal_performance_tab
-from .scan_history import render_scan_history_page
 from .components.stock_presets import (
     STOCK_PRESETS,
-    get_preset_symbols,
-    render_preset_cards,
-    render_quick_preset_buttons,
 )
 from .components.watchlist import (
     get_watchlist_scan_symbols,
-    initialize_watchlist,
     is_watchlist_scan_triggered,
     render_watchlist_sidebar,
 )
 from .finsense import render_finsense_page
+from .scan_history import render_scan_history_page
 from .utils import (
-    DEMO_MODE_ENABLED,
-    detect_symbol_column,
-    extract_symbols_from_df,
-    get_demo_scan_results,
     get_gemini_research,
-    is_advanced_view,
-    normalize_narrative,
-    render_buyable_cards,
-    render_buyable_table,
-    render_mobile_recommendation_cards,
-    render_mobile_symbol_cards,
-    render_progress_tracker,
-    render_settings_card,
-    render_signal_history_overview,
-    render_summary_panel,
-    render_symbol_snapshot,
-    trigger_rerun,
 )
 
 # DRL Integration
 try:
-    from drl.inference import ActionType, DRLInference, has_trained_model
+    from drl.inference import DRLInference, has_trained_model
 
     DRL_AVAILABLE = True
 except ImportError:
@@ -73,7 +45,7 @@ def load_ai_signals():
     """AI Sinyal dosyasını yükler."""
     try:
         path = os.path.join(os.getcwd(), "data", "inference.json")
-        with open(path, "r") as f:
+        with open(path) as f:
             return json.load(f)
     except Exception:
         return {}
@@ -266,7 +238,7 @@ def render_ai_insights_panel():
                 f"""
             <div style="border: 1px solid #444; border-radius: 8px; padding: 10px; background-color: #1a1a1a;">
                 <div style="font-weight: bold; font-size: 1.1em;">{symbol} {icon}</div>
-                <div style="font-size: 0.9em; color: #888;">Fiyat: ${info.get('price', 0)}</div>
+                <div style="font-size: 0.9em; color: #888;">Fiyat: ${info.get("price", 0)}</div>
                 <hr style="margin: 5px 0; border-color: #333;">
                 <div style="display: flex; justify-content: space-between;">
                     <span>Sinyal:</span>
@@ -274,7 +246,7 @@ def render_ai_insights_panel():
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span>Güven:</span>
-                    <span>%{confidence*100:.0f}</span>
+                    <span>%{confidence * 100:.0f}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span>Skor:</span>
@@ -390,7 +362,7 @@ def render_scanner_page():
 
             # Telegram
             try:
-                from telegram_config import BOT_TOKEN, CHAT_ID
+                from telegram_config import BOT_TOKEN
 
                 if BOT_TOKEN != "YOUR_BOT_TOKEN_HERE":
                     st.success("✅ Telegram Bağlı")
@@ -936,10 +908,10 @@ def render_scanner_page():
 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
 <div>
 <h2 style="margin: 0; font-size: 1.8rem; font-weight: 800; color: #f8fafc;">{symbol}{ai_badge}</h2>
-<span style="font-size: 0.9rem; color: #94a3b8;">{row.get('regime', 'N/A')}</span>
+<span style="font-size: 0.9rem; color: #94a3b8;">{row.get("regime", "N/A")}</span>
 </div>
 <div style="text-align: right;">
-<div style="font-size: 1.5rem; font-weight: 700; color: #f8fafc;">${row['price']:.2f}</div>
+<div style="font-size: 1.5rem; font-weight: 700; color: #f8fafc;">${row["price"]:.2f}</div>
 </div>
 </div>
 <div style="margin-bottom: 1rem;">
@@ -954,11 +926,11 @@ def render_scanner_page():
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
 <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 6px; text-align: center;">
 <div style="color: #94a3b8; font-size: 0.7rem;">HEDEF</div>
-<div style="color: #22c55e; font-weight: 600;">${row['take_profit']:.2f}</div>
+<div style="color: #22c55e; font-weight: 600;">${row["take_profit"]:.2f}</div>
 </div>
 <div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 6px; text-align: center;">
 <div style="color: #94a3b8; font-size: 0.7rem;">STOP</div>
-<div style="color: #ef4444; font-weight: 600;">${row['stop_loss']:.2f}</div>
+<div style="color: #ef4444; font-weight: 600;">${row["stop_loss"]:.2f}</div>
 </div>
 </div>
 </div>
@@ -1037,14 +1009,14 @@ def render_scanner_page():
                     <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.5rem; margin-top: 1rem;">
                         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
                             <div style="background: #3b82f6; color: white; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
-                                {row['symbol'][0]}
+                                {row["symbol"][0]}
                             </div>
                             <div>
-                                <h3 style="margin: 0; color: #f8fafc;">{row['symbol']} Analiz Raporu</h3>
-                                <span style="color: #94a3b8; font-size: 0.9rem;">Strateji: <strong style="color: #facc15;">{strategy_tag}</strong> | Zaman: {st.session_state.get('scan_time', 'Yeni')}</span>
+                                <h3 style="margin: 0; color: #f8fafc;">{row["symbol"]} Analiz Raporu</h3>
+                                <span style="color: #94a3b8; font-size: 0.9rem;">Strateji: <strong style="color: #facc15;">{strategy_tag}</strong> | Zaman: {st.session_state.get("scan_time", "Yeni")}</span>
                             </div>
                             <div style="margin-left: auto; text-align: right;">
-                                <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">${row['price']:.2f}</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">${row["price"]:.2f}</div>
                                 <div style="color: #94a3b8; font-size: 0.8rem;">Anlık Fiyat</div>
                             </div>
                         </div>
@@ -1113,14 +1085,14 @@ def render_scanner_page():
                             st.metric(
                                 "Hedef (TP)",
                                 f"${row['take_profit']:.2f}",
-                                delta=f"%{((row['take_profit']-row['price'])/row['price']*100):.1f}",
+                                delta=f"%{((row['take_profit'] - row['price']) / row['price'] * 100):.1f}",
                                 help="Take Profit: Kar alma hedef fiyatı. Bu fiyata ulaşıldığında pozisyon kapatılmalı.",
                             )
 
                         st.metric(
                             "Stop (SL)",
                             f"${row['stop_loss']:.2f}",
-                            delta=f"-%{((row['price']-row['stop_loss'])/row['price']*100):.1f}",
+                            delta=f"-%{((row['price'] - row['stop_loss']) / row['price'] * 100):.1f}",
                             delta_color="inverse",
                             help="Stop Loss: Zarar durdurma seviyesi. Fiyat bu seviyeye düşerse pozisyon kapatılmalı.",
                         )
@@ -1128,8 +1100,8 @@ def render_scanner_page():
                         st.markdown("#### 📊 Teknik Göstergeler")
                         st.markdown(
                             f"""
-                        - **Rejim:** `{row.get('regime', '-')}`
-                        - **Volatilite:** `{row.get('atr', 0):.2f}`
+                        - **Rejim:** `{row.get("regime", "-")}`
+                        - **Volatilite:** `{row.get("atr", 0):.2f}`
                         """
                         )
 

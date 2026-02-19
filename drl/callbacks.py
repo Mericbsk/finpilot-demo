@@ -18,8 +18,8 @@ Usage::
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -40,8 +40,8 @@ except Exception:
             self.model = None
             self.training_env = None
             self.logger = None  # type: ignore
-            self.locals: Dict[str, Any] = {}
-            self.globals: Dict[str, Any] = {}
+            self.locals: dict[str, Any] = {}
+            self.globals: dict[str, Any] = {}
 
         def _on_step(self) -> bool:
             return True
@@ -67,7 +67,7 @@ class CurriculumPhase:
 
     name: str
     start_pct: float  # fraction of training when this phase starts (0.0-1.0)
-    end_pct: float    # fraction when it ends
+    end_pct: float  # fraction when it ends
 
     # Transaction cost multiplier (1.0 = normal, 0.0 = free)
     cost_multiplier: float = 1.0
@@ -86,7 +86,7 @@ class CurriculumConfig:
     """Configuration for curriculum learning."""
 
     total_timesteps: int = 50_000
-    phases: Optional[List[CurriculumPhase]] = None
+    phases: list[CurriculumPhase] | None = None
     log_interval: int = 5_000
     verbose: bool = True
 
@@ -95,7 +95,7 @@ class CurriculumConfig:
             self.phases = self._default_phases()
 
     @staticmethod
-    def _default_phases() -> List[CurriculumPhase]:
+    def _default_phases() -> list[CurriculumPhase]:
         """Three-phase default curriculum.
 
         Phase A (0-30%): Easy — low costs, narrow positions, exploration bonus
@@ -145,7 +145,7 @@ class CurriculumConfig:
                 return phase
         return self.phases[-1]
 
-    def interpolate(self, progress: float) -> Dict[str, float]:
+    def interpolate(self, progress: float) -> dict[str, float]:
         """Smoothly interpolate curriculum parameters at given progress.
 
         Returns a dictionary with interpolated multipliers, avoiding abrupt
@@ -170,11 +170,16 @@ class CurriculumConfig:
         # Smooth interpolation within phase (ease toward next phase)
         alpha = phase_progress
         return {
-            "cost_multiplier": phase.cost_multiplier + alpha * (next_phase.cost_multiplier - phase.cost_multiplier),
-            "position_limit_multiplier": phase.position_limit_multiplier + alpha * (next_phase.position_limit_multiplier - phase.position_limit_multiplier),
-            "pnl_weight_multiplier": phase.pnl_weight_multiplier + alpha * (next_phase.pnl_weight_multiplier - phase.pnl_weight_multiplier),
-            "drawdown_weight_multiplier": phase.drawdown_weight_multiplier + alpha * (next_phase.drawdown_weight_multiplier - phase.drawdown_weight_multiplier),
-            "exploration_bonus": phase.exploration_bonus + alpha * (next_phase.exploration_bonus - phase.exploration_bonus),
+            "cost_multiplier": phase.cost_multiplier
+            + alpha * (next_phase.cost_multiplier - phase.cost_multiplier),
+            "position_limit_multiplier": phase.position_limit_multiplier
+            + alpha * (next_phase.position_limit_multiplier - phase.position_limit_multiplier),
+            "pnl_weight_multiplier": phase.pnl_weight_multiplier
+            + alpha * (next_phase.pnl_weight_multiplier - phase.pnl_weight_multiplier),
+            "drawdown_weight_multiplier": phase.drawdown_weight_multiplier
+            + alpha * (next_phase.drawdown_weight_multiplier - phase.drawdown_weight_multiplier),
+            "exploration_bonus": phase.exploration_bonus
+            + alpha * (next_phase.exploration_bonus - phase.exploration_bonus),
         }
 
 
@@ -199,7 +204,7 @@ class CurriculumCallback(BaseCallback):
 
     def __init__(
         self,
-        config: Optional[CurriculumConfig] = None,
+        config: CurriculumConfig | None = None,
         smooth: bool = True,
         verbose: int = 0,
     ) -> None:
@@ -207,7 +212,7 @@ class CurriculumCallback(BaseCallback):
         self.config = config or CurriculumConfig()
         self.smooth = smooth
         self._current_phase_name: str = ""
-        self._phase_history: List[Dict[str, Any]] = []
+        self._phase_history: list[dict[str, Any]] = []
         self._last_log_step: int = 0
 
     def _on_training_start(self) -> None:
@@ -237,10 +242,7 @@ class CurriculumCallback(BaseCallback):
     def _on_training_end(self) -> None:
         """Log curriculum completion."""
         if self.verbose:
-            logger.info(
-                f"🎓 Curriculum tamamlandı — "
-                f"{len(self._phase_history)} faz geçişi yapıldı"
-            )
+            logger.info(f"🎓 Curriculum tamamlandı — {len(self._phase_history)} faz geçişi yapıldı")
 
     def _apply_curriculum(self, progress: float) -> None:
         """Apply curriculum parameters to the training environment."""
@@ -260,12 +262,14 @@ class CurriculumCallback(BaseCallback):
         # Detect phase transitions
         if phase.name != self._current_phase_name:
             if self._current_phase_name:
-                self._phase_history.append({
-                    "from_phase": self._current_phase_name,
-                    "to_phase": phase.name,
-                    "timestep": self.num_timesteps,
-                    "progress": progress,
-                })
+                self._phase_history.append(
+                    {
+                        "from_phase": self._current_phase_name,
+                        "to_phase": phase.name,
+                        "timestep": self.num_timesteps,
+                        "progress": progress,
+                    }
+                )
                 if self.config.verbose:
                     logger.info(
                         f"  🔄 Faz geçişi: {self._current_phase_name} → {phase.name} "
@@ -276,7 +280,7 @@ class CurriculumCallback(BaseCallback):
         # Apply to environments
         self._update_envs(params)
 
-    def _update_envs(self, params: Dict[str, float]) -> None:
+    def _update_envs(self, params: dict[str, float]) -> None:
         """Push curriculum parameters into the vectorised environments."""
         if self.training_env is None:
             return
@@ -321,7 +325,7 @@ class CurriculumCallback(BaseCallback):
         except Exception as e:
             logger.debug(f"Curriculum env update skipped: {e}")
 
-    def _get_current_params(self) -> Dict[str, float]:
+    def _get_current_params(self) -> dict[str, float]:
         """Return current curriculum parameters."""
         progress = self.num_timesteps / max(self.config.total_timesteps, 1)
         if self.smooth:
@@ -332,7 +336,7 @@ class CurriculumCallback(BaseCallback):
             "position_limit_multiplier": phase.position_limit_multiplier,
         }
 
-    def get_phase_history(self) -> List[Dict[str, Any]]:
+    def get_phase_history(self) -> list[dict[str, Any]]:
         """Return a list of all phase transition events."""
         return list(self._phase_history)
 
@@ -356,11 +360,11 @@ class TrainingMetricsCallback(BaseCallback):
     ) -> None:
         super().__init__(verbose=verbose)
         self.log_interval = log_interval
-        self._episode_rewards: List[float] = []
-        self._episode_lengths: List[int] = []
+        self._episode_rewards: list[float] = []
+        self._episode_lengths: list[int] = []
         self._current_episode_reward: float = 0.0
         self._current_episode_length: int = 0
-        self._metrics_log: List[Dict[str, float]] = []
+        self._metrics_log: list[dict[str, float]] = []
 
     def _on_step(self) -> bool:
         # Accumulate rewards
@@ -400,7 +404,7 @@ class TrainingMetricsCallback(BaseCallback):
 
         return True
 
-    def get_metrics_log(self) -> List[Dict[str, float]]:
+    def get_metrics_log(self) -> list[dict[str, float]]:
         """Return all recorded metrics."""
         return list(self._metrics_log)
 

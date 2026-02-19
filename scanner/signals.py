@@ -7,7 +7,7 @@ Extracted from scanner.py for modularity and reusability.
 import logging
 import math
 from statistics import median
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 
@@ -60,11 +60,11 @@ def check_volume_spike(df: pd.DataFrame) -> bool:
 
 # ---- Momentum Analysis ----
 def analyze_price_momentum(
-    df: Optional[pd.DataFrame],
+    df: pd.DataFrame | None,
     *,
-    windows: Optional[List[int]] = None,
-    baseline_window: Optional[int] = None,
-) -> Dict[str, Any]:
+    windows: list[int] | None = None,
+    baseline_window: int | None = None,
+) -> dict[str, Any]:
     """
     Adaptive momentum profile generator with multi-horizon analysis.
 
@@ -271,7 +271,7 @@ def check_trend_strength(df: pd.DataFrame) -> bool:
 # ---- Timeframe Alignment ----
 def check_timeframe_alignment(
     df_1h: pd.DataFrame, df_4h: pd.DataFrame, df_1d: pd.DataFrame
-) -> Tuple[bool, float, List[bool]]:
+) -> tuple[bool, float, list[bool]]:
     """
     Check trend alignment across 3 timeframes.
     At least 2/3 timeframes must be in the same direction.
@@ -324,7 +324,7 @@ def check_timeframe_alignment(
         return False, 0.0, []
 
 
-def check_momentum_confluence(df_15m: pd.DataFrame, df_4h: pd.DataFrame) -> Tuple[bool, float]:
+def check_momentum_confluence(df_15m: pd.DataFrame, df_4h: pd.DataFrame) -> tuple[bool, float]:
     """
     Check momentum indicator confluence across timeframes.
     Uses stricter criteria for quality improvement.
@@ -449,7 +449,7 @@ def signal_score_row(df: pd.DataFrame) -> int:
 MAX_RECO_SCORE = 18.3  # Theoretical maximum with premium bonus
 
 
-def compute_recommendation_score(row: Dict[str, Any]) -> float:
+def compute_recommendation_score(row: dict[str, Any]) -> float:
     """
     Compute composite recommendation score from signal components.
 
@@ -496,7 +496,7 @@ def compute_recommendation_strength(x: Any) -> int:
 
 
 # ---- Explanation Builders ----
-def build_explanation(row: Dict[str, Any]) -> str:
+def build_explanation(row: dict[str, Any]) -> str:
     """
     Build human-readable explanation for a signal.
 
@@ -518,7 +518,7 @@ def build_explanation(row: Dict[str, Any]) -> str:
         return "Özet yok"
 
 
-def build_reason(row: Dict[str, Any]) -> str:
+def build_reason(row: dict[str, Any]) -> str:
     """
     Build actionable reason for a signal decision.
 

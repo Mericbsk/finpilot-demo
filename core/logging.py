@@ -28,12 +28,12 @@ import functools
 import json
 import logging
 import sys
-import threading
 import time
+from collections.abc import Callable
 from contextvars import ContextVar
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -59,7 +59,7 @@ class LogContext:
         self.new_context = kwargs
         self.old_context: dict[str, Any] = {}
 
-    def __enter__(self) -> "LogContext":
+    def __enter__(self) -> LogContext:
         self.old_context = _log_context.get().copy()
         new = {**self.old_context, **self.new_context}
         _log_context.set(new)
@@ -121,7 +121,7 @@ class JSONFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         # Base log entry
-        log_entry: Dict[str, Any] = {
+        log_entry: dict[str, Any] = {
             "timestamp": datetime.utcnow().strftime(self.timestamp_format)[:-3] + "Z",
             "level": record.levelname,
             "logger": record.name,
@@ -134,7 +134,7 @@ class JSONFormatter(logging.Formatter):
             log_entry["context"] = context
 
         # Add extra fields
-        extra: Dict[str, Any] = {}
+        extra: dict[str, Any] = {}
         for key, value in record.__dict__.items():
             if key not in (
                 "name",
@@ -283,7 +283,7 @@ _configured = False
 def configure_logging(
     level: str = "INFO",
     format: str = "json",  # "json" or "text"
-    log_file: Optional[str] = None,
+    log_file: str | None = None,
     use_colors: bool = True,
 ) -> None:
     """
@@ -427,7 +427,7 @@ def log_call(
     return decorator
 
 
-def timed(name: Optional[str] = None) -> Callable[[Callable[P, T]], Callable[P, T]]:
+def timed(name: str | None = None) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """
     Decorator to log execution time.
 
@@ -474,11 +474,11 @@ class Timer:
         print(f"Took {t.duration:.2f}s")
     """
 
-    def __init__(self, name: str, logger: Optional[logging.Logger] = None):
+    def __init__(self, name: str, logger: logging.Logger | None = None):
         self.name = name
         self.logger = logger or get_logger("timer")
-        self.start_time: Optional[float] = None
-        self.end_time: Optional[float] = None
+        self.start_time: float | None = None
+        self.end_time: float | None = None
 
     @property
     def duration(self) -> float:
@@ -487,7 +487,7 @@ class Timer:
         end = self.end_time or time.perf_counter()
         return end - self.start_time
 
-    def __enter__(self) -> "Timer":
+    def __enter__(self) -> Timer:
         self.start_time = time.perf_counter()
         return self
 

@@ -1,5 +1,3 @@
-import os
-
 content_to_append = """
 
 @lru_cache(maxsize=1)
@@ -11,8 +9,8 @@ def load_settingscard_markup():
         return None, "SettingsCard derlemesi bulunamadı. Lütfen önce Vite build çalıştırın."
 
     html = index_path.read_text(encoding="utf-8")
-    css_match = re.search(r'href="(?P<href>[^\\"]+\.css)"', html)
-    js_match = re.search(r'src="(?P<src>[^\\"]+\.js)"', html)
+    css_match = re.search(r'href="(?P<href>[^\\"]+\\.css)"', html)
+    js_match = re.search(r'src="(?P<src>[^\\"]+\\.js)"', html)
 
     if js_match is None:
         return None, "SettingsCard index.html içinde JS kaynağı bulunamadı."

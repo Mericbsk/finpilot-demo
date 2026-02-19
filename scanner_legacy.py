@@ -28,7 +28,7 @@ DEFAULT_SETTINGS = {
 def load_user_settings():
     if os.path.exists(SETTINGS_FILE):
         try:
-            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+            with open(SETTINGS_FILE, encoding="utf-8") as f:
                 return json.load(f)
         except:
             return DEFAULT_SETTINGS
@@ -1247,7 +1247,7 @@ def main():
             reason = build_reason(rec)
             entry_text = "Evet" if rec.get("entry_ok") else "Hayır"
             print(
-                f"{i}. {rec.get('symbol')} | Fiyat: ${rec.get('price')} | Skor: {rec.get('recommendation_score'):.2f} ({int(rec.get('strength',0))}/100) | Entry: {entry_text}"
+                f"{i}. {rec.get('symbol')} | Fiyat: ${rec.get('price')} | Skor: {rec.get('recommendation_score'):.2f} ({int(rec.get('strength', 0))}/100) | Entry: {entry_text}"
             )
             print(f"   -> {why}")
             print(f"   -> {reason}")

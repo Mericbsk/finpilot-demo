@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-
 from drl.analysis import (
     RegimeStats,
     build_narrative_payload,

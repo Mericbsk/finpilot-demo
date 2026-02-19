@@ -1,25 +1,19 @@
-# -*- coding: utf-8 -*-
 """
 Tests for WebSocket Feeds Module
 """
-import asyncio
+
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from core.websocket_feeds import (
-    FEED_PROVIDERS,
     BarMessage,
     FeedConfig,
     FeedStatus,
     FinnhubFeed,
-    MessageType,
     MockFeed,
     PolygonFeed,
     QuoteMessage,
     TradeMessage,
-    WebSocketFeed,
     create_feed,
     list_providers,
 )

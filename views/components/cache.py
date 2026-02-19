@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Cache Utilities
 ========================
@@ -15,11 +14,10 @@ Usage:
 
     buyable_df = cached_filter_buyable(df)
 """
+
 from __future__ import annotations
 
 import hashlib
-from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
@@ -48,11 +46,11 @@ def _dataframe_hash(df: pd.DataFrame) -> str:
 @st.cache_data(ttl=CACHE_TTL_MEDIUM, show_spinner=False)
 def cached_compute_scores(
     df_hash: str,
-    symbols: Tuple[str, ...],
-    prices: Tuple[float, ...],
-    entry_oks: Tuple[bool, ...],
-    risk_rewards: Tuple[float, ...],
-    regimes: Tuple[str, ...],
+    symbols: tuple[str, ...],
+    prices: tuple[float, ...],
+    entry_oks: tuple[bool, ...],
+    risk_rewards: tuple[float, ...],
+    regimes: tuple[str, ...],
 ) -> pd.DataFrame:
     """
     Cached computation of recommendation scores.
@@ -79,8 +77,8 @@ def cached_compute_scores(
 
 @st.cache_data(ttl=CACHE_TTL_MEDIUM, show_spinner=False)
 def cached_filter_buyable(
-    df_hash: str, symbols: Tuple[str, ...], entry_oks: Tuple[bool, ...], scores: Tuple[float, ...]
-) -> List[str]:
+    df_hash: str, symbols: tuple[str, ...], entry_oks: tuple[bool, ...], scores: tuple[float, ...]
+) -> list[str]:
     """
     Cached filtering of buyable symbols.
 
@@ -94,7 +92,7 @@ def cached_filter_buyable(
 
 
 @st.cache_data(ttl=CACHE_TTL_LONG, show_spinner=False)
-def cached_regime_color_map() -> Dict[str, str]:
+def cached_regime_color_map() -> dict[str, str]:
     """Cached regime to color mapping."""
     return {
         "bull": "#22c55e",
@@ -194,7 +192,7 @@ def cached_format_percentage(value: float, include_sign: bool = True) -> str:
 # ============================================
 
 
-def prepare_for_cache(df: pd.DataFrame, columns: List[str]) -> Dict[str, Tuple]:
+def prepare_for_cache(df: pd.DataFrame, columns: list[str]) -> dict[str, tuple]:
     """
     Convert DataFrame columns to tuples for cache compatibility.
 

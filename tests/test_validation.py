@@ -5,8 +5,6 @@ Tests Pydantic validation models for input validation.
 """
 
 import pytest
-from pydantic import ValidationError
-
 from core.validation import (
     LoginRequest,
     PositionSize,
@@ -18,6 +16,7 @@ from core.validation import (
     TickerSymbol,
     UserSettingsInput,
 )
+from pydantic import ValidationError
 
 # =============================================================================
 # TICKER SYMBOL TESTS

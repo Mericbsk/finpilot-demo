@@ -3,9 +3,10 @@
 FinPilot — Kapsamlı Sistem Denetimi v3 (Final)
 Tüm API imzaları doğrulanmış haliyle tam sistem denetimi.
 """
-import sys
-import os
+
 import json
+import os
+import sys
 import traceback
 from datetime import datetime
 
@@ -13,20 +14,25 @@ os.chdir("/workspaces/Borsa")
 
 RESULTS = {"passed": [], "failed": [], "warnings": [], "info": []}
 
+
 def log_pass(test_name, detail=""):
     RESULTS["passed"].append(f"✅ {test_name}: {detail}")
     print(f"  ✅ {test_name}: {detail}")
+
 
 def log_fail(test_name, detail=""):
     RESULTS["failed"].append(f"❌ {test_name}: {detail}")
     print(f"  ❌ {test_name}: {detail}")
 
+
 def log_warn(test_name, detail=""):
     RESULTS["warnings"].append(f"⚠️  {test_name}: {detail}")
     print(f"  ⚠️  {test_name}: {detail}")
 
+
 def log_info(test_name, detail=""):
     RESULTS["info"].append(f"ℹ️  {test_name}: {detail}")
+
 
 import numpy as np
 import pandas as pd
@@ -44,10 +50,10 @@ low_arr = close_arr - np.abs(np.random.randn(n) * 1.5)
 open_arr = close_arr + np.random.randn(n) * 0.3
 volume_arr = np.random.randint(200000, 5000000, n).astype(float)
 
-df_raw = pd.DataFrame({
-    "Open": open_arr, "High": high_arr, "Low": low_arr,
-    "Close": close_arr, "Volume": volume_arr
-}, index=dates)
+df_raw = pd.DataFrame(
+    {"Open": open_arr, "High": high_arr, "Low": low_arr, "Close": close_arr, "Volume": volume_arr},
+    index=dates,
+)
 
 # ############################################################################
 # BÖLÜM 2: ALGORİTMA DOĞRULAMA
@@ -75,7 +81,10 @@ try:
     assert "rsi" in df_ind.columns
     rsi_valid = df_ind["rsi"].dropna()
     assert (rsi_valid >= 0).all() and (rsi_valid <= 100).all()
-    log_pass("RSI(14)", f"Son: {rsi_valid.iloc[-1]:.2f}, Min: {rsi_valid.min():.2f}, Max: {rsi_valid.max():.2f}")
+    log_pass(
+        "RSI(14)",
+        f"Son: {rsi_valid.iloc[-1]:.2f}, Min: {rsi_valid.min():.2f}, Max: {rsi_valid.max():.2f}",
+    )
 
     # MACD
     assert "macd_hist" in df_ind.columns
@@ -97,10 +106,23 @@ try:
 
     # Volume median/avg
     assert "vol_med20" in df_ind.columns and "vol_avg10" in df_ind.columns
-    log_pass("Volume Indicators", f"vol_med20: {df_ind['vol_med20'].iloc[-1]:.0f}, vol_avg10: {df_ind['vol_avg10'].iloc[-1]:.0f}")
+    log_pass(
+        "Volume Indicators",
+        f"vol_med20: {df_ind['vol_med20'].iloc[-1]:.0f}, vol_avg10: {df_ind['vol_avg10'].iloc[-1]:.0f}",
+    )
 
     # Tüm sütunlar
-    all_cols = ["ema50", "ema200", "rsi", "macd_hist", "bb_upper", "bb_lower", "atr", "vol_med20", "vol_avg10"]
+    all_cols = [
+        "ema50",
+        "ema200",
+        "rsi",
+        "macd_hist",
+        "bb_upper",
+        "bb_lower",
+        "atr",
+        "vol_med20",
+        "vol_avg10",
+    ]
     missing = [c for c in all_cols if c not in df_ind.columns]
     if missing:
         log_fail("Sütun Bütünlüğü", f"Eksik: {missing}")
@@ -113,21 +135,29 @@ except Exception as e:
 # --- 2.2 RSI Matematiksel Doğrulama ---
 print("\n--- 2.2 RSI Matematiksel Doğrulama ---")
 try:
-    up_prices = pd.DataFrame({
-        "Open": np.linspace(100, 200, 100), "High": np.linspace(101, 201, 100),
-        "Low": np.linspace(99, 199, 100), "Close": np.linspace(100, 200, 100),
-        "Volume": [1000000] * 100
-    })
+    up_prices = pd.DataFrame(
+        {
+            "Open": np.linspace(100, 200, 100),
+            "High": np.linspace(101, 201, 100),
+            "Low": np.linspace(99, 199, 100),
+            "Close": np.linspace(100, 200, 100),
+            "Volume": [1000000] * 100,
+        }
+    )
     df_up = add_indicators(up_prices)
     rsi_up = df_up["rsi"].dropna().iloc[-1]
     assert rsi_up > 50
     log_pass("RSI Yükselen Trend", f"RSI: {rsi_up:.2f} (>50 ✓)")
 
-    down_prices = pd.DataFrame({
-        "Open": np.linspace(200, 100, 100), "High": np.linspace(201, 101, 100),
-        "Low": np.linspace(199, 99, 100), "Close": np.linspace(200, 100, 100),
-        "Volume": [1000000] * 100
-    })
+    down_prices = pd.DataFrame(
+        {
+            "Open": np.linspace(200, 100, 100),
+            "High": np.linspace(201, 101, 100),
+            "Low": np.linspace(199, 99, 100),
+            "Close": np.linspace(200, 100, 100),
+            "Volume": [1000000] * 100,
+        }
+    )
     df_down = add_indicators(down_prices)
     rsi_down = df_down["rsi"].dropna().iloc[-1]
     assert rsi_down < 50
@@ -146,13 +176,18 @@ try:
     assert "positive" in momentum and "metrics" in momentum
     z_eff = momentum.get("z_threshold_effective", "N/A")
     z_seg = momentum.get("liquidity_segment", "N/A")
-    log_pass("Z-Score Momentum", f"Pozitif: {momentum['positive']}, Z-eşik: {z_eff}, Segment: {z_seg}")
+    log_pass(
+        "Z-Score Momentum", f"Pozitif: {momentum['positive']}, Z-eşik: {z_eff}, Segment: {z_seg}"
+    )
 
     metrics = momentum.get("metrics", [])
     horizons = [m["horizon"] for m in metrics]
     assert set([1, 3, 5]).issubset(set(horizons))
     for m in metrics:
-        log_info(f"  Horizon {m['horizon']}d", f"Return: {m.get('return_pct', 'N/A')}%, Z: {m.get('z_score', 'N/A')}")
+        log_info(
+            f"  Horizon {m['horizon']}d",
+            f"Return: {m.get('return_pct', 'N/A')}%, Z: {m.get('z_score', 'N/A')}",
+        )
 
 except Exception as e:
     log_fail("Z-Score Momentum", str(e))
@@ -161,6 +196,7 @@ except Exception as e:
 print("\n--- 2.4 HMM Rejim Tespiti ---")
 try:
     from regime_detection import detect_market_regime
+
     regime_result = detect_market_regime(df_ind["Close"])
     log_pass("HMM Rejim Tespiti", f"Rejim: {regime_result}")
 except ImportError as e:
@@ -181,22 +217,32 @@ try:
     from scanner.signals import signal_score_row
 
     # Boğa sinyali
-    bull_data = pd.DataFrame({
-        "Close": [99.0, 105.0], "bb_lower": [100.0, 100.0],
-        "rsi": [35.0, 38.0], "macd_hist": [-0.2, 0.5],
-        "Volume": [900000, 1500000], "vol_med20": [1000000, 1000000],
-    })
+    bull_data = pd.DataFrame(
+        {
+            "Close": [99.0, 105.0],
+            "bb_lower": [100.0, 100.0],
+            "rsi": [35.0, 38.0],
+            "macd_hist": [-0.2, 0.5],
+            "Volume": [900000, 1500000],
+            "vol_med20": [1000000, 1000000],
+        }
+    )
     score_bull = signal_score_row(bull_data)
     log_pass("Sinyal Skor - Boğa", f"Skor: {score_bull} (beklenen: 4)")
     if score_bull != 4:
         log_warn("Sinyal Skor Uyumsuzluk", f"Beklenen 4, gelen {score_bull}")
 
     # Ayı
-    bear_data = pd.DataFrame({
-        "Close": [105.0, 95.0], "bb_lower": [90.0, 90.0],
-        "rsi": [75.0, 78.0], "macd_hist": [0.5, 0.8],
-        "Volume": [500000, 400000], "vol_med20": [1000000, 1000000],
-    })
+    bear_data = pd.DataFrame(
+        {
+            "Close": [105.0, 95.0],
+            "bb_lower": [90.0, 90.0],
+            "rsi": [75.0, 78.0],
+            "macd_hist": [0.5, 0.8],
+            "Volume": [500000, 400000],
+            "vol_med20": [1000000, 1000000],
+        }
+    )
     score_bear = signal_score_row(bear_data)
     log_pass("Sinyal Skor - Ayı", f"Skor: {score_bear} (beklenen: 0)")
 
@@ -206,7 +252,7 @@ except Exception as e:
 # --- 3.2 Güç Filtreleri ---
 print("\n--- 3.2 Güç Filtreleri ---")
 try:
-    from scanner.signals import check_volume_spike, check_trend_strength, check_price_momentum
+    from scanner.signals import check_price_momentum, check_trend_strength, check_volume_spike
 
     vs = check_volume_spike(df_ind)
     ts = check_trend_strength(df_ind)
@@ -221,7 +267,7 @@ except Exception as e:
 # --- 3.3 Timeframe Alignment ---
 print("\n--- 3.3 Çoklu Zaman Dilimi Uyumu ---")
 try:
-    from scanner.signals import check_timeframe_alignment, check_momentum_confluence
+    from scanner.signals import check_momentum_confluence, check_timeframe_alignment
 
     df_1h = df_ind.copy()
     df_1h["ema20"] = df_1h["Close"].ewm(span=20).mean()
@@ -251,26 +297,37 @@ try:
     assert rm["tp3"] == round(100 + 8.0 * 2, 2)
     rr = (rm["take_profit"] - 100) / (100 - rm["stop_loss"])
     assert abs(rm["risk_reward_ratio"] - round(rr, 2)) < 0.01
-    log_pass("Risk - Sniper 🎯", f"SL:{rm['stop_loss']} TP1:{rm['tp1']} TP2:{rm['tp2']} TP3:{rm['tp3']} R:R={rm['risk_reward_ratio']}")
+    log_pass(
+        "Risk - Sniper 🎯",
+        f"SL:{rm['stop_loss']} TP1:{rm['tp1']} TP2:{rm['tp2']} TP3:{rm['tp3']} R:R={rm['risk_reward_ratio']}",
+    )
 
     # Normal (50 <= momentum < 70)
     rm2 = calculate_risk_management(price=100.0, atr_val=2.0, momentum_score=55)
     assert rm2["strategy_tag"] == "Normal 📈"
     assert rm2["stop_loss"] == round(100 - 2.0 * 2, 2)
-    log_pass("Risk - Normal 📈", f"SL:{rm2['stop_loss']} TP2:{rm2['tp2']} R:R={rm2['risk_reward_ratio']}")
+    log_pass(
+        "Risk - Normal 📈", f"SL:{rm2['stop_loss']} TP2:{rm2['tp2']} R:R={rm2['risk_reward_ratio']}"
+    )
 
     # Defansif (momentum < 50)
     rm3 = calculate_risk_management(price=100.0, atr_val=2.0, momentum_score=30)
     assert rm3["strategy_tag"] == "Defansif 🛡️"
     assert rm3["tp3"] is None
-    log_pass("Risk - Defansif 🛡️", f"SL:{rm3['stop_loss']} TP2:{rm3['tp2']} TP3:{rm3['tp3']} R:R={rm3['risk_reward_ratio']}")
+    log_pass(
+        "Risk - Defansif 🛡️",
+        f"SL:{rm3['stop_loss']} TP2:{rm3['tp2']} TP3:{rm3['tp3']} R:R={rm3['risk_reward_ratio']}",
+    )
 
 except ImportError:
     try:
         import importlib
+
         scanner_module = importlib.import_module("scanner")
-        from scanner import evaluate_symbol
-        log_warn("Risk Yönetimi", "calculate_risk_management scanner paketinde değil, scanner.py'de — import sorunu")
+        log_warn(
+            "Risk Yönetimi",
+            "calculate_risk_management scanner paketinde değil, scanner.py'de — import sorunu",
+        )
     except Exception as e2:
         log_fail("Risk Yönetimi", f"Import hatası: {e2}")
 except Exception as e:
@@ -282,19 +339,33 @@ try:
     from scanner.signals import compute_recommendation_score, compute_recommendation_strength
 
     strong = {
-        "regime": True, "direction": True, "score": 3, "filter_score": 3,
-        "momentum_confluence": True, "momentum_ratio": 0.8,
-        "volume_spike": True, "timeframe_aligned": True,
-        "sentiment": 0.5, "price_momentum": True, "is_premium_symbol": True
+        "regime": True,
+        "direction": True,
+        "score": 3,
+        "filter_score": 3,
+        "momentum_confluence": True,
+        "momentum_ratio": 0.8,
+        "volume_spike": True,
+        "timeframe_aligned": True,
+        "sentiment": 0.5,
+        "price_momentum": True,
+        "is_premium_symbol": True,
     }
     s1 = compute_recommendation_score(strong)
     g1 = compute_recommendation_strength(s1)
 
     weak = {
-        "regime": False, "direction": False, "score": 0, "filter_score": 0,
-        "momentum_confluence": False, "momentum_ratio": 0.0,
-        "volume_spike": False, "timeframe_aligned": False,
-        "sentiment": -0.5, "price_momentum": False, "is_premium_symbol": False
+        "regime": False,
+        "direction": False,
+        "score": 0,
+        "filter_score": 0,
+        "momentum_confluence": False,
+        "momentum_ratio": 0.0,
+        "volume_spike": False,
+        "timeframe_aligned": False,
+        "sentiment": -0.5,
+        "price_momentum": False,
+        "is_premium_symbol": False,
     }
     s2 = compute_recommendation_score(weak)
     g2 = compute_recommendation_strength(s2)
@@ -316,25 +387,33 @@ print("=" * 80)
 
 try:
     from core.backtest import (
-        Backtest, BacktestConfig, MomentumStrategy, TrendFollowingStrategy,
-        Trade, Portfolio, BacktestResult
+        Backtest,
+        BacktestConfig,
+        MomentumStrategy,
+        TrendFollowingStrategy,
     )
 
     config = BacktestConfig(initial_capital=10000, risk_per_trade=0.02, kelly_fraction=0.5)
-    log_pass("BacktestConfig", f"Kapital: ${config.initial_capital}, Risk: {config.risk_per_trade * 100}%, Kelly: {config.kelly_fraction}")
+    log_pass(
+        "BacktestConfig",
+        f"Kapital: ${config.initial_capital}, Risk: {config.risk_per_trade * 100}%, Kelly: {config.kelly_fraction}",
+    )
 
     # Backtest verisi (daha fazla volatilite)
     n_bt = 400
     dates_bt = pd.date_range("2023-01-01", periods=n_bt, freq="D")
     price_bt = 100 + np.cumsum(np.random.randn(n_bt) * 1.5)
     price_bt = np.maximum(price_bt, 10)
-    df_bt = pd.DataFrame({
-        "Open": price_bt + np.random.randn(n_bt) * 0.5,
-        "High": price_bt + np.abs(np.random.randn(n_bt) * 3),
-        "Low": price_bt - np.abs(np.random.randn(n_bt) * 3),
-        "Close": price_bt,
-        "Volume": np.random.randint(200000, 5000000, n_bt).astype(float)
-    }, index=dates_bt)
+    df_bt = pd.DataFrame(
+        {
+            "Open": price_bt + np.random.randn(n_bt) * 0.5,
+            "High": price_bt + np.abs(np.random.randn(n_bt) * 3),
+            "Low": price_bt - np.abs(np.random.randn(n_bt) * 3),
+            "Close": price_bt,
+            "Volume": np.random.randint(200000, 5000000, n_bt).astype(float),
+        },
+        index=dates_bt,
+    )
 
     # Backtest(strategy, data, symbol, config) — data ZORUNLU positional arg
     strategy = MomentumStrategy()
@@ -379,7 +458,10 @@ try:
     strat2 = TrendFollowingStrategy()
     bt2 = Backtest(strategy=strat2, data=df_bt, symbol="TEST", config=config)
     result2 = bt2.run()
-    log_pass("Strateji Karşılaştırma", f"Momentum: {result.total_trades} işlem, TrendFollowing: {result2.total_trades} işlem")
+    log_pass(
+        "Strateji Karşılaştırma",
+        f"Momentum: {result.total_trades} işlem, TrendFollowing: {result2.total_trades} işlem",
+    )
 
 except Exception as e:
     log_fail("Backtest Engine", f"{e}\n{traceback.format_exc()}")
@@ -392,13 +474,20 @@ print("BÖLÜM 5: TEKNİK ALTYAPI KONTROLÜ")
 print("=" * 80)
 
 critical = {
-    "streamlit": "Web framework", "pandas": "Veri işleme",
-    "numpy": "Sayısal hesaplama", "yfinance": "Finans verisi",
-    "plotly": "Görselleştirme", "pydantic": "Veri doğrulama",
-    "bcrypt": "Güvenlik (hash)", "jwt": "JWT token (pyjwt)",
-    "prometheus_client": "Metrik toplama", "sentry_sdk": "Hata izleme",
-    "gspread": "Google Sheets", "reportlab": "PDF export",
-    "openpyxl": "Excel export", "cryptography": "Şifreleme",
+    "streamlit": "Web framework",
+    "pandas": "Veri işleme",
+    "numpy": "Sayısal hesaplama",
+    "yfinance": "Finans verisi",
+    "plotly": "Görselleştirme",
+    "pydantic": "Veri doğrulama",
+    "bcrypt": "Güvenlik (hash)",
+    "jwt": "JWT token (pyjwt)",
+    "prometheus_client": "Metrik toplama",
+    "sentry_sdk": "Hata izleme",
+    "gspread": "Google Sheets",
+    "reportlab": "PDF export",
+    "openpyxl": "Excel export",
+    "cryptography": "Şifreleme",
 }
 for pkg, desc in critical.items():
     try:
@@ -409,9 +498,12 @@ for pkg, desc in critical.items():
         log_fail(f"Bağımlılık: {pkg}", f"KURULU DEĞİL — {desc}")
 
 optional = {
-    "stable_baselines3": "DRL", "torch": "Deep Learning",
-    "shap": "Feature Importance", "optuna": "Hyperparameter Opt.",
-    "hmmlearn": "HMM", "mlflow": "ML Tracking",
+    "stable_baselines3": "DRL",
+    "torch": "Deep Learning",
+    "shap": "Feature Importance",
+    "optuna": "Hyperparameter Opt.",
+    "hmmlearn": "HMM",
+    "mlflow": "ML Tracking",
 }
 for pkg, desc in optional.items():
     try:
@@ -428,14 +520,22 @@ print("BÖLÜM 6: PIPELINE DOĞRULAMA")
 print("=" * 80)
 
 modules_check = [
-    ("scanner", "Ana tarama paketi"), ("scanner.indicators", "Gösterge hesaplama"),
-    ("scanner.signals", "Sinyal üretimi"), ("scanner.data_fetcher", "Veri çekme"),
-    ("scanner.config", "Yapılandırma"), ("core", "Core framework"),
-    ("core.backtest", "Backtest engine"), ("core.plugins", "Plugin sistemi"),
-    ("core.social", "Sosyal özellikler"), ("core.websocket_feeds", "WebSocket"),
-    ("core.prometheus_exporter", "Prometheus export"), ("altdata", "Alternatif veri"),
-    ("telegram_alerts", "Telegram uyarıları"), ("telegram_config", "Telegram config"),
-    ("auth", "Kimlik doğrulama"), ("auth.core", "Auth core"),
+    ("scanner", "Ana tarama paketi"),
+    ("scanner.indicators", "Gösterge hesaplama"),
+    ("scanner.signals", "Sinyal üretimi"),
+    ("scanner.data_fetcher", "Veri çekme"),
+    ("scanner.config", "Yapılandırma"),
+    ("core", "Core framework"),
+    ("core.backtest", "Backtest engine"),
+    ("core.plugins", "Plugin sistemi"),
+    ("core.social", "Sosyal özellikler"),
+    ("core.websocket_feeds", "WebSocket"),
+    ("core.prometheus_exporter", "Prometheus export"),
+    ("altdata", "Alternatif veri"),
+    ("telegram_alerts", "Telegram uyarıları"),
+    ("telegram_config", "Telegram config"),
+    ("auth", "Kimlik doğrulama"),
+    ("auth.core", "Auth core"),
 ]
 for mod_name, desc in modules_check:
     try:
@@ -452,7 +552,12 @@ print("BÖLÜM 7: ALTERNATİF VERİ DOĞRULAMA")
 print("=" * 80)
 
 try:
-    from altdata import get_sentiment_score, get_onchain_metric, get_altdata_state, get_altdata_history
+    from altdata import (
+        get_altdata_history,
+        get_altdata_state,
+        get_onchain_metric,
+        get_sentiment_score,
+    )
 
     # Sentiment [-1, 1]
     sent = get_sentiment_score("AAPL")
@@ -496,11 +601,23 @@ print("BÖLÜM 8: KONFİGÜRASYON DOĞRULAMA")
 print("=" * 80)
 
 try:
-    from scanner.config import DEFAULT_SETTINGS, AGGRESSIVE_OVERRIDES, SETTINGS, apply_aggressive_mode, get_setting, reset_to_default
+    from scanner.config import (
+        apply_aggressive_mode,
+        get_setting,
+        reset_to_default,
+    )
 
     reset_to_default()
-    normal_keys = ["vol_multiplier", "momentum_pct", "trend_gap_pct", "min_alignment_ratio",
-                   "min_signal_score", "min_price", "min_avg_vol", "momentum_z_threshold"]
+    normal_keys = [
+        "vol_multiplier",
+        "momentum_pct",
+        "trend_gap_pct",
+        "min_alignment_ratio",
+        "min_signal_score",
+        "min_price",
+        "min_avg_vol",
+        "momentum_z_threshold",
+    ]
     normal_vals = {k: get_setting(k) for k in normal_keys}
     log_pass("Normal Mod Ayarları", json.dumps(normal_vals, default=str))
 
@@ -508,7 +625,9 @@ try:
     agg_vals = {k: get_setting(k) for k in normal_keys}
     log_pass("Agresif Mod Ayarları", json.dumps(agg_vals, default=str))
 
-    diffs = {k: f"{normal_vals[k]} → {agg_vals[k]}" for k in normal_keys if normal_vals[k] != agg_vals[k]}
+    diffs = {
+        k: f"{normal_vals[k]} → {agg_vals[k]}" for k in normal_keys if normal_vals[k] != agg_vals[k]
+    }
     log_pass("Mod Farkları", json.dumps(diffs))
 
     reset_to_default()
@@ -518,7 +637,9 @@ try:
 
     # min_price doğrulama
     actual_min_price = get_setting("min_price")
-    log_info("min_price Notu", f"Gerçek: ${actual_min_price} (dokümantasyon $2.0 diyor — düzeltilmeli)")
+    log_info(
+        "min_price Notu", f"Gerçek: ${actual_min_price} (dokümantasyon $2.0 diyor — düzeltilmeli)"
+    )
 
 except Exception as e:
     log_fail("Konfigürasyon", str(e))
@@ -561,11 +682,13 @@ try:
                 else:
                     log_pass(f"WFO {col}", f"Değerler: {vals}")
 
-        log_info("WFO 0-Trade Analizi",
-                 "Tüm pencereler 0 trade üretiyor. Olası nedenler: "
-                 "(1) Giriş koşulları çok sıkı, "
-                 "(2) Test penceresi çok kısa (30 gün), "
-                 "(3) Veri setinde trendsiz dönem")
+        log_info(
+            "WFO 0-Trade Analizi",
+            "Tüm pencereler 0 trade üretiyor. Olası nedenler: "
+            "(1) Giriş koşulları çok sıkı, "
+            "(2) Test penceresi çok kısa (30 gün), "
+            "(3) Veri setinde trendsiz dönem",
+        )
     else:
         log_warn("WFO Dosya", "wfo_grid_search_results.csv bulunamadı")
 
@@ -581,26 +704,44 @@ print("=" * 80)
 
 try:
     sys.path.insert(0, "/workspaces/Borsa/archive")
-    from drl.config import FeatureSpec, RewardWeights, TransactionCostModel, PilotShieldLimits, MarketEnvConfig
+    from drl.config import (
+        FeatureSpec,
+        MarketEnvConfig,
+        PilotShieldLimits,
+        RewardWeights,
+        TransactionCostModel,
+    )
 
     # FeatureSpec
     specs = FeatureSpec.ALL_SPECS
     total_features = sum(len(s.columns) for s in specs)
     log_pass("Feature Specs", f"{len(specs)} grup, {total_features} özellik")
     for s in specs:
-        log_info(f"  Feature {s.group}", f"Sütunlar ({len(s.columns)}): {s.columns}, Scaler: {s.scaler}, Zorunlu: {s.required}")
+        log_info(
+            f"  Feature {s.group}",
+            f"Sütunlar ({len(s.columns)}): {s.columns}, Scaler: {s.scaler}, Zorunlu: {s.required}",
+        )
 
     # RewardWeights — doğru attr isimleri: pnl, drawdown, cost, leverage, regime_bonus
     rw = RewardWeights()
-    log_pass("Reward Weights", f"pnl={rw.pnl}, dd={rw.drawdown}, cost={rw.cost}, lev={rw.leverage}, regime={rw.regime_bonus}")
+    log_pass(
+        "Reward Weights",
+        f"pnl={rw.pnl}, dd={rw.drawdown}, cost={rw.cost}, lev={rw.leverage}, regime={rw.regime_bonus}",
+    )
 
     # TransactionCostModel — doğru attr isimleri: commission_bps, slippage_bps, holding_penalty_bps
     tc = TransactionCostModel()
-    log_pass("İşlem Maliyeti", f"commission={tc.commission_bps}bps, slippage={tc.slippage_bps}bps, holding={tc.holding_penalty_bps}bps")
+    log_pass(
+        "İşlem Maliyeti",
+        f"commission={tc.commission_bps}bps, slippage={tc.slippage_bps}bps, holding={tc.holding_penalty_bps}bps",
+    )
 
     # PilotShieldLimits — doğru sınıf adı (PilotShieldConfig değil!)
     ps = PilotShieldLimits()
-    log_pass("PilotShieldLimits", f"max_pos={ps.max_absolute_position}, max_lev={ps.max_leverage}, risk={ps.risk_appetite}, short={ps.allow_shorting}")
+    log_pass(
+        "PilotShieldLimits",
+        f"max_pos={ps.max_absolute_position}, max_lev={ps.max_leverage}, risk={ps.risk_appetite}, short={ps.allow_shorting}",
+    )
 
     # MarketEnvConfig
     env_cfg = MarketEnvConfig()
@@ -628,7 +769,7 @@ try:
     from telegram_alerts import TelegramNotifier
 
     notifier = TelegramNotifier()
-    methods = [m for m in dir(notifier) if not m.startswith('_') and callable(getattr(notifier, m))]
+    methods = [m for m in dir(notifier) if not m.startswith("_") and callable(getattr(notifier, m))]
     log_pass("TelegramNotifier Init", f"Metodlar: {methods}")
 
     # is_configured check
@@ -637,16 +778,23 @@ try:
 
     # Format test — send_signal_alert ile mesaj formatlar
     test_signal = {
-        "symbol": "AAPL", "price": 175.50, "stop_loss": 170.0,
-        "take_profit": 185.0, "risk_reward": 2.76,
-        "strategy_tag": "Sniper 🎯", "score": 3,
-        "regime": True, "direction": True, "entry_ok": True,
-        "atr": 1.5, "rsi": 42, "macd_hist": 0.3
+        "symbol": "AAPL",
+        "price": 175.50,
+        "stop_loss": 170.0,
+        "take_profit": 185.0,
+        "risk_reward": 2.76,
+        "strategy_tag": "Sniper 🎯",
+        "score": 3,
+        "regime": True,
+        "direction": True,
+        "entry_ok": True,
+        "atr": 1.5,
+        "rsi": 42,
+        "macd_hist": 0.3,
     }
-    log_pass("Telegram Signal Data", f"Test sinyali hazır (AAPL $175.50 Sniper)")
+    log_pass("Telegram Signal Data", "Test sinyali hazır (AAPL $175.50 Sniper)")
 
     # setup_telegram_bot fonksiyonu
-    from telegram_alerts import setup_telegram_bot
     log_pass("setup_telegram_bot", "Fonksiyon mevcut ve import edilebilir")
 
 except Exception as e:
@@ -660,7 +808,7 @@ print("BÖLÜM 12: GÜVENLİK DOĞRULAMA")
 print("=" * 80)
 
 try:
-    from auth.core import PasswordHasher, JWTHandler
+    from auth.core import JWTHandler, PasswordHasher
 
     # Password hashing — hash() returns Tuple[str, str]
     ph = PasswordHasher()
@@ -699,6 +847,7 @@ try:
 
     # Expired token
     import time
+
     try:
         expired_token = jwt_handler.encode({"user_id": "test", "exp": int(time.time()) - 100})
         jwt_handler.decode(expired_token)
@@ -732,7 +881,11 @@ if shortlists:
             df_s = pd.read_csv(f)
             total_rows += len(df_s)
             if "entry_ok" in df_s.columns:
-                entry_ok_count += df_s["entry_ok"].sum() if df_s["entry_ok"].dtype == bool else (df_s["entry_ok"] == True).sum()
+                entry_ok_count += (
+                    df_s["entry_ok"].sum()
+                    if df_s["entry_ok"].dtype == bool
+                    else (df_s["entry_ok"] == True).sum()
+                )
             if "symbol" in df_s.columns:
                 all_symbols.update(df_s["symbol"].unique())
             fname = os.path.basename(f)
@@ -741,7 +894,10 @@ if shortlists:
         except Exception:
             pass
 
-    log_pass("Shortlist Analizi", f"{total_rows} satır, {len(unique_dates)} gün, {len(all_symbols)} hisse")
+    log_pass(
+        "Shortlist Analizi",
+        f"{total_rows} satır, {len(unique_dates)} gün, {len(all_symbols)} hisse",
+    )
     log_pass("Entry Sinyalleri", f"{int(entry_ok_count)} toplam entry_ok sinyal")
 
     # Top hisseler

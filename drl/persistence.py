@@ -14,11 +14,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional, Sequence, Union
+from typing import Any
 
-from .config import FeatureSpec, MarketEnvConfig
+from .config import FeatureSpec
 from .feature_pipeline import FeaturePipeline, ScalerStats
 
 _ARTIFACT_VERSION = "1.0.0"
@@ -34,7 +35,7 @@ class FeaturePipelineArtifact:
     feature_specs: Sequence[Mapping[str, Any]]
     scaler_stats: ScalerStats
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "artifact_version": self.artifact_version,
             "feature_signature": self.feature_signature,
@@ -96,7 +97,7 @@ def build_artifact(pipeline: FeaturePipeline) -> FeaturePipelineArtifact:
     )
 
 
-def save_artifact(artifact: FeaturePipelineArtifact, destination: Union[str, Path]) -> Path:
+def save_artifact(artifact: FeaturePipelineArtifact, destination: str | Path) -> Path:
     """Persist the artefact as a JSON file on disk."""
 
     path = Path(destination)
@@ -106,7 +107,7 @@ def save_artifact(artifact: FeaturePipelineArtifact, destination: Union[str, Pat
     return path
 
 
-def load_artifact(source: Union[str, Path]) -> FeaturePipelineArtifact:
+def load_artifact(source: str | Path) -> FeaturePipelineArtifact:
     """Load a previously saved artefact from disk."""
 
     path = Path(source)

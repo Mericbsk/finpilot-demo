@@ -21,8 +21,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 import re
-from datetime import datetime
-from typing import Any, List, Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -55,7 +54,7 @@ class TickerSymbol(BaseModel):
         pattern = r"^[A-Z0-9][A-Z0-9.\-]{0,9}$"
         if not re.match(pattern, v):
             raise ValueError(
-                f"Invalid symbol format: {v}. " "Use letters, numbers, dots, or hyphens only."
+                f"Invalid symbol format: {v}. Use letters, numbers, dots, or hyphens only."
             )
 
         return v
@@ -64,11 +63,11 @@ class TickerSymbol(BaseModel):
 class TickerList(BaseModel):
     """Validated list of ticker symbols."""
 
-    symbols: List[str] = Field(..., min_length=1, max_length=500)
+    symbols: list[str] = Field(..., min_length=1, max_length=500)
 
     @field_validator("symbols")
     @classmethod
-    def validate_symbols(cls, v: List[str]) -> List[str]:
+    def validate_symbols(cls, v: list[str]) -> list[str]:
         """Validate and normalize all symbols."""
         validated = []
         for symbol in v:
@@ -99,7 +98,7 @@ class ScanRequest(BaseModel):
 
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    symbols: Optional[List[str]] = Field(
+    symbols: list[str] | None = Field(
         default=None, description="List of symbols to scan. If None, uses default list."
     )
 
@@ -121,7 +120,7 @@ class ScanRequest(BaseModel):
 
     @field_validator("symbols")
     @classmethod
-    def validate_symbols(cls, v: Optional[List[str]]) -> Optional[List[str]]:
+    def validate_symbols(cls, v: list[str] | None) -> list[str] | None:
         if v is None:
             return None
 
@@ -179,7 +178,7 @@ class UserSettingsInput(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def check_telegram_config(self) -> "UserSettingsInput":
+    def check_telegram_config(self) -> UserSettingsInput:
         """Ensure Telegram ID is set if active."""
         if self.telegram_active and not self.telegram_id:
             raise ValueError("Telegram ID required when notifications are active")
@@ -223,7 +222,7 @@ class RegisterRequest(BaseModel):
     username: str = Field(..., min_length=3, max_length=30)
     password: str = Field(..., min_length=8, max_length=128)
     confirm_password: str = Field(..., min_length=8, max_length=128)
-    display_name: Optional[str] = Field(default=None, max_length=100)
+    display_name: str | None = Field(default=None, max_length=100)
 
     @field_validator("email")
     @classmethod
@@ -271,7 +270,7 @@ class RegisterRequest(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def check_passwords_match(self) -> "RegisterRequest":
+    def check_passwords_match(self) -> RegisterRequest:
         if self.password != self.confirm_password:
             raise ValueError("Passwords do not match")
         return self
@@ -290,7 +289,7 @@ class PriceTarget(BaseModel):
     take_profit: float = Field(..., gt=0)
 
     @model_validator(mode="after")
-    def validate_price_logic(self) -> "PriceTarget":
+    def validate_price_logic(self) -> PriceTarget:
         """Ensure price targets make sense."""
         # For long positions: SL < Entry < TP
         if self.stop_loss >= self.entry_price:
@@ -343,14 +342,14 @@ class SignalFilter(BaseModel):
     min_rsi: float = Field(default=0, ge=0, le=100)
     max_rsi: float = Field(default=100, ge=0, le=100)
 
-    min_volume: Optional[int] = Field(default=None, ge=0)
+    min_volume: int | None = Field(default=None, ge=0)
 
     entry_ok_only: bool = Field(default=False)
 
-    sectors: Optional[List[str]] = Field(default=None)
+    sectors: list[str] | None = Field(default=None)
 
     @model_validator(mode="after")
-    def validate_ranges(self) -> "SignalFilter":
+    def validate_ranges(self) -> SignalFilter:
         if self.min_score > self.max_score:
             raise ValueError("min_score cannot be greater than max_score")
 

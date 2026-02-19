@@ -8,13 +8,13 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import sqlite3
 from abc import ABC, abstractmethod
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional, Type, TypeVar
+from typing import Any, TypeVar
 
 from .core import Session, User, UserRole
 
@@ -221,7 +221,7 @@ class BaseRepository(ABC):
         self.db = db
 
     @abstractmethod
-    def get_by_id(self, id: str) -> Optional[Any]:  # noqa: A002
+    def get_by_id(self, id: str) -> Any | None:  # noqa: A002
         ...
 
     @abstractmethod
@@ -235,7 +235,7 @@ class BaseRepository(ABC):
 class UserRepository(BaseRepository):
     """Repository for User entities."""
 
-    def get_by_id(self, id: str) -> Optional[User]:  # noqa: A002
+    def get_by_id(self, id: str) -> User | None:  # noqa: A002
         """Get user by ID."""
         with self.db.connection() as conn:
             row = conn.execute("SELECT * FROM users WHERE id = ?", (id,)).fetchone()
@@ -244,7 +244,7 @@ class UserRepository(BaseRepository):
                 return self._row_to_user(row)
         return None
 
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(self, email: str) -> User | None:
         """Get user by email."""
         with self.db.connection() as conn:
             row = conn.execute("SELECT * FROM users WHERE email = ?", (email.lower(),)).fetchone()
@@ -253,7 +253,7 @@ class UserRepository(BaseRepository):
                 return self._row_to_user(row)
         return None
 
-    def get_by_username(self, username: str) -> Optional[User]:
+    def get_by_username(self, username: str) -> User | None:
         """Get user by username."""
         with self.db.connection() as conn:
             row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
@@ -299,7 +299,7 @@ class UserRepository(BaseRepository):
             cursor = conn.execute("DELETE FROM users WHERE id = ?", (id,))
             return cursor.rowcount > 0
 
-    def list_all(self, limit: int = 100, offset: int = 0) -> List[User]:
+    def list_all(self, limit: int = 100, offset: int = 0) -> list[User]:
         """List all users."""
         with self.db.connection() as conn:
             rows = conn.execute(
@@ -334,7 +334,7 @@ class UserRepository(BaseRepository):
 class SessionRepository(BaseRepository):
     """Repository for Session entities."""
 
-    def get_by_id(self, id: str) -> Optional[Session]:  # noqa: A002
+    def get_by_id(self, id: str) -> Session | None:  # noqa: A002
         """Get session by ID."""
         with self.db.connection() as conn:
             row = conn.execute(
@@ -345,7 +345,7 @@ class SessionRepository(BaseRepository):
                 return self._row_to_session(row)
         return None
 
-    def get_by_token(self, access_token: str) -> Optional[Session]:
+    def get_by_token(self, access_token: str) -> Session | None:
         """Get session by access token."""
         with self.db.connection() as conn:
             row = conn.execute(
@@ -356,7 +356,7 @@ class SessionRepository(BaseRepository):
                 return self._row_to_session(row)
         return None
 
-    def get_user_sessions(self, user_id: str) -> List[Session]:
+    def get_user_sessions(self, user_id: str) -> list[Session]:
         """Get all active sessions for a user."""
         with self.db.connection() as conn:
             rows = conn.execute(
@@ -431,7 +431,7 @@ class SessionRepository(BaseRepository):
 class PortfolioRepository(BaseRepository):
     """Repository for Portfolio data."""
 
-    def get_by_id(self, id: str) -> Optional[Dict[str, Any]]:  # noqa: A002
+    def get_by_id(self, id: str) -> dict[str, Any] | None:  # noqa: A002
         """Get portfolio by ID."""
         with self.db.connection() as conn:
             row = conn.execute("SELECT * FROM portfolios WHERE id = ?", (id,)).fetchone()
@@ -440,7 +440,7 @@ class PortfolioRepository(BaseRepository):
                 return self._row_to_dict(row)
         return None
 
-    def get_by_user(self, user_id: str) -> Optional[Dict[str, Any]]:
+    def get_by_user(self, user_id: str) -> dict[str, Any] | None:
         """Get portfolio for a user."""
         with self.db.connection() as conn:
             row = conn.execute("SELECT * FROM portfolios WHERE user_id = ?", (user_id,)).fetchone()
@@ -451,7 +451,7 @@ class PortfolioRepository(BaseRepository):
                 return portfolio
         return None
 
-    def _get_positions(self, conn: sqlite3.Connection, portfolio_id: str) -> List[Dict]:
+    def _get_positions(self, conn: sqlite3.Connection, portfolio_id: str) -> list[dict]:
         """Get positions for a portfolio."""
         rows = conn.execute(
             "SELECT * FROM positions WHERE portfolio_id = ?", (portfolio_id,)
@@ -459,7 +459,7 @@ class PortfolioRepository(BaseRepository):
 
         return [dict(row) for row in rows]
 
-    def save(self, entity: Dict[str, Any], *args: Any) -> None:  # type: ignore[override]
+    def save(self, entity: dict[str, Any], *args: Any) -> None:  # type: ignore[override]
         """Save portfolio."""
         portfolio = entity
         with self.db.connection() as conn:
@@ -506,7 +506,7 @@ class PortfolioRepository(BaseRepository):
             cursor = conn.execute("DELETE FROM portfolios WHERE id = ?", (portfolio_id,))
             return cursor.rowcount > 0
 
-    def add_trade(self, trade: Dict[str, Any]) -> None:
+    def add_trade(self, trade: dict[str, Any]) -> None:
         """Record a trade."""
         with self.db.connection() as conn:
             conn.execute(
@@ -530,8 +530,8 @@ class PortfolioRepository(BaseRepository):
             )
 
     def get_trades(
-        self, portfolio_id: str, symbol: Optional[str] = None, limit: int = 100
-    ) -> List[Dict]:
+        self, portfolio_id: str, symbol: str | None = None, limit: int = 100
+    ) -> list[dict]:
         """Get trades for a portfolio."""
         with self.db.connection() as conn:
             if symbol:
@@ -547,14 +547,14 @@ class PortfolioRepository(BaseRepository):
 
             return [dict(row) for row in rows]
 
-    def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:
+    def _row_to_dict(self, row: sqlite3.Row) -> dict[str, Any]:
         return dict(row)
 
 
 class SettingsRepository(BaseRepository):
     """Repository for user settings."""
 
-    def get_by_id(self, id: str) -> Optional[Dict[str, Any]]:  # noqa: A002
+    def get_by_id(self, id: str) -> dict[str, Any] | None:  # noqa: A002
         """Get settings for a user."""
         user_id = id
         with self.db.connection() as conn:
@@ -566,7 +566,7 @@ class SettingsRepository(BaseRepository):
                 return json.loads(row["settings_json"])
         return None
 
-    def save(self, entity: Dict[str, Any], *args: Any) -> None:  # type: ignore[override]
+    def save(self, entity: dict[str, Any], *args: Any) -> None:  # type: ignore[override]
         """Save user settings."""
         # entity is the settings dict, args[0] is user_id if provided
         if args:
@@ -592,7 +592,7 @@ class SettingsRepository(BaseRepository):
             cursor = conn.execute("DELETE FROM user_settings WHERE user_id = ?", (user_id,))
             return cursor.rowcount > 0
 
-    def update(self, user_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+    def update(self, user_id: str, updates: dict[str, Any]) -> dict[str, Any]:
         """Update specific settings (merge with existing)."""
         current = self.get_by_id(user_id) or {}
         current.update(updates)
@@ -604,7 +604,7 @@ class SettingsRepository(BaseRepository):
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
-_default_db: Optional[Database] = None
+_default_db: Database | None = None
 
 
 def get_database(db_path: str = "data/finpilot.db") -> Database:

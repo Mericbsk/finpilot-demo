@@ -1,18 +1,10 @@
-# -*- coding: utf-8 -*-
 """
 Tests for Plugin Architecture
 """
-from pathlib import Path
-from tempfile import TemporaryDirectory
-
-import pytest
 
 from core.plugins import (
     BuiltinHooks,
-    DataSourcePlugin,
     HookPriority,
-    HookRegistration,
-    IndicatorPlugin,
     Plugin,
     PluginInfo,
     PluginManager,

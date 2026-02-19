@@ -10,12 +10,11 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from typing import Iterable, List, Optional, Sequence
 
 import numpy as np
 import pandas as pd
-
 from drl.config import DEFAULT_CONFIG, MarketEnvConfig
 from drl.feature_pipeline import FeatureFrame
 from drl.market_env import EpisodeData
@@ -116,7 +115,7 @@ def _episode_from_slice(df: pd.DataFrame, config: MarketEnvConfig) -> EpisodeDat
 # ----------------------------------------------------------------------
 def _create_splits(
     df: pd.DataFrame, config: MarketEnvConfig, n_splits: int
-) -> List[WalkForwardSplit]:
+) -> list[WalkForwardSplit]:
     """Partition the dataframe into sequential walk-forward windows."""
 
     if n_splits < 1:
@@ -125,7 +124,7 @@ def _create_splits(
     if window < 2:
         raise ValueError("Dataset too small for requested number of splits")
 
-    splits: List[WalkForwardSplit] = []
+    splits: list[WalkForwardSplit] = []
     for i in range(n_splits):
         start = i * window
         mid = (i + 1) * window
@@ -172,19 +171,19 @@ def run_demo_training(
     n_splits: int = 3,
     total_timesteps: int = 25_000,
     algorithm: str = "PPO",
-    seed: Optional[int] = 42,
+    seed: int | None = 42,
     synthetic_length: int = 1024,
     regime_period: int = 60,
     track_mlflow: bool = False,
     mlflow_experiment: str = "FinPilot-DRL",
     save_pipeline_artifacts: bool = False,
-    pipeline_artifact_dir: Optional[str] = None,
-    load_pipeline_artifact: Optional[str] = None,
+    pipeline_artifact_dir: str | None = None,
+    load_pipeline_artifact: str | None = None,
     allow_pipeline_mismatch: bool = False,
     enable_prometheus: bool = False,
     prometheus_host: str = "0.0.0.0",
     prometheus_port: int = 9000,
-) -> List[TrainResult]:
+) -> list[TrainResult]:
     """Execute a demo training loop on synthetic data."""
 
     if seed is not None:
@@ -220,7 +219,7 @@ def run_demo_training(
     return trainer.train(splits)
 
 
-def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """Build the CLI argument parser."""
 
     parser = argparse.ArgumentParser(description="Run the FinPilot DRL demo trainer")
@@ -289,7 +288,7 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     """CLI entrypoint used by ``python -m ml_agent``."""
 
     args = parse_args(argv)

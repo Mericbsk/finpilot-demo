@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-
 from drl.feature_generators import (
     WeightedSentimentConfig,
     assemble_feature_frame,

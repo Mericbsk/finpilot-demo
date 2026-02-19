@@ -9,7 +9,6 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
@@ -17,7 +16,6 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.prometheus_exporter import (
-    MetricsHandler,
     MetricsServer,
     PrometheusExporter,
     get_metrics_output,

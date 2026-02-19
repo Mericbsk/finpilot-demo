@@ -3,7 +3,13 @@ import os
 
 import streamlit as st
 
-SETTINGS_FILE = "user_settings.json"
+# Merkezi config'den import — B2 konsolidasyon
+try:
+    from core.config import DATA_DIR
+
+    SETTINGS_FILE = str(DATA_DIR.parent / "user_settings.json")
+except ImportError:
+    SETTINGS_FILE = "user_settings.json"
 
 DEFAULT_SETTINGS = {
     "risk_score": 5,
@@ -21,7 +27,7 @@ DEFAULT_SETTINGS = {
 def load_settings():
     if os.path.exists(SETTINGS_FILE):
         try:
-            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+            with open(SETTINGS_FILE, encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             return DEFAULT_SETTINGS

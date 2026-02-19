@@ -13,9 +13,10 @@ import argparse
 import json
 import logging
 import os
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -24,22 +25,15 @@ logger = logging.getLogger(__name__)
 
 # Import from modular scanner package
 from scanner import (  # Parallel fetching (Faz 2 Performance)
-    AGGRESSIVE_OVERRIDES,
-    DEFAULT_SETTINGS,
-    SETTINGS,
-    add_indicators,
     analyze_price_momentum,
-    atr,
     build_explanation,
     build_reason,
     check_momentum_confluence,
-    check_price_momentum,
     check_timeframe_alignment,
     check_trend_strength,
     check_volume_spike,
     compute_recommendation_score,
     compute_recommendation_strength,
-    fetch,
     fetch_multi_timeframe,
     get_market_regime_status,
     load_symbols,
@@ -48,19 +42,36 @@ from scanner import (  # Parallel fetching (Faz 2 Performance)
 from scanner.config import apply_aggressive_mode, get_setting, reset_to_default
 from scanner.signals import safe_float
 
-# --- USER SETTINGS ---
+# --- USER SETTINGS (delegated to core.config) ---
 SETTINGS_FILE = "user_settings.json"
-USER_DEFAULT_SETTINGS = {
-    "risk_score": 5,
-    "portfolio_size": 10000,
-    "max_loss_pct": 10,
-    "strategy": "Normal",
-    "market": "BIST",
-    "telegram_active": False,
-    "telegram_id": "",
-    "timeframe": "Günlük",
-    "indicators": {"ema": True, "rsi": False, "atr": True},
-}
+
+# Import centralized defaults if available — B2 konsolidasyon
+try:
+    from core.config import settings as _app_settings
+
+    USER_DEFAULT_SETTINGS = {
+        "risk_score": _app_settings.scanner.signal_threshold,
+        "portfolio_size": int(_app_settings.drl.initial_balance),
+        "max_loss_pct": 10,
+        "strategy": "Normal",
+        "market": "BIST",
+        "telegram_active": _app_settings.telegram.enabled,
+        "telegram_id": _app_settings.TELEGRAM_CHAT_ID,
+        "timeframe": "Günlük",
+        "indicators": {"ema": True, "rsi": False, "atr": True},
+    }
+except ImportError:
+    USER_DEFAULT_SETTINGS = {
+        "risk_score": 5,
+        "portfolio_size": 10000,
+        "max_loss_pct": 10,
+        "strategy": "Normal",
+        "market": "BIST",
+        "telegram_active": False,
+        "telegram_id": "",
+        "timeframe": "Günlük",
+        "indicators": {"ema": True, "rsi": False, "atr": True},
+    }
 
 STRATEGY_PARAMS = {
     "Normal": {"min_score": 1, "rsi_low": 30, "rsi_high": 70},
@@ -73,11 +84,11 @@ STRATEGY_PARAMS = {
 CURRENT_MARKET_STATUS = {"safe": True, "reason": "Varsayılan"}
 
 
-def load_user_settings() -> Dict[str, Any]:
+def load_user_settings() -> dict[str, Any]:
     """Load user settings from JSON file."""
     if os.path.exists(SETTINGS_FILE):
         try:
-            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+            with open(SETTINGS_FILE, encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             return USER_DEFAULT_SETTINGS
@@ -99,7 +110,7 @@ except Exception:
     print("⚠️ Telegram kontrolü sırasında hata. Uyarılar devre dışı.")
 
 
-def calculate_risk_management(price: float, atr_val: float, momentum_score: int) -> Dict[str, Any]:
+def calculate_risk_management(price: float, atr_val: float, momentum_score: int) -> dict[str, Any]:
     """
     Calculate dynamic stop-loss and take-profit levels.
 
@@ -164,8 +175,8 @@ def calculate_risk_management(price: float, atr_val: float, momentum_score: int)
 def evaluate_symbol(
     symbol: str,
     kelly_fraction: float = 0.5,
-    prefetched_data: Optional[Dict[str, pd.DataFrame]] = None,
-) -> Optional[Dict[str, Any]]:
+    prefetched_data: dict[str, pd.DataFrame] | None = None,
+) -> dict[str, Any] | None:
     """
     Comprehensive symbol evaluation with multi-timeframe analysis.
 
@@ -315,9 +326,7 @@ def evaluate_symbol(
         mtf_ok = alignment_ratio >= 0.66
 
         if core_signal:
-            if score == 3:
-                entry_ok = True
-            elif score == 2 and mtf_ok:
+            if score == 3 or score == 2 and mtf_ok:
                 entry_ok = True
             else:
                 entry_ok = False
@@ -440,11 +449,11 @@ def evaluate_symbol(
 
 
 def evaluate_symbols_parallel(
-    symbols: List[str],
+    symbols: list[str],
     kelly_fraction: float = 0.5,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
+    progress_callback: Callable[[int, int], None] | None = None,
     use_prefetch: bool = True,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Evaluate multiple symbols in parallel with optimized data fetching.
 
@@ -619,7 +628,7 @@ def main():
             entry_text = "Evet" if rec_typed.get("entry_ok") else "Hayır"
             print(
                 f"{i}. {rec_typed.get('symbol')} | Fiyat: ${rec_typed.get('price')} | "
-                f"Skor: {rec_typed.get('recommendation_score'):.2f} ({int(rec_typed.get('strength',0))}/100) | "
+                f"Skor: {rec_typed.get('recommendation_score'):.2f} ({int(rec_typed.get('strength', 0))}/100) | "
                 f"Entry: {entry_text}"
             )
             print(f"   -> {why}")

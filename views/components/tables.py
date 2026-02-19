@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Tables
 ===============
@@ -80,7 +79,7 @@ def render_buyable_table(df: pd.DataFrame) -> None:
                     </tr>
                 </thead>
                 <tbody>
-                    {''.join(rows_html)}
+                    {"".join(rows_html)}
                 </tbody>
             </table>
         </div>

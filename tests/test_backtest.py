@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
 """
 Tests for Backtesting Engine
 """
-from datetime import datetime, timedelta
+
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import pytest
-
 from core.backtest import (
     Backtest,
     BacktestConfig,

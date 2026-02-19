@@ -1,12 +1,10 @@
 import logging
 
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 import yfinance as yf
 
-from views.components.stock_presets import STOCK_PRESETS
 from views.translations import ACADEMY_TERMS, DEFAULT_TERM, STOCK_INSIGHTS, TRANSLATIONS
 
 # Configure logger
@@ -589,8 +587,8 @@ def render_demo_page(standalone=False):
             st.markdown(
                 f"""
             <div style="background-color: rgba(0, 230, 230, 0.05); padding: 15px; border-radius: 10px; border-left: 5px solid #00e6e6; margin-bottom: 15px;">
-                <strong style="color: #00e6e6; font-size: 1.1em;">🤖 {t['main_scenario']}:</strong><br>
-                <span style="color: #cbd5f5;">{insight['summary']}</span>
+                <strong style="color: #00e6e6; font-size: 1.1em;">🤖 {t["main_scenario"]}:</strong><br>
+                <span style="color: #cbd5f5;">{insight["summary"]}</span>
             </div>
             """,
                 unsafe_allow_html=True,
@@ -627,7 +625,9 @@ def render_demo_page(standalone=False):
                 rsi_signal = (
                     t["sig_overbought"]
                     if rsi_val > 70
-                    else t["sig_oversold"] if rsi_val < 30 else t["sig_neutral"]
+                    else t["sig_oversold"]
+                    if rsi_val < 30
+                    else t["sig_neutral"]
                 )
                 sma_signal = t["sig_trend_pos"] if price_val > sma50_val else t["sig_trend_neg"]
 
@@ -666,20 +666,20 @@ def render_demo_page(standalone=False):
         st.markdown(
             f"""
         <div style='background-color: rgba(30, 41, 59, 0.8); padding: 20px; border-radius: 15px; border: 1px solid #334155;'>
-            <h2 style='color: #00e6e6; margin-top:0;'>{selected_data[t['col_signal']]}</h2>
-            <div style='font-size: 4em; font-weight: bold; color: #f8fafc;'>{selected_data[t['col_score']]}</div>
-            <div style='color: #94a3b8;'>/ 100 {t['col_score']}</div>
+            <h2 style='color: #00e6e6; margin-top:0;'>{selected_data[t["col_signal"]]}</h2>
+            <div style='font-size: 4em; font-weight: bold; color: #f8fafc;'>{selected_data[t["col_score"]]}</div>
+            <div style='color: #94a3b8;'>/ 100 {t["col_score"]}</div>
             <hr style='border-color: #475569;'>
             <div style='margin-bottom: 10px;'>
-                <span style='color: #cbd5f5;'>🎯 {t['target_price']}:</span>
+                <span style='color: #cbd5f5;'>🎯 {t["target_price"]}:</span>
                 <span style='float: right; color: #4ade80; font-weight: bold;'>${(price_val * 1.15):.2f}</span>
             </div>
             <div style='margin-bottom: 10px;'>
-                <span style='color: #cbd5f5;'>🛡️ {t['stop_loss']}:</span>
+                <span style='color: #cbd5f5;'>🛡️ {t["stop_loss"]}:</span>
                 <span style='float: right; color: #f87171; font-weight: bold;'>${(price_val * 0.95):.2f}</span>
             </div>
             <div style='margin-top: 20px;'>
-                <button style='width: 100%; background-color: #00e6e6; color: #0f172a; border: none; padding: 10px; border-radius: 5px; font-weight: bold;'>{t['copy_plan']}</button>
+                <button style='width: 100%; background-color: #00e6e6; color: #0f172a; border: none; padding: 10px; border-radius: 5px; font-weight: bold;'>{t["copy_plan"]}</button>
             </div>
         </div>
         """,
@@ -706,8 +706,8 @@ def render_demo_page(standalone=False):
             st.markdown(
                 f"""
             <div style="background-color: #0f172a; padding: 20px; border-radius: 10px; border: 1px solid #334155; height: 100%;">
-                <h3 style="color: #00e6e6; margin-top: 0;">📚 {term_data['term']}</h3>
-                <p style="color: #cbd5f5;">{term_data['desc']}</p>
+                <h3 style="color: #00e6e6; margin-top: 0;">📚 {term_data["term"]}</h3>
+                <p style="color: #cbd5f5;">{term_data["desc"]}</p>
             </div>
             """,
                 unsafe_allow_html=True,
@@ -723,13 +723,13 @@ def render_demo_page(standalone=False):
         st.markdown(
             f"""
         <div style='background: linear-gradient(90deg, rgba(15,23,42,1) 0%, rgba(30,41,59,1) 100%); padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #334155;'>
-            <h2 style='color: #f8fafc;'>{t['cta_title']}</h2>
+            <h2 style='color: #f8fafc;'>{t["cta_title"]}</h2>
             <p style='color: #cbd5f5; font-size: 1.1em; max-width: 600px; margin: 0 auto 20px auto;'>
-                {t['cta_desc']}
+                {t["cta_desc"]}
             </p>
             <div style='display: flex; justify-content: center; gap: 20px;'>
-                <button style='background-color: #00e6e6; color: #0f172a; border: none; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t['btn_start']}</button>
-                <button style='background-color: transparent; color: #00e6e6; border: 2px solid #00e6e6; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t['btn_explore']}</button>
+                <button style='background-color: #00e6e6; color: #0f172a; border: none; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t["btn_start"]}</button>
+                <button style='background-color: transparent; color: #00e6e6; border: 2px solid #00e6e6; padding: 12px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; font-weight: bold;'>{t["btn_explore"]}</button>
             </div>
         </div>
         """,

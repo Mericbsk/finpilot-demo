@@ -12,7 +12,6 @@ from __future__ import annotations
 import sys
 import time
 import traceback
-from dataclasses import replace
 
 import numpy as np
 import pandas as pd
@@ -38,49 +37,55 @@ def make_synthetic_df(length: int = 512, seed: int = 42) -> pd.DataFrame:
     idx = pd.date_range("2024-01-01", periods=length, freq="h")
     close = 100 + np.cumsum(rng.randn(length) * 0.5)
     close = np.maximum(close, 10)  # keep positive
-    df = pd.DataFrame({
-        "close": close,
-        "ema_20": pd.Series(close).ewm(span=20).mean().values,
-        "ema_50": pd.Series(close).ewm(span=50).mean().values,
-        "ema_200": pd.Series(close).ewm(span=200).mean().values,
-        "rsi": np.clip(50 + rng.randn(length) * 15, 5, 95),
-        "macd": rng.randn(length) * 0.5,
-        "macd_signal": rng.randn(length) * 0.3,
-        "macd_hist": rng.randn(length) * 0.2,
-        "atr": np.abs(rng.randn(length)) + 0.5,
-        "bb_upper": close + np.abs(rng.randn(length)) * 2 + 1,
-        "bb_lower": close - np.abs(rng.randn(length)) * 2 - 1,
-        "volume": 1_000_000 + rng.randint(0, 500_000, length).astype(float),
-        "volume_avg_20": 1_000_000 + rng.randint(0, 200_000, length).astype(float),
-        "regime_trend": rng.uniform(0.0, 1.0, length),
-        "regime_range": rng.uniform(0.0, 1.0, length),
-        "regime_volatility": rng.uniform(0.0, 1.0, length),
-        "sentiment_score": rng.uniform(-1, 1, length),
-        "news_sentiment": rng.uniform(-1, 1, length),
-        "onchain_active_addresses": rng.uniform(10, 100, length),
-        "onchain_tx_volume": rng.uniform(100, 1000, length),
-        "cash_ratio": rng.uniform(0.3, 0.8, length),
-        "position_ratio": rng.uniform(-0.3, 0.3, length),
-        "open_risk": rng.uniform(0.01, 0.2, length),
-        "kelly_fraction": rng.uniform(0.1, 0.5, length),
-    }, index=idx)
+    df = pd.DataFrame(
+        {
+            "close": close,
+            "ema_20": pd.Series(close).ewm(span=20).mean().values,
+            "ema_50": pd.Series(close).ewm(span=50).mean().values,
+            "ema_200": pd.Series(close).ewm(span=200).mean().values,
+            "rsi": np.clip(50 + rng.randn(length) * 15, 5, 95),
+            "macd": rng.randn(length) * 0.5,
+            "macd_signal": rng.randn(length) * 0.3,
+            "macd_hist": rng.randn(length) * 0.2,
+            "atr": np.abs(rng.randn(length)) + 0.5,
+            "bb_upper": close + np.abs(rng.randn(length)) * 2 + 1,
+            "bb_lower": close - np.abs(rng.randn(length)) * 2 - 1,
+            "volume": 1_000_000 + rng.randint(0, 500_000, length).astype(float),
+            "volume_avg_20": 1_000_000 + rng.randint(0, 200_000, length).astype(float),
+            "regime_trend": rng.uniform(0.0, 1.0, length),
+            "regime_range": rng.uniform(0.0, 1.0, length),
+            "regime_volatility": rng.uniform(0.0, 1.0, length),
+            "sentiment_score": rng.uniform(-1, 1, length),
+            "news_sentiment": rng.uniform(-1, 1, length),
+            "onchain_active_addresses": rng.uniform(10, 100, length),
+            "onchain_tx_volume": rng.uniform(100, 1000, length),
+            "cash_ratio": rng.uniform(0.3, 0.8, length),
+            "position_ratio": rng.uniform(-0.3, 0.3, length),
+            "open_risk": rng.uniform(0.01, 0.2, length),
+            "kelly_fraction": rng.uniform(0.1, 0.5, length),
+        },
+        index=idx,
+    )
     return df.bfill().ffill()
 
 
 def make_episode(df: pd.DataFrame):
     from drl.feature_pipeline import FeatureFrame
     from drl.market_env import EpisodeData
+
     return EpisodeData(
         features=FeatureFrame(data=df),
         prices=df["close"],
         regimes=df.get("regime_trend").map(lambda x: "trend" if x > 0.5 else "range")
-        if "regime_trend" in df.columns else None,
+        if "regime_trend" in df.columns
+        else None,
         timestamps=df.index,
     )
 
 
 def make_splits(df: pd.DataFrame, n_splits: int = 2):
     from drl.training import WalkForwardSplit
+
     split_size = len(df) // (n_splits + 1)
     splits = []
     for i in range(n_splits):
@@ -88,17 +93,20 @@ def make_splits(df: pd.DataFrame, n_splits: int = 2):
         test_end = min(train_end + split_size, len(df))
         train_df = df.iloc[:train_end].copy()
         test_df = df.iloc[train_end:test_end].copy()
-        splits.append(WalkForwardSplit(
-            train=make_episode(train_df),
-            test=make_episode(test_df),
-            label=f"split_{i+1}",
-        ))
+        splits.append(
+            WalkForwardSplit(
+                train=make_episode(train_df),
+                test=make_episode(test_df),
+                label=f"split_{i + 1}",
+            )
+        )
     return splits
 
 
 # ============================================================================
 # Test 1: TD3 + A2C Algorithm Support
 # ============================================================================
+
 
 def test_algorithm_support():
     print("\n" + "=" * 60)
@@ -129,7 +137,9 @@ def test_algorithm_support():
             report(
                 f"{algo} eğitimi",
                 has_metrics,
-                f"sharpe={results_list[0].metrics.sharpe_ratio:.4f}" if has_metrics else "metrik yok",
+                f"sharpe={results_list[0].metrics.sharpe_ratio:.4f}"
+                if has_metrics
+                else "metrik yok",
             )
         except Exception as e:
             report(f"{algo} eğitimi", False, str(e)[:80])
@@ -138,6 +148,7 @@ def test_algorithm_support():
 # ============================================================================
 # Test 2: Curriculum Learning Callback
 # ============================================================================
+
 
 def test_curriculum_callback():
     print("\n" + "=" * 60)
@@ -167,8 +178,11 @@ def test_curriculum_callback():
         assert params_easy["cost_multiplier"] < params_hard["cost_multiplier"], (
             "Easy cost should be < hard cost"
         )
-        report("Interpolasyon", True,
-               f"easy_cost={params_easy['cost_multiplier']:.2f} < hard_cost={params_hard['cost_multiplier']:.2f}")
+        report(
+            "Interpolasyon",
+            True,
+            f"easy_cost={params_easy['cost_multiplier']:.2f} < hard_cost={params_hard['cost_multiplier']:.2f}",
+        )
     except Exception as e:
         report("Interpolasyon", False, str(e)[:80])
 
@@ -188,6 +202,7 @@ def test_curriculum_callback():
 
         # Use the callbacks via _create_model
         from drl.feature_pipeline import FeaturePipeline
+
         pipeline = FeaturePipeline(DEFAULT_CONFIG)
         pipeline.fit(splits[0].train.features)
         model = trainer._create_model(pipeline, splits[0].train, callbacks=[curriculum, metrics_cb])
@@ -205,6 +220,7 @@ def test_curriculum_callback():
 # ============================================================================
 # Test 3: Optuna Hyperparameter Search
 # ============================================================================
+
 
 def test_optuna_search():
     print("\n" + "=" * 60)
@@ -272,6 +288,7 @@ def test_optuna_search():
 # ============================================================================
 # Test 4: Multi-Asset Environment
 # ============================================================================
+
 
 def test_multi_asset_env():
     print("\n" + "=" * 60)
@@ -349,8 +366,7 @@ def test_multi_asset_env():
         report(
             "Tam episod",
             steps > 10 and len(history) == steps,
-            f"{steps} adım, toplam_ödül={total_reward:.4f}, "
-            f"son_equity={portfolio.equity:.4f}",
+            f"{steps} adım, toplam_ödül={total_reward:.4f}, son_equity={portfolio.equity:.4f}",
         )
     except Exception as e:
         report("Tam episod", False, str(e)[:80])
@@ -375,6 +391,7 @@ def test_multi_asset_env():
 # ============================================================================
 # Test 5: Cross-Component Integration
 # ============================================================================
+
 
 def test_integration():
     print("\n" + "=" * 60)
@@ -410,10 +427,8 @@ def test_integration():
 
     # Test: Import chain
     try:
-        from drl.callbacks import CurriculumCallback, CurriculumConfig
-        from drl.multi_asset_env import MultiAssetMarketEnv
         from drl.optuna_search import run_optuna_search
-        from drl.training import WalkForwardTrainer
+
         report("Import zincirleri", True, "Tüm modüller yüklendi")
     except Exception as e:
         report("Import zincirleri", False, str(e)[:80])
@@ -422,6 +437,7 @@ def test_integration():
 # ============================================================================
 # MAIN
 # ============================================================================
+
 
 def main():
     print("=" * 60)

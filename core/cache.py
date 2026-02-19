@@ -37,12 +37,13 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, ParamSpec, TypeVar
 
 if TYPE_CHECKING:
-    import redis as redis_lib
+    pass
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -229,7 +230,7 @@ class CacheEntry(Generic[T]):
 
     value: T
     created_at: float
-    ttl: Optional[float] = None
+    ttl: float | None = None
     hits: int = 0
 
     @property
@@ -252,12 +253,12 @@ class CacheBackend(ABC):
     """Cache backend abstract interface."""
 
     @abstractmethod
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Get value from cache."""
         pass
 
     @abstractmethod
-    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in cache."""
         pass
 
@@ -306,7 +307,7 @@ class MemoryCache(CacheBackend):
         self._hits = 0
         self._misses = 0
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         with self._lock:
             if key not in self._cache:
                 self._misses += 1
@@ -327,7 +328,7 @@ class MemoryCache(CacheBackend):
 
             return entry.value
 
-    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         with self._lock:
             # Evict if at capacity
             while len(self._cache) >= self.max_size:
@@ -434,7 +435,7 @@ class RedisCache(CacheBackend):
     def is_connected(self) -> bool:
         return self._enabled and self._client is not None
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         if not self.is_connected or self._client is None:
             return None
         try:
@@ -446,7 +447,7 @@ class RedisCache(CacheBackend):
         except Exception:
             return None
 
-    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         if not self.is_connected or self._client is None:
             return False
         try:
@@ -527,14 +528,14 @@ class CacheManager:
         self,
         memory_max_size: int = 1000,
         memory_ttl: int = 300,
-        redis_url: Optional[str] = None,
+        redis_url: str | None = None,
         redis_ttl: int = 3600,
     ):
         # L1: Memory cache
         self._l1 = MemoryCache(max_size=memory_max_size, default_ttl=memory_ttl)
 
         # L2: Redis cache (optional)
-        self._l2: Optional[RedisCache] = None
+        self._l2: RedisCache | None = None
         if redis_url:
             self._l2 = RedisCache(url=redis_url, default_ttl=redis_ttl)
 
@@ -567,7 +568,7 @@ class CacheManager:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
         l1_only: bool = False,
         l2_only: bool = False,
     ) -> bool:
@@ -612,7 +613,7 @@ class CacheManager:
         self,
         key: str,
         factory: Callable[[], T],
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ) -> T:
         """Get from cache or compute and cache."""
         value = self.get(key)
@@ -679,8 +680,8 @@ def make_cache_key(
 def cached(
     ttl: int = 300,
     prefix: str = "cache",
-    key_builder: Optional[Callable[..., str]] = None,
-    skip_cache_if: Optional[Callable[..., bool]] = None,
+    key_builder: Callable[..., str] | None = None,
+    skip_cache_if: Callable[..., bool] | None = None,
 ) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """
     Cache decorator.
@@ -771,7 +772,7 @@ def cache_api(ttl: int = 60):
 
 # Initialize global cache manager
 # Will be configured with settings when imported
-_cache_manager: Optional[CacheManager] = None
+_cache_manager: CacheManager | None = None
 
 
 def get_cache_manager() -> CacheManager:

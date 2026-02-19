@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Error Messages
 =======================
 Merkezi Türkçe hata mesajları ve kullanıcı dostu uyarılar.
 """
-
-from typing import Optional
 
 import streamlit as st
 

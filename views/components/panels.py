@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Panels
 ===============
@@ -11,9 +10,9 @@ from textwrap import dedent
 from typing import Any
 
 import pandas as pd
+import scanner
 import streamlit as st
 
-import scanner
 from views.components.helpers import format_decimal
 
 
@@ -76,7 +75,7 @@ def render_summary_panel(df: pd.DataFrame, buyable: pd.DataFrame | None = None) 
         <div class='summary-panel'>
             <h4>FinPilot Özet Kartı</h4>
             <ul>
-                {''.join(items)}
+                {"".join(items)}
             </ul>
         </div>
         """
@@ -165,9 +164,7 @@ def render_progress_tracker(
 
     cards_html: list[str] = []
     for idx, step in enumerate(steps):
-        if active_index is None:
-            state = "completed"
-        elif idx < active_index:
+        if active_index is None or idx < active_index:
             state = "completed"
         elif idx == active_index:
             state = "error" if status == "error" else "active"
@@ -193,14 +190,14 @@ def render_progress_tracker(
                 f"""
                 <div class='process-card {state}'>
                     <div class='card-header'>
-                        <span class='card-icon'>{step['icon']}</span>
+                        <span class='card-icon'>{step["icon"]}</span>
                         <div>
-                            <div class='card-title'>{escape(step['title'])}</div>
+                            <div class='card-title'>{escape(step["title"])}</div>
                             <span class='state-tag'>{state_labels[state]}</span>
                         </div>
                     </div>
                     <div class='card-body'>
-                        {''.join(rows)}
+                        {"".join(rows)}
                     </div>
                 </div>
                 """

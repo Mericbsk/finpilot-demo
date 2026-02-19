@@ -1,18 +1,16 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Cards
 ==============
 UI bileşenleri: kart görünümleri.
 """
 
-import datetime
 from html import escape
 from textwrap import dedent
 
 import pandas as pd
+import scanner
 import streamlit as st
 
-import scanner
 from views.components.chips import compose_signal_chips
 from views.components.helpers import (
     build_badge_html,
@@ -107,7 +105,7 @@ def render_buyable_cards(df: pd.DataFrame, limit: int = 6) -> None:
             f"""
             <div class='analysis-card'>
                 <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
-                    <div style='font-size:1.25rem; font-weight:700; letter-spacing:0.04em;'>{data.get('symbol','-')}</div>
+                    <div style='font-size:1.25rem; font-weight:700; letter-spacing:0.04em;'>{data.get("symbol", "-")}</div>
                     <span class='badge {badge_type}'>{badge_label}</span>
                 </div>
                 {chip_row_html}
@@ -326,10 +324,10 @@ def render_signal_history_overview(df: pd.DataFrame, limit: int = 5) -> None:
                         {badge_html}
                     </div>
                     <div style='font-size:0.9rem; color:#e2e8f0;'>
-                        {escape(summary) if summary else 'Özet bulunamadı.'}
+                        {escape(summary) if summary else "Özet bulunamadı."}
                     </div>
                     <div style='font-size:0.78rem; color:rgba(148,163,184,0.8);'>
-                        {escape(reason) if reason else 'Detay bilgisi bulunamadı.'}
+                        {escape(reason) if reason else "Detay bilgisi bulunamadı."}
                     </div>
                     <div style='display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; font-size:0.78rem; color:rgba(148,163,184,0.85);'>
                         <div><span style='display:block; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em;'>Skor</span><span style='font-size:0.95rem; color:#fff; font-weight:600;'>{score_text}</span></div>
@@ -397,19 +395,19 @@ def render_mobile_symbol_cards(df: pd.DataFrame) -> None:
                 <div class='metric-grid'>
                     <div>
                         <div class='metric-label'>Fiyat</div>
-                        <div class='metric-value'>{format_decimal(row_dict.get('price'))}</div>
+                        <div class='metric-value'>{format_decimal(row_dict.get("price"))}</div>
                     </div>
                     <div>
                         <div class='metric-label'>Skor</div>
-                        <div class='metric-value'>{format_decimal(row_dict.get('score'), precision=0)}</div>
+                        <div class='metric-value'>{format_decimal(row_dict.get("score"), precision=0)}</div>
                     </div>
                     <div>
                         <div class='metric-label'>Filtre</div>
-                        <div class='metric-value'>{format_decimal(row_dict.get('filter_score'), precision=0)}</div>
+                        <div class='metric-value'>{format_decimal(row_dict.get("filter_score"), precision=0)}</div>
                     </div>
                     <div>
                         <div class='metric-label'>R/R</div>
-                        <div class='metric-value'>{format_decimal(row_dict.get('risk_reward'))}</div>
+                        <div class='metric-value'>{format_decimal(row_dict.get("risk_reward"))}</div>
                     </div>
                 </div>
                 <div style='font-size:0.78rem; color:rgba(148,163,184,0.75);'>Son güncelleme: {timestamp_display}</div>

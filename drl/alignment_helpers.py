@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Dict, Literal, Mapping, MutableMapping, Optional
+from collections.abc import Mapping, MutableMapping
+from typing import Literal
 
 import pandas as pd
 
@@ -14,8 +15,8 @@ def resample_frame(
     *,
     frequency: str,
     agg: str = "mean",
-    fill_method: Optional[FillMethod] = None,
-    limit: Optional[int] = None,
+    fill_method: FillMethod | None = None,
+    limit: int | None = None,
 ) -> pd.DataFrame:
     """Resample a frame to the requested frequency."""
 
@@ -32,7 +33,7 @@ def resample_frame(
     return resampled
 
 
-def forward_fill(frame: pd.DataFrame, *, limit: Optional[int] = None) -> pd.DataFrame:
+def forward_fill(frame: pd.DataFrame, *, limit: int | None = None) -> pd.DataFrame:
     """Forward fill missing values respecting optional limit."""
 
     if frame.empty:
@@ -45,8 +46,8 @@ def align_frames(
     *,
     frequency: str,
     join: Literal["inner", "outer"] = "outer",
-    fill_method: Optional[FillMethod] = "ffill",
-    fill_limit: Optional[int] = None,
+    fill_method: FillMethod | None = "ffill",
+    fill_limit: int | None = None,
     agg: str = "first",
 ) -> pd.DataFrame:
     """Align multiple frames to a shared frequency and merge columns."""

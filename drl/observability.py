@@ -9,9 +9,10 @@ without hard dependencies.
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping, Optional
+from typing import Any
 
 try:  # pragma: no cover - optional dependency
     import mlflow  # type: ignore
@@ -32,9 +33,9 @@ class MLflowSettings:
     """Configuration block describing how MLflow should be initialised."""
 
     enabled: bool = False
-    tracking_uri: Optional[str] = None
+    tracking_uri: str | None = None
     experiment: str = "FinPilot-DRL"
-    tags: Dict[str, str] = field(default_factory=dict)
+    tags: dict[str, str] = field(default_factory=dict)
 
 
 def configure_mlflow(settings: MLflowSettings) -> bool:
@@ -58,8 +59,8 @@ def mlflow_run(
     settings: MLflowSettings,
     *,
     run_name: str,
-    tags: Optional[Mapping[str, Any]] = None,
-    params: Optional[Mapping[str, Any]] = None,
+    tags: Mapping[str, Any] | None = None,
+    params: Mapping[str, Any] | None = None,
 ):
     """Context manager that starts an MLflow run when possible.
 
@@ -119,7 +120,7 @@ def mlflow_log_dict(payload: Mapping[str, Any], artifact_file: str) -> None:
     mlflow.log_dict(dict(payload), artifact_file)  # type: ignore[attr-defined]
 
 
-def mlflow_log_artifact(path: Path, artifact_path: Optional[str] = None) -> None:
+def mlflow_log_artifact(path: Path, artifact_path: str | None = None) -> None:
     """Log a local file as an artefact if MLflow is active."""
 
     if mlflow is None:
@@ -130,8 +131,8 @@ def mlflow_log_artifact(path: Path, artifact_path: Optional[str] = None) -> None
     mlflow.log_artifact(str(path), artifact_path=artifact_path)  # type: ignore[attr-defined]
 
 
-def _coerce_params(params: Mapping[str, Any]) -> Dict[str, Any]:
-    coerced: Dict[str, Any] = {}
+def _coerce_params(params: Mapping[str, Any]) -> dict[str, Any]:
+    coerced: dict[str, Any] = {}
     for key, value in params.items():
         if isinstance(value, (str, int, float)) or value is None:
             coerced[key] = value
@@ -155,7 +156,7 @@ class PrometheusSettings:
 
 
 class _NoopMetric:
-    def labels(self, *_args: Any, **_kwargs: Any) -> "_NoopMetric":
+    def labels(self, *_args: Any, **_kwargs: Any) -> _NoopMetric:
         return self
 
     def observe(self, *_args: Any, **_kwargs: Any) -> None:
@@ -180,7 +181,7 @@ class PrometheusRegistry:
     fallback_activation_total: Any = _NoopMetric()
 
 
-_PROMETHEUS_SETTINGS: Optional[PrometheusSettings] = None
+_PROMETHEUS_SETTINGS: PrometheusSettings | None = None
 _PROMETHEUS_REGISTRY = PrometheusRegistry()
 _PROMETHEUS_STARTED = False
 
@@ -298,7 +299,7 @@ def record_inference_event(
     *,
     model: str,
     latency_seconds: float,
-    cache_hit: Optional[bool] = None,
+    cache_hit: bool | None = None,
     fallback_triggered: bool = False,
 ) -> None:
     """Record an inference request in Prometheus when enabled."""

@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Callable, Iterable, Mapping, Optional
+from collections.abc import Callable, Iterable, Mapping
 
 import pandas as pd
 
 from .base import BaseAdapter, DataSlice
 
 RawOnChainFetcher = Callable[
-    [str, Optional[pd.Timestamp], Optional[pd.Timestamp]], Iterable[Mapping[str, object]]
+    [str, pd.Timestamp | None, pd.Timestamp | None], Iterable[Mapping[str, object]]
 ]
 
 
@@ -40,8 +40,8 @@ class OnChainAdapter(BaseAdapter):
         self,
         symbol: str,
         *,
-        start: Optional[pd.Timestamp] = None,
-        end: Optional[pd.Timestamp] = None,
+        start: pd.Timestamp | None = None,
+        end: pd.Timestamp | None = None,
     ) -> DataSlice:
         rows = list(self._fetcher(symbol, start, end))
         frame = normalize_onchain_rows(rows)

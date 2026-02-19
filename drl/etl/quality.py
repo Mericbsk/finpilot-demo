@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 
@@ -18,7 +18,7 @@ ExpectationSuiteType = Any
 @dataclass
 class QualityReport:
     passed: bool
-    details: Dict[str, object]
+    details: dict[str, object]
 
 
 def _require_ge() -> None:

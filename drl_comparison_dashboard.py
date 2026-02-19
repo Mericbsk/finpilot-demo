@@ -8,7 +8,6 @@ Usage:
 """
 
 import json
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -73,7 +72,7 @@ if log_dir.exists():
 
                 with col2:
                     buy_count = len(df[df["final_action"] == "BUY"])
-                    st.metric("BUY Signals", buy_count, delta=f"{buy_count/len(df)*100:.1f}%")
+                    st.metric("BUY Signals", buy_count, delta=f"{buy_count / len(df) * 100:.1f}%")
 
                 with col3:
                     agreement_rate = df["agreement"].mean()
@@ -194,7 +193,9 @@ if log_dir.exists():
                     st.metric("DRL Win Rate", "N/A", help="Requires historical execution data")
 
                 with col2:
-                    st.metric("Scanner Avg Return", "N/A", help="Requires historical execution data")
+                    st.metric(
+                        "Scanner Avg Return", "N/A", help="Requires historical execution data"
+                    )
                     st.metric("DRL Avg Return", "N/A", help="Requires historical execution data")
 
                 st.markdown(
@@ -278,4 +279,6 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown("🤖 **FinPilot DRL Parallel Testing Dashboard** | Real-time AI vs Rule-based Comparison")
+st.markdown(
+    "🤖 **FinPilot DRL Parallel Testing Dashboard** | Real-time AI vs Rule-based Comparison"
+)

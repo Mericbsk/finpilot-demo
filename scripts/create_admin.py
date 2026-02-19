@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 FinPilot Admin Management Script
 =================================
@@ -16,6 +15,7 @@ Kullanım:
     # Admin listele
     python scripts/create_admin.py --list
 """
+
 import argparse
 import os
 import sys
@@ -23,7 +23,7 @@ import sys
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from auth.core import AuthConfig, AuthManager, User, UserRole
+from auth.core import AuthConfig, AuthManager, UserRole
 from auth.database import Database, SessionRepository, UserRepository
 
 

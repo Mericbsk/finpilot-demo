@@ -73,23 +73,26 @@ def _get_worksheet():
 
 # ─── LOCAL JSON FALLBACK ───────────────────────────────────
 
+
 def _save_local(email, name, source, language):
     """Save to local JSON as fallback."""
     try:
         Path("data").mkdir(exist_ok=True)
         waitlist = []
         if Path(WAITLIST_FILE).exists():
-            with open(WAITLIST_FILE, "r") as f:
+            with open(WAITLIST_FILE) as f:
                 waitlist = json.load(f)
         if any(w["email"].lower() == email.lower() for w in waitlist):
             return False
-        waitlist.append({
-            "email": email.lower(),
-            "name": name,
-            "source": source,
-            "timestamp": datetime.now().isoformat(),
-            "language": language,
-        })
+        waitlist.append(
+            {
+                "email": email.lower(),
+                "name": name,
+                "source": source,
+                "timestamp": datetime.now().isoformat(),
+                "language": language,
+            }
+        )
         with open(WAITLIST_FILE, "w") as f:
             json.dump(waitlist, f, indent=2)
         return True
@@ -101,7 +104,7 @@ def _count_local():
     """Count from local JSON."""
     try:
         if Path(WAITLIST_FILE).exists():
-            with open(WAITLIST_FILE, "r") as f:
+            with open(WAITLIST_FILE) as f:
                 return len(json.load(f))
     except Exception:
         pass
@@ -109,6 +112,7 @@ def _count_local():
 
 
 # ─── PUBLIC API ────────────────────────────────────────────
+
 
 def save_to_waitlist(email, name="", source="demo"):
     """
@@ -174,7 +178,7 @@ def migrate_json_to_sheets():
         return 0
 
     try:
-        with open(WAITLIST_FILE, "r") as f:
+        with open(WAITLIST_FILE) as f:
             local_data = json.load(f)
     except Exception:
         return 0

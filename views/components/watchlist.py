@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Watchlist Component
 =============================
@@ -11,17 +10,15 @@ Usage:
 
     render_watchlist_panel()
 """
+
 from __future__ import annotations
 
 import json
-import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import streamlit as st
-
 from core.session_state import get_session
 
 # ============================================
@@ -31,12 +28,12 @@ from core.session_state import get_session
 WATCHLIST_FILE = "data/watchlist.json"
 
 
-def _load_watchlist_from_file() -> List[str]:
+def _load_watchlist_from_file() -> list[str]:
     """Load watchlist from JSON file."""
     try:
         path = Path(WATCHLIST_FILE)
         if path.exists():
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
                 return data.get("symbols", [])
     except Exception:
@@ -44,7 +41,7 @@ def _load_watchlist_from_file() -> List[str]:
     return []
 
 
-def _save_watchlist_to_file(symbols: List[str]) -> bool:
+def _save_watchlist_to_file(symbols: list[str]) -> bool:
     """Save watchlist to JSON file."""
     try:
         path = Path(WATCHLIST_FILE)
@@ -245,7 +242,7 @@ def render_watchlist_sidebar() -> None:
             st.caption("Liste boş")
 
 
-def get_watchlist_symbols() -> List[str]:
+def get_watchlist_symbols() -> list[str]:
     """Get current watchlist symbols."""
     session = get_session()
     initialize_watchlist()
@@ -257,7 +254,7 @@ def is_watchlist_scan_triggered() -> bool:
     return st.session_state.get("watchlist_scan_triggered", False)
 
 
-def get_watchlist_scan_symbols() -> List[str]:
+def get_watchlist_scan_symbols() -> list[str]:
     """Get symbols for watchlist scan and clear trigger."""
     symbols = st.session_state.get("watchlist_symbols", [])
     st.session_state["watchlist_scan_triggered"] = False

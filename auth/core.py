@@ -6,7 +6,6 @@ Provides JWT-based authentication, user management, and session handling.
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import secrets
@@ -14,7 +13,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # Security packages - Sprint 1
 import bcrypt
@@ -135,8 +134,8 @@ class User:
     salt: str
 
     # Profile
-    display_name: Optional[str] = None
-    avatar_url: Optional[str] = None
+    display_name: str | None = None
+    avatar_url: str | None = None
 
     # Status
     role: UserRole = UserRole.USER
@@ -146,13 +145,13 @@ class User:
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    last_login: Optional[datetime] = None
+    last_login: datetime | None = None
 
     # Security
     failed_login_attempts: int = 0
-    locked_until: Optional[datetime] = None
+    locked_until: datetime | None = None
 
-    def to_dict(self, include_sensitive: bool = False) -> Dict[str, Any]:
+    def to_dict(self, include_sensitive: bool = False) -> dict[str, Any]:
         """Convert to dictionary."""
         data = {
             "id": self.id,
@@ -176,7 +175,7 @@ class User:
         return data
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "User":
+    def from_dict(cls, data: dict[str, Any]) -> User:
         """Create from dictionary."""
         return cls(
             id=data["id"],
@@ -228,9 +227,9 @@ class Session:
     refresh_token: str
 
     # Metadata
-    device_info: Optional[str] = None
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
+    device_info: str | None = None
+    ip_address: str | None = None
+    user_agent: str | None = None
 
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -240,7 +239,7 @@ class Session:
     # Status
     is_active: bool = True
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -256,7 +255,7 @@ class Session:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Session":
+    def from_dict(cls, data: dict[str, Any]) -> Session:
         return cls(
             id=data["id"],
             user_id=data["user_id"],
@@ -304,7 +303,7 @@ class TokenPayload:
         """Alias for sub field."""
         return self.sub
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "sub": self.sub,
             "exp": self.exp,
@@ -341,7 +340,7 @@ class PasswordHasher:
         """
         self.rounds = rounds
 
-    def hash(self, password: str, salt: Optional[str] = None) -> Tuple[str, str]:
+    def hash(self, password: str, salt: str | None = None) -> tuple[str, str]:
         """
         Hash a password with bcrypt.
 
@@ -378,7 +377,7 @@ class PasswordHasher:
             return False
 
     @staticmethod
-    def validate_strength(password: str, min_length: int = 8) -> Tuple[bool, List[str]]:
+    def validate_strength(password: str, min_length: int = 8) -> tuple[bool, list[str]]:
         """
         Validate password strength.
 
@@ -460,7 +459,7 @@ class JWTHandler:
         self.secret_key = secret_key
         self.algorithm = algorithm
 
-    def encode(self, payload: Dict[str, Any]) -> str:
+    def encode(self, payload: dict[str, Any]) -> str:
         """
         Create JWT token.
 
@@ -472,7 +471,7 @@ class JWTHandler:
         """
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def decode(self, token: str, verify_exp: bool = True) -> Dict[str, Any]:
+    def decode(self, token: str, verify_exp: bool = True) -> dict[str, Any]:
         """
         Decode and verify JWT token.
 
@@ -501,7 +500,7 @@ class JWTHandler:
         except jwt.PyJWTError as e:
             raise TokenInvalidError(f"Token validation failed: {e}")
 
-    def decode_without_verification(self, token: str) -> Dict[str, Any]:
+    def decode_without_verification(self, token: str) -> dict[str, Any]:
         """
         Decode token without signature verification.
 
@@ -547,7 +546,7 @@ class AuthManager:
     """
 
     def __init__(
-        self, config: Optional[AuthConfig] = None, user_repository=None, session_repository=None
+        self, config: AuthConfig | None = None, user_repository=None, session_repository=None
     ):
         self.config = config or AuthConfig()
         self.hasher = PasswordHasher(self.config.bcrypt_rounds)
@@ -558,10 +557,10 @@ class AuthManager:
         self._session_repo = session_repository
 
         # In-memory fallback (for testing/simple usage)
-        self._users: Dict[str, User] = {}
-        self._sessions: Dict[str, Session] = {}
+        self._users: dict[str, User] = {}
+        self._sessions: dict[str, Session] = {}
 
-    def _get_user_by_email(self, email: str) -> Optional[User]:
+    def _get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""
         if self._user_repo:
             return self._user_repo.get_by_email(email)
@@ -571,7 +570,7 @@ class AuthManager:
                 return user
         return None
 
-    def _get_user_by_id(self, user_id: str) -> Optional[User]:
+    def _get_user_by_id(self, user_id: str) -> User | None:
         """Get user by ID."""
         if self._user_repo:
             return self._user_repo.get_by_id(user_id)
@@ -591,7 +590,7 @@ class AuthManager:
         else:
             self._sessions[session.id] = session
 
-    def _get_session(self, session_id: str) -> Optional[Session]:
+    def _get_session(self, session_id: str) -> Session | None:
         """Get session by ID."""
         if self._session_repo:
             return self._session_repo.get_by_id(session_id)
@@ -605,7 +604,7 @@ class AuthManager:
             del self._sessions[session_id]
 
     def register(
-        self, email: str, username: str, password: str, display_name: Optional[str] = None
+        self, email: str, username: str, password: str, display_name: str | None = None
     ) -> User:
         """
         Register a new user.
@@ -659,9 +658,9 @@ class AuthManager:
         self,
         email: str,
         password: str,
-        device_info: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        device_info: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
         remember_me: bool = False,
     ) -> Session:
         """
@@ -830,7 +829,7 @@ class AuthManager:
             role=payload["role"],
         )
 
-    def refresh_tokens(self, refresh_token: str) -> Tuple[str, str]:
+    def refresh_tokens(self, refresh_token: str) -> tuple[str, str]:
         """
         Refresh access and refresh tokens.
 
@@ -858,7 +857,7 @@ class AuthManager:
 
         return new_access, new_refresh
 
-    def get_current_user(self, token: str) -> Optional[User]:
+    def get_current_user(self, token: str) -> User | None:
         """
         Get current user from token.
 
@@ -920,7 +919,7 @@ class AuthManager:
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
-_default_auth_manager: Optional[AuthManager] = None
+_default_auth_manager: AuthManager | None = None
 
 
 def get_auth_manager() -> AuthManager:

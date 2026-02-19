@@ -9,8 +9,8 @@ behaviour across batch, paper-trading, and live deployments.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -84,14 +84,14 @@ class MarketEnvConfig:
     target_dtype: str = "float32"
 
     @property
-    def feature_columns(self) -> List[str]:
-        cols: List[str] = []
+    def feature_columns(self) -> list[str]:
+        cols: list[str] = []
         for spec in self.feature_specs:
             cols.extend(spec.columns)
         return cols
 
 
-DEFAULT_FEATURE_SPECS: List[FeatureSpec] = [
+DEFAULT_FEATURE_SPECS: list[FeatureSpec] = [
     FeatureSpec(
         name="technicals",
         columns=[

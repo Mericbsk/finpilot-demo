@@ -12,7 +12,6 @@ Usage:
     streamlit run demo_standalone.py
 """
 
-
 import streamlit as st
 
 # Page config - MUST be first Streamlit command
@@ -248,7 +247,8 @@ st.markdown(
 # ============================================
 
 try:
-    from waitlist_sheets import save_to_waitlist, get_waitlist_count, migrate_json_to_sheets
+    from waitlist_sheets import get_waitlist_count, migrate_json_to_sheets, save_to_waitlist
+
     # Auto-migrate existing JSON data to Google Sheets on startup
     migrate_json_to_sheets()
 except Exception:
@@ -264,13 +264,19 @@ except Exception:
             Path("data").mkdir(exist_ok=True)
             waitlist = []
             if Path(WAITLIST_FILE).exists():
-                with open(WAITLIST_FILE, "r") as f:
+                with open(WAITLIST_FILE) as f:
                     waitlist = json.load(f)
             if any(w["email"].lower() == email.lower() for w in waitlist):
                 return False
-            waitlist.append({"email": email.lower(), "name": name, "source": source,
-                             "timestamp": datetime.now().isoformat(),
-                             "language": st.session_state.get("language", "en")})
+            waitlist.append(
+                {
+                    "email": email.lower(),
+                    "name": name,
+                    "source": source,
+                    "timestamp": datetime.now().isoformat(),
+                    "language": st.session_state.get("language", "en"),
+                }
+            )
             with open(WAITLIST_FILE, "w") as f:
                 json.dump(waitlist, f, indent=2)
             return True
@@ -280,7 +286,7 @@ except Exception:
     def get_waitlist_count():
         try:
             if Path(WAITLIST_FILE).exists():
-                with open(WAITLIST_FILE, "r") as f:
+                with open(WAITLIST_FILE) as f:
                     return len(json.load(f))
         except Exception:
             pass
@@ -528,22 +534,19 @@ def render_cta_section():
     )
 
     col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        with st.form("cta_waitlist", clear_on_submit=True):
-            email = st.text_input(
-                t("email"), placeholder=t("email_placeholder"), label_visibility="collapsed"
-            )
-            if st.form_submit_button(
-                t("join_early_access"), use_container_width=True, type="primary"
-            ):
-                if email and "@" in email:
-                    if save_to_waitlist(email, source="cta"):
-                        st.success(t("cta_success"))
-                        st.balloons()
-                    else:
-                        st.info(t("cta_already"))
+    with col2, st.form("cta_waitlist", clear_on_submit=True):
+        email = st.text_input(
+            t("email"), placeholder=t("email_placeholder"), label_visibility="collapsed"
+        )
+        if st.form_submit_button(t("join_early_access"), use_container_width=True, type="primary"):
+            if email and "@" in email:
+                if save_to_waitlist(email, source="cta"):
+                    st.success(t("cta_success"))
+                    st.balloons()
                 else:
-                    st.error(t("cta_error"))
+                    st.info(t("cta_already"))
+            else:
+                st.error(t("cta_error"))
 
 
 def render_footer():

@@ -17,7 +17,6 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
@@ -57,23 +56,23 @@ class SignalOutcome:
     symbol: str
     signal_date: str
     entry_price: float
-    stop_loss: Optional[float]
-    take_profit: Optional[float]
+    stop_loss: float | None
+    take_profit: float | None
     score: float
     entry_ok: bool
 
     # Outcome fields (filled after price lookup)
-    current_price: Optional[float] = None
-    price_1d: Optional[float] = None
-    price_1w: Optional[float] = None
-    price_1m: Optional[float] = None
-    change_pct: Optional[float] = None
-    change_1d_pct: Optional[float] = None
-    change_1w_pct: Optional[float] = None
-    change_1m_pct: Optional[float] = None
+    current_price: float | None = None
+    price_1d: float | None = None
+    price_1w: float | None = None
+    price_1m: float | None = None
+    change_pct: float | None = None
+    change_1d_pct: float | None = None
+    change_1w_pct: float | None = None
+    change_1m_pct: float | None = None
     status: str = "⏳ Açık"  # ✅ TP Ulaştı | ❌ SL Tetiklendi | ⏳ Açık
-    hit_date: Optional[str] = None
-    days_to_result: Optional[int] = None
+    hit_date: str | None = None
+    days_to_result: int | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -383,7 +382,7 @@ def calculate_signal_outcomes(
 # ---------------------------------------------------------------------------
 # KPI Calculations
 # ---------------------------------------------------------------------------
-def calculate_kpis(outcomes_df: pd.DataFrame) -> Dict:
+def calculate_kpis(outcomes_df: pd.DataFrame) -> dict:
     """Calculate performance KPIs from outcomes DataFrame."""
     if outcomes_df.empty:
         return {
@@ -710,16 +709,16 @@ def _render_top_signals(outcomes_df: pd.DataFrame, n: int = 5):
                     text-align: center;
                 ">
                     <div style="font-size:1.1rem; font-weight:700; color:#f8fafc;">
-                        {row['Sembol']}
+                        {row["Sembol"]}
                     </div>
                     <div style="font-size:1.4rem; font-weight:800; color:{color}; margin:8px 0;">
                         {arrow} {change:+.1f}%
                     </div>
                     <div style="font-size:0.75rem; color:#94a3b8;">
-                        {row['Sinyal Tarihi']} · ${row['Giriş $']}
+                        {row["Sinyal Tarihi"]} · ${row["Giriş $"]}
                     </div>
                     <div style="font-size:0.75rem; color:#94a3b8;">
-                        {row['Durum']}
+                        {row["Durum"]}
                     </div>
                 </div>
                 """,

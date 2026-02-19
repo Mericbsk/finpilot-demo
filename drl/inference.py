@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -28,7 +28,7 @@ class ActionType(Enum):
     SELL = 2
 
     @classmethod
-    def from_continuous(cls, action: float, threshold: float = 0.3) -> "ActionType":
+    def from_continuous(cls, action: float, threshold: float = 0.3) -> ActionType:
         """Convert continuous action to discrete ActionType."""
         if action > threshold:
             return cls.BUY
@@ -38,7 +38,7 @@ class ActionType(Enum):
             return cls.HOLD
 
     @classmethod
-    def from_discrete(cls, action: int) -> "ActionType":
+    def from_discrete(cls, action: int) -> ActionType:
         """Convert discrete action index to ActionType."""
         if action == 1:
             return cls.BUY
@@ -54,7 +54,7 @@ class PredictionResult:
 
     symbol: str
     action: ActionType
-    raw_action: Union[float, int, np.ndarray]
+    raw_action: float | int | np.ndarray
     confidence: float
 
     # Position sizing suggestions
@@ -62,15 +62,15 @@ class PredictionResult:
     kelly_fraction: float
 
     # Risk metrics
-    expected_return: Optional[float] = None
-    risk_score: Optional[float] = None
+    expected_return: float | None = None
+    risk_score: float | None = None
 
     # Context
-    regime: Optional[str] = None
-    timestamp: Optional[str] = None
-    model_id: Optional[str] = None
+    regime: str | None = None
+    timestamp: str | None = None
+    model_id: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "symbol": self.symbol,
             "action": self.action.name,
@@ -120,7 +120,7 @@ class DRLInference:
     """
 
     def __init__(
-        self, registry: Optional[ModelRegistry] = None, config: Optional[MarketEnvConfig] = None
+        self, registry: ModelRegistry | None = None, config: MarketEnvConfig | None = None
     ):
         """
         Initialize the inference engine.
@@ -132,7 +132,7 @@ class DRLInference:
         self.registry = registry or get_registry()
         self.config = config or DEFAULT_CONFIG
         self.model = None
-        self.model_id: Optional[str] = None
+        self.model_id: str | None = None
         self.pipeline = None
         self._is_loaded = False
 
@@ -228,7 +228,7 @@ class DRLInference:
             logger.error(f"Failed to load model from path: {e}")
             return False
 
-    def _prepare_features(self, symbol: str) -> Optional[pd.DataFrame]:
+    def _prepare_features(self, symbol: str) -> pd.DataFrame | None:
         """Prepare features for a symbol."""
         from .data_loader import _add_placeholder_features, fetch_market_data
 
@@ -266,7 +266,7 @@ class DRLInference:
 
         return obs
 
-    def _compute_confidence(self, action: Union[float, int, np.ndarray], df: pd.DataFrame) -> float:
+    def _compute_confidence(self, action: float | int | np.ndarray, df: pd.DataFrame) -> float:
         """
         Compute confidence score for the prediction.
 
@@ -298,17 +298,15 @@ class DRLInference:
         rsi_boost = 0.0
         if "rsi" in df.columns:
             rsi = float(df.iloc[-1].get("rsi", 50))
-            if rsi > 70 and action_val < 0:  # Overbought + Sell
-                rsi_boost = 0.1
-            elif rsi < 30 and action_val > 0:  # Oversold + Buy
+            if rsi > 70 and action_val < 0 or rsi < 30 and action_val > 0:  # Overbought + Sell
                 rsi_boost = 0.1
 
         total_confidence = min(base_confidence + regime_confidence + rsi_boost, 1.0)
         return round(total_confidence, 3)
 
     def _compute_suggested_position(
-        self, action: Union[float, int, np.ndarray], confidence: float, risk_appetite: int = 5
-    ) -> Tuple[float, float]:
+        self, action: float | int | np.ndarray, confidence: float, risk_appetite: int = 5
+    ) -> tuple[float, float]:
         """
         Compute suggested position size and Kelly fraction.
 
@@ -338,7 +336,7 @@ class DRLInference:
 
         return round(position, 3), round(kelly, 3)
 
-    def _get_regime(self, df: pd.DataFrame) -> Optional[str]:
+    def _get_regime(self, df: pd.DataFrame) -> str | None:
         """Extract current market regime from features."""
         if "regime" in df.columns:
             return str(df.iloc[-1]["regime"])
@@ -354,7 +352,7 @@ class DRLInference:
 
         return None
 
-    def predict(self, symbol: str, df: Optional[pd.DataFrame] = None) -> Optional[PredictionResult]:
+    def predict(self, symbol: str, df: pd.DataFrame | None = None) -> PredictionResult | None:
         """
         Generate a prediction for a single symbol.
 
@@ -425,7 +423,7 @@ class DRLInference:
             logger.error(f"Prediction error for {symbol}: {e}")
             return None
 
-    def batch_predict(self, symbols: List[str], parallel: bool = False) -> List[PredictionResult]:
+    def batch_predict(self, symbols: list[str], parallel: bool = False) -> list[PredictionResult]:
         """
         Generate predictions for multiple symbols.
 
@@ -450,11 +448,11 @@ class DRLInference:
 
     def get_top_signals(
         self,
-        symbols: List[str],
-        action_filter: Optional[ActionType] = None,
+        symbols: list[str],
+        action_filter: ActionType | None = None,
         min_confidence: float = 0.5,
         top_n: int = 10,
-    ) -> List[PredictionResult]:
+    ) -> list[PredictionResult]:
         """
         Get top trading signals from a list of symbols.
 
@@ -505,18 +503,20 @@ class DRLInference:
             else (
                 "yüksek"
                 if result.confidence > 0.6
-                else "orta" if result.confidence > 0.4 else "düşük"
+                else "orta"
+                if result.confidence > 0.4
+                else "düşük"
             )
         )
 
-        explanation = f"{base} (Güven: {confidence_text}, %{result.confidence*100:.0f})"
+        explanation = f"{base} (Güven: {confidence_text}, %{result.confidence * 100:.0f})"
 
         if result.regime:
             regime_tr = {"trend": "Trend", "range": "Yatay", "volatility": "Volatil"}
             explanation += f" | Rejim: {regime_tr.get(result.regime, result.regime)}"
 
         if result.is_actionable:
-            explanation += f" | Önerilen Pozisyon: %{result.suggested_position*100:.0f}"
+            explanation += f" | Önerilen Pozisyon: %{result.suggested_position * 100:.0f}"
 
         return explanation
 
@@ -527,8 +527,8 @@ class DRLInference:
 
 
 def get_drl_signals(
-    symbols: List[str], model_name: str = "finpilot_ppo", min_confidence: float = 0.5
-) -> List[Dict[str, Any]]:
+    symbols: list[str], model_name: str = "finpilot_ppo", min_confidence: float = 0.5
+) -> list[dict[str, Any]]:
     """
     Quick function to get DRL signals for a list of symbols.
 

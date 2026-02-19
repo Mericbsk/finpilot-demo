@@ -1,11 +1,6 @@
 # scanner package - Modular stock scanning system
 # Refactored from monolithic scanner.py for better maintainability
-
-import os
-
-# Import evaluate functions from main scanner.py (legacy compatibility)
-# These are defined in the root scanner.py file
-import sys
+# Sprint 2 B3: evaluate functions moved to scanner/evaluate.py
 
 from .config import AGGRESSIVE_OVERRIDES, DEFAULT_SETTINGS, SETTINGS
 from .data_fetcher import (  # Parallel fetching (Faz 2 Performance)
@@ -19,6 +14,13 @@ from .data_fetcher import (  # Parallel fetching (Faz 2 Performance)
     load_symbols,
     prefetch_symbols_multi_timeframe,
 )
+from .evaluate import (
+    CURRENT_MARKET_STATUS,
+    STRATEGY_PARAMS,
+    calculate_risk_management,
+    evaluate_symbol,
+    evaluate_symbols_parallel,
+)
 from .indicators import add_indicators, atr, bbands, ema, macd_hist, rsi
 from .signals import (
     analyze_price_momentum,
@@ -31,49 +33,9 @@ from .signals import (
     check_volume_spike,
     compute_recommendation_score,
     compute_recommendation_strength,
+    safe_float,
     signal_score_row,
 )
-
-# Get the parent directory to import from scanner.py (the file, not this package)
-_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_scanner_file = os.path.join(_parent_dir, "scanner.py")
-
-# Load evaluate functions from scanner.py file
-if os.path.exists(_scanner_file):
-    import importlib.util
-
-    _spec = importlib.util.spec_from_file_location("scanner_main", _scanner_file)
-    _scanner_module = importlib.util.module_from_spec(_spec)
-    # Don't execute yet - just import the functions we need after package is loaded
-
-    # Lazy import to avoid circular dependency
-    def _get_evaluate_symbol():
-        if "_scanner_module_loaded" not in globals():
-            _spec.loader.exec_module(_scanner_module)
-            globals()["_scanner_module_loaded"] = True
-        return _scanner_module.evaluate_symbol
-
-    def _get_evaluate_symbols_parallel():
-        if "_scanner_module_loaded" not in globals():
-            _spec.loader.exec_module(_scanner_module)
-            globals()["_scanner_module_loaded"] = True
-        return _scanner_module.evaluate_symbols_parallel
-
-
-# Wrapper functions
-def evaluate_symbol(symbol, kelly_fraction=0.5, prefetched_data=None):
-    """Evaluate a single symbol. Wrapper for scanner.py evaluate_symbol."""
-    return _get_evaluate_symbol()(symbol, kelly_fraction, prefetched_data)
-
-
-def evaluate_symbols_parallel(
-    symbols, kelly_fraction=0.5, progress_callback=None, use_prefetch=True
-):
-    """Evaluate multiple symbols in parallel. Wrapper for scanner.py evaluate_symbols_parallel."""
-    return _get_evaluate_symbols_parallel()(
-        symbols, kelly_fraction, progress_callback, use_prefetch
-    )
-
 
 __all__ = [
     # Indicators
@@ -95,6 +57,7 @@ __all__ = [
     "build_explanation",
     "build_reason",
     "analyze_price_momentum",
+    "safe_float",
     # Data (Standard)
     "fetch",
     "load_symbols",
@@ -110,7 +73,10 @@ __all__ = [
     "SETTINGS",
     "DEFAULT_SETTINGS",
     "AGGRESSIVE_OVERRIDES",
-    # Evaluation (from scanner.py)
+    # Evaluation (scanner.evaluate)
     "evaluate_symbol",
     "evaluate_symbols_parallel",
+    "calculate_risk_management",
+    "CURRENT_MARKET_STATUS",
+    "STRATEGY_PARAMS",
 ]

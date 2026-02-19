@@ -7,7 +7,6 @@ Tests technical indicator calculations with known values.
 import numpy as np
 import pandas as pd
 import pytest
-
 from scanner.indicators import add_indicators, atr, bbands, ema, macd_hist, rsi
 
 

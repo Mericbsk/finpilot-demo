@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Plugin Architecture
 ============================
@@ -27,6 +26,7 @@ Usage:
     pm.register(MyPlugin())
     pm.emit("scan.before", symbols=["AAPL", "GOOGL"])
 """
+
 from __future__ import annotations
 
 import importlib
@@ -34,11 +34,12 @@ import importlib.util
 import inspect
 import logging
 import sys
-from abc import ABC, abstractmethod
+from abc import ABC
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Type, TypeVar, Union
+from typing import Any, TypeVar
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +76,8 @@ class PluginInfo:
     version: str
     description: str = ""
     author: str = ""
-    dependencies: List[str] = field(default_factory=list)
-    config_schema: Optional[Dict[str, Any]] = None
+    dependencies: list[str] = field(default_factory=list)
+    config_schema: dict[str, Any] | None = None
 
 
 @dataclass
@@ -119,12 +120,12 @@ class Plugin(ABC):
     version: str = "0.0.0"
     description: str = ""
     author: str = ""
-    dependencies: List[str] = []
+    dependencies: list[str] = []
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or {}
         self.status = PluginStatus.REGISTERED
-        self._hooks: Dict[str, List[Callable]] = {}
+        self._hooks: dict[str, list[Callable]] = {}
 
     @property
     def info(self) -> PluginInfo:
@@ -145,15 +146,15 @@ class Plugin(ABC):
         """Called when plugin is deactivated."""
         pass
 
-    def on_config_change(self, config: Dict[str, Any]) -> None:
+    def on_config_change(self, config: dict[str, Any]) -> None:
         """Called when configuration changes."""
         self.config = config
 
-    def validate_config(self, config: Dict[str, Any]) -> bool:
+    def validate_config(self, config: dict[str, Any]) -> bool:
         """Validate plugin configuration."""
         return True
 
-    def get_hooks(self) -> Dict[str, List[Callable]]:
+    def get_hooks(self) -> dict[str, list[Callable]]:
         """Get all registered hooks."""
         hooks = {}
         for method_name in dir(self):
@@ -251,17 +252,17 @@ class PluginManager:
     """
 
     def __init__(self):
-        self._plugins: Dict[str, Plugin] = {}
-        self._hooks: Dict[str, List[HookRegistration]] = {}
-        self._load_order: List[str] = []
+        self._plugins: dict[str, Plugin] = {}
+        self._hooks: dict[str, list[HookRegistration]] = {}
+        self._load_order: list[str] = []
 
     @property
-    def plugins(self) -> Dict[str, Plugin]:
+    def plugins(self) -> dict[str, Plugin]:
         """Get all registered plugins."""
         return self._plugins.copy()
 
     @property
-    def active_plugins(self) -> List[Plugin]:
+    def active_plugins(self) -> list[Plugin]:
         """Get all active plugins."""
         return [p for p in self._plugins.values() if p.status == PluginStatus.ACTIVE]
 
@@ -409,7 +410,7 @@ class PluginManager:
         self._hooks[hook_name].append(registration)
         self._hooks[hook_name].sort(key=lambda h: h.priority.value)
 
-    def emit(self, hook_name: str, **kwargs: Any) -> List[Any]:
+    def emit(self, hook_name: str, **kwargs: Any) -> list[Any]:
         """
         Emit a hook event.
 
@@ -476,7 +477,7 @@ class PluginManager:
 
         return value
 
-    def discover_plugins(self, directory: Union[str, Path]) -> List[str]:
+    def discover_plugins(self, directory: str | Path) -> list[str]:
         """
         Discover and load plugins from a directory.
 
@@ -507,7 +508,7 @@ class PluginManager:
 
         return discovered
 
-    def _load_plugin_from_file(self, path: Path) -> Optional[Plugin]:
+    def _load_plugin_from_file(self, path: Path) -> Plugin | None:
         """Load a plugin from a Python file."""
         spec = importlib.util.spec_from_file_location(path.stem, path)
         if spec is None or spec.loader is None:
@@ -555,7 +556,7 @@ class PluginManager:
         logger.info(f"Reloaded plugin: {plugin_name}")
         return True
 
-    def get_plugin_status(self) -> Dict[str, Dict[str, Any]]:
+    def get_plugin_status(self) -> dict[str, dict[str, Any]]:
         """Get status of all plugins."""
         status = {}
         for name, plugin in self._plugins.items():
@@ -580,7 +581,7 @@ class StrategyPlugin(Plugin):
     Provides additional interface for trading strategies.
     """
 
-    def get_signals(self, data: Any, symbol: str) -> List[Dict[str, Any]]:  # pd.DataFrame
+    def get_signals(self, data: Any, symbol: str) -> list[dict[str, Any]]:  # pd.DataFrame
         """
         Generate trading signals.
 
@@ -593,11 +594,11 @@ class StrategyPlugin(Plugin):
         """
         return []
 
-    def get_parameters(self) -> Dict[str, Any]:
+    def get_parameters(self) -> dict[str, Any]:
         """Get strategy parameters with descriptions."""
         return {}
 
-    def set_parameters(self, params: Dict[str, Any]) -> None:
+    def set_parameters(self, params: dict[str, Any]) -> None:
         """Set strategy parameters."""
         self.config.update(params)
 
@@ -655,7 +656,7 @@ class DataSourcePlugin(Plugin):
         """
         raise NotImplementedError
 
-    def stream(self, symbols: List[str], callback: Callable) -> None:
+    def stream(self, symbols: list[str], callback: Callable) -> None:
         """
         Stream real-time data.
 
@@ -670,7 +671,7 @@ class DataSourcePlugin(Plugin):
 # 🌐 Global Plugin Manager
 # ============================================
 
-_plugin_manager: Optional[PluginManager] = None
+_plugin_manager: PluginManager | None = None
 
 
 def get_plugin_manager() -> PluginManager:
@@ -686,7 +687,7 @@ def register_plugin(plugin: Plugin) -> bool:
     return get_plugin_manager().register(plugin)
 
 
-def emit_hook(hook_name: str, **kwargs: Any) -> List[Any]:
+def emit_hook(hook_name: str, **kwargs: Any) -> list[Any]:
     """Emit a hook event globally."""
     return get_plugin_manager().emit(hook_name, **kwargs)
 

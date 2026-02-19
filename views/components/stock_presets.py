@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Hazır Hisse Senedi Setleri
 ===================================
@@ -10,10 +9,11 @@ Usage:
 
     selected = render_preset_selector()
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import streamlit as st
 
@@ -25,7 +25,7 @@ class StockPreset:
     name: str
     icon: str
     description: str
-    symbols: List[str]
+    symbols: list[str]
     category: str
 
 
@@ -33,7 +33,7 @@ class StockPreset:
 # 📊 HAZIR KATEGORİLER
 # ============================================
 
-STOCK_PRESETS: Dict[str, StockPreset] = {
+STOCK_PRESETS: dict[str, StockPreset] = {
     # ----------------------------------------
     # 🖥️ TEKNOLOJİ
     # ----------------------------------------
@@ -1183,7 +1183,7 @@ STOCK_PRESETS: Dict[str, StockPreset] = {
 # ============================================
 
 
-def render_preset_selector() -> Optional[List[str]]:
+def render_preset_selector() -> list[str] | None:
     """
     Hazır kategori seçici widget.
 
@@ -1224,7 +1224,7 @@ def render_preset_selector() -> Optional[List[str]]:
     return None
 
 
-def render_preset_cards() -> Optional[List[str]]:
+def render_preset_cards() -> list[str] | None:
     """
     Kart görünümünde preset seçici.
 
@@ -1282,7 +1282,7 @@ def render_preset_cards() -> Optional[List[str]]:
     return None
 
 
-def render_quick_preset_buttons() -> Optional[List[str]]:
+def render_quick_preset_buttons() -> list[str] | None:
     """
     Hızlı erişim butonları - sidebar için.
 
@@ -1308,14 +1308,14 @@ def render_quick_preset_buttons() -> Optional[List[str]]:
     return None
 
 
-def get_preset_symbols(preset_key: str) -> List[str]:
+def get_preset_symbols(preset_key: str) -> list[str]:
     """Belirtilen preset'in sembollerini döndür."""
     if preset_key in STOCK_PRESETS:
         return STOCK_PRESETS[preset_key].symbols
     return []
 
 
-def list_all_presets() -> Dict[str, str]:
+def list_all_presets() -> dict[str, str]:
     """Tüm presetlerin listesi (key: name)."""
     return {key: f"{p.icon} {p.name}" for key, p in STOCK_PRESETS.items()}
 
@@ -1325,7 +1325,7 @@ def list_all_presets() -> Dict[str, str]:
 # ============================================
 
 
-def get_preset_stats() -> Dict[str, Any]:
+def get_preset_stats() -> dict[str, Any]:
     """Preset istatistikleri."""
     total_presets = len(STOCK_PRESETS)
     total_symbols = sum(len(p.symbols) for p in STOCK_PRESETS.values())

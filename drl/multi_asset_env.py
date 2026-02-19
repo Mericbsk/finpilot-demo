@@ -29,15 +29,15 @@ Example::
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from .config import MarketEnvConfig, PilotShieldLimits, RewardWeights, TransactionCostModel
-from .feature_pipeline import FeatureFrame, FeaturePipeline
-from .market_env import BaseEnv, EpisodeData, USE_GYMNASIUM
+from .config import MarketEnvConfig
+from .feature_pipeline import FeaturePipeline
+from .market_env import USE_GYMNASIUM, BaseEnv, EpisodeData
 
 try:
     import gymnasium as gym  # type: ignore
@@ -55,11 +55,11 @@ except Exception:
 class MultiAssetEpisode:
     """Container for multi-asset episode data."""
 
-    assets: Dict[str, EpisodeData]  # symbol -> EpisodeData
-    common_index: Optional[pd.DatetimeIndex] = None
+    assets: dict[str, EpisodeData]  # symbol -> EpisodeData
+    common_index: pd.DatetimeIndex | None = None
 
     @property
-    def symbols(self) -> List[str]:
+    def symbols(self) -> list[str]:
         return list(self.assets.keys())
 
     @property
@@ -73,21 +73,19 @@ class MultiAssetEpisode:
         lengths = {s: len(e.prices) for s, e in self.assets.items()}
         unique_lengths = set(lengths.values())
         if len(unique_lengths) > 1:
-            raise ValueError(
-                f"All assets must have the same length. Got: {lengths}"
-            )
+            raise ValueError(f"All assets must have the same length. Got: {lengths}")
 
 
 @dataclass
 class PortfolioState:
     """Current state of the multi-asset portfolio."""
 
-    weights: np.ndarray        # current weight per asset
-    cash_weight: float         # fraction held as cash
-    equity: float              # total portfolio value
-    max_equity: float          # peak equity for drawdown
+    weights: np.ndarray  # current weight per asset
+    cash_weight: float  # fraction held as cash
+    equity: float  # total portfolio value
+    max_equity: float  # peak equity for drawdown
     asset_returns: np.ndarray  # latest per-asset returns
-    drawdown: float            # current drawdown from peak
+    drawdown: float  # current drawdown from peak
 
 
 def softmax(x: np.ndarray) -> np.ndarray:
@@ -131,8 +129,8 @@ class MultiAssetMarketEnv(BaseEnv):
         self._rebalance_cost_bps = rebalance_cost_bps
 
         # Process features for each asset
-        self._feature_tensors: Dict[str, np.ndarray] = {}
-        self._prices: Dict[str, np.ndarray] = {}
+        self._feature_tensors: dict[str, np.ndarray] = {}
+        self._prices: dict[str, np.ndarray] = {}
 
         for symbol, ep_data in episode.assets.items():
             if not pipeline._stats:
@@ -169,7 +167,7 @@ class MultiAssetMarketEnv(BaseEnv):
         self._cash = initial_capital
         self._equity = initial_capital
         self._max_equity = initial_capital
-        self._history: List[Dict[str, Any]] = []
+        self._history: list[dict[str, Any]] = []
 
         # Spaces
         if spaces is not None:
@@ -193,7 +191,7 @@ class MultiAssetMarketEnv(BaseEnv):
     # Environment API
     # ------------------------------------------------------------------
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
+    def reset(self, *, seed: int | None = None, options: dict | None = None):
         self._t = 0
         self._weights = np.zeros(self._n_assets)
         self._cash = self._initial_capital
@@ -233,7 +231,7 @@ class MultiAssetMarketEnv(BaseEnv):
 
         # Update portfolio state
         self._weights = target_weights
-        self._equity *= (1.0 + pnl)
+        self._equity *= 1.0 + pnl
         self._equity = max(self._equity, 1e-8)
         self._max_equity = max(self._max_equity, self._equity)
         drawdown = 1.0 - (self._equity / self._max_equity)
@@ -303,7 +301,7 @@ class MultiAssetMarketEnv(BaseEnv):
         reward -= self._reward_weights.drawdown * drawdown
 
         # Concentration penalty: penalise putting too much in one asset
-        herfindahl = float(np.sum(weights ** 2))
+        herfindahl = float(np.sum(weights**2))
         # Perfect diversification: 1/n, worst: 1.0
         concentration_penalty = max(0.0, herfindahl - (1.0 / self._n_assets))
         reward -= self._reward_weights.leverage * concentration_penalty
@@ -338,9 +336,9 @@ class MultiAssetMarketEnv(BaseEnv):
         pnl: float,
         drawdown: float,
         reward: float,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Build info dictionary for the current step."""
-        info: Dict[str, Any] = {
+        info: dict[str, Any] = {
             "t": self._t,
             "pnl": float(pnl),
             "reward": float(reward),
@@ -351,7 +349,7 @@ class MultiAssetMarketEnv(BaseEnv):
         }
         return info
 
-    def get_history(self) -> List[Dict[str, Any]]:
+    def get_history(self) -> list[dict[str, Any]]:
         """Return a copy of the per-step diagnostic history."""
         return list(self._history)
 

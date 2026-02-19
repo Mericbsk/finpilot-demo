@@ -7,7 +7,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
-from typing import Any, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 
@@ -21,17 +21,17 @@ from .schemas import ValidationReport, validate_dataframe
 from .storage import StorageResult, write_partitioned_parquet
 
 
-def _load_prefect_components() -> Tuple[Optional[Any], Optional[Any], Optional[Any], Optional[Any]]:
+def _load_prefect_components() -> tuple[Any | None, Any | None, Any | None, Any | None]:
     try:  # pragma: no cover
         prefect_module = importlib.import_module("prefect")
         runtime_module = importlib.import_module("prefect.runtime")
     except ImportError:  # pragma: no cover
         return None, None, None, None
     return (
-        getattr(prefect_module, "task"),
-        getattr(prefect_module, "flow"),
-        getattr(prefect_module, "get_run_logger"),
-        getattr(runtime_module, "flow_run"),
+        prefect_module.task,
+        prefect_module.flow,
+        prefect_module.get_run_logger,
+        runtime_module.flow_run,
     )
 
 
@@ -48,7 +48,7 @@ def _missing_prefect(*_args: Any, **_kwargs: Any) -> None:  # pragma: no cover
 
 
 class _TaskStub:  # pragma: no cover
-    def __call__(self, fn: Optional[Any] = None, **_kwargs: Any):
+    def __call__(self, fn: Any | None = None, **_kwargs: Any):
         if fn is None:
 
             def _decorator(inner_fn: Any) -> Any:
@@ -103,8 +103,8 @@ flow_run = _PREFECT_FLOW_RUN if PREFECT_AVAILABLE else _FlowRunStub()
 class ETLRunContext:
     source: str
     symbol: str
-    start: Optional[pd.Timestamp]
-    end: Optional[pd.Timestamp]
+    start: pd.Timestamp | None
+    end: pd.Timestamp | None
     base_path: Path
     run_key: str
 
@@ -114,7 +114,7 @@ class ETLResult:
     run_key: str
     rows_ingested: int
     validation: ValidationReport
-    quality: Optional[QualityReport]
+    quality: QualityReport | None
     storage: StorageResult
     flow_run_id: str
 
@@ -133,7 +133,7 @@ async def fetch_data(context: ETLRunContext, adapter: AsyncBaseAdapter) -> DataS
 
 
 @task(name="Validate schema")
-def validate_data(context: ETLRunContext, data: DataSlice) -> Tuple[pd.DataFrame, ValidationReport]:
+def validate_data(context: ETLRunContext, data: DataSlice) -> tuple[pd.DataFrame, ValidationReport]:
     logger = get_run_logger()
     validated, report = validate_dataframe(data.frame.copy(), context.source)
     if not report.passed:
@@ -149,7 +149,7 @@ def run_quality_checks(
     frame: pd.DataFrame,
     *,
     enable_quality: bool,
-) -> Optional[QualityReport]:
+) -> QualityReport | None:
     logger = get_run_logger()
     if not enable_quality or frame.empty:
         logger.info("Skipping quality checks (enabled=%s, empty=%s)", enable_quality, frame.empty)
@@ -204,8 +204,8 @@ async def alternative_data_etl_flow(
     source: str,
     symbol: str,
     base_path: Path,
-    start: Optional[pd.Timestamp] = None,
-    end: Optional[pd.Timestamp] = None,
+    start: pd.Timestamp | None = None,
+    end: pd.Timestamp | None = None,
     enable_quality: bool = True,
     timestamp_column: str = "timestamp",
     compression: str = "snappy",

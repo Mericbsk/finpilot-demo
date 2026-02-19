@@ -10,9 +10,8 @@ import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +92,7 @@ class Position:
             return 0.0
         return (self.unrealized_pnl(current_price) / self.cost_basis) * 100
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "id": self.id,
@@ -106,7 +105,7 @@ class Position:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Position":
+    def from_dict(cls, data: dict[str, Any]) -> Position:
         """Create from dictionary."""
         return cls(
             id=data["id"],
@@ -153,13 +152,13 @@ class Trade:
     total: float = 0.0
     commission: float = 0.0
     executed_at: datetime = field(default_factory=datetime.utcnow)
-    notes: Optional[str] = None
+    notes: str | None = None
 
     def __post_init__(self):
         if self.total == 0:
             self.total = self.shares * self.price
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "id": self.id,
@@ -175,7 +174,7 @@ class Trade:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Trade":
+    def from_dict(cls, data: dict[str, Any]) -> Trade:
         """Create from dictionary."""
         return cls(
             id=data["id"],
@@ -212,7 +211,7 @@ class Portfolio:
     id: str
     user_id: str
     cash: float = 0.0
-    positions: List[Position] = field(default_factory=list)
+    positions: list[Position] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -221,7 +220,7 @@ class Portfolio:
         """Number of positions."""
         return len(self.positions)
 
-    def get_position(self, symbol: str) -> Optional[Position]:
+    def get_position(self, symbol: str) -> Position | None:
         """Get position by symbol."""
         for pos in self.positions:
             if pos.symbol == symbol:
@@ -232,7 +231,7 @@ class Portfolio:
         """Total cost basis of all positions."""
         return sum(pos.cost_basis for pos in self.positions)
 
-    def total_market_value(self, prices: Dict[str, float]) -> float:
+    def total_market_value(self, prices: dict[str, float]) -> float:
         """Calculate total market value given current prices."""
         total = self.cash
         for pos in self.positions:
@@ -240,13 +239,13 @@ class Portfolio:
                 total += pos.market_value(prices[pos.symbol])
         return total
 
-    def total_unrealized_pnl(self, prices: Dict[str, float]) -> float:
+    def total_unrealized_pnl(self, prices: dict[str, float]) -> float:
         """Calculate total unrealized P&L."""
         return sum(
             pos.unrealized_pnl(prices.get(pos.symbol, pos.avg_price)) for pos in self.positions
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "id": self.id,
@@ -258,7 +257,7 @@ class Portfolio:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Portfolio":
+    def from_dict(cls, data: dict[str, Any]) -> Portfolio:
         """Create from dictionary."""
         return cls(
             id=data["id"],
@@ -295,7 +294,7 @@ class Watchlist:
     id: str
     user_id: str
     name: str
-    symbols: List[str] = field(default_factory=list)
+    symbols: list[str] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -315,7 +314,7 @@ class Watchlist:
             return True
         return False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "id": self.id,
@@ -354,7 +353,7 @@ class PortfolioManager:
             repository: PortfolioRepository instance (optional)
         """
         self.repository = repository
-        self._portfolios: Dict[str, Portfolio] = {}  # In-memory cache
+        self._portfolios: dict[str, Portfolio] = {}  # In-memory cache
 
     def create_portfolio(self, user_id: str, initial_cash: float = 0.0) -> Portfolio:
         """
@@ -377,7 +376,7 @@ class PortfolioManager:
 
         return portfolio
 
-    def get_portfolio(self, portfolio_id: str) -> Optional[Portfolio]:
+    def get_portfolio(self, portfolio_id: str) -> Portfolio | None:
         """Get portfolio by ID."""
         if portfolio_id in self._portfolios:
             return self._portfolios[portfolio_id]
@@ -391,7 +390,7 @@ class PortfolioManager:
 
         return None
 
-    def get_user_portfolio(self, user_id: str) -> Optional[Portfolio]:
+    def get_user_portfolio(self, user_id: str) -> Portfolio | None:
         """Get portfolio for a user."""
         # Check cache
         for portfolio in self._portfolios.values():
@@ -416,7 +415,7 @@ class PortfolioManager:
         shares: float,
         price: float,
         commission: float = 0.0,
-        notes: Optional[str] = None,
+        notes: str | None = None,
     ) -> Trade:
         """
         Execute a trade.
@@ -538,8 +537,8 @@ class PortfolioManager:
         return portfolio.cash
 
     def get_trades(
-        self, portfolio_id: str, symbol: Optional[str] = None, limit: int = 100
-    ) -> List[Trade]:
+        self, portfolio_id: str, symbol: str | None = None, limit: int = 100
+    ) -> list[Trade]:
         """Get trade history."""
         if self.repository:
             trades_data = self.repository.get_trades(portfolio_id, symbol, limit)

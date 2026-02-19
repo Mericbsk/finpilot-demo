@@ -1,11 +1,9 @@
 import hashlib
 from pathlib import Path
-from typing import List, Optional
 
 import pandas as pd
 import streamlit as st
 import yfinance as yf
-
 from altdata import get_altdata_history
 from drl.analysis import RegimeStats, build_narrative_payload, summarize_alternative_signals
 from scanner import evaluate_symbol, load_symbols
@@ -15,18 +13,18 @@ SHORTLIST_PATTERN = "shortlist_*.csv"
 DEMO_SYMBOLS = ["AAPL", "MSFT", "NVDA", "ETH-USD", "BTC-USD"]
 
 
-def _list_all_shortlists(directory: Path) -> List[Path]:
+def _list_all_shortlists(directory: Path) -> list[Path]:
     return sorted(directory.glob(SHORTLIST_PATTERN))
 
 
-def _find_latest_shortlist(directory: Path) -> Optional[Path]:
+def _find_latest_shortlist(directory: Path) -> Path | None:
     candidates = _list_all_shortlists(directory)
     if not candidates:
         return None
     return max(candidates, key=lambda path: path.stat().st_mtime)
 
 
-def _extract_symbols_from_frame(frame: pd.DataFrame) -> List[str]:
+def _extract_symbols_from_frame(frame: pd.DataFrame) -> list[str]:
     candidate_columns = ["Symbol", "symbol", "Ticker", "ticker"]
     for column in candidate_columns:
         if column in frame.columns:
@@ -38,14 +36,14 @@ def _extract_symbols_from_frame(frame: pd.DataFrame) -> List[str]:
     raise KeyError("CSV dosyasında 'Symbol' veya 'Ticker' başlıklı bir sütun bulunamadı.")
 
 
-def _hash_uploaded_file(uploaded_file) -> Optional[str]:
+def _hash_uploaded_file(uploaded_file) -> str | None:
     if uploaded_file is None:
         return None
     data = uploaded_file.getvalue()
     return hashlib.sha1(data).hexdigest()
 
 
-def _set_active_symbols(symbols: List[str], *, source: str, status: str) -> None:
+def _set_active_symbols(symbols: list[str], *, source: str, status: str) -> None:
     st.session_state.active_symbols = symbols
     st.session_state.symbol_source = source
     st.session_state.data_status = {
@@ -422,9 +420,9 @@ st.markdown(
 )
 
 latest_shortlist_path = _find_latest_shortlist(WORKSPACE_ROOT)
-latest_shortlist_symbols: List[str] = []
-latest_shortlist_count: Optional[int] = None
-shortlist_load_error: Optional[str] = None
+latest_shortlist_symbols: list[str] = []
+latest_shortlist_count: int | None = None
+shortlist_load_error: str | None = None
 
 if latest_shortlist_path:
     try:
@@ -761,7 +759,7 @@ with col2:
             **💰 Para Hesabı:**
             - Maksimum Kayıp: ${total_risk:.0f}
             - Potansiyel Kazanç: ${total_reward:.0f}
-            - Risk Yüzdesi: {(total_risk/portfolio_value)*100:.1f}%
+            - Risk Yüzdesi: {(total_risk / portfolio_value) * 100:.1f}%
             """
             )
 

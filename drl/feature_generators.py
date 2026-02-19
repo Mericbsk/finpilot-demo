@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, MutableMapping, Sequence
 from dataclasses import dataclass
-from typing import Iterable, Mapping, MutableMapping, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -12,7 +12,7 @@ import pandas as pd
 @dataclass(frozen=True)
 class WeightedSentimentConfig:
     sentiment_col: str = "sentiment_score"
-    weight_col: Optional[str] = "news_volume"
+    weight_col: str | None = "news_volume"
     decay: float = 0.35
     min_periods: int = 1
     result_col: str = "wtd_sentiment_score"
@@ -130,7 +130,7 @@ def create_lag_features(
 
 def assemble_feature_frame(
     *frames: Iterable[pd.Series | pd.DataFrame],
-    base: Optional[pd.DataFrame] = None,
+    base: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Concatenate feature pieces into a single DataFrame.
 

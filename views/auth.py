@@ -6,16 +6,12 @@ Provides authentication pages and protected route handling.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import streamlit as st
 
 from auth import (
-    StreamlitSessionManager,
     get_session_manager,
     render_auth_page,
     render_settings_panel,
-    render_user_profile,
 )
 
 

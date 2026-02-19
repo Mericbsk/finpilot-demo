@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Iterable, List, Mapping, Optional, Tuple
 
 import pandas as pd
 
@@ -53,7 +53,7 @@ class OnChainRecordModel(BaseModel):
 @dataclass
 class ValidationReport:
     passed: bool
-    errors: List[str]
+    errors: list[str]
 
 
 def _frame_records(frame: pd.DataFrame) -> Iterable[Mapping[str, object]]:
@@ -67,7 +67,7 @@ def _frame_records(frame: pd.DataFrame) -> Iterable[Mapping[str, object]]:
     return records
 
 
-def validate_dataframe(frame: pd.DataFrame, source: str) -> Tuple[pd.DataFrame, ValidationReport]:
+def validate_dataframe(frame: pd.DataFrame, source: str) -> tuple[pd.DataFrame, ValidationReport]:
     """Validate a DataFrame against source-specific schema."""
 
     _require_pydantic()
@@ -77,8 +77,8 @@ def validate_dataframe(frame: pd.DataFrame, source: str) -> Tuple[pd.DataFrame, 
         model = OnChainRecordModel
 
     records = _frame_records(frame)
-    errors: List[str] = []
-    valid_rows: List[Mapping[str, object]] = []
+    errors: list[str] = []
+    valid_rows: list[Mapping[str, object]] = []
     for row in records:
         try:
             instance = model.model_validate(row)

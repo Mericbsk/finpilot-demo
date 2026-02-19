@@ -5,36 +5,33 @@ FinPilot — 3 Aylık Strateji Backtest Raporu
 Tüm hisseleri son 3 aylık veriyle tarıyor, sinyal üretiyor,
 simüle edilmiş alım-satım işlemleri yapıyor ve detaylı rapor çıkarıyor.
 """
-import sys
-import os
+
 import json
+import os
 import warnings
-import traceback
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 warnings.filterwarnings("ignore")
 os.chdir("/workspaces/Borsa")
 
+# calculate_risk_management scanner.py (dosya) içinde, scanner/ (paket) içinde değil
+import importlib.util
+
 import numpy as np
 import pandas as pd
 import yfinance as yf
-
 from scanner.indicators import add_indicators
 from scanner.signals import (
-    signal_score_row,
-    check_volume_spike,
-    check_trend_strength,
-    check_price_momentum,
     analyze_price_momentum,
-    check_timeframe_alignment,
-    check_momentum_confluence,
+    check_price_momentum,
+    check_trend_strength,
+    check_volume_spike,
     compute_recommendation_score,
     compute_recommendation_strength,
+    signal_score_row,
 )
 
-# calculate_risk_management scanner.py (dosya) içinde, scanner/ (paket) içinde değil
-import importlib.util
 _spec = importlib.util.spec_from_file_location("scanner_module", "/workspaces/Borsa/scanner.py")
 _scanner_mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_scanner_mod)
@@ -44,55 +41,232 @@ calculate_risk_management = _scanner_mod.calculate_risk_management
 # KONFİGÜRASYON
 # ───────────────────────────────────────────────────────────────────────
 INITIAL_CAPITAL = 100_000  # $100K başlangıç
-RISK_PER_TRADE = 0.02      # İşlem başına %2 risk
-MAX_CONCURRENT = 5         # Aynı anda max 5 pozisyon
-COMMISSION_BPS = 5         # 5 bps komisyon (alım + satım)
-LOOKBACK_DAYS = 400        # EMA200 için yeterli veri
-TEST_PERIOD_DAYS = 90      # Son 3 ay test dönemi
+RISK_PER_TRADE = 0.02  # İşlem başına %2 risk
+MAX_CONCURRENT = 5  # Aynı anda max 5 pozisyon
+COMMISSION_BPS = 5  # 5 bps komisyon (alım + satım)
+LOOKBACK_DAYS = 400  # EMA200 için yeterli veri
+TEST_PERIOD_DAYS = 90  # Son 3 ay test dönemi
 
 # 200 hisselik genişletilmiş liste
 SYMBOLS = [
     # ── Mega-Cap Tech ──
-    "AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA", "AVGO", "ORCL", "ADBE",
-    "CRM", "AMD", "INTC", "QCOM", "TXN", "NFLX", "SHOP", "SNOW", "PANW", "PLTR",
-    "NOW", "UBER", "SQ", "PYPL", "MU", "ANET", "SNPS", "CDNS", "MRVL", "KLAC",
-    "LRCX", "CRWD", "DDOG", "ZS", "FTNT", "NET", "WDAY", "TEAM", "HUBS", "BILL",
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "NVDA",
+    "TSLA",
+    "AVGO",
+    "ORCL",
+    "ADBE",
+    "CRM",
+    "AMD",
+    "INTC",
+    "QCOM",
+    "TXN",
+    "NFLX",
+    "SHOP",
+    "SNOW",
+    "PANW",
+    "PLTR",
+    "NOW",
+    "UBER",
+    "SQ",
+    "PYPL",
+    "MU",
+    "ANET",
+    "SNPS",
+    "CDNS",
+    "MRVL",
+    "KLAC",
+    "LRCX",
+    "CRWD",
+    "DDOG",
+    "ZS",
+    "FTNT",
+    "NET",
+    "WDAY",
+    "TEAM",
+    "HUBS",
+    "BILL",
     # ── Finans ──
-    "JPM", "GS", "MS", "BAC", "WFC", "C", "BLK", "SCHW", "AXP", "V",
-    "MA", "COF", "USB", "PNC", "TFC", "BK", "CME", "ICE", "MCO", "SPGI",
+    "JPM",
+    "GS",
+    "MS",
+    "BAC",
+    "WFC",
+    "C",
+    "BLK",
+    "SCHW",
+    "AXP",
+    "V",
+    "MA",
+    "COF",
+    "USB",
+    "PNC",
+    "TFC",
+    "BK",
+    "CME",
+    "ICE",
+    "MCO",
+    "SPGI",
     # ── Sağlık ──
-    "UNH", "JNJ", "LLY", "PFE", "ABBV", "MRK", "TMO", "ABT", "DHR", "BMY",
-    "AMGN", "GILD", "VRTX", "REGN", "ISRG", "MDT", "SYK", "BSX", "EW", "ZTS",
+    "UNH",
+    "JNJ",
+    "LLY",
+    "PFE",
+    "ABBV",
+    "MRK",
+    "TMO",
+    "ABT",
+    "DHR",
+    "BMY",
+    "AMGN",
+    "GILD",
+    "VRTX",
+    "REGN",
+    "ISRG",
+    "MDT",
+    "SYK",
+    "BSX",
+    "EW",
+    "ZTS",
     # ── Tüketici ──
-    "WMT", "COST", "HD", "LOW", "TGT", "SBUX", "MCD", "NKE", "LULU", "TJX",
-    "PEP", "KO", "PG", "CL", "EL", "MNST", "KHC", "GIS", "HSY", "KDP",
+    "WMT",
+    "COST",
+    "HD",
+    "LOW",
+    "TGT",
+    "SBUX",
+    "MCD",
+    "NKE",
+    "LULU",
+    "TJX",
+    "PEP",
+    "KO",
+    "PG",
+    "CL",
+    "EL",
+    "MNST",
+    "KHC",
+    "GIS",
+    "HSY",
+    "KDP",
     # ── Enerji ──
-    "XOM", "CVX", "COP", "SLB", "EOG", "PXD", "MPC", "VLO", "PSX", "OXY",
+    "XOM",
+    "CVX",
+    "COP",
+    "SLB",
+    "EOG",
+    "PXD",
+    "MPC",
+    "VLO",
+    "PSX",
+    "OXY",
     # ── Sanayi / Savunma ──
-    "BA", "LMT", "RTX", "GE", "HON", "CAT", "DE", "UNP", "UPS", "FDX",
-    "MMM", "EMR", "ETN", "ITW", "PH", "GD", "NOC", "LHX", "TDG", "WM",
+    "BA",
+    "LMT",
+    "RTX",
+    "GE",
+    "HON",
+    "CAT",
+    "DE",
+    "UNP",
+    "UPS",
+    "FDX",
+    "MMM",
+    "EMR",
+    "ETN",
+    "ITW",
+    "PH",
+    "GD",
+    "NOC",
+    "LHX",
+    "TDG",
+    "WM",
     # ── Telekom / Medya ──
-    "DIS", "CMCSA", "T", "VZ", "TMUS", "CHTR",
+    "DIS",
+    "CMCSA",
+    "T",
+    "VZ",
+    "TMUS",
+    "CHTR",
     # ── Gayrimenkul ──
-    "AMT", "PLD", "CCI", "EQIX", "SPG", "O",
+    "AMT",
+    "PLD",
+    "CCI",
+    "EQIX",
+    "SPG",
+    "O",
     # ── Malzeme ──
-    "LIN", "APD", "SHW", "ECL", "DD", "NEM",
+    "LIN",
+    "APD",
+    "SHW",
+    "ECL",
+    "DD",
+    "NEM",
     # ── ETF'ler ──
-    "SPY", "QQQ", "XLK", "XLI", "SMH", "XLE", "XLF", "XLV", "XLP", "ARKK",
-    "IWM", "DIA", "SOXX", "XBI",
+    "SPY",
+    "QQQ",
+    "XLK",
+    "XLI",
+    "SMH",
+    "XLE",
+    "XLF",
+    "XLV",
+    "XLP",
+    "ARKK",
+    "IWM",
+    "DIA",
+    "SOXX",
+    "XBI",
     # ── Mevcut sinyallerden ──
-    "CVS", "ATAI", "BETR", "TNGX", "WINA",
+    "CVS",
+    "ATAI",
+    "BETR",
+    "TNGX",
+    "WINA",
     # ── Ek büyüme / değer hisseleri ──
-    "ABNB", "DASH", "RIVN", "LCID", "COIN", "MELI", "SE", "BABA", "JD", "PDD",
-    "ARM", "SMCI", "DELL", "HPE", "IBM", "CSCO", "INTU", "FISV", "FIS", "ADP",
-    "SPOT", "ZM", "OKTA", "TWLO", "MDB", "VEEV", "PAYC", "PCTY", "TTD", "RBLX",
-    "ENPH", "FSLR", "ON",
+    "ABNB",
+    "DASH",
+    "RIVN",
+    "LCID",
+    "COIN",
+    "MELI",
+    "SE",
+    "BABA",
+    "JD",
+    "PDD",
+    "ARM",
+    "SMCI",
+    "DELL",
+    "HPE",
+    "IBM",
+    "CSCO",
+    "INTU",
+    "FISV",
+    "FIS",
+    "ADP",
+    "SPOT",
+    "ZM",
+    "OKTA",
+    "TWLO",
+    "MDB",
+    "VEEV",
+    "PAYC",
+    "PCTY",
+    "TTD",
+    "RBLX",
+    "ENPH",
+    "FSLR",
+    "ON",
 ]
 
 print("=" * 90)
 print("  FinPilot — 3 Aylık Strateji Backtest ve Sinyal Analizi")
 print(f"  Tarih: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-print(f"  Sermaye: ${INITIAL_CAPITAL:,.0f} | Risk/trade: {RISK_PER_TRADE*100}%")
+print(f"  Sermaye: ${INITIAL_CAPITAL:,.0f} | Risk/trade: {RISK_PER_TRADE * 100}%")
 print(f"  Hisse sayısı: {len(SYMBOLS)} | Test dönemi: Son {TEST_PERIOD_DAYS} gün")
 print("=" * 90)
 
@@ -101,7 +275,7 @@ print("=" * 90)
 # ───────────────────────────────────────────────────────────────────────
 print("\n📥 Adım 1: Veri çekiliyor...")
 
-data_cache: Dict[str, pd.DataFrame] = {}
+data_cache: dict[str, pd.DataFrame] = {}
 failed_symbols = []
 end_date = datetime.now()
 start_date = end_date - timedelta(days=LOOKBACK_DAYS)
@@ -141,8 +315,9 @@ except Exception as e:
     # Tek tek dene
     for symbol in SYMBOLS:
         try:
-            df_sym = yf.download(symbol, start=start_date, end=end_date,
-                                 interval="1d", progress=False)
+            df_sym = yf.download(
+                symbol, start=start_date, end=end_date, interval="1d", progress=False
+            )
             df_sym = df_sym.dropna(subset=["Close"])
             if len(df_sym) >= 200:
                 data_cache[symbol] = df_sym
@@ -156,7 +331,7 @@ if failed_symbols:
     for sym, reason in failed_symbols[:5]:
         print(f"      ⚠️  {sym}: {reason}")
     if len(failed_symbols) > 5:
-        print(f"      ... ve {len(failed_symbols)-5} hisse daha")
+        print(f"      ... ve {len(failed_symbols) - 5} hisse daha")
 
 # ───────────────────────────────────────────────────────────────────────
 # ADIM 2: GÖSTERGELERİ HESAPLA VE GÜN GÜN TARA
@@ -164,7 +339,7 @@ if failed_symbols:
 print("\n📊 Adım 2: Göstergeler hesaplanıyor ve her gün taranıyor...")
 
 # Her hisse için göstergeleri hesapla
-indicator_cache: Dict[str, pd.DataFrame] = {}
+indicator_cache: dict[str, pd.DataFrame] = {}
 for symbol, df in data_cache.items():
     try:
         df_ind = add_indicators(df)
@@ -179,8 +354,8 @@ print(f"   ✅ {len(indicator_cache)} hisse için göstergeler hesaplandı")
 test_start = end_date - timedelta(days=TEST_PERIOD_DAYS)
 
 # Her gün, her hisse için sinyal tara
-all_signals: List[Dict[str, Any]] = []
-daily_scans: Dict[str, Dict] = {}
+all_signals: list[dict[str, Any]] = []
+daily_scans: dict[str, dict] = {}
 
 for symbol, df_ind in indicator_cache.items():
     # Son 3 aydaki günleri filtrele
@@ -192,7 +367,7 @@ for symbol, df_ind in indicator_cache.items():
         if idx < 200:  # EMA200 için yeterli veri gerekli
             continue
 
-        df_slice = df_ind.iloc[:idx + 1]
+        df_slice = df_ind.iloc[: idx + 1]
 
         try:
             # Fiyat ve göstergeler
@@ -225,16 +400,16 @@ for symbol, df_ind in indicator_cache.items():
             rsi_score = max(0, min(100, (rsi_val - 30) / 70 * 100))
             macd_score_val = 100 if macd_val > 0 else 0
             trend_score_val = 100 if direction else 0
-            momentum_score = int((rsi_score * 0.4) + (macd_score_val * 0.3) + (trend_score_val * 0.3))
+            momentum_score = int(
+                (rsi_score * 0.4) + (macd_score_val * 0.3) + (trend_score_val * 0.3)
+            )
 
             # Entry kararı (evaluate_symbol mantığı)
             core_signal = regime and direction and (score >= 2)
             mtf_ok = True  # Tek timeframe test, alignment varsay
 
             if core_signal:
-                if score == 3 or score == 4:
-                    entry_ok = True
-                elif score == 2 and mtf_ok:
+                if score == 3 or score == 4 or score == 2 and mtf_ok:
                     entry_ok = True
                 else:
                     entry_ok = False
@@ -256,11 +431,14 @@ for symbol, df_ind in indicator_cache.items():
 
             # Öneri skoru
             reco_data = {
-                "regime": regime, "direction": direction,
-                "score": score, "filter_score": filter_score,
+                "regime": regime,
+                "direction": direction,
+                "score": score,
+                "filter_score": filter_score,
                 "momentum_confluence": momentum_positive,
                 "momentum_ratio": momentum_analysis.get("dominant_return_pct", 0) / 100,
-                "volume_spike": volume_spike, "price_momentum": price_momentum_ok,
+                "volume_spike": volume_spike,
+                "price_momentum": price_momentum_ok,
                 "trend_strength": trend_strength,
                 "is_premium_symbol": symbol in ["SPY", "QQQ", "GOOGL", "NVDA", "AAPL", "MSFT"],
             }
@@ -298,7 +476,7 @@ for symbol, df_ind in indicator_cache.items():
             }
             all_signals.append(signal)
 
-        except Exception as e:
+        except Exception:
             continue
 
 print(f"   ✅ {len(all_signals)} toplam sinyal üretildi (tüm günler × tüm hisseler)")
@@ -326,13 +504,13 @@ print(f"""
    │              SİNYAL İSTATİSTİKLERİ                      │
    ├─────────────────────────────────────────────────────────┤
    │  Toplam tarama          : {total_scans:>8,}                       │
-   │  Rejim (Close > EMA200) : {regime_true:>8,} ({regime_true/total_scans*100:5.1f}%)          │
-   │  Yön   (Close > EMA50)  : {direction_true:>8,} ({direction_true/total_scans*100:5.1f}%)          │
-   │  Sinyal Skoru ≥ 2       : {score_ge2:>8,} ({score_ge2/total_scans*100:5.1f}%)          │
-   │  Sinyal Skoru ≥ 3       : {score_ge3:>8,} ({score_ge3/total_scans*100:5.1f}%)          │
+   │  Rejim (Close > EMA200) : {regime_true:>8,} ({regime_true / total_scans * 100:5.1f}%)          │
+   │  Yön   (Close > EMA50)  : {direction_true:>8,} ({direction_true / total_scans * 100:5.1f}%)          │
+   │  Sinyal Skoru ≥ 2       : {score_ge2:>8,} ({score_ge2 / total_scans * 100:5.1f}%)          │
+   │  Sinyal Skoru ≥ 3       : {score_ge3:>8,} ({score_ge3 / total_scans * 100:5.1f}%)          │
    │  ─────────────────────────────────────────────────      │
-   │  ✅ Entry Sinyali        : {len(entry_signals):>8,} ({len(entry_signals)/total_scans*100:5.1f}%)          │
-   │  ❌ Giriş Yok            : {len(no_entry):>8,} ({len(no_entry)/total_scans*100:5.1f}%)          │
+   │  ✅ Entry Sinyali        : {len(entry_signals):>8,} ({len(entry_signals) / total_scans * 100:5.1f}%)          │
+   │  ❌ Giriş Yok            : {len(no_entry):>8,} ({len(no_entry) / total_scans * 100:5.1f}%)          │
    └─────────────────────────────────────────────────────────┘
 """)
 
@@ -341,17 +519,17 @@ if len(entry_signals) > 0:
     strat_dist = entry_signals["strategy_tag"].value_counts()
     print("   Strateji Dağılımı (Entry sinyalleri):")
     for tag, cnt in strat_dist.items():
-        print(f"     {tag}: {cnt} sinyal ({cnt/len(entry_signals)*100:.1f}%)")
+        print(f"     {tag}: {cnt} sinyal ({cnt / len(entry_signals) * 100:.1f}%)")
 
     # Hisse bazlı entry dağılımı
     sym_entries = entry_signals["symbol"].value_counts()
-    print(f"\n   Hisse Bazlı Entry Sinyalleri (top 15):")
+    print("\n   Hisse Bazlı Entry Sinyalleri (top 15):")
     for sym, cnt in sym_entries.head(15).items():
         print(f"     {sym:8s}: {'█' * min(cnt, 50)} {cnt}")
 
     # Günlük dağılım
     daily_entries = entry_signals.groupby("date").size()
-    print(f"\n   Günlük Entry Dağılımı:")
+    print("\n   Günlük Entry Dağılımı:")
     print(f"     Toplam gün: {len(daily_entries)}")
     print(f"     Ort. sinyal/gün: {daily_entries.mean():.1f}")
     print(f"     Max sinyal/gün: {daily_entries.max()} ({daily_entries.idxmax()})")
@@ -364,19 +542,25 @@ else:
 # ───────────────────────────────────────────────────────────────────────
 print("\n💰 Adım 4: Trade simülasyonu çalıştırılıyor...")
 
+
 class TradeSimulator:
     """ATR tabanlı alım-satım simülasyonu."""
 
-    def __init__(self, initial_capital: float, risk_per_trade: float,
-                 max_concurrent: int, commission_bps: float):
+    def __init__(
+        self,
+        initial_capital: float,
+        risk_per_trade: float,
+        max_concurrent: int,
+        commission_bps: float,
+    ):
         self.initial_capital = initial_capital
         self.capital = initial_capital
         self.risk_per_trade = risk_per_trade
         self.max_concurrent = max_concurrent
         self.commission_rate = commission_bps / 10000
-        self.open_positions: Dict[str, Dict] = {}
-        self.closed_trades: List[Dict] = []
-        self.equity_curve: List[Dict] = []
+        self.open_positions: dict[str, dict] = {}
+        self.closed_trades: list[dict] = []
+        self.equity_curve: list[dict] = []
         self.peak_capital = initial_capital
         self.max_drawdown = 0.0
 
@@ -391,7 +575,7 @@ class TradeSimulator:
         max_by_capital = int((self.capital * 0.20) / price)
         return min(shares, max_by_capital, 500)  # Max 500 hisse
 
-    def open_trade(self, signal: Dict, date: str):
+    def open_trade(self, signal: dict, date: str):
         """Pozisyon aç."""
         symbol = signal["symbol"]
 
@@ -468,16 +652,26 @@ class TradeSimulator:
             partial_commission = partial_revenue * self.commission_rate
             self.capital += partial_revenue - partial_commission
 
-            partial_pnl = (trade["tp1"] - trade["entry_price"]) * partial_shares - partial_commission - (trade["entry_commission"] * partial_shares / trade["shares"])
-            self.closed_trades.append({
-                "symbol": symbol, "entry_date": trade["entry_date"],
-                "exit_date": date, "entry_price": trade["entry_price"],
-                "exit_price": trade["tp1"], "shares": partial_shares,
-                "pnl": round(partial_pnl, 2), "exit_reason": "TP1 Partial (30%) 🎯",
-                "strategy": trade["strategy"],
-                "pnl_pct": round((trade["tp1"] / trade["entry_price"] - 1) * 100, 2),
-                "holding_days": (pd.Timestamp(date) - pd.Timestamp(trade["entry_date"])).days,
-            })
+            partial_pnl = (
+                (trade["tp1"] - trade["entry_price"]) * partial_shares
+                - partial_commission
+                - (trade["entry_commission"] * partial_shares / trade["shares"])
+            )
+            self.closed_trades.append(
+                {
+                    "symbol": symbol,
+                    "entry_date": trade["entry_date"],
+                    "exit_date": date,
+                    "entry_price": trade["entry_price"],
+                    "exit_price": trade["tp1"],
+                    "shares": partial_shares,
+                    "pnl": round(partial_pnl, 2),
+                    "exit_reason": "TP1 Partial (30%) 🎯",
+                    "strategy": trade["strategy"],
+                    "pnl_pct": round((trade["tp1"] / trade["entry_price"] - 1) * 100, 2),
+                    "holding_days": (pd.Timestamp(date) - pd.Timestamp(trade["entry_date"])).days,
+                }
+            )
             trade["shares"] -= partial_shares
 
         # TP2 check
@@ -489,16 +683,24 @@ class TradeSimulator:
             partial_commission = partial_revenue * self.commission_rate
             self.capital += partial_revenue - partial_commission
 
-            partial_pnl = (trade["tp2"] - trade["entry_price"]) * partial_shares - partial_commission
-            self.closed_trades.append({
-                "symbol": symbol, "entry_date": trade["entry_date"],
-                "exit_date": date, "entry_price": trade["entry_price"],
-                "exit_price": trade["tp2"], "shares": partial_shares,
-                "pnl": round(partial_pnl, 2), "exit_reason": "TP2 Partial (50%) 🎯🎯",
-                "strategy": trade["strategy"],
-                "pnl_pct": round((trade["tp2"] / trade["entry_price"] - 1) * 100, 2),
-                "holding_days": (pd.Timestamp(date) - pd.Timestamp(trade["entry_date"])).days,
-            })
+            partial_pnl = (
+                trade["tp2"] - trade["entry_price"]
+            ) * partial_shares - partial_commission
+            self.closed_trades.append(
+                {
+                    "symbol": symbol,
+                    "entry_date": trade["entry_date"],
+                    "exit_date": date,
+                    "entry_price": trade["entry_price"],
+                    "exit_price": trade["tp2"],
+                    "shares": partial_shares,
+                    "pnl": round(partial_pnl, 2),
+                    "exit_reason": "TP2 Partial (50%) 🎯🎯",
+                    "strategy": trade["strategy"],
+                    "pnl_pct": round((trade["tp2"] / trade["entry_price"] - 1) * 100, 2),
+                    "holding_days": (pd.Timestamp(date) - pd.Timestamp(trade["entry_date"])).days,
+                }
+            )
             trade["shares"] -= partial_shares
 
         # TP3 check (kalan pozisyon)
@@ -513,32 +715,48 @@ class TradeSimulator:
             commission = revenue * self.commission_rate
             self.capital += revenue - commission
 
-            entry_comm_remaining = trade["entry_commission"] * remaining_shares / max(1, trade["shares"])
-            pnl = (exit_price - trade["entry_price"]) * remaining_shares - commission - entry_comm_remaining
-            self.closed_trades.append({
-                "symbol": symbol, "entry_date": trade["entry_date"],
-                "exit_date": date, "entry_price": trade["entry_price"],
-                "exit_price": exit_price, "shares": remaining_shares,
-                "pnl": round(pnl, 2), "exit_reason": exit_reason,
-                "strategy": trade["strategy"],
-                "pnl_pct": round((exit_price / trade["entry_price"] - 1) * 100, 2),
-                "holding_days": (pd.Timestamp(date) - pd.Timestamp(trade["entry_date"])).days,
-            })
+            entry_comm_remaining = (
+                trade["entry_commission"] * remaining_shares / max(1, trade["shares"])
+            )
+            pnl = (
+                (exit_price - trade["entry_price"]) * remaining_shares
+                - commission
+                - entry_comm_remaining
+            )
+            self.closed_trades.append(
+                {
+                    "symbol": symbol,
+                    "entry_date": trade["entry_date"],
+                    "exit_date": date,
+                    "entry_price": trade["entry_price"],
+                    "exit_price": exit_price,
+                    "shares": remaining_shares,
+                    "pnl": round(pnl, 2),
+                    "exit_reason": exit_reason,
+                    "strategy": trade["strategy"],
+                    "pnl_pct": round((exit_price / trade["entry_price"] - 1) * 100, 2),
+                    "holding_days": (pd.Timestamp(date) - pd.Timestamp(trade["entry_date"])).days,
+                }
+            )
             del self.open_positions[symbol]
             return exit_reason
 
         return None
 
-    def update_equity(self, date: str, prices: Dict[str, float]):
+    def update_equity(self, date: str, prices: dict[str, float]):
         """Günlük equity hesapla."""
         unrealized = sum(
             (prices.get(sym, t["entry_price"]) - t["entry_price"]) * t["shares"]
             for sym, t in self.open_positions.items()
         )
-        equity = self.capital + unrealized + sum(
-            t["entry_price"] * t["shares"] for t in self.open_positions.values()
+        equity = (
+            self.capital
+            + unrealized
+            + sum(t["entry_price"] * t["shares"] for t in self.open_positions.values())
         )
-        self.equity_curve.append({"date": date, "equity": equity, "open_positions": len(self.open_positions)})
+        self.equity_curve.append(
+            {"date": date, "equity": equity, "open_positions": len(self.open_positions)}
+        )
 
         if equity > self.peak_capital:
             self.peak_capital = equity
@@ -610,15 +828,23 @@ if len(entry_signals) > 0:
             commission = revenue * sim.commission_rate
             sim.capital += revenue - commission
             pnl = (last_close - trade["entry_price"]) * remaining - commission
-            sim.closed_trades.append({
-                "symbol": symbol, "entry_date": trade["entry_date"],
-                "exit_date": last_date, "entry_price": trade["entry_price"],
-                "exit_price": last_close, "shares": remaining,
-                "pnl": round(pnl, 2), "exit_reason": "Dönem Sonu Kapatma 📅",
-                "strategy": trade["strategy"],
-                "pnl_pct": round((last_close / trade["entry_price"] - 1) * 100, 2),
-                "holding_days": (pd.Timestamp(last_date) - pd.Timestamp(trade["entry_date"])).days,
-            })
+            sim.closed_trades.append(
+                {
+                    "symbol": symbol,
+                    "entry_date": trade["entry_date"],
+                    "exit_date": last_date,
+                    "entry_price": trade["entry_price"],
+                    "exit_price": last_close,
+                    "shares": remaining,
+                    "pnl": round(pnl, 2),
+                    "exit_reason": "Dönem Sonu Kapatma 📅",
+                    "strategy": trade["strategy"],
+                    "pnl_pct": round((last_close / trade["entry_price"] - 1) * 100, 2),
+                    "holding_days": (
+                        pd.Timestamp(last_date) - pd.Timestamp(trade["entry_date"])
+                    ).days,
+                }
+            )
         del sim.open_positions[symbol]
 
 # ───────────────────────────────────────────────────────────────────────
@@ -641,7 +867,13 @@ total_return_pct = (total_pnl / INITIAL_CAPITAL * 100) if total_trades > 0 else 
 win_rate = (winning_trades / total_trades * 100) if total_trades > 0 else 0
 avg_win = df_trades[df_trades["pnl"] > 0]["pnl"].mean() if winning_trades > 0 else 0
 avg_loss = df_trades[df_trades["pnl"] < 0]["pnl"].mean() if losing_trades > 0 else 0
-profit_factor = abs(df_trades[df_trades["pnl"] > 0]["pnl"].sum() / df_trades[df_trades["pnl"] < 0]["pnl"].sum()) if losing_trades > 0 and df_trades[df_trades["pnl"] < 0]["pnl"].sum() != 0 else float('inf') if winning_trades > 0 else 0
+profit_factor = (
+    abs(df_trades[df_trades["pnl"] > 0]["pnl"].sum() / df_trades[df_trades["pnl"] < 0]["pnl"].sum())
+    if losing_trades > 0 and df_trades[df_trades["pnl"] < 0]["pnl"].sum() != 0
+    else float("inf")
+    if winning_trades > 0
+    else 0
+)
 
 avg_holding = df_trades["holding_days"].mean() if total_trades > 0 else 0
 max_holding = df_trades["holding_days"].max() if total_trades > 0 else 0
@@ -654,7 +886,11 @@ max_dd = sim.max_drawdown
 if len(df_equity) > 1:
     eq = pd.Series([e["equity"] for e in sim.equity_curve])
     daily_returns = eq.pct_change().dropna()
-    sharpe = (daily_returns.mean() / daily_returns.std() * np.sqrt(252)) if daily_returns.std() > 0 else 0
+    sharpe = (
+        (daily_returns.mean() / daily_returns.std() * np.sqrt(252))
+        if daily_returns.std() > 0
+        else 0
+    )
 else:
     sharpe = 0
 
@@ -703,33 +939,47 @@ if total_trades > 0:
         st_pnl = st["pnl"].sum()
         st_wr = (len(st[st["pnl"] > 0]) / len(st) * 100) if len(st) > 0 else 0
         st_avg = st["pnl"].mean()
-        print(f"  │  {strat:20s} │ {len(st):3} trade │ PnL: ${st_pnl:>+9,.2f} │ WR: {st_wr:5.1f}% │ Ort: ${st_avg:>+8,.2f} │")
+        print(
+            f"  │  {strat:20s} │ {len(st):3} trade │ PnL: ${st_pnl:>+9,.2f} │ WR: {st_wr:5.1f}% │ Ort: ${st_avg:>+8,.2f} │"
+        )
     print("  └───────────────────────────────────────────────────────────────────────┘")
 
 # Hisse bazlı performans
 if total_trades > 0:
     print("\n  ┌──────────────────────── HİSSE BAZLI PERFORMANS ────────────────────────┐")
-    sym_perf = df_trades.groupby("symbol").agg(
-        trades=("pnl", "count"),
-        total_pnl=("pnl", "sum"),
-        avg_pnl=("pnl", "mean"),
-        win_rate=("pnl", lambda x: (x > 0).sum() / len(x) * 100),
-        avg_hold=("holding_days", "mean"),
-    ).sort_values("total_pnl", ascending=False)
+    sym_perf = (
+        df_trades.groupby("symbol")
+        .agg(
+            trades=("pnl", "count"),
+            total_pnl=("pnl", "sum"),
+            avg_pnl=("pnl", "mean"),
+            win_rate=("pnl", lambda x: (x > 0).sum() / len(x) * 100),
+            avg_hold=("holding_days", "mean"),
+        )
+        .sort_values("total_pnl", ascending=False)
+    )
 
-    print(f"  │  {'Hisse':8s} │ {'Trade':>5s} │ {'Toplam PnL':>12s} │ {'Ort. PnL':>10s} │ {'WR%':>6s} │ {'Süre':>6s} │")
-    print(f"  │  {'─'*8} │ {'─'*5} │ {'─'*12} │ {'─'*10} │ {'─'*6} │ {'─'*6} │")
+    print(
+        f"  │  {'Hisse':8s} │ {'Trade':>5s} │ {'Toplam PnL':>12s} │ {'Ort. PnL':>10s} │ {'WR%':>6s} │ {'Süre':>6s} │"
+    )
+    print(f"  │  {'─' * 8} │ {'─' * 5} │ {'─' * 12} │ {'─' * 10} │ {'─' * 6} │ {'─' * 6} │")
     for sym, row in sym_perf.iterrows():
         bar = "🟢" if row["total_pnl"] > 0 else "🔴"
-        print(f"  │  {bar}{sym:7s} │ {int(row['trades']):>5} │ ${row['total_pnl']:>+10,.2f} │ ${row['avg_pnl']:>+8,.2f} │ {row['win_rate']:>5.1f}% │ {row['avg_hold']:>5.1f}d │")
+        print(
+            f"  │  {bar}{sym:7s} │ {int(row['trades']):>5} │ ${row['total_pnl']:>+10,.2f} │ ${row['avg_pnl']:>+8,.2f} │ {row['win_rate']:>5.1f}% │ {row['avg_hold']:>5.1f}d │"
+        )
     print("  └───────────────────────────────────────────────────────────────────────┘")
 
 # Trade detayları (tüm işlemler)
 if total_trades > 0:
-    print(f"\n  ┌──────────────────────── TÜM İŞLEM DETAYLARI ({total_trades}) ─────────────────────┐")
+    print(
+        f"\n  ┌──────────────────────── TÜM İŞLEM DETAYLARI ({total_trades}) ─────────────────────┐"
+    )
     for _, t in df_trades.iterrows():
         pnl_icon = "🟢" if t["pnl"] > 0 else "🔴" if t["pnl"] < 0 else "⚪"
-        print(f"  │ {pnl_icon} {t['symbol']:6s} │ {t['entry_date']} → {t['exit_date']} │ ${t['entry_price']:>8.2f} → ${t['exit_price']:>8.2f} │ {t['shares']:>4} lot │ ${t['pnl']:>+9.2f} ({t['pnl_pct']:>+6.2f}%) │ {t['exit_reason']} │")
+        print(
+            f"  │ {pnl_icon} {t['symbol']:6s} │ {t['entry_date']} → {t['exit_date']} │ ${t['entry_price']:>8.2f} → ${t['exit_price']:>8.2f} │ {t['shares']:>4} lot │ ${t['pnl']:>+9.2f} ({t['pnl_pct']:>+6.2f}%) │ {t['exit_reason']} │"
+        )
     print("  └───────────────────────────────────────────────────────────────────────┘")
 
 # Çıkış nedeni dağılımı
@@ -790,7 +1040,7 @@ summary = {
     "winning_trades": winning_trades,
     "losing_trades": losing_trades,
     "win_rate": round(win_rate, 2),
-    "profit_factor": round(profit_factor, 2) if profit_factor != float('inf') else "inf",
+    "profit_factor": round(profit_factor, 2) if profit_factor != float("inf") else "inf",
     "avg_pnl": round(avg_pnl, 2),
     "avg_win": round(avg_win, 2),
     "avg_loss": round(avg_loss, 2),

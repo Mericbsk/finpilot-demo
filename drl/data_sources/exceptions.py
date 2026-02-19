@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 
 class AdapterError(Exception):
     """Base error raised by alternative data adapters."""
 
-    def __init__(self, message: str, *, provider: Optional[str] = None) -> None:
+    def __init__(self, message: str, *, provider: str | None = None) -> None:
         self.provider = provider
         super().__init__(message)
 
@@ -21,7 +19,7 @@ class AdapterRateLimitError(AdapterError):
     """Raised when a provider indicates the caller exceeded the rate limit."""
 
     def __init__(
-        self, message: str, *, retry_after: Optional[float] = None, provider: Optional[str] = None
+        self, message: str, *, retry_after: float | None = None, provider: str | None = None
     ) -> None:
         super().__init__(message, provider=provider)
         self.retry_after = retry_after
@@ -39,7 +37,7 @@ class AdapterResponseError(AdapterError):
     """Raised when the provider returns an unexpected payload or status."""
 
     def __init__(
-        self, message: str, *, status_code: Optional[int] = None, provider: Optional[str] = None
+        self, message: str, *, status_code: int | None = None, provider: str | None = None
     ) -> None:
         super().__init__(message, provider=provider)
         self.status_code = status_code

@@ -2,7 +2,6 @@ import logging
 import os
 from datetime import datetime
 
-import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -396,7 +395,7 @@ def render_backtest_results(results: dict):
             st.success(f"Rapor oluşturuldu: {path}")
 
             # Provide download link
-            with open(path, "r") as f:
+            with open(path) as f:
                 html_content = f.read()
 
             st.download_button(

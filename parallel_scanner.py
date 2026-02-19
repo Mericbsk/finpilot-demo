@@ -14,25 +14,23 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
+
+# DRL imports
+from drl.config import DEFAULT_CONFIG
+from drl.hybrid_engine import HybridEngine, HybridSignal, ScannerSignal
 
 # Scanner imports
 from scanner import (
     add_indicators,
     analyze_price_momentum,
-    check_timeframe_alignment,
     check_volume_spike,
-    compute_recommendation_score,
     fetch,
     load_symbols,
 )
 from scanner.signals import safe_float
-
-# DRL imports
-from drl.config import DEFAULT_CONFIG
-from drl.hybrid_engine import HybridEngine, HybridSignal, ScannerSignal
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -46,7 +44,7 @@ class ParallelScanner:
     def __init__(
         self,
         strategy_mode: str = "hybrid",
-        model_path: Optional[str] = None,
+        model_path: str | None = None,
         drl_weight: float = 0.6,
         log_dir: str = "logs/parallel_testing",
     ):
@@ -73,12 +71,14 @@ class ParallelScanner:
 
         # Results storage
         self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.results: List[Dict[str, Any]] = []
+        self.results: list[dict[str, Any]] = []
 
         logger.info(f"🚀 Parallel Scanner initialized - Mode: {strategy_mode}")
         logger.info(f"📁 Logging to: {self.log_dir / self.session_id}")
 
-    def scan_symbol(self, symbol: str, period: str = "1d", lookback: int = 90) -> Optional[HybridSignal]:
+    def scan_symbol(
+        self, symbol: str, period: str = "1d", lookback: int = 90
+    ) -> HybridSignal | None:
         """
         Scan a single symbol and get hybrid signal.
 
@@ -210,7 +210,7 @@ class ParallelScanner:
 
         return 0.0
 
-    def scan_watchlist(self, symbols: List[str]) -> pd.DataFrame:
+    def scan_watchlist(self, symbols: list[str]) -> pd.DataFrame:
         """
         Scan multiple symbols and return results DataFrame.
 
@@ -284,7 +284,7 @@ class ParallelScanner:
 
         logger.info(f"📋 Metadata: {metadata}")
 
-    def generate_comparison_report(self) -> Dict[str, Any]:
+    def generate_comparison_report(self) -> dict[str, Any]:
         """Generate detailed comparison report between scanner and DRL."""
         return self.hybrid_engine.get_performance_report()
 
@@ -299,7 +299,9 @@ def main():
         help="Testing mode",
     )
 
-    parser.add_argument("--model", type=str, help="Path to trained DRL model (required for drl/hybrid)")
+    parser.add_argument(
+        "--model", type=str, help="Path to trained DRL model (required for drl/hybrid)"
+    )
 
     parser.add_argument(
         "--symbols",
@@ -309,7 +311,9 @@ def main():
 
     parser.add_argument("--drl-weight", type=float, default=0.6, help="DRL weight in hybrid mode")
 
-    parser.add_argument("--log-dir", type=str, default="logs/parallel_testing", help="Log directory")
+    parser.add_argument(
+        "--log-dir", type=str, default="logs/parallel_testing", help="Log directory"
+    )
 
     args = parser.parse_args()
 

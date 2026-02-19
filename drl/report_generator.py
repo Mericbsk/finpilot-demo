@@ -8,15 +8,12 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-import numpy as np
-
-from .backtest_engine import MonteCarloResult, PerformanceMetrics, WalkForwardResult
+from .backtest_engine import PerformanceMetrics
 
 logger = logging.getLogger(__name__)
 
@@ -54,22 +51,22 @@ class FullReport:
     period_end: str
 
     # Core Metrics
-    main_metrics: Dict[str, Any]
+    main_metrics: dict[str, Any]
 
     # Walk-Forward
-    walk_forward_summary: Optional[Dict[str, Any]] = None
-    walk_forward_folds: Optional[List[Dict[str, Any]]] = None
+    walk_forward_summary: dict[str, Any] | None = None
+    walk_forward_folds: list[dict[str, Any]] | None = None
 
     # Monte Carlo
-    monte_carlo: Optional[Dict[str, Any]] = None
+    monte_carlo: dict[str, Any] | None = None
 
     # Trade Log
-    trades: Optional[List[Dict[str, Any]]] = None
+    trades: list[dict[str, Any]] | None = None
 
     # Equity Curve Data
-    equity_curve: Optional[List[float]] = None
-    drawdown_curve: Optional[List[float]] = None
-    dates: Optional[List[str]] = None
+    equity_curve: list[float] | None = None
+    drawdown_curve: list[float] | None = None
+    dates: list[str] | None = None
 
 
 # ============================================================================
@@ -80,7 +77,7 @@ class FullReport:
 class HTMLReportGenerator:
     """Generates interactive HTML reports."""
 
-    def __init__(self, config: Optional[ReportConfig] = None):
+    def __init__(self, config: ReportConfig | None = None):
         self.config = config or ReportConfig()
 
     def generate(self, report: FullReport) -> str:
@@ -103,12 +100,12 @@ class HTMLReportGenerator:
     <title>{self.config.title}</title>
     <style>
         :root {{
-            --bg-primary: {theme_colors['bg_primary']};
-            --bg-secondary: {theme_colors['bg_secondary']};
-            --bg-card: {theme_colors['bg_card']};
-            --text-primary: {theme_colors['text_primary']};
-            --text-secondary: {theme_colors['text_secondary']};
-            --accent: {theme_colors['accent']};
+            --bg-primary: {theme_colors["bg_primary"]};
+            --bg-secondary: {theme_colors["bg_secondary"]};
+            --bg-card: {theme_colors["bg_card"]};
+            --text-primary: {theme_colors["text_primary"]};
+            --text-secondary: {theme_colors["text_secondary"]};
+            --accent: {theme_colors["accent"]};
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -336,7 +333,7 @@ class HTMLReportGenerator:
 """
         return html
 
-    def _get_theme_colors(self) -> Dict[str, str]:
+    def _get_theme_colors(self) -> dict[str, str]:
         """Get color scheme based on theme."""
         if self.config.theme == "light":
             return {
@@ -375,27 +372,27 @@ class HTMLReportGenerator:
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div class="label">Toplam Getiri</div>
-                    <div class="value {return_class}">{m.get('total_return', 0):.2%}</div>
+                    <div class="value {return_class}">{m.get("total_return", 0):.2%}</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Yıllık Getiri</div>
-                    <div class="value {return_class}">{m.get('annualized_return', 0):.2%}</div>
+                    <div class="value {return_class}">{m.get("annualized_return", 0):.2%}</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Sharpe Oranı</div>
-                    <div class="value {sharpe_class}">{m.get('sharpe_ratio', 0):.2f}</div>
+                    <div class="value {sharpe_class}">{m.get("sharpe_ratio", 0):.2f}</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Sortino Oranı</div>
-                    <div class="value neutral">{m.get('sortino_ratio', 0):.2f}</div>
+                    <div class="value neutral">{m.get("sortino_ratio", 0):.2f}</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Calmar Oranı</div>
-                    <div class="value neutral">{m.get('calmar_ratio', 0):.2f}</div>
+                    <div class="value neutral">{m.get("calmar_ratio", 0):.2f}</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Volatilite</div>
-                    <div class="value neutral">{m.get('volatility', 0):.2%}</div>
+                    <div class="value neutral">{m.get("volatility", 0):.2%}</div>
                 </div>
             </div>
         </section>
@@ -424,7 +421,7 @@ class HTMLReportGenerator:
                         </div>
                     </div>
                     <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                        Maksimum çekilme süresi: {m.get('max_drawdown_duration', 0)} gün
+                        Maksimum çekilme süresi: {m.get("max_drawdown_duration", 0)} gün
                     </p>
                 </div>
 
@@ -433,11 +430,11 @@ class HTMLReportGenerator:
                     <table>
                         <tr>
                             <td>VaR (95%)</td>
-                            <td style="text-align: right; color: var(--warning);">{m.get('var_95', 0):.2%}</td>
+                            <td style="text-align: right; color: var(--warning);">{m.get("var_95", 0):.2%}</td>
                         </tr>
                         <tr>
                             <td>CVaR (95%)</td>
-                            <td style="text-align: right; color: var(--danger);">{m.get('cvar_95', 0):.2%}</td>
+                            <td style="text-align: right; color: var(--danger);">{m.get("cvar_95", 0):.2%}</td>
                         </tr>
                     </table>
                     <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 1rem;">
@@ -464,7 +461,7 @@ class HTMLReportGenerator:
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div class="label">Toplam İşlem</div>
-                    <div class="value neutral">{m.get('total_trades', 0)}</div>
+                    <div class="value neutral">{m.get("total_trades", 0)}</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Kazanma Oranı</div>
@@ -481,15 +478,15 @@ class HTMLReportGenerator:
                 </div>
                 <div class="metric-card">
                     <div class="label">Ortalama Kazanç</div>
-                    <div class="value positive">{m.get('avg_win', 0):.2%}</div>
+                    <div class="value positive">{m.get("avg_win", 0):.2%}</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Ortalama Kayıp</div>
-                    <div class="value negative">{m.get('avg_loss', 0):.2%}</div>
+                    <div class="value negative">{m.get("avg_loss", 0):.2%}</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Ortalama Tutma</div>
-                    <div class="value neutral">{m.get('avg_holding_days', 0):.1f} gün</div>
+                    <div class="value neutral">{m.get("avg_holding_days", 0):.1f} gün</div>
                 </div>
             </div>
         </section>
@@ -519,20 +516,20 @@ class HTMLReportGenerator:
                 <div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr);">
                     <div>
                         <div style="color: var(--text-secondary); font-size: 0.85rem;">Fold Sayısı</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">{wf.get('n_folds', 0)}</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">{wf.get("n_folds", 0)}</div>
                     </div>
                     <div>
                         <div style="color: var(--text-secondary); font-size: 0.85rem;">Train Sharpe (Ort.)</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">{wf.get('avg_train_sharpe', 0):.2f}</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">{wf.get("avg_train_sharpe", 0):.2f}</div>
                     </div>
                     <div>
                         <div style="color: var(--text-secondary); font-size: 0.85rem;">Test Sharpe (Ort.)</div>
-                        <div style="font-size: 1.5rem; font-weight: bold;">{wf.get('avg_test_sharpe', 0):.2f}</div>
+                        <div style="font-size: 1.5rem; font-weight: bold;">{wf.get("avg_test_sharpe", 0):.2f}</div>
                     </div>
                     <div>
                         <div style="color: var(--text-secondary); font-size: 0.85rem;">Degradasyon</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: {'var(--danger)' if wf.get('sharpe_degradation', 0) > 0.3 else 'var(--success)'};">
-                            {wf.get('sharpe_degradation', 0):.1%}
+                        <div style="font-size: 1.5rem; font-weight: bold; color: {"var(--danger)" if wf.get("sharpe_degradation", 0) > 0.3 else "var(--success)"};">
+                            {wf.get("sharpe_degradation", 0):.1%}
                         </div>
                     </div>
                 </div>
@@ -552,23 +549,23 @@ class HTMLReportGenerator:
             <h2>🎲 Monte Carlo Simülasyonu</h2>
             <div class="two-column">
                 <div class="summary-box">
-                    <h3>Equity Dağılımı ({mc.get('n_simulations', 0)} simülasyon)</h3>
+                    <h3>Equity Dağılımı ({mc.get("n_simulations", 0)} simülasyon)</h3>
                     <table>
                         <tr>
                             <td>Ortalama</td>
-                            <td style="text-align: right; font-weight: bold;">${mc.get('mean_equity', 0):,.2f}</td>
+                            <td style="text-align: right; font-weight: bold;">${mc.get("mean_equity", 0):,.2f}</td>
                         </tr>
                         <tr>
                             <td>Medyan</td>
-                            <td style="text-align: right;">${mc.get('median_equity', 0):,.2f}</td>
+                            <td style="text-align: right;">${mc.get("median_equity", 0):,.2f}</td>
                         </tr>
                         <tr>
                             <td>5. Yüzdelik (En Kötü)</td>
-                            <td style="text-align: right; color: var(--danger);">${mc.get('equity_5th', 0):,.2f}</td>
+                            <td style="text-align: right; color: var(--danger);">${mc.get("equity_5th", 0):,.2f}</td>
                         </tr>
                         <tr>
                             <td>95. Yüzdelik (En İyi)</td>
-                            <td style="text-align: right; color: var(--success);">${mc.get('equity_95th', 0):,.2f}</td>
+                            <td style="text-align: right; color: var(--success);">${mc.get("equity_95th", 0):,.2f}</td>
                         </tr>
                     </table>
                 </div>
@@ -578,25 +575,25 @@ class HTMLReportGenerator:
                     <div style="margin-bottom: 1rem;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span>Zarar Olasılığı</span>
-                            <span style="color: var(--warning);">{mc.get('prob_loss', 0):.1%}</span>
+                            <span style="color: var(--warning);">{mc.get("prob_loss", 0):.1%}</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="fill" style="width: {mc.get('prob_loss', 0) * 100}%; background: var(--warning);"></div>
+                            <div class="fill" style="width: {mc.get("prob_loss", 0) * 100}%; background: var(--warning);"></div>
                         </div>
                     </div>
                     <div style="margin-bottom: 1rem;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span>Yıkım Olasılığı (&gt;50% kayıp)</span>
-                            <span style="color: var(--danger);">{mc.get('prob_ruin', 0):.1%}</span>
+                            <span style="color: var(--danger);">{mc.get("prob_ruin", 0):.1%}</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="fill" style="width: {mc.get('prob_ruin', 0) * 100}%; background: var(--danger);"></div>
+                            <div class="fill" style="width: {mc.get("prob_ruin", 0) * 100}%; background: var(--danger);"></div>
                         </div>
                     </div>
                     <div>
                         <div style="display: flex; justify-content: space-between;">
                             <span>Beklenen Max Drawdown</span>
-                            <span>{mc.get('expected_max_drawdown', 0):.2%}</span>
+                            <span>{mc.get("expected_max_drawdown", 0):.2%}</span>
                         </div>
                     </div>
                 </div>
@@ -604,7 +601,7 @@ class HTMLReportGenerator:
         </section>
         """
 
-    def save(self, report: FullReport, filename: Optional[str] = None) -> str:
+    def save(self, report: FullReport, filename: str | None = None) -> str:
         """
         Generate and save HTML report.
 
@@ -643,10 +640,10 @@ class HTMLReportGenerator:
 class JSONReportGenerator:
     """Generates JSON reports for programmatic access."""
 
-    def __init__(self, config: Optional[ReportConfig] = None):
+    def __init__(self, config: ReportConfig | None = None):
         self.config = config or ReportConfig()
 
-    def generate(self, report: FullReport) -> Dict[str, Any]:
+    def generate(self, report: FullReport) -> dict[str, Any]:
         """Generate JSON-serializable report."""
         return {
             "metadata": {
@@ -662,7 +659,7 @@ class JSONReportGenerator:
             "trades_summary": {"count": len(report.trades) if report.trades else 0},
         }
 
-    def save(self, report: FullReport, filename: Optional[str] = None) -> str:
+    def save(self, report: FullReport, filename: str | None = None) -> str:
         """Save JSON report."""
         output_dir = Path(self.config.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -689,10 +686,10 @@ class JSONReportGenerator:
 def create_report(
     metrics: PerformanceMetrics,
     strategy_name: str = "FinPilot Strategy",
-    walk_forward: Optional[Dict] = None,
-    monte_carlo: Optional[Dict] = None,
-    period_start: Optional[str] = None,
-    period_end: Optional[str] = None,
+    walk_forward: dict | None = None,
+    monte_carlo: dict | None = None,
+    period_start: str | None = None,
+    period_end: str | None = None,
 ) -> FullReport:
     """
     Create a FullReport from metrics and optional analysis.

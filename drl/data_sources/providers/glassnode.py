@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -18,7 +19,7 @@ from ..exceptions import AdapterResponseError
 from ..onchain import normalize_onchain_rows
 
 
-def _to_unix(ts: Optional[pd.Timestamp | str | int | float]) -> Optional[int]:
+def _to_unix(ts: pd.Timestamp | str | int | float | None) -> int | None:
     if ts is None:
         return None
     stamp = pd.Timestamp(ts)
@@ -39,12 +40,12 @@ class GlassnodeAdapter(AsyncHTTPAdapter):
         base_url: str,
         endpoint: str = "/v2/metrics/custom",
         frequency: str = "1d",
-        extra_filters: Optional[Mapping[str, Any]] = None,
+        extra_filters: Mapping[str, Any] | None = None,
         provider: str = "glassnode",
-        rate_limit: Optional[RateLimitConfig] = None,
-        retry: Optional[RetryConfig] = None,
-        circuit_breaker: Optional[CircuitBreakerConfig] = None,
-        timeout: Optional[float] = 10.0,
+        rate_limit: RateLimitConfig | None = None,
+        retry: RetryConfig | None = None,
+        circuit_breaker: CircuitBreakerConfig | None = None,
+        timeout: float | None = 10.0,
     ) -> None:
         params = dict(extra_filters or {})
         self._endpoint = endpoint
@@ -66,8 +67,8 @@ class GlassnodeAdapter(AsyncHTTPAdapter):
         self,
         symbol: str,
         *,
-        start: Optional[pd.Timestamp] = None,
-        end: Optional[pd.Timestamp] = None,
+        start: pd.Timestamp | None = None,
+        end: pd.Timestamp | None = None,
     ) -> DataSlice:
         params: dict[str, Any] = {"symbol": symbol, "interval": self._frequency}
         params.update(self._extra_filters)
@@ -79,7 +80,7 @@ class GlassnodeAdapter(AsyncHTTPAdapter):
             params["end"] = end_unix
 
         payload = await self.client.get_json(self._endpoint, params=params)
-        data: Optional[Sequence[Mapping[str, Any]]]
+        data: Sequence[Mapping[str, Any]] | None
         if isinstance(payload, Mapping):
             data = payload.get("data")  # new API schema
         else:

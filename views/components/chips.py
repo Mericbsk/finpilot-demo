@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Status Chips
 =====================
@@ -7,11 +6,10 @@ UI bileşenleri: status chip'leri ve sinyal göstergeleri.
 
 import math
 from html import escape
-from typing import Any
 
 import pandas as pd
-
 import scanner
+
 from views.components.helpers import get_regime_hint
 
 

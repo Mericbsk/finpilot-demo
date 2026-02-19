@@ -4,16 +4,13 @@ Unit tests for scanner.signals module.
 Tests signal detection and scoring functions.
 """
 
-import numpy as np
 import pandas as pd
 import pytest
-
 from scanner.signals import (
     analyze_price_momentum,
     build_explanation,
     build_reason,
     check_momentum_confluence,
-    check_price_momentum,
     check_timeframe_alignment,
     check_trend_strength,
     check_volume_spike,

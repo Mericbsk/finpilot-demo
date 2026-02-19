@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Callable, Iterable, List, Mapping, Optional
 
 import pandas as pd
 
 from .base import BaseAdapter, DataSlice
 
 RawNewsFetcher = Callable[
-    [str, Optional[pd.Timestamp], Optional[pd.Timestamp]], Iterable[Mapping[str, object]]
+    [str, pd.Timestamp | None, pd.Timestamp | None], Iterable[Mapping[str, object]]
 ]
 
 
@@ -23,7 +23,7 @@ class NewsRecord:
     sentiment: float
     volume: float
     source: str
-    headline: Optional[str] = None
+    headline: str | None = None
     metadata: Mapping[str, object] = field(default_factory=dict)
 
 
@@ -41,7 +41,7 @@ def _coerce_float(value: object, default: float) -> float:
 
 
 def normalize_news_rows(rows: Iterable[Mapping[str, object]]) -> pd.DataFrame:
-    records: List[NewsRecord] = []
+    records: list[NewsRecord] = []
     for row in rows:
         timestamp_raw = row.get("timestamp")
         if timestamp_raw is None:
@@ -95,8 +95,8 @@ class NewsAdapter(BaseAdapter):
         self,
         symbol: str,
         *,
-        start: Optional[pd.Timestamp] = None,
-        end: Optional[pd.Timestamp] = None,
+        start: pd.Timestamp | None = None,
+        end: pd.Timestamp | None = None,
     ) -> DataSlice:
         rows = list(self._fetcher(symbol, start, end))
         frame = normalize_news_rows(rows)

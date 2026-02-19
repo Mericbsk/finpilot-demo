@@ -10,16 +10,16 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import perf_counter
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Sequence, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
-import pandas as pd
 
 from .config import MarketEnvConfig
-from .feature_pipeline import FeatureFrame, FeaturePipeline
+from .feature_pipeline import FeaturePipeline
 from .market_env import EpisodeData, MarketEnv
 from .observability import (
     MLflowSettings,
@@ -74,15 +74,15 @@ class WalkForwardConfig:
     gae_lambda: float = 0.95
     ent_coef: float = 0.001
     vf_coef: float = 0.5
-    seed: Optional[int] = None
+    seed: int | None = None
     track_mlflow: bool = False
     mlflow_experiment: str = "FinPilot-DRL"
-    mlflow_tracking_uri: Optional[str] = None
-    mlflow_tags: Dict[str, str] = field(default_factory=dict)
-    feature_contract_path: Optional[str] = None
+    mlflow_tracking_uri: str | None = None
+    mlflow_tags: dict[str, str] = field(default_factory=dict)
+    feature_contract_path: str | None = None
     save_pipeline_artifacts: bool = False
-    pipeline_artifact_dir: Optional[str] = None
-    load_pipeline_artifact: Optional[str] = None
+    pipeline_artifact_dir: str | None = None
+    load_pipeline_artifact: str | None = None
     allow_pipeline_signature_mismatch: bool = False
 
 
@@ -98,9 +98,9 @@ class EvaluationMetrics:
 class TrainResult:
     split: WalkForwardSplit
     metrics: EvaluationMetrics
-    model_path: Optional[str]
-    history: List[Dict[str, Union[float, str]]] = field(default_factory=list)
-    pipeline_artifact_path: Optional[str] = None
+    model_path: str | None
+    history: list[dict[str, float | str]] = field(default_factory=list)
+    pipeline_artifact_path: str | None = None
 
 
 class WalkForwardTrainer:
@@ -110,12 +110,12 @@ class WalkForwardTrainer:
         self.env_config = env_config
         self.algo_config = algo_config
 
-        self._loaded_artifact: Optional[FeaturePipelineArtifact] = None
+        self._loaded_artifact: FeaturePipelineArtifact | None = None
         if self.algo_config.load_pipeline_artifact:
             artifact_path = Path(self.algo_config.load_pipeline_artifact).expanduser()
             self._loaded_artifact = load_artifact(artifact_path)
 
-        self._artifact_dir: Optional[Path] = None
+        self._artifact_dir: Path | None = None
         if self.algo_config.save_pipeline_artifacts:
             target_dir = (
                 Path(self.algo_config.pipeline_artifact_dir).expanduser()
@@ -139,10 +139,10 @@ class WalkForwardTrainer:
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
-    def train(self, splits: Sequence[WalkForwardSplit]) -> List[TrainResult]:
+    def train(self, splits: Sequence[WalkForwardSplit]) -> list[TrainResult]:
         """Execute walk-forward training for the supplied splits."""
 
-        results: List[TrainResult] = []
+        results: list[TrainResult] = []
         configure_mlflow(self._mlflow_settings)
         common_params = dict(
             algorithm=self.algo_config.algorithm,
@@ -202,7 +202,7 @@ class WalkForwardTrainer:
                             mlflow_log_artifact(contract_path, artifact_path="feature_contract")
                     model_path = self._log_to_mlflow(model, split.label)
 
-            artifact_path: Optional[str] = None
+            artifact_path: str | None = None
             if self._artifact_dir is not None:
                 destination = self._artifact_dir / f"{split.label}_pipeline.json"
                 save_artifact(artifact_payload, destination)
@@ -226,7 +226,7 @@ class WalkForwardTrainer:
         self,
         pipeline: FeaturePipeline,
         split: EpisodeData,
-        callbacks: Optional[list] = None,
+        callbacks: list | None = None,
     ):
         if PPO is None or DummyVecEnv is None:
             raise ImportError(
@@ -250,15 +250,23 @@ class WalkForwardTrainer:
 
         if algo == "PPO":
             model = PPO(
-                "MlpPolicy", vec_env, verbose=0,
-                seed=self.algo_config.seed, **common, **on_policy_extras,
+                "MlpPolicy",
+                vec_env,
+                verbose=0,
+                seed=self.algo_config.seed,
+                **common,
+                **on_policy_extras,
             )
         elif algo == "A2C":
             if A2C is None:
                 raise ImportError("stable-baselines3 A2C not available.")
             model = A2C(
-                "MlpPolicy", vec_env, verbose=0,
-                seed=self.algo_config.seed, **common, **on_policy_extras,
+                "MlpPolicy",
+                vec_env,
+                verbose=0,
+                seed=self.algo_config.seed,
+                **common,
+                **on_policy_extras,
             )
         elif algo == "SAC":
             if SAC is None:
@@ -267,8 +275,11 @@ class WalkForwardTrainer:
                     "Install 'pip install stable-baselines3[extra]'"
                 )
             model = SAC(
-                "MlpPolicy", vec_env, verbose=0,
-                seed=self.algo_config.seed, **common,
+                "MlpPolicy",
+                vec_env,
+                verbose=0,
+                seed=self.algo_config.seed,
+                **common,
             )
         elif algo == "TD3":
             if TD3 is None:
@@ -277,8 +288,11 @@ class WalkForwardTrainer:
                     "Install 'pip install stable-baselines3[extra]'"
                 )
             model = TD3(
-                "MlpPolicy", vec_env, verbose=0,
-                seed=self.algo_config.seed, **common,
+                "MlpPolicy",
+                vec_env,
+                verbose=0,
+                seed=self.algo_config.seed,
+                **common,
             )
         else:
             raise ValueError(f"Unsupported algorithm: {algo}")
@@ -291,7 +305,7 @@ class WalkForwardTrainer:
 
     def _evaluate(
         self, model, pipeline: FeaturePipeline, split: EpisodeData
-    ) -> List[Dict[str, Union[float, str]]]:
+    ) -> list[dict[str, float | str]]:
         eval_env = MarketEnv(split, pipeline, self.env_config)
         obs, _info = eval_env.reset()
         done = False
@@ -314,7 +328,7 @@ class WalkForwardTrainer:
                 break
         return eval_env.get_history()
 
-    def _compute_metrics(self, history: List[Dict[str, Union[float, str]]]) -> EvaluationMetrics:
+    def _compute_metrics(self, history: list[dict[str, float | str]]) -> EvaluationMetrics:
         if not history:
             return EvaluationMetrics(0.0, 0.0, 0.0, 0.0)
         pnl = np.array(
@@ -353,7 +367,7 @@ class WalkForwardTrainer:
         avg_reward = float(np.mean(rewards))
         return EvaluationMetrics(avg_reward, sharpe, max_dd, total_return)
 
-    def _log_to_mlflow(self, model, label: str) -> Optional[str]:
+    def _log_to_mlflow(self, model, label: str) -> str | None:
         if mlflow is None:
             return None
         artifact_path = f"models/{label}"

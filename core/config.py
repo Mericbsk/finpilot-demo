@@ -15,12 +15,11 @@ Author: FinPilot Team
 Version: 1.0.0
 """
 
-import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # =============================================================================
@@ -92,7 +91,7 @@ class DRLConfig(BaseModel):
     total_timesteps: int = Field(default=100_000, ge=1000)
 
     # Network Architecture
-    hidden_layers: List[int] = Field(default=[256, 256])
+    hidden_layers: list[int] = Field(default=[256, 256])
     activation: Literal["tanh", "relu", "elu"] = "tanh"
 
     # Training Hyperparameters
@@ -110,7 +109,7 @@ class DRLConfig(BaseModel):
     lookback_window: int = Field(default=30, ge=1)
 
     # Features
-    feature_columns: List[str] = Field(
+    feature_columns: list[str] = Field(
         default=[
             "open",
             "high",
@@ -198,7 +197,7 @@ class MonitoringConfig(BaseModel):
     # Logging
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     log_format: Literal["json", "text"] = "json"
-    log_file: Optional[str] = None
+    log_file: str | None = None
 
     # Prometheus
     prometheus_enabled: bool = False
@@ -385,7 +384,7 @@ class Settings(BaseSettings):
         }
         return presets[preset]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export settings as dictionary (excluding secrets)."""
         data = self.model_dump()
         # Mask sensitive values
@@ -407,7 +406,7 @@ class Settings(BaseSettings):
 # =============================================================================
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Get cached settings instance."""
     return Settings()

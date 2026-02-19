@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Audit Logging System
 ==============================
@@ -32,12 +31,12 @@ Usage:
         details={"key": "value"}
     )
 """
+
 from __future__ import annotations
 
 import atexit
 import json
 import logging
-import os
 import threading
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -45,7 +44,7 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 # ============================================
 # 📊 Audit Action Types
@@ -127,22 +126,22 @@ class AuditEntry:
     event_id: str = field(default_factory=lambda: str(uuid.uuid4())[:12])
 
     # Context
-    user_id: Optional[str] = None
-    session_id: Optional[str] = None
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
+    user_id: str | None = None
+    session_id: str | None = None
+    ip_address: str | None = None
+    user_agent: str | None = None
 
     # Details
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
     # Performance
-    duration_ms: Optional[float] = None
+    duration_ms: float | None = None
 
     # Error info
-    error_type: Optional[str] = None
-    error_message: Optional[str] = None
+    error_type: str | None = None
+    error_message: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary, excluding None values."""
         result = {}
         for key, value in asdict(self).items():
@@ -198,13 +197,13 @@ class AuditLogger:
         self.flush_interval = flush_interval
 
         # Async writing queue
-        self._queue: Queue[Optional[AuditEntry]] = Queue(maxsize=max_queue_size)
-        self._current_file: Optional[Path] = None
-        self._current_date: Optional[str] = None
-        self._file_handle: Optional[Any] = None
+        self._queue: Queue[AuditEntry | None] = Queue(maxsize=max_queue_size)
+        self._current_file: Path | None = None
+        self._current_date: str | None = None
+        self._file_handle: Any | None = None
 
         # Background writer thread
-        self._writer_thread: Optional[threading.Thread] = None
+        self._writer_thread: threading.Thread | None = None
         self._shutdown = threading.Event()
 
         # Start background writer
@@ -310,13 +309,13 @@ class AuditLogger:
 
     def log(
         self,
-        action: Union[str, AuditAction],
-        level: Union[str, AuditLevel] = AuditLevel.INFO,
-        user_id: Optional[str] = None,
-        session_id: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
-        duration_ms: Optional[float] = None,
-        error: Optional[Exception] = None,
+        action: str | AuditAction,
+        level: str | AuditLevel = AuditLevel.INFO,
+        user_id: str | None = None,
+        session_id: str | None = None,
+        details: dict[str, Any] | None = None,
+        duration_ms: float | None = None,
+        error: Exception | None = None,
         **kwargs: Any,
     ) -> str:
         """
@@ -386,9 +385,9 @@ class AuditLogger:
     def get_recent_entries(
         self,
         limit: int = 100,
-        action_filter: Optional[str] = None,
-        level_filter: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        action_filter: str | None = None,
+        level_filter: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Read recent audit entries.
 
@@ -410,7 +409,7 @@ class AuditLogger:
                 break
 
             try:
-                with open(log_file, "r", encoding="utf-8") as f:
+                with open(log_file, encoding="utf-8") as f:
                     for line in f:
                         if len(entries) >= limit:
                             break
@@ -441,7 +440,7 @@ class AuditLogger:
 # ============================================
 
 # Singleton instance
-_audit_log: Optional[AuditLogger] = None
+_audit_log: AuditLogger | None = None
 
 
 def get_audit_logger() -> AuditLogger:
@@ -462,9 +461,9 @@ audit_log = property(lambda self: get_audit_logger())
 
 
 def log_user_action(
-    action: Union[str, AuditAction],
-    user_id: Optional[str] = None,
-    details: Optional[Dict[str, Any]] = None,
+    action: str | AuditAction,
+    user_id: str | None = None,
+    details: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> str:
     """
@@ -487,9 +486,9 @@ def log_user_action(
 
 
 def log_security_event(
-    action: Union[str, AuditAction],
-    user_id: Optional[str] = None,
-    details: Optional[Dict[str, Any]] = None,
+    action: str | AuditAction,
+    user_id: str | None = None,
+    details: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> str:
     """
@@ -510,10 +509,10 @@ def log_security_event(
 
 
 def log_error(
-    action: Union[str, AuditAction],
+    action: str | AuditAction,
     error: Exception,
-    user_id: Optional[str] = None,
-    details: Optional[Dict[str, Any]] = None,
+    user_id: str | None = None,
+    details: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> str:
     """
@@ -543,9 +542,9 @@ def log_scan_event(
     action: AuditAction,
     symbols_count: int = 0,
     buyable_count: int = 0,
-    duration_ms: Optional[float] = None,
-    source: Optional[str] = None,
-    user_id: Optional[str] = None,
+    duration_ms: float | None = None,
+    source: str | None = None,
+    user_id: str | None = None,
     **kwargs: Any,
 ) -> str:
     """

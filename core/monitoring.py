@@ -32,11 +32,12 @@ import functools
 import os
 import threading
 import time
+from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -87,9 +88,9 @@ class SentryClient:
 
     def init(
         self,
-        dsn: Optional[str] = None,
-        environment: Optional[str] = None,
-        release: Optional[str] = None,
+        dsn: str | None = None,
+        environment: str | None = None,
+        release: str | None = None,
         traces_sample_rate: float = 0.1,
         profiles_sample_rate: float = 0.1,
     ) -> bool:
@@ -164,9 +165,9 @@ class SentryClient:
 
     def capture_exception(
         self,
-        error: Optional[BaseException] = None,
+        error: BaseException | None = None,
         **kwargs: Any,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Capture an exception and send to Sentry.
 
@@ -190,7 +191,7 @@ class SentryClient:
         message: str,
         level: str = "info",
         **kwargs: Any,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Capture a message and send to Sentry.
 
@@ -210,7 +211,7 @@ class SentryClient:
                 scope.set_extra(key, value)
             return self._sentry.capture_message(message, level=level)  # type: ignore[arg-type]
 
-    def set_user(self, user_info: Dict[str, Any]) -> None:
+    def set_user(self, user_info: dict[str, Any]) -> None:
         """
         Set user context for Sentry events.
 
@@ -229,7 +230,7 @@ class SentryClient:
 
         self._sentry.set_tag(key, value)
 
-    def set_context(self, name: str, context: Dict[str, Any]) -> None:
+    def set_context(self, name: str, context: dict[str, Any]) -> None:
         """Set additional context for events."""
         if not self._enabled or not self._sentry:
             return
@@ -241,7 +242,7 @@ class SentryClient:
         message: str,
         category: str = "default",
         level: str = "info",
-        data: Optional[Dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
     ) -> None:
         """
         Add a breadcrumb for debugging.
@@ -306,7 +307,7 @@ sentry_client = SentryClient()
 def track_errors_sentry(
     capture: bool = True,
     reraise: bool = True,
-    tags: Optional[Dict[str, str]] = None,
+    tags: dict[str, str] | None = None,
 ):
     """
     Decorator to automatically capture exceptions to Sentry.
@@ -374,7 +375,7 @@ class Counter:
     Only goes up (or resets).
     """
 
-    def __init__(self, name: str, description: str, labels: Optional[list[str]] = None):
+    def __init__(self, name: str, description: str, labels: list[str] | None = None):
         self.name = name
         self.description = description
         self.label_names = labels or []
@@ -413,7 +414,7 @@ class Gauge:
     Can go up and down.
     """
 
-    def __init__(self, name: str, description: str, labels: Optional[list[str]] = None):
+    def __init__(self, name: str, description: str, labels: list[str] | None = None):
         self.name = name
         self.description = description
         self.label_names = labels or []
@@ -465,8 +466,8 @@ class Histogram:
         self,
         name: str,
         description: str,
-        buckets: Optional[tuple[float, ...]] = None,
-        labels: Optional[list[str]] = None,
+        buckets: tuple[float, ...] | None = None,
+        labels: list[str] | None = None,
     ):
         self.name = name
         self.description = description
@@ -765,9 +766,7 @@ class MetricsRegistry:
         """Collect all metrics for export."""
         result = {}
         for name, metric in self._metrics.items():
-            if isinstance(metric, (Counter, Gauge)):
-                result[name] = metric.collect()
-            elif isinstance(metric, Histogram):
+            if isinstance(metric, (Counter, Gauge)) or isinstance(metric, Histogram):
                 result[name] = metric.collect()
         return result
 
@@ -775,7 +774,7 @@ class MetricsRegistry:
         """Reset all metrics."""
         for metric in self._metrics.values():
             if hasattr(metric, "reset") and callable(getattr(metric, "reset", None)):
-                getattr(metric, "reset")()
+                metric.reset()
 
     def export_prometheus(self) -> str:
         """Export metrics in Prometheus text format."""
@@ -875,7 +874,7 @@ class HealthChecker:
         """Add a health check function."""
         self._checks[name] = check
 
-    def run(self, checks: Optional[list[str]] = None) -> dict[str, Any]:
+    def run(self, checks: list[str] | None = None) -> dict[str, Any]:
         """Run health checks."""
         results: list[HealthCheckResult] = []
         check_names = checks or list(self._checks.keys())
@@ -962,7 +961,7 @@ class MLflowTracker:
             tracker.log_artifact("model.zip")
     """
 
-    def __init__(self, experiment_name: str, tracking_uri: Optional[str] = None):
+    def __init__(self, experiment_name: str, tracking_uri: str | None = None):
         self.experiment_name = experiment_name
         self.tracking_uri = tracking_uri
         self._enabled = False
@@ -991,7 +990,7 @@ class MLflowTracker:
         return self._enabled
 
     @contextmanager
-    def start_run(self, run_name: Optional[str] = None, **kwargs):
+    def start_run(self, run_name: str | None = None, **kwargs):
         """Start an MLflow run."""
         if not self._enabled or self._mlflow is None:
             yield None
@@ -1010,7 +1009,7 @@ class MLflowTracker:
             for key, value in params.items():
                 self._mlflow.log_param(key, value)
 
-    def log_metrics(self, metrics_dict: dict[str, float], step: Optional[int] = None) -> None:
+    def log_metrics(self, metrics_dict: dict[str, float], step: int | None = None) -> None:
         """Log metrics."""
         if self._enabled and self._active_run and self._mlflow is not None:
             for key, value in metrics_dict.items():

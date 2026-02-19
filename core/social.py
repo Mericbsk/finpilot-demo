@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Social Trading
 =======================
@@ -19,15 +18,15 @@ Usage:
     trader = hub.create_trader("username", "display_name")
     signal = trader.publish_signal(symbol="AAPL", direction="LONG")
 """
+
 from __future__ import annotations
 
-import hashlib
 import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +92,7 @@ class PerformanceMetrics:
             self.win_rate = self.winning_signals / self.total_signals * 100
             self.avg_return = self.total_pnl / self.total_signals
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "total_signals": self.total_signals,
@@ -126,10 +125,10 @@ class PublicSignal:
     created_at: datetime
 
     # Optional fields
-    stop_loss: Optional[float] = None
-    take_profit: Optional[float] = None
-    exit_price: Optional[float] = None
-    closed_at: Optional[datetime] = None
+    stop_loss: float | None = None
+    take_profit: float | None = None
+    exit_price: float | None = None
+    closed_at: datetime | None = None
     status: SignalStatus = SignalStatus.ACTIVE
 
     # Engagement
@@ -139,10 +138,10 @@ class PublicSignal:
 
     # Metadata
     notes: str = ""
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     @property
-    def pnl(self) -> Optional[float]:
+    def pnl(self) -> float | None:
         """Calculate P&L if closed."""
         if self.exit_price is None:
             return None
@@ -153,7 +152,7 @@ class PublicSignal:
             return (self.entry_price - self.exit_price) / self.entry_price * 100
 
     @property
-    def is_winner(self) -> Optional[bool]:
+    def is_winner(self) -> bool | None:
         """Check if signal is profitable."""
         pnl = self.pnl
         if pnl is None:
@@ -161,7 +160,7 @@ class PublicSignal:
         return pnl > 0
 
     @property
-    def duration(self) -> Optional[timedelta]:
+    def duration(self) -> timedelta | None:
         """Get signal duration."""
         if self.closed_at is None:
             return None
@@ -173,7 +172,7 @@ class PublicSignal:
         self.closed_at = datetime.now()
         self.status = SignalStatus.CLOSED
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "id": self.id,
@@ -217,8 +216,8 @@ class Trader:
     verified: bool = False
 
     # Social
-    followers: Set[str] = field(default_factory=set)
-    following: Set[str] = field(default_factory=set)
+    followers: set[str] = field(default_factory=set)
+    following: set[str] = field(default_factory=set)
 
     # Performance
     tier: TraderTier = TraderTier.BRONZE
@@ -229,7 +228,7 @@ class Trader:
     allow_copy_trading: bool = True
 
     # Signals
-    signals: List[str] = field(default_factory=list)  # Signal IDs
+    signals: list[str] = field(default_factory=list)  # Signal IDs
 
     @property
     def follower_count(self) -> int:
@@ -273,7 +272,7 @@ class Trader:
         else:
             self.tier = TraderTier.BRONZE
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "id": self.id,
@@ -312,7 +311,7 @@ class LeaderboardEntry:
     followers: int
     score: float
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "rank": self.rank,
@@ -351,9 +350,9 @@ class FeedItem:
     type: FeedItemType
     trader_id: str
     created_at: datetime
-    data: Dict[str, Any] = field(default_factory=dict)
+    data: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "id": self.id,
@@ -377,10 +376,10 @@ class SocialHub:
     """
 
     def __init__(self):
-        self._traders: Dict[str, Trader] = {}
-        self._signals: Dict[str, PublicSignal] = {}
-        self._feed: List[FeedItem] = []
-        self._username_index: Dict[str, str] = {}  # username -> trader_id
+        self._traders: dict[str, Trader] = {}
+        self._signals: dict[str, PublicSignal] = {}
+        self._feed: list[FeedItem] = []
+        self._username_index: dict[str, str] = {}  # username -> trader_id
 
     # ----------------------------------------
     # Trader Management
@@ -418,18 +417,18 @@ class SocialHub:
         logger.info(f"Created trader: {username} ({trader_id})")
         return trader
 
-    def get_trader(self, trader_id: str) -> Optional[Trader]:
+    def get_trader(self, trader_id: str) -> Trader | None:
         """Get trader by ID."""
         return self._traders.get(trader_id)
 
-    def get_trader_by_username(self, username: str) -> Optional[Trader]:
+    def get_trader_by_username(self, username: str) -> Trader | None:
         """Get trader by username."""
         trader_id = self._username_index.get(username.lower())
         if trader_id:
             return self._traders.get(trader_id)
         return None
 
-    def search_traders(self, query: str, limit: int = 20) -> List[Trader]:
+    def search_traders(self, query: str, limit: int = 20) -> list[Trader]:
         """Search traders by username or display name."""
         query = query.lower()
         results = []
@@ -452,10 +451,10 @@ class SocialHub:
         symbol: str,
         direction: SignalDirection,
         entry_price: float,
-        stop_loss: Optional[float] = None,
-        take_profit: Optional[float] = None,
+        stop_loss: float | None = None,
+        take_profit: float | None = None,
         notes: str = "",
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
     ) -> PublicSignal:
         """
         Publish a new trading signal.
@@ -551,13 +550,13 @@ class SocialHub:
 
         return signal
 
-    def get_signal(self, signal_id: str) -> Optional[PublicSignal]:
+    def get_signal(self, signal_id: str) -> PublicSignal | None:
         """Get signal by ID."""
         return self._signals.get(signal_id)
 
     def get_trader_signals(
-        self, trader_id: str, status: Optional[SignalStatus] = None, limit: int = 50
-    ) -> List[PublicSignal]:
+        self, trader_id: str, status: SignalStatus | None = None, limit: int = 50
+    ) -> list[PublicSignal]:
         """Get signals for a trader."""
         trader = self._traders.get(trader_id)
         if trader is None:
@@ -574,9 +573,7 @@ class SocialHub:
 
         return signals
 
-    def get_recent_signals(
-        self, limit: int = 50, symbol: Optional[str] = None
-    ) -> List[PublicSignal]:
+    def get_recent_signals(self, limit: int = 50, symbol: str | None = None) -> list[PublicSignal]:
         """Get recent public signals."""
         signals = sorted(self._signals.values(), key=lambda s: s.created_at, reverse=True)
 
@@ -646,7 +643,7 @@ class SocialHub:
 
     def get_leaderboard(
         self, period: LeaderboardType = LeaderboardType.ALL_TIME, limit: int = 100
-    ) -> List[LeaderboardEntry]:
+    ) -> list[LeaderboardEntry]:
         """
         Get leaderboard rankings.
 
@@ -697,7 +694,7 @@ class SocialHub:
     # Feed
     # ----------------------------------------
 
-    def _add_feed_item(self, item_type: FeedItemType, trader_id: str, data: Dict[str, Any]) -> None:
+    def _add_feed_item(self, item_type: FeedItemType, trader_id: str, data: dict[str, Any]) -> None:
         """Add item to social feed."""
         item = FeedItem(
             id=str(uuid.uuid4())[:8],
@@ -712,7 +709,7 @@ class SocialHub:
         if len(self._feed) > 10000:
             self._feed = self._feed[:5000]
 
-    def get_feed(self, trader_id: Optional[str] = None, limit: int = 50) -> List[FeedItem]:
+    def get_feed(self, trader_id: str | None = None, limit: int = 50) -> list[FeedItem]:
         """
         Get social feed.
 
@@ -741,7 +738,7 @@ class SocialHub:
     # Statistics
     # ----------------------------------------
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get hub statistics."""
         return {
             "total_traders": len(self._traders),
@@ -757,7 +754,7 @@ class SocialHub:
 # 🌐 Global Hub
 # ============================================
 
-_social_hub: Optional[SocialHub] = None
+_social_hub: SocialHub | None = None
 
 
 def get_social_hub() -> SocialHub:

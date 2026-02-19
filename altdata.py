@@ -1,8 +1,6 @@
 # ML/DRL state space için alternatif veri vektörü
 from __future__ import annotations
 
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -97,7 +95,7 @@ def get_onchain_metric(symbol: str) -> float:
     return round(float(history["onchain_tx_volume"].iloc[-1]), 2)
 
 
-def get_altdata_state(symbol: str, timestamp: Optional[pd.Timestamp] = None) -> dict:
+def get_altdata_state(symbol: str, timestamp: pd.Timestamp | None = None) -> dict:
     if timestamp is None:
         timestamp = pd.Timestamp.utcnow()
     return {

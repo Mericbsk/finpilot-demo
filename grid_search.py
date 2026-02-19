@@ -2,12 +2,13 @@
 """
 Basit grid search fonksiyonu: RSI üst bandı, hacim çarpanı, momentum yüzdesi gibi parametreleri sistematik olarak dener ve sonuçları kaydeder.
 """
+
 import itertools
 
 import pandas as pd
+from scanner import load_symbols
 
 from backtest import SimpleBacktest
-from scanner import load_symbols
 
 
 # --- Walk-Forward Optimizasyon (WFO) Fonksiyonu ---

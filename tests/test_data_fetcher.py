@@ -5,11 +5,10 @@ Tests data fetching and symbol management functions.
 """
 
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
-
 from scanner.data_fetcher import (
     get_market_regime_status,
     load_symbols,

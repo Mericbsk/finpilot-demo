@@ -11,10 +11,10 @@ High-performance backtesting with:
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -43,7 +43,7 @@ class BacktestConfig:
     # Risk Management
     stop_loss_pct: float = 0.05  # 5% stop loss
     take_profit_pct: float = 0.15  # 15% take profit
-    trailing_stop_pct: Optional[float] = None  # e.g., 0.03 for 3%
+    trailing_stop_pct: float | None = None  # e.g., 0.03 for 3%
 
     # Trade Rules
     allow_shorting: bool = False
@@ -110,7 +110,7 @@ class PerformanceMetrics:
     equity_curve: np.ndarray = field(default_factory=lambda: np.array([]))
     drawdown_curve: np.ndarray = field(default_factory=lambda: np.array([]))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "total_return": round(self.total_return, 4),
             "annualized_return": round(self.annualized_return, 4),
@@ -181,7 +181,7 @@ def calculate_log_returns(prices: np.ndarray) -> np.ndarray:
     return log_returns
 
 
-def calculate_drawdown(equity: np.ndarray) -> Tuple[np.ndarray, float, int]:
+def calculate_drawdown(equity: np.ndarray) -> tuple[np.ndarray, float, int]:
     """
     Calculate drawdown series and max drawdown.
 
@@ -241,7 +241,7 @@ def calculate_sortino(returns: np.ndarray, risk_free_rate: float = 0.02) -> floa
     return float(sortino)
 
 
-def calculate_var_cvar(returns: np.ndarray, confidence: float = 0.95) -> Tuple[float, float]:
+def calculate_var_cvar(returns: np.ndarray, confidence: float = 0.95) -> tuple[float, float]:
     """
     Calculate Value at Risk and Conditional VaR.
 
@@ -280,13 +280,13 @@ class VectorizedBacktest:
         >>> print(metrics.summary())
     """
 
-    def __init__(self, config: Optional[BacktestConfig] = None):
+    def __init__(self, config: BacktestConfig | None = None):
         self.config = config or BacktestConfig()
-        self.trades: List[Dict] = []
-        self.metrics: Optional[PerformanceMetrics] = None
+        self.trades: list[dict] = []
+        self.metrics: PerformanceMetrics | None = None
 
     def run(
-        self, prices: pd.Series, signals: pd.Series, dates: Optional[pd.DatetimeIndex] = None
+        self, prices: pd.Series, signals: pd.Series, dates: pd.DatetimeIndex | None = None
     ) -> PerformanceMetrics:
         """
         Run vectorized backtest.
@@ -497,7 +497,7 @@ class VectorizedBacktest:
         return metrics
 
     def _calculate_metrics(
-        self, equity: np.ndarray, returns: np.ndarray, position: Optional[np.ndarray]
+        self, equity: np.ndarray, returns: np.ndarray, position: np.ndarray | None
     ) -> PerformanceMetrics:
         """Calculate all performance metrics."""
 
@@ -575,16 +575,16 @@ class WalkForwardOptimizer:
     Implements anchored and rolling walk-forward analysis.
     """
 
-    def __init__(self, config: Optional[BacktestConfig] = None):
+    def __init__(self, config: BacktestConfig | None = None):
         self.config = config or BacktestConfig()
-        self.results: List[WalkForwardResult] = []
+        self.results: list[WalkForwardResult] = []
 
     def run_anchored(
         self,
         df: pd.DataFrame,
         signal_generator: Callable[[pd.DataFrame], pd.Series],
         price_col: str = "close",
-    ) -> List[WalkForwardResult]:
+    ) -> list[WalkForwardResult]:
         """
         Run anchored walk-forward (expanding training window).
 
@@ -658,7 +658,7 @@ class WalkForwardOptimizer:
         test_window: int = 63,
         step: int = 21,
         price_col: str = "close",
-    ) -> List[WalkForwardResult]:
+    ) -> list[WalkForwardResult]:
         """
         Run rolling walk-forward (fixed training window).
 
@@ -723,7 +723,7 @@ class WalkForwardOptimizer:
         self.results = results
         return results
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """Summarize walk-forward results."""
         if not self.results:
             return {}
@@ -782,7 +782,7 @@ class MonteCarloResult:
     # All simulated paths (for plotting)
     equity_paths: np.ndarray = field(default_factory=lambda: np.array([]))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "n_simulations": self.n_simulations,
             "confidence_level": self.confidence_level,
@@ -806,7 +806,7 @@ class MonteCarloSimulator:
     - Parametric: Generate from fitted distribution
     """
 
-    def __init__(self, config: Optional[BacktestConfig] = None):
+    def __init__(self, config: BacktestConfig | None = None):
         self.config = config or BacktestConfig()
 
     def run_bootstrap(
@@ -984,7 +984,7 @@ def run_full_analysis(
     signal_generator: Callable[[pd.DataFrame], pd.Series],
     price_col: str = "close",
     initial_capital: float = 10000.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run complete backtest analysis with walk-forward and Monte Carlo.
 

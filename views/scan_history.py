@@ -31,7 +31,11 @@ def _parse_scan_datetime(filename: str):
         for i, p in enumerate(parts):
             if len(p) == 8 and p.isdigit() and p.startswith("20"):
                 date_str = p
-                time_str = parts[i + 1] if i + 1 < len(parts) and len(parts[i + 1]) == 4 and parts[i + 1].isdigit() else "0000"
+                time_str = (
+                    parts[i + 1]
+                    if i + 1 < len(parts) and len(parts[i + 1]) == 4 and parts[i + 1].isdigit()
+                    else "0000"
+                )
                 return datetime.strptime(f"{date_str}_{time_str}", "%Y%m%d_%H%M")
     except Exception:
         pass
@@ -78,16 +82,28 @@ def get_scan_summary(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return pd.DataFrame()
 
-    summary = df.groupby(["scan_date", "scan_time"]).agg(
-        total_stocks=("symbol", "count"),
-        entry_signals=("entry_ok", lambda x: x.sum() if x.dtype == bool else (x == True).sum()),
-        avg_score=("score", "mean"),
-        top_symbol=("symbol", "first"),
-        scan_file=("scan_file", "first"),
-    ).reset_index()
+    summary = (
+        df.groupby(["scan_date", "scan_time"])
+        .agg(
+            total_stocks=("symbol", "count"),
+            entry_signals=("entry_ok", lambda x: x.sum() if x.dtype == bool else (x == True).sum()),
+            avg_score=("score", "mean"),
+            top_symbol=("symbol", "first"),
+            scan_file=("scan_file", "first"),
+        )
+        .reset_index()
+    )
 
     summary = summary.sort_values(["scan_date", "scan_time"], ascending=[False, False])
-    summary.columns = ["📅 Tarih", "🕐 Saat", "📊 Hisse", "🟢 Sinyal", "⭐ Ort. Skor", "🏆 Top", "Dosya"]
+    summary.columns = [
+        "📅 Tarih",
+        "🕐 Saat",
+        "📊 Hisse",
+        "🟢 Sinyal",
+        "⭐ Ort. Skor",
+        "🏆 Top",
+        "Dosya",
+    ]
     return summary
 
 
@@ -101,8 +117,15 @@ def get_entry_signals_history(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
 
     cols = ["scan_date", "scan_time", "symbol", "price", "score"]
-    optional_cols = ["stop_loss", "take_profit", "risk_reward", "filter_score",
-                     "momentum_3d_pct", "volume_multiple", "ema_gap_pct"]
+    optional_cols = [
+        "stop_loss",
+        "take_profit",
+        "risk_reward",
+        "filter_score",
+        "momentum_3d_pct",
+        "volume_multiple",
+        "ema_gap_pct",
+    ]
     for c in optional_cols:
         if c in entry_df.columns:
             cols.append(c)
@@ -121,8 +144,15 @@ def get_symbol_history(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
         return pd.DataFrame()
 
     cols = ["scan_date", "scan_time", "price", "score", "entry_ok"]
-    optional_cols = ["direction", "filter_score", "volume_multiple",
-                     "momentum_3d_pct", "ema_gap_pct", "stop_loss", "take_profit"]
+    optional_cols = [
+        "direction",
+        "filter_score",
+        "volume_multiple",
+        "momentum_3d_pct",
+        "ema_gap_pct",
+        "stop_loss",
+        "take_profit",
+    ]
     for c in optional_cols:
         if c in sym_df.columns:
             cols.append(c)
@@ -139,16 +169,27 @@ def get_most_signaled_stocks(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
     if entry_df.empty:
         return pd.DataFrame()
 
-    counts = entry_df.groupby("symbol").agg(
-        signal_count=("entry_ok", "count"),
-        avg_price=("price", "mean"),
-        avg_score=("score", "mean"),
-        last_signal=("scan_date", "max"),
-        first_signal=("scan_date", "min"),
-    ).reset_index()
+    counts = (
+        entry_df.groupby("symbol")
+        .agg(
+            signal_count=("entry_ok", "count"),
+            avg_price=("price", "mean"),
+            avg_score=("score", "mean"),
+            last_signal=("scan_date", "max"),
+            first_signal=("scan_date", "min"),
+        )
+        .reset_index()
+    )
 
     counts = counts.sort_values("signal_count", ascending=False).head(top_n)
-    counts.columns = ["Hisse", "Sinyal Sayısı", "Ort. Fiyat", "Ort. Skor", "Son Sinyal", "İlk Sinyal"]
+    counts.columns = [
+        "Hisse",
+        "Sinyal Sayısı",
+        "Ort. Fiyat",
+        "Ort. Skor",
+        "Son Sinyal",
+        "İlk Sinyal",
+    ]
     return counts
 
 
@@ -158,7 +199,8 @@ def get_most_signaled_stocks(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
 def render_scan_history_page():
     """Ana scanner geçmişi sayfası."""
 
-    st.markdown("""
+    st.markdown(
+        """
     <div style='background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
          padding: 24px; border-radius: 16px; margin-bottom: 24px;
          border: 1px solid #334155;'>
@@ -167,7 +209,9 @@ def render_scan_history_page():
             Tüm tarama sonuçları • Tarihsel sinyal takibi • Hisse bazlı analiz
         </p>
     </div>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     # Load all data
     with st.spinner("Tarama geçmişi yükleniyor..."):
@@ -192,12 +236,9 @@ def render_scan_history_page():
     st.markdown("---")
 
     # ─── TABS ──────────────────────────────────────────────
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "📋 Tarama Özeti",
-        "🟢 Entry Sinyalleri",
-        "🔍 Hisse Takibi",
-        "🏆 En Çok Sinyal Verenler"
-    ])
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["📋 Tarama Özeti", "🟢 Entry Sinyalleri", "🔍 Hisse Takibi", "🏆 En Çok Sinyal Verenler"]
+    )
 
     # ── TAB 1: Tarama Özeti ──
     with tab1:
@@ -229,31 +270,43 @@ def render_scan_history_page():
             # Expandable: show a specific scan's detail
             st.markdown("#### 📄 Tarama Detayı")
             scan_options = summary.apply(
-                lambda r: f"{r['📅 Tarih']} {r['🕐 Saat']} ({r['📊 Hisse']} hisse, {r['🟢 Sinyal']} sinyal)",
-                axis=1
+                lambda r: (
+                    f"{r['📅 Tarih']} {r['🕐 Saat']} ({r['📊 Hisse']} hisse, {r['🟢 Sinyal']} sinyal)"
+                ),
+                axis=1,
             ).tolist()
 
             if scan_options:
-                selected_scan = st.selectbox("Tarama seçin:", scan_options, key="scan_detail_select")
+                selected_scan = st.selectbox(
+                    "Tarama seçin:", scan_options, key="scan_detail_select"
+                )
                 idx = scan_options.index(selected_scan)
                 selected_row = summary.iloc[idx]
                 scan_date = selected_row["📅 Tarih"]
                 scan_time = selected_row["🕐 Saat"]
 
                 detail = all_data[
-                    (all_data["scan_date"] == scan_date) &
-                    (all_data["scan_time"] == scan_time)
+                    (all_data["scan_date"] == scan_date) & (all_data["scan_time"] == scan_time)
                 ]
 
                 display_cols = ["symbol", "price", "score", "entry_ok", "direction"]
-                optional_display = ["filter_score", "volume_multiple", "momentum_3d_pct",
-                                    "ema_gap_pct", "stop_loss", "take_profit", "risk_reward"]
+                optional_display = [
+                    "filter_score",
+                    "volume_multiple",
+                    "momentum_3d_pct",
+                    "ema_gap_pct",
+                    "stop_loss",
+                    "take_profit",
+                    "risk_reward",
+                ]
                 for c in optional_display:
                     if c in detail.columns:
                         display_cols.append(c)
 
                 detail_show = detail[display_cols].copy()
-                detail_show = detail_show.sort_values(["entry_ok", "score"], ascending=[False, False])
+                detail_show = detail_show.sort_values(
+                    ["entry_ok", "score"], ascending=[False, False]
+                )
 
                 # Color entry_ok
                 st.dataframe(
@@ -284,24 +337,33 @@ def render_scan_history_page():
             with col_f1:
                 min_date = entries["scan_date"].min()
                 max_date = entries["scan_date"].max()
-                start_date = st.date_input("Başlangıç", value=pd.to_datetime(min_date), key="entry_start")
+                start_date = st.date_input(
+                    "Başlangıç", value=pd.to_datetime(min_date), key="entry_start"
+                )
             with col_f2:
                 end_date = st.date_input("Bitiş", value=pd.to_datetime(max_date), key="entry_end")
 
             filtered = entries[
-                (entries["scan_date"] >= str(start_date)) &
-                (entries["scan_date"] <= str(end_date))
+                (entries["scan_date"] >= str(start_date)) & (entries["scan_date"] <= str(end_date))
             ]
 
             rename_map = {
-                "scan_date": "📅 Tarih", "scan_time": "🕐 Saat",
-                "symbol": "Hisse", "price": "Fiyat",
-                "score": "Skor", "stop_loss": "Stop Loss",
-                "take_profit": "Hedef", "risk_reward": "R/R",
-                "filter_score": "Filtre", "momentum_3d_pct": "3g Mom%",
-                "volume_multiple": "Hacim x", "ema_gap_pct": "EMA%",
+                "scan_date": "📅 Tarih",
+                "scan_time": "🕐 Saat",
+                "symbol": "Hisse",
+                "price": "Fiyat",
+                "score": "Skor",
+                "stop_loss": "Stop Loss",
+                "take_profit": "Hedef",
+                "risk_reward": "R/R",
+                "filter_score": "Filtre",
+                "momentum_3d_pct": "3g Mom%",
+                "volume_multiple": "Hacim x",
+                "ema_gap_pct": "EMA%",
             }
-            display = filtered.rename(columns={k: v for k, v in rename_map.items() if k in filtered.columns})
+            display = filtered.rename(
+                columns={k: v for k, v in rename_map.items() if k in filtered.columns}
+            )
 
             st.dataframe(
                 display,
@@ -322,9 +384,7 @@ def render_scan_history_page():
         st.subheader("🔍 Hisse Bazlı Geçmiş")
 
         all_symbols = sorted(all_data["symbol"].unique())
-        selected_symbol = st.selectbox(
-            "Hisse seçin:", all_symbols, key="symbol_tracker"
-        )
+        selected_symbol = st.selectbox("Hisse seçin:", all_symbols, key="symbol_tracker")
 
         if selected_symbol:
             sym_history = get_symbol_history(all_data, selected_symbol)
@@ -334,7 +394,9 @@ def render_scan_history_page():
                 # Summary metrics
                 total_appearances = len(sym_history)
                 entry_count = (sym_history["entry_ok"] == True).sum()
-                price_range = f"${sym_history['price'].min():.2f} — ${sym_history['price'].max():.2f}"
+                price_range = (
+                    f"${sym_history['price'].min():.2f} — ${sym_history['price'].max():.2f}"
+                )
                 last_price = sym_history.iloc[0]["price"]
 
                 mc1, mc2, mc3, mc4 = st.columns(4)
@@ -352,13 +414,22 @@ def render_scan_history_page():
 
                 # History table
                 rename_map = {
-                    "scan_date": "📅 Tarih", "scan_time": "🕐 Saat",
-                    "price": "Fiyat", "score": "Skor", "entry_ok": "Entry",
-                    "direction": "Yön", "filter_score": "Filtre",
-                    "volume_multiple": "Hacim x", "momentum_3d_pct": "3g Mom%",
-                    "ema_gap_pct": "EMA%", "stop_loss": "Stop", "take_profit": "Hedef",
+                    "scan_date": "📅 Tarih",
+                    "scan_time": "🕐 Saat",
+                    "price": "Fiyat",
+                    "score": "Skor",
+                    "entry_ok": "Entry",
+                    "direction": "Yön",
+                    "filter_score": "Filtre",
+                    "volume_multiple": "Hacim x",
+                    "momentum_3d_pct": "3g Mom%",
+                    "ema_gap_pct": "EMA%",
+                    "stop_loss": "Stop",
+                    "take_profit": "Hedef",
                 }
-                display = sym_history.rename(columns={k: v for k, v in rename_map.items() if k in sym_history.columns})
+                display = sym_history.rename(
+                    columns={k: v for k, v in rename_map.items() if k in sym_history.columns}
+                )
 
                 st.dataframe(
                     display,
@@ -417,8 +488,15 @@ def render_scan_history_page():
     with col_ex2:
         # Export full history
         if not all_data.empty:
-            export_cols = ["scan_date", "scan_time", "symbol", "price", "score",
-                           "entry_ok", "direction"]
+            export_cols = [
+                "scan_date",
+                "scan_time",
+                "symbol",
+                "price",
+                "score",
+                "entry_ok",
+                "direction",
+            ]
             optional = ["filter_score", "stop_loss", "take_profit", "risk_reward"]
             for c in optional:
                 if c in all_data.columns:

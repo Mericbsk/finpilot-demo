@@ -9,6 +9,7 @@ from polygon import RESTClient
 API_KEY = os.getenv("POLYGON_API_KEY", "")
 if not API_KEY:
     import warnings
+
     warnings.warn(
         "POLYGON_API_KEY ortam değişkeni ayarlanmamış. "
         ".env dosyasını kontrol edin veya POLYGON_API_KEY export edin."
@@ -19,10 +20,7 @@ client = RESTClient(API_KEY)
 
 def get_polygon_last_quote(symbol: str):
     try:
-        from datetime import timedelta, timezone
-
         import pandas as pd
-        import pytz
 
         quote = client.get_last_quote(symbol)
         ts = quote.timestamp

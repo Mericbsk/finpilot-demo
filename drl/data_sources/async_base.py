@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import time
-from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable, Dict, Mapping, Optional, Sequence, Tuple, TypeVar
+from collections.abc import Awaitable, Callable, Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any, TypeVar
 
 import httpx
 from aiolimiter import AsyncLimiter
@@ -49,7 +50,7 @@ class RetryConfig:
     base: float = 0.5
     maximum: float = 8.0
     jitter: float = 0.1
-    retriable: Tuple[type[BaseException], ...] = (
+    retriable: tuple[type[BaseException], ...] = (
         httpx.TransportError,
         AdapterRetryableError,
         AdapterTimeoutError,
@@ -129,11 +130,11 @@ class AsyncHTTPClient:
         *,
         base_url: str,
         provider: str,
-        timeout: Optional[float] = 10.0,
-        default_headers: Optional[Mapping[str, str]] = None,
-        rate_limit: Optional[RateLimitConfig] = None,
-        retry: Optional[RetryConfig] = None,
-        circuit_breaker: Optional[CircuitBreakerConfig] = None,
+        timeout: float | None = 10.0,
+        default_headers: Mapping[str, str] | None = None,
+        rate_limit: RateLimitConfig | None = None,
+        retry: RetryConfig | None = None,
+        circuit_breaker: CircuitBreakerConfig | None = None,
         http2: bool = True,
     ) -> None:
         self._provider = provider
@@ -146,7 +147,7 @@ class AsyncHTTPClient:
             config=circuit_breaker or CircuitBreakerConfig(),
             provider=provider,
         )
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         self._client_lock = asyncio.Lock()
         self._http2 = http2
 
@@ -172,11 +173,11 @@ class AsyncHTTPClient:
         method: str,
         url: str,
         *,
-        params: Optional[Mapping[str, Any]] = None,
-        headers: Optional[Mapping[str, str]] = None,
-        json: Optional[Any] = None,
-        data: Optional[Any] = None,
-        timeout: Optional[float] = None,
+        params: Mapping[str, Any] | None = None,
+        headers: Mapping[str, str] | None = None,
+        json: Any | None = None,
+        data: Any | None = None,
+        timeout: float | None = None,
     ) -> httpx.Response:
         async def _send() -> httpx.Response:
             client = await self._ensure_client()
@@ -246,8 +247,8 @@ class AsyncHTTPClient:
         self,
         url: str,
         *,
-        params: Optional[Mapping[str, Any]] = None,
-        headers: Optional[Mapping[str, str]] = None,
+        params: Mapping[str, Any] | None = None,
+        headers: Mapping[str, str] | None = None,
     ) -> Mapping[str, Any]:
         response = await self.request("GET", url, params=params, headers=headers)
         try:
@@ -266,8 +267,8 @@ class AsyncBaseAdapter(BaseAdapter):
         self,
         symbol: str,
         *,
-        start: Optional[Any] = None,
-        end: Optional[Any] = None,
+        start: Any | None = None,
+        end: Any | None = None,
     ) -> DataSlice:
         raise NotImplementedError
 
@@ -275,8 +276,8 @@ class AsyncBaseAdapter(BaseAdapter):
         self,
         symbol: str,
         *,
-        start: Optional[Any] = None,
-        end: Optional[Any] = None,
+        start: Any | None = None,
+        end: Any | None = None,
     ) -> DataSlice:
         try:
             loop = asyncio.get_running_loop()
@@ -315,10 +316,10 @@ class FallbackAdapter(AsyncBaseAdapter):
         self,
         symbol: str,
         *,
-        start: Optional[Any] = None,
-        end: Optional[Any] = None,
+        start: Any | None = None,
+        end: Any | None = None,
     ) -> DataSlice:
-        errors: Dict[str, Exception] = {}
+        errors: dict[str, Exception] = {}
         for adapter in self._adapters:
             try:
                 return await adapter.fetch_async(symbol, start=start, end=end)

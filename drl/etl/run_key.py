@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 import pandas as pd
 
@@ -14,11 +13,11 @@ import pandas as pd
 class RunKeyInputs:
     source: str
     symbol: str
-    start: Optional[pd.Timestamp]
-    end: Optional[pd.Timestamp]
+    start: pd.Timestamp | None
+    end: pd.Timestamp | None
 
     def serialise(self) -> str:
-        def _norm(ts: Optional[pd.Timestamp]) -> str:
+        def _norm(ts: pd.Timestamp | None) -> str:
             if ts is None:
                 return ""
             if isinstance(ts, datetime):
@@ -34,7 +33,7 @@ class RunKeyInputs:
 
 
 def build_run_key(
-    source: str, symbol: str, *, start: Optional[pd.Timestamp], end: Optional[pd.Timestamp]
+    source: str, symbol: str, *, start: pd.Timestamp | None, end: pd.Timestamp | None
 ) -> str:
     """Return a deterministic run key combining source, symbol and window."""
 

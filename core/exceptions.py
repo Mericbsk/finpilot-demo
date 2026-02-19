@@ -40,9 +40,9 @@ Version: 1.0.0
 from __future__ import annotations
 
 import functools
-import traceback
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Optional, ParamSpec, Type, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -67,8 +67,8 @@ class FinPilotError(Exception):
     def __init__(
         self,
         message: str,
-        code: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
+        code: str | None = None,
+        details: dict[str, Any] | None = None,
         **kwargs: Any,
     ):
         self.message = message
@@ -146,7 +146,7 @@ class DataError(FinPilotError):
 class DataFetchError(DataError):
     """Veri çekme hatası (API, database, file)."""
 
-    def __init__(self, message: str, source: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, source: str | None = None, **kwargs):
         super().__init__(message, source=source, **kwargs)
 
 
@@ -156,9 +156,9 @@ class DataValidationError(DataError):
     def __init__(
         self,
         message: str,
-        field: Optional[str] = None,
-        expected: Optional[Any] = None,
-        actual: Optional[Any] = None,
+        field: str | None = None,
+        expected: Any | None = None,
+        actual: Any | None = None,
         **kwargs,
     ):
         super().__init__(message, field=field, expected=expected, actual=actual, **kwargs)
@@ -167,7 +167,7 @@ class DataValidationError(DataError):
 class DataProcessingError(DataError):
     """Veri işleme hatası (transformation, calculation)."""
 
-    def __init__(self, message: str, operation: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, operation: str | None = None, **kwargs):
         super().__init__(message, operation=operation, **kwargs)
 
 
@@ -177,8 +177,8 @@ class InsufficientDataError(DataError):
     def __init__(
         self,
         message: str,
-        required: Optional[int] = None,
-        available: Optional[int] = None,
+        required: int | None = None,
+        available: int | None = None,
         **kwargs,
     ):
         super().__init__(message, required=required, available=available, **kwargs)
@@ -208,7 +208,7 @@ class AuthorizationError(AuthError):
     def __init__(
         self,
         message: str = "Permission denied",
-        required_permission: Optional[str] = None,
+        required_permission: str | None = None,
         **kwargs,
     ):
         super().__init__(message, required_permission=required_permission, **kwargs)
@@ -277,8 +277,8 @@ class OrderError(MarketError):
     def __init__(
         self,
         message: str,
-        order_id: Optional[str] = None,
-        order_type: Optional[str] = None,
+        order_id: str | None = None,
+        order_type: str | None = None,
         **kwargs,
     ):
         super().__init__(message, order_id=order_id, order_type=order_type, **kwargs)
@@ -290,8 +290,8 @@ class PositionError(MarketError):
     def __init__(
         self,
         message: str,
-        ticker: Optional[str] = None,
-        position_size: Optional[float] = None,
+        ticker: str | None = None,
+        position_size: float | None = None,
         **kwargs,
     ):
         super().__init__(message, ticker=ticker, position_size=position_size, **kwargs)
@@ -325,7 +325,7 @@ class ModelError(FinPilotError):
 class ModelNotFoundError(ModelError):
     """Model bulunamadı."""
 
-    def __init__(self, model_name: str, model_path: Optional[str] = None, **kwargs):
+    def __init__(self, model_name: str, model_path: str | None = None, **kwargs):
         super().__init__(
             f"Model not found: {model_name}", model_name=model_name, model_path=model_path, **kwargs
         )
@@ -334,7 +334,7 @@ class ModelNotFoundError(ModelError):
 class ModelLoadError(ModelError):
     """Model yükleme hatası."""
 
-    def __init__(self, model_name: str, reason: Optional[str] = None, **kwargs):
+    def __init__(self, model_name: str, reason: str | None = None, **kwargs):
         super().__init__(
             f"Failed to load model: {model_name}" + (f" - {reason}" if reason else ""),
             model_name=model_name,
@@ -346,7 +346,7 @@ class ModelLoadError(ModelError):
 class ModelTrainingError(ModelError):
     """Model eğitim hatası."""
 
-    def __init__(self, message: str, epoch: Optional[int] = None, **kwargs):
+    def __init__(self, message: str, epoch: int | None = None, **kwargs):
         super().__init__(message, epoch=epoch, **kwargs)
 
 
@@ -356,8 +356,8 @@ class InferenceError(ModelError):
     def __init__(
         self,
         message: str,
-        model_name: Optional[str] = None,
-        input_shape: Optional[tuple] = None,
+        model_name: str | None = None,
+        input_shape: tuple | None = None,
         **kwargs,
     ):
         super().__init__(message, model_name=model_name, input_shape=input_shape, **kwargs)
@@ -366,7 +366,7 @@ class InferenceError(ModelError):
 class FeatureError(ModelError):
     """Feature engineering hatası."""
 
-    def __init__(self, message: str, feature_name: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, feature_name: str | None = None, **kwargs):
         super().__init__(message, feature_name=feature_name, **kwargs)
 
 
@@ -401,11 +401,11 @@ class CacheKeyError(CacheError):
 
 
 def handle_errors(
-    *catch: Type[Exception],
+    *catch: type[Exception],
     default_return: Any = None,
     log_error: bool = True,
     reraise: bool = False,
-    reraise_as: Optional[Type[FinPilotError]] = None,
+    reraise_as: type[FinPilotError] | None = None,
 ) -> Callable[[Callable[P, T]], Callable[P, T | Any]]:
     """
     Fonksiyonlardaki exception'ları yakalayan decorator.
@@ -467,7 +467,7 @@ def handle_errors(
 
 
 def retry_on_error(
-    *catch: Type[Exception],
+    *catch: type[Exception],
     max_retries: int = 3,
     delay: float = 1.0,
     backoff: float = 2.0,
@@ -495,7 +495,7 @@ def retry_on_error(
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         @functools.wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-            last_exception: Optional[Exception] = None
+            last_exception: Exception | None = None
             current_delay = delay
 
             for attempt in range(max_retries + 1):
@@ -550,8 +550,11 @@ def get_exception_chain(e: Exception) -> list[Exception]:
 
 
 def safe_execute(
-    func: Callable[P, T], *args: P.args, default: T = None, **kwargs: P.kwargs  # type: ignore
-) -> tuple[T, Optional[Exception]]:
+    func: Callable[P, T],
+    *args: P.args,
+    default: T = None,
+    **kwargs: P.kwargs,  # type: ignore
+) -> tuple[T, Exception | None]:
     """
     Fonksiyonu güvenli şekilde çalıştır, (result, error) tuple döndür.
 

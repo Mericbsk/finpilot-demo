@@ -9,8 +9,9 @@ DRL stack can remain agnostic of the underlying transport.
 from __future__ import annotations
 
 import abc
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Dict, Mapping, Optional, Protocol, Sequence
+from typing import Protocol
 
 import pandas as pd
 
@@ -33,7 +34,7 @@ class DataAdapter(Protocol):
     """Protocol implemented by all data source adapters."""
 
     def fetch(
-        self, symbol: str, *, start: Optional[pd.Timestamp], end: Optional[pd.Timestamp]
+        self, symbol: str, *, start: pd.Timestamp | None, end: pd.Timestamp | None
     ) -> DataSlice:
         """Retrieve the requested time window for ``symbol``."""
         ...
@@ -48,7 +49,7 @@ class BaseAdapter(abc.ABC):
         self.provider = provider
 
     def _build_metadata(self, symbol: str, **extra: object) -> Mapping[str, object]:
-        base: Dict[str, object] = {"symbol": symbol, "provider": self.provider}
+        base: dict[str, object] = {"symbol": symbol, "provider": self.provider}
         base.update(extra)
         return base
 
@@ -57,8 +58,8 @@ class BaseAdapter(abc.ABC):
         self,
         symbol: str,
         *,
-        start: Optional[pd.Timestamp] = None,
-        end: Optional[pd.Timestamp] = None,
+        start: pd.Timestamp | None = None,
+        end: pd.Timestamp | None = None,
     ) -> DataSlice:
         raise NotImplementedError
 

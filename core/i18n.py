@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Internationalization (i18n) System
 ============================================
@@ -22,15 +21,13 @@ Usage:
     # With pluralization
     text = t("items.count", n=5)  # Returns plural form
 """
+
 from __future__ import annotations
 
-import json
-import re
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from enum import Enum
-from functools import lru_cache
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import streamlit as st
 
@@ -63,7 +60,7 @@ I18N_LANGUAGE_KEY = "finpilot_language"
 # ============================================
 
 # Core translations - embedded for fast access
-TRANSLATIONS: Dict[str, Dict[str, str]] = {
+TRANSLATIONS: dict[str, dict[str, str]] = {
     "tr": {
         # Navigation
         "nav.home": "Ana Sayfa",
@@ -369,7 +366,7 @@ class TranslationContext:
 
     language: Language = DEFAULT_LANGUAGE
     fallback_language: Language = Language.ENGLISH
-    missing_key_handler: Optional[Callable[[str], str]] = None
+    missing_key_handler: Callable[[str], str] | None = None
 
 
 # Global context
@@ -387,7 +384,7 @@ def get_language() -> Language:
     return DEFAULT_LANGUAGE
 
 
-def set_language(language: Union[Language, str]) -> None:
+def set_language(language: Language | str) -> None:
     """Set current language in session state."""
     if isinstance(language, str):
         try:
@@ -399,7 +396,7 @@ def set_language(language: Union[Language, str]) -> None:
     _context.language = language
 
 
-def t(key: str, language: Optional[Union[Language, str]] = None, **kwargs: Any) -> str:
+def t(key: str, language: Language | str | None = None, **kwargs: Any) -> str:
     """
     Get translation for a key.
 
@@ -477,9 +474,7 @@ def tn(key_singular: str, key_plural: str, n: int, **kwargs: Any) -> str:
 # ============================================
 
 
-def render_language_selector(
-    location: str = "sidebar", show_flags: bool = True
-) -> Optional[Language]:
+def render_language_selector(location: str = "sidebar", show_flags: bool = True) -> Language | None:
     """
     Render a language selector widget.
 
@@ -520,7 +515,7 @@ def render_language_selector(
     return None
 
 
-def render_language_toggle() -> Optional[Language]:
+def render_language_toggle() -> Language | None:
     """
     Render a compact language toggle (TR/EN).
 
@@ -561,13 +556,13 @@ def render_language_toggle() -> Optional[Language]:
 # ============================================
 
 
-def get_all_keys(language: Optional[Language] = None) -> List[str]:
+def get_all_keys(language: Language | None = None) -> list[str]:
     """Get all translation keys for a language."""
     lang = language or get_language()
     return list(TRANSLATIONS.get(lang.value, {}).keys())
 
 
-def has_translation(key: str, language: Optional[Language] = None) -> bool:
+def has_translation(key: str, language: Language | None = None) -> bool:
     """Check if a translation exists for a key."""
     lang = language or get_language()
     return key in TRANSLATIONS.get(lang.value, {})
@@ -575,14 +570,14 @@ def has_translation(key: str, language: Optional[Language] = None) -> bool:
 
 def get_missing_translations(
     source: Language = Language.ENGLISH, target: Language = Language.TURKISH
-) -> List[str]:
+) -> list[str]:
     """Find keys that exist in source but not in target."""
     source_keys = set(TRANSLATIONS.get(source.value, {}).keys())
     target_keys = set(TRANSLATIONS.get(target.value, {}).keys())
     return list(source_keys - target_keys)
 
 
-def add_translation(key: str, translations: Dict[str, str]) -> None:
+def add_translation(key: str, translations: dict[str, str]) -> None:
     """
     Add a translation dynamically.
 
@@ -647,9 +642,7 @@ def localized_date(date, format: str = "short") -> str:
             return date
 
     if format == "short":
-        if lang == Language.TURKISH:
-            return date.strftime("%d.%m.%Y")
-        elif lang == Language.GERMAN:
+        if lang == Language.TURKISH or lang == Language.GERMAN:
             return date.strftime("%d.%m.%Y")
         else:
             return date.strftime("%m/%d/%Y")

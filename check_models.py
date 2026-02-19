@@ -1,7 +1,6 @@
 import os
 
 import google.generativeai as genai
-import streamlit as st
 
 # Try to get key from secrets or env
 api_key = os.environ.get("GOOGLE_API_KEY")

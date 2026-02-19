@@ -8,8 +8,8 @@ caller receives a descriptive ``RuntimeError``.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -27,9 +27,9 @@ class PolicyDataset:
     actions: np.ndarray
     rewards: np.ndarray
     regimes: Sequence[str]
-    timestamps: Sequence[Optional[str]]
+    timestamps: Sequence[str | None]
 
-    def sample(self, size: int, *, seed: Optional[int] = None) -> "PolicyDataset":
+    def sample(self, size: int, *, seed: int | None = None) -> PolicyDataset:
         if size >= len(self.features):
             return self
         rng = np.random.default_rng(seed)
@@ -49,7 +49,7 @@ class FeatureImportanceSummary:
     """Aggregated feature importance report."""
 
     global_importance: pd.DataFrame
-    regime_importance: Dict[str, pd.DataFrame]
+    regime_importance: dict[str, pd.DataFrame]
     shap_values: np.ndarray
     base_values: np.ndarray
 
@@ -59,16 +59,16 @@ def collect_policy_dataset(
     config: MarketEnvConfig,
     *,
     include_rewards: bool = True,
-    min_reward: Optional[float] = None,
+    min_reward: float | None = None,
 ) -> PolicyDataset:
     """Flatten walk-forward histories into a policy dataset."""
 
     feature_names = list(config.feature_columns)
-    feature_rows: List[np.ndarray] = []
-    actions: List[float] = []
-    rewards: List[float] = []
-    regimes: List[str] = []
-    timestamps: List[Optional[str]] = []
+    feature_rows: list[np.ndarray] = []
+    actions: list[float] = []
+    rewards: list[float] = []
+    regimes: list[str] = []
+    timestamps: list[str | None] = []
 
     for result in results:
         for step in result.history:
@@ -107,7 +107,7 @@ def fit_surrogate_policy(
     dataset: PolicyDataset,
     *,
     n_estimators: int = 300,
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
     random_state: int = 42,
 ):
     """Train a tree-based surrogate model approximating the policy.
@@ -137,7 +137,7 @@ def compute_shap_summary(
     dataset: PolicyDataset,
     *,
     sample_size: int = 1024,
-    seed: Optional[int] = 42,
+    seed: int | None = 42,
 ) -> FeatureImportanceSummary:
     """Compute global and regime-specific SHAP importances."""
 
@@ -164,7 +164,7 @@ def compute_shap_summary(
         .reset_index(drop=True)
     )
 
-    regime_importance: Dict[str, pd.DataFrame] = {}
+    regime_importance: dict[str, pd.DataFrame] = {}
     regimes = np.asarray(sampled.regimes)
     for regime in sorted(set(regimes)):
         mask = regimes == regime

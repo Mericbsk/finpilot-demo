@@ -4,8 +4,6 @@ Contains all technical analysis indicator calculations.
 Extracted from scanner.py for modularity and reusability.
 """
 
-from typing import Tuple
-
 import pandas as pd
 
 
@@ -65,7 +63,7 @@ def macd_hist(close: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9)
 
 def bbands(
     series: pd.Series, window: int = 20, ndev: float = 2
-) -> Tuple[pd.Series, pd.Series, pd.Series]:
+) -> tuple[pd.Series, pd.Series, pd.Series]:
     """
     Calculate Bollinger Bands.
 

@@ -12,7 +12,6 @@ import time
 
 import pandas as pd
 import requests
-
 from telegram_config import BOT_TOKEN, CHAT_ID
 
 API_BASE = f"https://api.telegram.org/bot{BOT_TOKEN}"

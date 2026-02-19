@@ -7,8 +7,7 @@ NOTE: This module is maintained for backward compatibility.
       New code should use `from core.config import settings` instead.
 """
 
-import warnings
-from typing import Any, Dict
+from typing import Any
 
 # Try to use new centralized config
 _core_settings = None
@@ -20,7 +19,7 @@ except ImportError:
     _USE_CORE_CONFIG = False
 
 # ✨ Default threshold settings (Normal mode)
-DEFAULT_SETTINGS: Dict[str, Any] = {
+DEFAULT_SETTINGS: dict[str, Any] = {
     "vol_multiplier": 1.5,  # Volume spike multiplier
     "momentum_pct": 2.0,  # 3-day momentum percentage
     "trend_gap_pct": 3.0,  # EMA50-EMA200 gap percentage
@@ -56,7 +55,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
 }
 
 # ⚡ Aggressive mode overrides (relaxed thresholds for more signals)
-AGGRESSIVE_OVERRIDES: Dict[str, Any] = {
+AGGRESSIVE_OVERRIDES: dict[str, Any] = {
     "vol_multiplier": 1.3,
     "momentum_pct": 1.2,
     "trend_gap_pct": 2.2,

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -18,7 +19,7 @@ from ..exceptions import AdapterResponseError
 from ..news import normalize_news_rows
 
 
-def _to_iso(ts: Optional[pd.Timestamp | str | int | float]) -> Optional[str]:
+def _to_iso(ts: pd.Timestamp | str | int | float | None) -> str | None:
     if ts is None:
         return None
     stamp = pd.Timestamp(ts)
@@ -38,14 +39,14 @@ class NewsAPIAdapter(AsyncHTTPAdapter):
         api_key: str,
         base_url: str,
         endpoint: str = "/v2/everything",
-        language: Optional[str] = "en",
+        language: str | None = "en",
         page_size: int = 100,
-        extra_filters: Optional[Mapping[str, Any]] = None,
+        extra_filters: Mapping[str, Any] | None = None,
         provider: str = "newsapi",
-        rate_limit: Optional[RateLimitConfig] = None,
-        retry: Optional[RetryConfig] = None,
-        circuit_breaker: Optional[CircuitBreakerConfig] = None,
-        timeout: Optional[float] = 10.0,
+        rate_limit: RateLimitConfig | None = None,
+        retry: RetryConfig | None = None,
+        circuit_breaker: CircuitBreakerConfig | None = None,
+        timeout: float | None = 10.0,
     ) -> None:
         headers = {"Authorization": f"Bearer {api_key}"}
         client = AsyncHTTPClient(
@@ -67,8 +68,8 @@ class NewsAPIAdapter(AsyncHTTPAdapter):
         self,
         symbol: str,
         *,
-        start: Optional[pd.Timestamp] = None,
-        end: Optional[pd.Timestamp] = None,
+        start: pd.Timestamp | None = None,
+        end: pd.Timestamp | None = None,
     ) -> DataSlice:
         params: dict[str, Any] = {
             "q": symbol,

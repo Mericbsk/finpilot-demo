@@ -6,8 +6,7 @@ matching the DRL agent's expectations.
 
 import logging
 import re
-from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -160,7 +159,6 @@ def prepare_inference_frame(symbol: str, config: MarketEnvConfig) -> pd.DataFram
     Merges technical data with AltData.
     """
     from altdata import get_altdata_history
-    from drl.config import MarketEnvConfig
 
     # 1. Get Price Data
     df = fetch_market_data(symbol)
@@ -202,12 +200,12 @@ def prepare_inference_frame(symbol: str, config: MarketEnvConfig) -> pd.DataFram
 
 
 def fetch_training_data(
-    symbols: List[str],
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
+    symbols: list[str],
+    start_date: str | None = None,
+    end_date: str | None = None,
     period: str = "2y",
     interval: str = "1d",
-) -> Dict[str, pd.DataFrame]:
+) -> dict[str, pd.DataFrame]:
     """
     Çoklu sembol için training verisi çeker.
 
@@ -297,7 +295,7 @@ def _add_placeholder_features(df: pd.DataFrame) -> pd.DataFrame:
 
 def create_train_test_split(
     df: pd.DataFrame, train_ratio: float = 0.8, validation_ratio: float = 0.0
-) -> Tuple[pd.DataFrame, pd.DataFrame, Optional[pd.DataFrame]]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame | None]:
     """
     Kronolojik train/test split yapar (shuffle yok!).
 
@@ -327,10 +325,10 @@ def create_train_test_split(
 def create_walk_forward_splits(
     df: pd.DataFrame,
     n_splits: int = 5,
-    train_window: Optional[int] = None,
-    test_window: Optional[int] = None,
+    train_window: int | None = None,
+    test_window: int | None = None,
     gap: int = 0,
-) -> List[Tuple[pd.DataFrame, pd.DataFrame, str]]:
+) -> list[tuple[pd.DataFrame, pd.DataFrame, str]]:
     """
     Walk-forward optimization için veri bölümleri oluşturur.
 
@@ -379,11 +377,11 @@ def create_walk_forward_splits(
         train_df = df.iloc[train_start:train_end].copy()
         test_df = df.iloc[test_start:test_end].copy()
 
-        label = f"split_{i+1}_train{train_start}-{train_end}_test{test_start}-{test_end}"
+        label = f"split_{i + 1}_train{train_start}-{train_end}_test{test_start}-{test_end}"
         splits.append((train_df, test_df, label))
 
         logger.info(
-            f"Split {i+1}: Train[{train_start}:{train_end}] ({len(train_df)} rows), "
+            f"Split {i + 1}: Train[{train_start}:{train_end}] ({len(train_df)} rows), "
             f"Test[{test_start}:{test_end}] ({len(test_df)} rows)"
         )
 
@@ -391,7 +389,7 @@ def create_walk_forward_splits(
 
 
 def merge_multi_symbol_data(
-    data_dict: Dict[str, pd.DataFrame], method: str = "concat"
+    data_dict: dict[str, pd.DataFrame], method: str = "concat"
 ) -> pd.DataFrame:
     """
     Çoklu sembol verisini birleştirir.
@@ -427,7 +425,7 @@ def merge_multi_symbol_data(
         raise ValueError(f"Unknown method: {method}")
 
 
-def get_default_training_symbols() -> List[str]:
+def get_default_training_symbols() -> list[str]:
     """Training için varsayılan sembol listesi."""
     return [
         # US Large Cap
@@ -450,9 +448,7 @@ def get_default_training_symbols() -> List[str]:
     ]
 
 
-def prepare_episode_data(
-    df: pd.DataFrame, config: Optional[MarketEnvConfig] = None
-) -> "EpisodeData":
+def prepare_episode_data(df: pd.DataFrame, config: MarketEnvConfig | None = None) -> "EpisodeData":
     """
     DataFrame'i MarketEnv için EpisodeData formatına dönüştürür.
 
@@ -502,8 +498,8 @@ def prepare_episode_data(
 
 
 def quick_load_training_data(
-    symbols: Optional[List[str]] = None, period: str = "1y", interval: str = "1d"
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    symbols: list[str] | None = None, period: str = "1y", interval: str = "1d"
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Hızlı training verisi yükleme (tek satırda kullanım).
 

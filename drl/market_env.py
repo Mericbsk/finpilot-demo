@@ -10,7 +10,7 @@ monitoring agents.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -45,10 +45,10 @@ if gym is not None:  # pragma: no cover - when gym available
 class BaseEnv(BaseEnvType):  # type: ignore[misc]
     """Duck-typed base class compatible with Gym/Gymnasium APIs."""
 
-    observation_space: Optional[object] = None
-    action_space: Optional[object] = None
+    observation_space: object | None = None
+    action_space: object | None = None
 
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):  # type: ignore[override]
+    def reset(self, *, seed: int | None = None, options: dict | None = None):  # type: ignore[override]
         raise NotImplementedError
 
     def step(self, action):  # type: ignore[override]
@@ -61,8 +61,8 @@ class EpisodeData:
 
     features: FeatureFrame
     prices: pd.Series
-    regimes: Optional[pd.Series] = None
-    timestamps: Optional[pd.Index] = None
+    regimes: pd.Series | None = None
+    timestamps: pd.Index | None = None
 
     def __post_init__(self) -> None:
         if self.timestamps is None and isinstance(self.prices.index, pd.DatetimeIndex):
@@ -98,9 +98,7 @@ class MarketEnv(BaseEnv):
         self._raw_features = episode.features
         self._feature_tensor = pipeline.transform(episode.features)
         # Safety: ensure no NaN/Inf leaks into observations
-        self._feature_tensor = np.nan_to_num(
-            self._feature_tensor, nan=0.0, posinf=5.0, neginf=-5.0
-        )
+        self._feature_tensor = np.nan_to_num(self._feature_tensor, nan=0.0, posinf=5.0, neginf=-5.0)
         self._prices = episode.prices.astype(float).to_numpy()
         self._regimes = episode.regimes.tolist() if episode.regimes is not None else None
         self._timestamps = episode.timestamps.tolist() if episode.timestamps is not None else None
@@ -121,7 +119,7 @@ class MarketEnv(BaseEnv):
         self._equity = 1.0
         self._cash = 1.0
         self._max_equity = 1.0
-        self._history: List[Dict[str, Union[float, str]]] = []
+        self._history: list[dict[str, float | str]] = []
 
         # Spaces (if gym available)
         feature_dim = self._feature_tensor.shape[1]
@@ -146,7 +144,7 @@ class MarketEnv(BaseEnv):
     # ------------------------------------------------------------------
     # Environment API
     # ------------------------------------------------------------------
-    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):  # type: ignore[override]
+    def reset(self, *, seed: int | None = None, options: dict | None = None):  # type: ignore[override]
         self._t = 0
         self._position = 0.0
         self._equity = 1.0
@@ -228,9 +226,7 @@ class MarketEnv(BaseEnv):
             return float(-abs(position))
         return 0.0
 
-    def _build_info(
-        self, pnl: float, drawdown: float, reward: float
-    ) -> Dict[str, Union[float, str]]:
+    def _build_info(self, pnl: float, drawdown: float, reward: float) -> dict[str, float | str]:
         timestamp = None
         if self._timestamps is not None and self._t < len(self._timestamps):
             ts = self._timestamps[self._t]
@@ -239,7 +235,7 @@ class MarketEnv(BaseEnv):
         regime = None
         if self._regimes and self._t < len(self._regimes):
             regime = self._regimes[self._t]
-        info: Dict[str, Union[float, str]] = {
+        info: dict[str, float | str] = {
             "t": float(self._t),
             "pnl": float(pnl),
             "reward": float(reward),
@@ -254,7 +250,7 @@ class MarketEnv(BaseEnv):
             info["regime"] = regime
         return info
 
-    def get_history(self) -> List[Dict[str, Union[float, str]]]:
+    def get_history(self) -> list[dict[str, float | str]]:
         """Return a copy of the per-step diagnostic history."""
 
         return list(self._history)

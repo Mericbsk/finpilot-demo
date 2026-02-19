@@ -8,9 +8,9 @@ and UI components for login/register/profile.
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any
 
 import streamlit as st
 
@@ -25,7 +25,6 @@ from .core import (
     TokenInvalidError,
     User,
     UserExistsError,
-    UserNotFoundError,
 )
 from .database import (
     Database,
@@ -69,7 +68,7 @@ class StreamlitSessionManager:
         "auth_error",
     ]
 
-    def __init__(self, db_path: str = "data/finpilot.db", config: Optional[AuthConfig] = None):
+    def __init__(self, db_path: str = "data/finpilot.db", config: AuthConfig | None = None):
         """
         Initialize session manager.
 
@@ -106,28 +105,28 @@ class StreamlitSessionManager:
         return st.session_state.get("is_authenticated", False)
 
     @property
-    def current_user(self) -> Optional[User]:
+    def current_user(self) -> User | None:
         """Get current user."""
         return st.session_state.get("user")
 
     @property
-    def current_session(self) -> Optional[Session]:
+    def current_session(self) -> Session | None:
         """Get current session."""
         return st.session_state.get("session")
 
     @property
-    def user_portfolio(self) -> Optional[Portfolio]:
+    def user_portfolio(self) -> Portfolio | None:
         """Get user's portfolio."""
         return st.session_state.get("portfolio")
 
     @property
-    def user_settings(self) -> Dict[str, Any]:
+    def user_settings(self) -> dict[str, Any]:
         """Get user settings."""
         return st.session_state.get("settings") or {}
 
     def login(
         self, email: str, password: str, remember_me: bool = False
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         """
         Login user.
 
@@ -175,8 +174,8 @@ class StreamlitSessionManager:
             return False, st.session_state.auth_error
 
     def register(
-        self, email: str, username: str, password: str, display_name: Optional[str] = None
-    ) -> Tuple[bool, Optional[str]]:
+        self, email: str, username: str, password: str, display_name: str | None = None
+    ) -> tuple[bool, str | None]:
         """
         Register new user.
 
@@ -264,7 +263,7 @@ class StreamlitSessionManager:
         settings = self.settings_repo.get_by_id(user_id)
         st.session_state.settings = settings or {}
 
-    def save_settings(self, settings: Dict[str, Any]) -> None:
+    def save_settings(self, settings: dict[str, Any]) -> None:
         """Save user settings."""
         if not self.current_user:
             return
@@ -496,7 +495,7 @@ def require_auth(session_mgr: StreamlitSessionManager):
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
-_session_manager: Optional[StreamlitSessionManager] = None
+_session_manager: StreamlitSessionManager | None = None
 
 
 def get_session_manager(db_path: str = "data/finpilot.db") -> StreamlitSessionManager:

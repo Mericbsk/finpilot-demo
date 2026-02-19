@@ -13,15 +13,10 @@ inside Streamlit, batch workers, and notebooks without additional dependencies.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import (
-    Dict,
-    Iterable,
-    List,
     Literal,
-    Mapping,
-    Optional,
-    Sequence,
     TypedDict,
     Union,
     cast,
@@ -30,7 +25,7 @@ from typing import (
 import numpy as np
 import pandas as pd
 
-from .config import FeatureSpec, MarketEnvConfig
+from .config import MarketEnvConfig
 
 
 class _ZScoreStats(TypedDict):
@@ -56,7 +51,7 @@ class _NoneStats(TypedDict):
 
 
 ColumnStats = Union[_ZScoreStats, _RobustStats, _MinMaxStats, _NoneStats]
-ScalerStats = Dict[str, Dict[str, ColumnStats]]
+ScalerStats = dict[str, dict[str, ColumnStats]]
 
 
 @dataclass
@@ -76,7 +71,7 @@ class FeaturePipeline:
     def __init__(self, config: MarketEnvConfig):
         self.config = config
         self._stats: ScalerStats = {}
-        self._ordered_columns: List[str] = list(config.feature_columns)
+        self._ordered_columns: list[str] = list(config.feature_columns)
 
     # ------------------------------------------------------------------
     # Fitting & transformation
@@ -106,7 +101,7 @@ class FeaturePipeline:
 
         stats: ScalerStats = {}
         for spec in self.config.feature_specs:
-            spec_stats: Dict[str, ColumnStats] = {}
+            spec_stats: dict[str, ColumnStats] = {}
             for column in spec.columns:
                 if column not in df.columns:
                     continue
@@ -156,7 +151,7 @@ class FeaturePipeline:
             raise RuntimeError("FeaturePipeline must be fitted before calling transform().")
 
         df = frame.data
-        rows: List[np.ndarray] = []
+        rows: list[np.ndarray] = []
         for _, row in df.iterrows():
             rows.append(self._transform_row(row))
         result = np.vstack(rows).astype(self.config.target_dtype)
@@ -177,7 +172,7 @@ class FeaturePipeline:
     # Private helpers
     # ------------------------------------------------------------------
     def _transform_row(self, row: pd.Series) -> np.ndarray:
-        values: List[float] = []
+        values: list[float] = []
         stats = self._stats
         for spec in self.config.feature_specs:
             spec_stats = stats.get(spec.name)

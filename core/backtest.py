@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Backtesting Engine
 ===========================
@@ -21,14 +20,15 @@ Usage:
     result = bt.run()
     print(result.summary())
 """
+
 from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -66,14 +66,14 @@ class Trade:
     entry_date: datetime
     entry_price: float
     shares: float
-    exit_date: Optional[datetime] = None
-    exit_price: Optional[float] = None
+    exit_date: datetime | None = None
+    exit_price: float | None = None
     status: TradeStatus = TradeStatus.OPEN
-    stop_loss: Optional[float] = None
-    take_profit: Optional[float] = None
+    stop_loss: float | None = None
+    take_profit: float | None = None
     commission: float = 0.0
     slippage: float = 0.0
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     @property
     def pnl(self) -> float:
@@ -103,7 +103,7 @@ class Trade:
             return 0
         return (self.exit_date - self.entry_date).days
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "id": self.id,
@@ -133,9 +133,9 @@ class Signal:
     direction: TradeDirection
     strength: float  # 0-1
     price: float
-    stop_loss: Optional[float] = None
-    take_profit: Optional[float] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    stop_loss: float | None = None
+    take_profit: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 # ============================================
@@ -153,11 +153,11 @@ class Strategy(ABC):
     name: str = "BaseStrategy"
     description: str = "Base strategy class"
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: dict[str, Any] | None = None):
         self.params = params or {}
 
     @abstractmethod
-    def generate_signals(self, data: pd.DataFrame, symbol: str) -> List[Signal]:
+    def generate_signals(self, data: pd.DataFrame, symbol: str) -> list[Signal]:
         """
         Generate trading signals from data.
 
@@ -192,7 +192,7 @@ class MomentumStrategy(Strategy):
     name = "Momentum"
     description = "RSI + EMA crossover momentum strategy"
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: dict[str, Any] | None = None):
         defaults = {
             "rsi_period": 14,
             "rsi_oversold": 30,
@@ -203,7 +203,7 @@ class MomentumStrategy(Strategy):
         }
         super().__init__({**defaults, **(params or {})})
 
-    def generate_signals(self, data: pd.DataFrame, symbol: str) -> List[Signal]:
+    def generate_signals(self, data: pd.DataFrame, symbol: str) -> list[Signal]:
         signals = []
 
         if len(data) < 50:
@@ -229,7 +229,6 @@ class MomentumStrategy(Strategy):
                 and row["rsi"] > self.params["rsi_oversold"]
                 and row["ema_fast"] > row["ema_slow"]
             ):
-
                 strength = min(1.0, (self.params["rsi_oversold"] - prev["rsi"]) / 20 + 0.5)
                 if strength >= self.params["min_strength"]:
                     signals.append(
@@ -250,7 +249,6 @@ class MomentumStrategy(Strategy):
                 and row["rsi"] < self.params["rsi_overbought"]
                 and row["ema_fast"] < row["ema_slow"]
             ):
-
                 strength = min(1.0, (prev["rsi"] - self.params["rsi_overbought"]) / 20 + 0.5)
                 if strength >= self.params["min_strength"]:
                     signals.append(
@@ -281,7 +279,7 @@ class TrendFollowingStrategy(Strategy):
     name = "TrendFollowing"
     description = "Bollinger Bands + MACD trend strategy"
 
-    def __init__(self, params: Optional[Dict[str, Any]] = None):
+    def __init__(self, params: dict[str, Any] | None = None):
         defaults = {
             "bb_period": 20,
             "bb_std": 2.0,
@@ -291,7 +289,7 @@ class TrendFollowingStrategy(Strategy):
         }
         super().__init__({**defaults, **(params or {})})
 
-    def generate_signals(self, data: pd.DataFrame, symbol: str) -> List[Signal]:
+    def generate_signals(self, data: pd.DataFrame, symbol: str) -> list[Signal]:
         signals = []
 
         if len(data) < 50:
@@ -319,7 +317,6 @@ class TrendFollowingStrategy(Strategy):
 
             # Buy: Price touches lower band + MACD crossover
             if row["Close"] <= row["bb_lower"] and prev["macd_hist"] < 0 and row["macd_hist"] > 0:
-
                 signals.append(
                     Signal(
                         date=date,
@@ -334,7 +331,6 @@ class TrendFollowingStrategy(Strategy):
 
             # Sell: Price touches upper band + MACD crossover down
             elif row["Close"] >= row["bb_upper"] and prev["macd_hist"] > 0 and row["macd_hist"] < 0:
-
                 signals.append(
                     Signal(
                         date=date,
@@ -360,9 +356,9 @@ class Portfolio:
     initial_capital: float
     cash: float = 0.0
     equity: float = 0.0
-    positions: Dict[str, float] = field(default_factory=dict)  # symbol -> shares
-    trades: List[Trade] = field(default_factory=list)
-    equity_curve: List[Tuple[datetime, float]] = field(default_factory=list)
+    positions: dict[str, float] = field(default_factory=dict)  # symbol -> shares
+    trades: list[Trade] = field(default_factory=list)
+    equity_curve: list[tuple[datetime, float]] = field(default_factory=list)
 
     def __post_init__(self):
         self.cash = self.initial_capital
@@ -374,12 +370,12 @@ class Portfolio:
         return self.cash + self.equity
 
     @property
-    def open_positions(self) -> Dict[str, float]:
+    def open_positions(self) -> dict[str, float]:
         """Currently open positions."""
         return {k: v for k, v in self.positions.items() if v != 0}
 
     @property
-    def closed_trades(self) -> List[Trade]:
+    def closed_trades(self) -> list[Trade]:
         """All closed trades."""
         return [t for t in self.trades if t.status == TradeStatus.CLOSED]
 
@@ -399,7 +395,7 @@ class BacktestResult:
     end_date: datetime
     initial_capital: float
     final_capital: float
-    trades: List[Trade]
+    trades: list[Trade]
     equity_curve: pd.DataFrame
 
     # Calculated metrics
@@ -486,7 +482,7 @@ class BacktestResult:
 ╔══════════════════════════════════════════════════════════════╗
 ║                 BACKTEST RESULTS: {self.strategy_name:20} ║
 ╠══════════════════════════════════════════════════════════════╣
-║ Symbol: {self.symbol:15} Period: {self.start_date.strftime('%Y-%m-%d')} to {self.end_date.strftime('%Y-%m-%d')}
+║ Symbol: {self.symbol:15} Period: {self.start_date.strftime("%Y-%m-%d")} to {self.end_date.strftime("%Y-%m-%d")}
 ╠══════════════════════════════════════════════════════════════╣
 ║ RETURNS                                                       ║
 ║   Initial Capital:    ${self.initial_capital:>12,.2f}                    ║
@@ -509,7 +505,7 @@ class BacktestResult:
 ╚══════════════════════════════════════════════════════════════╝
 """
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "strategy_name": self.strategy_name,
@@ -569,7 +565,7 @@ class Backtest:
         strategy: Strategy,
         data: pd.DataFrame,
         symbol: str = "UNKNOWN",
-        config: Optional[BacktestConfig] = None,
+        config: BacktestConfig | None = None,
     ):
         self.strategy = strategy
         self.data = data
@@ -763,10 +759,10 @@ class Backtest:
 
 
 def compare_strategies(
-    strategies: List[Strategy],
+    strategies: list[Strategy],
     data: pd.DataFrame,
     symbol: str,
-    config: Optional[BacktestConfig] = None,
+    config: BacktestConfig | None = None,
 ) -> pd.DataFrame:
     """
     Compare multiple strategies on the same data.

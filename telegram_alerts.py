@@ -51,11 +51,11 @@ class TelegramNotifier:
         """
         try:
             message = f"""
-📊 **GÜNLÜK ÖZET** - {datetime.now().strftime('%Y-%m-%d')}
+📊 **GÜNLÜK ÖZET** - {datetime.now().strftime("%Y-%m-%d")}
 
 🎯 **Toplam Sinyal:** {signals_count} adet
 
-{f'🏆 **En İyi Fırsat:** {best_signal["symbol"]} (R/R: {best_signal["risk_reward"]})' if best_signal else '💤 **Bugün sinyal yok**'}
+{f"🏆 **En İyi Fırsat:** {best_signal['symbol']} (R/R: {best_signal['risk_reward']})" if best_signal else "💤 **Bugün sinyal yok**"}
 
 💡 **Not:** Sadece kaliteli sinyaller gösteriliyor!
             """.strip()
@@ -91,24 +91,24 @@ class TelegramNotifier:
         message = f"""
 {emoji} **ALIM SİNYALİ** - {quality}
 
-🎯 **Sembol:** {signal['symbol']}
-💰 **Fiyat:** ${signal['price']}
-🛡️ **Stop-Loss:** ${signal['stop_loss']} ({signal['stop_loss_percent']:.1f}%)
-🎯 **Hedef:** ${signal['take_profit']}
-📊 **R/R Oranı:** {signal['risk_reward']:.1f}
-📈 **Lot:** {signal['position_size']} adet
+🎯 **Sembol:** {signal["symbol"]}
+💰 **Fiyat:** ${signal["price"]}
+🛡️ **Stop-Loss:** ${signal["stop_loss"]} ({signal["stop_loss_percent"]:.1f}%)
+🎯 **Hedef:** ${signal["take_profit"]}
+📊 **R/R Oranı:** {signal["risk_reward"]:.1f}
+📈 **Lot:** {signal["position_size"]} adet
 
 ✨ **Aktif Filtreler:** {filter_text}
-📊 **Sinyal Skoru:** {signal['score']}/4
-🔥 **Filtre Skoru:** {signal['filter_score']}/3
+📊 **Sinyal Skoru:** {signal["score"]}/4
+🔥 **Filtre Skoru:** {signal["filter_score"]}/3
 
-⏰ **Zaman:** {signal['timestamp']}
+⏰ **Zaman:** {signal["timestamp"]}
 
 💡 **Strateji:**
-• Giriş: ${signal['price']}
-• Stop: ${signal['stop_loss']}
-• Hedef: ${signal['take_profit']}
-• Risk: %{signal['stop_loss_percent']:.1f} | Hedef: %{((signal['take_profit']-signal['price'])/signal['price']*100):.1f}
+• Giriş: ${signal["price"]}
+• Stop: ${signal["stop_loss"]}
+• Hedef: ${signal["take_profit"]}
+• Risk: %{signal["stop_loss_percent"]:.1f} | Hedef: %{((signal["take_profit"] - signal["price"]) / signal["price"] * 100):.1f}
         """.strip()
 
         return message
@@ -187,7 +187,7 @@ class TelegramNotifier:
 🔧 **TEST MESAJI**
 
 ✅ Telegram uyarı sistemi aktif!
-⏰ {datetime.now().strftime('%Y-%m-%d %H:%M')}
+⏰ {datetime.now().strftime("%Y-%m-%d %H:%M")}
 
 Bot çalışıyor ve uyarılar gelmeye hazır! 🚀
         """.strip()

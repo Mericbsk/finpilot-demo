@@ -8,7 +8,6 @@ import time
 from datetime import datetime, timedelta
 
 import pytest
-
 from auth.core import (
     AccountLockedError,
     AuthConfig,
@@ -16,10 +15,8 @@ from auth.core import (
     InvalidCredentialsError,
     JWTHandler,
     PasswordHasher,
-    Session,
     TokenExpiredError,
     TokenInvalidError,
-    TokenPayload,
     User,
     UserExistsError,
     UserRole,

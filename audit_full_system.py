@@ -3,24 +3,29 @@
 FinPilot — Kapsamlı Sistem Denetimi
 Her modülü bağımsız olarak doğrular, hesaplamaları test eder, eksikleri raporlar.
 """
-import sys
+
 import json
 import traceback
 from datetime import datetime
 
 RESULTS = {"passed": [], "failed": [], "warnings": [], "info": []}
 
+
 def log_pass(test_name, detail=""):
     RESULTS["passed"].append(f"✅ {test_name}: {detail}")
+
 
 def log_fail(test_name, detail=""):
     RESULTS["failed"].append(f"❌ {test_name}: {detail}")
 
+
 def log_warn(test_name, detail=""):
     RESULTS["warnings"].append(f"⚠️  {test_name}: {detail}")
 
+
 def log_info(test_name, detail=""):
     RESULTS["info"].append(f"ℹ️  {test_name}: {detail}")
+
 
 # =============================================================================
 # BÖLÜM 2: ALGORİTMA DOĞRULAMA
@@ -34,7 +39,14 @@ print("\n--- 2.1 Teknik Gösterge Hesaplamaları ---")
 try:
     import numpy as np
     import pandas as pd
-    from scanner.indicators import add_indicators, compute_ema, compute_rsi, compute_macd, compute_bollinger, compute_atr
+    from scanner.indicators import (
+        add_indicators,
+        compute_atr,
+        compute_bollinger,
+        compute_ema,
+        compute_macd,
+        compute_rsi,
+    )
 
     # Sentetik veri oluştur (bilinen değerlerle)
     np.random.seed(42)
@@ -45,13 +57,16 @@ try:
     low = close - np.abs(np.random.randn(n))
     volume = np.random.randint(100000, 5000000, n).astype(float)
 
-    df = pd.DataFrame({
-        "Open": close - np.random.rand(n) * 0.5,
-        "High": high,
-        "Low": low,
-        "Close": close,
-        "Volume": volume
-    }, index=dates)
+    df = pd.DataFrame(
+        {
+            "Open": close - np.random.rand(n) * 0.5,
+            "High": high,
+            "Low": low,
+            "Close": close,
+            "Volume": volume,
+        },
+        index=dates,
+    )
 
     # EMA-50 testi
     ema50 = compute_ema(df["Close"], span=50)
@@ -71,7 +86,10 @@ try:
     # RSI hiçbir zaman 0'dan küçük veya 100'den büyük olmamalı
     valid_rsi = rsi.dropna()
     assert (valid_rsi >= 0).all() and (valid_rsi <= 100).all(), "RSI 0-100 aralığında değil"
-    log_pass("RSI(14)", f"Son değer: {rsi.iloc[-1]:.2f}, Aralık: [{valid_rsi.min():.2f}, {valid_rsi.max():.2f}]")
+    log_pass(
+        "RSI(14)",
+        f"Son değer: {rsi.iloc[-1]:.2f}, Aralık: [{valid_rsi.min():.2f}, {valid_rsi.max():.2f}]",
+    )
 
     # MACD testi
     macd_hist = compute_macd(df["Close"])
@@ -91,7 +109,16 @@ try:
 
     # add_indicators bütünlük testi
     df_ind = add_indicators(df.copy())
-    required_cols = ["ema50", "ema200", "rsi", "macd_hist", "bb_upper", "bb_lower", "atr", "vol_med20"]
+    required_cols = [
+        "ema50",
+        "ema200",
+        "rsi",
+        "macd_hist",
+        "bb_upper",
+        "bb_lower",
+        "atr",
+        "vol_med20",
+    ]
     missing = [c for c in required_cols if c not in df_ind.columns]
     if missing:
         log_fail("add_indicators", f"Eksik sütunlar: {missing}")
@@ -105,9 +132,30 @@ except Exception as e:
 print("\n--- 2.2 RSI Matematiksel Doğrulama ---")
 try:
     # Manuel RSI hesabı ile karşılaştır
-    test_prices = pd.Series([44, 44.34, 44.09, 43.61, 44.33, 44.83, 45.10, 45.42, 45.84,
-                              46.08, 45.89, 46.03, 45.61, 46.28, 46.28, 46.00, 46.03,
-                              46.41, 46.22, 45.64])
+    test_prices = pd.Series(
+        [
+            44,
+            44.34,
+            44.09,
+            43.61,
+            44.33,
+            44.83,
+            45.10,
+            45.42,
+            45.84,
+            46.08,
+            45.89,
+            46.03,
+            45.61,
+            46.28,
+            46.28,
+            46.00,
+            46.03,
+            46.41,
+            46.22,
+            45.64,
+        ]
+    )
     rsi_test = compute_rsi(test_prices, period=14)
     # RSI son değer makul aralıkta olmalı (bu test serisi için ~50-70)
     last_rsi = rsi_test.dropna().iloc[-1] if len(rsi_test.dropna()) > 0 else None
@@ -122,6 +170,7 @@ except Exception as e:
 print("\n--- 2.3 Z-Score Momentum Analizi ---")
 try:
     from scanner.signals import analyze_price_momentum
+
     momentum = analyze_price_momentum(df_ind)
     assert "positive" in momentum, "momentum sonucunda 'positive' anahtarı yok"
     assert "metrics" in momentum, "momentum sonucunda 'metrics' anahtarı yok"
@@ -130,7 +179,10 @@ try:
     metrics = momentum.get("metrics", [])
     horizons = [m["horizon"] for m in metrics]
     assert 1 in horizons and 3 in horizons and 5 in horizons, f"Eksik horizon: {horizons}"
-    log_pass("Z-Score Momentum", f"Pozitif: {momentum['positive']}, Z-eşik: {momentum.get('z_threshold_effective', 'N/A')}, Horizonlar: {horizons}")
+    log_pass(
+        "Z-Score Momentum",
+        f"Pozitif: {momentum['positive']}, Z-eşik: {momentum.get('z_threshold_effective', 'N/A')}, Horizonlar: {horizons}",
+    )
 
     # Segment tespiti
     seg = momentum.get("liquidity_segment")
@@ -143,8 +195,12 @@ except Exception as e:
 print("\n--- 2.4 HMM Rejim Tespiti ---")
 try:
     from regime_detection import detect_market_regime
+
     regime_result = detect_market_regime(df_ind["Close"])
-    log_pass("HMM Rejim Tespiti", f"Tespit edilen rejim: {regime_result} (tip: {type(regime_result).__name__})")
+    log_pass(
+        "HMM Rejim Tespiti",
+        f"Tespit edilen rejim: {regime_result} (tip: {type(regime_result).__name__})",
+    )
 
     # Farklı piyasa koşullarında test et
     # Trend yukarı
@@ -180,22 +236,50 @@ try:
     from scanner.signals import signal_score_row
 
     # Test: Tüm koşullar sağlanmış satır
-    row_bullish = pd.Series({
-        "Close": 105, "bb_lower": 100, "rsi": 38, "macd_hist": 0.5, "Volume": 1500000, "vol_med20": 1000000
-    })
-    prev_bullish = pd.Series({
-        "Close": 99, "bb_lower": 100, "rsi": 35, "macd_hist": -0.2, "Volume": 900000, "vol_med20": 1000000
-    })
+    row_bullish = pd.Series(
+        {
+            "Close": 105,
+            "bb_lower": 100,
+            "rsi": 38,
+            "macd_hist": 0.5,
+            "Volume": 1500000,
+            "vol_med20": 1000000,
+        }
+    )
+    prev_bullish = pd.Series(
+        {
+            "Close": 99,
+            "bb_lower": 100,
+            "rsi": 35,
+            "macd_hist": -0.2,
+            "Volume": 900000,
+            "vol_med20": 1000000,
+        }
+    )
     score_bull = signal_score_row(row_bullish, prev_bullish)
     log_pass("Sinyal Skor - Tüm Boğa", f"Skor: {score_bull} (beklenen: 4)")
 
     # Test: Hiçbir koşul sağlanmamış
-    row_bear = pd.Series({
-        "Close": 95, "bb_lower": 100, "rsi": 75, "macd_hist": -0.5, "Volume": 500000, "vol_med20": 1000000
-    })
-    prev_bear = pd.Series({
-        "Close": 96, "bb_lower": 100, "rsi": 80, "macd_hist": -0.3, "Volume": 600000, "vol_med20": 1000000
-    })
+    row_bear = pd.Series(
+        {
+            "Close": 95,
+            "bb_lower": 100,
+            "rsi": 75,
+            "macd_hist": -0.5,
+            "Volume": 500000,
+            "vol_med20": 1000000,
+        }
+    )
+    prev_bear = pd.Series(
+        {
+            "Close": 96,
+            "bb_lower": 100,
+            "rsi": 80,
+            "macd_hist": -0.3,
+            "Volume": 600000,
+            "vol_med20": 1000000,
+        }
+    )
     score_bear = signal_score_row(row_bear, prev_bear)
     log_pass("Sinyal Skor - Tüm Ayı", f"Skor: {score_bear} (beklenen: 0)")
 
@@ -205,7 +289,7 @@ except Exception as e:
 # --- 3.2 3 Güç Filtresi ---
 print("\n--- 3.2 Güç Filtreleri ---")
 try:
-    from scanner.signals import check_volume_spike, check_trend_strength, check_price_momentum
+    from scanner.signals import check_price_momentum, check_trend_strength, check_volume_spike
 
     # Volume spike
     vs = check_volume_spike(df_ind)
@@ -225,7 +309,7 @@ except Exception as e:
 # --- 3.3 Çoklu Zaman Dilimi Uyumu ---
 print("\n--- 3.3 Çoklu Zaman Dilimi Uyumu ---")
 try:
-    from scanner.signals import check_timeframe_alignment, check_momentum_confluence
+    from scanner.signals import check_momentum_confluence, check_timeframe_alignment
 
     # Sentetik çoklu timeframe verisi
     df_1h_test = df_ind.copy()
@@ -252,29 +336,43 @@ try:
 
     # Sniper modu (momentum >= 70)
     rm_sniper = calculate_risk_management(price=100.0, atr_val=2.0, momentum_score=75)
-    assert rm_sniper["strategy_tag"] == "Sniper 🎯", f"Beklenen Sniper, gelen: {rm_sniper['strategy_tag']}"
-    assert rm_sniper["stop_loss"] == 100 - 1.5*2, f"SL hatası: {rm_sniper['stop_loss']}"
-    assert rm_sniper["tp1"] == 100 + 3.0*2, f"TP1 hatası: {rm_sniper['tp1']}"
-    assert rm_sniper["tp2"] == 100 + 5.0*2, f"TP2 hatası: {rm_sniper['tp2']}"
-    assert rm_sniper["tp3"] == 100 + 8.0*2, f"TP3 hatası: {rm_sniper['tp3']}"
-    log_pass("Risk - Sniper Modu", f"SL:{rm_sniper['stop_loss']} TP1:{rm_sniper['tp1']} TP2:{rm_sniper['tp2']} TP3:{rm_sniper['tp3']} R:R={rm_sniper['risk_reward_ratio']}")
+    assert rm_sniper["strategy_tag"] == "Sniper 🎯", (
+        f"Beklenen Sniper, gelen: {rm_sniper['strategy_tag']}"
+    )
+    assert rm_sniper["stop_loss"] == 100 - 1.5 * 2, f"SL hatası: {rm_sniper['stop_loss']}"
+    assert rm_sniper["tp1"] == 100 + 3.0 * 2, f"TP1 hatası: {rm_sniper['tp1']}"
+    assert rm_sniper["tp2"] == 100 + 5.0 * 2, f"TP2 hatası: {rm_sniper['tp2']}"
+    assert rm_sniper["tp3"] == 100 + 8.0 * 2, f"TP3 hatası: {rm_sniper['tp3']}"
+    log_pass(
+        "Risk - Sniper Modu",
+        f"SL:{rm_sniper['stop_loss']} TP1:{rm_sniper['tp1']} TP2:{rm_sniper['tp2']} TP3:{rm_sniper['tp3']} R:R={rm_sniper['risk_reward_ratio']}",
+    )
 
     # Normal modu (50 <= momentum < 70)
     rm_normal = calculate_risk_management(price=100.0, atr_val=2.0, momentum_score=55)
     assert rm_normal["strategy_tag"] == "Normal 📈"
-    assert rm_normal["stop_loss"] == 100 - 2.0*2
-    log_pass("Risk - Normal Modu", f"SL:{rm_normal['stop_loss']} TP1:{rm_normal['tp1']} TP2:{rm_normal['tp2']} R:R={rm_normal['risk_reward_ratio']}")
+    assert rm_normal["stop_loss"] == 100 - 2.0 * 2
+    log_pass(
+        "Risk - Normal Modu",
+        f"SL:{rm_normal['stop_loss']} TP1:{rm_normal['tp1']} TP2:{rm_normal['tp2']} R:R={rm_normal['risk_reward_ratio']}",
+    )
 
     # Defansif modu (momentum < 50)
     rm_def = calculate_risk_management(price=100.0, atr_val=2.0, momentum_score=30)
     assert rm_def["strategy_tag"] == "Defansif 🛡️"
     assert rm_def["tp3"] is None, "Defansif'te TP3 olmamalı"
-    log_pass("Risk - Defansif Modu", f"SL:{rm_def['stop_loss']} TP1:{rm_def['tp1']} TP2:{rm_def['tp2']} TP3:{rm_def['tp3']} R:R={rm_def['risk_reward_ratio']}")
+    log_pass(
+        "Risk - Defansif Modu",
+        f"SL:{rm_def['stop_loss']} TP1:{rm_def['tp1']} TP2:{rm_def['tp2']} TP3:{rm_def['tp3']} R:R={rm_def['risk_reward_ratio']}",
+    )
 
     # R:R oranı doğrulama
     expected_rr = (rm_sniper["take_profit"] - 100) / (100 - rm_sniper["stop_loss"])
-    assert abs(rm_sniper["risk_reward_ratio"] - round(expected_rr, 2)) < 0.01, f"R:R hatası"
-    log_pass("R:R Doğrulama", f"Hesaplanan: {expected_rr:.2f}, Rapor edilen: {rm_sniper['risk_reward_ratio']}")
+    assert abs(rm_sniper["risk_reward_ratio"] - round(expected_rr, 2)) < 0.01, "R:R hatası"
+    log_pass(
+        "R:R Doğrulama",
+        f"Hesaplanan: {expected_rr:.2f}, Rapor edilen: {rm_sniper['risk_reward_ratio']}",
+    )
 
 except Exception as e:
     log_fail("Risk Yönetimi", f"{e}\n{traceback.format_exc()}")
@@ -286,10 +384,17 @@ try:
 
     # Güçlü sinyal senaryosu
     test_result = {
-        "regime": True, "direction": True, "score": 3, "filter_score": 3,
-        "momentum_confluence": True, "momentum_ratio": 0.8,
-        "volume_spike": True, "timeframe_aligned": True,
-        "sentiment": 0.5, "price_momentum": True, "is_premium_symbol": True
+        "regime": True,
+        "direction": True,
+        "score": 3,
+        "filter_score": 3,
+        "momentum_confluence": True,
+        "momentum_ratio": 0.8,
+        "volume_spike": True,
+        "timeframe_aligned": True,
+        "sentiment": 0.5,
+        "price_momentum": True,
+        "is_premium_symbol": True,
     }
     rec_score = compute_recommendation_score(test_result)
     strength = compute_recommendation_strength(rec_score)
@@ -297,10 +402,17 @@ try:
 
     # Zayıf sinyal senaryosu
     weak_result = {
-        "regime": False, "direction": False, "score": 0, "filter_score": 0,
-        "momentum_confluence": False, "momentum_ratio": 0.0,
-        "volume_spike": False, "timeframe_aligned": False,
-        "sentiment": -0.5, "price_momentum": False, "is_premium_symbol": False
+        "regime": False,
+        "direction": False,
+        "score": 0,
+        "filter_score": 0,
+        "momentum_confluence": False,
+        "momentum_ratio": 0.0,
+        "volume_spike": False,
+        "timeframe_aligned": False,
+        "sentiment": -0.5,
+        "price_momentum": False,
+        "is_premium_symbol": False,
     }
     rec_score_weak = compute_recommendation_score(weak_result)
     strength_weak = compute_recommendation_strength(rec_score_weak)
@@ -321,13 +433,18 @@ print("=" * 80)
 
 try:
     from core.backtest import (
-        Backtest, BacktestConfig, MomentumStrategy, TrendFollowingStrategy,
-        Trade, Portfolio
+        Backtest,
+        BacktestConfig,
+        MomentumStrategy,
+        TrendFollowingStrategy,
     )
 
     # Backtest konfigürasyonu
     config = BacktestConfig(initial_capital=10000, risk_per_trade=0.02, kelly_fraction=0.5)
-    log_pass("BacktestConfig", f"Kapital: ${config.initial_capital}, Risk: {config.risk_per_trade*100}%, Kelly: {config.kelly_fraction}")
+    log_pass(
+        "BacktestConfig",
+        f"Kapital: ${config.initial_capital}, Risk: {config.risk_per_trade * 100}%, Kelly: {config.kelly_fraction}",
+    )
 
     # Sentetik veri ile backtest
     n_bt = 400
@@ -335,13 +452,16 @@ try:
     price_bt = 100 + np.cumsum(np.random.randn(n_bt) * 1.5)
     price_bt = np.maximum(price_bt, 10)  # Negatif fiyat olmasın
 
-    df_bt = pd.DataFrame({
-        "Open": price_bt - np.random.rand(n_bt),
-        "High": price_bt + np.abs(np.random.randn(n_bt) * 2),
-        "Low": price_bt - np.abs(np.random.randn(n_bt) * 2),
-        "Close": price_bt,
-        "Volume": np.random.randint(200000, 5000000, n_bt).astype(float)
-    }, index=dates_bt)
+    df_bt = pd.DataFrame(
+        {
+            "Open": price_bt - np.random.rand(n_bt),
+            "High": price_bt + np.abs(np.random.randn(n_bt) * 2),
+            "Low": price_bt - np.abs(np.random.randn(n_bt) * 2),
+            "Close": price_bt,
+            "Volume": np.random.randint(200000, 5000000, n_bt).astype(float),
+        },
+        index=dates_bt,
+    )
 
     strategy = MomentumStrategy()
     bt = Backtest(strategy=strategy, config=config)
@@ -379,13 +499,18 @@ try:
     # Trade doğrulama
     if result.trades:
         t = result.trades[0]
-        log_info("Örnek Trade", f"Symbol: {getattr(t, 'symbol', 'N/A')}, PnL: {getattr(t, 'pnl', 'N/A')}")
+        log_info(
+            "Örnek Trade", f"Symbol: {getattr(t, 'symbol', 'N/A')}, PnL: {getattr(t, 'pnl', 'N/A')}"
+        )
 
     # Strateji karşılaştırma
     strat2 = TrendFollowingStrategy()
     bt2 = Backtest(strategy=strat2, config=config)
     result2 = bt2.run(df_bt)
-    log_pass("Strateji Karşılaştırma", f"Momentum: {len(result.trades)} işlem, TrendFollowing: {len(result2.trades)} işlem")
+    log_pass(
+        "Strateji Karşılaştırma",
+        f"Momentum: {len(result.trades)} işlem, TrendFollowing: {len(result2.trades)} işlem",
+    )
 
 except Exception as e:
     log_fail("Backtest Engine", f"{e}\n{traceback.format_exc()}")
@@ -474,7 +599,7 @@ print("BÖLÜM 7: ALTERNATİF VERİ DOĞRULAMA")
 print("=" * 80)
 
 try:
-    from altdata import get_sentiment_score, get_onchain_metric, get_alt_data_summary
+    from altdata import get_alt_data_summary, get_onchain_metric, get_sentiment_score
 
     # Sentiment test
     sent = get_sentiment_score("AAPL")
@@ -502,16 +627,16 @@ print("BÖLÜM 8: PİYASA REJİM FİLTRESİ DOĞRULAMA")
 print("=" * 80)
 
 try:
-    from scanner.data_fetcher import get_market_regime_status
-
     # Sentetik endeks verisi — güvenli piyasa
     safe_close = np.linspace(100, 120, 100)
     safe_ema50 = np.linspace(95, 115, 100)  # Close > EMA50
-    df_safe = pd.DataFrame({
-        "Open": safe_close - 1,
-        "Close": safe_close,
-        "ema50": safe_ema50,
-    })
+    df_safe = pd.DataFrame(
+        {
+            "Open": safe_close - 1,
+            "Close": safe_close,
+            "ema50": safe_ema50,
+        }
+    )
     # Not: get_market_regime_status gerçek API çağırıyor, sentetik test sınırlı
     log_info("Piyasa Rejim Filtresi", "Gerçek API çağrısı gerektirir, sentetik test sınırlı")
 
@@ -526,7 +651,13 @@ print("BÖLÜM 9: KONFIGÜRASYON DOĞRULAMA")
 print("=" * 80)
 
 try:
-    from scanner.config import DEFAULT_SETTINGS, AGGRESSIVE_OVERRIDES, SETTINGS, apply_aggressive_mode, get_setting, reset_to_default
+    from scanner.config import (
+        DEFAULT_SETTINGS,
+        SETTINGS,
+        apply_aggressive_mode,
+        get_setting,
+        reset_to_default,
+    )
 
     # Normal mod ayarları
     reset_to_default()
@@ -554,6 +685,7 @@ print("=" * 80)
 
 try:
     import os
+
     wfo_file = "wfo_grid_search_results.csv"
     if os.path.exists(wfo_file):
         df_wfo = pd.read_csv(wfo_file)
@@ -565,7 +697,9 @@ try:
 
         # NaN analizi
         if nan_cols:
-            log_warn("WFO NaN Sütunlar", f"{len(nan_cols)} sütunda tüm değerler NaN: {nan_cols[:5]}...")
+            log_warn(
+                "WFO NaN Sütunlar", f"{len(nan_cols)} sütunda tüm değerler NaN: {nan_cols[:5]}..."
+            )
 
         # Parametre dağılımı
         param_cols = [c for c in df_wfo.columns if c.startswith("best_")]
@@ -579,7 +713,10 @@ try:
             for tc in trade_cols:
                 log_info(f"WFO Trade: {tc}", f"Değerler: {df_wfo[tc].unique()}")
         else:
-            log_warn("WFO Trade Sayısı", "Trade sayısı sütunu bulunamadı — bu 0 trade sorununu doğruluyor")
+            log_warn(
+                "WFO Trade Sayısı",
+                "Trade sayısı sütunu bulunamadı — bu 0 trade sorununu doğruluyor",
+            )
 
     else:
         log_warn("WFO Dosya", f"{wfo_file} bulunamadı")
@@ -595,7 +732,12 @@ print("BÖLÜM 11: DRL MODÜL DOĞRULAMA")
 print("=" * 80)
 
 try:
-    from archive.drl.config import FeatureSpec, RewardWeights, TransactionCostModel, PilotShieldConfig
+    from archive.drl.config import (
+        FeatureSpec,
+        PilotShieldConfig,
+        RewardWeights,
+        TransactionCostModel,
+    )
 
     # Feature spec doğrulama
     specs = FeatureSpec.ALL_SPECS
@@ -607,7 +749,10 @@ try:
 
     # Reward weights
     rw = RewardWeights()
-    log_pass("DRL Reward Weights", f"pnl={rw.pnl}, drawdown={rw.drawdown}, cost={rw.transaction_cost}, leverage={rw.excess_leverage}, regime={rw.regime_alignment}")
+    log_pass(
+        "DRL Reward Weights",
+        f"pnl={rw.pnl}, drawdown={rw.drawdown}, cost={rw.transaction_cost}, leverage={rw.excess_leverage}, regime={rw.regime_alignment}",
+    )
 
     # Transaction costs
     tc = TransactionCostModel()
@@ -615,15 +760,15 @@ try:
 
     # PilotShield
     ps = PilotShieldConfig()
-    log_pass("PilotShield", f"max_position={ps.max_position_size}, max_leverage={ps.max_leverage}, risk_appetite={ps.risk_appetite}")
+    log_pass(
+        "PilotShield",
+        f"max_position={ps.max_position_size}, max_leverage={ps.max_leverage}, risk_appetite={ps.risk_appetite}",
+    )
 
 except Exception as e:
     log_warn("DRL Modül", f"HATA: {e}")
 
 try:
-    from archive.drl.market_env import MarketEnv
-    from archive.drl.feature_pipeline import FeaturePipeline
-
     log_pass("DRL Environment Import", "MarketEnv ve FeaturePipeline başarıyla import edildi")
 
 except Exception as e:
@@ -637,13 +782,17 @@ print("BÖLÜM 12: TELEGRAM BİLDİRİM SİSTEMİ")
 print("=" * 80)
 
 try:
-    from telegram_alerts import format_signal_alert, format_daily_summary, format_shortlist_alert
+    from telegram_alerts import format_daily_summary, format_shortlist_alert, format_signal_alert
 
     # Sinyal formatı testi
     test_signal = {
-        "symbol": "AAPL", "price": 175.50, "stop_loss": 170.0,
-        "take_profit": 185.0, "risk_reward": 2.76,
-        "strategy_tag": "Sniper 🎯", "score": 3
+        "symbol": "AAPL",
+        "price": 175.50,
+        "stop_loss": 170.0,
+        "take_profit": 185.0,
+        "risk_reward": 2.76,
+        "strategy_tag": "Sniper 🎯",
+        "score": 3,
     }
     formatted = format_signal_alert(test_signal)
     assert len(formatted) <= 3800, f"Mesaj çok uzun: {len(formatted)}"
@@ -668,8 +817,8 @@ print("\n" + "=" * 80)
 print("BÖLÜM 13: VERİ DOSYASI KONTROLÜ")
 print("=" * 80)
 
-import os
 import glob
+import os
 
 # Shortlist dosyaları
 shortlists = glob.glob("data/shortlists/shortlist_*.csv")
@@ -701,7 +850,7 @@ print("BÖLÜM 14: GÜVENLİK KONTROLÜ")
 print("=" * 80)
 
 try:
-    from auth.core import PasswordHasher, JWTHandler
+    from auth.core import JWTHandler, PasswordHasher
 
     # Password hashing
     ph = PasswordHasher()
@@ -752,5 +901,7 @@ else:
     pass_rate = 0
 
 print(f"\n{'=' * 80}")
-print(f"ÖZET: {len(RESULTS['passed'])}/{total} test geçti ({pass_rate:.1f}%), {len(RESULTS['warnings'])} uyarı")
+print(
+    f"ÖZET: {len(RESULTS['passed'])}/{total} test geçti ({pass_rate:.1f}%), {len(RESULTS['warnings'])} uyarı"
+)
 print(f"{'=' * 80}")

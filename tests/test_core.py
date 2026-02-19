@@ -8,7 +8,6 @@ Run with: pytest tests/test_core.py -v
 """
 
 import time
-from pathlib import Path
 
 import pytest
 
@@ -22,7 +21,7 @@ class TestConfig:
 
     def test_settings_singleton(self):
         """Settings should be singleton."""
-        from core.config import get_settings, settings
+        from core.config import get_settings
 
         s1 = get_settings()
         s2 = get_settings()
@@ -147,7 +146,7 @@ class TestExceptions:
 
     def test_handle_errors_reraise(self):
         """Test error handling with reraise."""
-        from core.exceptions import DataError, DataFetchError, handle_errors
+        from core.exceptions import DataFetchError, handle_errors
 
         @handle_errors(DataFetchError, reraise=True, log_error=False)
         def failing_func():
@@ -447,7 +446,7 @@ class TestMonitoring:
 
     def test_health_checker(self):
         """Test HealthChecker."""
-        from core.monitoring import HealthChecker, HealthCheckResult, HealthStatus
+        from core.monitoring import HealthChecker
 
         checker = HealthChecker()
 
@@ -501,7 +500,6 @@ class TestIntegration:
     def test_exception_with_logging(self):
         """Test exception handling with logging."""
         from core.exceptions import DataFetchError, handle_errors
-        from core.logging import get_logger
 
         @handle_errors(DataFetchError, default_return=None, log_error=True)
         def test_func():

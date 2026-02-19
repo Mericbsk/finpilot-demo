@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot WebSocket Data Feeds
 =============================
@@ -22,6 +21,7 @@ Usage:
     feed.subscribe(["AAPL", "GOOGL"], on_price)
     await feed.connect()
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -29,10 +29,11 @@ import json
 import logging
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -74,9 +75,9 @@ class TradeMessage:
     size: int
     timestamp: datetime
     exchange: str = ""
-    conditions: List[str] = field(default_factory=list)
+    conditions: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "type": "trade",
             "symbol": self.symbol,
@@ -106,7 +107,7 @@ class QuoteMessage:
     def mid(self) -> float:
         return (self.bid + self.ask) / 2
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "type": "quote",
             "symbol": self.symbol,
@@ -130,9 +131,9 @@ class BarMessage:
     close: float
     volume: int
     timestamp: datetime
-    vwap: Optional[float] = None
+    vwap: float | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "type": "bar",
             "symbol": self.symbol,
@@ -191,13 +192,13 @@ class WebSocketFeed(ABC):
         self.status = FeedStatus.DISCONNECTED
 
         # Subscriptions
-        self._subscribed_symbols: Set[str] = set()
+        self._subscribed_symbols: set[str] = set()
 
         # Callbacks
-        self._trade_callbacks: List[PriceCallback] = []
-        self._quote_callbacks: List[QuoteCallback] = []
-        self._bar_callbacks: List[BarCallback] = []
-        self._status_callbacks: List[StatusCallback] = []
+        self._trade_callbacks: list[PriceCallback] = []
+        self._quote_callbacks: list[QuoteCallback] = []
+        self._bar_callbacks: list[BarCallback] = []
+        self._status_callbacks: list[StatusCallback] = []
 
         # Internal state
         self._ws = None
@@ -216,7 +217,7 @@ class WebSocketFeed(ABC):
         return self.status == FeedStatus.CONNECTED
 
     @property
-    def subscribed_symbols(self) -> Set[str]:
+    def subscribed_symbols(self) -> set[str]:
         """Get subscribed symbols."""
         return self._subscribed_symbols.copy()
 
@@ -226,10 +227,10 @@ class WebSocketFeed(ABC):
 
     def subscribe(
         self,
-        symbols: Union[str, List[str]],
-        on_trade: Optional[PriceCallback] = None,
-        on_quote: Optional[QuoteCallback] = None,
-        on_bar: Optional[BarCallback] = None,
+        symbols: str | list[str],
+        on_trade: PriceCallback | None = None,
+        on_quote: QuoteCallback | None = None,
+        on_bar: BarCallback | None = None,
     ) -> None:
         """
         Subscribe to symbols.
@@ -257,7 +258,7 @@ class WebSocketFeed(ABC):
         if self.is_connected:
             asyncio.create_task(self._send_subscribe(symbols))
 
-    def unsubscribe(self, symbols: Union[str, List[str]]) -> None:
+    def unsubscribe(self, symbols: str | list[str]) -> None:
         """Unsubscribe from symbols."""
         if isinstance(symbols, str):
             symbols = [symbols]
@@ -455,12 +456,12 @@ class WebSocketFeed(ABC):
         pass
 
     @abstractmethod
-    async def _send_subscribe(self, symbols: List[str]) -> None:
+    async def _send_subscribe(self, symbols: list[str]) -> None:
         """Send subscription message."""
         pass
 
     @abstractmethod
-    async def _send_unsubscribe(self, symbols: List[str]) -> None:
+    async def _send_unsubscribe(self, symbols: list[str]) -> None:
         """Send unsubscription message."""
         pass
 
@@ -470,7 +471,7 @@ class WebSocketFeed(ABC):
         pass
 
     @abstractmethod
-    async def _process_message(self, data: Dict[str, Any]) -> None:
+    async def _process_message(self, data: dict[str, Any]) -> None:
         """Process incoming message."""
         pass
 
@@ -505,7 +506,7 @@ class PolygonFeed(WebSocketFeed):
         logger.error(f"Polygon auth failed: {data}")
         return False
 
-    async def _send_subscribe(self, symbols: List[str]) -> None:
+    async def _send_subscribe(self, symbols: list[str]) -> None:
         # Subscribe to trades, quotes, and minute bars
         channels = []
         for symbol in symbols:
@@ -520,7 +521,7 @@ class PolygonFeed(WebSocketFeed):
         msg = {"action": "subscribe", "params": ",".join(channels)}
         await self._ws.send(json.dumps(msg))
 
-    async def _send_unsubscribe(self, symbols: List[str]) -> None:
+    async def _send_unsubscribe(self, symbols: list[str]) -> None:
         channels = []
         for symbol in symbols:
             channels.extend([f"T.{symbol}", f"Q.{symbol}", f"AM.{symbol}"])
@@ -532,14 +533,14 @@ class PolygonFeed(WebSocketFeed):
         # Polygon doesn't require explicit heartbeats
         pass
 
-    async def _process_message(self, data: Dict[str, Any]) -> None:
+    async def _process_message(self, data: dict[str, Any]) -> None:
         if isinstance(data, list):
             for item in data:
                 await self._process_single_message(item)
         else:
             await self._process_single_message(data)
 
-    async def _process_single_message(self, item: Dict[str, Any]) -> None:
+    async def _process_single_message(self, item: dict[str, Any]) -> None:
         ev = item.get("ev")
 
         if ev == "T":  # Trade
@@ -599,12 +600,12 @@ class FinnhubFeed(WebSocketFeed):
         # Token is in URL, no separate auth needed
         return True
 
-    async def _send_subscribe(self, symbols: List[str]) -> None:
+    async def _send_subscribe(self, symbols: list[str]) -> None:
         for symbol in symbols:
             msg = {"type": "subscribe", "symbol": symbol}
             await self._ws.send(json.dumps(msg))
 
-    async def _send_unsubscribe(self, symbols: List[str]) -> None:
+    async def _send_unsubscribe(self, symbols: list[str]) -> None:
         for symbol in symbols:
             msg = {"type": "unsubscribe", "symbol": symbol}
             await self._ws.send(json.dumps(msg))
@@ -612,7 +613,7 @@ class FinnhubFeed(WebSocketFeed):
     async def _send_heartbeat(self) -> None:
         await self._ws.ping()
 
-    async def _process_message(self, data: Dict[str, Any]) -> None:
+    async def _process_message(self, data: dict[str, Any]) -> None:
         if data.get("type") == "trade":
             for item in data.get("data", []):
                 trade = TradeMessage(
@@ -687,16 +688,16 @@ class AlphaVantageFeed(WebSocketFeed):
     async def _authenticate(self) -> bool:
         return True
 
-    async def _send_subscribe(self, symbols: List[str]) -> None:
+    async def _send_subscribe(self, symbols: list[str]) -> None:
         pass
 
-    async def _send_unsubscribe(self, symbols: List[str]) -> None:
+    async def _send_unsubscribe(self, symbols: list[str]) -> None:
         pass
 
     async def _send_heartbeat(self) -> None:
         pass
 
-    async def _process_message(self, data: Dict[str, Any]) -> None:
+    async def _process_message(self, data: dict[str, Any]) -> None:
         pass
 
 
@@ -714,7 +715,7 @@ class MockFeed(WebSocketFeed):
 
     def __init__(self, config: FeedConfig):
         super().__init__(config)
-        self._mock_prices: Dict[str, float] = {}
+        self._mock_prices: dict[str, float] = {}
 
     def _get_websocket_url(self) -> str:
         return "mock://localhost"
@@ -751,16 +752,16 @@ class MockFeed(WebSocketFeed):
     async def _authenticate(self) -> bool:
         return True
 
-    async def _send_subscribe(self, symbols: List[str]) -> None:
+    async def _send_subscribe(self, symbols: list[str]) -> None:
         pass
 
-    async def _send_unsubscribe(self, symbols: List[str]) -> None:
+    async def _send_unsubscribe(self, symbols: list[str]) -> None:
         pass
 
     async def _send_heartbeat(self) -> None:
         pass
 
-    async def _process_message(self, data: Dict[str, Any]) -> None:
+    async def _process_message(self, data: dict[str, Any]) -> None:
         pass
 
 
@@ -768,7 +769,7 @@ class MockFeed(WebSocketFeed):
 # 🏭 Feed Factory
 # ============================================
 
-FEED_PROVIDERS: Dict[str, type] = {
+FEED_PROVIDERS: dict[str, type] = {
     "polygon": PolygonFeed,
     "finnhub": FinnhubFeed,
     "alphavantage": AlphaVantageFeed,
@@ -795,7 +796,7 @@ def create_feed(provider: str, api_key: str, **kwargs: Any) -> WebSocketFeed:
     return FEED_PROVIDERS[provider](config)
 
 
-def list_providers() -> List[str]:
+def list_providers() -> list[str]:
     """List available feed providers."""
     return list(FEED_PROVIDERS.keys())
 

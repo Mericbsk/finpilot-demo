@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Grid Layout Component
 ==============================
@@ -13,10 +12,10 @@ Usage:
         for item in items:
             st.markdown(render_card(item))
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, List, Optional
 
 import streamlit as st
 
@@ -198,7 +197,7 @@ def inject_grid_styles() -> None:
 # ============================================
 
 
-def render_grid_start(grid_class: str = "fp-grid-4", custom_id: Optional[str] = None) -> None:
+def render_grid_start(grid_class: str = "fp-grid-4", custom_id: str | None = None) -> None:
     """
     Start a grid container.
 
@@ -221,8 +220,8 @@ def render_card_html(
     score: float,
     is_buy: bool = False,
     regime: str = "-",
-    target: Optional[float] = None,
-    stop: Optional[float] = None,
+    target: float | None = None,
+    stop: float | None = None,
     extra_content: str = "",
 ) -> str:
     """
@@ -337,7 +336,7 @@ def render_signal_cards_grid(df, limit: int = 8, grid_class: str = "fp-grid-4") 
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-def render_metric_grid(metrics: List[dict], grid_class: str = "fp-grid-4") -> None:
+def render_metric_grid(metrics: list[dict], grid_class: str = "fp-grid-4") -> None:
     """
     Render metric cards in a grid.
 

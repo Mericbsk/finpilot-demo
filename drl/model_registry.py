@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import shutil
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -30,31 +29,31 @@ class ModelMetadata:
 
     # Training info
     total_timesteps: int = 0
-    training_symbols: List[str] = field(default_factory=list)
-    train_start: Optional[str] = None
-    train_end: Optional[str] = None
+    training_symbols: list[str] = field(default_factory=list)
+    train_start: str | None = None
+    train_end: str | None = None
 
     # Performance metrics
-    metrics: Dict[str, float] = field(default_factory=dict)
+    metrics: dict[str, float] = field(default_factory=dict)
 
     # Configuration
-    hyperparameters: Dict[str, Any] = field(default_factory=dict)
-    feature_columns: List[str] = field(default_factory=list)
+    hyperparameters: dict[str, Any] = field(default_factory=dict)
+    feature_columns: list[str] = field(default_factory=list)
 
     # Paths
-    model_path: Optional[str] = None
-    pipeline_path: Optional[str] = None
+    model_path: str | None = None
+    pipeline_path: str | None = None
 
     # Status
     is_active: bool = False
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     notes: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ModelMetadata":
+    def from_dict(cls, data: dict[str, Any]) -> ModelMetadata:
         return cls(**data)
 
 
@@ -95,14 +94,14 @@ class ModelRegistry:
         self.storage_path = Path(storage_path).expanduser()
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self.registry_file = self.storage_path / self.REGISTRY_FILE
-        self._registry: Dict[str, ModelMetadata] = {}
+        self._registry: dict[str, ModelMetadata] = {}
         self._load_registry()
 
     def _load_registry(self) -> None:
         """Load registry from disk."""
         if self.registry_file.exists():
             try:
-                with open(self.registry_file, "r") as f:
+                with open(self.registry_file) as f:
                     data = json.load(f)
                     self._registry = {k: ModelMetadata.from_dict(v) for k, v in data.items()}
                 logger.info(f"Loaded {len(self._registry)} models from registry")
@@ -135,15 +134,15 @@ class ModelRegistry:
         model: Any,
         name: str,
         algorithm: str,
-        metrics: Optional[Dict[str, float]] = None,
-        hyperparameters: Optional[Dict[str, Any]] = None,
-        training_symbols: Optional[List[str]] = None,
+        metrics: dict[str, float] | None = None,
+        hyperparameters: dict[str, Any] | None = None,
+        training_symbols: list[str] | None = None,
         total_timesteps: int = 0,
-        train_start: Optional[str] = None,
-        train_end: Optional[str] = None,
-        feature_columns: Optional[List[str]] = None,
-        pipeline: Optional[Any] = None,
-        tags: Optional[List[str]] = None,
+        train_start: str | None = None,
+        train_end: str | None = None,
+        feature_columns: list[str] | None = None,
+        pipeline: Any | None = None,
+        tags: list[str] | None = None,
         notes: str = "",
         set_active: bool = False,
     ) -> str:
@@ -350,10 +349,10 @@ class ModelRegistry:
 
     def list_models(
         self,
-        name: Optional[str] = None,
-        algorithm: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-    ) -> List[ModelMetadata]:
+        name: str | None = None,
+        algorithm: str | None = None,
+        tags: list[str] | None = None,
+    ) -> list[ModelMetadata]:
         """
         List registered models with optional filtering.
 
@@ -413,8 +412,8 @@ class ModelRegistry:
         logger.info(f"Deleted model: {model_id}")
 
     def compare_models(
-        self, model_ids: List[str], metrics: Optional[List[str]] = None
-    ) -> Dict[str, Dict[str, float]]:
+        self, model_ids: list[str], metrics: list[str] | None = None
+    ) -> dict[str, dict[str, float]]:
         """
         Compare multiple models by their metrics.
 
@@ -436,14 +435,14 @@ class ModelRegistry:
                 result[model_id] = m.metrics.copy()
         return result
 
-    def get_latest(self, name: str) -> Optional[ModelMetadata]:
+    def get_latest(self, name: str) -> ModelMetadata | None:
         """Get the latest model version for a name."""
         candidates = [m for m in self._registry.values() if m.name == name]
         if not candidates:
             return None
         return max(candidates, key=lambda m: m.created_at)
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """Get a summary of the registry."""
         models_by_name = {}
         for m in self._registry.values():
@@ -461,7 +460,7 @@ class ModelRegistry:
 
 
 # Singleton instance for convenience
-_default_registry: Optional[ModelRegistry] = None
+_default_registry: ModelRegistry | None = None
 
 
 def get_registry(storage_path: str = "models/") -> ModelRegistry:

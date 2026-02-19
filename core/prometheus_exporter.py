@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Prometheus Exporter
 ============================
@@ -23,10 +22,9 @@ import os
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import Any, Dict, Optional, Union
 from urllib.parse import urlparse
 
-from core.monitoring import HealthStatus, health_check, metrics
+from core.monitoring import health_check, metrics
 
 # =============================================================================
 # PROMETHEUS FORMAT EXPORTER
@@ -67,8 +65,8 @@ class PrometheusExporter:
                     for value in collected:
                         # Handle both MetricValue objects and dicts
                         if hasattr(value, "labels") and hasattr(value, "value"):
-                            labels_str = self._format_labels(getattr(value, "labels"))
-                            metric_value = getattr(value, "value")
+                            labels_str = self._format_labels(value.labels)
+                            metric_value = value.value
                         elif isinstance(value, dict):
                             labels_str = self._format_labels(value.get("labels", {}))
                             metric_value = value.get("value", 0)
@@ -247,8 +245,8 @@ class MetricsServer:
     def __init__(self, host: str = "0.0.0.0", port: int = 8000):
         self.host = host
         self.port = port
-        self._server: Optional[HTTPServer] = None
-        self._thread: Optional[threading.Thread] = None
+        self._server: HTTPServer | None = None
+        self._thread: threading.Thread | None = None
         self._running = False
 
     def start(self) -> None:
@@ -285,12 +283,12 @@ class MetricsServer:
 
 
 # Global server instance
-_metrics_server: Optional[MetricsServer] = None
+_metrics_server: MetricsServer | None = None
 
 
 def start_metrics_server(
     host: str = "0.0.0.0",
-    port: Optional[int] = None,
+    port: int | None = None,
 ) -> MetricsServer:
     """
     Start the metrics server.

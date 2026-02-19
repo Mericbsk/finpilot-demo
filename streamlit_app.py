@@ -1,8 +1,8 @@
 import streamlit as st
+from views.styles import GLOBAL_CSS
 
 # Auth imports
-from auth import get_session_manager, render_auth_page, render_user_profile, require_auth
-from views.styles import GLOBAL_CSS
+from auth import get_session_manager, render_auth_page, render_user_profile
 
 # Set page configuration
 st.set_page_config(

@@ -9,13 +9,11 @@ Performance Features:
 - Batch symbol fetching for efficiency
 """
 
-import hashlib
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 import yfinance as yf
@@ -44,7 +42,7 @@ CACHE_TTL_SECONDS = 300
 CACHE_TTL_MARKET_INDEX = 300  # Market index için de aynı TTL (önceden 600 idi)
 
 # In-memory fallback cache for non-Streamlit usage
-_memory_cache: Dict[str, tuple] = {}
+_memory_cache: dict[str, tuple] = {}
 
 
 def _get_cache_key(symbol: str, interval: str, days: int) -> str:
@@ -199,7 +197,7 @@ def fetch_with_indicators(symbol: str, interval: str, days: int) -> pd.DataFrame
 # ============================================
 
 # Default timeframes for multi-timeframe analysis
-DEFAULT_TIMEFRAMES: List[Tuple[str, int]] = [
+DEFAULT_TIMEFRAMES: list[tuple[str, int]] = [
     ("15m", 10),  # 15-minute, 10 days
     ("1h", 60),  # 1-hour, 60 days
     ("4h", 100),  # 4-hour, 100 days
@@ -209,10 +207,10 @@ DEFAULT_TIMEFRAMES: List[Tuple[str, int]] = [
 
 def fetch_multi_timeframe(
     symbol: str,
-    timeframes: Optional[List[Tuple[str, int]]] = None,
+    timeframes: list[tuple[str, int]] | None = None,
     with_indicators: bool = True,
     max_workers: int = 4,
-) -> Dict[str, pd.DataFrame]:
+) -> dict[str, pd.DataFrame]:
     """
     Fetch multiple timeframes for a symbol in parallel.
 
@@ -238,9 +236,9 @@ def fetch_multi_timeframe(
     if timeframes is None:
         timeframes = DEFAULT_TIMEFRAMES
 
-    results: Dict[str, pd.DataFrame] = {}
+    results: dict[str, pd.DataFrame] = {}
 
-    def _fetch_single(interval: str, days: int) -> Tuple[str, pd.DataFrame]:
+    def _fetch_single(interval: str, days: int) -> tuple[str, pd.DataFrame]:
         """Fetch single timeframe with optional indicators."""
         if with_indicators:
             df = fetch_with_indicators(symbol, interval, days)
@@ -263,12 +261,12 @@ def fetch_multi_timeframe(
 
 
 def fetch_symbols_batch(
-    symbols: List[str],
+    symbols: list[str],
     interval: str = "1d",
     days: int = 100,
     with_indicators: bool = True,
     max_workers: int = 8,
-) -> Dict[str, pd.DataFrame]:
+) -> dict[str, pd.DataFrame]:
     """
     Fetch data for multiple symbols in parallel.
 
@@ -290,9 +288,9 @@ def fetch_symbols_batch(
         >>> data = fetch_symbols_batch(symbols)
         >>> df_apple = data['AAPL']
     """
-    results: Dict[str, pd.DataFrame] = {}
+    results: dict[str, pd.DataFrame] = {}
 
-    def _fetch_symbol(symbol: str) -> Tuple[str, pd.DataFrame]:
+    def _fetch_symbol(symbol: str) -> tuple[str, pd.DataFrame]:
         """Fetch single symbol."""
         if with_indicators:
             df = fetch_with_indicators(symbol, interval, days)
@@ -316,12 +314,12 @@ def fetch_symbols_batch(
 
 
 def prefetch_symbols_multi_timeframe(
-    symbols: List[str],
-    timeframes: Optional[List[Tuple[str, int]]] = None,
+    symbols: list[str],
+    timeframes: list[tuple[str, int]] | None = None,
     with_indicators: bool = True,
     max_workers: int = 10,
-    progress_callback: Optional[Any] = None,
-) -> Dict[str, Dict[str, pd.DataFrame]]:
+    progress_callback: Any | None = None,
+) -> dict[str, dict[str, pd.DataFrame]]:
     """
     Prefetch all timeframe data for multiple symbols in parallel.
 
@@ -348,11 +346,11 @@ def prefetch_symbols_multi_timeframe(
     if timeframes is None:
         timeframes = DEFAULT_TIMEFRAMES
 
-    results: Dict[str, Dict[str, pd.DataFrame]] = {}
+    results: dict[str, dict[str, pd.DataFrame]] = {}
     total = len(symbols)
     completed = 0
 
-    def _fetch_all_timeframes(symbol: str) -> Tuple[str, Dict[str, pd.DataFrame]]:
+    def _fetch_all_timeframes(symbol: str) -> tuple[str, dict[str, pd.DataFrame]]:
         """Fetch all timeframes for a symbol."""
         data = fetch_multi_timeframe(
             symbol,
@@ -384,7 +382,7 @@ def prefetch_symbols_multi_timeframe(
     return results
 
 
-def load_symbols() -> List[str]:
+def load_symbols() -> list[str]:
     """
     Load list of symbols to scan.
 
@@ -398,7 +396,7 @@ def load_symbols() -> List[str]:
     return ["AAPL", "MSFT", "GOOGL", "NVDA", "SPY", "QQQ"]
 
 
-def load_symbols_from_file(filepath: str) -> List[str]:
+def load_symbols_from_file(filepath: str) -> list[str]:
     """
     Load symbols from a text file (one symbol per line).
 
@@ -409,10 +407,10 @@ def load_symbols_from_file(filepath: str) -> List[str]:
         List of stock ticker symbols
     """
     try:
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             symbols = [line.strip().upper() for line in f if line.strip()]
         return symbols
-    except (FileNotFoundError, IOError, PermissionError) as e:
+    except (OSError, FileNotFoundError, PermissionError) as e:
         logger.warning("Sembol dosyası okunamadı: %s - %s", filepath, e)
         return []
 
@@ -442,7 +440,7 @@ def _fetch_market_index(index_symbol: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def get_market_regime_status(symbols: List[str]) -> Dict[str, Any]:
+def get_market_regime_status(symbols: list[str]) -> dict[str, Any]:
     """
     Check global market index for trend and momentum.
 
@@ -501,7 +499,7 @@ def get_market_regime_status(symbols: List[str]) -> Dict[str, Any]:
         return {"safe": True, "reason": "Hata oluştu, varsayılan güvenli"}
 
 
-def load_ticker_list(category: str = "us_large_cap") -> List[str]:
+def load_ticker_list(category: str = "us_large_cap") -> list[str]:
     """
     Load predefined ticker lists by category.
 

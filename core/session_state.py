@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Session State Management
 ==================================
@@ -19,12 +18,12 @@ Usage:
     # Update multiple fields
     session.update(scan_status="completed", scan_message="Done")
 """
+
 from __future__ import annotations
 
 import datetime
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 import pandas as pd
 
@@ -76,10 +75,10 @@ class ScanState:
     """State for scan operations."""
 
     status: ScanStatus = ScanStatus.IDLE
-    message: Optional[str] = None
+    message: str | None = None
     df: pd.DataFrame = field(default_factory=pd.DataFrame)
-    source: Optional[str] = None
-    timestamp: Optional[datetime.datetime] = None
+    source: str | None = None
+    timestamp: datetime.datetime | None = None
     symbols_count: int = 0
     buyable_count: int = 0
 
@@ -98,7 +97,7 @@ class ScanState:
         self.status = ScanStatus.LOADING
         self.message = message
 
-    def set_completed(self, df: pd.DataFrame, source: str, message: Optional[str] = None) -> None:
+    def set_completed(self, df: pd.DataFrame, source: str, message: str | None = None) -> None:
         """Set completed state with results."""
         self.status = ScanStatus.COMPLETED
         self.df = df
@@ -140,8 +139,8 @@ class UserPreferences:
 class WatchlistState:
     """User watchlist state."""
 
-    symbols: List[str] = field(default_factory=list)
-    last_updated: Optional[datetime.datetime] = None
+    symbols: list[str] = field(default_factory=list)
+    last_updated: datetime.datetime | None = None
 
     def add_symbol(self, symbol: str) -> bool:
         """Add symbol to watchlist. Returns True if added."""
@@ -172,8 +171,8 @@ class NavigationState:
     """Navigation and routing state."""
 
     current_page: str = "dashboard"
-    previous_page: Optional[str] = None
-    selected_symbol: Optional[str] = None
+    previous_page: str | None = None
+    selected_symbol: str | None = None
     active_tab: int = 0
 
     def navigate_to(self, page: str) -> None:
@@ -193,12 +192,12 @@ class AuthState:
     """Authentication state."""
 
     is_authenticated: bool = False
-    user_id: Optional[str] = None
-    username: Optional[str] = None
-    email: Optional[str] = None
+    user_id: str | None = None
+    username: str | None = None
+    email: str | None = None
     role: str = "user"
-    session_token: Optional[str] = None
-    expires_at: Optional[datetime.datetime] = None
+    session_token: str | None = None
+    expires_at: datetime.datetime | None = None
 
     def is_session_valid(self) -> bool:
         """Check if session is still valid."""
@@ -259,32 +258,32 @@ class SessionState:
         self.scan.df = value
 
     @property
-    def scan_message(self) -> Optional[str]:
+    def scan_message(self) -> str | None:
         """Backward compatible scan_message."""
         return self.scan.message
 
     @scan_message.setter
-    def scan_message(self, value: Optional[str]) -> None:
+    def scan_message(self, value: str | None) -> None:
         """Backward compatible scan_message setter."""
         self.scan.message = value
 
     @property
-    def scan_src(self) -> Optional[str]:
+    def scan_src(self) -> str | None:
         """Backward compatible scan_src."""
         return self.scan.source
 
     @scan_src.setter
-    def scan_src(self, value: Optional[str]) -> None:
+    def scan_src(self, value: str | None) -> None:
         """Backward compatible scan_src setter."""
         self.scan.source = value
 
     @property
-    def scan_time(self) -> Optional[datetime.datetime]:
+    def scan_time(self) -> datetime.datetime | None:
         """Backward compatible scan_time."""
         return self.scan.timestamp
 
     @scan_time.setter
-    def scan_time(self, value: Optional[datetime.datetime]) -> None:
+    def scan_time(self, value: datetime.datetime | None) -> None:
         """Backward compatible scan_time setter."""
         self.scan.timestamp = value
 
@@ -434,7 +433,7 @@ def is_authenticated() -> bool:
     return get_session().auth.is_session_valid()
 
 
-def get_current_user() -> Optional[str]:
+def get_current_user() -> str | None:
     """Get current username if authenticated."""
     session = get_session()
     return session.auth.username if session.auth.is_authenticated else None

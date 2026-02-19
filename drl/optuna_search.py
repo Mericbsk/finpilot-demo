@@ -24,8 +24,9 @@ Example::
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -33,7 +34,6 @@ from .config import (
     MarketEnvConfig,
     PilotShieldLimits,
     RewardWeights,
-    TransactionCostModel,
 )
 from .training import (
     EvaluationMetrics,
@@ -69,7 +69,7 @@ class OptunaSearchConfig:
 
     # Study settings
     n_trials: int = 30
-    timeout_seconds: Optional[float] = None
+    timeout_seconds: float | None = None
     study_name: str = "finpilot-drl-hpo"
     direction: str = "maximize"
     sampler: str = "tpe"  # "tpe", "cmaes", "random"
@@ -80,31 +80,31 @@ class OptunaSearchConfig:
 
     # Fixed training settings
     total_timesteps: int = 20_000
-    seed: Optional[int] = 42
+    seed: int | None = 42
 
     # Algorithm search space
     search_algorithm: bool = False  # include algorithm in search space
     algorithms: Sequence[str] = ("PPO", "SAC")
 
     # Parameter space bounds
-    lr_range: Tuple[float, float] = (1e-5, 1e-3)
-    gamma_range: Tuple[float, float] = (0.9, 0.999)
-    gae_lambda_range: Tuple[float, float] = (0.9, 0.99)
-    ent_coef_range: Tuple[float, float] = (1e-4, 0.1)
-    vf_coef_range: Tuple[float, float] = (0.1, 0.9)
+    lr_range: tuple[float, float] = (1e-5, 1e-3)
+    gamma_range: tuple[float, float] = (0.9, 0.999)
+    gae_lambda_range: tuple[float, float] = (0.9, 0.99)
+    ent_coef_range: tuple[float, float] = (1e-4, 0.1)
+    vf_coef_range: tuple[float, float] = (0.1, 0.9)
 
     # Reward weight search
     search_reward_weights: bool = True
-    pnl_weight_range: Tuple[float, float] = (0.5, 2.0)
-    drawdown_weight_range: Tuple[float, float] = (0.5, 2.0)
-    cost_weight_range: Tuple[float, float] = (0.01, 0.5)
-    leverage_weight_range: Tuple[float, float] = (0.05, 0.5)
-    regime_bonus_range: Tuple[float, float] = (0.0, 0.2)
+    pnl_weight_range: tuple[float, float] = (0.5, 2.0)
+    drawdown_weight_range: tuple[float, float] = (0.5, 2.0)
+    cost_weight_range: tuple[float, float] = (0.01, 0.5)
+    leverage_weight_range: tuple[float, float] = (0.05, 0.5)
+    regime_bonus_range: tuple[float, float] = (0.0, 0.2)
 
     # PilotShield search
     search_pilotshield: bool = False
-    max_position_range: Tuple[float, float] = (0.3, 1.0)
-    risk_appetite_range: Tuple[int, int] = (3, 8)
+    max_position_range: tuple[float, float] = (0.3, 1.0)
+    risk_appetite_range: tuple[int, int] = (3, 8)
 
     # Callbacks
     show_progress_bar: bool = True
@@ -115,11 +115,11 @@ class OptunaSearchConfig:
 class OptunaSearchResult:
     """Results from the hyperparameter search."""
 
-    best_params: Dict[str, Any]
+    best_params: dict[str, Any]
     best_value: float
     best_metrics: EvaluationMetrics
-    best_train_result: Optional[TrainResult]
-    all_trials: List[Dict[str, Any]]
+    best_train_result: TrainResult | None
+    all_trials: list[dict[str, Any]]
     study_name: str
     n_trials_completed: int
     objective_metric: str
@@ -144,13 +144,15 @@ class OptunaSearchResult:
                 lines.append(f"    {k}: {v}")
         lines.append("-" * 60)
         if self.best_metrics:
-            lines.extend([
-                "  EN İYİ METRİKLER:",
-                f"    Sharpe Ratio: {self.best_metrics.sharpe_ratio:.4f}",
-                f"    Total Return: {self.best_metrics.total_return:.4f}",
-                f"    Max Drawdown: {self.best_metrics.max_drawdown:.4f}",
-                f"    Avg Reward:   {self.best_metrics.average_reward:.4f}",
-            ])
+            lines.extend(
+                [
+                    "  EN İYİ METRİKLER:",
+                    f"    Sharpe Ratio: {self.best_metrics.sharpe_ratio:.4f}",
+                    f"    Total Return: {self.best_metrics.total_return:.4f}",
+                    f"    Max Drawdown: {self.best_metrics.max_drawdown:.4f}",
+                    f"    Avg Reward:   {self.best_metrics.average_reward:.4f}",
+                ]
+            )
         lines.append("=" * 60)
         return "\n".join(lines)
 
@@ -172,12 +174,10 @@ def _create_objective(
     implementations.
     """
 
-    def objective(trial: "Trial") -> float:
+    def objective(trial: Trial) -> float:
         # --- Algorithm selection ---
         if search_config.search_algorithm:
-            algorithm = trial.suggest_categorical(
-                "algorithm", list(search_config.algorithms)
-            )
+            algorithm = trial.suggest_categorical("algorithm", list(search_config.algorithms))
         else:
             algorithm = search_config.algorithms[0]
 
@@ -309,10 +309,18 @@ def _create_objective(
             objective_value = float(np.mean(metric_values))
 
             # Store metrics for later retrieval
-            trial.set_user_attr("avg_sharpe", float(np.mean([r.metrics.sharpe_ratio for r in results])))
-            trial.set_user_attr("avg_return", float(np.mean([r.metrics.total_return for r in results])))
-            trial.set_user_attr("avg_drawdown", float(np.mean([r.metrics.max_drawdown for r in results])))
-            trial.set_user_attr("avg_reward", float(np.mean([r.metrics.average_reward for r in results])))
+            trial.set_user_attr(
+                "avg_sharpe", float(np.mean([r.metrics.sharpe_ratio for r in results]))
+            )
+            trial.set_user_attr(
+                "avg_return", float(np.mean([r.metrics.total_return for r in results]))
+            )
+            trial.set_user_attr(
+                "avg_drawdown", float(np.mean([r.metrics.max_drawdown for r in results]))
+            )
+            trial.set_user_attr(
+                "avg_reward", float(np.mean([r.metrics.average_reward for r in results]))
+            )
 
             if search_config.verbose:
                 logger.info(
@@ -338,7 +346,7 @@ def _create_objective(
 def run_optuna_search(
     env_config: MarketEnvConfig,
     splits: Sequence[WalkForwardSplit],
-    search_config: Optional[OptunaSearchConfig] = None,
+    search_config: OptunaSearchConfig | None = None,
 ) -> OptunaSearchResult:
     """Run an Optuna hyperparameter search over the FinPilot DRL training loop.
 
@@ -360,8 +368,7 @@ def run_optuna_search(
     """
     if not HAS_OPTUNA:
         raise ImportError(
-            "Optuna is not installed. Run 'pip install optuna' to enable "
-            "hyperparameter search."
+            "Optuna is not installed. Run 'pip install optuna' to enable hyperparameter search."
         )
 
     if search_config is None:
@@ -423,7 +430,7 @@ def run_optuna_search(
     # Collect all trial info
     all_trials = []
     for t in study.trials:
-        trial_info: Dict[str, Any] = {
+        trial_info: dict[str, Any] = {
             "number": t.number,
             "value": t.value,
             "params": dict(t.params),
@@ -449,8 +456,8 @@ def run_optuna_search(
 
 def build_config_from_best(
     base_config: MarketEnvConfig,
-    best_params: Dict[str, Any],
-) -> Tuple[MarketEnvConfig, WalkForwardConfig]:
+    best_params: dict[str, Any],
+) -> tuple[MarketEnvConfig, WalkForwardConfig]:
     """Reconstruct production-ready configs from Optuna's best parameters.
 
     Parameters
@@ -480,9 +487,7 @@ def build_config_from_best(
             "max_absolute_position", base_config.pilotshield.max_absolute_position
         ),
         max_leverage=base_config.pilotshield.max_leverage,
-        risk_appetite=best_params.get(
-            "risk_appetite", base_config.pilotshield.risk_appetite
-        ),
+        risk_appetite=best_params.get("risk_appetite", base_config.pilotshield.risk_appetite),
         confidence_threshold=base_config.pilotshield.confidence_threshold,
         allow_shorting=base_config.pilotshield.allow_shorting,
     )

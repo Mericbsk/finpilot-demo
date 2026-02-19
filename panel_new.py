@@ -1,5 +1,21 @@
-import streamlit as st
+"""
+⚠️ DEPRECATED: Bu dosya geriye dönük uyumluluk için korunmaktadır.
+Ana giriş noktası artık streamlit_app.py dosyasıdır.
 
+Kullanım:
+    streamlit run streamlit_app.py
+"""
+
+import warnings
+
+warnings.warn(
+    "panel_new.py kullanımdan kaldırılmıştır (deprecated). "
+    "Lütfen 'streamlit run streamlit_app.py' kullanın.",
+    DeprecationWarning,
+    stacklevel=1,
+)
+
+import streamlit as st
 from views.dashboard import render_scanner_page
 from views.finsense import render_finsense_page
 from views.history import render_history_page

@@ -12,10 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import json
 from datetime import datetime
 
-import numpy as np
-import pandas as pd
-
-from drl.config import DEFAULT_CONFIG, MarketEnvConfig
+from drl.config import DEFAULT_CONFIG
 from drl.data_loader import prepare_inference_frame
 
 # Symbols to scan

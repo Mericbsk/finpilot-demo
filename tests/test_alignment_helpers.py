@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pandas as pd
-
 from drl.alignment_helpers import align_frames, forward_fill, resample_frame
 
 

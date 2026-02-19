@@ -9,14 +9,13 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from .config import MarketEnvConfig
-from .inference import ActionType, InferenceEngine, PredictionResult
-from .model_registry import ModelRegistry
+from .inference import InferenceEngine, PredictionResult
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +29,8 @@ class ScannerSignal:
     score: int
     confidence: float
     reason: str
-    timestamp: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    timestamp: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -40,7 +39,7 @@ class HybridSignal:
 
     symbol: str
     scanner_signal: ScannerSignal
-    drl_prediction: Optional[PredictionResult]
+    drl_prediction: PredictionResult | None
 
     # Consensus decision
     final_action: str
@@ -55,7 +54,7 @@ class HybridSignal:
     timestamp: str
     strategy_mode: str  # "scanner_only", "drl_only", "hybrid"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "symbol": self.symbol,
             "scanner_action": self.scanner_signal.action,
@@ -77,8 +76,8 @@ class HybridEngine:
 
     def __init__(
         self,
-        env_config: Optional[MarketEnvConfig] = None,
-        model_path: Optional[str] = None,
+        env_config: MarketEnvConfig | None = None,
+        model_path: str | None = None,
         strategy_mode: str = "hybrid",
         drl_weight: float = 0.5,
         agreement_threshold: float = 0.7,
@@ -97,7 +96,7 @@ class HybridEngine:
         self.drl_weight = drl_weight
         self.agreement_threshold = agreement_threshold
 
-        self.inference_engine: Optional[InferenceEngine] = None
+        self.inference_engine: InferenceEngine | None = None
         if strategy_mode in ["drl_only", "hybrid"] and model_path:
             try:
                 from .inference import InferenceEngine
@@ -113,7 +112,7 @@ class HybridEngine:
                     raise
 
         # Performance tracking
-        self._performance: Dict[str, List[float]] = {
+        self._performance: dict[str, list[float]] = {
             "scanner_returns": [],
             "drl_returns": [],
             "hybrid_returns": [],
@@ -123,7 +122,7 @@ class HybridEngine:
         self,
         scanner_signal: ScannerSignal,
         market_data: pd.DataFrame,
-        features: Optional[Dict[str, float]] = None,
+        features: dict[str, float] | None = None,
     ) -> HybridSignal:
         """
         Process a scanner signal and optionally get DRL prediction.
@@ -137,7 +136,7 @@ class HybridEngine:
             HybridSignal with consensus decision
         """
         timestamp = datetime.now().isoformat()
-        drl_prediction: Optional[PredictionResult] = None
+        drl_prediction: PredictionResult | None = None
 
         # Get DRL prediction if enabled
         if self.strategy_mode in ["drl_only", "hybrid"] and self.inference_engine:
@@ -192,7 +191,7 @@ class HybridEngine:
 
     def _hybrid_consensus(
         self, scanner_signal: ScannerSignal, drl_prediction: PredictionResult
-    ) -> Tuple[str, float, bool]:
+    ) -> tuple[str, float, bool]:
         """
         Determine consensus between scanner and DRL.
 
@@ -226,7 +225,7 @@ class HybridEngine:
     def _calculate_position_size(
         self,
         scanner_signal: ScannerSignal,
-        drl_prediction: Optional[PredictionResult],
+        drl_prediction: PredictionResult | None,
         confidence: float,
     ) -> float:
         """Calculate base position size (0.0 - 1.0)."""
@@ -244,7 +243,7 @@ class HybridEngine:
         risk_factor = max(0.5, confidence)
         return position_size * risk_factor
 
-    def _extract_features(self, df: pd.DataFrame) -> Dict[str, float]:
+    def _extract_features(self, df: pd.DataFrame) -> dict[str, float]:
         """Extract features from market data for DRL inference."""
         if len(df) < 2:
             return {}
@@ -265,7 +264,7 @@ class HybridEngine:
 
         return features
 
-    def get_performance_report(self) -> Dict[str, Any]:
+    def get_performance_report(self) -> dict[str, Any]:
         """Generate performance comparison report."""
         report = {
             "scanner_avg_return": (

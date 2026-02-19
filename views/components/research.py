@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Research
 =================
 Gemini/Groq API ile araştırma ve haber analizi.
 """
 
-import os
 from textwrap import dedent
 
 import streamlit as st

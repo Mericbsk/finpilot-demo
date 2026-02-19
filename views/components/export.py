@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Export Component
 =========================
@@ -10,13 +9,12 @@ Usage:
 
     render_export_panel(df)
 """
+
 from __future__ import annotations
 
 import io
 import re
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
@@ -52,7 +50,7 @@ def _sanitize_column_names(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def export_to_excel(
-    df: pd.DataFrame, filename: Optional[str] = None, sheet_name: str = "Scan Results"
+    df: pd.DataFrame, filename: str | None = None, sheet_name: str = "Scan Results"
 ) -> bytes:
     """
     Export DataFrame to Excel format with styling.
@@ -133,7 +131,6 @@ def export_to_pdf(
         from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
         from reportlab.lib.units import inch
         from reportlab.platypus import (
-            PageBreak,
             Paragraph,
             SimpleDocTemplate,
             Spacer,
@@ -176,8 +173,8 @@ def export_to_pdf(
         summary_text = f"""
         <b>Summary:</b><br/>
         Total Symbols: {len(df)}<br/>
-        {'Buyable: ' + str(len(df[df['entry_ok']])) if 'entry_ok' in df.columns else ''}<br/>
-        {'Avg Score: ' + f"{df['recommendation_score'].mean():.1f}" if 'recommendation_score' in df.columns else ''}
+        {"Buyable: " + str(len(df[df["entry_ok"]])) if "entry_ok" in df.columns else ""}<br/>
+        {"Avg Score: " + f"{df['recommendation_score'].mean():.1f}" if "recommendation_score" in df.columns else ""}
         """
         elements.append(Paragraph(summary_text, styles["Normal"]))
         elements.append(Spacer(1, 12))
@@ -285,9 +282,9 @@ def _export_to_html_pdf(df: pd.DataFrame, title: str) -> bytes:
     </head>
     <body>
         <h1>{title}</h1>
-        <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
+        <p>Generated: {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>
         <p><strong>Total Symbols:</strong> {len(df)}</p>
-        {df.head(50).to_html(index=False, classes='data-table')}
+        {df.head(50).to_html(index=False, classes="data-table")}
         <p class="footer">FinPilot Trading System - This report is for informational purposes only.</p>
     </body>
     </html>

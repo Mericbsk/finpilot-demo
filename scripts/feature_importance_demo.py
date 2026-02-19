@@ -15,11 +15,9 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pandas as pd
-
 from drl.analysis import (
     RegimeStats,
     build_narrative_payload,
@@ -52,7 +50,7 @@ def _run_demo_training(args: argparse.Namespace):
         ) from exc
 
 
-def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Compute SHAP-based feature importance.")
     parser.add_argument("--output-dir", type=Path, help="Directory to write CSV summaries to.")
     parser.add_argument(
@@ -74,7 +72,7 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
 
     results = _run_demo_training(args)

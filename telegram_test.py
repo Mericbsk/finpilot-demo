@@ -2,8 +2,6 @@
 🧪 TELEGRAM UYARI SİSTEMİ TEST
 """
 
-import json
-
 from telegram_alerts import TelegramNotifier
 
 

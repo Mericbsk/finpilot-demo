@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 FinPilot Onboarding Wizard
 ==========================
@@ -12,12 +11,13 @@ Usage:
     if should_show_onboarding():
         render_onboarding()
 """
+
 from __future__ import annotations
 
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import streamlit as st
 
@@ -140,19 +140,19 @@ ONBOARDING_STEPS = [
 # ============================================
 
 
-def _load_onboarding_status() -> Dict[str, Any]:
+def _load_onboarding_status() -> dict[str, Any]:
     """Load onboarding status from file."""
     try:
         path = Path(ONBOARDING_FILE)
         if path.exists():
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 return json.load(f)
     except Exception:
         pass
     return {"completed": False, "current_step": 0, "skipped": False}
 
 
-def _save_onboarding_status(status: Dict[str, Any]) -> None:
+def _save_onboarding_status(status: dict[str, Any]) -> None:
     """Save onboarding status to file."""
     try:
         path = Path(ONBOARDING_FILE)
@@ -164,7 +164,7 @@ def _save_onboarding_status(status: Dict[str, Any]) -> None:
         pass
 
 
-def get_onboarding_state() -> Dict[str, Any]:
+def get_onboarding_state() -> dict[str, Any]:
     """Get current onboarding state from session or file."""
     if ONBOARDING_KEY not in st.session_state:
         st.session_state[ONBOARDING_KEY] = _load_onboarding_status()
@@ -296,11 +296,11 @@ def render_onboarding_modal() -> None:
     <div class="onboarding-modal">
         <div class="onboarding-progress">{dots_html}</div>
         <div class="onboarding-header">
-            <span class="onboarding-icon">{step['icon']}</span>
-            <h2 class="onboarding-title">{step['title']}</h2>
+            <span class="onboarding-icon">{step["icon"]}</span>
+            <h2 class="onboarding-title">{step["title"]}</h2>
         </div>
         <div class="onboarding-content">
-            {step['content'].replace(chr(10), '<br/>')}
+            {step["content"].replace(chr(10), "<br/>")}
         </div>
     </div>
     """,

@@ -9,8 +9,9 @@ so that they can run without any heavy model dependencies – only ``pandas`` an
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -25,7 +26,7 @@ class AlternativeSignal:
     strength: str
     description: str
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "value": float(self.value),
@@ -39,9 +40,9 @@ class RegimeStats:
     """Minimal statistics required for explainable narratives."""
 
     name: str
-    success_rate: Optional[float] = None  # 0-1 range
-    average_reward: Optional[float] = None
-    max_drawdown: Optional[float] = None  # expressed as positive fraction, e.g. 0.04
+    success_rate: float | None = None  # 0-1 range
+    average_reward: float | None = None
+    max_drawdown: float | None = None  # expressed as positive fraction, e.g. 0.04
 
 
 @dataclass(frozen=True)
@@ -52,10 +53,10 @@ class NarrativePayload:
     text_1: str
     title_2: str
     text_2: str
-    exit_price: Optional[float]
-    signal_strength: Dict[str, str]
+    exit_price: float | None
+    signal_strength: dict[str, str]
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "title_1": self.title_1,
             "text_1": self.text_1,
@@ -73,7 +74,7 @@ def summarize_alternative_signals(
     onchain_column: str = "onchain_tx_volume",
     sentiment_window: int = 4,
     flow_window: int = 24,
-) -> Tuple[AlternativeSignal, AlternativeSignal]:
+) -> tuple[AlternativeSignal, AlternativeSignal]:
     """Return the primary sentiment and whale-flow signals with one-line text.
 
     Parameters
@@ -99,8 +100,8 @@ def build_narrative_payload(
     sentiment_signal: AlternativeSignal,
     whale_signal: AlternativeSignal,
     *,
-    current_price: Optional[float],
-    max_allowed_drawdown: Optional[float],
+    current_price: float | None,
+    max_allowed_drawdown: float | None,
 ) -> NarrativePayload:
     """Compose a two-paragraph JSON-friendly narrative."""
 
@@ -260,10 +261,10 @@ class _ExitLevel:
 
 
 def _determine_exit_level(
-    current_price: Optional[float],
-    regime_drawdown: Optional[float],
-    user_drawdown: Optional[float],
-) -> Optional[_ExitLevel]:
+    current_price: float | None,
+    regime_drawdown: float | None,
+    user_drawdown: float | None,
+) -> _ExitLevel | None:
     limits = [
         value for value in (regime_drawdown, user_drawdown) if value is not None and value > 0.0
     ]
@@ -287,7 +288,7 @@ def _compose_opportunity_paragraph(regime: str, success_text: str, sentiment_sen
     return " ".join(parts)
 
 
-def _compose_risk_paragraph(whale_sentence: str, exit_level: Optional[_ExitLevel]) -> str:
+def _compose_risk_paragraph(whale_sentence: str, exit_level: _ExitLevel | None) -> str:
     exit_sentence: str
     if exit_level is None:
         exit_sentence = "Belirlediğiniz zarar eşiğine ulaşıldığında pozisyonu gözden geçirin."
@@ -303,7 +304,7 @@ def _format_regime_name(name: str) -> str:
     return name.lower()
 
 
-def _format_success_rate(success_rate: Optional[float]) -> str:
+def _format_success_rate(success_rate: float | None) -> str:
     if success_rate is None:
         return "yeterli geçmiş veri yok"
     pct = max(0.0, min(100.0, success_rate * 100.0))
@@ -313,7 +314,7 @@ def _format_success_rate(success_rate: Optional[float]) -> str:
 def estimate_regime_success(
     regimes: Sequence[str],
     rewards: Sequence[float],
-    target_regime: Optional[str],
+    target_regime: str | None,
 ) -> RegimeStats:
     """Compute a lightweight success snapshot for the latest regime."""
 

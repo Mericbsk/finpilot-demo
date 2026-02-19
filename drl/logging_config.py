@@ -7,7 +7,6 @@ Proje genelinde tutarlı logging sağlar.
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
 
 # Log formatı
 LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
@@ -15,7 +14,7 @@ DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def setup_logging(
-    level: str = "INFO", log_file: Optional[str] = None, console: bool = True
+    level: str = "INFO", log_file: str | None = None, console: bool = True
 ) -> logging.Logger:
     """
     Proje genelinde logging yapılandırması.

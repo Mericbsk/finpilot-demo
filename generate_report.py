@@ -6,22 +6,29 @@ Ham CSV/JSON verilerinden şık, okunabilir HTML rapor üretir.
 Kullanım:  python generate_report.py [timestamp]
 Örnek:     python generate_report.py 20260217_1650
 """
-import sys, os, json, html as html_mod
-from pathlib import Path
+
+import html as html_mod
+import json
+import os
+import sys
 from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
-import numpy as np
 
 os.chdir("/workspaces/Borsa")
 REPORT_DIR = Path("reports/backtest_3month")
 MAX_CONCURRENT = 5
 
+
 # ─── Timestamp bul ────────────────────────────────────────────────────
 def find_latest_ts():
     files = sorted(REPORT_DIR.glob("summary_*.json"))
     if not files:
-        print("❌ Rapor bulunamadı!"); sys.exit(1)
+        print("❌ Rapor bulunamadı!")
+        sys.exit(1)
     return files[-1].stem.replace("summary_", "")
+
 
 ts = sys.argv[1] if len(sys.argv) > 1 else find_latest_ts()
 print(f"📊 Rapor oluşturuluyor — timestamp: {ts}")
@@ -30,94 +37,272 @@ print(f"📊 Rapor oluşturuluyor — timestamp: {ts}")
 with open(REPORT_DIR / f"summary_{ts}.json") as f:
     S = json.load(f)
 
-trades_df  = pd.read_csv(REPORT_DIR / f"trades_{ts}.csv")
+trades_df = pd.read_csv(REPORT_DIR / f"trades_{ts}.csv")
 signals_df = pd.read_csv(REPORT_DIR / f"entry_signals_{ts}.csv")
-equity_df  = pd.read_csv(REPORT_DIR / f"equity_curve_{ts}.csv")
+equity_df = pd.read_csv(REPORT_DIR / f"equity_curve_{ts}.csv")
 
 trades_df["entry_date"] = pd.to_datetime(trades_df["entry_date"])
-trades_df["exit_date"]  = pd.to_datetime(trades_df["exit_date"])
+trades_df["exit_date"] = pd.to_datetime(trades_df["exit_date"])
 
 # ─── Kısa erişimciler ────────────────────────────────────────────────
-total_pnl = S["total_pnl"]; total_ret = S["total_return_pct"]
-win_rate = S["win_rate"]; pf = S["profit_factor"]; sharpe = S["sharpe_ratio"]
-max_dd = S["max_drawdown_pct"]; n_trades = S["total_trades"]
-n_win = S["winning_trades"]; n_lose = S["losing_trades"]
-n_signals = S["entry_signals"]; n_scans = S["total_scans"]
+total_pnl = S["total_pnl"]
+total_ret = S["total_return_pct"]
+win_rate = S["win_rate"]
+pf = S["profit_factor"]
+sharpe = S["sharpe_ratio"]
+max_dd = S["max_drawdown_pct"]
+n_trades = S["total_trades"]
+n_win = S["winning_trades"]
+n_lose = S["losing_trades"]
+n_signals = S["entry_signals"]
+n_scans = S["total_scans"]
 n_stocks = S["symbols_tested"]
 sym_perf = S.get("symbol_performance", {})
 
-eq_dates  = equity_df["date"].tolist()
+eq_dates = equity_df["date"].tolist()
 eq_values = equity_df["equity"].round(2).tolist()
-eq_pos    = equity_df["open_positions"].tolist()
+eq_pos = equity_df["open_positions"].tolist()
 test_start = eq_dates[0] if eq_dates else "?"
-test_end   = eq_dates[-1] if eq_dates else "?"
+test_end = eq_dates[-1] if eq_dates else "?"
 report_date_str = datetime.now().strftime("%d %B %Y, %H:%M")
 
 # ─── Sektör haritası ──────────────────────────────────────────────────
 SECTOR = {
-    **dict.fromkeys(["AAPL","MSFT","GOOGL","AMZN","META","NVDA","TSLA","AVGO",
-        "ORCL","ADBE","CRM","AMD","INTC","QCOM","TXN","NFLX","MU","ANET","SNPS",
-        "KLAC","LRCX","CRWD","NET","SNOW","PLTR","PANW","DDOG","ZS","FTNT",
-        "WDAY","TEAM","HUBS","BILL","CDNS","MRVL"], "Teknoloji"),
-    **dict.fromkeys(["JPM","GS","MS","BAC","WFC","C","BLK","V","MA","AXP",
-        "SPGI","COF","SCHW","USB","PNC","TFC","BK","CME","ICE","MCO"], "Finans"),
-    **dict.fromkeys(["UNH","JNJ","LLY","PFE","ABBV","MRK","TMO","ABT","DHR",
-        "BMY","AMGN","GILD","VRTX","REGN","ISRG","MDT","SYK","BSX","EW","ZTS"], "Sağlık"),
-    **dict.fromkeys(["WMT","COST","HD","LOW","TGT","SBUX","MCD","NKE","LULU",
-        "TJX","PEP","KO","PG","CL","EL","MNST","KHC","GIS","HSY","KDP"], "Tüketici"),
-    **dict.fromkeys(["XOM","CVX","COP","SLB","EOG","PXD","MPC","VLO","PSX","OXY"], "Enerji"),
-    **dict.fromkeys(["BA","LMT","RTX","GE","HON","CAT","DE","UNP","UPS","FDX",
-        "MMM","EMR","ETN","ITW","PH","GD","NOC","LHX","TDG","WM"], "Sanayi"),
-    **dict.fromkeys(["SPY","QQQ","XLK","XLI","SMH","XLE","XLF","XLV","XLP",
-        "ARKK","IWM","DIA","SOXX","XBI"], "ETF"),
+    **dict.fromkeys(
+        [
+            "AAPL",
+            "MSFT",
+            "GOOGL",
+            "AMZN",
+            "META",
+            "NVDA",
+            "TSLA",
+            "AVGO",
+            "ORCL",
+            "ADBE",
+            "CRM",
+            "AMD",
+            "INTC",
+            "QCOM",
+            "TXN",
+            "NFLX",
+            "MU",
+            "ANET",
+            "SNPS",
+            "KLAC",
+            "LRCX",
+            "CRWD",
+            "NET",
+            "SNOW",
+            "PLTR",
+            "PANW",
+            "DDOG",
+            "ZS",
+            "FTNT",
+            "WDAY",
+            "TEAM",
+            "HUBS",
+            "BILL",
+            "CDNS",
+            "MRVL",
+        ],
+        "Teknoloji",
+    ),
+    **dict.fromkeys(
+        [
+            "JPM",
+            "GS",
+            "MS",
+            "BAC",
+            "WFC",
+            "C",
+            "BLK",
+            "V",
+            "MA",
+            "AXP",
+            "SPGI",
+            "COF",
+            "SCHW",
+            "USB",
+            "PNC",
+            "TFC",
+            "BK",
+            "CME",
+            "ICE",
+            "MCO",
+        ],
+        "Finans",
+    ),
+    **dict.fromkeys(
+        [
+            "UNH",
+            "JNJ",
+            "LLY",
+            "PFE",
+            "ABBV",
+            "MRK",
+            "TMO",
+            "ABT",
+            "DHR",
+            "BMY",
+            "AMGN",
+            "GILD",
+            "VRTX",
+            "REGN",
+            "ISRG",
+            "MDT",
+            "SYK",
+            "BSX",
+            "EW",
+            "ZTS",
+        ],
+        "Sağlık",
+    ),
+    **dict.fromkeys(
+        [
+            "WMT",
+            "COST",
+            "HD",
+            "LOW",
+            "TGT",
+            "SBUX",
+            "MCD",
+            "NKE",
+            "LULU",
+            "TJX",
+            "PEP",
+            "KO",
+            "PG",
+            "CL",
+            "EL",
+            "MNST",
+            "KHC",
+            "GIS",
+            "HSY",
+            "KDP",
+        ],
+        "Tüketici",
+    ),
+    **dict.fromkeys(
+        ["XOM", "CVX", "COP", "SLB", "EOG", "PXD", "MPC", "VLO", "PSX", "OXY"], "Enerji"
+    ),
+    **dict.fromkeys(
+        [
+            "BA",
+            "LMT",
+            "RTX",
+            "GE",
+            "HON",
+            "CAT",
+            "DE",
+            "UNP",
+            "UPS",
+            "FDX",
+            "MMM",
+            "EMR",
+            "ETN",
+            "ITW",
+            "PH",
+            "GD",
+            "NOC",
+            "LHX",
+            "TDG",
+            "WM",
+        ],
+        "Sanayi",
+    ),
+    **dict.fromkeys(
+        [
+            "SPY",
+            "QQQ",
+            "XLK",
+            "XLI",
+            "SMH",
+            "XLE",
+            "XLF",
+            "XLV",
+            "XLP",
+            "ARKK",
+            "IWM",
+            "DIA",
+            "SOXX",
+            "XBI",
+        ],
+        "ETF",
+    ),
 }
-def get_sector(sym): return SECTOR.get(sym, "Diğer")
+
+
+def get_sector(sym):
+    return SECTOR.get(sym, "Diğer")
+
 
 # ─── Hesaplanan veriler ───────────────────────────────────────────────
 signal_sectors = signals_df["symbol"].map(get_sector).value_counts().to_dict()
-signal_strategies = (signals_df["strategy_tag"].value_counts().to_dict()
-                     if "strategy_tag" in signals_df.columns else {})
+signal_strategies = (
+    signals_df["strategy_tag"].value_counts().to_dict()
+    if "strategy_tag" in signals_df.columns
+    else {}
+)
 
-strat_stats = trades_df.groupby("strategy").agg(
-    trades=("pnl","count"), total_pnl=("pnl","sum"),
-    avg_pnl=("pnl","mean"), win_rate=("pnl", lambda x: (x>0).mean()*100)
-).reset_index()
+strat_stats = (
+    trades_df.groupby("strategy")
+    .agg(
+        trades=("pnl", "count"),
+        total_pnl=("pnl", "sum"),
+        avg_pnl=("pnl", "mean"),
+        win_rate=("pnl", lambda x: (x > 0).mean() * 100),
+    )
+    .reset_index()
+)
 
-win_trades  = trades_df[trades_df["pnl"] > 0]
+win_trades = trades_df[trades_df["pnl"] > 0]
 loss_trades = trades_df[trades_df["pnl"] < 0]
-biggest_win  = trades_df["pnl"].max() if len(trades_df) else 0
+biggest_win = trades_df["pnl"].max() if len(trades_df) else 0
 biggest_loss = trades_df["pnl"].min() if len(trades_df) else 0
-biggest_win_sym  = trades_df.loc[trades_df["pnl"].idxmax(), "symbol"] if len(trades_df) else ""
+biggest_win_sym = trades_df.loc[trades_df["pnl"].idxmax(), "symbol"] if len(trades_df) else ""
 biggest_loss_sym = trades_df.loc[trades_df["pnl"].idxmin(), "symbol"] if len(trades_df) else ""
-avg_win_hold  = win_trades["holding_days"].mean() if len(win_trades) else 0
+avg_win_hold = win_trades["holding_days"].mean() if len(win_trades) else 0
 avg_loss_hold = loss_trades["holding_days"].mean() if len(loss_trades) else 0
 n_stop = len(trades_df[trades_df["exit_reason"].str.contains("Stop", na=False)])
-n_tp   = len(trades_df[trades_df["exit_reason"].str.contains("TP", na=False)])
+n_tp = len(trades_df[trades_df["exit_reason"].str.contains("TP", na=False)])
 n_hold = len(trades_df[trades_df["exit_reason"].str.contains("Dönem", na=False)])
+
 
 # ─── Yardımcı fonksiyonlar ────────────────────────────────────────────
 def pc(val):
     """PnL color."""
-    if val > 0: return "#10b981"
-    if val < 0: return "#ef4444"
+    if val > 0:
+        return "#10b981"
+    if val < 0:
+        return "#ef4444"
     return "#6b7280"
+
 
 def pnl_html(val):
     s = "+" if val > 0 else ""
     return f'<span style="color:{pc(val)};font-weight:600">{s}${val:,.2f}</span>'
 
+
 def pct_html(val):
     s = "+" if val > 0 else ""
     return f'<span style="color:{pc(val)};font-weight:600">{s}{val:.2f}%</span>'
 
+
 def exit_badge(reason):
     r = str(reason)
-    if "TP1" in r: return '<span class="badge tp1">TP1</span>'
-    if "TP2" in r: return '<span class="badge tp2">TP2</span>'
-    if "TP3" in r: return '<span class="badge tp3">TP3</span>'
-    if "Stop" in r: return '<span class="badge sl">SL</span>'
-    if "Dönem" in r: return '<span class="badge hold">HOLD</span>'
-    return '<span class="badge other">' + html_mod.escape(r[:12]) + '</span>'
+    if "TP1" in r:
+        return '<span class="badge tp1">TP1</span>'
+    if "TP2" in r:
+        return '<span class="badge tp2">TP2</span>'
+    if "TP3" in r:
+        return '<span class="badge tp3">TP3</span>'
+    if "Stop" in r:
+        return '<span class="badge sl">SL</span>'
+    if "Dönem" in r:
+        return '<span class="badge hold">HOLD</span>'
+    return '<span class="badge other">' + html_mod.escape(r[:12]) + "</span>"
+
 
 # ─── HTML parçaları oluştur (ana f-string'den önce) ────────────────────
 
@@ -126,30 +311,30 @@ trade_rows_html = ""
 for _, row in trades_df.iterrows():
     sym = html_mod.escape(str(row["symbol"]))
     entry_d = row["entry_date"].strftime("%d %b %Y")
-    exit_d  = row["exit_date"].strftime("%d %b %Y")
-    strat   = html_mod.escape(str(row.get("strategy","")))
-    pnl_v   = row["pnl"]
-    pnl_p   = row.get("pnl_pct", 0)
-    hold    = row.get("holding_days","")
-    reason  = str(row.get("exit_reason",""))
-    shares  = row.get("shares", 0)
-    epx     = row.get("entry_price", 0)
-    xpx     = row.get("exit_price", 0)
-    cls     = "win-row" if pnl_v > 0 else "loss-row"
+    exit_d = row["exit_date"].strftime("%d %b %Y")
+    strat = html_mod.escape(str(row.get("strategy", "")))
+    pnl_v = row["pnl"]
+    pnl_p = row.get("pnl_pct", 0)
+    hold = row.get("holding_days", "")
+    reason = str(row.get("exit_reason", ""))
+    shares = row.get("shares", 0)
+    epx = row.get("entry_price", 0)
+    xpx = row.get("exit_price", 0)
+    cls = "win-row" if pnl_v > 0 else "loss-row"
     trade_rows_html += (
         f'<tr class="{cls}">'
-        f'<td><strong>{sym}</strong></td>'
-        f'<td>{strat}</td>'
-        f'<td>{entry_d}</td>'
-        f'<td>{exit_d}</td>'
+        f"<td><strong>{sym}</strong></td>"
+        f"<td>{strat}</td>"
+        f"<td>{entry_d}</td>"
+        f"<td>{exit_d}</td>"
         f'<td class="num">{shares}</td>'
         f'<td class="num">${epx:,.2f}</td>'
         f'<td class="num">${xpx:,.2f}</td>'
         f'<td class="num">{pnl_html(pnl_v)}</td>'
         f'<td class="num">{pct_html(pnl_p)}</td>'
         f'<td class="num">{hold} gün</td>'
-        f'<td>{exit_badge(reason)}</td>'
-        f'</tr>\n'
+        f"<td>{exit_badge(reason)}</td>"
+        f"</tr>\n"
     )
 
 # 2) Symbol performance kartları
@@ -163,29 +348,29 @@ for sym, data in sorted(sym_perf.items(), key=lambda x: x[1]["total_pnl"], rever
         f'<div class="sym-header">{icon} <strong>{sym}</strong></div>'
         f'<div class="sym-metric">{pnl_html(pnl)}</div>'
         f'<div class="sym-detail">{data["trades"]} işlem · WR {data["win_rate"]:.0f}% · Ort. {data["avg_hold"]:.0f} gün</div>'
-        f'</div>\n'
+        f"</div>\n"
     )
 
 # 3) Strateji tablosu
 strat_rows_html = ""
 for _, row in strat_stats.iterrows():
     strat_rows_html += (
-        f'<tr>'
-        f'<td><strong>{html_mod.escape(str(row["strategy"]))}</strong></td>'
+        f"<tr>"
+        f"<td><strong>{html_mod.escape(str(row['strategy']))}</strong></td>"
         f'<td class="num">{row["trades"]}</td>'
         f'<td class="num">{pnl_html(row["total_pnl"])}</td>'
         f'<td class="num">{pnl_html(row["avg_pnl"])}</td>'
         f'<td class="num">{pct_html(row["win_rate"])}</td>'
-        f'</tr>\n'
+        f"</tr>\n"
     )
 
 # 4) Sektör sinyal tablosu
 sector_rows_html = ""
 for sec, cnt in sorted(signal_sectors.items(), key=lambda x: -x[1]):
     sector_rows_html += (
-        f'<tr><td>{sec}</td>'
+        f"<tr><td>{sec}</td>"
         f'<td class="num">{cnt}</td>'
-        f'<td class="num">{cnt/n_signals*100:.1f}%</td></tr>\n'
+        f'<td class="num">{cnt / n_signals * 100:.1f}%</td></tr>\n'
     )
 
 # 5) Strateji sinyal tablosu
@@ -194,7 +379,7 @@ if signal_strategies:
     strat_signal_html = '<h3>Sinyal Dağılımı — Stratejiye Göre</h3><table><thead><tr><th>Strateji</th><th style="text-align:right">Sinyal</th></tr></thead><tbody>'
     for s, c in signal_strategies.items():
         strat_signal_html += f'<tr><td>{html_mod.escape(str(s))}</td><td class="num">{c}</td></tr>'
-    strat_signal_html += '</tbody></table>'
+    strat_signal_html += "</tbody></table>"
 
 # 6) Top sinyaller tablosu
 sort_col = "reco_score" if "reco_score" in signals_df.columns else "score"
@@ -203,15 +388,15 @@ top_sig_html = ""
 for _, sig in top_signals.iterrows():
     sym = html_mod.escape(str(sig["symbol"]))
     dt = str(sig["date"])[:10]
-    strat = html_mod.escape(str(sig.get("strategy_tag","")))
+    strat = html_mod.escape(str(sig.get("strategy_tag", "")))
     rsi = sig.get("rsi", 0)
     score = sig.get("score", 0)
     rr = sig.get("risk_reward", 0)
     sl_pct = sig.get("stop_loss_pct", 0)
     reco = sig.get("reco_score", 0)
     top_sig_html += (
-        f'<tr><td><strong>{sym}</strong></td>'
-        f'<td>{dt}</td><td>{strat}</td>'
+        f"<tr><td><strong>{sym}</strong></td>"
+        f"<td>{dt}</td><td>{strat}</td>"
         f'<td class="num">{rsi:.1f}</td>'
         f'<td class="num">{score}</td>'
         f'<td class="num">{rr:.2f}</td>'
@@ -242,7 +427,9 @@ else:
     eval_text = "🔴 Strateji zararda kapattı."
 
 # 9) Metric labels
-wr_color = "var(--green)" if win_rate >= 60 else ("var(--yellow)" if win_rate >= 50 else "var(--red)")
+wr_color = (
+    "var(--green)" if win_rate >= 60 else ("var(--yellow)" if win_rate >= 50 else "var(--red)")
+)
 pf_color = "var(--green)" if pf >= 2 else ("var(--yellow)" if pf >= 1 else "var(--red)")
 pf_label = "Mükemmel" if pf >= 3 else ("İyi" if pf >= 1.5 else "Zayıf")
 sh_color = "var(--green)" if sharpe >= 2 else ("var(--yellow)" if sharpe >= 1 else "var(--red)")
@@ -252,18 +439,25 @@ dd_label = "Düşük Risk" if max_dd < 10 else ("Orta Risk" if max_dd < 20 else 
 
 # 10) Risk/reward ratio
 rr_ratio = abs(S["avg_win"] / S["avg_loss"]) if S["avg_loss"] != 0 else 0
-pf_comment = "— profesyonel seviyede (>3.0)" if pf >= 3 else ("— iyi seviyede (>1.5)" if pf >= 1.5 else "")
-sh_comment = "— yıllıklandırılmış olarak olağanüstü" if sharpe >= 3 else ("— yıllıklandırılmış olarak çok iyi" if sharpe >= 2 else "")
+pf_comment = (
+    "— profesyonel seviyede (>3.0)" if pf >= 3 else ("— iyi seviyede (>1.5)" if pf >= 1.5 else "")
+)
+sh_comment = (
+    "— yıllıklandırılmış olarak olağanüstü"
+    if sharpe >= 3
+    else ("— yıllıklandırılmış olarak çok iyi" if sharpe >= 2 else "")
+)
 
 # 11) Chart.js data
-strat_chart_data = json.dumps([
-    {"name": str(r["strategy"]), "pnl": round(r["total_pnl"], 2)}
-    for _, r in strat_stats.iterrows()
-])
-sec_chart_data = json.dumps([
-    {"name": k, "count": v}
-    for k, v in sorted(signal_sectors.items(), key=lambda x: -x[1])
-])
+strat_chart_data = json.dumps(
+    [
+        {"name": str(r["strategy"]), "pnl": round(r["total_pnl"], 2)}
+        for _, r in strat_stats.iterrows()
+    ]
+)
+sec_chart_data = json.dumps(
+    [{"name": k, "count": v} for k, v in sorted(signal_sectors.items(), key=lambda x: -x[1])]
+)
 
 # ═══════════════════════════════════════════════════════════════════════
 #                          ANA HTML ŞABLONU
@@ -370,12 +564,12 @@ page = f"""<!DOCTYPE html>
 <div class="metrics-grid">
   <div class="metric-card">
     <div class="metric-label">Toplam Kâr/Zarar</div>
-    <div class="metric-value" style="color:{pc(total_pnl)}">{"+" if total_pnl>0 else ""}${total_pnl:,.0f}</div>
+    <div class="metric-value" style="color:{pc(total_pnl)}">{"+" if total_pnl > 0 else ""}${total_pnl:,.0f}</div>
     <div class="metric-sub">${S["initial_capital"]:,.0f} → ${S["final_capital"]:,.0f}</div>
   </div>
   <div class="metric-card">
     <div class="metric-label">Toplam Getiri</div>
-    <div class="metric-value" style="color:{pc(total_ret)}">{"+" if total_ret>0 else ""}{total_ret:.2f}%</div>
+    <div class="metric-value" style="color:{pc(total_ret)}">{"+" if total_ret > 0 else ""}{total_ret:.2f}%</div>
     <div class="metric-sub">90 günde</div>
   </div>
   <div class="metric-card">
