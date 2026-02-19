@@ -22,13 +22,26 @@ except ImportError:
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
-# Bot bilgileri:
-# Bot Adı: Gizliajanbot
-# Bot Linki: t.me/Gizliajanbot
-# Kullanıcı: Meriç
+
+def validate_telegram_config() -> dict:
+    """Telegram yapılandırmasını doğrula ve durum raporu döndür."""
+    issues = []
+    if not BOT_TOKEN:
+        issues.append("TELEGRAM_BOT_TOKEN ortam değişkeni ayarlanmamış.")
+    if not CHAT_ID:
+        issues.append("TELEGRAM_CHAT_ID ortam değişkeni ayarlanmamış.")
+    return {
+        "valid": len(issues) == 0,
+        "bot_token_set": bool(BOT_TOKEN),
+        "chat_id_set": bool(CHAT_ID),
+        "issues": issues,
+    }
+
 
 # Doğrulama
-if not BOT_TOKEN:
+_config_status = validate_telegram_config()
+if not _config_status["valid"]:
     import warnings
 
-    warnings.warn("TELEGRAM_BOT_TOKEN ortam değişkeni ayarlanmamış. .env dosyasını kontrol edin.")
+    for issue in _config_status["issues"]:
+        warnings.warn(f"Telegram: {issue} .env dosyasını kontrol edin.")

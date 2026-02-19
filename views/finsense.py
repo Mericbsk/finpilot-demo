@@ -259,8 +259,12 @@ def render_finsense_page():
     with tab_calc:
         render_compound_interest_calculator()
 
-    # Alt Bilgi
+    # Alt Bilgi — yasal uyarı (R7)
     st.markdown("---")
     st.caption(
         "ℹ️ Bu içerikler uluslararası finansal okuryazarlık standartlarına (OECD/INFE) uygun olarak hazırlanmıştır."
+    )
+    st.caption(
+        "⚠️ **Yasal Uyarı:** FinPilot yalnızca eğitim ve bilgi amaçlıdır; yatırım tavsiyesi niteliği taşımaz. "
+        "Yatırım kararlarınız tamamen size aittir. Geçmiş performans gelecekteki sonuçların garantisi değildir."
     )

@@ -82,7 +82,7 @@ jobs:
         continue-on-error: true
 
   # ============================================
-  # 🔒 Security Job - Vulnerability Scanning
+  # 🔒 Security Job - Vulnerability & Secret Scanning
   # ============================================
   security:
     name: 🔒 Security Scan
@@ -91,6 +91,8 @@ jobs:
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -103,7 +105,7 @@ jobs:
 
       - name: 🔒 Run Bandit (security linter)
         run: |
-          bandit -r scanner/ drl/ -ll -ii --skip B101
+          bandit -r scanner/ drl/ core/ auth/ views/ -ll -ii --skip B101
         continue-on-error: true
 
       - name: 🛡️ Check dependencies for vulnerabilities
@@ -111,6 +113,20 @@ jobs:
           pip install -r requirements.txt
           safety check --full-report
         continue-on-error: true
+
+      - name: 🔐 Scan for hardcoded secrets
+        run: |
+          echo "Scanning for hardcoded secrets..."
+          FOUND=0
+          if git grep -n -E '(API_KEY|SECRET|TOKEN|PASSWORD)\s*=\s*"[A-Za-z0-9+/]{20,}"' -- '*.py' ':!.env.example' ':!*test*'; then
+            echo "::error::Potential hardcoded secret found in source code!"
+            FOUND=1
+          fi
+          if [ "$FOUND" -eq 1 ]; then
+            echo "❌ Secret scan failed. Move secrets to .env file."
+            exit 1
+          fi
+          echo "✅ No hardcoded secrets detected."
 
   # ============================================
   # 🐳 Docker Job - Build & Validate

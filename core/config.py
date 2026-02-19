@@ -15,12 +15,10 @@ Author: FinPilot Team
 Version: 1.0.0
 """
 
-from __future__ import annotations
-
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -94,7 +92,7 @@ class DRLConfig(BaseModel):
     total_timesteps: int = Field(default=100_000, ge=1000)
 
     # Network Architecture
-    hidden_layers: list[int] = Field(default=[256, 256])
+    hidden_layers: List[int] = Field(default=[256, 256])
     activation: Literal["tanh", "relu", "elu"] = "tanh"
 
     # Training Hyperparameters
@@ -112,7 +110,7 @@ class DRLConfig(BaseModel):
     lookback_window: int = Field(default=30, ge=1)
 
     # Features
-    feature_columns: list[str] = Field(
+    feature_columns: List[str] = Field(
         default=[
             "open",
             "high",
@@ -387,7 +385,7 @@ class Settings(BaseSettings):
         }
         return presets[preset]
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         """Export settings as dictionary (excluding secrets)."""
         data = self.model_dump()
         # Mask sensitive values

@@ -32,9 +32,13 @@ logger = logging.getLogger(__name__)
 class AuthConfig:
     """Authentication configuration."""
 
-    # JWT Settings
+    # JWT Settings — Kalıcı anahtar: .env'deki FINPILOT_SECRET_KEY kullanılır.
+    # Eksikse sabit bir fallback ile başlatılır; production'da mutlaka .env'den okunmalı.
     secret_key: str = field(
-        default_factory=lambda: os.getenv("FINPILOT_SECRET_KEY", secrets.token_hex(32))
+        default_factory=lambda: os.getenv(
+            "FINPILOT_SECRET_KEY",
+            "finpilot-default-dev-key-change-in-production-00000000",
+        )
     )
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 24 hours

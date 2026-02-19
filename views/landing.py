@@ -165,4 +165,8 @@ def render_finpilot_landing():
     st.caption(
         "🎉 Bu tanıtım ekranı sadece ilk oturumda gösterilir. Tekrar görmek için tarayıcı önbelleğini temizleyin."
     )
+    st.caption(
+        "⚠️ **Yasal Uyarı:** FinPilot yalnızca eğitim ve bilgi amaçlıdır; yatırım tavsiyesi niteliği taşımaz. "
+        "Yatırım kararlarınız tamamen size aittir. Geçmiş performans gelecekteki sonuçların garantisi değildir."
+    )
     st.stop()

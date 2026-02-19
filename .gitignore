@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 node_modules/
 .env
+.env.local
+.env.production
 .venv
 env/
 venv/
@@ -11,5 +13,24 @@ venv/
 data/logs/
 .DS_Store
 
+# Secrets — asla commit etme
 .streamlit/secrets.toml
-.streamlit/secrets.toml
+*.pem
+*.key
+*.p12
+*.jks
+service_account*.json
+credentials*.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Model artifacts
+models/*.zip
+models/*.pkl
+
+# OS
+Thumbs.db
+desktop.ini

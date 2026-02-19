@@ -1,10 +1,18 @@
 # polygon_live.py
 # Polygon.io canlı veri çekme yardımcı fonksiyonları
 
+import os
+
 import pandas as pd
 from polygon import RESTClient
 
-API_KEY = "59apKccpWYf308fTpaTdxINGK2impMyc"
+API_KEY = os.getenv("POLYGON_API_KEY", "")
+if not API_KEY:
+    import warnings
+    warnings.warn(
+        "POLYGON_API_KEY ortam değişkeni ayarlanmamış. "
+        ".env dosyasını kontrol edin veya POLYGON_API_KEY export edin."
+    )
 
 client = RESTClient(API_KEY)
 
