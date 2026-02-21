@@ -2,7 +2,9 @@ import json
 import os
 import random
 
+import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 # Finansal Okuryazarlık Sözlüğü Veri Seti
@@ -12,7 +14,7 @@ import streamlit as st
 def load_dictionary():
     file_path = os.path.join("data", "dictionary.json")
     try:
-        with open(file_path, encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         return []
@@ -66,7 +68,7 @@ def render_compound_interest_calculator():
     c3.metric(
         "Gelecekteki Değer",
         f"₺{future_value:,.0f}",
-        delta=f"%{((future_value / total_invested) - 1) * 100:.1f}",
+        delta=f"%{((future_value/total_invested)-1)*100:.1f}",
     )
 
     # Grafik
@@ -118,16 +120,10 @@ def render_quiz_module(terms):
     q = st.session_state.quiz_state["current_question"]
 
     if q:
-        st.markdown(
-            f"""
-        <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 20px;">
-            <h4 style="color: #94a3b8; margin-top: 0;">Soru:</h4>
-            <p style="font-size: 1.2rem; font-weight: 500; color: #f8fafc;">"{q["term"]["definition"]}"</p>
-            <p style="color: #64748b; font-style: italic;">Bu tanım hangi terime aittir?</p>
-        </div>
-        """,
-            unsafe_allow_html=True,
-        )
+        with st.container():
+            st.markdown("#### Soru:")
+            st.info(f'"{q["term"]["definition"]}"')
+            st.caption("Bu tanım hangi terime aittir?")
 
         cols = st.columns(2)
         for i, opt in enumerate(q["options"]):
@@ -216,19 +212,16 @@ def render_finsense_page():
                         cols = st.columns(2)
                         for i, term in enumerate(category_terms):
                             with cols[i % 2]:
-                                st.markdown(
-                                    f"""
-                                <div style="background-color: #262730; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #38bdf8;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <h4 style="margin:0; color: #f8fafc;">{term["term"]}</h4>
-                                        <span style="font-size: 0.7rem; background: #334155; padding: 2px 6px; border-radius: 4px;">{term["level"]}</span>
-                                    </div>
-                                    <p style="font-size: 0.9rem; color: #cbd5e1; margin: 5px 0;">{term["definition"]}</p>
-                                    <p style="font-size: 0.85rem; color: #94a3b8;"><i>💡 Örnek: {term["example"]}</i></p>
-                                </div>
-                                """,
-                                    unsafe_allow_html=True,
-                                )
+                                st.markdown(f"**{term['term']}** · `{term['level']}`")
+                                st.markdown(f"{term['definition']}")
+                                st.caption(f"💡 Örnek: {term['example']}")
+                                # E2: Related terms
+                                related = term.get("related", [])
+                                if related:
+                                    st.markdown(
+                                        "🔗 " + " · ".join(f"*{r}*" for r in related)
+                                    )
+                                st.markdown("---")
 
     # --- TAB 2: QUIZ MODU ---
     with tab_quiz:

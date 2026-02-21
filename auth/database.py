@@ -186,6 +186,21 @@ class Database:
             """
             )
 
+            # Quiz scores table — Sprint 4 E1
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS quiz_scores (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT NOT NULL,
+                    score INTEGER NOT NULL,
+                    total INTEGER NOT NULL,
+                    category TEXT,
+                    played_at TEXT NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """
+            )
+
             # Create indexes
             conn.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
             conn.execute(
@@ -193,12 +208,14 @@ class Database:
             )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_trades_portfolio ON trades(portfolio_id)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_trades_symbol ON trades(symbol)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_quiz_user ON quiz_scores(user_id)")
 
             logger.info(f"Database initialized: {self.db_path}")
 
     def drop_all(self) -> None:
         """Drop all tables (for testing)."""
         with self.connection() as conn:
+            conn.execute("DROP TABLE IF EXISTS quiz_scores")
             conn.execute("DROP TABLE IF EXISTS trades")
             conn.execute("DROP TABLE IF EXISTS positions")
             conn.execute("DROP TABLE IF EXISTS portfolios")
@@ -601,6 +618,88 @@ class SettingsRepository(BaseRepository):
 
 
 # ============================================================================
+# QUIZ REPOSITORY — Sprint 4 E1
+# ============================================================================
+
+
+class QuizRepository:
+    """Persist and retrieve quiz scores for the gamification module."""
+
+    def __init__(self, db: Database):
+        self.db = db
+
+    def save_score(
+        self,
+        user_id: str,
+        score: int,
+        total: int,
+        category: str | None = None,
+    ) -> None:
+        """Record a quiz attempt."""
+        from datetime import datetime, timezone
+
+        with self.db.connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO quiz_scores (user_id, score, total, category, played_at)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (user_id, score, total, category, datetime.now(timezone.utc).isoformat()),
+            )
+
+    def get_user_stats(self, user_id: str) -> dict[str, Any]:
+        """Return aggregated quiz stats for a user."""
+        with self.db.connection() as conn:
+            row = conn.execute(
+                """
+                SELECT COUNT(*) AS games,
+                       COALESCE(SUM(score), 0) AS total_correct,
+                       COALESCE(SUM(total), 0) AS total_questions,
+                       MAX(played_at) AS last_played
+                FROM quiz_scores
+                WHERE user_id = ?
+                """,
+                (user_id,),
+            ).fetchone()
+        if not row or row[0] == 0:
+            return {"games": 0, "total_correct": 0, "total_questions": 0, "accuracy": 0.0}
+        return {
+            "games": row[0],
+            "total_correct": row[1],
+            "total_questions": row[2],
+            "accuracy": round(row[1] / row[2] * 100, 1) if row[2] else 0.0,
+            "last_played": row[3],
+        }
+
+    def get_leaderboard(self, limit: int = 10) -> list[dict[str, Any]]:
+        """Top quiz performers."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT user_id,
+                       SUM(score) AS total_correct,
+                       SUM(total) AS total_questions,
+                       COUNT(*) AS games
+                FROM quiz_scores
+                GROUP BY user_id
+                ORDER BY total_correct DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [
+            {
+                "user_id": r[0],
+                "total_correct": r[1],
+                "total_questions": r[2],
+                "games": r[3],
+                "accuracy": round(r[1] / r[2] * 100, 1) if r[2] else 0.0,
+            }
+            for r in rows
+        ]
+
+
+# ============================================================================
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
@@ -622,5 +721,6 @@ __all__ = [
     "SessionRepository",
     "PortfolioRepository",
     "SettingsRepository",
+    "QuizRepository",
     "get_database",
 ]
