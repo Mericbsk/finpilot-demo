@@ -35,7 +35,10 @@ jobs:
 
       - name: 🧪 Run tests with coverage
         run: |
-          python -m pytest tests/ -v --cov=scanner --cov=drl --cov-report=xml --cov-report=term-missing
+          python -m pytest tests/ -v \
+            --cov=scanner --cov=drl --cov=views --cov=auth --cov=core \
+            --cov-report=xml --cov-report=term-missing \
+            --cov-fail-under=40
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
