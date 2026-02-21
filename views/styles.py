@@ -781,3 +781,45 @@ GLOBAL_CSS = """
     }
     </style>
 """
+
+
+# ============================================================================
+# D2 — Component-level CSS exports  (Sprint 5)
+# ============================================================================
+# Consumers can import granular CSS instead of the full 780-line blob.
+# GLOBAL_CSS is kept for backward compatibility.
+
+# Badge & status indicator styles
+BADGE_CSS = """<style>
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
+border-radius:20px;font-size:.72rem;font-weight:600;border:1px solid transparent}
+.status-badge.badge-idle{background:rgba(148,163,184,.25);color:#e2e8f0}
+.status-badge.badge-loading{background:rgba(14,165,233,.18);color:#38bdf8}
+.status-badge.badge-success{background:rgba(34,197,94,.18);color:#4ade80}
+.status-badge.badge-error{background:rgba(239,68,68,.18);color:#fca5a5}
+</style>"""
+
+# CTA / button cluster styles
+CTA_CSS = """<style>
+.cta-sticky .cta-primary .stButton>button{width:100%;padding:.9rem 1.4rem;font-size:1.05rem;
+font-weight:700;border-radius:14px;border:none;background:linear-gradient(90deg,#00e6e6,#0ea5e9);
+color:#0f172a;box-shadow:0 20px 60px -25px rgba(14,165,233,.75);transition:transform .25s ease}
+.cta-sticky .cta-primary .stButton>button:hover{transform:translateY(-2px) scale(1.01)}
+.cta-sticky .cta-secondary .stButton>button{width:100%;padding:.85rem 1.2rem;font-weight:600;
+border-radius:14px;border:1px solid rgba(0,230,230,.35);background:rgba(15,23,42,.55);color:#cbd5f5}
+</style>"""
+
+# Card & container styles
+CARD_CSS = """<style>
+.signal-card{background:#1e293b;border:1px solid rgba(56,189,248,.15);
+border-radius:16px;padding:20px;margin-bottom:16px;transition:all .3s ease}
+.signal-card:hover{border-color:rgba(56,189,248,.35);box-shadow:0 8px 32px -12px rgba(56,189,248,.2)}
+.metric-main{font-size:1.4rem;font-weight:700;color:#f8fafc}
+.metric-sub{font-size:.78rem;color:#94a3b8}
+</style>"""
+
+# Layout helpers
+LAYOUT_CSS = """<style>
+.layout-grid{display:grid;gap:1rem;padding:0 1.2rem}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+</style>"""

@@ -20,6 +20,17 @@ def load_dictionary():
         return []
 
 
+def _term_display(term_entry: dict, lang: str = "tr") -> tuple:
+    """Return (display_name, definition, example) respecting language preference."""
+    if lang == "en":
+        name = term_entry.get("term_en", term_entry["term"])
+        defn = term_entry.get("definition_en", term_entry["definition"])
+    else:
+        name = term_entry["term"]
+        defn = term_entry["definition"]
+    return name, defn, term_entry.get("example", "")
+
+
 STRATEGY_DATA = {
     "Momentum Yatırımı": {
         "aciklama": "Yükselenin yükselmeye, düşenin düşmeye devam edeceği varsayımına dayanır.",

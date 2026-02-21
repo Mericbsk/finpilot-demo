@@ -10,7 +10,9 @@
       "Gider",
       "Tasarruf",
       "Nakit Akışı"
-    ]
+    ],
+    "term_en": "Budget",
+    "definition_en": "A financial tool for planning income and expenses over a specific period."
   },
   {
     "term": "GELİR (Income)",
@@ -23,7 +25,9 @@
       "Net Gelir",
       "Pasif Gelir",
       "Aktif Gelir"
-    ]
+    ],
+    "term_en": "Income",
+    "definition_en": "Money and values earned by a person or organization in a given period."
   },
   {
     "term": "GİDER (Expense)",
@@ -35,7 +39,9 @@
       "Sabit Gider",
       "Değişken Gider",
       "Operasyonel Gider"
-    ]
+    ],
+    "term_en": "Expense",
+    "definition_en": "Expenditures made to purchase goods or services."
   },
   {
     "term": "TASARRUF (Savings)",
@@ -47,7 +53,9 @@
       "Acil Fon",
       "Vadeli Mevduat",
       "Yatırım"
-    ]
+    ],
+    "term_en": "Savings",
+    "definition_en": "The portion of income set aside for future use rather than spent."
   },
   {
     "term": "FAİZ (Interest)",
@@ -60,7 +68,9 @@
       "Bileşik Faiz",
       "Faiz Oranı",
       "TCMB Politika Faizi"
-    ]
+    ],
+    "term_en": "Interest",
+    "definition_en": "The cost of borrowing money or the return earned on savings."
   },
   {
     "term": "BİLEŞİK FAİZ (Compound Interest)",
@@ -72,7 +82,8 @@
       "Anapara",
       "Faiz Getirisi",
       "Yıllık Yüzde Oranı"
-    ]
+    ],
+    "term_en": "Compound Interest"
   },
   {
     "term": "ENFLASYON (Inflation)",
@@ -84,7 +95,9 @@
       "TÜFE",
       "Deflasyon",
       "Stagflasyon"
-    ]
+    ],
+    "term_en": "Inflation",
+    "definition_en": "A general and sustained increase in the price level of goods and services."
   },
   {
     "term": "BANKA HESABI (Bank Account)",
@@ -97,7 +110,8 @@
       "Banka Kartı",
       "IBAN",
       "EFT/Havale"
-    ]
+    ],
+    "term_en": "Bank Account"
   },
   {
     "term": "KREDİ (Credit/Loan)",
@@ -110,7 +124,8 @@
       "Taksit",
       "Anapara",
       "Erken Ödeme"
-    ]
+    ],
+    "term_en": "Credit/Loan"
   },
   {
     "term": "KREDİ KARTI (Credit Card)",
@@ -123,7 +138,8 @@
       "Ekstre",
       "Bonus/Mil",
       "Nakit Avans"
-    ]
+    ],
+    "term_en": "Credit Card"
   },
   {
     "term": "KREDİ SKORU (Credit Score)",
@@ -135,7 +151,8 @@
       "Findeks",
       "Kredi Geçmişi",
       "Ödeme Disiplini"
-    ]
+    ],
+    "term_en": "Credit Score"
   },
   {
     "term": "BORÇ/VARLIK ORANI (Debt-to-Asset Ratio)",
@@ -147,7 +164,8 @@
       "Kaldıraç Oranı",
       "Finansal Risk",
       "Ödeme Kapasitesi"
-    ]
+    ],
+    "term_en": "Debt-to-Asset Ratio"
   },
   {
     "term": "ANAPARA (Principal)",
@@ -159,7 +177,8 @@
       "Faiz",
       "Taksit",
       "Erken Ödeme İndirimi"
-    ]
+    ],
+    "term_en": "Principal"
   },
   {
     "term": "YATIRIM (Investment)",
@@ -172,7 +191,8 @@
       "Risk",
       "Getiri",
       "Çeşitlendirme"
-    ]
+    ],
+    "term_en": "Investment"
   },
   {
     "term": "HİSSE SENEDİ (Stock/Share)",
@@ -185,7 +205,8 @@
       "Temettü",
       "Piyasa Değeri",
       "Volatilite"
-    ]
+    ],
+    "term_en": "Stock/Share"
   },
   {
     "term": "TAHVİL (Bond)",
@@ -198,7 +219,9 @@
       "Vade",
       "Nominal Değer",
       "Eurobond"
-    ]
+    ],
+    "term_en": "Bond",
+    "definition_en": "A debt instrument where the investor lends money to the issuer for a fixed return."
   },
   {
     "term": "PORTFÖY (Portfolio)",
@@ -210,7 +233,9 @@
       "Varlık Dağılımı",
       "Rebalancing",
       "Risk Toleransı"
-    ]
+    ],
+    "term_en": "Portfolio",
+    "definition_en": "The total collection of investments held by an individual or institution."
   },
   {
     "term": "ÇEŞİTLENDİRME (Diversification)",
@@ -222,7 +247,8 @@
       "Varlık Dağılımı",
       "Korelasyon",
       "Sistematik Olmayan Risk"
-    ]
+    ],
+    "term_en": "Diversification"
   },
   {
     "term": "RİSK (Risk)",
@@ -234,7 +260,9 @@
       "Risk Toleransı",
       "Volatilite",
       "Risk-Getiri İlişkisi"
-    ]
+    ],
+    "term_en": "Risk",
+    "definition_en": "The probability that an investment's actual return will differ from expected returns."
   },
   {
     "term": "GETİRİ (Return)",
@@ -246,7 +274,8 @@
       "Nominal Getiri",
       "Reel Getiri",
       "Yıllıklandırılmış Getiri"
-    ]
+    ],
+    "term_en": "Return"
   },
   {
     "term": "EMEKLİLİK PLANI (Pension Plan)",
@@ -259,7 +288,8 @@
       "Emeklilik Fonu",
       "Vesting Süresi",
       "Taşınabilirlik"
-    ]
+    ],
+    "term_en": "Pension Plan"
   },
   {
     "term": "SİGORTA (Insurance)",
@@ -272,7 +302,8 @@
       "Teminat",
       "Hasar",
       "Muafiyet"
-    ]
+    ],
+    "term_en": "Insurance"
   },
   {
     "term": "LİKİDİTE (Liquidity)",
@@ -284,7 +315,9 @@
       "Nakit Benzerleri",
       "Likidite Riski",
       "Likidasyon"
-    ]
+    ],
+    "term_en": "Liquidity",
+    "definition_en": "The degree to which an asset can be quickly bought or sold without significant price impact."
   },
   {
     "term": "VARLIK (Asset)",
@@ -296,7 +329,8 @@
       "Dönen Varlık",
       "Duran Varlık",
       "Maddi/Maddi Olmayan Varlık"
-    ]
+    ],
+    "term_en": "Asset"
   },
   {
     "term": "BORÇ (Liability/Debt)",
@@ -308,7 +342,8 @@
       "Borç Servisi",
       "Vadeli Borç",
       "Aciz"
-    ]
+    ],
+    "term_en": "Liability/Debt"
   },
   {
     "term": "NET DEĞER (Net Worth)",
@@ -320,7 +355,8 @@
       "Özkaynak",
       "Bilanço",
       "Finansal Pozisyon"
-    ]
+    ],
+    "term_en": "Net Worth"
   },
   {
     "term": "VERGİ (Tax)",
@@ -333,7 +369,8 @@
       "Vergi Dilimi",
       "Stopaj",
       "Vergi İndirimi"
-    ]
+    ],
+    "term_en": "Tax"
   },
   {
     "term": "YATIRIM FONU (Mutual Fund)",
@@ -345,7 +382,8 @@
       "Fon Portföyü",
       "Birim Pay",
       "Fon Yönetim Ücreti"
-    ]
+    ],
+    "term_en": "Mutual Fund"
   },
   {
     "term": "DÖVIZ KURU (Exchange Rate)",
@@ -358,7 +396,8 @@
       "Alış/Satış Kuru",
       "Kur Riski",
       "Arbitraj"
-    ]
+    ],
+    "term_en": "Exchange Rate"
   },
   {
     "term": "BIST 100 (Borsa Istanbul 100)",
@@ -371,7 +410,8 @@
       "Puan",
       "Şirket Ağırlığı",
       "BIST 30"
-    ]
+    ],
+    "term_en": "Borsa Istanbul 100"
   },
   {
     "term": "BITCOIN (Bitcoin)",
@@ -383,7 +423,8 @@
       "Blockchain",
       "Satoshi Nakamoto",
       "Altcoin"
-    ]
+    ],
+    "term_en": "Bitcoin"
   },
   {
     "term": "BLOCKCHAIN (Blokzincir)",
@@ -395,7 +436,8 @@
       "Kriptografi",
       "Madencilik",
       "Akıllı Kontrat"
-    ]
+    ],
+    "term_en": "Blokzincir"
   },
   {
     "term": "DEFI (Merkeziyetsiz Finans)",
@@ -407,7 +449,8 @@
       "DEX",
       "Likidite Havuzu",
       "Yield Farming"
-    ]
+    ],
+    "term_en": "Merkeziyetsiz Finans"
   },
   {
     "term": "NFT (Nitelikli Fikri Tapu)",
@@ -419,7 +462,8 @@
       "Dijital Sanat",
       "Ethereum",
       "Metaverse"
-    ]
+    ],
+    "term_en": "Nitelikli Fikri Tapu"
   },
   {
     "term": "GSYH (Gayri Safi Yurtiçi Hasıla)",
@@ -431,7 +475,8 @@
       "Büyüme Oranı",
       "Kişi Başına Gelir",
       "Ekonomi"
-    ]
+    ],
+    "term_en": "Gayri Safi Yurtiçi Hasıla"
   },
   {
     "term": "CARİ AÇIK (Current Account Deficit)",
@@ -443,7 +488,8 @@
       "Dış Ticaret",
       "Ödemeler Dengesi",
       "Döviz Kuru"
-    ]
+    ],
+    "term_en": "Current Account Deficit"
   },
   {
     "term": "RESESYON (Recession)",
@@ -455,7 +501,8 @@
       "Ekonomik Kriz",
       "İşsizlik",
       "Daralma"
-    ]
+    ],
+    "term_en": "Recession"
   },
   {
     "term": "MERKEZ BANKASI (Central Bank)",
@@ -467,7 +514,8 @@
       "Para Politikası",
       "Faiz",
       "Rezerv"
-    ]
+    ],
+    "term_en": "Central Bank"
   },
   {
     "term": "EFT (Elektronik Fon Transferi)",
@@ -479,7 +527,8 @@
       "Havale",
       "FAST",
       "IBAN"
-    ]
+    ],
+    "term_en": "Elektronik Fon Transferi"
   },
   {
     "term": "HAVALE (Money Order)",
@@ -491,7 +540,8 @@
       "EFT",
       "Virman",
       "Masraf"
-    ]
+    ],
+    "term_en": "Money Order"
   },
   {
     "term": "KMH (Kredili Mevduat Hesabı)",
@@ -503,7 +553,8 @@
       "Ek Hesap",
       "Faiz",
       "Limit"
-    ]
+    ],
+    "term_en": "Kredili Mevduat Hesabı"
   },
   {
     "term": "START-UP (Girişim)",
@@ -515,7 +566,8 @@
       "Unicorn",
       "Yatırım",
       "Ölçeklenme"
-    ]
+    ],
+    "term_en": "Girişim"
   },
   {
     "term": "MELEK YATIRIMCI (Angel Investor)",
@@ -527,7 +579,8 @@
       "Venture Capital",
       "Tohum Yatırım",
       "Hisse"
-    ]
+    ],
+    "term_en": "Angel Investor"
   },
   {
     "term": "UNICORN",
@@ -551,7 +604,8 @@
       "Momentum",
       "Aşırı Alım",
       "Aşırı Satım"
-    ]
+    ],
+    "term_en": "Göreceli Güç Endeksi"
   },
   {
     "term": "MACD",
@@ -575,7 +629,8 @@
       "SMA",
       "EMA",
       "Trend"
-    ]
+    ],
+    "term_en": "Moving Average"
   },
   {
     "term": "BOLLINGER BANTLARI",
@@ -599,7 +654,8 @@
       "Direnç",
       "Trend",
       "Psikolojik Seviye"
-    ]
+    ],
+    "term_en": "Support"
   },
   {
     "term": "DİRENÇ (Resistance)",
@@ -611,7 +667,8 @@
       "Destek",
       "Kırılım",
       "Trend"
-    ]
+    ],
+    "term_en": "Resistance"
   },
   {
     "term": "TREND",
@@ -635,7 +692,8 @@
       "Likidite",
       "Trend Onayı",
       "Takas"
-    ]
+    ],
+    "term_en": "Volume"
   },
   {
     "term": "MUM GRAFİĞİ (Candlestick)",
@@ -647,7 +705,8 @@
       "Doji",
       "Çekiç",
       "Formasyon"
-    ]
+    ],
+    "term_en": "Candlestick"
   },
   {
     "term": "ALTIN KESİŞİM (Golden Cross)",
@@ -659,7 +718,8 @@
       "Ölüm Kesişimi",
       "MA50",
       "MA200"
-    ]
+    ],
+    "term_en": "Golden Cross"
   },
   {
     "term": "ÖLÜM KESİŞİMİ (Death Cross)",
@@ -670,7 +730,8 @@
     "related": [
       "Altın Kesişim",
       "Düşüş Trendi"
-    ]
+    ],
+    "term_en": "Death Cross"
   },
   {
     "term": "FIBONACCI DÜZELTMESİ",
@@ -694,7 +755,8 @@
       "Gelir Tablosu",
       "Özkaynak",
       "Borç"
-    ]
+    ],
+    "term_en": "Balance Sheet"
   },
   {
     "term": "GELİR TABLOSU (Income Statement)",
@@ -706,7 +768,8 @@
       "Net Kar",
       "FAVÖK",
       "Ciro"
-    ]
+    ],
+    "term_en": "Income Statement"
   },
   {
     "term": "NAKİT AKIŞ TABLOSU",
@@ -730,7 +793,8 @@
       "PD/DD",
       "Değerleme",
       "Ucuzluk"
-    ]
+    ],
+    "term_en": "P/E Ratio"
   },
   {
     "term": "PD/DD ORANI (P/B Ratio)",
@@ -742,7 +806,8 @@
       "F/K",
       "Özkaynak",
       "Defter Değeri"
-    ]
+    ],
+    "term_en": "P/B Ratio"
   },
   {
     "term": "EPS (Hisse Başına Kar)",
@@ -754,7 +819,8 @@
       "Net Kar",
       "Temettü",
       "F/K"
-    ]
+    ],
+    "term_en": "Hisse Başına Kar"
   },
   {
     "term": "ROE (Özkaynak Karlılığı)",
@@ -766,7 +832,8 @@
       "ROA",
       "Verimlilik",
       "Karlılık"
-    ]
+    ],
+    "term_en": "Özkaynak Karlılığı"
   },
   {
     "term": "TEMETTÜ VERİMİ (Dividend Yield)",
@@ -778,7 +845,8 @@
       "Temettü",
       "Pasif Gelir",
       "Temettü Emekliliği"
-    ]
+    ],
+    "term_en": "Dividend Yield"
   },
   {
     "term": "PİYASA DEĞERİ (Market Cap)",
@@ -790,7 +858,9 @@
       "BIST 30",
       "Büyük Ölçekli Şirket",
       "Halka Açıklık"
-    ]
+    ],
+    "term_en": "Market Cap",
+    "definition_en": "Total market value of a company's outstanding shares."
   },
   {
     "term": "HALKA ARZ (IPO)",
@@ -802,7 +872,8 @@
       "Talep Toplama",
       "Borsa",
       "İzahname"
-    ]
+    ],
+    "term_en": "IPO"
   },
   {
     "term": "BEDELLİ SERMAYE ARTIRIMI",
@@ -838,7 +909,8 @@
       "Piyasa Emri",
       "Limit Emir",
       "İptal"
-    ]
+    ],
+    "term_en": "Order"
   },
   {
     "term": "PİYASA EMRİ (Market Order)",
@@ -850,7 +922,8 @@
       "Limit Emir",
       "Aktif Fiyat",
       "Hız"
-    ]
+    ],
+    "term_en": "Market Order"
   },
   {
     "term": "LİMİT EMİR (Limit Order)",
@@ -862,7 +935,8 @@
       "Piyasa Emri",
       "Pasif Emir",
       "Bekleyen Emir"
-    ]
+    ],
+    "term_en": "Limit Order"
   },
   {
     "term": "STOP LOSS (Zarar Kes)",
@@ -874,7 +948,8 @@
       "Take Profit",
       "Risk Yönetimi",
       "İzleyen Stop"
-    ]
+    ],
+    "term_en": "Zarar Kes"
   },
   {
     "term": "TAKE PROFIT (Kar Al)",
@@ -886,7 +961,8 @@
       "Stop Loss",
       "Hedef Fiyat",
       "Strateji"
-    ]
+    ],
+    "term_en": "Kar Al"
   },
   {
     "term": "SPREAD (Makas)",
@@ -898,7 +974,8 @@
       "Likidite",
       "Marj",
       "Komisyon"
-    ]
+    ],
+    "term_en": "Makas"
   },
   {
     "term": "TAHTA (Order Book)",
@@ -910,7 +987,8 @@
       "Derinlik",
       "Kademe",
       "Eşleşme"
-    ]
+    ],
+    "term_en": "Order Book"
   },
   {
     "term": "AÇIĞA SATIŞ (Short Selling)",
@@ -922,7 +1000,8 @@
       "Long Pozisyon",
       "Short Pozisyon",
       "Ödünç Pay"
-    ]
+    ],
+    "term_en": "Short Selling"
   },
   {
     "term": "BOĞA PİYASASI (Bull Market)",
@@ -934,7 +1013,8 @@
       "Ayı Piyasası",
       "Ralli",
       "Trend"
-    ]
+    ],
+    "term_en": "Bull Market"
   },
   {
     "term": "AYI PİYASASI (Bear Market)",
@@ -946,7 +1026,8 @@
       "Boğa Piyasası",
       "Düzeltme",
       "Çöküş"
-    ]
+    ],
+    "term_en": "Bear Market"
   },
   {
     "term": "VOLATİLİTE (Oynaklık)",
@@ -958,7 +1039,8 @@
       "Risk",
       "VIX Endeksi",
       "Belirsizlik"
-    ]
+    ],
+    "term_en": "Oynaklık"
   },
   {
     "term": "DEVRE KESİCİ",
@@ -982,7 +1064,8 @@
       "Kaldıraç",
       "Teminat",
       "Vade Sonu"
-    ]
+    ],
+    "term_en": "Vadeli İşlem ve Opsiyon Piyasası"
   },
   {
     "term": "STAGFLASYON",
@@ -1066,7 +1149,8 @@
       "Para Politikası",
       "Şahin Politika",
       "Enflasyon"
-    ]
+    ],
+    "term_en": "Sıkılaşma"
   },
   {
     "term": "PMI (Satın Alma Yöneticileri Endeksi)",
@@ -1078,7 +1162,8 @@
       "Büyüme",
       "Sanayi Üretimi",
       "Öncü Gösterge"
-    ]
+    ],
+    "term_en": "Satın Alma Yöneticileri Endeksi"
   },
   {
     "term": "FOMO (Fırsatı Kaçırma Korkusu)",
@@ -1090,7 +1175,8 @@
       "FUD",
       "Dürtüsel İşlem",
       "Disiplin"
-    ]
+    ],
+    "term_en": "Fırsatı Kaçırma Korkusu"
   },
   {
     "term": "FUD (Korku, Belirsizlik, Şüphe)",
@@ -1102,7 +1188,8 @@
       "Manipülasyon",
       "Panik Satışı",
       "Haber"
-    ]
+    ],
+    "term_en": "Korku, Belirsizlik, Şüphe"
   },
   {
     "term": "SÜRÜ PSİKOLOJİSİ",
@@ -1126,7 +1213,8 @@
       "Volatilite",
       "Duygusal Kontrol",
       "Zarar Kes"
-    ]
+    ],
+    "term_en": "Panic Selling"
   },
   {
     "term": "ARBİTRAJ",
@@ -1150,7 +1238,8 @@
       "Risk Yönetimi",
       "Türev Araçlar",
       "Sigorta"
-    ]
+    ],
+    "term_en": "Korunma"
   },
   {
     "term": "KALDIRAÇ (Leverage)",
@@ -1162,7 +1251,8 @@
       "Marjin",
       "Risk",
       "Likidasyon"
-    ]
+    ],
+    "term_en": "Leverage"
   },
   {
     "term": "MARJİN (Teminat)",
@@ -1174,7 +1264,8 @@
       "Margin Call",
       "Kaldıraç",
       "Sürdürme Teminatı"
-    ]
+    ],
+    "term_en": "Teminat"
   },
   {
     "term": "LİKİDASYON (Tasfiye)",
@@ -1186,7 +1277,8 @@
       "Stop Out",
       "Margin Call",
       "Risk"
-    ]
+    ],
+    "term_en": "Tasfiye"
   },
   {
     "term": "SHARPE ORANI (Sharpe Ratio)",
@@ -1198,7 +1290,9 @@
       "Standart Sapma",
       "Risk-Getiri",
       "Portföy Yönetimi"
-    ]
+    ],
+    "term_en": "Sharpe Ratio",
+    "definition_en": "A risk-return measure calculated by dividing excess return over the risk-free rate by standard deviation."
   },
   {
     "term": "DRAWDOWN (Düşüş Derinliği)",
@@ -1210,7 +1304,9 @@
       "Risk Yönetimi",
       "Volatilite",
       "Stop-Loss"
-    ]
+    ],
+    "term_en": "Düşüş Derinliği",
+    "definition_en": "The largest percentage decline from a peak to a trough in an investment's value."
   },
   {
     "term": "KELLY KRİTERİ (Kelly Criterion)",
@@ -1222,7 +1318,9 @@
       "Pozisyon Büyüklüğü",
       "Risk Yönetimi",
       "Beklenen Değer"
-    ]
+    ],
+    "term_en": "Kelly Criterion",
+    "definition_en": "A formula that calculates the optimal fraction of capital to risk on each trade."
   },
   {
     "term": "BACKTEST (Geriye Dönük Test)",
@@ -1234,7 +1332,9 @@
       "Walk-Forward Analiz",
       "Overfitting",
       "Monte Carlo Simülasyonu"
-    ]
+    ],
+    "term_en": "Geriye Dönük Test",
+    "definition_en": "Evaluating an investment strategy's performance by applying it to historical data."
   },
   {
     "term": "WALK-FORWARD ANALİZ",
@@ -1258,7 +1358,9 @@
       "Volatilite",
       "Stop-Loss",
       "Risk Yönetimi"
-    ]
+    ],
+    "term_en": "Average True Range",
+    "definition_en": "A volatility indicator measuring the average range of price fluctuations over a period."
   },
   {
     "term": "RSI (Relative Strength Index)",
@@ -1270,7 +1372,9 @@
       "Momentum",
       "MACD",
       "Stokastik"
-    ]
+    ],
+    "term_en": "Relative Strength Index",
+    "definition_en": "A momentum oscillator measuring the speed and magnitude of price movements on a 0-100 scale."
   },
   {
     "term": "MACD (Moving Average Convergence Divergence)",
@@ -1282,7 +1386,9 @@
       "EMA",
       "Sinyal Çizgisi",
       "Histogram"
-    ]
+    ],
+    "term_en": "Moving Average Convergence Divergence",
+    "definition_en": "An indicator showing trend direction and strength using the difference between two exponential moving averages."
   },
   {
     "term": "BOLLINGER BANTLARI (Bollinger Bands)",
@@ -1294,7 +1400,9 @@
       "Standart Sapma",
       "Hareketli Ortalama",
       "Sıkışma"
-    ]
+    ],
+    "term_en": "Bollinger Bands",
+    "definition_en": "A volatility indicator drawing upper and lower bands based on standard deviations around a moving average."
   },
   {
     "term": "Z-SKORU (Z-Score)",
@@ -1306,7 +1414,9 @@
       "Standart Sapma",
       "Mean Reversion",
       "Normal Dağılım"
-    ]
+    ],
+    "term_en": "Z-Score",
+    "definition_en": "A statistical measure indicating how many standard deviations a value is from the mean."
   },
   {
     "term": "PİYASA REJİMİ (Market Regime)",
@@ -1318,7 +1428,8 @@
       "HMM",
       "Volatilite",
       "Trend"
-    ]
+    ],
+    "term_en": "Market Regime"
   },
   {
     "term": "HMM (Hidden Markov Model)",
@@ -1330,7 +1441,8 @@
       "Piyasa Rejimi",
       "Makine Öğrenmesi",
       "Gauss Dağılımı"
-    ]
+    ],
+    "term_en": "Hidden Markov Model"
   },
   {
     "term": "DRL (Deep Reinforcement Learning)",
@@ -1342,7 +1454,9 @@
       "PPO",
       "Yapay Zeka",
       "Ödül Fonksiyonu"
-    ]
+    ],
+    "term_en": "Deep Reinforcement Learning",
+    "definition_en": "An AI technique combining deep learning with reinforcement learning where an agent learns optimal strategies through trial and error."
   },
   {
     "term": "PPO (Proximal Policy Optimization)",
@@ -1355,7 +1469,9 @@
       "SAC",
       "TD3",
       "Politika Gradyan"
-    ]
+    ],
+    "term_en": "Proximal Policy Optimization",
+    "definition_en": "A popular reinforcement learning algorithm that performs stable and efficient policy updates."
   },
   {
     "term": "STOP-LOSS (Zarar Durdur)",
@@ -1367,7 +1483,9 @@
       "Risk Yönetimi",
       "Take-Profit",
       "ATR"
-    ]
+    ],
+    "term_en": "Zarar Durdur",
+    "definition_en": "An order to automatically close a position when it reaches a specified loss level."
   },
   {
     "term": "TAKE-PROFIT (Kar Al)",
@@ -1379,7 +1497,9 @@
       "Stop-Loss",
       "Risk-Reward",
       "Hedef Fiyat"
-    ]
+    ],
+    "term_en": "Kar Al",
+    "definition_en": "An order to close a position when it reaches a target profit level."
   },
   {
     "term": "RİSK-REWARD ORANI (Risk-Reward Ratio)",
@@ -1391,7 +1511,8 @@
       "Stop-Loss",
       "Take-Profit",
       "Beklenen Değer"
-    ]
+    ],
+    "term_en": "Risk-Reward Ratio"
   },
   {
     "term": "POZISYON BÜYÜKLÜĞÜ (Position Sizing)",
@@ -1403,7 +1524,8 @@
       "Kelly Kriteri",
       "Risk Yönetimi",
       "Sermaye Yönetimi"
-    ]
+    ],
+    "term_en": "Position Sizing"
   },
   {
     "term": "DOLLAR-COST AVERAGING (DCA)",
@@ -1415,7 +1537,8 @@
       "Düzenli Yatırım",
       "Risk Azaltma",
       "Uzun Vadeli Yatırım"
-    ]
+    ],
+    "term_en": "DCA"
   },
   {
     "term": "ETF (Borsa Yatırım Fonu)",
@@ -1427,7 +1550,8 @@
       "Endeks Fon",
       "Diversifikasyon",
       "Borsa"
-    ]
+    ],
+    "term_en": "Borsa Yatırım Fonu"
   },
   {
     "term": "SPREAD (Alım-Satım Farkı)",
@@ -1439,7 +1563,8 @@
       "Likidite",
       "Bid-Ask",
       "İşlem Maliyeti"
-    ]
+    ],
+    "term_en": "Alım-Satım Farkı"
   },
   {
     "term": "VOLATILITE (Dalgalanma)",
@@ -1452,7 +1577,8 @@
       "ATR",
       "VIX",
       "Risk"
-    ]
+    ],
+    "term_en": "Dalgalanma"
   },
   {
     "term": "ALFA (Alpha)",
@@ -1464,7 +1590,8 @@
       "Beta",
       "Benchmark",
       "Aktif Yönetim"
-    ]
+    ],
+    "term_en": "Alpha"
   },
   {
     "term": "BETA",
@@ -1488,7 +1615,8 @@
       "Likidite",
       "Emir Türleri",
       "İşlem Maliyeti"
-    ]
+    ],
+    "term_en": "Kayma"
   },
   {
     "term": "OVERFITTING (Aşırı Uyum)",
@@ -1500,7 +1628,8 @@
       "Backtest",
       "Walk-Forward",
       "Validasyon"
-    ]
+    ],
+    "term_en": "Aşırı Uyum"
   },
   {
     "term": "SENTİMENT ANALİZİ (Sentiment Analysis)",
@@ -1512,7 +1641,8 @@
       "FOMO",
       "FUD",
       "Alternatif Veri"
-    ]
+    ],
+    "term_en": "Sentiment Analysis"
   },
   {
     "term": "ALTERNATIF VERİ (Alternative Data)",
@@ -1524,7 +1654,8 @@
       "Sentiment Analizi",
       "On-chain Veri",
       "Makine Öğrenmesi"
-    ]
+    ],
+    "term_en": "Alternative Data"
   },
   {
     "term": "ON-CHAIN VERİ",
