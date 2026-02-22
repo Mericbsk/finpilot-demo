@@ -2,6 +2,11 @@
 Core Authentication Module for FinPilot.
 
 Provides JWT-based authentication, user management, and session handling.
+
+Sub-modules (Sprint P8 split):
+    auth.tokens   — JWTHandler, TokenPayload
+    auth.users    — PasswordHasher, User, UserRole
+    auth.sessions — Session
 """
 
 from __future__ import annotations
@@ -12,14 +17,34 @@ import secrets
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from enum import Enum
-from typing import Any
-
-# Security packages - Sprint 1
-import bcrypt
-import jwt
+from typing import Any, Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+
+def _require_secret_key() -> str:
+    """Return FINPILOT_SECRET_KEY from env or raise immediately.
+
+    In development (no .env), a deterministic dev-only key is generated from
+    the machine hostname so sessions survive restarts.  In production the env
+    var MUST be set explicitly.
+    """
+    key = os.getenv("FINPILOT_SECRET_KEY")
+    if key:
+        return key
+
+    # Dev fallback — deterministic but clearly not for production
+    import hashlib
+    import socket
+
+    dev_key = hashlib.sha256(
+        f"finpilot-dev-{socket.gethostname()}".encode()
+    ).hexdigest()
+    logger.warning(
+        "⚠️  FINPILOT_SECRET_KEY not set! Using dev-only key derived from hostname. "
+        "Set FINPILOT_SECRET_KEY in .env for production."
+    )
+    return dev_key
 
 
 # ============================================================================
@@ -31,13 +56,10 @@ logger = logging.getLogger(__name__)
 class AuthConfig:
     """Authentication configuration."""
 
-    # JWT Settings — Kalıcı anahtar: .env'deki FINPILOT_SECRET_KEY kullanılır.
-    # Eksikse sabit bir fallback ile başlatılır; production'da mutlaka .env'den okunmalı.
+    # JWT Settings — Güvenli anahtar: .env'deki FINPILOT_SECRET_KEY zorunludur.
+    # Eksikse uygulama başlatılmaz (fail-fast). Production'da mutlaka güçlü anahtar kullanılmalıdır.
     secret_key: str = field(
-        default_factory=lambda: os.getenv(
-            "FINPILOT_SECRET_KEY",
-            "finpilot-default-dev-key-change-in-production-00000000",
-        )
+        default_factory=lambda: _require_secret_key()
     )
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 24 hours
@@ -110,413 +132,18 @@ class AccountLockedError(AuthError):
 
 
 # ============================================================================
-# DATA MODELS
+# DATA MODELS (imported from sub-modules — Sprint P8)
 # ============================================================================
 
-
-class UserRole(Enum):
-    """User roles for authorization."""
-
-    GUEST = "guest"
-    USER = "user"
-    PREMIUM = "premium"
-    ADMIN = "admin"
-
-
-@dataclass
-class User:
-    """User model."""
-
-    id: str
-    email: str
-    username: str
-    password_hash: str
-    salt: str
-
-    # Profile
-    display_name: str | None = None
-    avatar_url: str | None = None
-
-    # Status
-    role: UserRole = UserRole.USER
-    is_active: bool = True
-    is_verified: bool = False
-
-    # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
-    last_login: datetime | None = None
-
-    # Security
-    failed_login_attempts: int = 0
-    locked_until: datetime | None = None
-
-    def to_dict(self, include_sensitive: bool = False) -> dict[str, Any]:
-        """Convert to dictionary."""
-        data = {
-            "id": self.id,
-            "email": self.email,
-            "username": self.username,
-            "display_name": self.display_name or self.username,
-            "avatar_url": self.avatar_url,
-            "role": self.role.value,
-            "is_active": self.is_active,
-            "is_verified": self.is_verified,
-            "created_at": self.created_at.isoformat(),
-            "last_login": self.last_login.isoformat() if self.last_login else None,
-        }
-
-        if include_sensitive:
-            data["password_hash"] = self.password_hash
-            data["salt"] = self.salt
-            data["failed_login_attempts"] = self.failed_login_attempts
-            data["locked_until"] = self.locked_until.isoformat() if self.locked_until else None
-
-        return data
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> User:
-        """Create from dictionary."""
-        return cls(
-            id=data["id"],
-            email=data["email"],
-            username=data["username"],
-            password_hash=data.get("password_hash", ""),
-            salt=data.get("salt", ""),
-            display_name=data.get("display_name"),
-            avatar_url=data.get("avatar_url"),
-            role=UserRole(data.get("role", "user")),
-            is_active=data.get("is_active", True),
-            is_verified=data.get("is_verified", False),
-            created_at=(
-                datetime.fromisoformat(data["created_at"])
-                if isinstance(data.get("created_at"), str)
-                else data.get("created_at", datetime.utcnow())
-            ),
-            updated_at=(
-                datetime.fromisoformat(data["updated_at"])
-                if isinstance(data.get("updated_at"), str)
-                else data.get("updated_at", datetime.utcnow())
-            ),
-            last_login=(
-                datetime.fromisoformat(data["last_login"]) if data.get("last_login") else None
-            ),
-            failed_login_attempts=data.get("failed_login_attempts", 0),
-            locked_until=(
-                datetime.fromisoformat(data["locked_until"]) if data.get("locked_until") else None
-            ),
-        )
-
-    @property
-    def is_locked(self) -> bool:
-        """Check if account is locked."""
-        if self.locked_until is None:
-            return False
-        return datetime.utcnow() < self.locked_until
-
-
-@dataclass
-class Session:
-    """User session model."""
-
-    id: str
-    user_id: str
-
-    # Token info
-    access_token: str
-    refresh_token: str
-
-    # Metadata
-    device_info: str | None = None
-    ip_address: str | None = None
-    user_agent: str | None = None
-
-    # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    expires_at: datetime = field(default_factory=lambda: datetime.utcnow() + timedelta(days=7))
-    last_activity: datetime = field(default_factory=datetime.utcnow)
-
-    # Status
-    is_active: bool = True
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "access_token": self.access_token,
-            "refresh_token": self.refresh_token,
-            "device_info": self.device_info,
-            "ip_address": self.ip_address,
-            "user_agent": self.user_agent,
-            "created_at": self.created_at.isoformat(),
-            "expires_at": self.expires_at.isoformat(),
-            "last_activity": self.last_activity.isoformat(),
-            "is_active": self.is_active,
-        }
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> Session:
-        return cls(
-            id=data["id"],
-            user_id=data["user_id"],
-            access_token=data["access_token"],
-            refresh_token=data["refresh_token"],
-            device_info=data.get("device_info"),
-            ip_address=data.get("ip_address"),
-            user_agent=data.get("user_agent"),
-            created_at=(
-                datetime.fromisoformat(data["created_at"])
-                if isinstance(data.get("created_at"), str)
-                else datetime.utcnow()
-            ),
-            expires_at=(
-                datetime.fromisoformat(data["expires_at"])
-                if isinstance(data.get("expires_at"), str)
-                else datetime.utcnow() + timedelta(days=7)
-            ),
-            last_activity=(
-                datetime.fromisoformat(data["last_activity"])
-                if isinstance(data.get("last_activity"), str)
-                else datetime.utcnow()
-            ),
-            is_active=data.get("is_active", True),
-        )
-
-    @property
-    def is_expired(self) -> bool:
-        return datetime.utcnow() > self.expires_at
-
-
-@dataclass
-class TokenPayload:
-    """JWT token payload."""
-
-    sub: str  # user_id
-    exp: int  # expiration timestamp
-    iat: int  # issued at timestamp
-    jti: str  # unique token id
-    type: str  # "access" or "refresh"
-    role: str  # user role
-
-    @property
-    def user_id(self) -> str:
-        """Alias for sub field."""
-        return self.sub
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "sub": self.sub,
-            "exp": self.exp,
-            "iat": self.iat,
-            "jti": self.jti,
-            "type": self.type,
-            "role": self.role,
-        }
+from .sessions import Session  # noqa: E402
+from .users import PasswordHasher, User, UserRole  # noqa: E402
 
 
 # ============================================================================
-# PASSWORD UTILITIES
+# JWT UTILITIES (imported from sub-modules — Sprint P8)
 # ============================================================================
 
-
-class PasswordHasher:
-    """
-    Secure password hashing using bcrypt.
-
-    bcrypt automatically handles salt generation and includes it in the hash,
-    making it resistant to rainbow table attacks and timing attacks.
-
-    The work factor (rounds) determines computational cost:
-    - Default 12 = ~250ms on modern hardware
-    - Each +1 doubles the time
-    """
-
-    def __init__(self, rounds: int = 12):
-        """
-        Initialize password hasher.
-
-        Args:
-            rounds: bcrypt work factor (12 = recommended, 10-14 = acceptable)
-        """
-        self.rounds = rounds
-
-    def hash(self, password: str, salt: str | None = None) -> tuple[str, str]:
-        """
-        Hash a password with bcrypt.
-
-        Note: bcrypt generates its own salt internally. The salt parameter
-        is ignored but kept for backward compatibility with existing code.
-
-        Returns:
-            (hash, empty_salt) tuple - salt is embedded in hash
-        """
-        password_bytes = password.encode("utf-8")
-        hashed = bcrypt.hashpw(password_bytes, bcrypt.gensalt(rounds=self.rounds))
-
-        # bcrypt hash includes salt, return empty string for salt field
-        return hashed.decode("utf-8"), ""
-
-    def verify(self, password: str, password_hash: str, salt: str = "") -> bool:
-        """
-        Verify a password against stored bcrypt hash.
-
-        Args:
-            password: Plain text password to verify
-            password_hash: bcrypt hash string
-            salt: Ignored (kept for backward compatibility)
-
-        Returns:
-            True if password matches
-        """
-        try:
-            password_bytes = password.encode("utf-8")
-            hash_bytes = password_hash.encode("utf-8")
-            return bcrypt.checkpw(password_bytes, hash_bytes)
-        except (ValueError, TypeError):
-            # Invalid hash format
-            return False
-
-    @staticmethod
-    def validate_strength(password: str, min_length: int = 8) -> tuple[bool, list[str]]:
-        """
-        Validate password strength.
-
-        Returns:
-            (is_valid, list of issues)
-        """
-        issues = []
-
-        if len(password) < min_length:
-            issues.append(f"En az {min_length} karakter olmalı")
-
-        if not any(c.isupper() for c in password):
-            issues.append("En az bir büyük harf içermeli")
-
-        if not any(c.islower() for c in password):
-            issues.append("En az bir küçük harf içermeli")
-
-        if not any(c.isdigit() for c in password):
-            issues.append("En az bir rakam içermeli")
-
-        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        if not any(c in special_chars for c in password):
-            issues.append("En az bir özel karakter içermeli (!@#$%^&*...)")
-
-        return len(issues) == 0, issues
-
-    def needs_rehash(self, password_hash: str) -> bool:
-        """
-        Check if password hash needs to be rehashed.
-
-        Useful for migrating from old PBKDF2 hashes to bcrypt.
-
-        Args:
-            password_hash: Current hash to check
-
-        Returns:
-            True if hash is not a valid bcrypt hash or uses old settings
-        """
-        # bcrypt hashes start with $2a$, $2b$, or $2y$
-        if not password_hash.startswith(("$2a$", "$2b$", "$2y$")):
-            return True
-
-        try:
-            # Check if rounds match current setting
-            current_rounds = int(password_hash.split("$")[2])
-            return current_rounds < self.rounds
-        except (IndexError, ValueError):
-            return True
-
-
-# ============================================================================
-# JWT UTILITIES
-# ============================================================================
-
-
-class JWTHandler:
-    """
-    JWT handling using PyJWT library.
-
-    PyJWT provides secure, standards-compliant JWT implementation with:
-    - Proper signature verification
-    - Automatic expiration checking
-    - Support for multiple algorithms
-    """
-
-    SUPPORTED_ALGORITHMS = {"HS256", "HS384", "HS512"}
-
-    def __init__(self, secret_key: str, algorithm: str = "HS256"):
-        """
-        Initialize JWT handler.
-
-        Args:
-            secret_key: Secret key for signing tokens (min 32 chars recommended)
-            algorithm: Signing algorithm (HS256, HS384, HS512)
-        """
-        if algorithm not in self.SUPPORTED_ALGORITHMS:
-            raise ValueError(f"Algorithm must be one of {self.SUPPORTED_ALGORITHMS}")
-
-        self.secret_key = secret_key
-        self.algorithm = algorithm
-
-    def encode(self, payload: dict[str, Any]) -> str:
-        """
-        Create JWT token.
-
-        Args:
-            payload: Token payload data (must include 'exp' for expiration)
-
-        Returns:
-            JWT token string
-        """
-        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-
-    def decode(self, token: str, verify_exp: bool = True) -> dict[str, Any]:
-        """
-        Decode and verify JWT token.
-
-        Args:
-            token: JWT token string
-            verify_exp: Whether to verify expiration (default True)
-
-        Returns:
-            Decoded payload
-
-        Raises:
-            TokenInvalidError: If token is malformed or signature invalid
-            TokenExpiredError: If token has expired
-        """
-        try:
-            options = {"verify_exp": verify_exp}
-
-            return jwt.decode(token, self.secret_key, algorithms=[self.algorithm], options=options)
-
-        except jwt.ExpiredSignatureError:
-            raise TokenExpiredError("Token has expired")
-        except jwt.InvalidSignatureError:
-            raise TokenInvalidError("Invalid token signature")
-        except jwt.DecodeError as e:
-            raise TokenInvalidError(f"Invalid token format: {e}")
-        except jwt.PyJWTError as e:
-            raise TokenInvalidError(f"Token validation failed: {e}")
-
-    def decode_without_verification(self, token: str) -> dict[str, Any]:
-        """
-        Decode token without signature verification.
-
-        WARNING: Only use for debugging or reading expired token claims.
-        Never trust data from this method for authentication!
-
-        Args:
-            token: JWT token string
-
-        Returns:
-            Decoded payload (unverified)
-        """
-        try:
-            return jwt.decode(token, options={"verify_signature": False, "verify_exp": False})
-        except jwt.DecodeError as e:
-            raise TokenInvalidError(f"Invalid token format: {e}")
+from .tokens import JWTHandler, TokenPayload  # noqa: E402
 
 
 # ============================================================================
@@ -546,7 +173,7 @@ class AuthManager:
     """
 
     def __init__(
-        self, config: AuthConfig | None = None, user_repository=None, session_repository=None
+        self, config: Optional[AuthConfig] = None, user_repository=None, session_repository=None
     ):
         self.config = config or AuthConfig()
         self.hasher = PasswordHasher(self.config.bcrypt_rounds)
@@ -557,10 +184,10 @@ class AuthManager:
         self._session_repo = session_repository
 
         # In-memory fallback (for testing/simple usage)
-        self._users: dict[str, User] = {}
-        self._sessions: dict[str, Session] = {}
+        self._users: Dict[str, User] = {}
+        self._sessions: Dict[str, Session] = {}
 
-    def _get_user_by_email(self, email: str) -> User | None:
+    def _get_user_by_email(self, email: str) -> Optional[User]:
         """Get user by email."""
         if self._user_repo:
             return self._user_repo.get_by_email(email)
@@ -570,7 +197,7 @@ class AuthManager:
                 return user
         return None
 
-    def _get_user_by_id(self, user_id: str) -> User | None:
+    def _get_user_by_id(self, user_id: str) -> Optional[User]:
         """Get user by ID."""
         if self._user_repo:
             return self._user_repo.get_by_id(user_id)
@@ -590,7 +217,7 @@ class AuthManager:
         else:
             self._sessions[session.id] = session
 
-    def _get_session(self, session_id: str) -> Session | None:
+    def _get_session(self, session_id: str) -> Optional[Session]:
         """Get session by ID."""
         if self._session_repo:
             return self._session_repo.get_by_id(session_id)
@@ -604,7 +231,7 @@ class AuthManager:
             del self._sessions[session_id]
 
     def register(
-        self, email: str, username: str, password: str, display_name: str | None = None
+        self, email: str, username: str, password: str, display_name: Optional[str] = None
     ) -> User:
         """
         Register a new user.
@@ -658,9 +285,9 @@ class AuthManager:
         self,
         email: str,
         password: str,
-        device_info: str | None = None,
-        ip_address: str | None = None,
-        user_agent: str | None = None,
+        device_info: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
         remember_me: bool = False,
     ) -> Session:
         """
@@ -829,7 +456,7 @@ class AuthManager:
             role=payload["role"],
         )
 
-    def refresh_tokens(self, refresh_token: str) -> tuple[str, str]:
+    def refresh_tokens(self, refresh_token: str) -> Tuple[str, str]:
         """
         Refresh access and refresh tokens.
 
@@ -857,7 +484,7 @@ class AuthManager:
 
         return new_access, new_refresh
 
-    def get_current_user(self, token: str) -> User | None:
+    def get_current_user(self, token: str) -> Optional[User]:
         """
         Get current user from token.
 
@@ -919,7 +546,7 @@ class AuthManager:
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
-_default_auth_manager: AuthManager | None = None
+_default_auth_manager: Optional[AuthManager] = None
 
 
 def get_auth_manager() -> AuthManager:

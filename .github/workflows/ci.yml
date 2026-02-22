@@ -67,21 +67,12 @@ jobs:
 
       - name: 📦 Install linters
         run: |
-          pip install ruff black isort mypy
+          pip install ruff mypy
 
-      - name: 🔍 Run Ruff (linting)
+      - name: 🔍 Run Ruff (lint + format check)
         run: |
-          ruff check scanner/ drl/ --ignore E501,F401
-        continue-on-error: true
-
-      - name: 🎨 Check Black formatting
-        run: |
-          black --check scanner/ drl/ --line-length 100
-        continue-on-error: true
-
-      - name: 📋 Check import sorting
-        run: |
-          isort --check-only scanner/ drl/
+          ruff check scanner/ drl/ --ignore E501
+          ruff format --check scanner/ drl/ --line-length 100
         continue-on-error: true
 
   # ============================================
@@ -152,8 +143,33 @@ jobs:
           context: .
           push: false
           tags: finpilot:${{ github.sha }}
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: 🩺 Docker smoke test
+        run: |
+          # Start container in background
+          docker run -d --name finpilot-smoke \
+            -e FINPILOT_SECRET_KEY=ci-test-key-not-for-production \
+            -p 8501:8501 \
+            finpilot:${{ github.sha }}
+
+          # Wait for health check (max 30s)
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8501/_stcore/health > /dev/null 2>&1; then
+              echo "✅ Health check passed after ${i}s"
+              docker logs finpilot-smoke --tail 5
+              docker stop finpilot-smoke && docker rm finpilot-smoke
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "❌ Health check failed after 30s"
+          docker logs finpilot-smoke --tail 30
+          docker stop finpilot-smoke && docker rm finpilot-smoke
+          exit 1
 
   # ============================================
   # 📊 Scanner Test Job - Integration

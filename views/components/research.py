@@ -6,6 +6,8 @@ Gemini/Groq API ile araştırma ve haber analizi.
 
 from textwrap import dedent
 
+import logging
+
 import streamlit as st
 import yfinance as yf
 
@@ -252,7 +254,7 @@ def get_gemini_research(symbol: str, language: str = "tr") -> str:
                 try:
                     GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", "")
                 except Exception:
-                    pass
+                    logging.getLogger(__name__).debug("st.secrets unavailable", exc_info=True)
 
                 if not GROQ_API_KEY:
                     return _generate_offline_report(

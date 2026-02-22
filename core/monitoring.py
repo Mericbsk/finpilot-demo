@@ -1027,7 +1027,10 @@ class MLflowTracker:
             try:
                 self._mlflow.sklearn.log_model(model, artifact_path)
             except Exception:
-                pass
+                import logging
+                logging.getLogger(__name__).warning(
+                    "MLflow model logging failed for %s", artifact_path, exc_info=True
+                )
 
 
 # =============================================================================

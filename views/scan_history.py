@@ -38,7 +38,7 @@ def _parse_scan_datetime(filename: str):
                 )
                 return datetime.strptime(f"{date_str}_{time_str}", "%Y%m%d_%H%M")
     except Exception:
-        pass
+        logger.debug("Failed to parse scan date from filename", exc_info=True)
     return None
 
 

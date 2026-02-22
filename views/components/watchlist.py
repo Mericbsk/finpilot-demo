@@ -14,6 +14,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 
@@ -37,7 +38,7 @@ def _load_watchlist_from_file() -> list[str]:
                 data = json.load(f)
                 return data.get("symbols", [])
     except Exception:
-        pass
+        logging.getLogger(__name__).warning("Failed to load watchlist", exc_info=True)
     return []
 
 

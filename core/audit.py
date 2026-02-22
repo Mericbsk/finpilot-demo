@@ -285,7 +285,7 @@ class AuditLogger:
             try:
                 self._file_handle.flush()
             except Exception:
-                pass
+                self._logger.debug("Flush failed", exc_info=True)
 
     def _close_file(self) -> None:
         """Close current file handle."""
@@ -294,7 +294,7 @@ class AuditLogger:
                 self._file_handle.flush()
                 self._file_handle.close()
             except Exception:
-                pass
+                self._logger.debug("File close failed", exc_info=True)
             self._file_handle = None
 
     def _drain_queue(self) -> None:
@@ -376,7 +376,7 @@ class AuditLogger:
         try:
             self._queue.put_nowait(None)
         except Exception:
-            pass
+            self._logger.debug("Shutdown signal queue put failed", exc_info=True)
 
         # Wait for writer to finish
         if self._writer_thread and self._writer_thread.is_alive():

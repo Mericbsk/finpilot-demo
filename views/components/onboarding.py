@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -148,7 +149,7 @@ def _load_onboarding_status() -> dict[str, Any]:
             with open(path, encoding="utf-8") as f:
                 return json.load(f)
     except Exception:
-        pass
+        logging.getLogger(__name__).warning("Failed to load onboarding status", exc_info=True)
     return {"completed": False, "current_step": 0, "skipped": False}
 
 
@@ -161,7 +162,7 @@ def _save_onboarding_status(status: dict[str, Any]) -> None:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(status, f, ensure_ascii=False, indent=2)
     except Exception:
-        pass
+        logging.getLogger(__name__).warning("Failed to save onboarding status", exc_info=True)
 
 
 def get_onboarding_state() -> dict[str, Any]:

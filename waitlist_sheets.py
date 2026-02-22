@@ -107,7 +107,7 @@ def _count_local():
             with open(WAITLIST_FILE) as f:
                 return len(json.load(f))
     except Exception:
-        pass
+        logging.getLogger(__name__).warning("Failed to count local waitlist", exc_info=True)
     return 0
 
 

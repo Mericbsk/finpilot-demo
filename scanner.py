@@ -382,14 +382,14 @@ def evaluate_symbol(
                 detect_market_regime(prices_for_regime) if prices_for_regime is not None else regime
             )
         except Exception:
-            pass
+            logger.debug("Regime detection unavailable", exc_info=True)
         try:
             from altdata import get_onchain_metric, get_sentiment_score
 
             sentiment = get_sentiment_score(symbol)
             onchain_metric = get_onchain_metric(symbol)
         except Exception:
-            pass
+            logger.debug("Alt data unavailable", exc_info=True)
 
         # Adaptive filter with alternative data
         if regime == 1 and sentiment < 0:
@@ -503,7 +503,7 @@ def evaluate_symbols_parallel(
                     pct = 50 + int((completed / total) * 50)
                     progress_callback(pct, 100)
                 except Exception:
-                    pass
+                    logger.debug("Progress callback failed", exc_info=True)
     else:
         # Fallback: Traditional parallel evaluation (for single symbol or disabled prefetch)
         completed = 0
@@ -520,7 +520,7 @@ def evaluate_symbols_parallel(
                     try:
                         progress_callback(completed, total)
                     except Exception:
-                        pass
+                        logger.debug("Progress callback failed", exc_info=True)
 
     return results
 

@@ -3,8 +3,6 @@
 # Production-ready multi-service setup
 # ============================================
 
-version: '3.8'
-
 services:
   # ============================================
   # 📊 Main Application - Streamlit Dashboard

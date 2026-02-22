@@ -4,6 +4,7 @@ Sistemimizin geçmiş performansını test eder
 """
 
 import argparse
+import logging
 import warnings
 from datetime import datetime, timedelta
 
@@ -13,6 +14,8 @@ import yfinance as yf
 from scanner import add_indicators, load_symbols, safe_float
 
 warnings.filterwarnings("ignore")
+
+logger = logging.getLogger(__name__)
 
 
 def parse_args():
@@ -216,8 +219,8 @@ class SimpleBacktest:
             try:
                 idx_arr = self.index_data.index.get_indexer([target_ts], method="nearest")
                 idx_loc = int(idx_arr[0])
-            except:
-                # Fallback
+            except Exception:
+                logger.debug("Index get_indexer fallback for date lookup", exc_info=True)
                 return True
 
             data_date = pd.Timestamp(self.index_data.index[idx_loc])
@@ -311,7 +314,7 @@ class SimpleBacktest:
                     ):
                         df.index = df.index.tz_convert(None)
                 except Exception:
-                    pass
+                    logger.debug("Timezone conversion skipped", exc_info=True)
                 df = df.dropna()
                 if len(df) < 120:  # lowered threshold
                     fail_reasons[sym] = f"short:{len(df)}"
@@ -357,7 +360,7 @@ class SimpleBacktest:
                     if shown >= 5:
                         break
         except Exception:
-            pass
+            logger.debug("Data cache diagnostics unavailable", exc_info=True)
 
         while current_date <= end_date_obj:
             date_str = current_date.strftime("%Y-%m-%d")
@@ -724,7 +727,7 @@ class SimpleBacktest:
                 self.trades.append(trade)
                 self.current_portfolio += trade["pnl"]
         except Exception:
-            pass
+            logger.exception("Trade processing failed for %s", symbol if 'symbol' in dir() else '?')
 
     def simulate_exit(self, symbol, entry_date, entry_price, stop_loss, tp1, tp2, tp3):
         """Çıkış simülasyonu (Kademeli + Trailing Stop)"""
@@ -852,7 +855,7 @@ class SimpleBacktest:
         try:
             print(f"\n🧭 Tespit edilen giriş sinyali sayısı: {self.signals_found}")
         except Exception:
-            pass
+            logger.debug("signals_found attribute not available", exc_info=True)
         if not self.trades:
             if hasattr(self, "debug_counts"):
                 dc = self.debug_counts
@@ -924,7 +927,7 @@ class SimpleBacktest:
         try:
             print(f"\n🧭 Tespit edilen giriş sinyali sayısı: {self.signals_found}")
         except Exception:
-            pass
+            logger.debug("signals_found attribute not available", exc_info=True)
 
         if avg_loss != 0:
             profit_factor = abs(avg_win / avg_loss)
@@ -973,7 +976,7 @@ class SimpleBacktest:
                 print(f"   • Sharpe (günlük→yıllık): {sharpe:.2f}")
                 print(f"   • Max Drawdown: {max_dd * 100:.2f}%")
         except Exception:
-            pass
+            logger.warning("Risk metric calculation failed", exc_info=True)
 
         if self.momentum_logs:
             try:
@@ -1012,7 +1015,7 @@ class SimpleBacktest:
                     if not samples.empty:
                         print(f"   • Dinamik örnek medyanı: {samples.median():.0f}")
             except Exception:
-                pass
+                logger.warning("Momentum telemetry calculation failed", exc_info=True)
 
         # 🔍 YENİ: DETAYLI ANALİZ
         print("\n🔍 DETAYLI ANALİZ:")
@@ -1125,7 +1128,7 @@ class SimpleBacktest:
                 exit_date = datetime.strptime(trade["exit_date"], "%Y-%m-%d")
                 duration = f"{(exit_date - entry_date).days} gün"
             except Exception:
-                pass
+                logger.debug("Trade duration calculation failed", exc_info=True)
 
             reason_name = {
                 "stop_loss": "Stop-Loss",

@@ -131,7 +131,7 @@ def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
                 if getattr(df.index, "tz", None) is not None:
                     df.index = df.index.tz_convert(None)
         except (TypeError, AttributeError):
-            pass
+            logger.debug("Timezone conversion skipped for %s", symbol if 'symbol' in dir() else '?', exc_info=True)
 
         df = df.dropna()
         return df
@@ -377,7 +377,7 @@ def prefetch_symbols_multi_timeframe(
                 try:
                     progress_callback(completed, total)
                 except Exception:
-                    pass
+                    logger.debug("Progress callback failed", exc_info=True)
 
     return results
 

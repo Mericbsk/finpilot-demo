@@ -12,6 +12,8 @@ Usage:
     streamlit run demo_standalone.py
 """
 
+import logging
+
 import streamlit as st
 
 # Page config - MUST be first Streamlit command
@@ -289,7 +291,7 @@ except Exception:
                 with open(WAITLIST_FILE) as f:
                     return len(json.load(f))
         except Exception:
-            pass
+            logging.getLogger(__name__).debug("Failed to count waitlist", exc_info=True)
         return 0
 
 
