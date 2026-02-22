@@ -89,6 +89,15 @@ def get_drl_predictions(symbols: list, max_symbols: int = 10) -> dict:
 def render_drl_signals_panel(symbols: list) -> None:
     """Dashboard'da DRL model sinyallerini gösterir."""
     if not DRL_AVAILABLE:
+        st.markdown(
+            """<div class='empty-state' style='padding: 16px 20px;'>
+                <span class='empty-icon' style='font-size:2rem;'>🤖</span>
+                <h3>AI Trading Modeli</h3>
+                <p>DRL (Deep Reinforcement Learning) modülü henüz kurulmamış.
+                   Kurulduğunda burada AI alım-satım sinyalleri görünecektir.</p>
+            </div>""",
+            unsafe_allow_html=True,
+        )
         return
 
     try:
@@ -102,8 +111,12 @@ def render_drl_signals_panel(symbols: list) -> None:
 
         st.markdown("### 🤖 AI Trading Sinyalleri (DRL)")
 
-        buy_signals = {s: p for s, p in drl_preds.items() if p["action"] == "BUY" and p["is_actionable"]}
-        sell_signals = {s: p for s, p in drl_preds.items() if p["action"] == "SELL" and p["is_actionable"]}
+        buy_signals = {
+            s: p for s, p in drl_preds.items() if p["action"] == "BUY" and p["is_actionable"]
+        }
+        sell_signals = {
+            s: p for s, p in drl_preds.items() if p["action"] == "SELL" and p["is_actionable"]
+        }
 
         c1, c2, c3 = st.columns(3)
         c1.metric("📊 Analiz Edilen", f"{len(drl_preds)} hisse")
@@ -138,16 +151,14 @@ def render_drl_signals_panel(symbols: list) -> None:
             st.caption("Aktif alım sinyali yok")
 
         if sell_signals:
-            st.markdown("#### 🔴 AI Satım Uyarıları")
+            st.markdown("#### \u25bc AI Sat\u0131m Uyar\u0131lar\u0131")
             for symbol, pred in sorted(sell_signals.items(), key=lambda x: -x[1]["confidence"]):
                 conf_pct = pred["confidence"] * 100
                 st.markdown(
                     f"""
-                <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
-                     border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex;
-                     justify-content: space-between; align-items: center;">
-                    <div><strong style="color: #ef4444;">{symbol}</strong></div>
-                    <div><span style="color: #ef4444; font-weight: bold;">Güven: %{conf_pct:.0f}</span></div>
+                <div class='drl-signal-card drl-sell' role='listitem' aria-label='{symbol} sat\u0131m sinyali, g\u00fcven y\u00fczde {conf_pct:.0f}'>
+                    <div><strong class='signal-sell'>{symbol}</strong></div>
+                    <div><span class='signal-sell'>G\u00fcven: %{conf_pct:.0f}</span></div>
                 </div>
                 """,
                     unsafe_allow_html=True,
@@ -170,6 +181,15 @@ def render_ai_insights_panel() -> None:
     """Ana dashboard'a AI Pilot sinyallerini ekler."""
     data = load_ai_signals()
     if not data:
+        st.markdown(
+            """<div class='empty-state' style='padding: 16px 20px;'>
+                <span class='empty-icon' style='font-size:2rem;'>🧠</span>
+                <h3>FinPilot AI Gözlemleri</h3>
+                <p>AI gözlem verileri henüz mevcut değil.
+                   Tarama tamamlandığında AI sinyalleri burada görünecek.</p>
+            </div>""",
+            unsafe_allow_html=True,
+        )
         return
 
     st.markdown("### 🧠 FinPilot AI Gözlemleri (Canlı)")
@@ -185,25 +205,27 @@ def render_ai_insights_panel() -> None:
         regime = info.get("regime", "UNKNOWN")
 
         if signal == "BUY":
-            color = "green"
-            icon = "🟢"
+            signal_class = "signal-buy"
+            signal_label = "AL ▲"
         elif signal == "SELL":
-            color = "red"
-            icon = "🔴"
+            signal_class = "signal-sell"
+            signal_label = "SAT ▼"
         else:
-            color = "gray"
-            icon = "⚪"
+            signal_class = "signal-hold"
+            signal_label = "İZLE ●"
 
         with col:
             st.markdown(
                 f"""
-            <div style="border: 1px solid #444; border-radius: 8px; padding: 10px; background-color: #1a1a1a;">
-                <div style="font-weight: bold; font-size: 1.1em;">{symbol} {icon}</div>
-                <div style="font-size: 0.9em; color: #888;">Fiyat: ${info.get("price", 0)}</div>
-                <hr style="margin: 5px 0; border-color: #333;">
+            <div role='article' aria-label='{symbol} AI gözlemi, sinyal {signal}'
+                 style="border: 1px solid var(--border-default); border-radius: var(--radius-md);
+                        padding: 10px; background: var(--bg-glass);">
+                <div style="font-weight: bold; font-size: 1.1em; color: var(--text-primary);">{symbol}</div>
+                <div style="font-size: 0.9em; color: var(--text-secondary);">Fiyat: ${info.get("price", 0)}</div>
+                <hr style="margin: 5px 0; border-color: var(--bg-tertiary);">
                 <div style="display: flex; justify-content: space-between;">
                     <span>Sinyal:</span>
-                    <span style="color: {color}; font-weight: bold;">{signal}</span>
+                    <span class='{signal_class}'>{signal_label}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span>Güven:</span>
@@ -213,7 +235,7 @@ def render_ai_insights_panel() -> None:
                     <span>Skor:</span>
                     <span>{score}/100</span>
                 </div>
-                 <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Rejim: {regime}</div>
+                 <div style="font-size: 0.8em; color: var(--text-muted); margin-top: 5px;">Rejim: {regime}</div>
             </div>
             """,
                 unsafe_allow_html=True,
@@ -238,7 +260,7 @@ def render_top_cards(
     top_n = buyable.head(4)
     cols = st.columns(4)
 
-    for i, (idx, row) in enumerate(top_n.iterrows()):
+    for i, (_idx, row) in enumerate(top_n.iterrows()):
         score = row["recommendation_score"]
         score_color = "#22c55e" if score >= 80 else "#eab308"
         symbol = row["symbol"]
@@ -248,7 +270,7 @@ def render_top_cards(
         drl_conf = drl_info.get("confidence", 0)
         has_ai_buy = drl_action == "BUY" and drl_conf > 0.5
         ai_badge = (
-            '<span style="background: #8b5cf6; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px;">🤖 AI</span>'
+            '<span style="background: var(--color-ai); color: white; padding: 2px 6px; border-radius: var(--radius-sm); font-size: 0.7rem; margin-left: 5px;">🤖 AI</span>'
             if has_ai_buy
             else ""
         )
@@ -256,34 +278,34 @@ def render_top_cards(
         with cols[i]:
             st.markdown(
                 f"""
-<div style="background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; transition: transform 0.2s;">
+<div class="top-opportunity-card" role="article" aria-label="{symbol} fırsat kartı, skor {score:.0f}" style="background: linear-gradient(145deg, var(--bg-secondary), var(--bg-primary)); border-radius: var(--radius-md); padding: 1.5rem; border: 1px solid var(--border-default); box-shadow: var(--shadow-card); position: relative; overflow: hidden; transition: transform var(--transition-normal);">
 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: {score_color};"></div>
 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
 <div>
-<h2 style="margin: 0; font-size: 1.8rem; font-weight: 800; color: #f8fafc;">{symbol}{ai_badge}</h2>
-<span style="font-size: 0.9rem; color: #94a3b8;">{row.get("regime", "N/A")}</span>
+<h2 style="margin: 0; font-size: 1.8rem; font-weight: 800; color: var(--text-primary);">{symbol}{ai_badge}</h2>
+<span style="font-size: 0.9rem; color: var(--text-secondary);">{row.get("regime", "N/A")}</span>
 </div>
 <div style="text-align: right;">
-<div style="font-size: 1.5rem; font-weight: 700; color: #f8fafc;">${row["price"]:.2f}</div>
+<div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">${row["price"]:.2f}</div>
 </div>
 </div>
 <div style="margin-bottom: 1rem;">
 <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
-<span style="font-size: 0.8rem; color: #94a3b8;">Sinyal Gücü</span>
+<span style="font-size: 0.8rem; color: var(--text-secondary);">Sinyal Gücü</span>
 <span style="font-size: 0.8rem; font-weight: 600; color: {score_color};">{score:.1f}/100</span>
 </div>
-<div style="width: 100%; height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+<div style="width: 100%; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden;" role="progressbar" aria-valuenow="{score:.0f}" aria-valuemin="0" aria-valuemax="100" aria-label="Sinyal gücü">
 <div style="width: {score}%; height: 100%; background: {score_color}; border-radius: 3px;"></div>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
-<div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 6px; text-align: center;">
-<div style="color: #94a3b8; font-size: 0.7rem;">HEDEF</div>
-<div style="color: #22c55e; font-weight: 600;">${row["take_profit"]:.2f}</div>
+<div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: var(--radius-sm); text-align: center;">
+<div style="color: var(--text-secondary); font-size: 0.7rem;">HEDEF ▲</div>
+<div style="color: var(--color-success); font-weight: 600;">${row["take_profit"]:.2f}</div>
 </div>
-<div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 6px; text-align: center;">
-<div style="color: #94a3b8; font-size: 0.7rem;">STOP</div>
-<div style="color: #ef4444; font-weight: 600;">${row["stop_loss"]:.2f}</div>
+<div style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: var(--radius-sm); text-align: center;">
+<div style="color: var(--text-secondary); font-size: 0.7rem;">STOP ▼</div>
+<div style="color: var(--color-error); font-weight: 600;">${row["stop_loss"]:.2f}</div>
 </div>
 </div>
 </div>

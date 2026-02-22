@@ -88,7 +88,7 @@ def _init_session_state() -> None:
 def render_sidebar() -> dict:
     """Render all sidebar controls and return the aggregated settings dict."""
     with st.sidebar:
-        st.image("https://img.icons8.com/fluency/96/bullish.png", width=64)
+        st.image("assets/logo.svg", width=64)
         st.title("FinPilot Kontrol")
 
         # 1. Quick settings
@@ -101,13 +101,13 @@ def render_sidebar() -> dict:
 
         # 2. Portfolio management
         with st.expander("💰 Portföy & Risk Yönetimi", expanded=True):
-            portfolio_value = st.number_input(
+            _portfolio_value = st.number_input(
                 "Portföy Büyüklüğü ($)", value=10000, step=1000, min_value=1000
             )
 
             c1, c2 = st.columns(2)
             with c1:
-                risk_percent = st.number_input(
+                _risk_percent = st.number_input(
                     "Risk %", min_value=0.5, max_value=5.0, value=2.0, step=0.5
                 )
             with c2:
@@ -135,9 +135,7 @@ def render_sidebar() -> dict:
 
             if dynamic_enabled_ui:
                 dynamic_window_ui = st.slider("Adaptasyon Penceresi", 20, 160, 60)
-                dynamic_quantile_ui = st.slider(
-                    "Hassasiyet (Quantile)", 0.90, 0.995, 0.975, 0.005
-                )
+                dynamic_quantile_ui = st.slider("Hassasiyet (Quantile)", 0.90, 0.995, 0.975, 0.005)
             else:
                 dynamic_window_ui = 60
                 dynamic_quantile_ui = 0.975
@@ -204,46 +202,69 @@ def render_sidebar() -> dict:
 
 def render_market_pulse(df: pd.DataFrame) -> None:
     """Render the top-of-page market metrics bar."""
-    bull_ratio = 0
-    avg_score = 0
-    signal_count = 0
-    last_update = "-"
-
-    if not df.empty:
-        if "regime" in df.columns:
-            bull_ratio = (
-                len(df[df["regime"].astype(str).str.contains("bull|trend", case=False, na=False)])
-                / len(df)
-                * 100
-            )
-        if "recommendation_score" in df.columns:
-            avg_score = df["recommendation_score"].mean()
-        if "entry_ok" in df.columns:
-            signal_count = len(df[df["entry_ok"]])
-        if "timestamp" in df.columns:
-            last_update = df["timestamp"].iloc[0]
+    has_data = df is not None and not df.empty
 
     st.markdown(
         """
     <style>
     .pulse-container {
-        background-color: #1e293b;
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid #334155;
+        background: linear-gradient(135deg, var(--bg-secondary, #1e293b), var(--bg-primary, #0f172a));
+        padding: 15px 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border-default, #334155);
         margin-bottom: 20px;
     }
+    .pulse-empty {
+        text-align: center;
+        padding: 18px 24px;
+        background: var(--bg-secondary, #1e293b);
+        border-radius: 12px;
+        border: 1px dashed var(--border-default, rgba(148,163,184,0.3));
+        margin-bottom: 20px;
+    }
+    .pulse-empty p { color: var(--text-secondary, #94a3b8); margin: 0; font-size: 0.95rem; }
+    .pulse-empty .pulse-cta { color: var(--color-primary, #00e6e6); font-weight: 600; }
     </style>
     """,
         unsafe_allow_html=True,
     )
+
+    if not has_data:
+        st.markdown(
+            """<div class='pulse-empty'>
+                <p>📡 Piyasa verileri henüz yüklenmedi.</p>
+                <p class='pulse-cta'>Aşağıdan taramayı başlatarak canlı verileri görüntüleyin.</p>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+        return
+
+    bull_ratio = 0
+    avg_score = 0
+    signal_count = 0
+    last_update = "-"
+
+    if "regime" in df.columns:
+        bull_ratio = (
+            len(df[df["regime"].astype(str).str.contains("bull|trend", case=False, na=False)])
+            / len(df)
+            * 100
+        )
+    if "recommendation_score" in df.columns:
+        avg_score = df["recommendation_score"].mean()
+    if "entry_ok" in df.columns:
+        signal_count = len(df[df["entry_ok"]])
+    if "timestamp" in df.columns:
+        last_update = df["timestamp"].iloc[0]
+
+    regime_label = "Boğa 📈" if bull_ratio > 50 else "Ayı 📉"
 
     with st.container():
         st.markdown("<div class='pulse-container'>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
         c1.metric(
             "Piyasa Rejimi",
-            "Boğa" if bull_ratio > 50 else "Ayı",
+            regime_label,
             f"%{bull_ratio:.1f} Bullish",
         )
         c2.metric("Ortalama Skor", f"{avg_score:.1f}", delta_color="normal")
@@ -293,8 +314,14 @@ def render_preset_selector() -> None:
     with preset_tabs[1]:
         _render_preset_row(
             [
-                "biotech_large", "finance_banks", "energy_oil", "industrials",
-                "pharma_pipeline", "medical_devices", "enterprise_software", "finance_diversified",
+                "biotech_large",
+                "finance_banks",
+                "energy_oil",
+                "industrials",
+                "pharma_pipeline",
+                "medical_devices",
+                "enterprise_software",
+                "finance_diversified",
             ],
             "sec",
         )
@@ -305,7 +332,13 @@ def render_preset_selector() -> None:
         )
     with preset_tabs[3]:
         _render_preset_row(
-            ["high_dividend", "value_picks", "small_cap_growth", "biotech_emerging", "trending_momentum"],
+            [
+                "high_dividend",
+                "value_picks",
+                "small_cap_growth",
+                "biotech_emerging",
+                "trending_momentum",
+            ],
             "strat",
         )
     with preset_tabs[4]:
@@ -384,44 +417,59 @@ def render_scan_controls(kelly_fraction: float) -> None:
         c1, c2, c3, c4 = st.columns([2, 2, 1, 1], gap="small")
         with c1:
             run_btn = st.button(
-                primary_label, key="run_btn",
-                disabled=status == "loading", use_container_width=True, type="secondary",
+                primary_label,
+                key="run_btn",
+                disabled=status == "loading",
+                use_container_width=True,
+                type="secondary",
             )
         with c2:
             preset_btn = st.button(
                 f"🎯 Seçili Seti Tara ({len(st.session_state['preset_symbols'])})",
                 key="preset_scan_btn",
-                disabled=status == "loading", use_container_width=True, type="primary",
+                disabled=status == "loading",
+                use_container_width=True,
+                type="primary",
             )
         with c3:
             refresh_btn = st.button(
-                "🔄 Temizle", key="refresh_btn",
-                disabled=status == "loading", use_container_width=True,
+                "🔄 Temizle",
+                key="refresh_btn",
+                disabled=status == "loading",
+                use_container_width=True,
             )
         with c4:
             load_btn = st.button(
-                "📂 Yükle", key="load_btn",
-                disabled=status == "loading", use_container_width=True,
+                "📂 Yükle",
+                key="load_btn",
+                disabled=status == "loading",
+                use_container_width=True,
             )
     else:
         preset_btn = False
         c1, c2, c3 = st.columns([2, 1, 1], gap="small")
         with c1:
             run_btn = st.button(
-                primary_label, key="run_btn",
-                disabled=status == "loading", use_container_width=True,
+                primary_label,
+                key="run_btn",
+                disabled=status == "loading",
+                use_container_width=True,
                 type="primary" if status != "loading" else "secondary",
             )
         with c2:
             refresh_btn = st.button(
-                "🔄 Önbelleği Temizle", key="refresh_btn",
-                disabled=status == "loading", use_container_width=True,
+                "🔄 Önbelleği Temizle",
+                key="refresh_btn",
+                disabled=status == "loading",
+                use_container_width=True,
                 help="Verileri ve önbelleği temizleyip sayfayı yeniler.",
             )
         with c3:
             load_btn = st.button(
-                "📂 Yükle", key="load_btn",
-                disabled=status == "loading", use_container_width=True,
+                "📂 Yükle",
+                key="load_btn",
+                disabled=status == "loading",
+                use_container_width=True,
                 help="Kaydedilmiş bir shortlist CSV dosyasını yükle.",
             )
 
@@ -441,8 +489,10 @@ def render_scan_controls(kelly_fraction: float) -> None:
         if uploaded_csv:
             st.caption("Dosya yüklendi. 'Symbol' sütunu aranacak.")
         csv_scan_btn = st.button(
-            "▶️ CSV Listesini Tara", key="csv_scan_btn",
-            disabled=(uploaded_csv is None or status == "loading"), type="primary",
+            "▶️ CSV Listesini Tara",
+            key="csv_scan_btn",
+            disabled=(uploaded_csv is None or status == "loading"),
+            type="primary",
         )
 
     # Execution logic

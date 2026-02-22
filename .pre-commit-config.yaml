@@ -23,7 +23,7 @@ repos:
       - id: ruff-format
         args: ['--line-length=100']
       - id: ruff
-        args: ['--fix', '--ignore=E501']
+        args: ['--fix', '--ignore=E501,S105']
 
   # Security linting with Bandit
   - repo: https://github.com/PyCQA/bandit

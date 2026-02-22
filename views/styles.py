@@ -1,6 +1,96 @@
 GLOBAL_CSS = """
 <style>
-    border:1px solid transparent;
+    /* ============================================================
+       Design Tokens — Sprint 7
+       Single source of truth for all colours, spacing, radii.
+       ============================================================ */
+    :root {
+        /* Brand */
+        --color-primary: #00e6e6;
+        --color-primary-hover: #0ea5e9;
+
+        /* Backgrounds */
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --bg-glass: rgba(15, 23, 42, 0.72);
+        --bg-glass-heavy: rgba(15, 23, 42, 0.88);
+
+        /* Text */
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --text-muted: rgba(148, 163, 184, 0.75);
+        --text-caption: #cbd5e1;
+
+        /* Semantic */
+        --color-success: #22c55e;
+        --color-success-soft: rgba(34, 197, 94, 0.18);
+        --color-success-border: rgba(34, 197, 94, 0.35);
+        --color-success-text: #4ade80;
+
+        --color-error: #ef4444;
+        --color-error-soft: rgba(239, 68, 68, 0.18);
+        --color-error-border: rgba(239, 68, 68, 0.35);
+        --color-error-text: #fca5a5;
+
+        --color-warning: #eab308;
+        --color-warning-soft: rgba(234, 179, 8, 0.18);
+        --color-warning-text: #facc15;
+
+        --color-info: #3b82f6;
+        --color-info-soft: rgba(59, 130, 246, 0.18);
+        --color-info-border: rgba(59, 130, 246, 0.25);
+        --color-info-text: #38bdf8;
+
+        --color-ai: #8b5cf6;
+        --color-ai-soft: rgba(139, 92, 246, 0.18);
+
+        /* Borders */
+        --border-default: rgba(148, 163, 184, 0.18);
+        --border-hover: rgba(56, 189, 248, 0.35);
+        --border-focus: rgba(59, 130, 246, 0.5);
+
+        /* Spacing (4px base scale) */
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-10: 40px;
+        --space-12: 48px;
+
+        /* Radii */
+        --radius-sm: 6px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --radius-full: 999px;
+
+        /* Shadows */
+        --shadow-card: 0 4px 24px -8px rgba(14, 165, 233, 0.25);
+        --shadow-card-hover: 0 8px 32px -8px rgba(14, 165, 233, 0.4);
+        --shadow-glow: 0 20px 48px -20px rgba(14, 165, 233, 0.55);
+
+        /* Transitions */
+        --transition-fast: 0.15s ease;
+        --transition-normal: 0.25s ease;
+        --transition-smooth: 0.4s ease;
+    }
+
+    /* ============================================================
+       Base & Status Badges
+       ============================================================ */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        padding: 3px 10px;
+        border-radius: var(--radius-full);
+        font-size: 0.72rem;
+        font-weight: 600;
+        border: 1px solid transparent;
     }
     .status-badge.badge-idle {
         background:rgba(148, 163, 184, 0.25);
@@ -779,6 +869,138 @@ GLOBAL_CSS = """
             grid-template-columns: 1fr;
         }
     }
+
+    /* ============================================================
+       P4 — Empty State Styles  (Sprint 7)
+       ============================================================ */
+    .empty-state {
+        text-align: center;
+        padding: var(--space-12) var(--space-6);
+        border-radius: var(--radius-lg);
+        border: 1px dashed var(--border-default);
+        background: var(--bg-glass);
+        margin: var(--space-6) 0;
+    }
+    .empty-state .empty-icon {
+        font-size: 3rem;
+        margin-bottom: var(--space-4);
+        display: block;
+    }
+    .empty-state h3 {
+        color: var(--text-primary);
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin: 0 0 var(--space-2);
+    }
+    .empty-state p {
+        color: var(--text-secondary);
+        font-size: 0.92rem;
+        line-height: 1.6;
+        margin: 0 0 var(--space-4);
+        max-width: 420px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .empty-state .empty-cta {
+        color: var(--color-primary);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* ============================================================
+       P6 — Skeleton Loading  (Sprint 7)
+       ============================================================ */
+    @keyframes skeleton-pulse {
+        0%, 100% { opacity: 0.4; }
+        50%      { opacity: 0.8; }
+    }
+    .skeleton {
+        border-radius: var(--radius-md);
+        background: linear-gradient(90deg,
+            var(--bg-secondary) 25%,
+            var(--bg-tertiary) 50%,
+            var(--bg-secondary) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-pulse 1.5s ease-in-out infinite;
+    }
+    .skeleton-card {
+        height: 180px;
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-4);
+    }
+    .skeleton-line {
+        height: 14px;
+        border-radius: var(--radius-sm);
+        margin-bottom: var(--space-2);
+    }
+    .skeleton-line.short { width: 40%; }
+    .skeleton-line.medium { width: 70%; }
+    .skeleton-line.long { width: 100%; }
+    .skeleton-metric {
+        width: 80px;
+        height: 48px;
+        border-radius: var(--radius-md);
+    }
+
+    /* ============================================================
+       P7 — Color-Blind Augmentation  (Sprint 7)
+       ============================================================ */
+    .signal-buy, .signal-sell, .signal-hold {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        font-weight: 600;
+    }
+    .signal-buy::before  { content: "▲ "; }
+    .signal-sell::before { content: "▼ "; }
+    .signal-hold::before { content: "● "; }
+    .signal-buy  { color: var(--color-success); }
+    .signal-sell { color: var(--color-error); }
+    .signal-hold { color: var(--text-secondary); }
+
+    /* DRL Signal Cards (migrated from inline CSS) */
+    .drl-signal-card {
+        border-radius: var(--radius-md);
+        padding: 10px var(--space-4);
+        margin-bottom: var(--space-2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background var(--transition-fast);
+    }
+    .drl-signal-card.drl-buy {
+        background: var(--color-success-soft);
+        border: 1px solid var(--color-success-border);
+    }
+    .drl-signal-card.drl-sell {
+        background: var(--color-error-soft);
+        border: 1px solid var(--color-error-border);
+    }
+    .drl-signal-card .drl-meta {
+        color: var(--text-secondary);
+        margin-left: 10px;
+        font-size: 0.9rem;
+    }
+
+    /* ============================================================
+       P13 — Accessibility Helpers  (Sprint 7)
+       ============================================================ */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+    *:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
     </style>
 """
 

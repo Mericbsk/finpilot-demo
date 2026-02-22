@@ -17,6 +17,7 @@ from scanner import compute_recommendation_score
 
 from .components.export import render_export_panel
 from .components.signal_tracker import render_signal_performance_tab
+from .components.skeleton import render_skeleton_cards, render_skeleton_table
 from .detail_view import get_drl_predictions, render_detail_card, render_top_cards
 from .finsense import render_finsense_page
 from .scan_history import render_scan_history_page
@@ -27,6 +28,8 @@ logger = logging.getLogger(__name__)
 
 def render_tabs(df: pd.DataFrame) -> None:
     """Render the 6 main content tabs."""
+    is_loading = st.session_state.get("scan_status") == "loading"
+
     st.markdown("---")
     tab_signals, tab_market, tab_ai, tab_perf, tab_history, tab_edu = st.tabs(
         [
@@ -40,10 +43,16 @@ def render_tabs(df: pd.DataFrame) -> None:
     )
 
     with tab_signals:
-        _render_signal_tab(df)
+        if is_loading:
+            render_skeleton_cards(4)
+        else:
+            _render_signal_tab(df)
 
     with tab_market:
-        _render_market_tab(df)
+        if is_loading:
+            render_skeleton_table(6)
+        else:
+            _render_market_tab(df)
 
     with tab_ai:
         _render_ai_lab_tab(df)
@@ -65,7 +74,16 @@ def render_tabs(df: pd.DataFrame) -> None:
 
 def _render_signal_tab(df: pd.DataFrame) -> None:
     if df is None or df.empty:
-        st.info("Veri yok. Lütfen taramayı çalıştırın.")
+        st.markdown(
+            """<div class='empty-state'>
+                <span class='empty-icon'>🎯</span>
+                <h3>Henüz sinyal verisi yok</h3>
+                <p>Piyasayı tarayarak alım-satım sinyallerini keşfedin.
+                   Yukarıdaki "Taramayı Başlat" butonuna tıklayın.</p>
+                <span class='empty-cta'>▶ İlk taramanızı başlatın</span>
+            </div>""",
+            unsafe_allow_html=True,
+        )
         return
 
     buyable = df[df["entry_ok"]].copy()
@@ -145,7 +163,14 @@ def _render_signal_tab(df: pd.DataFrame) -> None:
 
 def _render_market_tab(df: pd.DataFrame) -> None:
     if df is None or df.empty:
-        st.info("Veri yok.")
+        st.markdown(
+            """<div class='empty-state'>
+                <span class='empty-icon'>📊</span>
+                <h3>Piyasa verileri bekleniyor</h3>
+                <p>Taramayı çalıştırdığınızda tüm semboller burada listelenir.</p>
+            </div>""",
+            unsafe_allow_html=True,
+        )
         return
 
     st.markdown("### 🔎 Tüm Piyasa Görünümü")
@@ -160,9 +185,7 @@ def _render_market_tab(df: pd.DataFrame) -> None:
         market_df["recommendation_score"] = market_df.apply(compute_recommendation_score, axis=1)
 
     st.dataframe(
-        market_df[
-            ["symbol", "price", "recommendation_score", "entry_ok", "regime", "sentiment"]
-        ],
+        market_df[["symbol", "price", "recommendation_score", "entry_ok", "regime", "sentiment"]],
         column_config={
             "symbol": "Sembol",
             "price": st.column_config.NumberColumn("Fiyat", format="$%.2f"),
@@ -185,12 +208,22 @@ def _render_market_tab(df: pd.DataFrame) -> None:
 # ---------------------------------------------------------------------------
 
 
+@st.fragment
 def _render_ai_lab_tab(df: pd.DataFrame) -> None:
     st.markdown("### 🧠 Yapay Zeka Araştırma Merkezi")
     st.caption("Google Gemini ve DuckDuckGo destekli derinlemesine analiz.")
 
     if df is None or df.empty:
-        st.warning("Analiz için önce tarama yapmalısınız.")
+        st.markdown(
+            """<div class='empty-state'>
+                <span class='empty-icon'>🧠</span>
+                <h3>AI Lab — Analiz bekleniyor</h3>
+                <p>Taramadan sonra herhangi bir sembol seçerek
+                   yapay zeka destekli derin analiz başlatabilirsiniz.</p>
+                <span class='empty-cta'>Önce tarama yapın, sonra burada analiz edin</span>
+            </div>""",
+            unsafe_allow_html=True,
+        )
         return
 
     symbol_list = df["symbol"].tolist()
@@ -224,6 +257,7 @@ def _render_ai_lab_tab(df: pd.DataFrame) -> None:
 # ---------------------------------------------------------------------------
 
 
+@st.fragment
 def _render_performance_tab() -> None:
     render_signal_performance_tab()
 
