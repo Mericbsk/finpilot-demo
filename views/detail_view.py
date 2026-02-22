@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from datetime import UTC
 from typing import Any
 
 import pandas as pd
@@ -32,14 +33,38 @@ except ImportError:
 # ---------------------------------------------------------------------------
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def load_ai_signals() -> dict:
-    """AI Sinyal dosyasını yükler."""
+    """AI Sinyal dosyasını yükler (P5: 60s cache)."""
     try:
         path = os.path.join(os.getcwd(), "data", "inference.json")
         with open(path) as f:
             return json.load(f)
     except Exception:
         return {}
+
+
+def _humanize_timestamp(ts_str: str) -> str:
+    """ISO timestamp’i ‘X gün/saat önce’ formatına çevirir (P5)."""
+    if not ts_str:
+        return "Bilinmiyor"
+    try:
+        from datetime import datetime
+
+        dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+        now = datetime.now(UTC)
+        delta = now - dt
+        days = delta.days
+        hours = delta.seconds // 3600
+        if days > 30:
+            return f"{days} gün önce ⚠️"
+        if days > 0:
+            return f"{days} gün önce"
+        if hours > 0:
+            return f"{hours} saat önce"
+        return "Az önce"
+    except Exception:
+        return ts_str[:16] if len(ts_str) >= 16 else ts_str
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +218,7 @@ def render_ai_insights_panel() -> None:
         return
 
     st.markdown("### 🧠 FinPilot AI Gözlemleri (Canlı)")
+    st.caption("Bir karta tıklayarak AI Lab'da derinlemesine analiz başlatabilirsiniz.")
 
     cols = st.columns(len(data)) if len(data) <= 5 else st.columns(4)
 
@@ -240,8 +266,13 @@ def render_ai_insights_panel() -> None:
             """,
                 unsafe_allow_html=True,
             )
+            # P8: Clickable card → sets selected_ai_symbol for AI Lab
+            if st.button(f"🔍 {symbol} Analiz", key=f"ai_card_{symbol}", use_container_width=True):
+                st.session_state["selected_ai_symbol"] = symbol
+                st.toast(f"🧠 {symbol} seçildi — AI Laboratuvarı sekmesine gidin.", icon="🧠")
 
-    st.caption(f"Son Yapay Zeka Analizi: {list(data.values())[0].get('timestamp', '')[:16]}")
+    raw_ts = list(data.values())[0].get("timestamp", "")
+    st.caption(f"Son Yapay Zeka Analizi: {_humanize_timestamp(raw_ts)}")
     st.markdown("---")
 
 
@@ -450,3 +481,59 @@ def render_detail_card(
                 f"{row['symbol']} seçildi, AI sekmesine yönlendiriliyorsunuz...",
                 icon="🚀",
             )
+
+
+# ---------------------------------------------------------------------------
+# P8: Auto-refresh inference.json after scan
+# ---------------------------------------------------------------------------
+
+
+def refresh_inference_json(df) -> None:
+    """Tarama sonuçlarından inference.json’ı günceller."""
+    if df is None or df.empty:
+        return
+
+    from datetime import datetime
+
+    try:
+        now = datetime.now(UTC).isoformat()
+        top_symbols = df.head(5) if len(df) >= 5 else df
+
+        data = {}
+        for _, row in top_symbols.iterrows():
+            symbol = row.get("symbol", "")
+            if not symbol:
+                continue
+
+            score = float(row.get("recommendation_score", 50))
+            entry_ok = bool(row.get("entry_ok", False))
+
+            if entry_ok and score >= 70:
+                signal = "BUY"
+                confidence = min(score / 100, 0.95)
+            elif score <= 30:
+                signal = "SELL"
+                confidence = min((100 - score) / 100, 0.85)
+            else:
+                signal = "HOLD"
+                confidence = 0.5
+
+            data[symbol] = {
+                "ai_score": score,
+                "signal": signal,
+                "confidence": round(confidence, 2),
+                "regime": str(row.get("regime", "UNKNOWN")),
+                "price": float(row.get("price", 0)),
+                "timestamp": now,
+            }
+
+        if data:
+            path = os.path.join(os.getcwd(), "data", "inference.json")
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w") as f:
+                json.dump(data, f, indent=2)
+            # Clear cache so new data is loaded
+            load_ai_signals.clear()
+            logger.info("inference.json refreshed with %d symbols", len(data))
+    except Exception as e:
+        logger.warning("Failed to refresh inference.json: %s", e)

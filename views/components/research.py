@@ -1,354 +1,379 @@
 """
-FinPilot Research
-=================
-Gemini/Groq API ile araştırma ve haber analizi.
+FinPilot Research Engine
+========================
+Multi-provider LLM research with DuckDuckGo news aggregation.
+
+Provider chain: Groq → Gemini → Offline fallback
+News sources:   DuckDuckGo (parallel) → yfinance (fallback)
+
+Sprint 8: Complete rewrite — google-genai SDK, parallel DDG, Gemini fallback.
 """
 
-from textwrap import dedent
+from __future__ import annotations
 
 import logging
+import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import UTC, datetime
+from textwrap import dedent
 
 import streamlit as st
 import yfinance as yf
 
-# Optional imports
+logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Optional imports with granular availability flags
+# ---------------------------------------------------------------------------
 try:
-    import google.generativeai as genai
     from duckduckgo_search import DDGS
-    from groq import Groq
+
+    _DDG_AVAILABLE = True
 except ImportError:
-    genai = None
-    DDGS = None
-    Groq = None
+    _DDG_AVAILABLE = False
+
+try:
+    from groq import Groq
+
+    _GROQ_AVAILABLE = True
+except ImportError:
+    _GROQ_AVAILABLE = False
+
+try:
+    from google import genai as google_genai
+
+    _GEMINI_AVAILABLE = True
+except ImportError:
+    _GEMINI_AVAILABLE = False
 
 
-def get_yfinance_news(symbol: str, max_results: int = 5) -> list:
-    """yfinance'dan haber çeker (fallback için)."""
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+RESEARCH_CACHE_TTL = 300  # 5 minutes
+REPORT_CACHE_DIR = os.path.join(os.getcwd(), "data", "reports_cache")
+REPORT_CACHE_MAX_AGE = 3600 * 6  # 6 hours
+
+_SYSTEM_PROMPT = "You are a senior financial analyst. Answer in Markdown."
+
+_PROMPTS = {
+    "tr": (
+        "Sen uzman bir borsa ve hukuk analistisin. Aşağıdaki **güncel** haberleri "
+        "(İngilizce, Almanca, Türkçe) kullanarak {symbol} hissesi için kapsamlı bir "
+        "yatırımcı raporu hazırla.\n\n"
+        "Özellikle **yasal gelişmeler, regülasyonlar, davalar ve resmi bildirimlere "
+        "(SEC/KAP)** dikkat et. Haberlerin tarihlerini göz önünde bulundur.\n\n"
+        "Haberler:\n{news_context}\n\n"
+        "Format:\n"
+        "1. **Piyasa Algısı:** (Olumlu/Olumsuz/Nötr - Nedenleriyle)\n"
+        "2. **Yasal ve Regülatif Gelişmeler:**\n"
+        "3. **Öne Çıkan Finansal Gelişmeler:** (Maddeler halinde)\n"
+        "4. **Riskler ve Fırsatlar:**\n"
+        "5. **Sonuç Yorumu:** (Yatırımcı ne yapmalı?)"
+    ),
+    "en": (
+        "You are an expert stock market and legal analyst. Create a comprehensive "
+        "investor report for {symbol} using the **recent** news below.\n\n"
+        "Pay special attention to **legal developments, regulations, lawsuits, and "
+        "official filings (SEC/KAP)**.\n\n"
+        "News:\n{news_context}\n\n"
+        "Format:\n"
+        "1. **Market Sentiment:** (Bullish/Bearish/Neutral)\n"
+        "2. **Legal & Regulatory Developments:**\n"
+        "3. **Key Financial Developments:** (Bullet points)\n"
+        "4. **Risks & Opportunities:**\n"
+        "5. **Conclusion:** (Actionable advice)"
+    ),
+    "de": (
+        "Sie sind ein erfahrener Börsen- und Rechtsanalyst. Erstellen Sie einen "
+        "umfassenden Investorenbericht für {symbol}.\n\n"
+        "Achten Sie besonders auf **rechtliche Entwicklungen, Vorschriften, Klagen "
+        "und offizielle Meldungen**.\n\n"
+        "Nachrichten:\n{news_context}\n\n"
+        "Format:\n"
+        "1. **Marktstimmung:** (Positiv/Negativ/Neutral)\n"
+        "2. **Rechtliche & Regulatorische Entwicklungen:**\n"
+        "3. **Wichtige Finanzentwicklungen:**\n"
+        "4. **Risiken & Chancen:**\n"
+        "5. **Fazit:**"
+    ),
+}
+
+
+# ---------------------------------------------------------------------------
+# P9: Disk-based report cache
+# ---------------------------------------------------------------------------
+
+
+def _disk_cache_key(symbol: str, language: str) -> str:
+    """Disk cache dosya adı üretir."""
+    today = datetime.now(UTC).strftime("%Y%m%d")
+    return os.path.join(REPORT_CACHE_DIR, f"{symbol}_{language}_{today}.md")
+
+
+def _load_from_disk_cache(symbol: str, language: str) -> str | None:
+    """Disk cache'den rapor yükler (varsa ve taze ise)."""
+    path = _disk_cache_key(symbol, language)
+    try:
+        if os.path.exists(path):
+            age = datetime.now(UTC).timestamp() - os.path.getmtime(path)
+            if age < REPORT_CACHE_MAX_AGE:
+                with open(path, encoding="utf-8") as f:
+                    content = f.read()
+                if content.strip():
+                    logger.info("Disk cache hit: %s", path)
+                    return content
+    except Exception as e:
+        logger.warning("Disk cache read error: %s", e)
+    return None
+
+
+def _save_to_disk_cache(symbol: str, language: str, report: str) -> None:
+    """Raporu disk cache'e kaydeder."""
+    try:
+        os.makedirs(REPORT_CACHE_DIR, exist_ok=True)
+        path = _disk_cache_key(symbol, language)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(report)
+        logger.info("Disk cache saved: %s", path)
+    except Exception as e:
+        logger.warning("Disk cache write error: %s", e)
+
+
+# ---------------------------------------------------------------------------
+# News gathering helpers
+# ---------------------------------------------------------------------------
+
+
+def get_yfinance_news(symbol: str, max_results: int = 5) -> list[dict]:
+    """yfinance'dan haber çeker (fallback)."""
     try:
         ticker = yf.Ticker(symbol)
         news = ticker.news or []
-        results = []
-        for item in news[:max_results]:
-            results.append(
-                {
-                    "title": item.get("title", ""),
-                    "body": item.get("summary", item.get("title", "")),
-                    "url": item.get("link", ""),
-                    "date": item.get("providerPublishTime", ""),
-                    "source": item.get("publisher", "Yahoo Finance"),
-                }
-            )
-        return results
+        return [
+            {
+                "title": item.get("title", ""),
+                "body": item.get("summary", item.get("title", "")),
+                "url": item.get("link", ""),
+                "date": item.get("providerPublishTime", ""),
+                "source": item.get("publisher", "Yahoo Finance"),
+            }
+            for item in news[:max_results]
+        ]
     except Exception as e:
-        print(f"yfinance news error for {symbol}: {e}")
+        logger.warning("yfinance news error for %s: %s", symbol, e)
         return []
 
 
-# Standart TTL: 300 saniye (tüm modüllerle uyumlu)
-RESEARCH_CACHE_TTL = 300
-
-
-@st.cache_data(ttl=RESEARCH_CACHE_TTL, show_spinner="🔍 Araştırma yapılıyor...")
-def get_gemini_research(symbol: str, language: str = "tr") -> str:
-    """
-    Fetches research data using DuckDuckGo for news and Gemini/Groq for analysis.
-    Requires GOOGLE_API_KEY or GROQ_API_KEY in st.secrets (environment variables deprecated).
-    """
-    if not genai or not DDGS:
-        return "⚠️ Gerekli kütüphaneler (google-generativeai, duckduckgo-search) yüklü değil."
-
-    # API key only from secrets (secure mode)
-    api_key = None
+def _safe_ddg_search(
+    query: str,
+    region: str = "wt-wt",
+    timelimit: str | None = "w",
+    max_results: int = 3,
+) -> list[dict]:
+    """Tek bir DDG arama sorgusu — thread-safe, fallback'li."""
+    if not _DDG_AVAILABLE:
+        return []
     try:
-        api_key = st.secrets.get("GOOGLE_API_KEY")
-    except Exception:
-        pass  # secrets not configured
-
-    if not api_key:
-        return (
-            "⚠️ Google API anahtarı bulunamadı.\n\n"
-            "**Güvenli Yapılandırma:**\n"
-            "1. `.streamlit/secrets.toml` dosyası oluşturun\n"
-            '2. `GOOGLE_API_KEY = "your-key-here"` ekleyin\n\n'
-            "Not: Güvenlik nedeniyle environment variable desteği kaldırıldı."
-        )
-
-    try:
-        # 1. DuckDuckGo ile Haber Arama (Çok Dilli: EN + DE + TR)
-        results = []
         with DDGS() as ddgs:
-
-            def safe_search(
-                query: str,
-                region: str = "wt-wt",
-                timelimit: str | None = "w",
-                max_results: int = 3,
-            ) -> list:
-                """Hata korumalı ve fallback mekanizmalı arama fonksiyonu"""
-                try:
-                    # 1. Deneme: İstenen zaman aralığında (örn: son 1 hafta)
-                    res = list(
-                        ddgs.news(
-                            query,
-                            region=region,
-                            safesearch="off",
-                            timelimit=timelimit,
-                            max_results=max_results,
-                        )
+            res = list(
+                ddgs.news(
+                    query,
+                    region=region,
+                    safesearch="off",
+                    timelimit=timelimit,
+                    max_results=max_results,
+                )
+            )
+            if res:
+                return res
+            # Fallback: zaman kısıtını kaldır
+            if timelimit:
+                return list(
+                    ddgs.news(
+                        query,
+                        region=region,
+                        safesearch="off",
+                        timelimit=None,
+                        max_results=max_results,
                     )
-                    if res:
-                        return res
-
-                    # 2. Deneme (Fallback): Eğer sonuç yoksa zaman kısıtını kaldır
-                    if timelimit:
-                        return list(
-                            ddgs.news(
-                                query,
-                                region=region,
-                                safesearch="off",
-                                timelimit=None,
-                                max_results=max_results,
-                            )
-                        )
-                except Exception as e:
-                    print(f"DDG Arama Hatası ({query}): {e}")
-                    return []
-                return []
-
-            # İngilizce Arama (Genel Finans)
-            results.extend(
-                safe_search(
-                    f"{symbol} stock news finance", region="wt-wt", timelimit="w", max_results=5
                 )
-            )
-
-            # Yasal ve Regülasyon (SEC, Davalar - Öncelik Son 1 Ay)
-            results.extend(
-                safe_search(
-                    f"{symbol} sec filings lawsuit regulation",
-                    region="wt-wt",
-                    timelimit="m",
-                    max_results=3,
-                )
-            )
-
-            # Almanca Arama
-            results.extend(
-                safe_search(
-                    f"{symbol} aktie finanzen", region="de-de", timelimit="w", max_results=2
-                )
-            )
-
-            # Türkçe Arama
-            results.extend(
-                safe_search(
-                    f"{symbol} hisse haber borsa", region="tr-tr", timelimit="w", max_results=3
-                )
-            )
-
-            # Ek fallback: Şirket ismiyle arama (sembol yetersiz kalırsa)
-            if len(results) < 3:
-                # Yaygın şirket isimlerini dene
-                company_names = {
-                    "VRTX": "Vertex Pharmaceuticals",
-                    "AMGN": "Amgen",
-                    "GILD": "Gilead Sciences",
-                    "REGN": "Regeneron",
-                    "MRNA": "Moderna",
-                    "BIIB": "Biogen",
-                    "ILMN": "Illumina",
-                }
-                company_name = company_names.get(symbol)
-                if company_name:
-                    results.extend(
-                        safe_search(
-                            f"{company_name} news stock",
-                            region="wt-wt",
-                            timelimit="m",
-                            max_results=5,
-                        )
-                    )
-
-        # Son fallback: yfinance'dan haber çek
-        if not results:
-            yf_news = get_yfinance_news(symbol, max_results=5)
-            if yf_news:
-                results = yf_news
-
-        if not results:
-            return f"⚠️ {symbol} için kaynaklarda erişilebilir haber bulunamadı. (Bağlantı sorunu veya veri eksikliği olabilir)"
-
-        # Tekrarlanan haberleri temizle (URL'ye göre)
-        seen_urls: set[str] = set()
-        unique_results = []
-        for r in results:
-            if r.get("url") not in seen_urls:
-                unique_results.append(r)
-                seen_urls.add(r.get("url"))
-
-        # İlk 12 haberi al
-        news_context = "\n\n".join(
-            [
-                f"Tarih: {r.get('date', 'Belirsiz')}\nBaşlık: {r['title']}\nKaynak: {r['source']}\nÖzet: {r['body']}"
-                for r in unique_results[:12]
-            ]
-        )
-
-        prompts = {
-            "tr": f"""
-            Sen uzman bir borsa ve hukuk analistisin. Aşağıdaki **güncel** haberleri (İngilizce, Almanca, Türkçe) kullanarak {symbol} hissesi için kapsamlı bir yatırımcı raporu hazırla.
-
-            Özellikle **yasal gelişmeler, regülasyonlar, davalar ve resmi bildirimlere (SEC/KAP)** dikkat et. Haberlerin tarihlerini göz önünde bulundur ve eski haberleri ele.
-
-            Haberler:
-            {news_context}
-
-            İstenen Format:
-            1. **Piyasa Algısı:** (Olumlu/Olumsuz/Nötr - Nedenleriyle)
-            2. **Yasal ve Regülatif Gelişmeler:** (Varsa davalar, cezalar, onaylar, başvurular)
-            3. **Öne Çıkan Finansal Gelişmeler:** (Maddeler halinde)
-            4. **Riskler ve Fırsatlar:**
-            5. **Sonuç Yorumu:** (Yatırımcı ne yapmalı?)
-            """,
-            "en": f"""
-            You are an expert stock market and legal analyst. Create a comprehensive investor report for {symbol} using the **recent** news below.
-
-            Pay special attention to **legal developments, regulations, lawsuits, and official filings (SEC/KAP)**. Consider the dates of the news and filter out outdated information.
-
-            News:
-            {news_context}
-
-            Required Format:
-            1. **Market Sentiment:** (Bullish/Bearish/Neutral - With reasons)
-            2. **Legal & Regulatory Developments:** (Lawsuits, fines, approvals, filings if any)
-            3. **Key Financial Developments:** (Bullet points)
-            4. **Risks & Opportunities:**
-            5. **Conclusion:** (Actionable advice)
-            """,
-            "de": f"""
-            Sie sind ein erfahrener Börsen- und Rechtsanalyst. Erstellen Sie einen umfassenden Investorenbericht für {symbol} unter Verwendung der folgenden **aktuellen** Nachrichten.
-
-            Achten Sie besonders auf **rechtliche Entwicklungen, Vorschriften, Klagen und offizielle Meldungen**. Berücksichtigen Sie die Daten der Nachrichten.
-
-            Nachrichten:
-            {news_context}
-
-            Gewünschtes Format:
-            1. **Marktstimmung:** (Positiv/Negativ/Neutral)
-            2. **Rechtliche & Regulatorische Entwicklungen:**
-            3. **Wichtige Finanzentwicklungen:**
-            4. **Risiken & Chancen:**
-            5. **Fazit:**
-            """,
-        }
-
-        prompt = prompts.get(language, prompts["tr"])
-
-        # ------------------------------------------------------------------
-        # V2 MİMARİSİ: GROQ CLOUD ENTEGRASYONU (HIZLI & LİMİTSİZ)
-        # ------------------------------------------------------------------
-        if Groq:
-            try:
-                # API key only from secrets (secure mode)
-                GROQ_API_KEY = None
-                try:
-                    GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", "")
-                except Exception:
-                    logging.getLogger(__name__).debug("st.secrets unavailable", exc_info=True)
-
-                if not GROQ_API_KEY:
-                    return _generate_offline_report(
-                        symbol,
-                        unique_results,
-                        language,
-                        reason="GROQ_API_KEY st.secrets'de tanımlanmamış",
-                    )
-
-                client = Groq(api_key=GROQ_API_KEY)
-                completion = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",  # Updated: llama3-70b-8192 deprecated
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are a senior financial analyst. Answer in Markdown.",
-                        },
-                        {"role": "user", "content": prompt},
-                    ],
-                    temperature=0.3,
-                    max_tokens=2048,
-                    top_p=1,
-                    stream=False,
-                    stop=None,
-                )
-                return completion.choices[0].message.content or ""
-            except Exception as groq_error:
-                return _generate_offline_report(
-                    symbol,
-                    unique_results,
-                    language,
-                    reason=f"Groq API Hatası: {str(groq_error)}",
-                )
-        else:
-            return _generate_offline_report(
-                symbol, unique_results, language, reason="Groq Kütüphanesi Yüklü Değil"
-            )
-
     except Exception as e:
-        error_msg = str(e)
+        logger.warning("DDG search error (%s): %s", query, e)
+    return []
 
-        if Groq and "groq" in error_msg.lower():
-            return f"⚠️ Groq Bağlantı Hatası: {error_msg}. (Offline moduna geçildi)"
 
-        if "429" in error_msg or "ResourceExhausted" in error_msg:
-            return _generate_offline_report(symbol, [], language, reason="API Kotası Doldu")
+def _gather_news_parallel(symbol: str) -> list[dict]:
+    """4 DDG sorguyu paralel çalıştır, sonuçları birleştir."""
+    search_tasks = [
+        (f"{symbol} stock news finance", "wt-wt", "w", 5),
+        (f"{symbol} sec filings lawsuit regulation", "wt-wt", "m", 3),
+        (f"{symbol} aktie finanzen", "de-de", "w", 2),
+        (f"{symbol} hisse haber borsa", "tr-tr", "w", 3),
+    ]
 
-        return _generate_offline_report(symbol, [], language, reason=f"Hata: {error_msg}")
+    results: list[dict] = []
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {executor.submit(_safe_ddg_search, q, r, t, m): q for q, r, t, m in search_tasks}
+        for future in as_completed(futures):
+            try:
+                results.extend(future.result())
+            except Exception as e:
+                logger.warning("DDG parallel task error: %s", e)
+
+    # Ek fallback: yetersiz haber varsa şirket ismiyle ara
+    if len(results) < 3:
+        company_names = {
+            "VRTX": "Vertex Pharmaceuticals",
+            "AMGN": "Amgen",
+            "GILD": "Gilead Sciences",
+            "REGN": "Regeneron",
+            "MRNA": "Moderna",
+            "BIIB": "Biogen",
+            "ILMN": "Illumina",
+        }
+        company_name = company_names.get(symbol)
+        if company_name:
+            extra = _safe_ddg_search(f"{company_name} news stock", "wt-wt", "m", 5)
+            results.extend(extra)
+
+    # Son fallback: yfinance haberleri
+    if not results:
+        results = get_yfinance_news(symbol, max_results=5)
+
+    # Deduplicate by URL
+    seen: set[str] = set()
+    unique: list[dict] = []
+    for r in results:
+        url = r.get("url", "")
+        if url not in seen:
+            unique.append(r)
+            seen.add(url)
+
+    return unique[:12]
+
+
+# ---------------------------------------------------------------------------
+# LLM provider functions
+# ---------------------------------------------------------------------------
+
+
+def _get_secret(key: str) -> str | None:
+    """Güvenli secret okuma."""
+    try:
+        val = st.secrets.get(key, "")
+        return val if val else None
+    except Exception:
+        return None
+
+
+def _call_groq(prompt: str) -> str | None:
+    """Groq Cloud LLM çağrısı (llama-3.3-70b)."""
+    if not _GROQ_AVAILABLE:
+        return None
+
+    api_key = _get_secret("GROQ_API_KEY")
+    if not api_key:
+        logger.info("GROQ_API_KEY not configured — skipping Groq")
+        return None
+
+    try:
+        client = Groq(api_key=api_key)
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.3,
+            max_tokens=2048,
+            top_p=1,
+            stream=False,
+        )
+        result = completion.choices[0].message.content
+        if result:
+            return result
+    except Exception as e:
+        logger.warning("Groq API error: %s", e)
+
+    return None
+
+
+def _call_gemini(prompt: str) -> str | None:
+    """Google Gemini LLM çağrısı (yeni google-genai SDK)."""
+    if not _GEMINI_AVAILABLE:
+        return None
+
+    api_key = _get_secret("GOOGLE_API_KEY")
+    if not api_key:
+        logger.info("GOOGLE_API_KEY not configured — skipping Gemini")
+        return None
+
+    try:
+        client = google_genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=f"{_SYSTEM_PROMPT}\n\n{prompt}",
+        )
+        if response and response.text:
+            return response.text
+    except Exception as e:
+        logger.warning("Gemini API error: %s", e)
+
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Offline fallback report
+# ---------------------------------------------------------------------------
+
+_POSITIVE_KW = [
+    "surge",
+    "jump",
+    "high",
+    "profit",
+    "growth",
+    "buy",
+    "yükseldi",
+    "rekor",
+    "kar",
+    "büyüme",
+    "al",
+    "olumlu",
+]
+_NEGATIVE_KW = [
+    "drop",
+    "fall",
+    "loss",
+    "crash",
+    "sell",
+    "lawsuit",
+    "düşüş",
+    "zarar",
+    "kriz",
+    "sat",
+    "olumsuz",
+    "dava",
+]
 
 
 def _generate_offline_report(
-    symbol: str, news_items: list, language: str, reason: str | None = None
+    symbol: str, news_items: list[dict], language: str, reason: str | None = None
 ) -> str:
-    """Gemini API limitine takılınca çalışan basit yedek raporlayıcı."""
-
+    """Keyword-based fallback rapor — LLM yoksa devreye girer."""
     headers = {
         "tr": ["Piyasa Algısı", "Son Haber Özeti", "Riskler & Fırsatlar"],
         "en": ["Market Sentiment", "Recent News Summary", "Risks & Opportunities"],
-        "de": ["Marktstimmung", "Zusammenfassung aktueller Nachrichten", "Risiken & Chancen"],
+        "de": ["Marktstimmung", "Aktuelle Nachrichten", "Risiken & Chancen"],
     }
     h = headers.get(language, headers["tr"])
 
-    positive_keywords = [
-        "surge",
-        "jump",
-        "high",
-        "profit",
-        "growth",
-        "yükseldi",
-        "rekor",
-        "kar",
-        "büyüme",
-        "buy",
-        "al",
-        "olumlu",
-    ]
-    negative_keywords = [
-        "drop",
-        "fall",
-        "loss",
-        "crash",
-        "düşüş",
-        "zarar",
-        "kriz",
-        "sat",
-        "sell",
-        "olumsuz",
-        "lawsuit",
-        "dava",
-    ]
-
-    combined_text = " ".join([n["title"].lower() + " " + n["body"].lower() for n in news_items])
-    pos_count = sum(1 for k in positive_keywords if k in combined_text)
-    neg_count = sum(1 for k in negative_keywords if k in combined_text)
+    combined_text = " ".join(
+        f"{n.get('title', '')} {n.get('body', '')}".lower() for n in news_items
+    )
+    pos_count = sum(1 for k in _POSITIVE_KW if k in combined_text)
+    neg_count = sum(1 for k in _NEGATIVE_KW if k in combined_text)
 
     if pos_count > neg_count:
         sentiment = "🟢 Pozitif / Bullish" if language == "tr" else "🟢 Positive / Bullish"
@@ -357,27 +382,77 @@ def _generate_offline_report(
     else:
         sentiment = "⚪ Nötr / Neutral" if language == "tr" else "⚪ Neutral"
 
-    reason_text = f" ({reason})" if reason else ""
+    reason_text = f"\n*Neden: {reason}*" if reason else ""
 
-    report = f"""
-    ### ⚠️ AI Limit Modu (Offline & Fallback)
-    *Yapay Zeka bağlantısı sağlanamadığı için (Groq/Gemini), bu rapor haberlerin otomatik özetlenmesiyle oluşturulmuştur.*
-    *{reason_text if reason else ""}*
+    news_lines = "\n".join(
+        f"- **{item.get('date', '?')}**: {item.get('title', '')} ({item.get('source', '?')})"
+        for item in news_items[:8]
+    )
 
-    #### 1. {h[0]}
-    **{sentiment}**
-    (Pozitif Anahtar Kelimeler: {pos_count}, Negatif: {neg_count})
+    return dedent(f"""\
+### ⚠️ AI Limit Modu (Offline Fallback)
+*LLM bağlantısı sağlanamadığı için bu rapor haberlerin otomatik özetlenmesiyle oluşturulmuştur.*{reason_text}
 
-    #### 2. {h[1]}
+#### 1. {h[0]}
+**{sentiment}**
+(Pozitif kelimeler: {pos_count}, Negatif: {neg_count})
+
+#### 2. {h[1]}
+{news_lines if news_lines else "- Haber bulunamadı."}
+
+#### 3. {h[2]}
+- **Fırsat:** Haber akışına göre kısa vadeli volatilite değerlendirilebilir.
+- **Risk:** Otomatik analiz devre dışı — manuel inceleme önerilir.
+""")
+
+
+# ---------------------------------------------------------------------------
+# Main public API
+# ---------------------------------------------------------------------------
+
+
+@st.cache_data(ttl=RESEARCH_CACHE_TTL, show_spinner="🔍 Araştırma yapılıyor...")
+def get_gemini_research(symbol: str, language: str = "tr") -> str:
     """
+    Multi-provider research pipeline.
 
-    for item in news_items[:8]:
-        report += f"- **{item['date']}**: {item['title']} ({item['source']})\n"
-
-    report += f"""
-    #### 3. {h[2]}
-    - **Fırsat:** Haber akışına göre kısa vadeli volatilite değerlendirilebilir.
-    - **Risk:** Otomatik analiz şu an devre dışı olduğu için manuel inceleme önerilir.
+    Chain: Disk cache → DDG news (parallel) → Groq LLM → Gemini LLM → Offline fallback
+    P9: Reports are persisted to data/reports_cache/ for 6-hour reuse.
     """
+    # P9: Check disk cache first
+    cached = _load_from_disk_cache(symbol, language)
+    if cached:
+        return cached
 
-    return dedent(report)
+    # 1) Gather news (parallel DDG + yfinance fallback)
+    news_items = _gather_news_parallel(symbol)
+    if not news_items:
+        return (
+            f"⚠️ {symbol} için erişilebilir haber bulunamadı. "
+            "(Bağlantı sorunu veya veri eksikliği olabilir)"
+        )
+
+    # 2) Build prompt
+    news_context = "\n\n".join(
+        f"Tarih: {r.get('date', '?')}\nBaşlık: {r['title']}\n"
+        f"Kaynak: {r.get('source', '?')}\nÖzet: {r.get('body', '')}"
+        for r in news_items
+    )
+    template = _PROMPTS.get(language, _PROMPTS["tr"])
+    prompt = template.format(symbol=symbol, news_context=news_context)
+
+    # 3) Try LLM providers in order: Groq → Gemini → Offline
+    result = _call_groq(prompt)
+    if result:
+        _save_to_disk_cache(symbol, language, result)
+        return result
+
+    result = _call_gemini(prompt)
+    if result:
+        _save_to_disk_cache(symbol, language, result)
+        return result
+
+    # 4) All LLMs failed → offline keyword report (don't disk-cache offline reports)
+    return _generate_offline_report(
+        symbol, news_items, language, reason="Tüm LLM sağlayıcıları başarısız"
+    )

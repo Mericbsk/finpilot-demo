@@ -211,22 +211,21 @@ def _render_market_tab(df: pd.DataFrame) -> None:
 @st.fragment
 def _render_ai_lab_tab(df: pd.DataFrame) -> None:
     st.markdown("### 🧠 Yapay Zeka Araştırma Merkezi")
-    st.caption("Google Gemini ve DuckDuckGo destekli derinlemesine analiz.")
+    st.caption("Groq / Gemini + DuckDuckGo destekli derinlemesine analiz.")
 
-    if df is None or df.empty:
-        st.markdown(
-            """<div class='empty-state'>
-                <span class='empty-icon'>🧠</span>
-                <h3>AI Lab — Analiz bekleniyor</h3>
-                <p>Taramadan sonra herhangi bir sembol seçerek
-                   yapay zeka destekli derin analiz başlatabilirsiniz.</p>
-                <span class='empty-cta'>Önce tarama yapın, sonra burada analiz edin</span>
-            </div>""",
-            unsafe_allow_html=True,
+    # P3: Demo symbols — AI Lab works even without a scan
+    _DEMO_SYMBOLS = ["AAPL", "NVDA", "TSLA", "MSFT", "AMZN", "GOOG", "META"]
+
+    has_scan = df is not None and not df.empty
+    if has_scan:
+        symbol_list = df["symbol"].tolist()
+    else:
+        symbol_list = _DEMO_SYMBOLS
+        st.info(
+            "📌 Tarama yapılmadan da AI analiz kullanılabilir. "
+            "Aşağıdan popüler sembollerden birini seçin veya tarama başlatın."
         )
-        return
 
-    symbol_list = df["symbol"].tolist()
     default_idx = 0
     if (
         "selected_ai_symbol" in st.session_state
@@ -243,13 +242,36 @@ def _render_ai_lab_tab(df: pd.DataFrame) -> None:
         selected_lang = st.selectbox("Rapor Dili:", ["Türkçe", "English", "Deutsch"], index=0)
 
     lang_map = {"Türkçe": "tr", "English": "en", "Deutsch": "de"}
+    lang_code = lang_map[selected_lang]
+
+    # P2: session_state report persistence
+    if "ai_reports" not in st.session_state:
+        st.session_state["ai_reports"] = {}
+
+    report_key = f"{selected_ai_sym}_{lang_code}"
 
     if st.button(f"🚀 {selected_ai_sym} İçin Araştırmayı Başlat", type="primary"):
         with st.spinner("Yapay zeka interneti tarıyor ve raporu hazırlıyor..."):
-            report = get_gemini_research(selected_ai_sym, language=lang_map[selected_lang])
-            st.markdown("---")
-            st.markdown(report)
-            st.success("Analiz tamamlandı.")
+            report = get_gemini_research(selected_ai_sym, language=lang_code)
+            st.session_state["ai_reports"][report_key] = report
+
+    # Show current or cached report
+    if report_key in st.session_state.get("ai_reports", {}):
+        st.markdown("---")
+        st.markdown(st.session_state["ai_reports"][report_key])
+        st.success("Analiz tamamlandı.")
+
+    # P2: Show previous reports in an expander
+    past_reports = {
+        k: v for k, v in st.session_state.get("ai_reports", {}).items() if k != report_key
+    }
+    if past_reports:
+        with st.expander(f"📂 Geçmiş Raporlar ({len(past_reports)})", expanded=False):
+            for key, rpt in past_reports.items():
+                sym, lng = key.rsplit("_", 1)
+                st.markdown(f"**{sym}** ({lng.upper()})")
+                st.markdown(rpt[:300] + "..." if len(rpt) > 300 else rpt)
+                st.markdown("---")
 
 
 # ---------------------------------------------------------------------------

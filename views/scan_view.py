@@ -26,6 +26,7 @@ from .components.watchlist import (
     is_watchlist_scan_triggered,
     render_watchlist_sidebar,
 )
+from .detail_view import refresh_inference_json
 
 logger = logging.getLogger(__name__)
 
@@ -395,6 +396,8 @@ def _run_scan(symbols: list[str], kelly_fraction: float, label: str, source: str
     if not df.empty:
         logged = log_signals_to_csv(df)
         logger.info(f"Logged {logged} signals from {source}")
+        # P8: Auto-refresh inference.json after scan
+        refresh_inference_json(df)
 
     st.rerun()
 
