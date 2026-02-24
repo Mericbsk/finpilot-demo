@@ -50,8 +50,10 @@ class RewardWeights:
     cost: float = 0.1
     leverage: float = 0.2
     regime_bonus: float = 0.05
-    turnover_penalty: float = 0.05  # Sprint 13: penalise excessive trading
+    turnover_penalty: float = 0.02  # Sprint 14: reduced — only penalise excessive churn
     sharpe_bonus: float = 0.10  # Sprint 13: reward risk-adjusted returns
+    inactivity_penalty: float = 0.003  # Sprint 14: per-step cost for near-zero position
+    position_bonus: float = 0.002  # Sprint 14: small reward for having conviction
 
 
 @dataclass(frozen=True)
@@ -60,7 +62,7 @@ class TransactionCostModel:
 
     commission_bps: float = 10.0
     slippage_bps: float = 15.0
-    holding_penalty_bps: float = 1.0  # Sprint 13: activated (was 0)
+    holding_penalty_bps: float = 0.0  # Sprint 14: zeroed — was penalising desired behaviour
     stochastic_slippage: bool = True  # Sprint 13: volume-dependent noise
     slippage_vol_scale: float = 0.5  # multiplier for low-volume impact
 

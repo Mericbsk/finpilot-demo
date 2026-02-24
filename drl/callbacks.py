@@ -320,6 +320,10 @@ class CurriculumCallback(BaseCallback):
                     cost=base_rw.cost,
                     leverage=base_rw.leverage,
                     regime_bonus=base_rw.regime_bonus + params["exploration_bonus"],
+                    turnover_penalty=base_rw.turnover_penalty,
+                    sharpe_bonus=base_rw.sharpe_bonus,
+                    inactivity_penalty=base_rw.inactivity_penalty,
+                    position_bonus=base_rw.position_bonus,
                 )
 
         except Exception as e:

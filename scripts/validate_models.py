@@ -228,7 +228,7 @@ def main() -> None:
 
     # 1. Load registry
     registry = get_registry("models/")
-    all_models = registry.list_models(name="finpilot_ppo")
+    all_models = registry.list_models(algorithm="PPO")
     if not all_models:
         logger.error("No models found in registry!")
         sys.exit(1)

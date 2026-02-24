@@ -216,6 +216,13 @@ class MarketEnv(BaseEnv):
         turnover = abs(position_change)
         reward -= self._reward_weights.turnover_penalty * turnover
 
+        # Sprint 14: inactivity penalty — discourage constant-HOLD behaviour
+        if abs(target_position) < 0.05:
+            reward -= self._reward_weights.inactivity_penalty
+
+        # Sprint 14: position bonus — reward conviction (non-zero positions)
+        reward += self._reward_weights.position_bonus * abs(target_position)
+
         # Sprint 13: rolling Sharpe bonus — reward risk-adjusted returns
         self._returns_buffer.append(pnl)
         if len(self._returns_buffer) >= 20:

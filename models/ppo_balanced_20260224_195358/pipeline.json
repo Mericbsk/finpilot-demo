@@ -1,0 +1,197 @@
+{
+  "artifact_version": "1.0.0",
+  "config_schema_version": "1.0.0",
+  "feature_signature": "ba791bb245266f112433d4972a4656c57ca3ee48294b5d0cb96999438f62d3ea",
+  "feature_specs": [
+    {
+      "columns": [
+        "close",
+        "ema_20",
+        "ema_50",
+        "ema_200",
+        "rsi",
+        "macd",
+        "macd_signal",
+        "macd_hist",
+        "atr",
+        "bb_upper",
+        "bb_lower",
+        "volume",
+        "volume_avg_20"
+      ],
+      "name": "technicals",
+      "required": true,
+      "scaler": "zscore",
+      "weight": 1.0
+    },
+    {
+      "columns": [
+        "regime_trend",
+        "regime_range",
+        "regime_volatility"
+      ],
+      "name": "regime",
+      "required": true,
+      "scaler": "none",
+      "weight": 1.0
+    },
+    {
+      "columns": [
+        "sentiment_score",
+        "news_sentiment"
+      ],
+      "name": "sentiment",
+      "required": false,
+      "scaler": "robust",
+      "weight": 1.0
+    },
+    {
+      "columns": [
+        "onchain_active_addresses",
+        "onchain_tx_volume"
+      ],
+      "name": "onchain",
+      "required": false,
+      "scaler": "robust",
+      "weight": 1.0
+    },
+    {
+      "columns": [
+        "cash_ratio",
+        "position_ratio",
+        "open_risk",
+        "kelly_fraction"
+      ],
+      "name": "portfolio_state",
+      "required": true,
+      "scaler": "minmax",
+      "weight": 1.0
+    }
+  ],
+  "scaler_stats": {
+    "onchain": {
+      "onchain_active_addresses": {
+        "iqr": 1.0,
+        "median": 0.0,
+        "type": "robust"
+      },
+      "onchain_tx_volume": {
+        "iqr": 1.0,
+        "median": 0.0,
+        "type": "robust"
+      }
+    },
+    "portfolio_state": {
+      "cash_ratio": {
+        "min": 1.0,
+        "span": 1.0,
+        "type": "minmax"
+      },
+      "kelly_fraction": {
+        "min": 0.0,
+        "span": 1.0,
+        "type": "minmax"
+      },
+      "open_risk": {
+        "min": 0.0,
+        "span": 1.0,
+        "type": "minmax"
+      },
+      "position_ratio": {
+        "min": 0.0,
+        "span": 1.0,
+        "type": "minmax"
+      }
+    },
+    "regime": {
+      "regime_range": {
+        "type": "none"
+      },
+      "regime_trend": {
+        "type": "none"
+      },
+      "regime_volatility": {
+        "type": "none"
+      }
+    },
+    "sentiment": {
+      "news_sentiment": {
+        "iqr": 0.030215454545454545,
+        "median": -0.027469999999999994,
+        "type": "robust"
+      },
+      "sentiment_score": {
+        "iqr": 0.04532318181818182,
+        "median": -0.04120499999999999,
+        "type": "robust"
+      }
+    },
+    "technicals": {
+      "atr": {
+        "mean": 6.142825229714448,
+        "std": 2.9316914441149233,
+        "type": "zscore"
+      },
+      "bb_lower": {
+        "mean": 169.8663747410866,
+        "std": 49.90096938471429,
+        "type": "zscore"
+      },
+      "bb_upper": {
+        "mean": 200.82552314722392,
+        "std": 56.41817309230266,
+        "type": "zscore"
+      },
+      "close": {
+        "mean": 188.30623539116934,
+        "std": 54.757327292471786,
+        "type": "zscore"
+      },
+      "ema_20": {
+        "mean": 185.63832207392787,
+        "std": 52.18042901775303,
+        "type": "zscore"
+      },
+      "ema_200": {
+        "mean": 171.43831571493877,
+        "std": 48.11738963403857,
+        "type": "zscore"
+      },
+      "ema_50": {
+        "mean": 182.28759198677346,
+        "std": 50.299833704109155,
+        "type": "zscore"
+      },
+      "macd": {
+        "mean": 1.7733582704145725,
+        "std": 5.102401981240768,
+        "type": "zscore"
+      },
+      "macd_hist": {
+        "mean": 0.08408697868722866,
+        "std": 1.643227353867595,
+        "type": "zscore"
+      },
+      "macd_signal": {
+        "mean": 1.689271291727344,
+        "std": 4.585001119567945,
+        "type": "zscore"
+      },
+      "rsi": {
+        "mean": 54.21249059700704,
+        "std": 16.910449292814437,
+        "type": "zscore"
+      },
+      "volume": {
+        "mean": 152703857.18552414,
+        "std": 139009154.24022,
+        "type": "zscore"
+      },
+      "volume_avg_20": {
+        "mean": 156627894.56476706,
+        "std": 132263046.45306514,
+        "type": "zscore"
+      }
+    }
+  }
+}
