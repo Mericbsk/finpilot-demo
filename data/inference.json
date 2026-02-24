@@ -1,42 +1,42 @@
 {
   "ATAI": {
-    "ai_score": 11.34,
-    "signal": "SELL",
-    "confidence": 0.85,
+    "ai_score": 50.0,
+    "signal": "HOLD",
+    "confidence": 0.5,
     "regime": "True",
     "price": 4.63,
-    "timestamp": "2026-02-24T21:55:58.370157+00:00"
+    "timestamp": "2026-02-24T22:29:58.256975+00:00"
   },
   "VRNA": {
-    "ai_score": 9.0,
-    "signal": "SELL",
-    "confidence": 0.85,
+    "ai_score": 50.0,
+    "signal": "HOLD",
+    "confidence": 0.5,
     "regime": "True",
     "price": 106.315,
-    "timestamp": "2026-02-24T21:55:58.370157+00:00"
+    "timestamp": "2026-02-24T22:29:58.256975+00:00"
   },
   "BETR": {
-    "ai_score": 10.66,
-    "signal": "SELL",
-    "confidence": 0.85,
+    "ai_score": 50.0,
+    "signal": "HOLD",
+    "confidence": 0.5,
     "regime": "True",
     "price": 25.92,
-    "timestamp": "2026-02-24T21:55:58.370157+00:00"
+    "timestamp": "2026-02-24T22:29:58.256975+00:00"
   },
   "ROIV": {
-    "ai_score": 9.0,
-    "signal": "SELL",
-    "confidence": 0.85,
+    "ai_score": 50.0,
+    "signal": "HOLD",
+    "confidence": 0.5,
     "regime": "True",
     "price": 14.145,
-    "timestamp": "2026-02-24T21:55:58.370157+00:00"
+    "timestamp": "2026-02-24T22:29:58.256975+00:00"
   },
   "ENGS": {
-    "ai_score": 9.0,
-    "signal": "SELL",
-    "confidence": 0.85,
+    "ai_score": 50.0,
+    "signal": "HOLD",
+    "confidence": 0.5,
     "regime": "True",
     "price": 7.0916,
-    "timestamp": "2026-02-24T21:55:58.370157+00:00"
+    "timestamp": "2026-02-24T22:29:58.256975+00:00"
   }
 }

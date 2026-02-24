@@ -828,13 +828,12 @@ def render_scanner_page():
 
     # --- Ana İçerik Sekmeleri ---
     st.markdown("---")
-    tab_signals, tab_market, tab_ai, tab_perf, tab_history, tab_edu = st.tabs(
+    tab_signals, tab_market, tab_ai, tab_perf, tab_edu = st.tabs(
         [
             "🎯 Sinyaller (Action Zone)",
             "📊 Piyasa Tarayıcı",
             "🧠 AI Laboratuvarı",
             "📈 Performans & Geçmiş",
-            "📋 Scanner Geçmişi",
             "🎓 FinSense Eğitim",
         ]
     )
@@ -1205,17 +1204,25 @@ def render_scanner_page():
 
     # --- TAB 4: Performans ---
     with tab_perf:
-        perf_sub1, perf_sub2, perf_sub3 = st.tabs(
-            ["\U0001f4c8 Sinyal Performans", "\U0001f916 DRL Model Karsilastirma", "\U0001f4ca WFO & Backtest"]
+        perf_sub1, perf_sub2, perf_sub3, perf_sub4 = st.tabs(
+            [
+                "\U0001f4c8 Sinyal Performans",
+                "\U0001f4cb Scanner Gecmisi",
+                "\U0001f916 DRL Model Karsilastirma",
+                "\U0001f4ca WFO & Backtest",
+            ]
         )
 
         with perf_sub1:
             render_signal_performance_tab()
 
         with perf_sub2:
-            _render_drl_model_comparison()
+            render_scan_history_page()
 
         with perf_sub3:
+            _render_drl_model_comparison()
+
+        with perf_sub4:
             st.markdown("### \U0001f4ca WFO & Backtest Sonuclari")
             # WFO Grid Search
             wfo_path = os.path.join(os.getcwd(), "wfo_grid_search_results.csv")
@@ -1232,10 +1239,6 @@ def render_scanner_page():
                     report_text = open(wf_report).read()  # noqa: SIM115
                     st.code(report_text, language="text")
 
-    # --- TAB 5: Scanner Gecmisi ---
-    with tab_history:
-        render_scan_history_page()
-
-    # --- TAB 6: FinSense Eğitim ---
+    # --- TAB 5: FinSense Egitim ---
     with tab_edu:
         render_finsense_page()
