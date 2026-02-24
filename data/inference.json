@@ -5,7 +5,7 @@
     "confidence": 0.5,
     "regime": "True",
     "price": 4.63,
-    "timestamp": "2026-02-24T21:47:57.720262+00:00"
+    "timestamp": "2026-02-24T21:49:18.297967+00:00"
   },
   "VRNA": {
     "ai_score": 50.0,
@@ -13,7 +13,7 @@
     "confidence": 0.5,
     "regime": "True",
     "price": 106.315,
-    "timestamp": "2026-02-24T21:47:57.720262+00:00"
+    "timestamp": "2026-02-24T21:49:18.297967+00:00"
   },
   "BETR": {
     "ai_score": 50.0,
@@ -21,7 +21,7 @@
     "confidence": 0.5,
     "regime": "True",
     "price": 25.92,
-    "timestamp": "2026-02-24T21:47:57.720262+00:00"
+    "timestamp": "2026-02-24T21:49:18.297967+00:00"
   },
   "ROIV": {
     "ai_score": 50.0,
@@ -29,7 +29,7 @@
     "confidence": 0.5,
     "regime": "True",
     "price": 14.145,
-    "timestamp": "2026-02-24T21:47:57.720262+00:00"
+    "timestamp": "2026-02-24T21:49:18.297967+00:00"
   },
   "ENGS": {
     "ai_score": 50.0,
@@ -37,6 +37,6 @@
     "confidence": 0.5,
     "regime": "True",
     "price": 7.0916,
-    "timestamp": "2026-02-24T21:47:57.720262+00:00"
+    "timestamp": "2026-02-24T21:49:18.297967+00:00"
   }
 }

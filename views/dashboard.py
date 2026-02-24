@@ -808,9 +808,9 @@ def render_scanner_page():
                 )
 
                 # 1. Özet Tablo (İnteraktif)
-                summary_df = buyable[
-                    ["symbol", "price", "recommendation_score", "risk_reward", "regime"]
-                ].copy()
+                _summary_want = ["symbol", "price", "recommendation_score", "risk_reward", "regime"]
+                _summary_have = [c for c in _summary_want if c in buyable.columns]
+                summary_df = buyable[_summary_have].copy()
                 summary_df["risk_reward"] = summary_df["risk_reward"].round(2)
                 summary_df["recommendation_score"] = summary_df["recommendation_score"].round(1)
 
@@ -1003,22 +1003,30 @@ def render_scanner_page():
                     compute_recommendation_score, axis=1
                 )
 
+            desired_cols = ["symbol", "price", "recommendation_score", "entry_ok", "regime", "sentiment"]
+            display_cols = [c for c in desired_cols if c in market_df.columns]
+
+            col_cfg = {}
+            if "symbol" in display_cols:
+                col_cfg["symbol"] = "Sembol"
+            if "price" in display_cols:
+                col_cfg["price"] = st.column_config.NumberColumn("Fiyat", format="$%.2f")
+            if "recommendation_score" in display_cols:
+                col_cfg["recommendation_score"] = st.column_config.ProgressColumn(
+                    "Skor", min_value=0, max_value=100
+                )
+            if "entry_ok" in display_cols:
+                col_cfg["entry_ok"] = st.column_config.CheckboxColumn("Al Sinyali?")
+            if "regime" in display_cols:
+                col_cfg["regime"] = "Rejim"
+            if "sentiment" in display_cols:
+                col_cfg["sentiment"] = st.column_config.NumberColumn(
+                    "Sentiment", help="-1 (Negatif) ile +1 (Pozitif)"
+                )
+
             st.dataframe(
-                market_df[
-                    ["symbol", "price", "recommendation_score", "entry_ok", "regime", "sentiment"]
-                ],
-                column_config={
-                    "symbol": "Sembol",
-                    "price": st.column_config.NumberColumn("Fiyat", format="$%.2f"),
-                    "recommendation_score": st.column_config.ProgressColumn(
-                        "Skor", min_value=0, max_value=100
-                    ),
-                    "entry_ok": st.column_config.CheckboxColumn("Al Sinyali?"),
-                    "regime": "Rejim",
-                    "sentiment": st.column_config.NumberColumn(
-                        "Sentiment", help="-1 (Negatif) ile +1 (Pozitif)"
-                    ),
-                },
+                market_df[display_cols],
+                column_config=col_cfg,
                 use_container_width=True,
                 hide_index=True,
             )
