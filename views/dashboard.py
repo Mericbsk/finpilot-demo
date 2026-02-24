@@ -1,6 +1,5 @@
 import datetime
 import glob
-import json
 import logging
 import os
 
@@ -13,8 +12,14 @@ from scanner import (
     load_symbols,
 )
 
+from .components.ai_signals import (
+    get_drl_predictions,
+    render_ai_insights_panel,
+    render_drl_signals_panel,
+)
 from .components.export import render_export_panel
 from .components.helpers import validate_csv_upload
+from .components.research import get_ai_research
 from .components.signal_tracker import log_signals_to_csv, render_signal_performance_tab
 from .components.stock_presets import (
     STOCK_PRESETS,
@@ -26,240 +31,8 @@ from .components.watchlist import (
 )
 from .finsense import render_finsense_page
 from .scan_history import render_scan_history_page
-from .utils import (
-    get_gemini_research,
-)
-
-# DRL Integration
-try:
-    from drl.inference import DRLInference, has_trained_model
-
-    DRL_AVAILABLE = True
-except ImportError:
-    DRL_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
-
-
-def load_ai_signals():
-    """AI Sinyal dosyasını yükler."""
-    try:
-        path = os.path.join(os.getcwd(), "data", "inference.json")
-        with open(path) as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-
-def get_drl_predictions(symbols: list, max_symbols: int = 10) -> dict:
-    """
-    DRL modeli ile tahminler üretir.
-
-    Args:
-        symbols: Sembol listesi
-        max_symbols: Maksimum sembol sayısı
-
-    Returns:
-        {symbol: {"action": "BUY", "confidence": 0.78, ...}} dict
-    """
-    if not DRL_AVAILABLE:
-        return {}
-
-    try:
-        if not has_trained_model():
-            logger.info("No trained DRL model found")
-            return {}
-
-        inference = DRLInference()
-        if not inference.load_model():
-            return {}
-
-        results = {}
-        predictions = inference.batch_predict(symbols[:max_symbols])
-
-        for pred in predictions:
-            results[pred.symbol] = {
-                "action": pred.action.name,
-                "confidence": pred.confidence,
-                "suggested_position": pred.suggested_position,
-                "regime": pred.regime,
-                "is_actionable": pred.is_actionable,
-                "raw_action": pred.raw_action,
-            }
-
-        return results
-
-    except Exception as e:
-        logger.error(f"DRL prediction error: {e}")
-        return {}
-
-
-def render_drl_signals_panel(symbols: list):
-    """
-    Dashboard'da DRL model sinyallerini gösterir.
-
-    Args:
-        symbols: Taramadan gelen sembol listesi
-    """
-    if not DRL_AVAILABLE:
-        return
-
-    if not has_trained_model():
-        with st.expander("🤖 DRL Pilot Sinyalleri (Eğitim Gerekiyor)", expanded=False):
-            st.info(
-                "Henüz eğitilmiş bir DRL modeli bulunamadı. "
-                "Model eğitildikten sonra AI destekli sinyaller burada görünecek."
-            )
-            st.caption("Eğitim için: `python -m drl.training --train`")
-        return
-
-    predictions = get_drl_predictions(symbols)
-
-    if not predictions:
-        return
-
-    st.markdown("### 🤖 DRL Pilot Sinyalleri")
-    st.caption("Yapay zeka modeli tarafından üretilen alım/satım önerileri")
-
-    # Actionable predictions only
-    actionable = {k: v for k, v in predictions.items() if v.get("is_actionable", False)}
-
-    if not actionable:
-        st.info("Şu an aksiyon alınabilir sinyal yok. Model HOLD konumunda.")
-        return
-
-    # Signal cards
-    buy_signals = {k: v for k, v in actionable.items() if v["action"] == "BUY"}
-    sell_signals = {k: v for k, v in actionable.items() if v["action"] == "SELL"}
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        if buy_signals:
-            st.markdown("#### 🟢 ALIŞ Sinyalleri")
-            for symbol, data in sorted(buy_signals.items(), key=lambda x: -x[1]["confidence"]):
-                conf = data["confidence"]
-                conf_pct = int(conf * 100)
-                pos_pct = int(data.get("suggested_position", 0) * 100)
-
-                st.markdown(
-                    f"""
-                <div style="background: linear-gradient(145deg, #064e3b, #065f46);
-                            border-radius: 8px; padding: 12px; margin-bottom: 8px;
-                            border-left: 4px solid #10b981;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-weight: bold; font-size: 1.1em;">{symbol}</span>
-                        <span style="background: #10b981; padding: 2px 8px; border-radius: 4px; font-size: 0.8em;">
-                            AI BUY
-                        </span>
-                    </div>
-                    <div style="margin-top: 8px; font-size: 0.9em; color: #d1fae5;">
-                        Güven: %{conf_pct} | Pozisyon: %{pos_pct}
-                    </div>
-                    <div style="margin-top: 4px;">
-                        <div style="background: rgba(255,255,255,0.2); border-radius: 3px; height: 4px;">
-                            <div style="background: #10b981; width: {conf_pct}%; height: 100%; border-radius: 3px;"></div>
-                        </div>
-                    </div>
-                </div>
-                """,
-                    unsafe_allow_html=True,
-                )
-        else:
-            st.caption("Aktif alış sinyali yok")
-
-    with col2:
-        if sell_signals:
-            st.markdown("#### 🔴 SATIŞ Sinyalleri")
-            for symbol, data in sorted(sell_signals.items(), key=lambda x: -x[1]["confidence"]):
-                conf = data["confidence"]
-                conf_pct = int(conf * 100)
-
-                st.markdown(
-                    f"""
-                <div style="background: linear-gradient(145deg, #7f1d1d, #991b1b);
-                            border-radius: 8px; padding: 12px; margin-bottom: 8px;
-                            border-left: 4px solid #ef4444;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-weight: bold; font-size: 1.1em;">{symbol}</span>
-                        <span style="background: #ef4444; padding: 2px 8px; border-radius: 4px; font-size: 0.8em;">
-                            AI SELL
-                        </span>
-                    </div>
-                    <div style="margin-top: 8px; font-size: 0.9em; color: #fecaca;">
-                        Güven: %{conf_pct}
-                    </div>
-                    <div style="margin-top: 4px;">
-                        <div style="background: rgba(255,255,255,0.2); border-radius: 3px; height: 4px;">
-                            <div style="background: #ef4444; width: {conf_pct}%; height: 100%; border-radius: 3px;"></div>
-                        </div>
-                    </div>
-                </div>
-                """,
-                    unsafe_allow_html=True,
-                )
-        else:
-            st.caption("Aktif satış sinyali yok")
-
-    st.markdown("---")
-
-
-def render_ai_insights_panel():
-    """Ana dashboard'a AI Pilot sinyallerini ekler."""
-    data = load_ai_signals()
-    if not data:
-        return
-
-    st.markdown("### 🧠 FinPilot AI Gözlemleri (Canlı)")
-
-    cols = st.columns(len(data)) if len(data) <= 5 else st.columns(4)
-
-    for idx, (symbol, info) in enumerate(data.items()):
-        col = cols[idx % len(cols)]
-
-        score = info.get("ai_score", 50)
-        signal = info.get("signal", "HOLD")
-        confidence = info.get("confidence", 0.0)
-        regime = info.get("regime", "UNKNOWN")
-
-        # Color & Icon logic
-        if signal == "BUY":
-            color = "green"
-            icon = "🟢"
-        elif signal == "SELL":
-            color = "red"
-            icon = "🔴"
-        else:
-            color = "gray"
-            icon = "⚪"
-
-        with col:
-            st.markdown(
-                f"""
-            <div style="border: 1px solid #444; border-radius: 8px; padding: 10px; background-color: #1a1a1a;">
-                <div style="font-weight: bold; font-size: 1.1em;">{symbol} {icon}</div>
-                <div style="font-size: 0.9em; color: #888;">Fiyat: ${info.get("price", 0)}</div>
-                <hr style="margin: 5px 0; border-color: #333;">
-                <div style="display: flex; justify-content: space-between;">
-                    <span>Sinyal:</span>
-                    <span style="color: {color}; font-weight: bold;">{signal}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span>Güven:</span>
-                    <span>%{confidence * 100:.0f}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span>Skor:</span>
-                    <span>{score}/100</span>
-                </div>
-                 <div style="font-size: 0.8em; color: #666; margin-top: 5px;">Rejim: {regime}</div>
-            </div>
-            """,
-                unsafe_allow_html=True,
-            )
-
-    st.caption(f"Son Yapay Zeka Analizi: {list(data.values())[0].get('timestamp', '')[:16]}")
-    st.markdown("---")
 
 
 def latest_csv(prefix: str):
@@ -1197,7 +970,7 @@ def render_scanner_page():
 
             if st.button(f"🚀 {selected_ai_sym} İçin Araştırmayı Başlat", type="primary"):
                 with st.spinner("Yapay zeka interneti tarıyor ve raporu hazırlıyor..."):
-                    report = get_gemini_research(selected_ai_sym, language=lang_map[selected_lang])
+                    report = get_ai_research(selected_ai_sym, language=lang_map[selected_lang])
                     st.markdown("---")
                     st.markdown(report)
                     st.success("Analiz tamamlandı.")

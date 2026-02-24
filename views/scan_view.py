@@ -18,6 +18,7 @@ import scanner
 import streamlit as st
 from scanner import evaluate_symbols_parallel, load_symbols
 
+from .components.ai_signals import refresh_inference_json
 from .components.helpers import validate_csv_upload
 from .components.signal_tracker import log_signals_to_csv
 from .components.stock_presets import STOCK_PRESETS
@@ -26,7 +27,6 @@ from .components.watchlist import (
     is_watchlist_scan_triggered,
     render_watchlist_sidebar,
 )
-from .detail_view import refresh_inference_json
 
 logger = logging.getLogger(__name__)
 

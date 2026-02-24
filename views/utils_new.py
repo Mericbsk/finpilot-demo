@@ -44,7 +44,7 @@ from views.components.helpers import (
     trigger_rerun,
 )
 from views.components.panels import render_progress_tracker, render_summary_panel
-from views.components.research import get_gemini_research
+from views.components.research import get_ai_research
 from views.components.settings import load_settingscard_markup, render_settings_card
 from views.components.tables import render_buyable_table
 
@@ -84,7 +84,7 @@ __all__ = [
     "HTML_TAG_RE",
     "WHITESPACE_RE",
     # Research
-    "get_gemini_research",
+    "get_ai_research",
     # Settings
     "render_settings_card",
     "load_settingscard_markup",
@@ -93,3 +93,6 @@ __all__ = [
     # Flags
     "DEMO_MODE_ENABLED",
 ]
+
+# Backward compatibility alias (Sprint 10)
+get_gemini_research = get_ai_research

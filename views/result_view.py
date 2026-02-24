@@ -16,14 +16,15 @@ import pandas as pd
 import streamlit as st
 from scanner import compute_recommendation_score
 
+from .components.ai_signals import get_drl_predictions
 from .components.export import render_export_panel
+from .components.research import get_ai_research
 from .components.signal_tracker import render_signal_performance_tab
 from .components.skeleton import render_skeleton_cards, render_skeleton_table
-from .detail_view import get_drl_predictions, render_detail_card, render_top_cards
+from .detail_view import render_detail_card, render_top_cards
 from .finsense import render_finsense_page
 from .history import render_backtest_section
 from .scan_history import render_scan_history_content
-from .utils import get_gemini_research
 
 logger = logging.getLogger(__name__)
 
@@ -250,7 +251,7 @@ def _render_ai_lab_tab(df: pd.DataFrame) -> None:
 
     if st.button(f"🚀 {selected_ai_sym} İçin Araştırmayı Başlat", type="primary"):
         with st.spinner("Yapay zeka interneti tarıyor ve raporu hazırlıyor..."):
-            report = get_gemini_research(selected_ai_sym, language=lang_code)
+            report = get_ai_research(selected_ai_sym, language=lang_code)
             st.session_state["ai_reports"][report_key] = report
 
     # Show current or cached report
