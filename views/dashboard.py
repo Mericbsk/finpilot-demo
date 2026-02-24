@@ -1,5 +1,6 @@
 import datetime
 import glob
+import json
 import logging
 import os
 
@@ -14,11 +15,13 @@ from scanner import (
 
 from .components.ai_signals import (
     get_drl_predictions,
+    refresh_inference_json,
     render_ai_insights_panel,
     render_drl_signals_panel,
 )
 from .components.export import render_export_panel
 from .components.helpers import validate_csv_upload
+from .components.hybrid_panel import render_hybrid_panel
 from .components.research import get_ai_research
 from .components.signal_tracker import log_signals_to_csv, render_signal_performance_tab
 from .components.stock_presets import (
@@ -31,6 +34,14 @@ from .components.watchlist import (
 )
 from .finsense import render_finsense_page
 from .scan_history import render_scan_history_page
+
+# DRL Integration
+try:
+    from drl.inference import DRLInference, has_trained_model  # noqa: F401
+
+    DRL_AVAILABLE = True
+except ImportError:
+    DRL_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +65,70 @@ def load_csv(path: str):
         return pd.read_csv(path)
     except Exception:
         return pd.DataFrame()
+
+
+def _render_drl_model_status():
+    """DRL Model Registry durumunu gosteren panel."""
+    st.markdown("### 🤖 DRL Model Durumu")
+
+    registry_path = os.path.join(os.getcwd(), "models", "registry.json")
+    if not os.path.exists(registry_path):
+        st.info("Henuz egitilmis model bulunamadi. Sprint 14 model egitimini calistirin.")
+        return
+
+    try:
+        with open(registry_path) as f:
+            registry = json.load(f)
+    except Exception as e:
+        st.error(f"Registry okunamadi: {e}")
+        return
+
+    models = registry.get("models", [])
+    active_name = registry.get("active_model", None)
+
+    if not models:
+        st.info("Registry'de kayitli model yok.")
+        return
+
+    # Active model highlight
+    active = next((m for m in models if m.get("name") == active_name), None)
+    if active:
+        st.success(f"**Aktif Model:** `{active_name}`")
+        col1, col2, col3, col4 = st.columns(4)
+        metrics = active.get("metrics", {})
+        test_sharpe = metrics.get("test_sharpe")
+        col1.metric(
+            "Test Sharpe", f"{test_sharpe:.3f}" if isinstance(test_sharpe, (int, float)) else "N/A"
+        )
+        col2.metric("Islem Sayisi", metrics.get("total_trades", "N/A"))
+        max_dd = metrics.get("max_drawdown")
+        col3.metric("Max Drawdown", f"{max_dd:.1%}" if isinstance(max_dd, (int, float)) else "N/A")
+        win_rate = metrics.get("win_rate")
+        col4.metric("Win Rate", f"{win_rate:.1%}" if isinstance(win_rate, (int, float)) else "N/A")
+    else:
+        st.warning("Aktif model secili degil.")
+
+    # All models table
+    with st.expander(f"📋 Tum Modeller ({len(models)})", expanded=False):
+        rows = []
+        for m in models:
+            met = m.get("metrics", {})
+            rows.append(
+                {
+                    "Model": m.get("name", "?"),
+                    "Algoritma": m.get("algorithm", "?"),
+                    "Sharpe": met.get("test_sharpe", None),
+                    "Islem": met.get("total_trades", None),
+                    "Aktif": "✅" if m.get("name") == active_name else "",
+                }
+            )
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+    # DRL availability check
+    if DRL_AVAILABLE:
+        st.caption("✅ DRL modulu aktif — canli tahminler kullanilabilir.")
+    else:
+        st.caption("⚠️ DRL modulu yuklenemedi — `pip install stable-baselines3` gerekebilir.")
 
 
 def render_scanner_page():
@@ -621,6 +696,13 @@ def render_scanner_page():
             st.session_state["scan_message"] = f"İzleme listesinden {len(df)} sembol analiz edildi."
             st.rerun()
 
+    # --- Refresh DRL inference cache after any scan completion ---
+    if st.session_state.get("scan_status") == "completed" and df is not None and not df.empty:
+        try:
+            refresh_inference_json(df)
+        except Exception as e:
+            logger.warning("refresh_inference_json failed: %s", e)
+
     # --- Ana İçerik Sekmeleri ---
     st.markdown("---")
     tab_signals, tab_market, tab_ai, tab_perf, tab_history, tab_edu = st.tabs(
@@ -942,40 +1024,53 @@ def render_scanner_page():
             )
 
     # --- TAB 3: AI Laboratuvarı ---
-    # (Groq Entegrasyonu Aktif)
     with tab_ai:
-        st.markdown("### 🧠 Yapay Zeka Araştırma Merkezi")
-        st.caption("Google Gemini ve DuckDuckGo destekli derinlemesine analiz.")
+        ai_sub_tab1, ai_sub_tab2, ai_sub_tab3 = st.tabs(
+            ["🧠 AI Araştırma", "⚡ Hybrid Engine", "🤖 DRL Model Durumu"]
+        )
 
-        if df is not None and not df.empty:
-            symbol_list = df["symbol"].tolist()
-            default_idx = 0
-            if (
-                "selected_ai_symbol" in st.session_state
-                and st.session_state["selected_ai_symbol"] in symbol_list
-            ):
-                default_idx = symbol_list.index(st.session_state["selected_ai_symbol"])
+        # --- AI Research Sub-tab ---
+        with ai_sub_tab1:
+            st.markdown("### 🧠 Yapay Zeka Araştırma Merkezi")
+            st.caption("Groq LLM ve DuckDuckGo destekli derinlemesine analiz.")
 
-            col_sym, col_lang = st.columns([3, 1])
-            with col_sym:
-                selected_ai_sym = st.selectbox(
-                    "Analiz edilecek hisseyi seçin:", symbol_list, index=default_idx
-                )
-            with col_lang:
-                selected_lang = st.selectbox(
-                    "Rapor Dili:", ["Türkçe", "English", "Deutsch"], index=0
-                )
+            if df is not None and not df.empty:
+                symbol_list = df["symbol"].tolist()
+                default_idx = 0
+                if (
+                    "selected_ai_symbol" in st.session_state
+                    and st.session_state["selected_ai_symbol"] in symbol_list
+                ):
+                    default_idx = symbol_list.index(st.session_state["selected_ai_symbol"])
 
-            lang_map = {"Türkçe": "tr", "English": "en", "Deutsch": "de"}
+                col_sym, col_lang = st.columns([3, 1])
+                with col_sym:
+                    selected_ai_sym = st.selectbox(
+                        "Analiz edilecek hisseyi seçin:", symbol_list, index=default_idx
+                    )
+                with col_lang:
+                    selected_lang = st.selectbox(
+                        "Rapor Dili:", ["Türkçe", "English", "Deutsch"], index=0
+                    )
 
-            if st.button(f"🚀 {selected_ai_sym} İçin Araştırmayı Başlat", type="primary"):
-                with st.spinner("Yapay zeka interneti tarıyor ve raporu hazırlıyor..."):
-                    report = get_ai_research(selected_ai_sym, language=lang_map[selected_lang])
-                    st.markdown("---")
-                    st.markdown(report)
-                    st.success("Analiz tamamlandı.")
-        else:
-            st.warning("Analiz için önce tarama yapmalısınız.")
+                lang_map = {"Türkçe": "tr", "English": "en", "Deutsch": "de"}
+
+                if st.button(f"🚀 {selected_ai_sym} İçin Araştırmayı Başlat", type="primary"):
+                    with st.spinner("Yapay zeka interneti tarıyor ve raporu hazırlıyor..."):
+                        report = get_ai_research(selected_ai_sym, language=lang_map[selected_lang])
+                        st.markdown("---")
+                        st.markdown(report)
+                        st.success("Analiz tamamlandı.")
+            else:
+                st.warning("Analiz için önce tarama yapmalısınız.")
+
+        # --- Hybrid Engine Sub-tab (Sprint 13) ---
+        with ai_sub_tab2:
+            render_hybrid_panel(df)
+
+        # --- DRL Model Status Sub-tab (Sprint 14) ---
+        with ai_sub_tab3:
+            _render_drl_model_status()
 
     # --- TAB 4: Performans ---
     with tab_perf:

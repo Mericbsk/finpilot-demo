@@ -229,6 +229,15 @@ def main() -> None:
     # 1. Load registry
     registry = get_registry("models/")
     all_models = registry.list_models(algorithm="PPO")
+    logger.info(
+        "DEBUG: registry has %d entries, list_models(PPO)=%d",
+        len(registry._registry),
+        len(all_models),
+    )
+    if not all_models:
+        # Fallback: list all models
+        all_models = registry.list_models()
+        logger.info("DEBUG: fallback list_models()=%d", len(all_models))
     if not all_models:
         logger.error("No models found in registry!")
         sys.exit(1)

@@ -63,6 +63,7 @@ logger = logging.getLogger(__name__)
 # Model variant definitions
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class ModelVariant:
     name: str
@@ -151,6 +152,7 @@ VARIANTS: list[ModelVariant] = [
 # Training helpers
 # ---------------------------------------------------------------------------
 
+
 def train_single_variant(
     variant: ModelVariant,
     train_df: pd.DataFrame,
@@ -237,18 +239,21 @@ def train_single_variant(
 
     # Compute metrics
     metrics = _compute_eval_metrics(history)
-    logger.info(f"  Eval: sharpe={metrics['sharpe_ratio']:.4f}  "
-                f"return={metrics['total_return']:.4f}  "
-                f"max_dd={metrics['max_drawdown']:.4f}  "
-                f"avg_reward={metrics['avg_reward']:.4f}")
+    logger.info(
+        f"  Eval: sharpe={metrics['sharpe_ratio']:.4f}  "
+        f"return={metrics['total_return']:.4f}  "
+        f"max_dd={metrics['max_drawdown']:.4f}  "
+        f"avg_reward={metrics['avg_reward']:.4f}"
+    )
 
     # Check action diversity (not constant HOLD)
     positions = [float(h.get("position", 0)) for h in history]
     if positions:
         nonzero = sum(1 for p in positions if abs(p) > 0.05)
         nonzero_pct = nonzero / len(positions)
-        trades = sum(1 for i in range(1, len(positions))
-                     if abs(positions[i] - positions[i - 1]) > 0.02)
+        trades = sum(
+            1 for i in range(1, len(positions)) if abs(positions[i] - positions[i - 1]) > 0.02
+        )
         metrics["action_diversity"] = round(nonzero_pct, 2)
         metrics["n_trades"] = trades
         metrics["active_pct"] = round(nonzero_pct * 100, 1)
@@ -298,14 +303,17 @@ def _compute_eval_metrics(history: list[dict]) -> dict[str, float]:
 # Main orchestrator
 # ---------------------------------------------------------------------------
 
+
 def main():
     parser = argparse.ArgumentParser(description="Retrain all DRL models (Sprint 14)")
-    parser.add_argument("--symbols", nargs="+", default=["AAPL", "NVDA", "TSLA"],
-                        help="Symbols to train on")
+    parser.add_argument(
+        "--symbols", nargs="+", default=["AAPL", "NVDA", "TSLA"], help="Symbols to train on"
+    )
     parser.add_argument("--period", default="2y", help="Data period for yfinance")
     parser.add_argument("--only", default=None, help="Train only this variant tag")
-    parser.add_argument("--skip-registry-clean", action="store_true",
-                        help="Don't clear old models from registry")
+    parser.add_argument(
+        "--skip-registry-clean", action="store_true", help="Don't clear old models from registry"
+    )
     args = parser.parse_args()
 
     print("\n" + "=" * 70)
@@ -359,6 +367,7 @@ def main():
         except Exception as e:
             logger.error(f"  FAILED: {variant.name} — {e}")
             import traceback
+
             traceback.print_exc()
 
     if not results:
@@ -412,9 +421,11 @@ def main():
         )
 
         logger.info(f"  Registered: {model_id}")
-        logger.info(f"    sharpe={metrics['sharpe_ratio']:.4f}  "
-                     f"return={metrics['total_return']:.4f}  "
-                     f"trades={metrics.get('n_trades', 0)}")
+        logger.info(
+            f"    sharpe={metrics['sharpe_ratio']:.4f}  "
+            f"return={metrics['total_return']:.4f}  "
+            f"trades={metrics.get('n_trades', 0)}"
+        )
 
         if metrics["sharpe_ratio"] > best_sharpe:
             best_sharpe = metrics["sharpe_ratio"]
@@ -428,8 +439,9 @@ def main():
         # Copy best model to models/best/
         best_dir = Path("models/best")
         best_dir.mkdir(parents=True, exist_ok=True)
-        best_result = next(r for r in results
-                          if registry._registry[best_model_id].name == r["variant"].name)
+        best_result = next(
+            r for r in results if registry._registry[best_model_id].name == r["variant"].name
+        )
         best_result["model"].save(str(best_dir / "best_model"))
         logger.info(f"  Best model copied to {best_dir / 'best_model.zip'}")
 
@@ -437,24 +449,34 @@ def main():
     print("\n" + "=" * 70)
     print("  TRAINING SUMMARY — Sprint 14")
     print("=" * 70)
-    print(f"  {'Variant':<20s} {'Sharpe':>8s} {'Return':>8s} {'MaxDD':>8s} {'Trades':>8s} {'Time':>8s}")
+    print(
+        f"  {'Variant':<20s} {'Sharpe':>8s} {'Return':>8s} {'MaxDD':>8s} {'Trades':>8s} {'Time':>8s}"
+    )
     print("  " + "─" * 60)
     for res in results:
         v = res["variant"]
         m = res["metrics"]
-        active = " ★" if registry._registry.get(
-            next((mid for mid, meta in registry._registry.items()
-                  if meta.name == v.name), ""), None
-        ) and registry._registry.get(
-            next((mid for mid, meta in registry._registry.items()
-                  if meta.name == v.name), ""), None
-        ) is not None and registry._registry[
-            next((mid for mid, meta in registry._registry.items()
-                  if meta.name == v.name), "")
-        ].is_active else ""
-        print(f"  {v.tag:<20s} {m['sharpe_ratio']:>8.4f} {m['total_return']:>8.4f} "
-              f"{m['max_drawdown']:>8.4f} {m.get('n_trades', 0):>8d} "
-              f"{m.get('train_time_s', 0):>7.1f}s{active}")
+        active = (
+            " ★"
+            if registry._registry.get(
+                next((mid for mid, meta in registry._registry.items() if meta.name == v.name), ""),
+                None,
+            )
+            and registry._registry.get(
+                next((mid for mid, meta in registry._registry.items() if meta.name == v.name), ""),
+                None,
+            )
+            is not None
+            and registry._registry[
+                next((mid for mid, meta in registry._registry.items() if meta.name == v.name), "")
+            ].is_active
+            else ""
+        )
+        print(
+            f"  {v.tag:<20s} {m['sharpe_ratio']:>8.4f} {m['total_return']:>8.4f} "
+            f"{m['max_drawdown']:>8.4f} {m.get('n_trades', 0):>8d} "
+            f"{m.get('train_time_s', 0):>7.1f}s{active}"
+        )
     print("=" * 70)
     print(f"  Best: {best_model_id} (sharpe={best_sharpe:.4f})")
     print(f"  Registry: {len(registry._registry)} models")

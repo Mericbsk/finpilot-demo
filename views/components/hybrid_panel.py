@@ -81,13 +81,15 @@ def render_hybrid_panel(df: pd.DataFrame | None) -> None:
 
         registry = get_registry("models/")
         active_meta = None
-        for m in registry.list_models(name="finpilot_ppo"):
+        # Search all PPO models for the active one
+        for m in registry.list_models(algorithm="PPO"):
             if m.is_active:
                 active_meta = m
                 break
         if not active_meta:
-            latest = registry.get_latest("finpilot_ppo")
-            active_meta = latest
+            # Fallback: get latest PPO model
+            all_ppo = registry.list_models(algorithm="PPO")
+            active_meta = all_ppo[0] if all_ppo else None
 
         if not active_meta or not active_meta.model_path:
             st.warning("Registry'de yüklenebilir model bulunamadı.")
