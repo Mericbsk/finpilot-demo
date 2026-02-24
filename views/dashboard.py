@@ -68,67 +68,190 @@ def load_csv(path: str):
 
 
 def _render_drl_model_status():
-    """DRL Model Registry durumunu gosteren panel."""
-    st.markdown("### 🤖 DRL Model Durumu")
+    """DRL Model Registry durumunu gosteren panel.
+
+    Registry format: flat dict { model_id: { metadata_dict } }
+    Each metadata has: model_id, name, algorithm, is_active, metrics, etc.
+    """
+    st.markdown("### \U0001f916 DRL Model Durumu")
 
     registry_path = os.path.join(os.getcwd(), "models", "registry.json")
     if not os.path.exists(registry_path):
-        st.info("Henuz egitilmis model bulunamadi. Sprint 14 model egitimini calistirin.")
+        st.info("Henuz egitilmis model bulunamadi.")
         return
 
     try:
         with open(registry_path) as f:
-            registry = json.load(f)
+            registry_data = json.load(f)
     except Exception as e:
         st.error(f"Registry okunamadi: {e}")
         return
 
-    models = registry.get("models", [])
-    active_name = registry.get("active_model", None)
-
-    if not models:
-        st.info("Registry'de kayitli model yok.")
+    # Registry is a flat dict: { model_id: { ...metadata... } }
+    if not isinstance(registry_data, dict) or not registry_data:
+        st.info("Registry bos.")
         return
 
-    # Active model highlight
-    active = next((m for m in models if m.get("name") == active_name), None)
+    models = list(registry_data.values())
+    if not models or not isinstance(models[0], dict):
+        st.info("Registry'de gecerli model bulunamadi.")
+        return
+
+    # Find active model
+    active = next((m for m in models if m.get("is_active")), None)
+
     if active:
+        active_name = active.get("name", active.get("model_id", "?"))
         st.success(f"**Aktif Model:** `{active_name}`")
         col1, col2, col3, col4 = st.columns(4)
         metrics = active.get("metrics", {})
-        test_sharpe = metrics.get("test_sharpe")
+        sharpe = metrics.get("sharpe_ratio") or metrics.get("test_sharpe")
         col1.metric(
-            "Test Sharpe", f"{test_sharpe:.3f}" if isinstance(test_sharpe, (int, float)) else "N/A"
+            "Sharpe Ratio",
+            f"{sharpe:.3f}" if isinstance(sharpe, (int, float)) else "N/A",
         )
-        col2.metric("Islem Sayisi", metrics.get("total_trades", "N/A"))
+        total_ret = metrics.get("total_return")
+        col2.metric(
+            "Toplam Getiri",
+            f"{total_ret:.1%}" if isinstance(total_ret, (int, float)) else "N/A",
+        )
         max_dd = metrics.get("max_drawdown")
-        col3.metric("Max Drawdown", f"{max_dd:.1%}" if isinstance(max_dd, (int, float)) else "N/A")
+        col3.metric(
+            "Max Drawdown",
+            f"{max_dd:.1%}" if isinstance(max_dd, (int, float)) else "N/A",
+        )
         win_rate = metrics.get("win_rate")
-        col4.metric("Win Rate", f"{win_rate:.1%}" if isinstance(win_rate, (int, float)) else "N/A")
+        col4.metric(
+            "Win Rate",
+            f"{win_rate:.1%}" if isinstance(win_rate, (int, float)) else "N/A",
+        )
+
+        # Extra details
+        with st.expander("Aktif Model Detaylari", expanded=False):
+            det_c1, det_c2 = st.columns(2)
+            det_c1.markdown(f"- **Algoritma:** {active.get('algorithm', '?')}")
+            det_c1.markdown(f"- **Versiyon:** {active.get('version', '?')}")
+            ts = active.get("total_timesteps", 0)
+            det_c1.markdown(f"- **Timesteps:** {ts:,}")
+            created = active.get("created_at", "?")
+            det_c2.markdown(f"- **Olusturulma:** {str(created)[:19]}")
+            symbols = active.get("training_symbols", [])
+            det_c2.markdown(f"- **Semboller:** {', '.join(symbols)}")
+            tags = active.get("tags", [])
+            if tags:
+                det_c2.markdown(f"- **Etiketler:** {', '.join(tags)}")
     else:
         st.warning("Aktif model secili degil.")
 
     # All models table
-    with st.expander(f"📋 Tum Modeller ({len(models)})", expanded=False):
+    with st.expander(f"\U0001f4cb Tum Modeller ({len(models)})", expanded=True):
         rows = []
         for m in models:
             met = m.get("metrics", {})
+            s = met.get("sharpe_ratio") or met.get("test_sharpe")
             rows.append(
                 {
                     "Model": m.get("name", "?"),
                     "Algoritma": m.get("algorithm", "?"),
-                    "Sharpe": met.get("test_sharpe", None),
-                    "Islem": met.get("total_trades", None),
-                    "Aktif": "✅" if m.get("name") == active_name else "",
+                    "Sharpe": round(s, 3) if isinstance(s, (int, float)) else None,
+                    "Robust": "\u2705" if met.get("is_robust") else "\u274c",
+                    "Aktif": "\u2705" if m.get("is_active") else "",
+                    "Etiketler": ", ".join(m.get("tags", [])),
                 }
             )
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
     # DRL availability check
     if DRL_AVAILABLE:
-        st.caption("✅ DRL modulu aktif — canli tahminler kullanilabilir.")
+        st.caption("\u2705 DRL modulu aktif \u2014 canli tahminler kullanilabilir.")
     else:
-        st.caption("⚠️ DRL modulu yuklenemedi — `pip install stable-baselines3` gerekebilir.")
+        st.caption("\u26a0\ufe0f DRL modulu yuklenemedi \u2014 `pip install stable-baselines3` gerekebilir.")
+
+
+
+def _render_drl_model_comparison():
+    """DRL Model karsilastirma tablosu — tum modellerin metriklerini yan yana gosterir."""
+    st.markdown("### \U0001f916 DRL Model Karsilastirma")
+    st.caption("Sprint 14'te egitilen tum PPO varyantlarinin performans metrikleri.")
+
+    registry_path = os.path.join(os.getcwd(), "models", "registry.json")
+    if not os.path.exists(registry_path):
+        st.info("Model registry bulunamadi.")
+        return
+
+    try:
+        with open(registry_path) as f:
+            registry_data = json.load(f)
+    except Exception:
+        st.error("Registry okunamadi.")
+        return
+
+    if not isinstance(registry_data, dict) or not registry_data:
+        st.info("Registry bos.")
+        return
+
+    models = list(registry_data.values())
+
+    # Build comparison table
+    rows = []
+    for m in models:
+        met = m.get("metrics", {})
+        rows.append({
+            "Model": m.get("name", "?"),
+            "Sharpe": met.get("sharpe_ratio", 0),
+            "Toplam Getiri": met.get("total_return", 0),
+            "Max Drawdown": met.get("max_drawdown", 0),
+            "Win Rate": met.get("win_rate", 0),
+            "Profit Factor": met.get("profit_factor", 0),
+            "Robust": met.get("is_robust", False),
+            "Overfit Folds": f"{met.get('overfit_folds', 0)}/{met.get('total_folds', 0)}",
+            "Aktif": "\u2705" if m.get("is_active") else "",
+        })
+
+    comp_df = pd.DataFrame(rows)
+
+    # Highlight best values
+    st.dataframe(
+        comp_df,
+        column_config={
+            "Sharpe": st.column_config.NumberColumn(format="%.3f"),
+            "Toplam Getiri": st.column_config.NumberColumn(format="%.1%%"),
+            "Max Drawdown": st.column_config.NumberColumn(format="%.1%%"),
+            "Win Rate": st.column_config.NumberColumn(format="%.1%%"),
+            "Profit Factor": st.column_config.NumberColumn(format="%.2f"),
+        },
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    # --- Bar chart: Sharpe comparison ---
+    if len(rows) > 1:
+        st.markdown("#### Sharpe Ratio Karsilastirmasi")
+        chart_df = comp_df[["Model", "Sharpe"]].set_index("Model")
+        st.bar_chart(chart_df)
+
+    # --- Hyperparameter comparison ---
+    with st.expander("\u2699\ufe0f Hyperparameter Karsilastirmasi", expanded=False):
+        hp_rows = []
+        for m in models:
+            hp = m.get("hyperparameters", {})
+            hp_rows.append({
+                "Model": m.get("name", "?"),
+                "Learning Rate": hp.get("learning_rate", "?"),
+                "Gamma": hp.get("gamma", "?"),
+                "GAE Lambda": hp.get("gae_lambda", "?"),
+                "Ent Coef": hp.get("ent_coef", "?"),
+                "Timesteps": hp.get("total_timesteps", "?"),
+            })
+        st.dataframe(pd.DataFrame(hp_rows), use_container_width=True, hide_index=True)
+
+    # --- Training notes ---
+    with st.expander("\U0001f4dd Model Notlari", expanded=False):
+        for m in models:
+            note = m.get("notes", "")
+            if note:
+                active_tag = " \u2705" if m.get("is_active") else ""
+                st.markdown(f"**{m.get('name', '?')}{active_tag}:** {note}")
 
 
 def render_scanner_page():
@@ -1082,18 +1205,34 @@ def render_scanner_page():
 
     # --- TAB 4: Performans ---
     with tab_perf:
-        render_signal_performance_tab()
+        perf_sub1, perf_sub2, perf_sub3 = st.tabs(
+            ["\U0001f4c8 Sinyal Performans", "\U0001f916 DRL Model Karsilastirma", "\U0001f4ca WFO & Backtest"]
+        )
 
-        # Optimizasyon Sonuçları (ek bilgi)
-        with st.expander("📊 WFO Grid Search Sonuçları", expanded=False):
+        with perf_sub1:
+            render_signal_performance_tab()
+
+        with perf_sub2:
+            _render_drl_model_comparison()
+
+        with perf_sub3:
+            st.markdown("### \U0001f4ca WFO & Backtest Sonuclari")
+            # WFO Grid Search
             wfo_path = os.path.join(os.getcwd(), "wfo_grid_search_results.csv")
             if os.path.exists(wfo_path):
                 wfo_df = pd.read_csv(wfo_path)
-                st.dataframe(wfo_df, use_container_width=True)
+                st.dataframe(wfo_df, use_container_width=True, hide_index=True)
             else:
-                st.info("WFO backtest sonuçları bulunamadı.")
+                st.info("WFO backtest sonuclari bulunamadi.")
 
-    # --- TAB 5: Scanner Geçmişi ---
+            # Walk-Forward Validation Report
+            wf_report = os.path.join(os.getcwd(), "reports", "wf_validation_report.txt")
+            if os.path.exists(wf_report):
+                with st.expander("\U0001f4dd Walk-Forward Validation Raporu", expanded=False):
+                    report_text = open(wf_report).read()  # noqa: SIM115
+                    st.code(report_text, language="text")
+
+    # --- TAB 5: Scanner Gecmisi ---
     with tab_history:
         render_scan_history_page()
 

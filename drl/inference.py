@@ -551,10 +551,17 @@ def get_drl_signals(
     return [s.to_dict() for s in signals]
 
 
-def has_trained_model(model_name: str = "finpilot_ppo") -> bool:
-    """Check if a trained model exists."""
+def has_trained_model(model_name: str | None = None, algorithm: str = "PPO") -> bool:
+    """Check if a trained model exists.
+
+    Searches by algorithm (default PPO) since model names vary
+    (ppo_conservative, ppo_balanced, etc.).
+    """
     registry = get_registry()
-    models = registry.list_models(name=model_name)
+    if model_name:
+        models = registry.list_models(name=model_name)
+    else:
+        models = registry.list_models(algorithm=algorithm)
     return len(models) > 0
 
 
