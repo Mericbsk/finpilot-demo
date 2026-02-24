@@ -15,13 +15,12 @@ warnings.warn(
     stacklevel=1,
 )
 
-import streamlit as st
-from views.dashboard import render_scanner_page
-from views.finsense import render_finsense_page
-from views.history import render_history_page
-from views.landing import render_finpilot_landing
-from views.settings import render_settings_page
-from views.styles import GLOBAL_CSS
+import streamlit as st  # noqa: E402
+from views.dashboard import render_scanner_page  # noqa: E402
+from views.finsense import render_finsense_page  # noqa: E402
+from views.landing import render_finpilot_landing  # noqa: E402
+from views.settings import render_settings_page  # noqa: E402
+from views.styles import GLOBAL_CSS  # noqa: E402
 
 st.set_page_config(page_title="FinPilot Panel", layout="wide", page_icon="🛫")
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
@@ -42,9 +41,7 @@ if not st.session_state.has_seen_landing:
     render_finpilot_landing()
 
 # Sidebar Navigation
-page = st.sidebar.selectbox(
-    "Sayfa Seç", ["Panel", "FinSense Akademi", "Kişiselleştirme", "Geçmiş Sinyaller"]
-)
+page = st.sidebar.selectbox("Sayfa Seç", ["Panel", "FinSense Akademi", "Kişiselleştirme"])
 
 if page == "Panel":
     render_scanner_page()
@@ -52,5 +49,3 @@ elif page == "FinSense Akademi":
     render_finsense_page()
 elif page == "Kişiselleştirme":
     render_settings_page()
-elif page == "Geçmiş Sinyaller":
-    render_history_page()

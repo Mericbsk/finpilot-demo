@@ -23,11 +23,10 @@ PAGES = {
     "🏠 Ana Panel": "panel",
     "🎯 Demo": "demo",
     "🎓 FinSense Akademi": "finsense",
-    "📜 Geçmiş": "history",
 }
 
 # Pages that require authentication
-PROTECTED_PAGES = {"panel", "history"}
+PROTECTED_PAGES = {"panel"}
 # Public pages (no auth required)
 PUBLIC_PAGES = {"demo", "finsense"}
 
@@ -88,16 +87,7 @@ if __name__ == "__main__":
 
         render_finsense_page()
 
-    # Protected pages - require authentication
-    elif page == "history":
-        if not is_authenticated:
-            st.warning("📜 Geçmiş sayfasını görüntülemek için giriş yapmalısınız.")
-            render_auth_page(session_mgr)
-        else:
-            from views.history import render_history_page
-
-            render_history_page()
-
+    # Protected pages
     else:
         # Ana Panel - Dashboard (Protected)
         if not is_authenticated:

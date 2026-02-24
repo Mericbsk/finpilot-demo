@@ -3,7 +3,8 @@ Result View — Tab Rendering for Scanner Results
 ================================================
 
 Extracted from dashboard.py (Sprint P7).
-Renders the 6 main content tabs: Signals, Market, AI Lab, Performance, History, Education.
+Renders the 5 main content tabs: Signals, Market, AI Lab, Performans Merkezi, Education.
+Sprint 9: Merged Performans + Scanner Geçmişi + Backtest into unified hub.
 """
 
 from __future__ import annotations
@@ -20,24 +21,24 @@ from .components.signal_tracker import render_signal_performance_tab
 from .components.skeleton import render_skeleton_cards, render_skeleton_table
 from .detail_view import get_drl_predictions, render_detail_card, render_top_cards
 from .finsense import render_finsense_page
-from .scan_history import render_scan_history_page
+from .history import render_backtest_section
+from .scan_history import render_scan_history_content
 from .utils import get_gemini_research
 
 logger = logging.getLogger(__name__)
 
 
 def render_tabs(df: pd.DataFrame) -> None:
-    """Render the 6 main content tabs."""
+    """Render the 5 main content tabs."""
     is_loading = st.session_state.get("scan_status") == "loading"
 
     st.markdown("---")
-    tab_signals, tab_market, tab_ai, tab_perf, tab_history, tab_edu = st.tabs(
+    tab_signals, tab_market, tab_ai, tab_perf, tab_edu = st.tabs(
         [
             "🎯 Sinyaller (Action Zone)",
             "📊 Piyasa Tarayıcı",
             "🧠 AI Laboratuvarı",
-            "📈 Performans & Geçmiş",
-            "📋 Scanner Geçmişi",
+            "📈 Performans Merkezi",
             "🎓 FinSense Eğitim",
         ]
     )
@@ -59,9 +60,6 @@ def render_tabs(df: pd.DataFrame) -> None:
 
     with tab_perf:
         _render_performance_tab()
-
-    with tab_history:
-        render_scan_history_page()
 
     with tab_edu:
         render_finsense_page()
@@ -275,18 +273,29 @@ def _render_ai_lab_tab(df: pd.DataFrame) -> None:
 
 
 # ---------------------------------------------------------------------------
-# TAB 4: Performance
+# TAB 4: Performans Merkezi (Unified Hub)
 # ---------------------------------------------------------------------------
 
 
 @st.fragment
 def _render_performance_tab() -> None:
-    render_signal_performance_tab()
+    """Unified performance hub: Sinyal Takibi + Tarama Geçmişi + Backtest."""
+    sub_signals, sub_scans, sub_backtest = st.tabs(
+        ["🎯 Sinyal Takibi", "📋 Tarama Geçmişi", "🧪 Backtest"]
+    )
 
-    with st.expander("📊 WFO Grid Search Sonuçları", expanded=False):
-        wfo_path = os.path.join(os.getcwd(), "wfo_grid_search_results.csv")
-        if os.path.exists(wfo_path):
-            wfo_df = pd.read_csv(wfo_path)
-            st.dataframe(wfo_df, use_container_width=True)
-        else:
-            st.info("WFO backtest sonuçları bulunamadı.")
+    with sub_signals:
+        render_signal_performance_tab()
+        with st.expander("📊 WFO Grid Search Sonuçları", expanded=False):
+            wfo_path = os.path.join(os.getcwd(), "wfo_grid_search_results.csv")
+            if os.path.exists(wfo_path):
+                wfo_df = pd.read_csv(wfo_path)
+                st.dataframe(wfo_df, use_container_width=True)
+            else:
+                st.info("WFO backtest sonuçları bulunamadı.")
+
+    with sub_scans:
+        render_scan_history_content()
+
+    with sub_backtest:
+        render_backtest_section()

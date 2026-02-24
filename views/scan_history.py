@@ -42,6 +42,7 @@ def _parse_scan_datetime(filename: str):
     return None
 
 
+@st.cache_data(ttl=120, show_spinner=False)
 def load_all_scans() -> pd.DataFrame:
     """Load all shortlist CSVs into a single DataFrame with scan metadata."""
     all_files = sorted(glob.glob(os.path.join(SHORTLIST_DIR, "shortlist_*.csv")))
@@ -86,7 +87,10 @@ def get_scan_summary(df: pd.DataFrame) -> pd.DataFrame:
         df.groupby(["scan_date", "scan_time"])
         .agg(
             total_stocks=("symbol", "count"),
-            entry_signals=("entry_ok", lambda x: x.sum() if x.dtype == bool else (x == True).sum()),
+            entry_signals=(
+                "entry_ok",
+                lambda x: x.sum() if x.dtype == bool else x.astype(bool).sum(),
+            ),
             avg_score=("score", "mean"),
             top_symbol=("symbol", "first"),
             scan_file=("scan_file", "first"),
@@ -112,7 +116,7 @@ def get_entry_signals_history(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return pd.DataFrame()
 
-    entry_df = df[df["entry_ok"] == True].copy()
+    entry_df = df[df["entry_ok"].astype(bool)].copy()
     if entry_df.empty:
         return pd.DataFrame()
 
@@ -165,7 +169,7 @@ def get_most_signaled_stocks(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
     if df.empty:
         return pd.DataFrame()
 
-    entry_df = df[df["entry_ok"] == True]
+    entry_df = df[df["entry_ok"].astype(bool)]
     if entry_df.empty:
         return pd.DataFrame()
 
@@ -197,15 +201,15 @@ def get_most_signaled_stocks(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
 
 
 def render_scan_history_page():
-    """Ana scanner geçmişi sayfası."""
+    """Ana scanner geçmişi sayfası (bağımsız header ile)."""
 
     st.markdown(
         """
-    <div style='background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    <div style='background: var(--bg-glass, linear-gradient(135deg, #0f172a 0%, #1e293b 100%));
          padding: 24px; border-radius: 16px; margin-bottom: 24px;
-         border: 1px solid #334155;'>
-        <h2 style='color: #f8fafc; margin: 0;'>📋 Scanner Geçmişi</h2>
-        <p style='color: #94a3b8; margin: 4px 0 0;'>
+         border: 1px solid var(--border-default, #334155);'>
+        <h2 style='color: var(--text-primary, #f8fafc); margin: 0;'>📋 Scanner Geçmişi</h2>
+        <p style='color: var(--text-muted, #94a3b8); margin: 4px 0 0;'>
             Tüm tarama sonuçları • Tarihsel sinyal takibi • Hisse bazlı analiz
         </p>
     </div>
@@ -213,7 +217,12 @@ def render_scan_history_page():
         unsafe_allow_html=True,
     )
 
-    # Load all data
+    render_scan_history_content()
+
+
+def render_scan_history_content():
+    """Scanner geçmişi içeriği (header olmadan, sub-tab olarak kullanılabilir)."""
+
     with st.spinner("Tarama geçmişi yükleniyor..."):
         all_data = load_all_scans()
 
@@ -224,7 +233,7 @@ def render_scan_history_page():
     # ─── KPI CARDS ─────────────────────────────────────────
     unique_dates = all_data["scan_date"].nunique()
     total_scans = all_data.groupby(["scan_date", "scan_time"]).ngroups
-    total_entries = (all_data["entry_ok"] == True).sum()
+    total_entries = all_data["entry_ok"].astype(bool).sum()
     unique_symbols = all_data["symbol"].nunique()
 
     c1, c2, c3, c4 = st.columns(4)
@@ -393,7 +402,7 @@ def render_scan_history_page():
             else:
                 # Summary metrics
                 total_appearances = len(sym_history)
-                entry_count = (sym_history["entry_ok"] == True).sum()
+                entry_count = sym_history["entry_ok"].astype(bool).sum()
                 price_range = (
                     f"${sym_history['price'].min():.2f} — ${sym_history['price'].max():.2f}"
                 )

@@ -1,5 +1,4 @@
 import logging
-import os
 from datetime import datetime
 
 import pandas as pd
@@ -214,7 +213,7 @@ def generate_momentum_signals(df: pd.DataFrame) -> pd.Series:
     # Calculate indicators
     close = df["Close"] if "Close" in df.columns else df["close"]
     ma20 = close.rolling(20).mean()
-    ma50 = close.rolling(50).mean()
+    _ma50 = close.rolling(50).mean()
 
     # RSI
     delta = close.diff()
@@ -275,11 +274,6 @@ def render_backtest_results(results: dict):
     # Main metrics cards
     col1, col2, col3, col4 = st.columns(4)
 
-    return_color = "green" if metrics.total_return >= 0 else "red"
-    sharpe_color = (
-        "green" if metrics.sharpe_ratio >= 1 else ("orange" if metrics.sharpe_ratio >= 0 else "red")
-    )
-
     with col1:
         st.metric(
             "Toplam Getiri",
@@ -338,11 +332,6 @@ def render_backtest_results(results: dict):
         )
 
     with col2:
-        prob_loss_color = (
-            "green"
-            if mc_result.prob_loss < 0.3
-            else ("orange" if mc_result.prob_loss < 0.5 else "red")
-        )
         st.metric(
             "Zarar Olasılığı",
             f"{mc_result.prob_loss:.1%}",
@@ -405,135 +394,6 @@ def render_backtest_results(results: dict):
             st.error(f"Rapor oluşturulamadı: {e}")
 
 
-def render_history_page():
-    """Ana performans analizi sayfası."""
-    st.markdown("# 📊 FinPilot Performans Analizi")
-
-    # Tabs for different sections
-    tab1, tab2 = st.tabs(["🧪 Gelişmiş Backtest", "📜 Sinyal Geçmişi"])
-
-    with tab1:
-        render_backtest_section()
-
-    with tab2:
-        render_signal_history()
-
-
-def render_signal_history():
-    """Render historical signal log."""
-    st.markdown("## 🚦 Strateji, Risk ve Getiri Analizi")
-
-    signal_log_path = os.path.join(os.getcwd(), "data", "logs", "signal_log.csv")
-
-    if os.path.exists(signal_log_path):
-        try:
-            log_df = pd.read_csv(signal_log_path, header=None)
-
-            if log_df.empty:
-                st.info("Sinyal günlüğü boş.")
-                return
-
-            expected_cols = [
-                "Tarih",
-                "Sembol",
-                "Fiyat",
-                "Stop-Loss",
-                "Take-Profit",
-                "Skor",
-                "Güç",
-                "Rejim",
-                "Sentiment",
-                "Onchain",
-                "Alım?",
-                "Özet",
-                "Neden",
-            ]
-
-            if len(log_df.columns) == len(expected_cols):
-                log_df.columns = expected_cols
-            else:
-                st.warning(
-                    f"Sinyal günlüğü formatı beklenenden farklı ({len(log_df.columns)} sütun)."
-                )
-
-            # Filters
-            col1, col2, col3 = st.columns([2, 2, 2])
-            unique_dates = sorted(log_df["Tarih"].astype(str).unique().tolist(), reverse=True)
-            selected_date = col1.selectbox("Tarih Seç", ["Tümü"] + unique_dates)
-
-            unique_symbols = sorted(log_df["Sembol"].astype(str).unique().tolist())
-            selected_symbol = col2.selectbox("Sembol Seç", ["Tümü"] + unique_symbols)
-
-            regime_options = sorted(log_df["Rejim"].astype(str).unique().tolist())
-            selected_regime = col3.selectbox("Rejim Filtrele", ["Tümü"] + regime_options)
-
-            filtered = log_df.copy()
-            if selected_date != "Tümü":
-                filtered = filtered[filtered["Tarih"].astype(str) == selected_date]
-            if selected_symbol != "Tümü":
-                filtered = filtered[filtered["Sembol"] == selected_symbol]
-            if selected_regime != "Tümü":
-                filtered = filtered[filtered["Rejim"] == selected_regime]
-
-            # Ensure numeric columns
-            for col in ["Fiyat", "Stop-Loss", "Take-Profit", "Skor"]:
-                if col in filtered.columns:
-                    filtered[col] = pd.to_numeric(filtered[col], errors="coerce")
-
-            # Calculate metrics
-            avg_gain = (
-                (filtered["Take-Profit"] - filtered["Fiyat"]).mean() if len(filtered) > 0 else 0
-            )
-            cagr = (
-                ((filtered["Take-Profit"] / filtered["Fiyat"]).mean() - 1) * 100
-                if len(filtered) > 0
-                else 0
-            )
-            take_profit_mean = filtered["Take-Profit"].mean() if len(filtered) > 0 else 0
-
-            avg_loss = (
-                (filtered["Fiyat"] - filtered["Stop-Loss"]).mean() if len(filtered) > 0 else 0
-            )
-            rr_ratio = avg_gain / avg_loss if avg_loss != 0 else 0
-            kelly = (rr_ratio - (1 - rr_ratio)) / rr_ratio if rr_ratio > 0 else 0
-            max_drawdown = avg_loss
-
-            total_signals = len(filtered)
-            if "Alım?" in filtered.columns:
-                is_buy = (
-                    filtered["Alım?"]
-                    .astype(str)
-                    .str.lower()
-                    .isin(["true", "1", "evet", "yes", "al"])
-                )
-                success_signals = is_buy.sum()
-            else:
-                success_signals = 0
-
-            win_rate = (success_signals / total_signals * 100) if total_signals > 0 else 0
-            avg_score = filtered["Skor"].mean() if total_signals > 0 else 0
-
-            # Display metrics
-            st.markdown("### 🚦 Risk/Ödül Kartı")
-            rr_color = "#10b981" if rr_ratio >= 2 else ("#f59e42" if rr_ratio >= 1 else "#ef4444")
-            st.markdown(
-                f"<div style='background:{rr_color};color:#fff;padding:16px;border-radius:12px;font-size:1.3em;font-weight:bold;'>"
-                f"R/R Oranı: {rr_ratio:.2f} | Maksimum Kayıp: {max_drawdown:.2f} | Kelly: {kelly:.2f}</div>",
-                unsafe_allow_html=True,
-            )
-
-            st.markdown("### 📈 Getiri & Hedefleme")
-            st.markdown(f"Hedef Getiri: %{take_profit_mean:.2f} | CAGR: %{cagr:.2f}")
-
-            st.markdown("### 🤖 Strateji & Uyum")
-            st.markdown(
-                f"Başarı Oranı (Win Rate): %{win_rate:.1f} | Ortalama Skor: {avg_score:.2f}"
-            )
-
-            st.dataframe(filtered, use_container_width=True)
-
-        except Exception as e:
-            st.error(f"Geçmiş sinyaller yüklenirken hata oluştu: {e}")
-    else:
-        st.info("Henüz geçmiş sinyal kaydı bulunmamaktadır.")
-        st.caption("Tarama yaptıktan sonra sinyaller burada görünecektir.")
+# render_history_page and render_signal_history removed in Sprint 9.
+# Backtest is now accessed via the unified Performans Merkezi tab.
+# Use render_backtest_section() directly.
