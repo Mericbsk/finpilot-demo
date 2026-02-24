@@ -1,0 +1,368 @@
+{
+  "ppo_first_20260217_163541": {
+    "model_id": "ppo_first_20260217_163541",
+    "name": "finpilot_ppo",
+    "algorithm": "PPO",
+    "version": "v1",
+    "created_at": "2026-02-17T16:35:41",
+    "total_timesteps": 50000,
+    "training_symbols": [
+      "AAPL",
+      "BTC-USD",
+      "NVDA",
+      "TSLA",
+      "ETH-USD"
+    ],
+    "train_start": "2025-01-01",
+    "train_end": "2026-02-17",
+    "metrics": {
+      "sharpe_ratio": 0.0,
+      "sharpe_train": -1.859257040681525e+16,
+      "sharpe_degradation": 0.0,
+      "total_return": 0.0,
+      "max_drawdown": 0.0,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "overfit_folds": 0,
+      "total_folds": 5,
+      "is_robust": true,
+      "validation_symbols": [
+        "AAPL"
+      ]
+    },
+    "hyperparameters": {
+      "algorithm": "PPO",
+      "learning_rate": 0.0003,
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "ent_coef": 0.001,
+      "vf_coef": 0.5
+    },
+    "feature_columns": [
+      "close",
+      "ema_20",
+      "ema_50",
+      "ema_200",
+      "rsi",
+      "macd",
+      "macd_signal",
+      "macd_hist",
+      "atr",
+      "bb_upper",
+      "bb_lower",
+      "volume",
+      "volume_avg_20",
+      "regime_trend",
+      "regime_range",
+      "regime_volatility",
+      "sentiment_score",
+      "news_sentiment",
+      "onchain_active_addresses",
+      "onchain_tx_volume",
+      "cash_ratio",
+      "position_ratio",
+      "open_risk",
+      "kelly_fraction"
+    ],
+    "model_path": "/workspaces/Borsa/models/ppo_first_20260217_163541",
+    "pipeline_path": null,
+    "is_active": false,
+    "tags": [
+      "initial",
+      "baseline"
+    ],
+    "notes": "First PPO training run \u2014 baseline model."
+  },
+  "ppo_real_20260217_164307": {
+    "model_id": "ppo_real_20260217_164307",
+    "name": "finpilot_ppo",
+    "algorithm": "PPO",
+    "version": "v2",
+    "created_at": "2026-02-17T16:43:07",
+    "total_timesteps": 50000,
+    "training_symbols": [
+      "AAPL",
+      "BTC-USD",
+      "NVDA",
+      "TSLA",
+      "ETH-USD"
+    ],
+    "train_start": "2025-01-01",
+    "train_end": "2026-02-17",
+    "metrics": {
+      "sharpe_ratio": 0.0,
+      "sharpe_train": -1.859257040681525e+16,
+      "sharpe_degradation": 0.0,
+      "total_return": 0.0,
+      "max_drawdown": 0.0,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "overfit_folds": 0,
+      "total_folds": 5,
+      "is_robust": true,
+      "validation_symbols": [
+        "AAPL"
+      ]
+    },
+    "hyperparameters": {
+      "algorithm": "PPO",
+      "learning_rate": 0.0003,
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "ent_coef": 0.001,
+      "vf_coef": 0.5
+    },
+    "feature_columns": [
+      "close",
+      "ema_20",
+      "ema_50",
+      "ema_200",
+      "rsi",
+      "macd",
+      "macd_signal",
+      "macd_hist",
+      "atr",
+      "bb_upper",
+      "bb_lower",
+      "volume",
+      "volume_avg_20",
+      "regime_trend",
+      "regime_range",
+      "regime_volatility",
+      "sentiment_score",
+      "news_sentiment",
+      "onchain_active_addresses",
+      "onchain_tx_volume",
+      "cash_ratio",
+      "position_ratio",
+      "open_risk",
+      "kelly_fraction"
+    ],
+    "model_path": "/workspaces/Borsa/models/ppo_real_20260217_164307",
+    "pipeline_path": null,
+    "is_active": false,
+    "tags": [
+      "real-data"
+    ],
+    "notes": "Real market data training run."
+  },
+  "ppo_production_20260217_165440": {
+    "model_id": "ppo_production_20260217_165440",
+    "name": "finpilot_ppo",
+    "algorithm": "PPO",
+    "version": "v3",
+    "created_at": "2026-02-17T16:54:40",
+    "total_timesteps": 100000,
+    "training_symbols": [
+      "AAPL",
+      "BTC-USD",
+      "NVDA",
+      "TSLA",
+      "ETH-USD"
+    ],
+    "train_start": "2025-01-01",
+    "train_end": "2026-02-17",
+    "metrics": {
+      "sharpe_ratio": 0.1886,
+      "sharpe_train": -0.404,
+      "sharpe_degradation": 0.0,
+      "total_return": 0.0059,
+      "max_drawdown": 0.0091,
+      "win_rate": 0.2,
+      "profit_factor": Infinity,
+      "overfit_folds": 2,
+      "total_folds": 5,
+      "is_robust": false,
+      "validation_symbols": [
+        "AAPL"
+      ]
+    },
+    "hyperparameters": {
+      "algorithm": "PPO",
+      "learning_rate": 0.0003,
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "ent_coef": 0.001,
+      "vf_coef": 0.5
+    },
+    "feature_columns": [
+      "close",
+      "ema_20",
+      "ema_50",
+      "ema_200",
+      "rsi",
+      "macd",
+      "macd_signal",
+      "macd_hist",
+      "atr",
+      "bb_upper",
+      "bb_lower",
+      "volume",
+      "volume_avg_20",
+      "regime_trend",
+      "regime_range",
+      "regime_volatility",
+      "sentiment_score",
+      "news_sentiment",
+      "onchain_active_addresses",
+      "onchain_tx_volume",
+      "cash_ratio",
+      "position_ratio",
+      "open_risk",
+      "kelly_fraction"
+    ],
+    "model_path": "/workspaces/Borsa/models/ppo_production_20260217_165440",
+    "pipeline_path": null,
+    "is_active": false,
+    "tags": [
+      "production"
+    ],
+    "notes": "Production-grade training with full pipeline."
+  },
+  "ppo_balanced_20260217_171208": {
+    "model_id": "ppo_balanced_20260217_171208",
+    "name": "finpilot_ppo",
+    "algorithm": "PPO",
+    "version": "v4",
+    "created_at": "2026-02-17T17:12:08",
+    "total_timesteps": 150000,
+    "training_symbols": [
+      "AAPL",
+      "BTC-USD",
+      "NVDA",
+      "TSLA",
+      "ETH-USD"
+    ],
+    "train_start": "2025-01-01",
+    "train_end": "2026-02-17",
+    "metrics": {
+      "sharpe_ratio": -0.8606,
+      "sharpe_train": 0.2489,
+      "sharpe_degradation": 4.4574,
+      "total_return": 0.0001,
+      "max_drawdown": 0.0093,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "overfit_folds": 2,
+      "total_folds": 5,
+      "is_robust": false,
+      "validation_symbols": [
+        "AAPL"
+      ]
+    },
+    "hyperparameters": {
+      "algorithm": "PPO",
+      "learning_rate": 0.0003,
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "ent_coef": 0.001,
+      "vf_coef": 0.5
+    },
+    "feature_columns": [
+      "close",
+      "ema_20",
+      "ema_50",
+      "ema_200",
+      "rsi",
+      "macd",
+      "macd_signal",
+      "macd_hist",
+      "atr",
+      "bb_upper",
+      "bb_lower",
+      "volume",
+      "volume_avg_20",
+      "regime_trend",
+      "regime_range",
+      "regime_volatility",
+      "sentiment_score",
+      "news_sentiment",
+      "onchain_active_addresses",
+      "onchain_tx_volume",
+      "cash_ratio",
+      "position_ratio",
+      "open_risk",
+      "kelly_fraction"
+    ],
+    "model_path": "/workspaces/Borsa/models/ppo_balanced_20260217_171208",
+    "pipeline_path": null,
+    "is_active": false,
+    "tags": [
+      "balanced"
+    ],
+    "notes": "Balanced reward weights for Sharpe / drawdown trade-off."
+  },
+  "ppo_aggressive_20260217_173313": {
+    "model_id": "ppo_aggressive_20260217_173313",
+    "name": "finpilot_ppo",
+    "algorithm": "PPO",
+    "version": "v5",
+    "created_at": "2026-02-17T17:33:13",
+    "total_timesteps": 150000,
+    "training_symbols": [
+      "AAPL",
+      "BTC-USD",
+      "NVDA",
+      "TSLA",
+      "ETH-USD"
+    ],
+    "train_start": "2025-01-01",
+    "train_end": "2026-02-17",
+    "metrics": {
+      "sharpe_ratio": 0.1886,
+      "sharpe_train": -0.4454,
+      "sharpe_degradation": 0.0,
+      "total_return": 0.0059,
+      "max_drawdown": 0.0091,
+      "win_rate": 0.2,
+      "profit_factor": Infinity,
+      "overfit_folds": 2,
+      "total_folds": 5,
+      "is_robust": false,
+      "validation_symbols": [
+        "AAPL"
+      ]
+    },
+    "hyperparameters": {
+      "algorithm": "PPO",
+      "learning_rate": 0.0003,
+      "gamma": 0.99,
+      "gae_lambda": 0.95,
+      "ent_coef": 0.001,
+      "vf_coef": 0.5
+    },
+    "feature_columns": [
+      "close",
+      "ema_20",
+      "ema_50",
+      "ema_200",
+      "rsi",
+      "macd",
+      "macd_signal",
+      "macd_hist",
+      "atr",
+      "bb_upper",
+      "bb_lower",
+      "volume",
+      "volume_avg_20",
+      "regime_trend",
+      "regime_range",
+      "regime_volatility",
+      "sentiment_score",
+      "news_sentiment",
+      "onchain_active_addresses",
+      "onchain_tx_volume",
+      "cash_ratio",
+      "position_ratio",
+      "open_risk",
+      "kelly_fraction"
+    ],
+    "model_path": "/workspaces/Borsa/models/ppo_aggressive_20260217_173313",
+    "pipeline_path": null,
+    "is_active": true,
+    "tags": [
+      "aggressive"
+    ],
+    "notes": "Aggressive reward weighting \u2014 higher PnL emphasis."
+  }
+}

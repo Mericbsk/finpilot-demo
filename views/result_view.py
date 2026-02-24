@@ -16,8 +16,9 @@ import pandas as pd
 import streamlit as st
 from scanner import compute_recommendation_score
 
-from .components.ai_signals import get_drl_predictions
+from .components.ai_signals import get_drl_predictions  # noqa: F401
 from .components.export import render_export_panel
+from .components.hybrid_panel import render_hybrid_panel
 from .components.research import get_ai_research
 from .components.signal_tracker import render_signal_performance_tab
 from .components.skeleton import render_skeleton_cards, render_skeleton_table
@@ -212,6 +213,13 @@ def _render_ai_lab_tab(df: pd.DataFrame) -> None:
     st.markdown("### 🧠 Yapay Zeka Araştırma Merkezi")
     st.caption("Groq / Gemini + DuckDuckGo destekli derinlemesine analiz.")
 
+    # Sprint 11: Pick up ai_symbol from query params (set by AI Insights card)
+    qp_symbol = st.query_params.get("ai_symbol")
+    if qp_symbol:
+        st.session_state["selected_ai_symbol"] = qp_symbol
+        # Clear param to avoid stale reruns
+        del st.query_params["ai_symbol"]
+
     # P3: Demo symbols — AI Lab works even without a scan
     _DEMO_SYMBOLS = ["AAPL", "NVDA", "TSLA", "MSFT", "AMZN", "GOOG", "META"]
 
@@ -271,6 +279,10 @@ def _render_ai_lab_tab(df: pd.DataFrame) -> None:
                 st.markdown(f"**{sym}** ({lng.upper()})")
                 st.markdown(rpt[:300] + "..." if len(rpt) > 300 else rpt)
                 st.markdown("---")
+
+    # Sprint 13: Hybrid Engine panel
+    st.markdown("---")
+    render_hybrid_panel(df)
 
 
 # ---------------------------------------------------------------------------

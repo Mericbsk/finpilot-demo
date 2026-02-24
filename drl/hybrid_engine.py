@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 from .config import MarketEnvConfig
-from .inference import InferenceEngine, PredictionResult
+from .inference import DRLInference, PredictionResult
 
 logger = logging.getLogger(__name__)
 
@@ -96,15 +96,11 @@ class HybridEngine:
         self.drl_weight = drl_weight
         self.agreement_threshold = agreement_threshold
 
-        self.inference_engine: InferenceEngine | None = None
+        self.inference_engine: DRLInference | None = None
         if strategy_mode in ["drl_only", "hybrid"] and model_path:
             try:
-                from .inference import InferenceEngine
-
-                self.inference_engine = InferenceEngine(
-                    model_path=model_path,
-                    config=env_config,
-                )
+                self.inference_engine = DRLInference(config=env_config)
+                self.inference_engine.load_from_path(model_path)
                 logger.info(f"✅ DRL inference engine loaded from {model_path}")
             except Exception as e:
                 logger.warning(f"⚠️ Failed to load DRL model: {e}")

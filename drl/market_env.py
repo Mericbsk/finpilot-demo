@@ -120,10 +120,18 @@ class MarketEnv(BaseEnv):
         self._cash = 1.0
         self._max_equity = 1.0
         self._history: list[dict[str, float | str]] = []
+        self._returns_buffer: list[float] = []  # Sprint 13: rolling Sharpe
 
         # Spaces (if gym available)
         feature_dim = self._feature_tensor.shape[1]
         max_abs_pos = float(self._limits.max_absolute_position)
+
+        # Sprint 13: precompute volume column index for stochastic slippage
+        self._volume_col_idx: int | None = None
+        feature_cols = config.feature_columns
+        if "volume" in feature_cols:
+            self._volume_col_idx = feature_cols.index("volume")
+
         if spaces is not None:
             self.observation_space = spaces.Box(
                 low=-np.inf,
@@ -151,6 +159,7 @@ class MarketEnv(BaseEnv):
         self._cash = 1.0
         self._max_equity = 1.0
         self._history.clear()
+        self._returns_buffer.clear()
         observation = self._feature_tensor[self._t]
         info = self._build_info(0.0, 0.0, 0.0)
         return observation, info
@@ -166,10 +175,24 @@ class MarketEnv(BaseEnv):
 
         # Trading costs based on position change
         position_change = target_position - self._position
-        commission_rate = (
-            self._cost_model.commission_bps + self._cost_model.slippage_bps
-        ) / 10000.0
-        transaction_cost = abs(position_change) * commission_rate
+        commission_rate = self._cost_model.commission_bps / 10000.0
+
+        # Sprint 13: stochastic volume-dependent slippage
+        base_slippage = self._cost_model.slippage_bps / 10000.0
+        if self._cost_model.stochastic_slippage:
+            # Volume-proxy: use feature tensor's volume column if present
+            vol_ratio = 1.0
+            volume_col_idx = self._volume_col_idx
+            if volume_col_idx is not None:
+                vol_val = float(self._feature_tensor[self._t, volume_col_idx])
+                # Negative z-score → low volume → higher slippage
+                vol_ratio = max(0.5, 1.0 - self._cost_model.slippage_vol_scale * min(vol_val, 0.0))
+            noise = float(np.random.uniform(0.8, 1.2))
+            slippage_rate = base_slippage * vol_ratio * noise
+        else:
+            slippage_rate = base_slippage
+
+        transaction_cost = abs(position_change) * (commission_rate + slippage_rate)
         holding_cost = abs(target_position) * (self._cost_model.holding_penalty_bps / 10000.0)
 
         pnl = portfolio_return - transaction_cost - holding_cost
@@ -188,6 +211,19 @@ class MarketEnv(BaseEnv):
         leverage_penalty = max(0.0, abs(target_position) - self._limits.max_leverage)
         reward -= self._reward_weights.leverage * leverage_penalty
         reward += self._reward_weights.regime_bonus * self._regime_alignment(target_position)
+
+        # Sprint 13: turnover penalty — penalise excessive position changes
+        turnover = abs(position_change)
+        reward -= self._reward_weights.turnover_penalty * turnover
+
+        # Sprint 13: rolling Sharpe bonus — reward risk-adjusted returns
+        self._returns_buffer.append(pnl)
+        if len(self._returns_buffer) >= 20:
+            _ret = np.array(self._returns_buffer[-60:])  # last 60 steps
+            _std = float(np.std(_ret))
+            if _std > 1e-8:
+                rolling_sharpe = float(np.mean(_ret)) / _std
+                reward += self._reward_weights.sharpe_bonus * np.clip(rolling_sharpe, -2.0, 2.0)
 
         self._t = next_index
         terminated = next_index >= (self._episode_len - 1)

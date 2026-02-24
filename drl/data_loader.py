@@ -252,7 +252,7 @@ def fetch_training_data(
             df = calculate_technical_features(df)
 
             # Add placeholder columns for missing features
-            df = _add_placeholder_features(df)
+            df = _add_placeholder_features(df, symbol=symbol)
 
             results[symbol] = df
             logger.info(f"✓ {symbol}: {len(df)} rows loaded")
@@ -264,15 +264,31 @@ def fetch_training_data(
     return results
 
 
-def _add_placeholder_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Eksik feature'ları placeholder değerlerle doldurur."""
+def _add_placeholder_features(df: pd.DataFrame, symbol: str | None = None) -> pd.DataFrame:
+    """Eksik feature'ları placeholder değerlerle doldurur.
+
+    If *symbol* is provided and the sentiment module is available,
+    live DDG + VADER sentiment is fetched for ``news_sentiment`` and
+    ``sentiment_score``.  Otherwise zeros are used.
+    """
     df = df.copy()
 
-    # Sentiment features (eğer yoksa)
-    if "sentiment_score" not in df.columns:
-        df["sentiment_score"] = 0.0
-    if "news_sentiment" not in df.columns:
-        df["news_sentiment"] = 0.0
+    # Sentiment features — try live NLP if symbol given
+    _filled_sentiment = False
+    if symbol and ("sentiment_score" not in df.columns or "news_sentiment" not in df.columns):
+        try:
+            from drl.sentiment import enrich_dataframe_sentiment
+
+            df = enrich_dataframe_sentiment(df, symbol)
+            _filled_sentiment = True
+        except Exception as exc:  # pragma: no cover
+            logger.debug("Sentiment enrichment skipped: %s", exc)
+
+    if not _filled_sentiment:
+        if "sentiment_score" not in df.columns:
+            df["sentiment_score"] = 0.0
+        if "news_sentiment" not in df.columns:
+            df["news_sentiment"] = 0.0
 
     # On-chain features
     if "onchain_active_addresses" not in df.columns:
