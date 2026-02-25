@@ -121,6 +121,7 @@ class MarketEnv(BaseEnv):
         self._max_equity = 1.0
         self._history: list[dict[str, float | str]] = []
         self._returns_buffer: list[float] = []  # Sprint 13: rolling Sharpe
+        self._trade_count: int = 0  # Sprint 16: track trade count for terminal reward
 
         # Spaces (if gym available)
         feature_dim = self._feature_tensor.shape[1]
@@ -160,7 +161,10 @@ class MarketEnv(BaseEnv):
         self._max_equity = 1.0
         self._history.clear()
         self._returns_buffer.clear()
-        observation = self._feature_tensor[self._t]
+        self._trade_count = 0
+        observation = self._feature_tensor[self._t].copy()
+        # Sprint 16: inject dynamic portfolio state into observation
+        self._inject_portfolio_state(observation)
         info = self._build_info(0.0, 0.0, 0.0)
         return observation, info
 
@@ -232,10 +236,33 @@ class MarketEnv(BaseEnv):
                 rolling_sharpe = float(np.mean(_ret)) / _std
                 reward += self._reward_weights.sharpe_bonus * np.clip(rolling_sharpe, -2.0, 2.0)
 
+        # Sprint 16: track trade count
+        if abs(position_change) > 0.02:
+            self._trade_count += 1
+
         self._t = next_index
         terminated = next_index >= (self._episode_len - 1)
         truncated = False
-        observation = self._feature_tensor[self._t]
+
+        # Sprint 16: terminal reward — episode-end Sharpe bonus/penalty
+        if terminated and len(self._returns_buffer) > 10:
+            terminal_ret = np.array(self._returns_buffer)
+            terminal_std = float(np.std(terminal_ret)) or 1e-8
+            terminal_sharpe = float(np.mean(terminal_ret)) / terminal_std
+            reward += 5.0 * np.clip(terminal_sharpe, -2.0, 2.0)
+            # Bonus for active trading (penalise if fewer than ~5% of steps had trades)
+            trade_ratio = self._trade_count / max(len(self._returns_buffer), 1)
+            if trade_ratio < 0.05:
+                reward -= 2.0  # severe penalty for near-zero activity
+            elif trade_ratio > 0.02:
+                reward += 1.0 * min(trade_ratio, 0.3)  # cap to avoid over-trading bonus
+
+        # Sprint 16: reward clipping — prevent extreme gradients
+        reward = float(np.clip(reward, -10.0, 10.0))
+
+        observation = self._feature_tensor[self._t].copy()
+        # Sprint 16: inject dynamic portfolio state into observation
+        self._inject_portfolio_state(observation)
         info = self._build_info(pnl, drawdown, reward)
         self._history.append(info)
 
@@ -248,8 +275,30 @@ class MarketEnv(BaseEnv):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+    def _inject_portfolio_state(self, observation: np.ndarray) -> None:
+        """Sprint 16: write live portfolio state into the observation vector.
+
+        During training the portfolio_state features (cash_ratio,
+        position_ratio, open_risk, kelly_fraction) were previously
+        static placeholders (1,0,0,0).  Now we overwrite those indices
+        with the agent's real-time portfolio metrics so the policy
+        can learn to condition on its own state.
+        """
+        feature_cols = self.config.feature_columns
+        _ps_cols = {
+            "cash_ratio": max(0.0, 1.0 - abs(self._position)),
+            "position_ratio": abs(self._position),
+            "open_risk": 1.0 - (self._equity / self._max_equity),
+            "kelly_fraction": self._position,  # signed position as kelly proxy
+        }
+        for col_name, value in _ps_cols.items():
+            if col_name in feature_cols:
+                idx = feature_cols.index(col_name)
+                if idx < len(observation):
+                    observation[idx] = float(value)
+
     def _clamp_action(self, action) -> float:
-        value = float(action[0] if isinstance(action, (list, tuple, np.ndarray)) else action)
+        value = float(action[0] if isinstance(action, list | tuple | np.ndarray) else action)
         max_abs = float(self._limits.max_absolute_position)
         if not self._limits.allow_shorting:
             value = max(0.0, value)

@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
-"""Sprint 14 — Retrain all DRL models with improved reward function.
+"""Sprint 16 — Retrain DRL models with regime-specific architecture.
 
-Trains 5 PPO variants using the Sprint 13 reward improvements:
-  - Turnover penalty (0.05)
-  - Rolling Sharpe bonus (0.10)
-  - Stochastic volume-dependent slippage
-  - Holding penalty (1 bps)
-  - Curriculum learning (3-phase)
+Key changes from Sprint 14:
+  - 3 regime-specific agents: trend, range, volatile
+  - Reward rebalancing (PnL ×10, drawdown ×0.5, inactivity ×3.3)
+  - 500K timesteps minimum (was 60-100K)
+  - 15 training symbols (was 3: AAPL, NVDA, TSLA)
+  - 5-phase curriculum learning
+  - Terminal reward for episode-end Sharpe
+  - Dynamic portfolio state in observations
 
-Each variant has distinct hyperparameters to cover different trading styles:
-  1. conservative  — low LR, high gamma, more timesteps
-  2. balanced      — default params, curriculum learning
-  3. aggressive    — higher LR, lower gamma, high entropy
-  4. explorer      — very high ent_coef for maximum exploration
-  5. long_horizon  — extended training (100k steps), deep curriculum
+Trains 3 regime-specialist PPO agents:
+  1. trend_ppo     — Trend piyasalarda uzman
+  2. range_ppo     — Mean-reversion / yatay piyasa uzmanı
+  3. volatile_ppo  — Yüksek volatilite dönemlerinde risk yönetimi
 
 Usage:
-    python scripts/retrain_models.py                  # all 5 variants
-    python scripts/retrain_models.py --only balanced  # single variant
-    python scripts/retrain_models.py --symbols AAPL MSFT
+    python scripts/retrain_models.py                  # all 3 variants
+    python scripts/retrain_models.py --only trend     # single variant
+    python scripts/retrain_models.py --symbols AAPL MSFT NVDA
 """
 
 from __future__ import annotations
@@ -40,6 +40,7 @@ sys.path.insert(0, str(ROOT))
 from drl.callbacks import (  # noqa: E402
     CurriculumCallback,
     CurriculumConfig,
+    CurriculumPhase,
     TrainingMetricsCallback,
 )
 from drl.config import DEFAULT_CONFIG, MarketEnvConfig  # noqa: E402
@@ -77,73 +78,104 @@ class ModelVariant:
     seed: int
     use_curriculum: bool
     notes: str
+    regime_filter: str | None = None  # Sprint 16: "trend", "range", "volatility" or None
+    n_steps: int = 4096  # Sprint 16: rollout buffer size
+    batch_size: int = 256  # Sprint 16: minibatch size
+    n_epochs: int = 5  # Sprint 16: reduced from default 10 to lower overfitting
+    clip_range: float = 0.15  # Sprint 16: tighter clipping
+    max_grad_norm: float = 0.3  # Sprint 16: tighter gradient norm
+
+
+# Sprint 16: Default 15 training symbols (was 3)
+DEFAULT_TRAIN_SYMBOLS = [
+    # US Large Cap Tech
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "NVDA",
+    "META",
+    # US Growth / Momentum
+    "TSLA",
+    "AMD",
+    "CRM",
+    # US Value / Diversified
+    "ADBE",
+    "INTC",
+    "QCOM",
+    # ETFs (broad market exposure)
+    "SPY",
+    "QQQ",
+    "IWM",
+]
 
 
 VARIANTS: list[ModelVariant] = [
+    # -------------------------------------------------------------------
+    # TREND SPECIALIST — rides momentum, aggressive in trending markets
+    # -------------------------------------------------------------------
     ModelVariant(
-        name="ppo_conservative",
-        tag="conservative",
-        total_timesteps=80_000,
-        learning_rate=1e-4,
-        gamma=0.995,
-        gae_lambda=0.98,
-        ent_coef=0.005,
-        vf_coef=0.5,
-        seed=42,
-        use_curriculum=True,
-        notes="Low LR, high gamma — favours patient, risk-averse strategies",
-    ),
-    ModelVariant(
-        name="ppo_balanced",
-        tag="balanced",
-        total_timesteps=60_000,
-        learning_rate=3e-4,
-        gamma=0.99,
-        gae_lambda=0.95,
-        ent_coef=0.01,
-        vf_coef=0.5,
-        seed=123,
-        use_curriculum=True,
-        notes="Default params with curriculum learning — general-purpose",
-    ),
-    ModelVariant(
-        name="ppo_aggressive",
-        tag="aggressive",
-        total_timesteps=60_000,
-        learning_rate=5e-4,
-        gamma=0.97,
-        gae_lambda=0.90,
-        ent_coef=0.02,
-        vf_coef=0.5,
-        seed=456,
-        use_curriculum=True,
-        notes="Higher LR, lower gamma — faster adaptation, momentum trading",
-    ),
-    ModelVariant(
-        name="ppo_explorer",
-        tag="explorer",
-        total_timesteps=60_000,
-        learning_rate=3e-4,
-        gamma=0.99,
-        gae_lambda=0.95,
-        ent_coef=0.05,
-        vf_coef=0.5,
-        seed=789,
-        use_curriculum=False,
-        notes="Very high entropy — maximum exploration to avoid constant-HOLD",
-    ),
-    ModelVariant(
-        name="ppo_longhorizon",
-        tag="longhorizon",
-        total_timesteps=100_000,
+        name="ppo_trend",
+        tag="trend",
+        total_timesteps=500_000,
         learning_rate=2e-4,
         gamma=0.995,
         gae_lambda=0.97,
+        ent_coef=0.015,
+        vf_coef=0.5,
+        seed=42,
+        use_curriculum=True,
+        notes="Sprint 16: Trend regime specialist — momentum-following policy",
+        regime_filter="trend",
+        n_steps=4096,
+        batch_size=256,
+        n_epochs=5,
+        clip_range=0.15,
+        max_grad_norm=0.3,
+    ),
+    # -------------------------------------------------------------------
+    # RANGE SPECIALIST — mean-reversion, buys dips / sells peaks
+    # -------------------------------------------------------------------
+    ModelVariant(
+        name="ppo_range",
+        tag="range",
+        total_timesteps=500_000,
+        learning_rate=1.5e-4,
+        gamma=0.99,
+        gae_lambda=0.95,
+        ent_coef=0.02,
+        vf_coef=0.5,
+        seed=123,
+        use_curriculum=True,
+        notes="Sprint 16: Range regime specialist — mean-reversion policy",
+        regime_filter="range",
+        n_steps=4096,
+        batch_size=256,
+        n_epochs=5,
+        clip_range=0.15,
+        max_grad_norm=0.3,
+    ),
+    # -------------------------------------------------------------------
+    # VOLATILE SPECIALIST — defensive, reduces exposure in chaos
+    # -------------------------------------------------------------------
+    ModelVariant(
+        name="ppo_volatile",
+        tag="volatile",
+        total_timesteps=500_000,
+        learning_rate=1e-4,
+        gamma=0.995,
+        gae_lambda=0.98,
         ent_coef=0.01,
         vf_coef=0.5,
-        seed=2024,
+        seed=456,
         use_curriculum=True,
-        notes="Extended training (100k steps) — deep curriculum for robust policy",
+        notes="Sprint 16: Volatile regime specialist — defensive risk-reduction policy",
+        regime_filter="volatility",
+        n_steps=4096,
+        batch_size=256,
+        n_epochs=5,
+        clip_range=0.15,
+        max_grad_norm=0.3,
     ),
 ]
 
@@ -165,28 +197,96 @@ def train_single_variant(
     logger.info(f"  timesteps={variant.total_timesteps}  lr={variant.learning_rate}")
     logger.info(f"  gamma={variant.gamma}  ent_coef={variant.ent_coef}")
     logger.info(f"  curriculum={variant.use_curriculum}  seed={variant.seed}")
+    logger.info(f"  regime_filter={variant.regime_filter}  n_steps={variant.n_steps}")
     logger.info("=" * 60)
 
+    # Sprint 16: optional regime-specific data filtering
+    _train = train_df
+    if variant.regime_filter and "regime" in train_df.columns:
+        regime_rows = train_df[train_df["regime"] == variant.regime_filter]
+        if len(regime_rows) > 200:  # need minimum viable episode length
+            _train = regime_rows.copy()
+            logger.info(
+                f"  Regime filter '{variant.regime_filter}': {len(_train)}/{len(train_df)} rows"
+            )
+        else:
+            logger.warning(
+                f"  Regime '{variant.regime_filter}' has only {len(regime_rows)} rows — using full data"
+            )
+
     # Prepare episode data
-    train_episode = prepare_episode_data(train_df, config)
+    train_episode = prepare_episode_data(_train, config)
     test_episode = prepare_episode_data(test_df, config)
 
     # Fit feature pipeline on training data
     pipeline = FeaturePipeline(config)
     pipeline.fit(train_episode.features)
 
-    # Build callbacks
+    # Build callbacks — Sprint 16: 5-phase curriculum
     callbacks = []
     if variant.use_curriculum:
+        curriculum_phases = [
+            CurriculumPhase(
+                name="exploration",
+                start_pct=0.0,
+                end_pct=0.15,
+                cost_multiplier=0.1,
+                position_limit_multiplier=0.3,
+                pnl_weight_multiplier=2.0,
+                drawdown_weight_multiplier=0.1,
+                exploration_bonus=0.10,
+            ),
+            CurriculumPhase(
+                name="easy",
+                start_pct=0.15,
+                end_pct=0.35,
+                cost_multiplier=0.3,
+                position_limit_multiplier=0.5,
+                pnl_weight_multiplier=1.5,
+                drawdown_weight_multiplier=0.3,
+                exploration_bonus=0.05,
+            ),
+            CurriculumPhase(
+                name="medium",
+                start_pct=0.35,
+                end_pct=0.60,
+                cost_multiplier=0.6,
+                position_limit_multiplier=0.8,
+                pnl_weight_multiplier=1.2,
+                drawdown_weight_multiplier=0.5,
+                exploration_bonus=0.02,
+            ),
+            CurriculumPhase(
+                name="hard",
+                start_pct=0.60,
+                end_pct=0.85,
+                cost_multiplier=1.0,
+                position_limit_multiplier=1.0,
+                pnl_weight_multiplier=1.0,
+                drawdown_weight_multiplier=0.8,
+                exploration_bonus=0.0,
+            ),
+            CurriculumPhase(
+                name="adversarial",
+                start_pct=0.85,
+                end_pct=1.0,
+                cost_multiplier=1.2,
+                position_limit_multiplier=1.0,
+                pnl_weight_multiplier=1.0,
+                drawdown_weight_multiplier=1.2,
+                exploration_bonus=0.0,
+            ),
+        ]
         curriculum_cfg = CurriculumConfig(
             total_timesteps=variant.total_timesteps,
-            log_interval=max(5000, variant.total_timesteps // 10),
+            phases=curriculum_phases,
+            log_interval=max(10000, variant.total_timesteps // 20),
             verbose=True,
         )
         callbacks.append(CurriculumCallback(config=curriculum_cfg, smooth=True, verbose=1))
 
     metrics_cb = TrainingMetricsCallback(
-        log_interval=max(2000, variant.total_timesteps // 20),
+        log_interval=max(5000, variant.total_timesteps // 50),
         verbose=1,
     )
     callbacks.append(metrics_cb)
@@ -200,6 +300,7 @@ def train_single_variant(
 
     vec_env = DummyVecEnv([_make_train_env])
 
+    # Sprint 16: use variant-specific PPO hyperparameters
     model = PPO(
         "MlpPolicy",
         vec_env,
@@ -208,6 +309,11 @@ def train_single_variant(
         gae_lambda=variant.gae_lambda,
         ent_coef=variant.ent_coef,
         vf_coef=variant.vf_coef,
+        n_steps=variant.n_steps,
+        batch_size=variant.batch_size,
+        n_epochs=variant.n_epochs,
+        clip_range=variant.clip_range,
+        max_grad_norm=variant.max_grad_norm,
         verbose=0,
         seed=variant.seed,
     )
@@ -305,11 +411,11 @@ def _compute_eval_metrics(history: list[dict]) -> dict[str, float]:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Retrain all DRL models (Sprint 14)")
+    parser = argparse.ArgumentParser(description="Retrain DRL models (Sprint 16 — Regime-Specific)")
     parser.add_argument(
-        "--symbols", nargs="+", default=["AAPL", "NVDA", "TSLA"], help="Symbols to train on"
+        "--symbols", nargs="+", default=DEFAULT_TRAIN_SYMBOLS, help="Symbols to train on"
     )
-    parser.add_argument("--period", default="2y", help="Data period for yfinance")
+    parser.add_argument("--period", default="3y", help="Data period for yfinance")
     parser.add_argument("--only", default=None, help="Train only this variant tag")
     parser.add_argument(
         "--skip-registry-clean", action="store_true", help="Don't clear old models from registry"
@@ -317,10 +423,10 @@ def main():
     args = parser.parse_args()
 
     print("\n" + "=" * 70)
-    print("  SPRINT 14 — FULL MODEL RETRAINING")
+    print("  SPRINT 16 — REGIME-SPECIFIC MODEL RETRAINING")
     print("=" * 70)
-    print(f"  Symbols: {args.symbols}")
-    print(f"  Period : {args.period}")
+    print(f"  Symbols : {args.symbols}")
+    print(f"  Period  : {args.period}")
     print(f"  Variants: {len(VARIANTS)}")
     print("=" * 70 + "\n")
 
@@ -416,7 +522,7 @@ def main():
             total_timesteps=variant.total_timesteps,
             feature_columns=list(config.feature_columns),
             pipeline=pipeline,
-            tags=[variant.tag, "sprint14", "retrained"],
+            tags=[variant.tag, "sprint16", "regime_specific"],
             notes=variant.notes,
         )
 
@@ -447,7 +553,7 @@ def main():
 
     # Summary report
     print("\n" + "=" * 70)
-    print("  TRAINING SUMMARY — Sprint 14")
+    print("  TRAINING SUMMARY — Sprint 16 (Regime-Specific)")
     print("=" * 70)
     print(
         f"  {'Variant':<20s} {'Sharpe':>8s} {'Return':>8s} {'MaxDD':>8s} {'Trades':>8s} {'Time':>8s}"

@@ -296,15 +296,31 @@ def _add_placeholder_features(df: pd.DataFrame, symbol: str | None = None) -> pd
     if "onchain_tx_volume" not in df.columns:
         df["onchain_tx_volume"] = 0.0
 
-    # Portfolio state (training için initial state)
+    # Portfolio state — Sprint 16: simulate dynamic portfolio state
+    # Previously static (cash=1, position=0, risk=0, kelly=0) which meant
+    # the agent never learned to condition on its own state.
+    # Now we inject realistic random portfolio state variation so the
+    # feature pipeline learns meaningful statistics.
+    n = len(df)
     if "cash_ratio" not in df.columns:
-        df["cash_ratio"] = 1.0
-    if "position_ratio" not in df.columns:
-        df["position_ratio"] = 0.0
-    if "open_risk" not in df.columns:
-        df["open_risk"] = 0.0
-    if "kelly_fraction" not in df.columns:
-        df["kelly_fraction"] = 0.0
+        rng = np.random.default_rng(42)
+        positions = rng.uniform(-0.5, 0.5, size=n).cumsum()
+        positions = np.clip(positions / (np.abs(positions).max() or 1.0), -0.75, 0.75)
+        df["cash_ratio"] = 1.0 - np.abs(positions)
+        df["position_ratio"] = np.abs(positions)
+        # Simulated drawdown-style risk
+        equity_walk = 1.0 + np.cumsum(rng.normal(0.0, 0.005, size=n))
+        equity_walk = np.maximum(equity_walk, 0.5)
+        running_max = np.maximum.accumulate(equity_walk)
+        df["open_risk"] = np.clip(1.0 - equity_walk / running_max, 0.0, 1.0)
+        df["kelly_fraction"] = positions * 0.5  # signed half-kelly proxy
+    else:
+        if "position_ratio" not in df.columns:
+            df["position_ratio"] = 0.0
+        if "open_risk" not in df.columns:
+            df["open_risk"] = 0.0
+        if "kelly_fraction" not in df.columns:
+            df["kelly_fraction"] = 0.0
 
     return df
 

@@ -43,17 +43,24 @@ class FeatureSpec:
 
 @dataclass(frozen=True)
 class RewardWeights:
-    """Hyper-parameters for reward shaping."""
+    """Hyper-parameters for reward shaping.
 
-    pnl: float = 1.0
-    drawdown: float = 1.0
+    Sprint 16 — Reward rebalancing:
+    PnL typically ±0.001-0.01 per step while drawdown sits in 0-1 range.
+    Previous weights let drawdown dominate, causing 3/5 models to collapse
+    into constant-HOLD.  Multiplied PnL weight by 10× and halved drawdown
+    weight so the agent perceives a meaningful signal for profitable trades.
+    """
+
+    pnl: float = 10.0  # Sprint 16: 1.0→10.0 — scale up to match drawdown magnitude
+    drawdown: float = 0.5  # Sprint 16: 1.0→0.5  — reduce dominance of DD penalty
     cost: float = 0.1
     leverage: float = 0.2
     regime_bonus: float = 0.05
     turnover_penalty: float = 0.02  # Sprint 14: reduced — only penalise excessive churn
-    sharpe_bonus: float = 0.10  # Sprint 13: reward risk-adjusted returns
-    inactivity_penalty: float = 0.003  # Sprint 14: per-step cost for near-zero position
-    position_bonus: float = 0.002  # Sprint 14: small reward for having conviction
+    sharpe_bonus: float = 0.15  # Sprint 16: 0.10→0.15 — stronger risk-adjusted incentive
+    inactivity_penalty: float = 0.01  # Sprint 16: 0.003→0.01 — 3× stronger anti-HOLD
+    position_bonus: float = 0.005  # Sprint 16: 0.002→0.005 — stronger conviction reward
 
 
 @dataclass(frozen=True)
@@ -133,11 +140,13 @@ DEFAULT_FEATURE_SPECS: list[FeatureSpec] = [
         columns=["onchain_active_addresses", "onchain_tx_volume"],
         scaler="robust",
         required=False,
+        weight=0.0,  # Sprint 16: zeroed — placeholder data provides no signal
     ),
     FeatureSpec(
         name="portfolio_state",
         columns=["cash_ratio", "position_ratio", "open_risk", "kelly_fraction"],
         scaler="minmax",
+        weight=1.5,  # Sprint 16: boosted — these are now dynamically simulated
     ),
 ]
 
