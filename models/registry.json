@@ -1,41 +1,46 @@
 {
-  "ppo_conservative_20260224_195358": {
-    "model_id": "ppo_conservative_20260224_195358",
-    "name": "ppo_conservative",
+  "ppo_trend_20260225_181020": {
+    "model_id": "ppo_trend_20260225_181020",
+    "name": "ppo_trend",
     "algorithm": "PPO",
     "version": "v1",
-    "created_at": "2026-02-24T19:53:58.129879",
-    "total_timesteps": 80000,
+    "created_at": "2026-02-25T18:10:20.551115",
+    "total_timesteps": 500000,
     "training_symbols": [
       "AAPL",
+      "MSFT",
+      "GOOGL",
+      "AMZN",
       "NVDA",
-      "TSLA"
+      "META",
+      "TSLA",
+      "AMD",
+      "CRM",
+      "ADBE",
+      "INTC",
+      "QCOM",
+      "SPY",
+      "QQQ",
+      "IWM"
     ],
     "train_start": null,
     "train_end": null,
     "metrics": {
-      "sharpe_ratio": 0.0,
-      "sharpe_train": -1.859257040681524e+16,
-      "sharpe_degradation": 0.0,
-      "total_return": 0.0,
-      "max_drawdown": 0.0,
-      "win_rate": 0.0,
-      "profit_factor": 0.0,
-      "overfit_folds": 0,
-      "total_folds": 15,
-      "is_robust": true,
-      "validation_symbols": [
-        "AAPL",
-        "NVDA",
-        "TSLA"
-      ]
+      "avg_reward": -0.005989,
+      "sharpe_ratio": 0.0279,
+      "max_drawdown": 0.1588,
+      "total_return": 0.7925,
+      "action_diversity": 1.0,
+      "n_trades": 170,
+      "active_pct": 99.6,
+      "train_time_s": 336.8
     },
     "hyperparameters": {
-      "total_timesteps": 80000,
-      "learning_rate": 0.0001,
+      "total_timesteps": 500000,
+      "learning_rate": 0.0002,
       "gamma": 0.995,
-      "gae_lambda": 0.98,
-      "ent_coef": 0.005,
+      "gae_lambda": 0.97,
+      "ent_coef": 0.015,
       "vf_coef": 0.5,
       "seed": 42,
       "use_curriculum": true
@@ -66,53 +71,58 @@
       "open_risk",
       "kelly_fraction"
     ],
-    "model_path": "models/ppo_conservative_20260224_195358/model",
-    "pipeline_path": "models/ppo_conservative_20260224_195358/pipeline.json",
-    "is_active": false,
+    "model_path": "models/ppo_trend_20260225_181020/model",
+    "pipeline_path": "models/ppo_trend_20260225_181020/pipeline.json",
+    "is_active": true,
     "tags": [
-      "conservative",
-      "sprint14",
-      "retrained"
+      "trend",
+      "sprint16",
+      "regime_specific"
     ],
-    "notes": "Low LR, high gamma \u2014 favours patient, risk-averse strategies"
+    "notes": "Sprint 16: Trend regime specialist \u2014 momentum-following policy"
   },
-  "ppo_balanced_20260224_195358": {
-    "model_id": "ppo_balanced_20260224_195358",
-    "name": "ppo_balanced",
+  "ppo_range_20260225_181020": {
+    "model_id": "ppo_range_20260225_181020",
+    "name": "ppo_range",
     "algorithm": "PPO",
     "version": "v1",
-    "created_at": "2026-02-24T19:53:58.170819",
-    "total_timesteps": 60000,
+    "created_at": "2026-02-25T18:10:20.578653",
+    "total_timesteps": 500000,
     "training_symbols": [
       "AAPL",
+      "MSFT",
+      "GOOGL",
+      "AMZN",
       "NVDA",
-      "TSLA"
+      "META",
+      "TSLA",
+      "AMD",
+      "CRM",
+      "ADBE",
+      "INTC",
+      "QCOM",
+      "SPY",
+      "QQQ",
+      "IWM"
     ],
     "train_start": null,
     "train_end": null,
     "metrics": {
-      "sharpe_ratio": 0.0,
-      "sharpe_train": -1.859257040681524e+16,
-      "sharpe_degradation": 0.0,
-      "total_return": 0.0,
-      "max_drawdown": 0.0,
-      "win_rate": 0.0,
-      "profit_factor": 0.0,
-      "overfit_folds": 0,
-      "total_folds": 15,
-      "is_robust": true,
-      "validation_symbols": [
-        "AAPL",
-        "NVDA",
-        "TSLA"
-      ]
+      "avg_reward": -0.06753,
+      "sharpe_ratio": 0.0007,
+      "max_drawdown": 0.3905,
+      "total_return": -0.0985,
+      "action_diversity": 0.99,
+      "n_trades": 146,
+      "active_pct": 99.4,
+      "train_time_s": 307.0
     },
     "hyperparameters": {
-      "total_timesteps": 60000,
-      "learning_rate": 0.0003,
+      "total_timesteps": 500000,
+      "learning_rate": 0.00015,
       "gamma": 0.99,
       "gae_lambda": 0.95,
-      "ent_coef": 0.01,
+      "ent_coef": 0.02,
       "vf_coef": 0.5,
       "seed": 123,
       "use_curriculum": true
@@ -143,53 +153,58 @@
       "open_risk",
       "kelly_fraction"
     ],
-    "model_path": "models/ppo_balanced_20260224_195358/model",
-    "pipeline_path": "models/ppo_balanced_20260224_195358/pipeline.json",
+    "model_path": "models/ppo_range_20260225_181020/model",
+    "pipeline_path": "models/ppo_range_20260225_181020/pipeline.json",
     "is_active": false,
     "tags": [
-      "balanced",
-      "sprint14",
-      "retrained"
+      "range",
+      "sprint16",
+      "regime_specific"
     ],
-    "notes": "Default params with curriculum learning \u2014 general-purpose"
+    "notes": "Sprint 16: Range regime specialist \u2014 mean-reversion policy"
   },
-  "ppo_aggressive_20260224_195358": {
-    "model_id": "ppo_aggressive_20260224_195358",
-    "name": "ppo_aggressive",
+  "ppo_volatile_20260225_181020": {
+    "model_id": "ppo_volatile_20260225_181020",
+    "name": "ppo_volatile",
     "algorithm": "PPO",
     "version": "v1",
-    "created_at": "2026-02-24T19:53:58.239410",
-    "total_timesteps": 60000,
+    "created_at": "2026-02-25T18:10:20.607095",
+    "total_timesteps": 500000,
     "training_symbols": [
       "AAPL",
+      "MSFT",
+      "GOOGL",
+      "AMZN",
       "NVDA",
-      "TSLA"
+      "META",
+      "TSLA",
+      "AMD",
+      "CRM",
+      "ADBE",
+      "INTC",
+      "QCOM",
+      "SPY",
+      "QQQ",
+      "IWM"
     ],
     "train_start": null,
     "train_end": null,
     "metrics": {
-      "sharpe_ratio": 0.0,
-      "sharpe_train": -1.859257040681524e+16,
-      "sharpe_degradation": 0.0,
-      "total_return": 0.0,
-      "max_drawdown": 0.0,
-      "win_rate": 0.0,
-      "profit_factor": 0.0,
-      "overfit_folds": 0,
-      "total_folds": 15,
-      "is_robust": true,
-      "validation_symbols": [
-        "AAPL",
-        "NVDA",
-        "TSLA"
-      ]
+      "avg_reward": -0.066072,
+      "sharpe_ratio": 0.0025,
+      "max_drawdown": 0.3409,
+      "total_return": -0.0549,
+      "action_diversity": 0.98,
+      "n_trades": 582,
+      "active_pct": 97.6,
+      "train_time_s": 316.5
     },
     "hyperparameters": {
-      "total_timesteps": 60000,
-      "learning_rate": 0.0005,
-      "gamma": 0.97,
-      "gae_lambda": 0.9,
-      "ent_coef": 0.02,
+      "total_timesteps": 500000,
+      "learning_rate": 0.0001,
+      "gamma": 0.995,
+      "gae_lambda": 0.98,
+      "ent_coef": 0.01,
       "vf_coef": 0.5,
       "seed": 456,
       "use_curriculum": true
@@ -220,168 +235,14 @@
       "open_risk",
       "kelly_fraction"
     ],
-    "model_path": "models/ppo_aggressive_20260224_195358/model",
-    "pipeline_path": "models/ppo_aggressive_20260224_195358/pipeline.json",
+    "model_path": "models/ppo_volatile_20260225_181020/model",
+    "pipeline_path": "models/ppo_volatile_20260225_181020/pipeline.json",
     "is_active": false,
     "tags": [
-      "aggressive",
-      "sprint14",
-      "retrained"
+      "volatile",
+      "sprint16",
+      "regime_specific"
     ],
-    "notes": "Higher LR, lower gamma \u2014 faster adaptation, momentum trading"
-  },
-  "ppo_explorer_20260224_195358": {
-    "model_id": "ppo_explorer_20260224_195358",
-    "name": "ppo_explorer",
-    "algorithm": "PPO",
-    "version": "v1",
-    "created_at": "2026-02-24T19:53:58.294412",
-    "total_timesteps": 60000,
-    "training_symbols": [
-      "AAPL",
-      "NVDA",
-      "TSLA"
-    ],
-    "train_start": null,
-    "train_end": null,
-    "metrics": {
-      "sharpe_ratio": -0.1188,
-      "sharpe_train": 0.6517,
-      "sharpe_degradation": 1.1823,
-      "total_return": 0.0087,
-      "max_drawdown": 0.023,
-      "win_rate": 0.3168,
-      "profit_factor": Infinity,
-      "overfit_folds": 9,
-      "total_folds": 15,
-      "is_robust": false,
-      "validation_symbols": [
-        "AAPL",
-        "NVDA",
-        "TSLA"
-      ]
-    },
-    "hyperparameters": {
-      "total_timesteps": 60000,
-      "learning_rate": 0.0003,
-      "gamma": 0.99,
-      "gae_lambda": 0.95,
-      "ent_coef": 0.05,
-      "vf_coef": 0.5,
-      "seed": 789,
-      "use_curriculum": false
-    },
-    "feature_columns": [
-      "close",
-      "ema_20",
-      "ema_50",
-      "ema_200",
-      "rsi",
-      "macd",
-      "macd_signal",
-      "macd_hist",
-      "atr",
-      "bb_upper",
-      "bb_lower",
-      "volume",
-      "volume_avg_20",
-      "regime_trend",
-      "regime_range",
-      "regime_volatility",
-      "sentiment_score",
-      "news_sentiment",
-      "onchain_active_addresses",
-      "onchain_tx_volume",
-      "cash_ratio",
-      "position_ratio",
-      "open_risk",
-      "kelly_fraction"
-    ],
-    "model_path": "models/ppo_explorer_20260224_195358/model",
-    "pipeline_path": "models/ppo_explorer_20260224_195358/pipeline.json",
-    "is_active": false,
-    "tags": [
-      "explorer",
-      "sprint14",
-      "retrained"
-    ],
-    "notes": "Very high entropy \u2014 maximum exploration to avoid constant-HOLD"
-  },
-  "ppo_longhorizon_20260224_195358": {
-    "model_id": "ppo_longhorizon_20260224_195358",
-    "name": "ppo_longhorizon",
-    "algorithm": "PPO",
-    "version": "v1",
-    "created_at": "2026-02-24T19:53:58.340244",
-    "total_timesteps": 100000,
-    "training_symbols": [
-      "AAPL",
-      "NVDA",
-      "TSLA"
-    ],
-    "train_start": null,
-    "train_end": null,
-    "metrics": {
-      "sharpe_ratio": 0.7354,
-      "sharpe_train": 1.4585,
-      "sharpe_degradation": 0.4958,
-      "total_return": 0.0226,
-      "max_drawdown": 0.0257,
-      "win_rate": 0.3021,
-      "profit_factor": Infinity,
-      "overfit_folds": 9,
-      "total_folds": 15,
-      "is_robust": false,
-      "validation_symbols": [
-        "AAPL",
-        "NVDA",
-        "TSLA"
-      ]
-    },
-    "hyperparameters": {
-      "total_timesteps": 100000,
-      "learning_rate": 0.0002,
-      "gamma": 0.995,
-      "gae_lambda": 0.97,
-      "ent_coef": 0.01,
-      "vf_coef": 0.5,
-      "seed": 2024,
-      "use_curriculum": true
-    },
-    "feature_columns": [
-      "close",
-      "ema_20",
-      "ema_50",
-      "ema_200",
-      "rsi",
-      "macd",
-      "macd_signal",
-      "macd_hist",
-      "atr",
-      "bb_upper",
-      "bb_lower",
-      "volume",
-      "volume_avg_20",
-      "regime_trend",
-      "regime_range",
-      "regime_volatility",
-      "sentiment_score",
-      "news_sentiment",
-      "onchain_active_addresses",
-      "onchain_tx_volume",
-      "cash_ratio",
-      "position_ratio",
-      "open_risk",
-      "kelly_fraction"
-    ],
-    "model_path": "models/ppo_longhorizon_20260224_195358/model",
-    "pipeline_path": "models/ppo_longhorizon_20260224_195358/pipeline.json",
-    "is_active": true,
-    "tags": [
-      "longhorizon",
-      "sprint14",
-      "retrained"
-    ],
-    "notes": "Extended training (100k steps) \u2014 deep curriculum for robust policy"
+    "notes": "Sprint 16: Volatile regime specialist \u2014 defensive risk-reduction policy"
   }
 }
