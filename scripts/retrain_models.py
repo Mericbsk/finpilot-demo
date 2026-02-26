@@ -43,7 +43,7 @@ from drl.callbacks import (  # noqa: E402
     CurriculumPhase,
     TrainingMetricsCallback,
 )
-from drl.config import DEFAULT_CONFIG, MarketEnvConfig  # noqa: E402
+from drl.config import DEFAULT_CONFIG, MarketEnvConfig, RewardWeights  # noqa: E402
 from drl.data_loader import (  # noqa: E402
     fetch_training_data,
     prepare_episode_data,
@@ -135,25 +135,26 @@ VARIANTS: list[ModelVariant] = [
     ),
     # -------------------------------------------------------------------
     # RANGE SPECIALIST — mean-reversion, buys dips / sells peaks
+    # Sprint 17: Optuna-optimised HP (Trial #33, obj=0.0641, Sharpe=0.0069)
     # -------------------------------------------------------------------
     ModelVariant(
         name="ppo_range",
         tag="range",
         total_timesteps=500_000,
-        learning_rate=1.5e-4,
-        gamma=0.99,
-        gae_lambda=0.95,
-        ent_coef=0.02,
-        vf_coef=0.5,
+        learning_rate=7.1e-5,  # Optuna: 0.000071
+        gamma=0.9888,  # Optuna: 0.988847
+        gae_lambda=0.987,  # Optuna: 0.987229
+        ent_coef=0.068,  # Optuna: 0.068319
+        vf_coef=0.514,  # Optuna: 0.513745
         seed=123,
         use_curriculum=True,
-        notes="Sprint 16: Range regime specialist — mean-reversion policy",
+        notes="Sprint 17: Optuna-optimised range specialist (Trial #33)",
         regime_filter="range",
-        n_steps=4096,
-        batch_size=256,
-        n_epochs=5,
-        clip_range=0.15,
-        max_grad_norm=0.3,
+        n_steps=2048,  # Optuna: 2048  (was 4096)
+        batch_size=256,  # Optuna: 256   (unchanged)
+        n_epochs=3,  # Optuna: 3     (was 5)
+        clip_range=0.242,  # Optuna: 0.242076 (was 0.15)
+        max_grad_norm=0.625,  # Optuna: 0.624537 (was 0.3)
     ),
     # -------------------------------------------------------------------
     # VOLATILE SPECIALIST — defensive, reduces exposure in chaos
@@ -207,7 +208,9 @@ def train_single_variant(
         if len(regime_rows) >= 1000:
             # Enough regime-specific data — use only that regime
             _train = regime_rows.copy()
-            logger.info(f"  Regime filter '{variant.regime_filter}': {len(_train)}/{len(train_df)} rows (pure)")
+            logger.info(
+                f"  Regime filter '{variant.regime_filter}': {len(_train)}/{len(train_df)} rows (pure)"
+            )
         elif len(regime_rows) >= 100:
             # Not enough for pure regime — oversample regime rows + keep full data
             # Weight: 3x regime rows + 1x non-regime rows
@@ -223,6 +226,52 @@ def train_single_variant(
             logger.warning(
                 f"  Regime '{variant.regime_filter}' has only {len(regime_rows)} rows — using full data"
             )
+
+    # Sprint 17: Optuna-optimised reward weights for range specialist
+    if variant.tag == "range":
+        optuna_reward = RewardWeights(
+            pnl=13.878,
+            drawdown=0.623,
+            cost=config.reward.cost,
+            leverage=config.reward.leverage,
+            regime_bonus=config.reward.regime_bonus,
+            turnover_penalty=config.reward.turnover_penalty,
+            sharpe_bonus=0.179,
+            inactivity_penalty=0.0135,
+            position_bonus=0.0096,
+        )
+        config = MarketEnvConfig(
+            feature_specs=config.feature_specs,
+            reward=optuna_reward,
+            transaction_costs=config.transaction_costs,
+            pilotshield=config.pilotshield,
+            schema_version=config.schema_version,
+            target_dtype=config.target_dtype,
+        )
+        logger.info("  Using Optuna-optimised reward weights for range specialist")
+
+    # Sprint 17: Optuna-optimised reward weights for range specialist
+    if variant.tag == "range":
+        optuna_reward = RewardWeights(
+            pnl=13.878,
+            drawdown=0.623,
+            cost=config.reward.cost,
+            leverage=config.reward.leverage,
+            regime_bonus=config.reward.regime_bonus,
+            turnover_penalty=config.reward.turnover_penalty,
+            sharpe_bonus=0.179,
+            inactivity_penalty=0.0135,
+            position_bonus=0.0096,
+        )
+        config = MarketEnvConfig(
+            feature_specs=config.feature_specs,
+            reward=optuna_reward,
+            transaction_costs=config.transaction_costs,
+            pilotshield=config.pilotshield,
+            schema_version=config.schema_version,
+            target_dtype=config.target_dtype,
+        )
+        logger.info("  Using Optuna-optimised reward weights for range specialist")
 
     # Prepare episode data
     train_episode = prepare_episode_data(_train, config)

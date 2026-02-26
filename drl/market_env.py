@@ -203,8 +203,10 @@ class MarketEnv(BaseEnv):
 
         # Update portfolio equity and drawdown
         self._position = target_position
+        # Sprint 17: clamp pnl to avoid equity overflow → NaN
+        pnl = float(np.clip(pnl, -0.5, 0.5))
         self._equity *= 1.0 + pnl
-        self._equity = max(self._equity, 1e-6)
+        self._equity = float(np.clip(self._equity, 1e-6, 1e12))
         self._max_equity = max(self._max_equity, self._equity)
         drawdown = 1.0 - (self._equity / self._max_equity)
 
