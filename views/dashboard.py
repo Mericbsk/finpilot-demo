@@ -68,95 +68,65 @@ def load_csv(path: str):
 
 
 def _render_drl_model_status():
-    """DRL Model Registry durumunu gosteren panel.
-
-    Registry format: flat dict { model_id: { metadata_dict } }
-    Each metadata has: model_id, name, algorithm, is_active, metrics, etc.
-    """
-    st.markdown("### \U0001f916 DRL Model Durumu")
+    """DRL Model Registry durumunu gosteren panel (flat-dict format, 3 rejim ajani)."""
+    st.markdown("### \U0001f916 DRL Model Durumu \u2014 3 Rejim Ajani")
 
     registry_path = os.path.join(os.getcwd(), "models", "registry.json")
     if not os.path.exists(registry_path):
-        st.info("Henuz egitilmis model bulunamadi.")
+        st.info("Henuz egitilmis model bulunamadi. Sprint 14 model egitimini calistirin.")
         return
 
     try:
         with open(registry_path) as f:
-            registry_data = json.load(f)
+            registry = json.load(f)
     except Exception as e:
         st.error(f"Registry okunamadi: {e}")
         return
 
-    # Registry is a flat dict: { model_id: { ...metadata... } }
-    if not isinstance(registry_data, dict) or not registry_data:
-        st.info("Registry bos.")
+    if not isinstance(registry, dict) or not registry:
+        st.info("Registry'de kayitli model yok.")
         return
 
-    models = list(registry_data.values())
-    if not models or not isinstance(models[0], dict):
-        st.info("Registry'de gecerli model bulunamadi.")
-        return
+    # Collect active models by regime tag
+    active_models = {k: v for k, v in registry.items() if v.get("is_active")}
+    tag_icons = {"trend": "\U0001f4c8", "volatile": "\U0001f30a", "range": "\U0001f4d0"}
 
-    # Find active model
-    active = next((m for m in models if m.get("is_active")), None)
+    st.success(f"**Aktif Model Sayisi:** {len(active_models)} / {len(registry)}")
 
-    if active:
-        active_name = active.get("name", active.get("model_id", "?"))
-        st.success(f"**Aktif Model:** `{active_name}`")
-        col1, col2, col3, col4 = st.columns(4)
-        metrics = active.get("metrics", {})
-        sharpe = metrics.get("sharpe_ratio") or metrics.get("test_sharpe")
-        col1.metric(
-            "Sharpe Ratio",
-            f"{sharpe:.3f}" if isinstance(sharpe, (int, float)) else "N/A",
-        )
-        total_ret = metrics.get("total_return")
-        col2.metric(
-            "Toplam Getiri",
-            f"{total_ret:.1%}" if isinstance(total_ret, (int, float)) else "N/A",
-        )
-        max_dd = metrics.get("max_drawdown")
-        col3.metric(
-            "Max Drawdown",
-            f"{max_dd:.1%}" if isinstance(max_dd, (int, float)) else "N/A",
-        )
-        win_rate = metrics.get("win_rate")
-        col4.metric(
-            "Win Rate",
-            f"{win_rate:.1%}" if isinstance(win_rate, (int, float)) else "N/A",
-        )
+    cols = st.columns(min(len(active_models), 3)) if active_models else []
+    for idx, (model_id, meta) in enumerate(active_models.items()):
+        tags = meta.get("tags", [])
+        tag = tags[0] if tags else "unknown"
+        icon = tag_icons.get(tag, "\U0001f916")
+        metrics = meta.get("metrics", {})
+        sharpe = metrics.get("test_sharpe", 0)
+        ret = metrics.get("test_return") or metrics.get("total_return", 0)
+        trades = metrics.get("total_trades", "N/A")
 
-        # Extra details
-        with st.expander("Aktif Model Detaylari", expanded=False):
-            det_c1, det_c2 = st.columns(2)
-            det_c1.markdown(f"- **Algoritma:** {active.get('algorithm', '?')}")
-            det_c1.markdown(f"- **Versiyon:** {active.get('version', '?')}")
-            ts = active.get("total_timesteps", 0)
-            det_c1.markdown(f"- **Timesteps:** {ts:,}")
-            created = active.get("created_at", "?")
-            det_c2.markdown(f"- **Olusturulma:** {str(created)[:19]}")
-            symbols = active.get("training_symbols", [])
-            det_c2.markdown(f"- **Semboller:** {', '.join(symbols)}")
-            tags = active.get("tags", [])
-            if tags:
-                det_c2.markdown(f"- **Etiketler:** {', '.join(tags)}")
-    else:
-        st.warning("Aktif model secili degil.")
+        with cols[idx % len(cols)]:
+            st.markdown(f"#### {icon} {tag.upper()} Agent")
+            st.caption(f"`{model_id}`")
+            m1, m2 = st.columns(2)
+            m1.metric("Sharpe", f"{sharpe:.4f}" if isinstance(sharpe, (int, float)) else "N/A")
+            m2.metric("Return", f"{ret:+.1%}" if isinstance(ret, (int, float)) else "N/A")
+            st.metric("Islem Sayisi", trades)
 
     # All models table
-    with st.expander(f"\U0001f4cb Tum Modeller ({len(models)})", expanded=True):
+    with st.expander(f"\U0001f4cb Tum Modeller ({len(registry)})", expanded=False):
         rows = []
-        for m in models:
-            met = m.get("metrics", {})
-            s = met.get("sharpe_ratio") or met.get("test_sharpe")
+        for mid, meta in registry.items():
+            met = meta.get("metrics", {})
+            tags = meta.get("tags", [])
+            s = met.get("test_sharpe") or met.get("sharpe_ratio")
+            r = met.get("test_return") or met.get("total_return")
             rows.append(
                 {
-                    "Model": m.get("name", "?"),
-                    "Algoritma": m.get("algorithm", "?"),
-                    "Sharpe": round(s, 3) if isinstance(s, (int, float)) else None,
-                    "Robust": "\u2705" if met.get("is_robust") else "\u274c",
-                    "Aktif": "\u2705" if m.get("is_active") else "",
-                    "Etiketler": ", ".join(m.get("tags", [])),
+                    "Model ID": mid,
+                    "Tag": tags[0] if tags else "-",
+                    "Sharpe": round(s, 4) if isinstance(s, (int, float)) else None,
+                    "Return": f"{r:+.1%}" if isinstance(r, (int, float)) else None,
+                    "Islem": met.get("total_trades", None),
+                    "Aktif": "\u2705" if meta.get("is_active") else "",
                 }
             )
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
@@ -165,93 +135,162 @@ def _render_drl_model_status():
     if DRL_AVAILABLE:
         st.caption("\u2705 DRL modulu aktif \u2014 canli tahminler kullanilabilir.")
     else:
-        st.caption("\u26a0\ufe0f DRL modulu yuklenemedi \u2014 `pip install stable-baselines3` gerekebilir.")
+        st.caption(
+            "\u26a0\ufe0f DRL modulu yuklenemedi \u2014 `pip install stable-baselines3` gerekebilir."
+        )
 
 
+def _render_ensemble_status(df):
+    """Ensemble Router durumu ve canli tahminler paneli."""
+    st.markdown("### \U0001f3af Ensemble Router \u2014 3 Ajan Oylama")
 
-def _render_drl_model_comparison():
-    """DRL Model karsilastirma tablosu — tum modellerin metriklerini yan yana gosterir."""
-    st.markdown("### \U0001f916 DRL Model Karsilastirma")
-    st.caption("Sprint 14'te egitilen tum PPO varyantlarinin performans metrikleri.")
+    try:
+        from drl.ensemble_router import ENSEMBLE_AVAILABLE as ENS_OK
+        from drl.ensemble_router import get_ensemble_router
+    except ImportError:
+        ENS_OK = False
 
-    registry_path = os.path.join(os.getcwd(), "models", "registry.json")
-    if not os.path.exists(registry_path):
-        st.info("Model registry bulunamadi.")
+    if not ENS_OK:
+        st.warning("Ensemble Router modulu yuklenemedi.")
+        return
+
+    router = get_ensemble_router()
+    status = router.get_status()
+
+    # Status cards
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Router Durumu", "\u2705 Aktif" if status.get("loaded") else "\u274c Pasif")
+    c2.metric("Yuklu Ajan", f"{status.get('n_agents', 0)} / 3")
+    c3.metric("Mevcut Rejim", status.get("current_regime", "N/A"))
+
+    # Agent detail
+    agents_info = status.get("agents", {})
+    if agents_info:
+        st.markdown("#### Ajan Detaylari")
+        tag_icons = {"trend": "\U0001f4c8", "volatile": "\U0001f30a", "range": "\U0001f4d0"}
+        agent_cols = st.columns(len(agents_info))
+        for idx, (tag, info) in enumerate(agents_info.items()):
+            with agent_cols[idx]:
+                icon = tag_icons.get(tag, "\U0001f916")
+                loaded = "\u2705" if info.get("loaded") else "\u274c"
+                st.markdown(f"**{icon} {tag.upper()}** {loaded}")
+                st.caption(f"Model: `{info.get('model_id', 'N/A')}`")
+
+    st.divider()
+
+    # Live predictions
+    st.markdown("#### \U0001f52e Canli Ensemble Tahminleri")
+    if df is not None and not df.empty and status.get("loaded"):
+        symbols = df["symbol"].tolist()[:15]
+        try:
+            results = router.batch_predict(symbols)
+            pred_rows = []
+            action_map = {0: "\U0001f534 SAT", 1: "\u26aa TUT", 2: "\U0001f7e2 AL"}
+            for res in results:
+                pred_rows.append(
+                    {
+                        "Sembol": res.symbol,
+                        "Karar": action_map.get(res.final_action, "?"),
+                        "Guven": f"{res.final_confidence:.1%}",
+                        "Rejim": res.dominant_regime,
+                        "Uzlasi": f"{res.agreement_score:.1%}",
+                        "Pozisyon": f"{res.suggested_position:+.2f}",
+                    }
+                )
+            st.dataframe(pd.DataFrame(pred_rows), use_container_width=True, hide_index=True)
+
+            # Vote breakdown
+            with st.expander("\U0001f5f3\ufe0f Ajan Oy Detaylari", expanded=False):
+                for res in results:
+                    st.markdown(f"**{res.symbol}**")
+                    vote_data = []
+                    for v in res.votes:
+                        vote_data.append(
+                            {
+                                "Ajan": v.agent_tag,
+                                "Aksiyon": action_map.get(v.action, "?"),
+                                "Guven": f"{v.confidence:.1%}",
+                                "Agirlik": f"{v.weight:.2f}",
+                            }
+                        )
+                    st.dataframe(pd.DataFrame(vote_data), use_container_width=True, hide_index=True)
+        except Exception as e:
+            st.error(f"Ensemble tahmin hatasi: {e}")
+    elif df is None or df.empty:
+        st.info("Tahmin icin once tarama yapin.")
+    else:
+        st.warning("Ensemble Router yuklenemedi \u2014 modeller eksik olabilir.")
+
+
+def _render_optuna_results():
+    """Optuna HP optimizasyon sonuclarini gosterir."""
+    st.markdown("### \U0001f52c Optuna Hiperparametre Optimizasyonu")
+
+    results_path = os.path.join(os.getcwd(), "data", "optuna_range_results.json")
+    if not os.path.exists(results_path):
+        st.info("Henuz Optuna sonucu bulunamadi. `scripts/optuna_range.py` calistirin.")
         return
 
     try:
-        with open(registry_path) as f:
-            registry_data = json.load(f)
-    except Exception:
-        st.error("Registry okunamadi.")
+        with open(results_path) as f:
+            data = json.load(f)
+    except Exception as e:
+        st.error(f"Optuna sonuclari okunamadi: {e}")
         return
 
-    if not isinstance(registry_data, dict) or not registry_data:
-        st.info("Registry bos.")
-        return
+    best = data.get("best_params", {})
+    best_attrs = data.get("best_attrs", {})
+    best_value = data.get("best_value", 0)
+    best_trial = data.get("best_trial", "?")
+    trials = data.get("all_trials", [])
 
-    models = list(registry_data.values())
+    # Summary cards
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("En Iyi Trial", f"#{best_trial}")
+    c2.metric("Objektif Skor", f"{best_value:.4f}")
+    c3.metric("Sharpe", f"{best_attrs.get('sharpe', 0):.4f}")
+    c4.metric("Return", f"{best_attrs.get('total_return', 0):+.1%}")
 
-    # Build comparison table
-    rows = []
-    for m in models:
-        met = m.get("metrics", {})
-        rows.append({
-            "Model": m.get("name", "?"),
-            "Sharpe": met.get("sharpe_ratio", 0),
-            "Toplam Getiri": met.get("total_return", 0),
-            "Max Drawdown": met.get("max_drawdown", 0),
-            "Win Rate": met.get("win_rate", 0),
-            "Profit Factor": met.get("profit_factor", 0),
-            "Robust": met.get("is_robust", False),
-            "Overfit Folds": f"{met.get('overfit_folds', 0)}/{met.get('total_folds', 0)}",
-            "Aktif": "\u2705" if m.get("is_active") else "",
-        })
+    # Best params
+    with st.expander("\U0001f3c6 En Iyi Hiperparametreler", expanded=True):
+        param_cols = st.columns(3)
+        param_items = list(best.items())
+        for i, (k, v) in enumerate(param_items):
+            with param_cols[i % 3]:
+                if isinstance(v, float):
+                    st.metric(k, f"{v:.6f}")
+                else:
+                    st.metric(k, str(v))
 
-    comp_df = pd.DataFrame(rows)
+    # Trial chart
+    if trials:
+        st.markdown("#### \U0001f4ca Trial Performanslari")
+        trial_df = pd.DataFrame(trials)
+        if "value" in trial_df.columns and "number" in trial_df.columns:
+            chart_df = trial_df[["number", "value"]].dropna()
+            chart_df = chart_df.rename(columns={"number": "Trial", "value": "Objektif"})
+            st.line_chart(chart_df.set_index("Trial"))
 
-    # Highlight best values
-    st.dataframe(
-        comp_df,
-        column_config={
-            "Sharpe": st.column_config.NumberColumn(format="%.3f"),
-            "Toplam Getiri": st.column_config.NumberColumn(format="%.1%%"),
-            "Max Drawdown": st.column_config.NumberColumn(format="%.1%%"),
-            "Win Rate": st.column_config.NumberColumn(format="%.1%%"),
-            "Profit Factor": st.column_config.NumberColumn(format="%.2f"),
-        },
-        use_container_width=True,
-        hide_index=True,
-    )
+        # Top 5 table
+        st.markdown("#### \U0001f3c5 En Iyi 5 Trial")
+        top5 = trial_df.nlargest(5, "value") if "value" in trial_df.columns else trial_df.head(5)
+        display_cols = ["number", "value"]
+        if "params" in top5.columns:
+            params_expanded = pd.json_normalize(top5["params"])
+            top5_display = pd.concat(
+                [
+                    top5[["number", "value"]].reset_index(drop=True),
+                    params_expanded.reset_index(drop=True),
+                ],
+                axis=1,
+            )
+        else:
+            top5_display = (
+                top5[display_cols] if all(c in top5.columns for c in display_cols) else top5
+            )
+        st.dataframe(top5_display, use_container_width=True, hide_index=True)
 
-    # --- Bar chart: Sharpe comparison ---
-    if len(rows) > 1:
-        st.markdown("#### Sharpe Ratio Karsilastirmasi")
-        chart_df = comp_df[["Model", "Sharpe"]].set_index("Model")
-        st.bar_chart(chart_df)
-
-    # --- Hyperparameter comparison ---
-    with st.expander("\u2699\ufe0f Hyperparameter Karsilastirmasi", expanded=False):
-        hp_rows = []
-        for m in models:
-            hp = m.get("hyperparameters", {})
-            hp_rows.append({
-                "Model": m.get("name", "?"),
-                "Learning Rate": hp.get("learning_rate", "?"),
-                "Gamma": hp.get("gamma", "?"),
-                "GAE Lambda": hp.get("gae_lambda", "?"),
-                "Ent Coef": hp.get("ent_coef", "?"),
-                "Timesteps": hp.get("total_timesteps", "?"),
-            })
-        st.dataframe(pd.DataFrame(hp_rows), use_container_width=True, hide_index=True)
-
-    # --- Training notes ---
-    with st.expander("\U0001f4dd Model Notlari", expanded=False):
-        for m in models:
-            note = m.get("notes", "")
-            if note:
-                active_tag = " \u2705" if m.get("is_active") else ""
-                st.markdown(f"**{m.get('name', '?')}{active_tag}:** {note}")
+    st.caption(f"Toplam {len(trials)} trial tamamlandi.")
 
 
 def render_scanner_page():
@@ -1125,7 +1164,14 @@ def render_scanner_page():
                     compute_recommendation_score, axis=1
                 )
 
-            desired_cols = ["symbol", "price", "recommendation_score", "entry_ok", "regime", "sentiment"]
+            desired_cols = [
+                "symbol",
+                "price",
+                "recommendation_score",
+                "entry_ok",
+                "regime",
+                "sentiment",
+            ]
             display_cols = [c for c in desired_cols if c in market_df.columns]
 
             col_cfg = {}
@@ -1155,8 +1201,14 @@ def render_scanner_page():
 
     # --- TAB 3: AI Laboratuvarı ---
     with tab_ai:
-        ai_sub_tab1, ai_sub_tab2, ai_sub_tab3 = st.tabs(
-            ["🧠 AI Araştırma", "⚡ Hybrid Engine", "🤖 DRL Model Durumu"]
+        ai_sub_tab1, ai_sub_tab2, ai_sub_tab3, ai_sub_tab4, ai_sub_tab5 = st.tabs(
+            [
+                "🧠 AI Araştırma",
+                "⚡ Hybrid Engine",
+                "🤖 Model Durumu",
+                "🎯 Ensemble Router",
+                "🔬 Optuna HP",
+            ]
         )
 
         # --- AI Research Sub-tab ---
@@ -1198,9 +1250,17 @@ def render_scanner_page():
         with ai_sub_tab2:
             render_hybrid_panel(df)
 
-        # --- DRL Model Status Sub-tab (Sprint 14) ---
+        # --- DRL Model Status Sub-tab (Sprint 17 updated) ---
         with ai_sub_tab3:
             _render_drl_model_status()
+
+        # --- Ensemble Router Sub-tab (Sprint 17 new) ---
+        with ai_sub_tab4:
+            _render_ensemble_status(df)
+
+        # --- Optuna HP Sub-tab (Sprint 17 new) ---
+        with ai_sub_tab5:
+            _render_optuna_results()
 
     # --- TAB 4: Performans ---
     with tab_perf:
@@ -1220,7 +1280,7 @@ def render_scanner_page():
             render_scan_history_page()
 
         with perf_sub3:
-            _render_drl_model_comparison()
+            _render_drl_model_status()
 
         with perf_sub4:
             st.markdown("### \U0001f4ca WFO & Backtest Sonuclari")

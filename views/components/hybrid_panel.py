@@ -1,7 +1,7 @@
-"""Hybrid Engine Dashboard Panel — Scanner + DRL consensus view.
+"""Hybrid Engine Dashboard Panel — Scanner + DRL Ensemble consensus view.
 
-Sprint 13 — Item #6: Integrates the HybridEngine into the AI Lab tab,
-showing side-by-side scanner vs DRL signals and consensus decisions.
+Sprint 17 — Updated to use Ensemble Router (3 regime agents) with
+fallback to single-model HybridEngine.
 """
 
 from __future__ import annotations
@@ -14,12 +14,20 @@ import streamlit as st
 
 logger = logging.getLogger(__name__)
 
-# Lazy import flag
+# Lazy import flags
 _HYBRID_AVAILABLE = False
 try:
     from drl.hybrid_engine import HybridEngine, ScannerSignal
 
     _HYBRID_AVAILABLE = True
+except ImportError:
+    pass
+
+_ENSEMBLE_AVAILABLE = False
+try:
+    from drl.ensemble_router import get_ensemble_router
+
+    _ENSEMBLE_AVAILABLE = True
 except ImportError:
     pass
 
@@ -42,25 +50,135 @@ def _scanner_action_from_row(row: pd.Series) -> str:
     return "HOLD"
 
 
+def _render_ensemble_hybrid(df: pd.DataFrame) -> bool:
+    """Render hybrid panel using Ensemble Router (3 agents).
+
+    Returns True if rendered successfully, False to signal fallback.
+    """
+    from scanner import compute_recommendation_score
+
+    router = get_ensemble_router()
+    status = router.get_status()
+
+    if not status.get("loaded"):
+        st.warning("Ensemble Router yüklenemedi — tekil model moduna düşülüyor.")
+        return False
+
+    top_df = df.copy()
+    if "recommendation_score" not in top_df.columns:
+        top_df["recommendation_score"] = top_df.apply(compute_recommendation_score, axis=1)
+    top_df = top_df.sort_values("recommendation_score", ascending=False).head(10)
+
+    symbols = top_df["symbol"].tolist()
+    action_map = {0: "SAT", 1: "TUT", 2: "AL"}
+    action_icons = {0: "🔴", 1: "⚪", 2: "🟢"}
+
+    try:
+        ens_results = router.batch_predict(symbols)
+        ens_map = {r.symbol: r for r in ens_results}
+    except Exception as e:
+        st.error(f"Ensemble tahmin hatası: {e}")
+        return True  # Don't fallback, just show error
+
+    rows: list[dict[str, Any]] = []
+    agree_count = 0
+    total_count = 0
+
+    for _, row in top_df.iterrows():
+        symbol = row["symbol"]
+        scanner_action = _scanner_action_from_row(row)
+        ens = ens_map.get(symbol)
+
+        if ens:
+            drl_action_str = action_map.get(ens.final_action, "?")
+            drl_icon = action_icons.get(ens.final_action, "?")
+
+            # Agreement: scanner and ensemble agree
+            agree = (
+                (scanner_action == "BUY" and ens.final_action == 2)
+                or (scanner_action == "SELL" and ens.final_action == 0)
+                or (scanner_action == "HOLD" and ens.final_action == 1)
+            )
+            if agree:
+                agree_count += 1
+            total_count += 1
+
+            # Consensus logic
+            if agree:
+                consensus = scanner_action
+            elif ens.final_confidence > 0.7:
+                consensus = drl_action_str
+            else:
+                consensus = scanner_action
+
+            rows.append(
+                {
+                    "Sembol": symbol,
+                    "Scanner": scanner_action,
+                    "Ensemble": f"{drl_icon} {drl_action_str}",
+                    "Konsensüs": consensus,
+                    "Güven": f"{ens.final_confidence:.0%}",
+                    "Uzlaşı": f"{ens.agreement_score:.0%}",
+                    "Rejim": ens.dominant_regime,
+                    "Uyum": "✅" if agree else "⚠️",
+                    "Pozisyon": f"{ens.suggested_position:+.2f}",
+                }
+            )
+        else:
+            rows.append(
+                {
+                    "Sembol": symbol,
+                    "Scanner": scanner_action,
+                    "Ensemble": "N/A",
+                    "Konsensüs": scanner_action,
+                    "Güven": "—",
+                    "Uzlaşı": "—",
+                    "Rejim": "—",
+                    "Uyum": "❌",
+                    "Pozisyon": "—",
+                }
+            )
+
+    if rows:
+        agree_pct = agree_count / total_count * 100 if total_count else 0
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Sembol Sayısı", total_count)
+        c2.metric("Uyum Oranı", f"{agree_pct:.0f}%")
+        c3.metric("Ajan Sayısı", status.get("n_agents", 0))
+        c4.metric("Rejim", status.get("current_regime", "N/A"))
+
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    else:
+        st.warning("Hibrit sinyal üretilemedi.")
+
+    return True
+
+
 def render_hybrid_panel(df: pd.DataFrame | None) -> None:
     """Render the Hybrid Engine panel inside the AI Lab tab.
 
-    Shows scanner vs DRL comparisons and consensus decisions for
-    the top symbols from the latest scan.
+    Uses Ensemble Router (3 regime agents) with fallback to single model.
     """
-    st.markdown("### ⚡ Hybrid Engine — Scanner + DRL Konsensüs")
+    st.markdown("### ⚡ Hybrid Engine — Scanner + Ensemble Konsensüs")
 
+    if df is None or df.empty:
+        st.info("Tarama verisi yok — önce bir tarama çalıştırın.")
+        return
+
+    # Try ensemble first
+    if _ENSEMBLE_AVAILABLE and _render_ensemble_hybrid(df):
+        return  # ensemble succeeded
+
+    # Fallback to single model HybridEngine
     if not _HYBRID_AVAILABLE:
         st.info("Hybrid Engine modülü yüklenemedi. (drl/hybrid_engine.py)")
         return
 
     if not _DRL_AVAILABLE or not has_trained_model():
-        st.info("DRL modeli yüklü değil. Önce model eğitimi veya registry population gerekiyor.")
+        st.info("DRL modeli yüklü değil. Önce model eğitimi gerekiyor.")
         return
 
-    if df is None or df.empty:
-        st.info("Tarama verisi yok — önce bir tarama çalıştırın.")
-        return
+    st.caption("⚠️ Ensemble Router kullanılamıyor — tekil model modu aktif.")
 
     # Mode selector
     mode = st.radio(
@@ -81,13 +199,11 @@ def render_hybrid_panel(df: pd.DataFrame | None) -> None:
 
         registry = get_registry("models/")
         active_meta = None
-        # Search all PPO models for the active one
         for m in registry.list_models(algorithm="PPO"):
             if m.is_active:
                 active_meta = m
                 break
         if not active_meta:
-            # Fallback: get latest PPO model
             all_ppo = registry.list_models(algorithm="PPO")
             active_meta = all_ppo[0] if all_ppo else None
 
@@ -169,7 +285,6 @@ def render_hybrid_panel(df: pd.DataFrame | None) -> None:
             )
 
     if rows:
-        # Summary metrics
         agree_pct = agree_count / total_count * 100 if total_count else 0
         col1, col2, col3 = st.columns(3)
         col1.metric("Sembol Sayısı", total_count)
