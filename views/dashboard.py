@@ -473,7 +473,7 @@ def render_scanner_page():
         st.session_state["preset_symbols"] = None
 
     preset_tabs = st.tabs(
-        ["🔥 Popüler", "💼 Sektörler", "🎯 Tematik", "📈 Strateji", "🌐 Bölgesel"]
+        ["🔥 Popüler", "💼 Sektörler", "🌐 FinPilot Sektör", "🎯 Tematik", "📈 Strateji", "🌐 Bölgesel"]
     )
 
     def _render_preset_row(keys, prefix):
@@ -514,13 +514,29 @@ def render_scanner_page():
             "sec",
         )
 
-    with preset_tabs[2]:  # Tematik
+    with preset_tabs[2]:  # FinPilot Sektör
+        st.caption("📊 Sektör bazlı optimize edilmiş NASDAQ tarama setleri")
+        _render_preset_row(
+            [
+                "fp_technology",
+                "fp_health_care",
+                "fp_finance",
+                "fp_industrials",
+                "fp_energy",
+                "fp_consumer_staples",
+                "fp_real_estate",
+                "fp_miscellaneous",
+            ],
+            "fp",
+        )
+
+    with preset_tabs[3]:  # Tematik
         _render_preset_row(
             ["ev_mobility", "space_defense", "crypto_blockchain", "cloud_saas"],
             "theme",
         )
 
-    with preset_tabs[3]:  # Strateji
+    with preset_tabs[4]:  # Strateji
         _render_preset_row(
             [
                 "high_dividend",
@@ -532,7 +548,7 @@ def render_scanner_page():
             "strat",
         )
 
-    with preset_tabs[4]:  # Bölgesel
+    with preset_tabs[5]:  # Bölgesel
         _render_preset_row(
             ["international_mix"],
             "region",

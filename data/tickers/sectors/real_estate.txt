@@ -1,0 +1,35 @@
+# 🏠 Gayrimenkul & Platformlar
+# REIT, e-ticaret, gayrimenkul platformları (NASDAQ)
+MELI
+EQIX
+EBAY
+TCOM
+FISV
+AGNCN
+AGNCO
+AGNCL
+AGNCP
+AGNCM
+SBAC
+CSGP
+GRAB
+REG
+HST
+LAMR
+AKAM
+GLPI
+AGNC
+Z
+ZG
+CART
+LINE
+HQY
+FRMI
+LYFT
+SBRA
+PECO
+LAUR
+EXLS
+LOPE
+DHCNL
+DHCNI

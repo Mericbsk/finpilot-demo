@@ -1175,6 +1175,108 @@ STOCK_PRESETS: dict[str, StockPreset] = {
             "MIRM",
         ],
     ),
+    # ============================================
+    # 🌐 FINPILOT SEKTÖR TARAMA SETLERİ
+    # (Sektör bazlı optimize edilmiş NASDAQ listeler)
+    # ============================================
+    "fp_consumer_staples": StockPreset(
+        name="FP: Temel Tüketim",
+        icon="🛒",
+        description="İçecek, gıda, tüketim ürünleri — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "MNST", "MDLZ", "CCEP", "KDP", "KHC", "CELH", "COKE", "PPC",
+            "SFD", "CPB", "SFM", "MZTI", "CALM", "FRPT", "FIZZ", "COCO",
+            "SONO", "IMKTA", "JJSF", "SMPL", "VITL", "AVO", "GO", "JBSS",
+            "SENEA", "ARKO", "MAMA", "VLGEA", "MGPI", "DNUT", "WEST",
+            "OTLY", "LWAY", "BYND", "WEYS", "AFRI",
+        ],
+    ),
+    "fp_energy": StockPreset(
+        name="FP: Enerji",
+        icon="⚡",
+        description="Petrol, gaz, yenilenebilir, kömür — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "FANG", "EXE", "WWD", "VNOM", "PAA", "APA", "LFUS", "POWL",
+            "CHRD", "PAGP", "ARLP", "PTEN", "MGEE", "PLUG", "NESR", "CLMT",
+            "DMLP", "METC", "ACDC", "APC", "HNRG", "FIP", "HPK", "BLDP",
+            "FCEL", "PNRG", "AREC", "NUAI", "ANNA", "EPSN", "KGEI",
+            "TUSK", "NCSM", "DWSN", "USEG", "KLXE",
+        ],
+    ),
+    "fp_finance": StockPreset(
+        name="FP: Finans",
+        icon="🏦",
+        description="Bankacılık, brokerage, sigorta, fintech — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "CME", "HOOD", "NDAQ", "COIN", "HBAN", "ACGL", "FITB", "IBKR",
+            "WTW", "TW", "NTRS", "LPLA", "CINF", "FCNCA", "SOFI", "FUTU",
+            "PFG", "TROW", "CG", "AFRM", "TPG", "EWBC",
+        ],
+    ),
+    "fp_health_care": StockPreset(
+        name="FP: Sağlık",
+        icon="💊",
+        description="Biyotek, medikal cihaz, ilaç — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "GILD", "ISRG", "VRTX", "SNY", "REGN", "MDLN", "ARGX", "IDXX",
+            "ALNY", "ONC", "GEHC", "INSM", "NTRA", "BIIB", "DXCM", "BNTX",
+            "RPRX", "UTHR", "INCY", "RVMD", "EXAS", "MRNA", "ROIV", "GMAB",
+            "VTRS", "ILMN", "PODD", "HOLX", "COO", "ASND", "ALGN",
+        ],
+    ),
+    "fp_industrials": StockPreset(
+        name="FP: Sanayi",
+        icon="🏭",
+        description="Havacılık, savunma, lojistik, üretim — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "HON", "ADP", "CTAS", "CSX", "TER", "ODFL", "PYPL", "RKLB",
+            "AXON", "ESLT", "PAYX", "SYM", "FTAI", "STLD", "VRSK", "FOXA",
+            "RGLD", "CHRW", "JBHT", "ENTG", "LI", "RIVN", "NXT", "MKSI",
+            "KTOS", "NDSN", "TRMB", "LECO", "STRL", "AVAV", "ZBRA",
+        ],
+    ),
+    "fp_miscellaneous": StockPreset(
+        name="FP: Enerji Depolama & Çeşitli",
+        icon="🔋",
+        description="Batarya, enerji depolama, çok sektörlü — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "IDCC", "NOVT", "RUN", "QS", "EOSE", "FLNC", "ENVX", "CTLP",
+            "MVST", "SLDP", "APPS", "ACTG", "BYRN", "NEOV", "JYNT", "NVX",
+            "ULBI", "CBAT", "VHC", "ZEO", "RMCO", "REFR", "FLUX", "STI",
+            "DFLI", "LASE", "XELB", "GAUZ", "TURB",
+        ],
+    ),
+    "fp_real_estate": StockPreset(
+        name="FP: Gayrimenkul & Platformlar",
+        icon="🏠",
+        description="REIT, e-ticaret, gayrimenkul platformları — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "MELI", "EQIX", "EBAY", "TCOM", "FISV", "SBAC", "CSGP", "GRAB",
+            "REG", "HST", "LAMR", "AKAM", "GLPI", "AGNC", "Z", "ZG",
+            "CART", "LINE", "HQY", "LYFT", "SBRA", "PECO", "LAUR", "EXLS",
+            "LOPE",
+        ],
+    ),
+    "fp_technology": StockPreset(
+        name="FP: Teknoloji Lider",
+        icon="💻",
+        description="Yarı iletken, yazılım, siber güvenlik — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "TXN", "KLAC", "ADI", "SHOP", "QCOM", "PDD", "APP", "ARM",
+            "PANW", "ADBE", "INTU", "CRWD", "WDC", "SNDK", "STX", "SNPS",
+            "CDNS", "DASH", "NTES", "MRVL", "FTNT", "NXPI", "MPWR", "FER",
+            "ADSK", "BIDU", "CRWV", "MCHP", "DDOG", "ERIC", "MSTR", "WDAY",
+            "ROP", "CTSH",
+        ],
+    ),
 }
 
 
@@ -1318,6 +1420,35 @@ def get_preset_symbols(preset_key: str) -> list[str]:
 def list_all_presets() -> dict[str, str]:
     """Tüm presetlerin listesi (key: name)."""
     return {key: f"{p.icon} {p.name}" for key, p in STOCK_PRESETS.items()}
+
+
+def get_finpilot_sector_symbols() -> list[str]:
+    """Tüm FinPilot sektör sembollerini birleştirilmiş liste olarak döndür."""
+    seen: set[str] = set()
+    result: list[str] = []
+    for key, preset in STOCK_PRESETS.items():
+        if key.startswith("fp_"):
+            for s in preset.symbols:
+                if s not in seen:
+                    seen.add(s)
+                    result.append(s)
+    return result
+
+
+def load_sectors_from_index() -> dict[str, dict]:
+    """data/tickers/sectors/sector_index.json dosyasından dinamik sektör yükle."""
+    import json
+    import os
+
+    index_path = os.path.join(os.getcwd(), "data", "tickers", "sectors", "sector_index.json")
+    if not os.path.exists(index_path):
+        return {}
+
+    try:
+        with open(index_path) as f:
+            return json.load(f)
+    except Exception:
+        return {}
 
 
 # ============================================
