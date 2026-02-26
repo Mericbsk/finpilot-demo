@@ -30,6 +30,14 @@ try:
 except ImportError:
     DRL_AVAILABLE = False
 
+# Ensemble Router (Sprint 16b)
+try:
+    from drl.ensemble_router import get_ensemble_predictions
+
+    ENSEMBLE_AVAILABLE = True
+except ImportError:
+    ENSEMBLE_AVAILABLE = False
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -100,7 +108,22 @@ def is_data_stale(data: dict) -> bool:
 
 
 def get_drl_predictions(symbols: list, max_symbols: int = 10) -> dict:
-    """Generate predictions via DRL model (returns {} if unavailable)."""
+    """Generate predictions via ensemble router or single DRL model.
+
+    Sprint 16b: Tries ensemble router first (3 regime agents),
+    falls back to single active model if ensemble unavailable.
+    """
+    # Try ensemble first
+    if ENSEMBLE_AVAILABLE:
+        try:
+            preds = get_ensemble_predictions(symbols, max_symbols=max_symbols)
+            if preds:
+                logger.info("Ensemble predictions: %d symbols", len(preds))
+                return preds
+        except Exception as e:
+            logger.warning("Ensemble fallback: %s", e)
+
+    # Fallback to single model
     if not DRL_AVAILABLE:
         return {}
 

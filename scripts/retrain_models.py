@@ -200,14 +200,24 @@ def train_single_variant(
     logger.info(f"  regime_filter={variant.regime_filter}  n_steps={variant.n_steps}")
     logger.info("=" * 60)
 
-    # Sprint 16: optional regime-specific data filtering
+    # Sprint 16b: regime-weighted sampling (fallback when < 1000 rows)
     _train = train_df
     if variant.regime_filter and "regime" in train_df.columns:
         regime_rows = train_df[train_df["regime"] == variant.regime_filter]
-        if len(regime_rows) > 200:  # need minimum viable episode length
+        if len(regime_rows) >= 1000:
+            # Enough regime-specific data — use only that regime
             _train = regime_rows.copy()
+            logger.info(f"  Regime filter '{variant.regime_filter}': {len(_train)}/{len(train_df)} rows (pure)")
+        elif len(regime_rows) >= 100:
+            # Not enough for pure regime — oversample regime rows + keep full data
+            # Weight: 3x regime rows + 1x non-regime rows
+            non_regime = train_df[train_df["regime"] != variant.regime_filter]
+            regime_oversampled = pd.concat([regime_rows] * 3, ignore_index=True)
+            _train = pd.concat([regime_oversampled, non_regime], ignore_index=True)
+            _train = _train.sample(frac=1, random_state=variant.seed).reset_index(drop=True)
             logger.info(
-                f"  Regime filter '{variant.regime_filter}': {len(_train)}/{len(train_df)} rows"
+                f"  Regime weighted '{variant.regime_filter}': {len(regime_rows)} regime rows "
+                f"oversampled 3x -> {len(_train)} total rows"
             )
         else:
             logger.warning(
@@ -270,10 +280,10 @@ def train_single_variant(
                 name="adversarial",
                 start_pct=0.85,
                 end_pct=1.0,
-                cost_multiplier=1.2,
+                cost_multiplier=1.1,
                 position_limit_multiplier=1.0,
                 pnl_weight_multiplier=1.0,
-                drawdown_weight_multiplier=1.2,
+                drawdown_weight_multiplier=1.0,
                 exploration_bonus=0.0,
             ),
         ]

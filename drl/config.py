@@ -52,8 +52,8 @@ class RewardWeights:
     weight so the agent perceives a meaningful signal for profitable trades.
     """
 
-    pnl: float = 10.0  # Sprint 16: 1.0→10.0 — scale up to match drawdown magnitude
-    drawdown: float = 0.5  # Sprint 16: 1.0→0.5  — reduce dominance of DD penalty
+    pnl: float = 10.0           # Sprint 16: 1.0→10.0 — scale up to match drawdown magnitude
+    drawdown: float = 0.5       # Sprint 16: 1.0→0.5  — reduce dominance of DD penalty
     cost: float = 0.1
     leverage: float = 0.2
     regime_bonus: float = 0.05

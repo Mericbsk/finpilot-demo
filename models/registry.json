@@ -81,12 +81,12 @@
     ],
     "notes": "Sprint 16: Trend regime specialist \u2014 momentum-following policy"
   },
-  "ppo_range_20260225_181020": {
-    "model_id": "ppo_range_20260225_181020",
+  "ppo_range_20260225_191556": {
+    "model_id": "ppo_range_20260225_191556",
     "name": "ppo_range",
     "algorithm": "PPO",
-    "version": "v1",
-    "created_at": "2026-02-25T18:10:20.578653",
+    "version": "v2",
+    "created_at": "2026-02-25T19:15:56.603169",
     "total_timesteps": 500000,
     "training_symbols": [
       "AAPL",
@@ -108,14 +108,14 @@
     "train_start": null,
     "train_end": null,
     "metrics": {
-      "avg_reward": -0.06753,
-      "sharpe_ratio": 0.0007,
-      "max_drawdown": 0.3905,
-      "total_return": -0.0985,
-      "action_diversity": 0.99,
-      "n_trades": 146,
-      "active_pct": 99.4,
-      "train_time_s": 307.0
+      "avg_reward": -0.087894,
+      "sharpe_ratio": -0.0017,
+      "max_drawdown": 0.3994,
+      "total_return": -0.1561,
+      "action_diversity": 1.0,
+      "n_trades": 79,
+      "active_pct": 99.6,
+      "train_time_s": 306.0
     },
     "hyperparameters": {
       "total_timesteps": 500000,
@@ -153,9 +153,9 @@
       "open_risk",
       "kelly_fraction"
     ],
-    "model_path": "models/ppo_range_20260225_181020/model",
-    "pipeline_path": "models/ppo_range_20260225_181020/pipeline.json",
-    "is_active": false,
+    "model_path": "models/ppo_range_20260225_191556/model",
+    "pipeline_path": "models/ppo_range_20260225_191556/pipeline.json",
+    "is_active": true,
     "tags": [
       "range",
       "sprint16",
@@ -163,12 +163,12 @@
     ],
     "notes": "Sprint 16: Range regime specialist \u2014 mean-reversion policy"
   },
-  "ppo_volatile_20260225_181020": {
-    "model_id": "ppo_volatile_20260225_181020",
+  "ppo_volatile_20260225_192559": {
+    "model_id": "ppo_volatile_20260225_192559",
     "name": "ppo_volatile",
     "algorithm": "PPO",
-    "version": "v1",
-    "created_at": "2026-02-25T18:10:20.607095",
+    "version": "v2",
+    "created_at": "2026-02-25T19:25:59.623028",
     "total_timesteps": 500000,
     "training_symbols": [
       "AAPL",
@@ -190,14 +190,14 @@
     "train_start": null,
     "train_end": null,
     "metrics": {
-      "avg_reward": -0.066072,
-      "sharpe_ratio": 0.0025,
-      "max_drawdown": 0.3409,
-      "total_return": -0.0549,
-      "action_diversity": 0.98,
-      "n_trades": 582,
-      "active_pct": 97.6,
-      "train_time_s": 316.5
+      "avg_reward": -0.030347,
+      "sharpe_ratio": 0.0099,
+      "max_drawdown": 0.2286,
+      "total_return": 0.1261,
+      "action_diversity": 0.88,
+      "n_trades": 373,
+      "active_pct": 87.6,
+      "train_time_s": 299.0
     },
     "hyperparameters": {
       "total_timesteps": 500000,
@@ -235,9 +235,9 @@
       "open_risk",
       "kelly_fraction"
     ],
-    "model_path": "models/ppo_volatile_20260225_181020/model",
-    "pipeline_path": "models/ppo_volatile_20260225_181020/pipeline.json",
-    "is_active": false,
+    "model_path": "models/ppo_volatile_20260225_192559/model",
+    "pipeline_path": "models/ppo_volatile_20260225_192559/pipeline.json",
+    "is_active": true,
     "tags": [
       "volatile",
       "sprint16",
