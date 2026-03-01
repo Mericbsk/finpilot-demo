@@ -1,5 +1,3 @@
-# ⚡ Enerji
-# Petrol, gaz, yenilenebilir enerji (NASDAQ)
 FANG
 EXE
 WWD
@@ -35,6 +33,18 @@ KGEI
 MMLP
 TUSK
 NCSM
+NUAIW
 DWSN
 USEG
 KLXE
+UFG
+RCON
+PTLE
+NWGL
+DLXY
+CIIT
+ANNAW
+BANL
+ATON
+MARPS
+HTOO

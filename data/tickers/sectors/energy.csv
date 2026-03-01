@@ -1,39 +1,51 @@
-Symbol
-FANG
-EXE
-WWD
-VNOM
-PAA
-APA
-LFUS
-POWL
-CHRD
-PAGP
-ARLP
-PTEN
-MGEE
-PLUG
-NESR
-CLMT
-DMLP
-METC
-ACDC
-APC
-METCB
-HNRG
-FIP
-HPK
-BLDP
-FCEL
-PNRG
-AREC
-NUAI
-ANNA
-EPSN
-KGEI
-MMLP
-TUSK
-NCSM
-DWSN
-USEG
-KLXE
+Symbol,Name,Last Sale,Net Change,% Change,Market Cap,Country,IPO Year,Volume,Sector,Industry
+FANG,Diamondback Energy Inc. Common Stock,176.01,1.29,0.738,50431373320.0,United States,2012.0,3473983,Energy,Oil & Gas Production
+EXE,Expand Energy Corporation Common Stock,108.06,4.21,4.054,25977435976.0,United States,,5913154,Energy,Oil & Gas Production
+WWD,Woodward Inc. Common Stock,394.03,3.11,0.796,23490440862.0,United States,,276407,Energy,Industrial Machinery/Components
+VNOM,Viper Energy Inc. Class A Common Stock,45.64,0.55,1.22,16407992905.0,United States,2014.0,5902366,Energy,Oil & Gas Production
+PAA,Plains All American Pipeline L.P. Common Units representing Limited Partner Interests,20.89,0.19,0.918,14737848415.0,United States,1998.0,2150408,Energy,Natural Gas Distribution
+APA,APA Corporation Common Stock,29.06,-0.02,-0.069,10306688434.0,United States,,7620016,Energy,Oil & Gas Production
+LFUS,Littelfuse Inc. Common Stock,370.33,7.05,1.941,9221841747.0,United States,,232618,Energy,Electrical Products
+POWL,Powell Industries Inc. Common Stock,546.82,10.46,1.95,6639643190.0,United States,,211169,Energy,Electrical Products
+CHRD,Chord Energy Corporation Common Stock,105.38,0.39,0.371,5992465314.0,United States,,2310124,Energy,Oil & Gas Production
+PAGP,Plains GP Holdings L.P. Class A Units representing Limited Partner Interests,22.27,0.19,0.861,4406968521.0,United States,,1919060,Energy,Natural Gas Distribution
+ARLP,Alliance Resource Partners L.P. Common Units representing Limited Partners Interests,26.25,0.35,1.351,3371235630.0,United States,1999.0,469781,Energy,Coal Mining
+PTEN,Patterson-UTI Energy Inc. Common Stock,8.41,-0.09,-1.059,3192227432.0,United States,1993.0,7308237,Energy,Oil & Gas Production
+MGEE,MGE Energy Inc,80.9,0.82,1.024,2956235584.0,United States,,158321,Energy,Electric Utilities: Central
+PLUG,Plug Power Inc. Common Stock,1.87,-0.04,-2.094,2604711531.0,United States,1999.0,85067336,Energy,Industrial Machinery/Components
+NESR,National Energy Services Reunited Corp Ordinary Shares,24.4,0.2,0.826,2458977320.0,United States,,1573987,Energy,Oilfield Services/Equipment
+CLMT,Calumet Inc. Common Stock,28.14,-1.25,-4.253,2441266593.0,United States,2006.0,1189722,Energy,Integrated oil Companies
+DMLP,Dorchester Minerals L.P. Common Units Representing Limited Partnership Interests,25.36,-0.55,-2.123,1223758212.0,United States,,102359,Energy,Oil & Gas Production
+METC,Ramaco Resources Inc. Class A Common Stock,16.56,-0.16,-0.957,1108730949.0,United States,2017.0,1471822,Energy,Coal Mining
+ACDC,ProFrac Holding Corp. Class A Common Stock,5.31,-0.31,-5.516,960425982.0,United States,2022.0,999693,Energy,Oilfield Services/Equipment
+APC,ARKO Petroleum Corp. Class A Common Stock,19.21,-0.02,-0.104,885794442.0,United States,2026.0,234176,Energy,Oil Refining/Marketing
+METCB,Ramaco Resources Inc. Class B Common Stock,13.08,0.09,0.693,875736764.0,United States,,22718,Energy,Coal Mining
+HNRG,Hallador Energy Company Common Stock,18.4,-0.44,-2.335,806380110.0,United States,,481790,Energy,Coal Mining
+FIP,FTAI Infrastructure Inc. Common Stock ,5.94,-0.1,-1.656,690789098.0,United States,,609067,Energy,Oil Refining/Marketing
+HPK,HighPeak Energy Inc. Common Stock,5.3,-0.27,-4.847,665611593.0,United States,,1111130,Energy,Oil & Gas Production
+BLDP,Ballard Power Systems Inc. Common Shares,2.11,-0.01,-0.472,634558564.0,Canada,,2580586,Energy,Industrial Machinery/Components
+FCEL,FuelCell Energy Inc. Common Stock,7.68,-0.07,-0.903,366152010.0,United States,,1352966,Energy,Industrial Machinery/Components
+PNRG,PrimeEnergy Resources Corporation Common Stock,188.04,5.51,3.019,307445400.0,United States,,69962,Energy,Oil & Gas Production
+AREC,American Resources Corporation Class A Common Stock,3.02,-0.07,-2.265,306207790.0,United States,,4621564,Energy,Coal Mining
+NUAI,New Era Energy & Digital Inc. Common Stock,4.75,-0.09,-1.86,254711763.0,United States,,1971454,Energy,Oil & Gas Production
+ANNA,AleAnna Inc. Class A Common Stock,2.61,0.21,8.75,173967673.0,United States,,10412,Energy,Oil & Gas Production
+EPSN,Epsilon Energy Ltd. Common Share,4.99,-0.11,-2.157,149168226.0,United States,,89396,Energy,Oil & Gas Production
+KGEI,Kolibri Global Energy Inc. Common stock,3.94,-0.01,-0.253,139384722.0,United States,,161960,Energy,Oil & Gas Production
+MMLP,Martin Midstream Partners L.P. Limited Partnership,2.88,-0.05,-1.706,112478648.0,United States,2002.0,1626,Energy,Oil Refining/Marketing
+TUSK,Mammoth Energy Services Inc. Common Stock,2.26,-0.03,-1.31,108918519.0,United States,2016.0,99849,Energy,Oilfield Services/Equipment
+NCSM,NCS Multistage Holdings Inc. Common Stock,39.85,0.0,0.0,101255662.0,United States,2017.0,3294,Energy,Oilfield Services/Equipment
+NUAIW,New Era Energy & Digital Inc. Warrants,1.77,-0.04,-2.21,94913646.0,United States,,9181,Energy,Oil & Gas Production
+DWSN,Dawson Geophysical Company Common Stock,2.96,0.11,3.86,91901491.0,United States,,117650,Energy,Oil & Gas Production
+USEG,U.S. Energy Corp. Common Stock (DE),1.02,-0.03,-2.857,60929424.0,United States,,1165110,Energy,Oil & Gas Production
+KLXE,KLX Energy Services Holdings Inc. Common Stock,2.66,-0.24,-8.276,47449413.0,United States,,491837,Energy,Oilfield Services/Equipment
+UFG,Uni-Fuels Holdings Limited Class A Ordinary Shares,1.16,0.03,2.655,37659400.0,Singapore,2025.0,360430,Energy,Oil Refining/Marketing
+RCON,Recon Technology Ltd. Class A Ordinary Shares,1.21,0.0,0.0,37059185.0,China,2009.0,8421,Energy,Oilfield Services/Equipment
+PTLE,PTL LTD Class A Ordinary Shares,0.1126,-0.0001,-0.089,28430093.0,Singapore,2024.0,512389,Energy,Oil Refining/Marketing
+NWGL,CL Workshop Group Limited American Depositary Shares,1.34,0.02,1.515,22181241.0,China,2023.0,70275,Energy,
+DLXY,Delixy Holdings Limited Ordinary Shares,0.9106,-0.0309,-3.282,14888310.0,Singapore,2025.0,13850,Energy,Oil Refining/Marketing
+CIIT,Tianci International Inc. Common Stock,0.5579,-0.0221,-3.81,13686293.0,Hong Kong,,3287,Energy,Oil & Gas Production
+ANNAW,AleAnna Inc. Warrant,0.205,-0.0045,-2.148,13664128.0,United States,,3783,Energy,Oil & Gas Production
+BANL,CBL International Limited Class B Ordinary Shares,0.3964,-0.0086,-2.123,10901000.0,Malaysia,2023.0,761010,Energy,Oil Refining/Marketing
+ATON,AlphaTON Capital Corp. Common Stock,0.4155,-0.0401,-8.802,9737071.0,Canada,,325670,Energy,Oil & Gas Production
+MARPS,Marine Petroleum Trust Units of Beneficial Interest,4.48,-0.43,-8.758,8960000.0,United States,,95183,Energy,Oil & Gas Production
+HTOO,Fusion Fuel Green PLC Class A Ordinary Shares,3.58,0.18,5.294,8653386.0,Ireland,,21503,Energy,Industrial Machinery/Components

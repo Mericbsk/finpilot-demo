@@ -1,34 +1,150 @@
-Symbol
-MELI
-EQIX
-EBAY
-TCOM
-FISV
-AGNCN
-AGNCO
-AGNCL
-AGNCP
-AGNCM
-SBAC
-CSGP
-GRAB
-REG
-HST
-LAMR
-AKAM
-GLPI
-AGNC
-Z
-ZG
-CART
-LINE
-HQY
-FRMI
-LYFT
-SBRA
-PECO
-LAUR
-EXLS
-LOPE
-DHCNL
-DHCNI
+Symbol,Name,Last Sale,Net Change,% Change,Market Cap,Country,IPO Year,Volume,Sector,Industry
+MELI,MercadoLibre Inc. Common Stock,1996.87,0.32,0.016,101235681820.0,Argentina,2007.0,361057,Real Estate,Real Estate
+EQIX,Equinix Inc. Common Stock REIT,928.11,10.08,1.098,91191381226.0,United States,2000.0,993550,Real Estate,Real Estate Investment Trusts
+EBAY,eBay Inc. Common Stock,88.07,3.32,3.917,39807640000.0,United States,1998.0,8664816,Real Estate,Real Estate
+TCOM,Trip.com Group Limited American Depositary Shares,54.57,-0.77,-1.391,35648983027.0,China,2003.0,3529867,Real Estate,Real Estate
+FISV,Fiserv Inc. Common Stock,61.47,-0.06,-0.098,33061755494.0,United States,1986.0,8092633,Real Estate,Real Estate
+AGNCN,AGNC Investment Corp. Depositary Shares Each Representing a 1/1000th Interest in a Share of 7.00% Series C Fixed-To-Floating Rate Cumulative Redeemable Preferred Stock,25.72,-0.08,-0.31,27590463080.0,United States,,11056,Real Estate,Real Estate Investment Trusts
+AGNCO,AGNC Investment Corp. Depositary Shares each representing a 1/1000th interest in a share of 6.50% Series E Fixed-to-Floating Cumulative Redeemable Preferred Stock,25.48,-0.01,-0.039,27333009304.0,United States,,16243,Real Estate,Real Estate Investment Trusts
+AGNCL,AGNC Investment Corp. Depositary Shares Each Representing a 1/1000th Interest in a Share of 7.75% Series G Fixed-Rate Reset Cumulative Redeemable Preferred Stock,25.16,-0.03,-0.119,26989737601.0,United States,,16288,Real Estate,Real Estate Investment Trusts
+AGNCP,AGNC Investment Corp. Depositary Shares Each Representing a 1/1000th Interest in a Share of 6.125% Series F Fixed-to-Floating Rate Cumulative Redeemable Preferred Stock,25.12,0.05,0.199,26946828638.0,United States,,25145,Real Estate,Real Estate Investment Trusts
+AGNCM,AGNC Investment Corp. Depositary Shares rep 6.875% Series D Fixed-to-Floating Cumulative Redeemable Preferred Stock,24.98,-0.0155,-0.062,26796647269.0,United States,,22762,Real Estate,Real Estate Investment Trusts
+SBAC,SBA Communications Corporation Class A Common Stock,199.54,1.25,0.63,21260361841.0,United States,1999.0,676584,Real Estate,Real Estate Investment Trusts
+CSGP,CoStar Group Inc. Common Stock,49.87,0.8,1.63,21136042587.0,United States,1998.0,7901807,Real Estate,Real Estate
+GRAB,Grab Holdings Limited Class A Ordinary Shares,4.38,-0.02,-0.455,17844724742.0,Singapore,,26018368,Real Estate,Real Estate
+REG,Regency Centers Corporation Common Stock,76.85,1.04,1.372,14056369213.0,United States,1993.0,923779,Real Estate,Real Estate Investment Trusts
+HST,Host Hotels & Resorts Inc. Common Stock,20.4,0.33,1.644,14028865412.0,United States,,17518623,Real Estate,Real Estate Investment Trusts
+LAMR,Lamar Advertising Company Class A Common Stock,133.98,1.15,0.866,13569987714.0,United States,1996.0,1156863,Real Estate,Real Estate Investment Trusts
+AKAM,Akamai Technologies Inc. Common Stock,94.17,-15.42,-14.071,13547789368.0,United States,1999.0,15772766,Real Estate,Real Estate
+GLPI,Gaming and Leisure Properties Inc. Common Stock,47.25,-0.1,-0.211,13372144160.0,United States,,3507222,Real Estate,Real Estate Investment Trusts
+AGNC,AGNC Investment Corp. Common Stock,11.45,0.13,1.148,12282690602.0,United States,2008.0,43836006,Real Estate,Real Estate Investment Trusts
+Z,Zillow Group Inc. Class C Capital Stock,45.46,-0.09,-0.198,10907136699.0,United States,,5060542,Real Estate,Real Estate
+ZG,Zillow Group Inc. Class A Common Stock,45.42,-0.12,-0.264,10897539571.0,United States,2011.0,1236677,Real Estate,Real Estate
+CART,Maplebear Inc. Common Stock,36.25,0.685,1.926,9516819945.0,United States,2023.0,4470764,Real Estate,Real Estate
+LINE,Lineage Inc. Common Stock,38.3,-0.7,-1.795,8743492638.0,United States,2024.0,2340395,Real Estate,Real Estate Investment Trusts
+HQY,HealthEquity Inc. Common Stock,78.895,0.015,0.019,6740495784.0,United States,2014.0,649501,Real Estate,Real Estate
+FRMI,Fermi Inc. Common Stock,9.12,-0.44,-4.603,5599911447.0,United States,2025.0,5391977,Real Estate,Real Estate Investment Trusts
+LYFT,Lyft Inc. Class A Common Stock,13.95,0.05,0.36,5553601034.0,United States,2019.0,15701702,Real Estate,Real Estate
+SBRA,Sabra Health Care REIT Inc. Common Stock,19.93,-0.09,-0.45,4969538983.0,United States,,2943470,Real Estate,Real Estate Investment Trusts
+PECO,Phillips Edison & Company Inc. Common Stock,39.25,0.89,2.32,4937650000.0,United States,2021.0,1035186,Real Estate,Real Estate Investment Trusts
+LAUR,Laureate Education Inc. Common Stock,32.83,-1.16,-3.413,4838129588.0,United States,2017.0,1450530,Real Estate,Other Consumer Services
+EXLS,ExlService Holdings Inc. Common Stock,30.07,-0.34,-1.118,4772135612.0,United States,2006.0,2359183,Real Estate,Real Estate
+LOPE,Grand Canyon Education Inc. Common Stock,157.32,2.72,1.759,4400000644.0,United States,2008.0,556792,Real Estate,Other Consumer Services
+DHCNL,Diversified Healthcare Trust 6.25% Senior Notes Due 2046,18.18,-0.07,-0.384,4388913010.0,United States,,10563,Real Estate,Real Estate Investment Trusts
+DHCNI,Diversified Healthcare Trust 5.625% Senior Notes due 2042,17.87,0.16,0.903,4314074560.0,United States,,31359,Real Estate,Real Estate Investment Trusts
+REGCP,Regency Centers Corporation 6.25% Series A Cumulative Redeemable Preferred Stock,23.46,-0.04,-0.17,4290987921.0,United States,,3026,Real Estate,Real Estate Investment Trusts
+REGCO,Regency Centers Corporation 5.875% Series B Cumulative Redeemable Preferred Stock,22.57,0.05,0.222,4128201082.0,United States,,8856,Real Estate,Real Estate Investment Trusts
+DLO,DLocal Limited Class A Common Shares,13.39,0.42,3.238,3932690079.0,Uruguay,2021.0,1115759,Real Estate,Real Estate
+RELY,Remitly Global Inc. Common Stock,17.15,0.01,0.058,3585137717.0,United States,2021.0,9089922,Real Estate,Real Estate
+XMTR,Xometry Inc. Class A Common Stock,56.68,-2.21,-3.753,2904717142.0,United States,2021.0,783731,Real Estate,Real Estate
+ADAMI,Adamas Trust Inc. 9.125% Senior Notes Due 2029,25.3402,0.0002,0.001,2295301354.0,United States,,6318,Real Estate,Real Estate Investment Trusts
+ADAMM,Adamas Trust Inc. 7.875% Series E Fixed-to-Floating Rate Cumulative Redeemable Preferred Stock,25.2,-0.28,-1.099,2275902191.0,United States,,17011,Real Estate,Real Estate Investment Trusts
+ADAML,Adamas Trust Inc. 6.875% Series F Fixed-to-Floating Rate Cumulative Redeemable Preferred Stock $0.01 par value per share,23.5001,-0.0399,-0.169,2122378138.0,United States,,1290,Real Estate,Real Estate Investment Trusts
+PRDO,Perdoceo Education Corporation Common Stock,32.84,1.31,4.155,2112350112.0,United States,,1434577,Real Estate,Other Consumer Services
+ADAMN,Adamas Trust Inc. 8.00% Series D Fixed-to-Floating Rate Cumulative Redeemable Preferred Stock,22.71,-0.07,-0.307,2051021379.0,United States,,7760,Real Estate,Real Estate Investment Trusts
+UNIT,Uniti Group Inc. Common Stock,8.58,0.27,3.249,2050931669.0,United States,,1351421,Real Estate,Real Estate Investment Trusts
+DRH,Diamondrock Hospitality Company Common Stock,9.93,0.05,0.506,2022772597.0,United States,2005.0,3820756,Real Estate,Real Estate Investment Trusts
+PAYO,Payoneer Global Inc. Common Stock,5.41,-0.01,-0.185,1928342045.0,United States,,2463612,Real Estate,Real Estate
+STRA,Strategic Education Inc. Common Stock,76.12,0.24,0.316,1787801362.0,United States,1996.0,396929,Real Estate,Other Consumer Services
+ADAMZ,Adamas Trust Inc. 7.000% Series G Cumulative Redeemable Preferred Stock $0.01 par value per share,19.75,0.09,0.458,1783693185.0,United States,,8851,Real Estate,Real Estate Investment Trusts
+DHC,Diversified Healthcare Trust Common Shares of Beneficial Interest,6.24,-0.12,-1.887,1510997043.0,United States,,921278,Real Estate,Real Estate Investment Trusts
+FLYW,Flywire Corporation Voting Common Stock,11.23,0.0,0.0,1350448063.0,United States,2021.0,995540,Real Estate,Real Estate
+AFYA,Afya Limited Class A Common Shares,14.1,0.12,0.858,1274482320.0,Brazil,2019.0,58325,Real Estate,Other Consumer Services
+GOODN,Gladstone Commercial Corporation 6.625% Series E Cumulative Redeemable Preferred Stock,22.9024,-0.1376,-0.597,1108502612.0,United States,,4980,Real Estate,Real Estate
+RDWR,Radware Ltd. Ordinary Shares,24.21,-0.83,-3.315,1033440988.0,Israel,1999.0,316198,Real Estate,Real Estate
+LQDT,Liquidity Services Inc. Common Stock,31.845,0.065,0.205,987637040.0,United States,2006.0,102941,Real Estate,Real Estate
+GOODO,Gladstone Commercial Corporation 6.00% Series G Cumulative Redeemable Preferred Stock par value $0.001 per share,20.2499,-0.1251,-0.614,980118549.0,United States,,9989,Real Estate,Real Estate
+LINC,Lincoln Educational Services Corporation Common Stock,29.99,-1.12,-3.6,948397612.0,United States,2005.0,638977,Real Estate,Other Consumer Services
+APEI,American Public Education Inc. Common Stock,43.85,0.45,1.037,793028566.0,United States,2007.0,400012,Real Estate,Other Consumer Services
+LANDO,Gladstone Land Corporation 6.00% Series B Cumulative Redeemable Preferred Stock,20.105,0.025,0.125,749249677.0,United States,,3951,Real Estate,Real Estate Investment Trusts
+AHG,Akso Health Group ADS,1.348,-0.052,-3.714,743908867.0,China,2017.0,3888,Real Estate,Real Estate
+LANDP,Gladstone Land Corporation 6.00% Series C Cumulative Redeemable Preferred Stock,19.7698,0.0198,0.1,736757835.0,United States,,13275,Real Estate,Real Estate Investment Trusts
+NUTX,Nutex Health Inc. Common Stock,101.08,-2.53,-2.442,714829269.0,United States,,156397,Real Estate,Real Estate
+UXIN,Uxin Limited ADS,3.43,-0.07,-2.0,707160483.0,China,2018.0,34283,Real Estate,Real Estate
+UDMY,Udemy Inc. Common Stock,4.78,-0.07,-1.443,699680937.0,United States,2021.0,1326664,Real Estate,Other Consumer Services
+GRABW,Grab Holdings Limited Warrant,0.17,0.0154,9.961,692603472.0,Singapore,,20579,Real Estate,Real Estate
+QNST,QuinStreet Inc. Common Stock,11.52,0.02,0.174,656570177.0,United States,2010.0,774097,Real Estate,Real Estate
+GOOD,Gladstone Commercial Corporation Real Estate Investment Trust,12.55,0.54,4.496,607434495.0,United States,2003.0,961238,Real Estate,Real Estate
+CASS,Cass Information Systems Inc Common Stock,44.71,0.14,0.314,584998114.0,United States,,184648,Real Estate,Real Estate
+NHPAP,National Healthcare Properties Inc. 7.375% Series A Cumulative Redeemable Perpetual Preferred Stock,19.56,0.05,0.256,556026135.0,United States,,1451,Real Estate,Real Estate Investment Trusts
+NHPBP,National Healthcare Properties Inc. 7.125% Series B Cumulative Redeemable Perpetual Preferred Stock,19.062,0.062,0.326,541869641.0,United States,,1145,Real Estate,Real Estate Investment Trusts
+IMXI,International Money Express Inc. Common Stock,15.69,0.18,1.161,466286889.0,United States,2017.0,470008,Real Estate,Real Estate
+PRTH,Priority Technology Holdings Inc. Common Stock,5.51,0.0,0.0,451112340.0,United States,2016.0,341124,Real Estate,Real Estate
+GRVY,GRAVITY Co. Ltd. American Depository Shares,64.62,-0.63,-0.966,449037918.0,South Korea,2005.0,14432,Real Estate,Real Estate
+LAND,Gladstone Land Corporation Common Stock,10.91,-0.08,-0.728,406581148.0,United States,2013.0,553569,Real Estate,Real Estate Investment Trusts
+ILPT,Industrial Logistics Properties Trust Common Shares of Beneficial Interest,5.84,0.07,1.213,389254273.0,United States,2018.0,253703,Real Estate,Real Estate Investment Trusts
+SOHOO,Sotherly Hotels Inc. 7.875% Series C Cumulative Redeemable Perpetual Preferred Stock,18.82,-0.09,-0.476,385631229.0,United States,,332,Real Estate,Real Estate Investment Trusts
+SOHOB,Sotherly Hotels Inc. 8.0% Series B Cumulative Redeemable Perpetual Preferred Stock,18.36,0.0,0.0,376205598.0,United States,,451,Real Estate,Real Estate Investment Trusts
+SVC,Service Properties Trust Common Stock,2.14,0.01,0.469,359704474.0,United States,,892282,Real Estate,Real Estate Investment Trusts
+SOHON,Sotherly Hotels Inc. 8.25% Series D Cumulative Redeemable Perpetual Preferred Stock,16.3701,0.01,0.061,335431550.0,United States,,842,Real Estate,Real Estate Investment Trusts
+RMNI,Rimini Street Inc. (DE) Common Stock,3.59,0.62,20.875,329389680.0,United States,2015.0,1688143,Real Estate,Real Estate
+RPAY,Repay Holdings Corporation Class A Common Stock,3.27,0.13,4.14,281423502.0,United States,2018.0,1271046,Real Estate,Real Estate
+REFI,Chicago Atlantic Real Estate Finance Inc. Common Stock,11.95,0.22,1.876,251909250.0,United States,2021.0,147315,Real Estate,Real Estate Investment Trusts
+CNDT,Conduent Incorporated Common Stock ,1.59,0.16,11.189,243094291.0,United States,,2515460,Real Estate,Real Estate
+STRS,Stratus Properties Inc. Common Stock,29.32,0.57,1.983,234405953.0,United States,,4523,Real Estate,Homebuilding
+HERE,Here Group Limited American Depositary Shares,4.2,0.1,2.439,228415383.0,China,2023.0,79938,Real Estate,Other Consumer Services
+ADV,Advantage Solutions Inc. Class A Common Stock,0.6199,0.0026,0.421,202255960.0,United States,2019.0,291627,Real Estate,Real Estate
+SEVN,Seven Hills Realty Trust Common Stock,8.59,-0.13,-1.491,194107294.0,United States,,160553,Real Estate,Real Estate Investment Trusts
+CURR,Currenc Group Inc. Ordinary Shares,2.03,0.02,0.995,155521231.0,Singapore,,96064,Real Estate,Real Estate
+OPRX,OptimizeRx Corporation Common Stock,8.2,-0.43,-4.983,152853346.0,United States,,337752,Real Estate,Real Estate
+KRKR,36Kr Holdings Inc. American Depositary Shares,3.76,-0.11,-2.842,148202066.0,China,2019.0,20721,Real Estate,Real Estate
+SUNS,Sunrise Realty Trust Inc. Common Stock,9.37,0.03,0.321,125754639.0,United States,,62558,Real Estate,Real Estate Investment Trusts
+RGP,Resources Connection Inc. Common Stock,3.72,-0.1,-2.618,124628013.0,United States,,407232,Real Estate,Real Estate
+MAYS,J. W. Mays Inc. Common Stock,55.0,3.0101,5.79,110867900.0,United States,,2390,Real Estate,Building operators
+STHO,Star Holdings Shares of Beneficial Interest,8.66,0.28,3.341,104688748.0,United States,,52796,Real Estate,Real Estate
+YOUL,Youlife Group Inc. American Depositary Shares,1.15,0.01,0.877,87455890.0,China,,17795,Real Estate,Other Consumer Services
+WHLRL,Wheeler Real Estate Investment Trust Inc. 7.00% Senior Subordinated Convertible Notes Due 2031,97.0,0.0,0.0,76701683.0,United States,,60,Real Estate,Real Estate Investment Trusts
+INTG,Intergroup Corporation (The) Common Stock,27.75,-0.61,-2.151,59629533.0,United States,,23333,Real Estate,Building operators
+MNY,MoneyHero Limited Class A Ordinary Shares,1.38,0.0,0.0,59621563.0,Singapore,,19361,Real Estate,Real Estate
+SELF,Global Self Storage Inc. Common Stock,4.97,0.0,0.0,56348468.0,United States,,25834,Real Estate,Real Estate Investment Trusts
+LOAN,Manhattan Bridge Capital Inc,4.42,0.0,0.0,50558837.0,United States,,23120,Real Estate,Real Estate Investment Trusts
+HGBL,Heritage Global Inc. Common Stock,1.31,-0.05,-3.676,45511434.0,United States,,13526,Real Estate,Real Estate
+NAMI,Jinxin Technology Holding Company American Depositary Shares,0.5,0.0082,1.667,39535706.0,China,2024.0,7837,Real Estate,Other Consumer Services
+AACG,ATA Creativity Global American Depositary Shares,0.91,0.03,3.409,39110830.0,China,2008.0,19831,Real Estate,Other Consumer Services
+SCOR,comScore Inc. Common Stock,7.635,-0.075,-0.973,38294595.0,United States,2018.0,11844,Real Estate,Real Estate
+WHLRD,Wheeler Real Estate Investment Trust Inc. Series D Cumulative Preferred Stock,39.5,0.5,1.282,31234191.0,United States,,126,Real Estate,Real Estate Investment Trusts
+YQ,17 Education & Technology Group Inc. American Depositary Shares,3.3801,-0.1649,-4.652,29919665.0,China,2020.0,2572,Real Estate,Other Consumer Services
+TDTH,Trident Digital Tech Holdings Ltd American Depository Shares,0.2377,-0.0031,-1.287,27358230.0,Singapore,2024.0,67753,Real Estate,Real Estate
+CREG,Smart Powerr Corp. Common Stock,1.29,0.02,1.575,26843769.0,China,,33752,Real Estate,Real Estate
+TC,Token Cat Limited American Depositary Shares,12.05,-0.0899,-0.741,23952737.0,China,2018.0,15361,Real Estate,Real Estate
+EPOW,E-Power Inc. Class A Ordinary Shares,0.7615,-0.0435,-5.404,20550562.0,China,2021.0,68023,Real Estate,Real Estate
+GYRO,Gyrodyne LLC Common Stock,8.87,0.0,0.0,19507862.0,United States,,3,Real Estate,Building operators
+SGRP,SPAR Group Inc. Common Stock,0.7815,0.0015,0.192,18716918.0,United States,,38928,Real Estate,Real Estate
+SWVL,Swvl Holdings Corp Class A Common Shares,1.536,-0.044,-2.785,15204121.0,United Arab Emirates,,25082,Real Estate,Real Estate
+EDTK,Skillful Craftsman Education Technology Limited Ordinary Share,0.8615,-0.0235,-2.655,13723222.0,China,2020.0,2108,Real Estate,Other Consumer Services
+MDRR,Medalist Diversified REIT Inc. Common Stock,11.755,-0.455,-3.726,13076321.0,United States,2018.0,181,Real Estate,Real Estate Investment Trusts
+GSUN,Golden Sun Technology Group Limited Class A Ordinary Shares,1.2,-0.06,-4.762,12034644.0,China,2022.0,9362,Real Estate,Other Consumer Services
+OLB,The OLB Group Inc. Common Stock,0.8295,-0.014,-1.66,11143847.0,United States,,3840017,Real Estate,Real Estate
+SQFTP,Presidio Property Trust Inc. 9.375% Series D Cumulative Redeemable Perpetual Preferred Stock $0.01 par value per share,6.1265,-0.3635,-5.601,8816640.0,United States,,23385,Real Estate,Real Estate Investment Trusts
+FTFT,Future FinTech Group Inc. Common Stock,1.63,0.02,1.242,8228775.0,China,,5848,Real Estate,Real Estate
+MIMI,Mint Incorporation Limited Class A Ordinary Shares,0.3085,-0.0025,-0.804,7716356.0,Hong Kong,2025.0,550586,Real Estate,Real Estate
+BTCT,BTC Digital Ltd. Ordinary Shares,1.19,0.01,0.847,7656508.0,China,,21604,Real Estate,Other Consumer Services
+MKZR,MacKenzie Realty Capital Inc. Common Stock,3.88,-0.05,-1.272,7629632.0,United States,,17948,Real Estate,Real Estate Investment Trusts
+WAFU,Wah Fu Education Group Limited Ordinary Shares,1.7085,0.0385,2.305,7535440.0,China,2019.0,2424,Real Estate,Other Consumer Services
+TGL,Treasure Global Inc. Common Stock,4.32,-0.42,-8.861,7239132.0,United States,2022.0,24855,Real Estate,Real Estate
+CJMB,Callan JMB Inc. Common Stock,1.48,0.0,0.0,6842080.0,United States,2025.0,41399,Real Estate,Real Estate
+BOXL,Boxlight Corporation Class A Common Stock,1.46,0.03,2.098,6083334.0,United States,2017.0,1028803,Real Estate,Other Consumer Services
+ZCMD,Zhongchao Inc. Class A Ordinary Shares,0.2308,0.0282,13.919,5859759.0,China,2020.0,713054,Real Estate,Other Consumer Services
+GV,Visionary Holdings Inc. Common Shares,1.02,-0.08,-7.273,5719495.0,Canada,2022.0,90972,Real Estate,Other Consumer Services
+SOPA,Society Pass Incorporated Common Stock,0.6973,-0.0399,-5.412,5303333.0,United States,2021.0,1105397,Real Estate,Real Estate
+WHLRP,Wheeler Real Estate Investment Trust Inc. Class B Preferred Stock,6.6,-0.044,-0.662,5218877.0,United States,,1379,Real Estate,Real Estate Investment Trusts
+XHLD,TEN Holdings Inc. Common Stock,1.72,-0.15,-8.021,5113269.0,United States,2025.0,50924,Real Estate,Real Estate
+QH,Quhuo Limited American Depository Shares,0.9118,-0.0556,-5.747,4739902.0,China,2020.0,36798,Real Estate,Real Estate
+EEIQ,EpicQuest Education Group International Limited Common Stock,3.12,0.01,0.322,4615974.0,United States,2021.0,23315,Real Estate,Other Consumer Services
+LXEH,Lixiang Education Holding Co. Ltd. American Depositary Shares,0.2362,-0.0038,-1.583,4527167.0,China,2020.0,1303031,Real Estate,Other Consumer Services
+SQFT,Presidio Property Trust Inc. Class A Common Stock,2.96,0.2,7.246,4259733.0,United States,2020.0,7474,Real Estate,Real Estate Investment Trusts
+BAOS,Baosheng Media Group Holdings Limited Ordinary shares,2.68,0.0,0.0,4112425.0,China,2021.0,11292,Real Estate,Real Estate
+WAI,Top KingWin Ltd Class A Ordinary Shares,2.43,-0.11,-4.331,4024379.0,China,2023.0,8507,Real Estate,Real Estate
+GIPR,Generation Income Properties Inc. Common Stock,0.575,0.0044,0.771,3132469.0,United States,,44910,Real Estate,Real Estate Investment Trusts
+KIDZ,Classover Holdings Inc. Class B Common Stock,0.1003,-0.0194,-16.207,2811262.0,United States,,5138776,Real Estate,Other Consumer Services
+JZ,Jianzhi Education Technology Group Company Limited American Depositary Shs,0.9379,-0.1621,-14.736,2643471.0,China,2022.0,191199,Real Estate,Other Consumer Services
+CMCT,Creative Media & Community Trust Corporation Common stock,2.62,-0.05,-1.873,2481219.0,United States,,26784,Real Estate,Real Estate Investment Trusts
+MNYWW,MoneyHero Limited Warrants,0.0551,-0.0049,-8.167,2380542.0,Singapore,,35199,Real Estate,Real Estate
+VSA,VisionSys AI Inc. American Depositary Shares,1.73,0.12,7.453,1923032.0,China,2014.0,39295,Real Estate,Other Consumer Services
+WHLR,Wheeler Real Estate Investment Trust Inc. Common Stock,1.6,-0.1,-5.882,1265182.0,United States,2012.0,72854,Real Estate,Real Estate Investment Trusts
+UK,Ucommune International Ltd Ordinary Shares,0.4998,0.0048,0.97,1059513.0,United States,2019.0,21751,Real Estate,Real Estate
+JDZG,JIADE LIMITED Class A Ordinary Shares,0.1826,-0.035,-16.085,615213.0,China,2024.0,8016292,Real Estate,Other Consumer Services
+KIDZW,Classover Holdings Inc. Warrants,0.0124,-0.0006,-4.615,347554.0,United States,,11355,Real Estate,Other Consumer Services
+GIPRW,Generation Income Properties Inc Warrant,0.0596,0.0,0.0,324687.0,United States,,200,Real Estate,Real Estate Investment Trusts
+SWVLW,Swvl Holdings Corp Warrant,0.0063,-0.0012,-16.0,62361.0,United Arab Emirates,,4872,Real Estate,Real Estate
+SQFTW,Presidio Property Trust Inc. Series A Common Stock Purchase Warrants,0.0194,-0.0001,-0.513,27919.0,United States,,7717,Real Estate,Real Estate Investment Trusts

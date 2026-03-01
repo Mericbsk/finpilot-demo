@@ -1,33 +1,101 @@
-Symbol
-CME
-HOOD
-HBANL
-HBANM
-NDAQ
-COIN
-HBANZ
-HBAN
-HBANP
-ACGL
-FITB
-IBKR
-WTW
-TW
-NTRS
-LPLA
-CINF
-FCNCA
-SOFI
-FUTU
-PFG
-TROW
-CG
-FITBM
-FITBI
-AFRM
-BPYPP
-BPYPM
-TPG
-EWBC
-FITBP
-BPYPO
+Symbol,Name,Last Sale,Net Change,% Change,Market Cap,Country,IPO Year,Volume,Sector,Industry
+CME,CME Group Inc. Class A Common Stock,308.09,4.18,1.375,111096220974.0,United States,2002.0,2754355,Finance,Investment Bankers/Brokers/Service
+HOOD,Robinhood Markets Inc. Class A Common Stock,76.11,0.46,0.608,68437264820.0,United States,2021.0,30238099,Finance,Investment Bankers/Brokers/Service
+HBANL,Huntington Bancshares Incorporated Depositary Shares Each Representing a 1/40th Interest in a Share of 6.875% Series J Non-Cumulative Perpetual Preferred Stock,25.65,0.01,0.039,52064174829.0,United States,,12646,Finance,Major Banks
+HBANM,Huntington Bancshares Incorporated Depositary Shares each representing a 1/1000th interest in a share of Huntington Series I Preferred Stock,23.25,0.19,0.824,47192673091.0,United States,,8147,Finance,Major Banks
+NDAQ,Nasdaq Inc. Common Stock,81.87,0.46,0.565,46538498491.0,United States,,3449535,Finance,Investment Bankers/Brokers/Service
+COIN,Coinbase Global Inc. Class A Common Stock,171.35,5.41,3.26,45249280208.0,United States,,13671235,Finance,Finance: Consumer Services
+HBANZ,Huntington Bancshares Incorporated Depositary Shares Each Representing a 1/1000th Interest in a Share of 5.50% Series L Non-Cumulative Perpetual Preferred Stock,21.91,-0.02,-0.091,44472751287.0,United States,,14929,Finance,Major Banks
+HBAN,Huntington Bancshares Incorporated Common Stock,18.01,0.16,0.896,36556560962.0,United States,,25391251,Finance,Major Banks
+HBANP,Huntington Bancshares Incorporated Depositary Shares 4.500% Series H Non-Cumulative Perpetual Preferred Stock,17.83,-0.01,-0.056,36191198332.0,United States,,22131,Finance,Major Banks
+ACGL,Arch Capital Group Ltd. Common Stock,98.49,0.15,0.153,35715028634.0,Bermuda,,2074089,Finance,Property-Casualty Insurers
+FITB,Fifth Third Bancorp Common Stock,53.62,0.72,1.361,35443451054.0,United States,,8395459,Finance,Major Banks
+IBKR,Interactive Brokers Group Inc. Class A Common Stock,74.395,0.405,0.547,33132863484.0,United States,2019.0,2766785,Finance,Investment Bankers/Brokers/Service
+WTW,Willis Towers Watson Public Limited Company Ordinary Shares,301.81,0.8,0.266,28897888890.0,United Kingdom,,828132,Finance,Specialty Insurers
+TW,Tradeweb Markets Inc. Class A Common Stock,119.47,0.52,0.437,28152853777.0,United States,2019.0,1004221,Finance,Investment Bankers/Brokers/Service
+NTRS,Northern Trust Corporation Common Stock,144.76,-0.26,-0.179,27376630336.0,United States,,862558,Finance,Major Banks
+LPLA,LPL Financial Holdings Inc. Common Stock,319.22,-8.7,-2.653,25549609695.0,United States,2010.0,917621,Finance,Investment Bankers/Brokers/Service
+CINF,Cincinnati Financial Corporation Common Stock,163.0,0.6,0.369,25431017619.0,United States,,1257767,Finance,Property-Casualty Insurers
+FCNCA,First Citizens BancShares Inc. Class A Common Stock,2016.58,-28.72,-1.404,24479585256.0,United States,,148689,Finance,Major Banks
+SOFI,SoFi Technologies Inc. Common Stock  ,19.02,-0.28,-1.451,23948369373.0,United States,,68352690,Finance,Finance: Consumer Services
+FUTU,Futu Holdings Limited American Depositary Shares,155.37,1.87,1.218,21631777141.0,Hong Kong,2019.0,1155210,Finance,Investment Bankers/Brokers/Service
+PFG,Principal Financial Group Inc Common Stock,95.76,3.61,3.918,21037882406.0,United States,2001.0,2935054,Finance,Accident &Health Insurance
+TROW,T. Rowe Price Group Inc. Common Stock,95.38,1.02,1.081,20799793297.0,United States,1986.0,1329044,Finance,Investment Bankers/Brokers/Service
+CG,The Carlyle Group Inc. Common Stock,53.23,0.25,0.472,19184650170.0,United States,2012.0,3735226,Finance,Investment Managers
+FITBM,Fifth Third Bancorp Depositary Shares Representing a 1/40th Ownership Interest in a Share of 6.875% Fixed-Rate Reset Non-Cumulative Perpetual Preferred Stock Series M,26.4,0.0,0.0,17450710702.0,United States,,15155,Finance,Major Banks
+FITBI,Fifth Third Bancorp Depositary Shares,25.93,0.08,0.309,17140035170.0,United States,,13302,Finance,Major Banks
+AFRM,Affirm Holdings Inc. Class A Common Stock,51.09,-0.73,-1.409,17018623160.0,United States,2021.0,4810983,Finance,Finance: Consumer Services
+BPYPP,Brookfield Property Partners L.P. 6.50% Class A Cumulative Redeemable Perpetual Preferred Units,16.34,-0.03,-0.183,16986744553.0,Bermuda,,17888,Finance,Real Estate
+BPYPM,Brookfield Property Partners L.P. 6.25% Class A Cumulative Redeemable Preferred Units Series 1,16.325,0.045,0.276,16971150846.0,Bermuda,,25910,Finance,Real Estate
+TPG,TPG Inc. Class A Common Stock,44.51,-0.07,-0.157,16827910299.0,United States,2022.0,11964032,Finance,Investment Managers
+EWBC,East West Bancorp Inc. Common Stock,121.31,1.45,1.21,16690509621.0,United States,,721183,Finance,Major Banks
+FITBP,Fifth Third Bancorp Depositary Shares each representing 1/40th share of Fifth Third 6.00% Non-Cumulative Perpetual Class B Preferred Stock Series A,24.79,0.02,0.081,16386481754.0,United States,,2055,Finance,Major Banks
+BPYPO,Brookfield Property Partners L.P. 6.375% Class A Cumulative Redeemable Perpetual Preferred Units Series 2,15.26,-0.04,-0.261,15863997667.0,Bermuda,,25167,Finance,Real Estate
+SLMBP,SLM Corporation Floating Rate Non-Cumulative Preferred Stock Series B,75.4,-0.25,-0.33,15309114135.0,United States,,4906,Finance,Finance: Consumer Services
+VLYPN,Valley National Bancorp 8.250% Fixed-Rate Reset Non-Cumulative Perpetual Preferred Stock Series C,26.31,0.01,0.038,14671391531.0,United States,,9335,Finance,Major Banks
+BPYPN,Brookfield Property Partners L.P. 5.750% Class A Cumulative Redeemable Perpetual Preferred Units Series 3,14.03,0.0485,0.347,14585313714.0,Bermuda,,19425,Finance,Real Estate
+VLYPP,Valley National Bancorp 6.25% Fixed-to-Floating Rate Non-Cumulative Perpetual Preferred Stock Series A,25.49,0.07,0.275,14214130373.0,United States,,2288,Finance,Major Banks
+VLYPO,Valley National Bancorp 5.50% Fixed-to-Floating Rate Non-Cumulative Perpetual Preferred Stock Series B,25.05,-0.05,-0.199,13968770728.0,United States,,2805,Finance,Major Banks
+ARCC,Ares Capital Corporation Common Stock,19.15,0.2,1.055,13750137482.0,United States,2004.0,10801689,Finance,Finance: Consumer Services
+FITBO,Fifth Third Bancorp Depositary Shares each representing a 1/1000th ownership interest in a share of Non-Cumulative Perpetual Preferred Stock Series K,20.02,0.04,0.2,13233455615.0,United States,,12259,Finance,Major Banks
+ERIE,Erie Indemnity Company Class A Common Stock,273.04,-1.59,-0.579,12612157194.0,United States,,198635,Finance,Specialty Insurers
+XP,XP Inc. Class A Common Stock,22.95,1.47,6.844,12333867512.0,Brazil,2019.0,12593956,Finance,Investment Bankers/Brokers/Service
+WTFC,Wintrust Financial Corporation Common Stock,156.3,2.81,1.831,10467591995.0,United States,,361417,Finance,Major Banks
+SEIC,SEI Investments Company Common Stock,81.39,0.82,1.018,9965343580.0,United States,1981.0,574516,Finance,Investment Bankers/Brokers/Service
+ONB,Old National Bancorp Common Stock,25.2,0.31,1.245,9847479600.0,United States,,2958785,Finance,Major Banks
+ONBPO,Old National Bancorp Depositary Shares Each Representing a 1/40th Interest in a Share of Series C Preferred Stock,25.2,0.021,0.083,9847479600.0,United States,,6224,Finance,Major Banks
+BPOP,Popular Inc. Common Stock,147.56,3.71,2.579,9838541604.0,United States,,528887,Finance,Major Banks
+ONBPP,Old National Bancorp Depositary Shares Each Representing a 1/40th Interest in a Share of Series A Preferred Stock,25.14,0.0151,0.06,9824033220.0,United States,,7657,Finance,Major Banks
+UMBF,UMB Financial Corporation Common Stock,126.85,0.73,0.579,9634848621.0,United States,,505528,Finance,Major Banks
+COLB,Columbia Banking System Inc. Common Stock,31.76,0.57,1.828,9500082198.0,United States,1992.0,3073179,Finance,Major Banks
+ZION,Zions Bancorporation N.A. Common Stock,62.5,1.02,1.659,9227564625.0,United States,,2372051,Finance,Major Banks
+GLXY,Galaxy Digital Inc. Class A Common Stock,21.2,-0.43,-1.988,8280938996.0,United States,,3928919,Finance,Investment Bankers/Brokers/Service
+BOKF,BOK Financial Corporation Common Stock,134.09,0.58,0.434,8138819833.0,United States,,293507,Finance,Major Banks
+APLD,Applied Digital Corporation Common Stock,29.04,-2.49,-7.897,8119172300.0,United States,2022.0,23797513,Finance,Finance: Consumer Services
+GGAL,Grupo Financiero Galicia S.A. American Depositary Shares,49.64,2.0,4.198,7973443516.0,Argentina,,1050712,Finance,Commercial Banks
+CHYM,Chime Financial Inc. Class A Common Stock,20.91,0.29,1.406,7832425687.0,United States,2025.0,2955506,Finance,Finance: Consumer Services
+ACGLO,Arch Capital Group Ltd. Depositary Shares Each Representing 1/1000th Interest in a Share of 5.45% Non-Cumulative Preferred Shares Series F,21.27,0.08,0.378,7713053701.0,Bermuda,,18349,Finance,Property-Casualty Insurers
+CBSH,Commerce Bancshares Inc. Common Stock,54.03,0.35,0.652,7512083418.0,United States,,1453900,Finance,Major Banks
+VLY,Valley National Bancorp Common Stock,13.36,0.2,1.52,7450011055.0,United States,,10627538,Finance,Major Banks
+FRHC,Freedom Holding Corp. Common Stock,119.65,7.62,6.802,7321447513.0,Kazakhstan,,147195,Finance,Investment Bankers/Brokers/Service
+FSV,FirstService Corporation Common Shares,155.75,-0.31,-0.199,7119680757.0,Canada,,146525,Finance,Real Estate
+SNEX,StoneX Group Inc. Common Stock,128.67,3.8,3.043,6750454870.0,United States,,258751,Finance,Investment Bankers/Brokers/Service
+MKTX,MarketAxess Holdings Inc. Common Stock,181.23,0.53,0.293,6736592395.0,United States,2004.0,375861,Finance,Investment Bankers/Brokers/Service
+ACGLN,Arch Capital Group Ltd. Depositary Shares each Representing a 1/1000th Interest in a 4.550% Non-Cumulative Preferred Share Series G,17.77,0.03,0.169,6443862918.0,Bermuda,,24872,Finance,Property-Casualty Insurers
+CGABL,The Carlyle Group Inc. 4.625% Subordinated Notes due 2061,17.71,0.035,0.198,6405793903.0,United States,,17879,Finance,Investment Managers
+MORN,Morningstar Inc. Common Stock,159.48,-2.37,-1.464,6312818045.0,United States,2005.0,529316,Finance,Investment Managers
+FIGR,Figure Technology Solutions Inc. Class A Common Stock,29.12,-3.81,-11.57,6284374125.0,U.S. Virgin Islands,2025.0,9939471,Finance,Finance: Consumer Services
+UBSI,United Bankshares Inc. Common Stock,44.28,0.21,0.477,6217646694.0,United States,,914195,Finance,Major Banks
+ACT,Enact Holdings Inc. Common Stock,41.43,-0.15,-0.361,5982316627.0,United States,2021.0,373167,Finance,Specialty Insurers
+HLNE,Hamilton Lane Incorporated Class A Common Stock,107.02,-5.98,-5.292,5969052700.0,United States,2017.0,1594151,Finance,Investment Managers
+STEP,StepStone Group Inc. Class A Common Stock,50.07,-3.73,-6.933,5966425217.0,United States,2020.0,2458707,Finance,Investment Managers
+HWC,Hancock Whitney Corporation Common Stock,71.18,0.91,1.295,5951582024.0,United States,,494174,Finance,Major Banks
+RIOT,Riot Platforms Inc. Common Stock ,15.68,-0.54,-3.329,5829936676.0,United States,,20474227,Finance,Finance: Consumer Services
+HUT,Hut 8 Corp. Common Stock,53.82,-1.04,-1.896,5814531534.0,United States,,3854923,Finance,Finance: Consumer Services
+CIFR,Cipher Mining Inc. Common Stock,14.65,-1.15,-7.278,5788098591.0,United States,2020.0,26951435,Finance,Finance: Consumer Services
+CIGI,Colliers International Group Inc. Subordinate Voting Shares,114.13,-0.89,-0.774,5785720030.0,Canada,,410726,Finance,Real Estate
+OZK,Bank OZK Common Stock,49.82,0.74,1.508,5636442096.0,United States,,1897290,Finance,Major Banks
+CORZ,Core Scientific Inc. Common Stock,17.3,-0.68,-3.782,5364060490.0,United States,,11327628,Finance,Finance: Consumer Services
+CORZZ,Core Scientific Inc. Tranche 2 Warrants,17.23,-0.65,-3.635,5342356199.0,United States,,3862,Finance,Finance: Consumer Services
+CACC,Credit Acceptance Corporation Common Stock,495.34,9.69,1.995,5323756802.0,United States,1992.0,286597,Finance,Finance: Consumer Services
+SIGI,Selective Insurance Group Inc. Common Stock,85.1,0.15,0.177,5112974796.0,United States,,727099,Finance,Property-Casualty Insurers
+VCTR,Victory Capital Holdings Inc. Class A Common Stock,75.59,-0.39,-0.513,4908471346.0,United States,2018.0,615345,Finance,Investment Managers
+FFIN,First Financial Bankshares Inc. Common Stock,33.33,0.23,0.695,4773059380.0,United States,,888484,Finance,Major Banks
+OPEN,Opendoor Technologies Inc Common Stock,5.0,0.35,7.527,4768940595.0,United States,,131932768,Finance,Real Estate
+TCBI,Texas Capital Bancshares Inc. Common Stock,105.02,0.38,0.363,4639451422.0,United States,2003.0,628704,Finance,Major Banks
+SLM,SLM Corporation Common Stock,22.6,-0.81,-3.46,4588673467.0,United States,,7438534,Finance,Finance: Consumer Services
+EBC,Eastern Bankshares Inc. Common Stock,21.42,0.31,1.468,4515291661.0,United States,2020.0,1421577,Finance,Savings Institutions
+BGC,BGC Group Inc. Class A Common Stock,9.6,-0.11,-1.133,4499978928.0,United States,,2109678,Finance,Investment Bankers/Brokers/Service
+IBOC,International Bancshares Corporation Common Stock,71.54,-0.2,-0.279,4447204476.0,United States,,394101,Finance,Major Banks
+OXLCP,Oxford Lane Capital Corp. 6.25% Series 2027 Term Preferred Shares,24.55,0.0,0.0,4261880000.0,United States,,28608,Finance,Investment Managers
+OXLCN,Oxford Lane Capital Corp. 7.125% Series 2029 Term Preferred Stock,24.44,-0.06,-0.245,4242784000.0,United States,,8495,Finance,Investment Managers
+OXLCZ,Oxford Lane Capital Corp. 5.00% Notes due 2027,24.43,-0.08,-0.326,4241048000.0,United States,,6314,Finance,Finance Companies
+TFSL,TFS Financial Corporation Common Stock,15.04,0.09,0.602,4219784817.0,United States,2007.0,530030,Finance,Savings Institutions
+OXLCL,Oxford Lane Capital Corp. 6.75% Notes due 2031,24.19,0.1089,0.452,4199384000.0,United States,,14310,Finance,Finance Companies
+INDB,Independent Bank Corp. Common Stock,83.46,1.29,1.57,4137718537.0,United States,,243634,Finance,Major Banks
+OXLCO,Oxford Lane Capital Corp. Preferred Stock Shares 6.00% Series 2029,23.47,0.1,0.428,4074392000.0,United States,,1961,Finance,Investment Managers
+INTR,Inter & Co. Inc. Class A Common Shares,9.25,0.3231,3.619,4067263582.0,Brazil,,3156612,Finance,Commercial Banks
+FULT,Fulton Financial Corporation Common Stock,22.39,0.39,1.773,4027851894.0,United States,,1816381,Finance,Major Banks
+BANF,BancFirst Corporation Common Stock,116.76,1.63,1.416,3892097923.0,United States,1993.0,99036,Finance,Major Banks
+FIBK,First Interstate BancSystem Inc. Common Stock (DE),37.44,0.3,0.808,3852224588.0,United States,2010.0,785560,Finance,Major Banks
+NTRSO,Northern Trust Corporation Depositary Shares Each Representing a 1/1000th Interest in a Share of Series E Non-Cumulative Perpetual Preferred Stock,19.84,-0.04,-0.201,3752088601.0,United States,,15687,Finance,Major Banks

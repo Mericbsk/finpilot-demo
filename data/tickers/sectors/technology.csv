@@ -1,36 +1,101 @@
-Symbol
-TXN
-KLAC
-ADI
-SHOP
-QCOM
-PDD
-APP
-ARM
-PANW
-ADBE
-INTU
-CRWD
-WDC
-SNDK
-STX
-SNPS
-CDNS
-DASH
-NTES
-MRVL
-FTNT
-NXPI
-MPWR
-FER
-ADSK
-BIDU
-CRWV
-MCHP
-DDOG
-ERIC
-MSTR
-MCHPP
-WDAY
-ROP
-CTSH
+Symbol,Name,Last Sale,Net Change,% Change,Market Cap,Country,IPO Year,Volume,Sector,Industry
+TXN,Texas Instruments Incorporated Common Stock,219.73,1.68,0.77,199416131571.0,United States,,5457486,Technology,Semiconductors
+KLAC,KLA Corporation Common Stock,1496.0,26.1,1.776,196090610056.0,United States,1980.0,684045,Technology,Electronic Components
+ADI,Analog Devices Inc. Common Stock,355.03,9.73,2.818,173327121860.0,United States,,5341314,Technology,Semiconductors
+SHOP,Shopify Inc. Class A Subordinate Voting Shares,126.2,2.4,1.939,164578855273.0,Canada,,14666829,Technology,Computer Software: Prepackaged Software
+QCOM,QUALCOMM Incorporated Common Stock,142.88,1.61,1.14,152452960000.0,United States,1991.0,10261551,Technology,Radio And Television Broadcasting And Communications Equipment
+PDD,PDD Holdings Inc. American Depositary Shares,104.94,2.99,2.933,148977699722.0,China,2018.0,15158313,Technology,EDP Services
+APP,Applovin Corporation Class A Common Stock,418.68,6.68,1.621,141494999400.0,United States,2021.0,8651507,Technology,Computer Software: Programming Data Processing
+ARM,Arm Holdings plc American Depositary Shares,125.58,-1.35,-1.064,133022372994.0,United Kingdom,2023.0,4051975,Technology,Semiconductors
+PANW,Palo Alto Networks Inc. Common Stock,148.7,-2.29,-1.517,121339200000.0,United States,,25838952,Technology,Computer peripheral equipment
+ADBE,Adobe Inc. Common Stock,258.61,-0.6,-0.231,106159405000.0,United States,1986.0,6589239,Technology,Computer Software: Prepackaged Software
+INTU,Intuit Inc. Common Stock,380.55,-0.99,-0.259,105945120000.0,United States,1993.0,4120393,Technology,Computer Software: Prepackaged Software
+CRWD,CrowdStrike Holdings Inc. Class A Common Stock,388.6,-33.54,-7.945,97965453784.0,United States,2019.0,8329880,Technology,Computer Software: Prepackaged Software
+WDC,Western Digital Corporation Common Stock,285.52,0.85,0.299,96802107489.0,United States,,10497113,Technology,Electronic Components
+SNDK,Sandisk Corporation Common Stock,649.97,28.88,4.65,95936203771.0,United States,,17003186,Technology,Electronic Components
+STX,Seagate Technology Holdings PLC Ordinary Shares (Ireland),411.11,2.14,0.523,89652018574.0,Ireland,2002.0,2961601,Technology,Electronic Components
+SNPS,Synopsys Inc. Common Stock,439.94,-2.5,-0.565,84168531548.0,United States,1992.0,1697067,Technology,Computer Software: Prepackaged Software
+CDNS,Cadence Design Systems Inc. Common Stock,296.28,-0.31,-0.105,80647712280.0,United States,,2534078,Technology,Computer Software: Prepackaged Software
+DASH,DoorDash Inc. Class A Common Stock,176.29,0.1,0.057,75980728915.0,United States,,7760146,Technology,EDP Services
+NTES,NetEase Inc. American Depositary Shares,118.41,-0.75,-0.629,74977008808.0,China,,955635,Technology,Computer Software: Prepackaged Software
+MRVL,Marvell Technology Inc. Common Stock,79.48,-0.13,-0.163,69241921062.0,United States,2000.0,8788832,Technology,Semiconductors
+FTNT,Fortinet Inc. Common Stock,80.0,-1.67,-2.045,59491848160.0,United States,2009.0,6702010,Technology,Computer peripheral equipment
+NXPI,NXP Semiconductors N.V. Common Stock,232.27,0.16,0.069,58456429379.0,Netherlands,2010.0,2120181,Technology,Semiconductors
+MPWR,Monolithic Power Systems Inc. Common Stock,1204.1,28.88,2.457,57684818700.0,United States,2004.0,375905,Technology,Semiconductors
+FER,Ferrovial SE Ordinary Shares,72.76,1.2,1.677,52400740054.0,Netherlands,,1135273,Technology,Industrial Machinery/Components
+ADSK,Autodesk Inc. Common Stock,226.98,-2.12,-0.925,48119760000.0,United States,,1743079,Technology,Computer Software: Prepackaged Software
+BIDU,Baidu Inc. ADS,135.86,-1.25,-0.912,46704713931.0,China,2005.0,2267244,Technology,Computer Software: Programming Data Processing
+CRWV,CoreWeave Inc. Class A Common Stock,89.25,-7.89,-8.122,44474837946.0,United States,2025.0,46265519,Technology,Computer Software: Prepackaged Software
+MCHP,Microchip Technology Incorporated Common Stock,77.73,0.57,0.739,42062459150.0,United States,1993.0,7042361,Technology,Semiconductors
+DDOG,Datadog Inc. Class A Common Stock,115.66,-4.94,-4.096,40778949528.0,United States,2019.0,4546738,Technology,Computer Software: Prepackaged Software
+ERIC,Ericsson American Depositary Shares,11.33,0.08,0.711,37935692158.0,Sweden,,7701405,Technology,Radio And Television Broadcasting And Communications Equipment
+MSTR,Strategy Inc Common Stock Class A,131.05,1.6,1.236,37657706972.0,United States,1998.0,17592037,Technology,Computer Software: Prepackaged Software
+MCHPP,Microchip Technology Incorporated Depositary Shares Each Representing a 1/20th Interest in a Share of 7.50% Series A Mandatory Convertible Preferred Stock,68.0,0.33,0.488,36797211144.0,United States,,12842,Technology,Semiconductors
+WDAY,Workday Inc. Class A Common Stock,137.81,-2.21,-1.578,36244030000.0,United States,,4018716,Technology,EDP Services
+ROP,Roper Technologies Inc. Common Stock,335.79,3.79,1.142,36143572620.0,United States,1992.0,2482718,Technology,Computer Software: Programming Data Processing
+CTSH,Cognizant Technology Solutions Corporation Class A Common Stock,65.03,0.04,0.062,31100397208.0,United States,1998.0,9677904,Technology,EDP Services
+STRF,Strategy Inc 10.00% Series A Perpetual Strife Preferred Stock,100.96,0.1,0.099,29011233086.0,United States,,79334,Technology,Computer Software: Prepackaged Software
+STRC,Strategy Inc Variable Rate Series A Perpetual Stretch Preferred Stock,99.82,0.16,0.161,28683649828.0,United States,,457746,Technology,Computer Software: Prepackaged Software
+MDB,MongoDB Inc. Class A Common Stock,344.56,-11.33,-3.184,28044344826.0,United States,2017.0,1382441,Technology,Computer Software: Prepackaged Software
+ON,ON Semiconductor Corporation Common Stock,69.11,1.02,1.498,27230758828.0,United States,,5270650,Technology,Semiconductors
+ZM,Zoom Communications Inc. Class A Common Stock,90.29,-0.67,-0.737,26734956491.0,United States,2019.0,3060686,Technology,Computer Software: Programming Data Processing
+FSLR,First Solar Inc. Common Stock,241.88,8.58,3.678,25955693145.0,United States,2006.0,2803443,Technology,Semiconductors
+GFS,GlobalFoundries Inc. Ordinary Shares,46.19,0.75,1.651,25539043294.0,United States,2021.0,2503086,Technology,Semiconductors
+ZS,Zscaler Inc. Common Stock,159.75,-9.24,-5.468,25475525478.0,United States,2018.0,3258553,Technology,EDP Services
+FLEX,Flex Ltd. Ordinary Shares,65.68,0.57,0.875,24148823328.0,Singapore,1994.0,4125570,Technology,Electrical Products
+NBIS,Nebius Group N.V. Class A Ordinary Shares,97.92,-9.69,-9.005,23315616732.0,Netherlands,2011.0,17240954,Technology,Computer Software: Programming Data Processing
+STRK,Strategy Inc 8.00% Series A Perpetual Strike Preferred Stock,80.02,1.12,1.42,22994045875.0,United States,,89217,Technology,Computer Software: Prepackaged Software
+CRDO,Credo Technology Group Holding Ltd Ordinary Shares,124.06,-6.6,-5.051,22409171059.0,United States,2022.0,5192593,Technology,Semiconductors
+STRD,Strategy Inc 10.00% Series A Perpetual Stride Preferred Stock,77.25,0.835,1.093,22198076029.0,United States,,46551,Technology,Computer Software: Prepackaged Software
+ALAB,Astera Labs Inc. Common Stock,129.68,-2.94,-2.217,21903420923.0,United States,2024.0,3640860,Technology,Semiconductors
+NTAP,NetApp Inc. Common Stock,102.48,0.88,0.866,20297224463.0,United States,1995.0,1819294,Technology,Electronic Components
+TEAM,Atlassian Corporation Class A Common Stock,75.98,-4.28,-5.333,20039274743.0,Australia,2015.0,9552653,Technology,Computer Software: Prepackaged Software
+VRSN,VeriSign Inc. Common Stock,215.91,-0.71,-0.328,19798947000.0,United States,1998.0,504122,Technology,EDP Services
+SMCI,Super Micro Computer Inc. Common Stock,32.42,0.26,0.808,19419237256.0,United States,2020.0,26023498,Technology,Computer Manufacturing
+PTC,PTC Inc. Common Stock,155.16,0.765,0.495,18463437359.0,United States,,900757,Technology,Computer Software: Prepackaged Software
+MTSI,MACOM Technology Solutions Holdings Inc. Common Stock,243.59,1.03,0.425,18272165772.0,United States,2012.0,796679,Technology,Semiconductors
+SSNC,SS&C Technologies Holdings Inc. Common Stock,71.38,0.01,0.014,17418676026.0,United States,2010.0,2178446,Technology,Computer Software: Prepackaged Software
+CHKP,Check Point Software Technologies Ltd. Ordinary Shares,159.04,-0.01,-0.006,17234929898.0,Israel,1996.0,1559536,Technology,Computer Software: Prepackaged Software
+CDW,CDW Corporation Common Stock,124.64,0.47,0.379,16227337782.0,United States,2013.0,1772859,Technology,Retail: Computer Software & Peripheral Equipment
+TSEM,Tower Semiconductor Ltd. Ordinary Shares,128.47,2.61,2.074,14357373357.0,Israel,1994.0,1380402,Technology,Semiconductors
+NVMI,Nova Ltd. Ordinary Shares,441.24,-1.43,-0.323,14023918565.0,Israel,2000.0,337427,Technology,Electronic Components
+GEN,Gen Digital Inc. Common Stock,22.35,0.01,0.045,13536585349.0,United States,,5498689,Technology,Computer Software: Prepackaged Software
+LSCC,Lattice Semiconductor Corporation Common Stock,97.76,2.66,2.797,13372237877.0,United States,,1972055,Technology,Semiconductors
+IREN,IREN Limited Ordinary Shares,39.98,-3.31,-7.646,13284569712.0,Australia,2021.0,41306278,Technology,EDP Services
+LOGI,Logitech International S.A. Ordinary Shares,90.04,0.67,0.75,13198868698.0,United States,1997.0,925436,Technology,Computer peripheral equipment
+OKTA,Okta Inc. Class A Common Stock,74.29,-7.51,-9.181,13166433118.0,United States,2017.0,6063484,Technology,Computer Software: Prepackaged Software
+BILI,Bilibili Inc. American Depositary Shares,30.3,-0.66,-2.132,12664990980.0,China,2018.0,1458846,Technology,EDP Services
+AEIS,Advanced Energy Industries Inc. Common Stock,331.23,10.59,3.303,12504260418.0,United States,1995.0,735343,Technology,Industrial Machinery/Components
+TTD,The Trade Desk Inc. Class A Common Stock,25.1,-0.14,-0.555,12138231162.0,United States,2016.0,15329593,Technology,Computer Software: Programming Data Processing
+AMKR,Amkor Technology Inc. Common Stock,47.94,-0.4,-0.827,11855996480.0,United States,1998.0,3956142,Technology,Semiconductors
+JKHY,Jack Henry & Associates Inc. Common Stock,159.19,-1.95,-1.21,11488323312.0,United States,1985.0,878802,Technology,EDP Services
+TTMI,TTM Technologies Inc. Common Stock,107.93,7.54,7.511,11160493555.0,United States,2000.0,3330896,Technology,Electrical Products
+RMBS,Rambus Inc. Common Stock,102.64,-1.49,-1.431,11063640732.0,United States,1997.0,1647216,Technology,Semiconductors
+CFLT,Confluent Inc. Class A Common Stock,30.7,-0.02,-0.065,10979686181.0,United States,2021.0,16226955,Technology,Computer Software: Prepackaged Software
+NTNX,Nutanix Inc. Class A Common Stock,39.84,-1.48,-3.582,10772732972.0,United States,2016.0,3793189,Technology,Computer Software: Prepackaged Software
+SITM,SiTime Corporation Common Stock,406.97,10.4,2.622,10703276408.0,United States,2019.0,254284,Technology,Semiconductors
+TEM,Tempus AI Inc. Class A Common Stock,58.37,-1.59,-2.652,10384446708.0,United States,2024.0,7885444,Technology,Computer Software: Programming Data Processing
+BSY,Bentley Systems Incorporated Class B Common Stock,33.84,-0.33,-0.966,10272371181.0,United States,2020.0,3182923,Technology,Computer Software: Prepackaged Software
+AUR,Aurora Innovation Inc. Class A Common Stock,4.77,-0.09,-1.852,9295839164.0,United States,2021.0,17560374,Technology,EDP Services
+GDS,GDS Holdings Limited ADS,45.08,-0.48,-1.054,9033002508.0,China,2016.0,1359701,Technology,Computer Software: Programming Data Processing
+SWKS,Skyworks Solutions Inc. Common Stock,60.05,0.83,1.402,9029935401.0,United States,,3876569,Technology,Semiconductors
+DOCU,DocuSign Inc. Common Stock,44.48,0.36,0.816,8908131475.0,United States,1989.0,3757912,Technology,Computer Software: Prepackaged Software
+MANH,Manhattan Associates Inc. Common Stock,144.27,0.73,0.509,8634205750.0,United States,1998.0,886404,Technology,Computer Software: Prepackaged Software
+SANM,Sanmina Corporation Common Stock,149.365,1.265,0.854,8156059096.0,United States,1993.0,436348,Technology,Electrical Products
+SMTC,Semtech Corporation Common Stock,86.77,1.81,2.13,8029700746.0,United States,,1043372,Technology,Semiconductors
+SAIL,SailPoint Inc. Common Stock,14.19,-1.48,-9.445,7969469534.0,United States,2025.0,7727024,Technology,Computer Software: Prepackaged Software
+PEGA,Pegasystems Inc. Common Stock,45.36,0.6,1.34,7667822958.0,United States,1996.0,2605322,Technology,EDP Services
+QRVO,Qorvo Inc. Common Stock,82.24,0.93,1.144,7624115041.0,United States,,1084619,Technology,Semiconductors
+MBLY,Mobileye Global Inc. Class A Common Stock,9.05,-0.14,-1.523,7614502702.0,Israel,2022.0,2994536,Technology,Computer Software: Prepackaged Software
+BZ,KANZHUN LIMITED American Depository Shares,17.48,0.27,1.569,7599180088.0,China,2021.0,2091907,Technology,Computer Software: Programming Data Processing
+VICR,Vicor Corporation Common Stock,170.01,17.17,11.234,7591393966.0,United States,,1730888,Technology,Industrial Machinery/Components
+DOX,Amdocs Limited Ordinary Shares,70.17,0.35,0.501,7574819152.0,Guernsey,,1984104,Technology,EDP Services
+MTCH,Match Group Inc. Common Stock,31.83,1.14,3.715,7514114116.0,United States,,3031163,Technology,Computer Software: Programming Data Processing
+NICE,NICE Ltd American Depositary Shares,117.69,6.14,5.504,7443874023.0,Israel,,1033728,Technology,Computer Software: Prepackaged Software
+FORM,FormFactor Inc. FormFactor Inc. Common Stock,94.56,2.28,2.471,7330016692.0,United States,2003.0,1001071,Technology,Semiconductors
+CRUS,Cirrus Logic Inc. Common Stock,142.14,1.85,1.319,7253459492.0,United States,1989.0,480570,Technology,Semiconductors
+ALGM,Allegro MicroSystems Inc. Common Stock,38.93,2.67,7.363,7213373569.0,United States,2020.0,5599376,Technology,Semiconductors
+CAMT,Camtek Ltd. Ordinary Shares,148.1,-5.09,-3.323,6752541599.0,Israel,2000.0,875900,Technology,Electronic Components
+SLAB,Silicon Laboratories Inc. Common Stock,204.64,-0.15,-0.073,6744101311.0,United States,2000.0,738581,Technology,Semiconductors
+DBX,Dropbox Inc. Class A Common Stock,25.48,0.75,3.033,6592677899.0,United States,2018.0,7343710,Technology,Computer Software: Prepackaged Software
+VIAV,Viavi Solutions Inc. Common Stock,27.53,1.2,4.558,6370148668.0,United States,,5285759,Technology,Semiconductors

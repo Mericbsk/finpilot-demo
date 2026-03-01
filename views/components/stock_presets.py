@@ -1277,6 +1277,44 @@ STOCK_PRESETS: dict[str, StockPreset] = {
             "ROP", "CTSH",
         ],
     ),
+    "fp_consumer_discretionary": StockPreset(
+        name="FP: Tüketici İhtiyari",
+        icon="🛍️",
+        description="Turizm, eğlence, perakende, restoran — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "BKNG", "SBUX", "MAR", "ORLY", "ABNB", "WBD", "PCAR", "ROST",
+            "BKR", "FAST", "EA", "JD", "TRI", "TTWO", "UAL", "KMB",
+            "CPRT", "RYAAY", "SATS", "ULTA", "ASTS", "TSCO", "DLTR", "EXPE",
+            "CASY", "LULU", "HTHT", "WMG", "NWS", "HAS", "NWSA", "DPZ",
+            "FIVE", "WYNN", "TXRH", "DKNG",
+        ],
+    ),
+    "fp_telecommunications": StockPreset(
+        name="FP: Telekomünikasyon",
+        icon="📡",
+        description="İletişim altyapısı, uydu, fiber — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "CMCSA", "LITE", "VOD", "CHTR", "FFIV", "ROKU", "TIGO", "LBRDK",
+            "LBRDA", "LBTYB", "LBTYA", "VEON", "LBTYK", "LBRDP", "KYIV",
+            "IRDM", "HTO", "DGII", "EXTR", "NSSC", "LILAK", "LILA", "GLIBA",
+            "GLIBK", "ZD", "MATW", "SHEN", "ATEX", "AIOT", "ATNI", "ALLT",
+            "AMCX",
+        ],
+    ),
+    "fp_utilities": StockPreset(
+        name="FP: Enerji & Altyapı",
+        icon="⚡",
+        description="Elektrik, doğalgaz, su, nükleer — NASDAQ sektör tarama",
+        category="FinPilot Sektör",
+        symbols=[
+            "CEG", "AEP", "EXC", "XEL", "EVRG", "LNT", "TLN", "ENLT",
+            "CWST", "NWE", "OTTR", "RNW", "CDZIP", "NEXT", "NNE", "MSEX",
+            "ADTN", "NTGR", "CWCO", "CLNE", "YORW", "CLFD", "CDZI", "OPAL",
+            "NFE", "ARTNA", "PCYO", "GWRS", "MNTK", "WAVE", "RGCO", "AUDC",
+        ],
+    ),
 }
 
 

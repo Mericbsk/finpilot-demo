@@ -1,37 +1,310 @@
-Symbol
-HON
-ADP
-CTAS
-CSX
-ELVR
-TER
-BRKRP
-ODFL
-PYPL
-RKLB
-AXON
-ESLT
-PAYX
-SYM
-FTAI
-STLD
-VRSK
-FOXA
-RGLD
-FWONK
-CHRW
-FOX
-JBHT
-FWONA
-ENTG
-LI
-RIVN
-NXT
-MKSI
-KTOS
-NDSN
-TRMB
-LECO
-STRL
-AVAV
-ZBRA
+Symbol,Name,Last Sale,Net Change,% Change,Market Cap,Country,IPO Year,Volume,Sector,Industry
+HON,Honeywell International Inc. Common Stock,243.97,3.2,1.329,155085800773.0,United States,,2681237,Industrials,Aerospace
+ADP,Automatic Data Processing Inc. Common Stock,214.47,-1.5,-0.695,86355136747.0,United States,,2511123,Industrials,Diversified Commercial Services
+CTAS,Cintas Corporation Common Stock,200.02,2.05,1.036,79985926993.0,United States,1983.0,1800404,Industrials,Garments and Clothing
+CSX,CSX Corporation Common Stock,42.31,0.63,1.512,78677848166.0,United States,,14159897,Industrials,Railroads
+ELVR,Elevra Lithium Limited American Depository Shares,51.38,-1.27,-2.412,59309454899.0,Australia,,39165,Industrials,Mining & Quarrying of Nonmetallic Minerals (No Fuels)
+TER,Teradyne Inc. Common Stock,324.85,8.95,2.833,50874207230.0,United States,,2601612,Industrials,Electrical Products
+BRKRP,Bruker Corporation 6.375% Mandatory Convertible Preferred Stock Series A,305.21,0.0,0.0,46373956560.0,United States,,481,Industrials,Biotechnology: Laboratory Analytical Instruments
+ODFL,Old Dominion Freight Line Inc. Common Stock,201.39,6.22,3.187,42110334630.0,United States,1991.0,2002557,Industrials,Trucking Freight/Courier Services
+PYPL,PayPal Holdings Inc. Common Stock,41.65,-0.08,-0.192,38345678174.0,United States,,23155555,Industrials,Diversified Commercial Services
+RKLB,Rocket Lab Corporation Common Stock,70.86,-5.72,-7.469,37850317756.0,United States,2020.0,18209256,Industrials,Military/Government/Technical
+AXON,Axon Enterprise Inc. Common Stock,433.91,-7.21,-1.634,34443110182.0,United States,2001.0,647957,Industrials,Ordnance And Accessories
+ESLT,Elbit Systems Ltd. Ordinary Shares,724.73,-5.58,-0.764,33374554275.0,Israel,,213052,Industrials,Military/Government/Technical
+PAYX,Paychex Inc. Common Stock,91.24,-1.1,-1.191,32752190138.0,United States,1983.0,5312516,Industrials,Diversified Commercial Services
+SYM,Symbotic Inc. Class A Common Stock,53.795,-1.28,-2.324,32393831551.0,United States,2021.0,1570043,Industrials,Industrial Machinery/Components
+FTAI,FTAI Aviation Ltd. Common Stock,289.74,0.76,0.263,29719479290.0,United States,,971300,Industrials,Misc Corporate Leasing Services
+STLD,Steel Dynamics Inc.,193.39,2.81,1.474,28241681382.0,United States,1996.0,1318741,Industrials,Steel/Iron Ore
+VRSK,Verisk Analytics Inc. Common Stock,182.5,-1.39,-0.756,25174394560.0,United States,2009.0,1584034,Industrials,Diversified Commercial Services
+FOXA,Fox Corporation Class A Common Stock,57.02,0.86,1.531,24256084368.0,United States,,4167523,Industrials,Broadcasting
+RGLD,Royal Gold Inc. Common Stock,285.54,13.76,5.063,24099022909.0,United States,,1070905,Industrials,Precious Metals
+FWONK,Liberty Media Corporation Series C Liberty Formula One Common Stock,90.24,0.13,0.144,22564894347.0,United States,,1364246,Industrials,Broadcasting
+CHRW,C.H. Robinson Worldwide Inc. Common Stock,190.06,4.87,2.63,22545075520.0,United States,1997.0,2326819,Industrials,Integrated Freight & Logistics
+FOX,Fox Corporation Class B Common Stock,52.25,0.78,1.515,22226945076.0,United States,,1679254,Industrials,Broadcasting
+JBHT,J.B. Hunt Transport Services Inc. Common Stock,230.16,4.44,1.967,21915454515.0,United States,,837971,Industrials,Trucking Freight/Courier Services
+FWONA,Liberty Media Corporation Series A Liberty Formula One Common Stock,81.99,0.155,0.189,20501946892.0,United States,,223361,Industrials,Broadcasting
+ENTG,Entegris Inc. Common Stock,134.49,1.82,1.372,20442480000.0,United States,2000.0,2325711,Industrials,Plastic Products
+LI,Li Auto Inc. American Depositary Shares,18.28,-0.04,-0.218,19345014663.0,China,2020.0,2411353,Industrials,Auto Manufacturing
+RIVN,Rivian Automotive Inc. Class A Common Stock,15.27,-0.32,-2.053,18949914078.0,United States,2021.0,20801443,Industrials,Auto Manufacturing
+NXT,Nextpower Inc. Class A Common Stock,119.34,3.29,2.835,17719107104.0,United States,2023.0,1277383,Industrials,Industrial Machinery/Components
+MKSI,MKS Inc. Common Stock,259.27,10.19,4.091,17415029524.0,United States,1999.0,1950214,Industrials,Industrial Machinery/Components
+KTOS,Kratos Defense & Security Solutions Inc. Common Stock,96.08,-9.59,-9.075,16365225501.0,United States,,4623283,Industrials,Military/Government/Technical
+NDSN,Nordson Corporation Common Stock,290.17,-3.76,-1.279,16163466024.0,United States,,610244,Industrials,Industrial Machinery/Components
+TRMB,Trimble Inc. Common Stock,67.62,0.23,0.341,16088215450.0,United States,1990.0,1472689,Industrials,Industrial Machinery/Components
+LECO,Lincoln Electric Holdings Inc. Common Shares,286.13,-1.99,-0.691,15744639739.0,United States,,187007,Industrials,Industrial Machinery/Components
+STRL,Sterling Infrastructure Inc. Common Stock,435.5,20.37,4.907,13378286942.0,United States,,663957,Industrials,Military/Government/Technical
+AVAV,AeroVironment Inc. Common Stock,264.63,-17.04,-6.05,13211885095.0,United States,2007.0,1114590,Industrials,Aerospace
+ZBRA,Zebra Technologies Corporation Class A Common Stock,255.41,3.67,1.458,12939132409.0,United States,1991.0,849803,Industrials,Industrial Machinery/Components
+SOLS,Solstice Advanced Materials Inc. Common Stock ,80.05,2.19,2.813,12706132853.0,United States,,2882040,Industrials,Aerospace
+PSKY,Paramount Skydance Corporation Class B Common Stock,10.71,-0.23,-2.102,11814918324.0,United States,,8874039,Industrials,Broadcasting
+SAIA,Saia Inc. Common Stock,411.63,18.96,4.828,10966910315.0,United States,,415637,Industrials,Trucking Freight/Courier Services
+DRS,Leonardo DRS Inc. Common Stock,40.03,-1.04,-2.532,10649049802.0,Israel,,811940,Industrials,Industrial Machinery/Components
+IESC,IES Holdings Inc. Common Stock,519.67,12.73,2.511,10355983240.0,United States,,277992,Industrials,Engineering & Construction
+CGNX,Cognex Corporation Common Stock,56.03,0.09,0.161,9284614758.0,United States,1989.0,2906676,Industrials,Industrial Machinery/Components
+AAON,AAON Inc. Common Stock,102.3,1.28,1.267,8351164133.0,United States,,519140,Industrials,Industrial Machinery/Components
+MIDD,Middleby Corporation (The) Common Stock,160.78,-1.68,-1.034,8098689575.0,United States,,560505,Industrials,Industrial Machinery/Components
+VFS,VinFast Auto Ltd. Ordinary Shares,3.25,-0.01,-0.307,7603416197.0,Singapore,,137769,Industrials,Auto Manufacturing
+ROAD,Construction Partners Inc. Class A Common Stock,131.9,0.69,0.526,7454378094.0,United States,2018.0,381354,Industrials,Military/Government/Technical
+NXST,Nexstar Media Group Inc. Common Stock,231.44,-1.92,-0.823,7018693876.0,United States,2003.0,267997,Industrials,Broadcasting
+SSRM,SSR Mining Inc. Common Stock,30.46,1.35,4.638,6183414694.0,Canada,,7702179,Industrials,Precious Metals
+MWH,SOLV Energy Inc. Class A Common Stock,30.5,0.0,0.0,6082170798.0,United States,2026.0,406568,Industrials,Military/Government/Technical
+BRKR,Bruker Corporation Common Stock,38.28,-0.48,-1.238,5816306992.0,United States,,2113893,Industrials,Biotechnology: Laboratory Analytical Instruments
+BCPC,Balchem Corporation Common Stock,171.3,-3.7,-2.114,5547766338.0,United States,,192117,Industrials,Major Chemicals
+LSTR,Landstar System Inc. Common Stock,153.14,3.08,2.053,5259547664.0,United States,1993.0,722944,Industrials,Trucking Freight/Courier Services
+CENX,Century Aluminum Company Common Stock,52.64,0.14,0.267,4913521248.0,United States,1996.0,3177294,Industrials,Aluminum
+ITRI,Itron Inc. Common Stock,99.54,0.43,0.434,4473447645.0,United States,1993.0,1724684,Industrials,Electrical Products
+MYRG,MYR Group Inc. Common Stock,281.01,10.0,3.69,4362071582.0,United States,2008.0,208743,Industrials,Water Sewer Pipeline Comm & Power Line Construction
+VSNT,Versant Media Group Inc. Class A Common Stock ,30.03,-0.01,-0.033,4340235900.0,United States,,2068020,Industrials,Broadcasting
+WSC,WillScot Holdings Corporation Class A Common Stock,22.81,0.7,3.166,4150181166.0,United States,2015.0,3604906,Industrials,Misc Corporate Leasing Services
+MEOH,Methanex Corporation Common Stock,49.37,0.05,0.101,3818252102.0,Canada,,436762,Industrials,Major Chemicals
+HSAI,Hesai Group American Depositary Share each ADS represents one Class B ordinary share,27.76,-0.36,-1.28,3677302353.0,China,2023.0,1206692,Industrials,Industrial Machinery/Components
+LUNR,Intuitive Machines Inc. Class A Common Stock,17.55,-0.64,-3.518,3566336834.0,United States,2021.0,7185981,Industrials,Industrial Machinery/Components
+WDFC,WD-40 Company Common Stock,238.48,0.16,0.067,3216213301.0,United States,1973.0,107810,Industrials,Major Chemicals
+FLY,Firefly Aerospace Inc. Common Stock,19.98,-1.55,-7.199,3181837418.0,United States,2025.0,2102705,Industrials,Military/Government/Technical
+USLM,United States Lime & Minerals Inc. Common Stock,108.87,1.46,1.359,3117971369.0,United States,,60869,Industrials,Mining & Quarrying of Nonmetallic Minerals (No Fuels)
+LCID,Lucid Group Inc. Common Stock,9.55,-0.2,-2.051,3095808764.0,United States,,6794384,Industrials,Auto Manufacturing
+POWWP,Outdoor Holding Company 8.75% Series A Cumulative Redeemable Perpetual Preferred Stock,24.3688,-0.0162,-0.066,2858185409.0,United States,,3116,Industrials,Ordnance And Accessories
+CECO,CECO Environmental Corp. Common Stock,78.78,0.54,0.69,2807800422.0,United States,1998.0,328255,Industrials,Pollution Control Equipment
+FTAIM,FTAI Aviation Ltd. 9.500% Fixed-Rate Reset Series D Cumulative Perpetual Redeemable Preferred Shares,27.3725,0.0208,0.076,2807677390.0,United States,,1982,Industrials,Misc Corporate Leasing Services
+ATRO,Astronics Corporation Common Stock,78.25,-0.63,-0.799,2787978718.0,United States,,538940,Industrials,Military/Government/Technical
+HUBG,Hub Group Inc. Class A Common Stock,43.27,1.53,3.666,2646112378.0,United States,1996.0,1176477,Industrials,Integrated Freight & Logistics
+FTAIN,FTAI Aviation Ltd. 8.25% Fixed - Rate Reset Series C Cumulative Perpetual Redeemable Preferred Shares,25.69,0.065,0.254,2635098443.0,United States,,443,Industrials,Misc Corporate Leasing Services
+TXG,10x Genomics Inc. Class A Common Stock,18.88,-0.31,-1.615,2411962556.0,United States,2019.0,2304736,Industrials,Biotechnology: Laboratory Analytical Instruments
+ARCB,ArcBest Corporation Common Stock,105.09,-0.01,-0.01,2365683197.0,United States,,312860,Industrials,Trucking Freight/Courier Services
+DXPE,DXP Enterprises Inc. Common Stock,149.13,2.15,1.463,2338252518.0,United States,,149348,Industrials,Industrial Machinery/Components
+NN,NextNav Inc. Common Stock,17.07,0.25,1.486,2301532532.0,United States,,1087852,Industrials,Industrial Machinery/Components
+ANDE,Andersons Inc. (The) Common Stock,65.65,0.79,1.218,2221538425.0,United States,,331396,Industrials,Farming/Seeds/Milling
+WERN,Werner Enterprises Inc. Common Stock,35.43,0.75,2.163,2119788131.0,United States,1986.0,928861,Industrials,Trucking Freight/Courier Services
+KALU,Kaiser Aluminum Corporation Common Stock,129.02,1.97,1.551,2090931020.0,United States,,344974,Industrials,Metal Fabrications
+NWL,Newell Brands Inc. Common Stock,4.88,0.17,3.609,2045696000.0,United States,,4473484,Industrials,Plastic Products
+PSIX,Power Solutions International Inc. Common Stock,88.09,3.31,3.904,2029675524.0,United States,,358056,Industrials,Industrial Machinery/Components
+IOSP,Innospec Inc. Common Stock,81.22,-1.44,-1.742,2012457708.0,United States,,226997,Industrials,Major Chemicals
+PCTTU,PureCycle Technologies Inc. Unit,9.73,0.0,0.0,1753329848.0,United States,,2,Industrials,Major Chemicals
+PCT,PureCycle Technologies Inc. Common stock,8.99,-0.26,-2.811,1619983077.0,United States,,2176948,Industrials,Major Chemicals
+ROCK,Gibraltar Industries Inc. Common Stock,52.79,-0.36,-0.677,1559557127.0,United States,1993.0,320276,Industrials,Steel/Iron Ore
+TRS,TriMas Corporation Common Stock,37.08,-0.96,-2.524,1507141481.0,United States,2007.0,561972,Industrials,Industrial Specialties
+COHU,Cohu Inc. Common Stock,31.56,1.25,4.124,1479795537.0,United States,,915573,Industrials,Electrical Products
+XPEL,XPEL Inc. Common Stock,51.2,1.04,2.073,1417144371.0,United States,,370001,Industrials,Industrial Specialties
+ASTE,Astec Industries Inc. Common Stock,58.72,1.28,2.228,1343269384.0,United States,1986.0,225335,Industrials,Construction/Ag Equipment/Trucks
+PSNY,Polestar Automotive Holding UK PLC Class A ADS,17.22,-0.51,-2.876,1325806924.0,Sweden,,125600,Industrials,Auto Manufacturing
+PLPC,Preformed Line Products Company Common Stock,262.62,2.42,0.93,1287329362.0,United States,,123668,Industrials,Water Sewer Pipeline Comm & Power Line Construction
+EYPT,EyePoint Inc. Common Stock,15.33,0.63,4.286,1269128083.0,United States,,1073279,Industrials,Biotechnology: Laboratory Analytical Instruments
+CDNL,Cardinal Infrastructure Group Inc. Class A Common Stock,34.3,2.05,6.357,1255605111.0,United States,2025.0,862455,Industrials,Military/Government/Technical
+AEBI,Aebi Schmidt Holding AG Common Stock ,15.61,0.22,1.429,1211326384.0,Switzerland,,127968,Industrials,Auto Manufacturing
+ALNT,Allient Inc. Common Stock,68.37,0.78,1.154,1158426890.0,United States,,180871,Industrials,Electrical Products
+GLDD,Great Lakes Dredge & Dock Corporation Common Stock,16.89,0.01,0.059,1148508261.0,United States,,1856064,Industrials,Military/Government/Technical
+MRTN,Marten Transport Ltd. Common Stock,13.9,0.27,1.981,1133133894.0,United States,1986.0,1060111,Industrials,Trucking Freight/Courier Services
+OUST,Ouster Inc. Common Stock,18.62,-0.46,-2.411,1117297178.0,United States,,1092413,Industrials,Industrial Machinery/Components
+TSAT,Telesat Corporation Class A Common Shares and Class B Variable Voting Shares ,30.12,0.16,0.534,1089382419.0,Canada,,81427,Industrials,Metal Fabrications
+AEHR,Aehr Test Systems Common Stock,33.6,3.33,11.001,1029078691.0,United States,1997.0,1383305,Industrials,Electrical Products
+SBGI,Sinclair Inc. Class A Common Stock,14.6,0.05,0.344,1017380370.0,United States,1995.0,241454,Industrials,Broadcasting
+GPRE,Green Plains Inc. Common Stock,14.02,0.45,3.316,979140593.0,United States,,2063196,Industrials,Major Chemicals
+NNAVW,NextNav Inc. Warrant,7.26,0.26,3.714,978859179.0,United States,,6276,Industrials,Industrial Machinery/Components
+RR,Richtech Robotics Inc. Class B Common Stock,2.61,-0.17,-6.115,958711083.0,United States,2023.0,13975600,Industrials,Industrial Machinery/Components
+HTLD,Heartland Express Inc. Common Stock,11.76,0.27,2.35,910783035.0,United States,1986.0,1092336,Industrials,Trucking Freight/Courier Services
+EH,EHang Holdings Limited ADS,12.2,-0.14,-1.135,878215268.0,China,2019.0,340774,Industrials,Aerospace
+FWRD,Forward Air Corporation Common Stock,27.82,0.04,0.144,869325870.0,United States,,334342,Industrials,Integrated Freight & Logistics
+SWIM,Latham Group Inc. Common Stock,6.9,-0.1,-1.429,804924848.0,United States,2021.0,2146717,Industrials,Plastic Products
+STKL,SunOpta Inc. Common Stock,6.43,0.03,0.469,760134776.0,Canada,,2907431,Industrials,Farming/Seeds/Milling
+LOT,Lotus Technology Inc. American Depositary Shares,1.11,0.02,1.835,752851215.0,China,,25612,Industrials,Auto Manufacturing
+TRNS,Transcat Inc. Common Stock,78.3,0.31,0.397,730414660.0,United States,,127328,Industrials,Electrical Products
+NWPX,NWPX Infrastructure Inc. Common Stock,74.76,1.12,1.521,718417509.0,United States,1995.0,85879,Industrials,Steel/Iron Ore
+KRNT,Kornit Digital Ltd. Ordinary Shares,15.6,0.11,0.71,707109047.0,Israel,2015.0,216008,Industrials,Industrial Machinery/Components
+TATT,TAT Technologies Ltd. Ordinary Shares,52.85,-0.15,-0.283,664079170.0,Israel,,54392,Industrials,Aerospace
+MBUU,Malibu Boats Inc. Class A Common Stock,31.63,0.23,0.732,588398182.0,United States,2014.0,171961,Industrials,Marine Transportation
+ASPI,ASP Isotopes Inc. Common Stock,5.2,-0.26,-4.762,576368634.0,United States,2022.0,2832272,Industrials,Major Chemicals
+CTKB,Cytek Biosciences Inc. Common Stock,4.43,0.09,2.074,566441197.0,United States,2021.0,667936,Industrials,Biotechnology: Laboratory Analytical Instruments
+CMCO,Columbus McKinnon Corporation Common Stock,19.1,-0.08,-0.417,548921891.0,United States,1996.0,288947,Industrials,Construction/Ag Equipment/Trucks
+SWBI,Smith & Wesson Brands Inc. Common Stock,12.01,0.0,0.0,534369877.0,United States,,460478,Industrials,Ordnance And Accessories
+ASTL,Algoma Steel Group Inc. Common Shares,4.95,0.06,1.227,519422320.0,Canada,,1959028,Industrials,Steel/Iron Ore
+MLAB,Mesa Laboratories Inc. Common Stock,93.365,1.345,1.462,515824166.0,United States,,44913,Industrials,Industrial Machinery/Components
+KRT,Karat Packaging Inc. Common Stock,25.27,0.02,0.079,507914491.0,United States,2021.0,45695,Industrials,Plastic Products
+PACB,Pacific Biosciences of California Inc. Common Stock,1.61,-0.07,-4.167,486070964.0,United States,2010.0,4338576,Industrials,Biotechnology: Laboratory Analytical Instruments
+FEIM,Frequency Electronics Inc. Common Stock,48.53,-1.93,-3.825,474509209.0,United States,,85370,Industrials,Electrical Products
+LWLG,Lightwave Logic Inc. Common Stock,3.46,0.02,0.581,462823295.0,United States,,860973,Industrials,Containers/Packaging
+GEVO,Gevo Inc. Common Stock,1.86,-0.03,-1.587,450694379.0,United States,2011.0,1460375,Industrials,Major Chemicals
+ULH,Universal Logistics Holdings Inc. Common Stock,16.75,-0.17,-1.005,441028472.0,United States,2005.0,61285,Industrials,Trucking Freight/Courier Services
+LAB,Standard BioTools Inc. Common Stock,1.13,-0.02,-1.739,434558918.0,United States,2011.0,2688782,Industrials,Biotechnology: Laboratory Analytical Instruments
+PKOH,Park-Ohio Holdings Corp. Common Stock,27.01,0.03,0.111,389057631.0,United States,,16332,Industrials,Industrial Specialties
+MCFT,MasterCraft Boat Holdings Inc. Common Stock,23.29,-0.34,-1.439,379275414.0,United States,2015.0,152211,Industrials,Marine Transportation
+OFLX,Omega Flex Inc. Common Stock,37.55,1.1,3.018,379041791.0,United States,,28427,Industrials,Industrial Specialties
+FWDI,Forward Industries Inc. Common Stock,4.52,0.0,0.0,375788447.0,United States,,476724,Industrials,Plastic Products
+VFSWW,VinFast Auto Ltd. Warrant,0.1599,0.0399,33.25,374088077.0,Singapore,,1140,Industrials,Auto Manufacturing
+ADUR,Aduro Clean Technologies Inc. Common Stock,10.77,-0.46,-4.096,358414528.0,Canada,,126238,Industrials,Major Chemicals
+NAUT,Nautilus Biotechnology Inc. Common Stock,2.82,-0.07,-2.422,356180444.0,United States,2020.0,171203,Industrials,Biotechnology: Laboratory Analytical Instruments
+CHSCP,CHS Inc. 8%  Cumulative Redeemable Preferred Stock,28.19,-0.16,-0.564,345947765.0,United States,,7148,Industrials,Farming/Seeds/Milling
+CUB,Lionheart Holdings Class A Ordinary Shares,10.7,0.0,0.0,339923763.0,United States,2024.0,11,Industrials,Industrial Machinery/Components
+SSP,E.W. Scripps Company (The) Class A Common Stock,3.71,0.04,1.09,329455902.0,United States,,199735,Industrials,Broadcasting
+FSTR,L.B. Foster Company Common Stock,31.29,0.165,0.53,325197252.0,United States,,13363,Industrials,Metal Fabrications
+CHSCO,CHS Inc. Class B Cumulative Redeemable Preferred Stock,26.24,-0.05,-0.19,322017359.0,United States,,6380,Industrials,Farming/Seeds/Milling
+CHSCL,CHS Inc Class B Cumulative Redeemable Preferred Stock Series 4,25.63,-0.0201,-0.078,314531437.0,United States,,12429,Industrials,Farming/Seeds/Milling
+CHSCN,CHS Inc Preferred Class B Series 2 Reset Rate,25.47,0.0,0.0,312567916.0,United States,,12600,Industrials,Farming/Seeds/Milling
+CHSCM,CHS Inc Class B Reset Rate Cumulative Redeemable Preferred Stock Series 3,25.15,0.03,0.119,308640875.0,United States,,11488,Industrials,Farming/Seeds/Milling
+NKLR,Terra Innovatum Global N.V. Ordinary shares,4.2,-0.1,-2.326,295263982.0,Italy,,481006,Industrials,Metal Fabrications
+AIRO,AIRO Group Holdings Inc. Common Stock,9.31,-0.9,-8.815,291438695.0,United States,2025.0,520634,Industrials,Aerospace
+TAYD,Taylor Devices Inc. Common Stock,89.95,5.65,6.702,283622874.0,United States,,63809,Industrials,Industrial Machinery/Components
+PPIH,Perma-Pipe International Holdings Inc. Common Stock,33.82,1.32,4.062,273740602.0,United States,,89540,Industrials,Pollution Control Equipment
+NIU,Niu Technologies American Depositary Shares,3.49,0.05,1.453,272094262.0,China,2018.0,221167,Industrials,Auto Manufacturing
+QTRX,Quanterix Corporation Common Stock,5.76,-0.19,-3.193,269054191.0,United States,2017.0,377384,Industrials,Biotechnology: Laboratory Analytical Instruments
+IONR,ioneer Ltd American Depositary Shares,3.99,-0.05,-1.238,266114012.0,Australia,,20544,Industrials,Mining & Quarrying of Nonmetallic Minerals (No Fuels)
+RAIL,FreightCar America Inc. Common Stock,13.9,0.71,5.383,265199573.0,United States,2005.0,133635,Industrials,Railroads
+PAMT,PAMT CORP Common Stock,11.895,-0.735,-5.819,248915008.0,United States,,11675,Industrials,Trucking Freight/Courier Services
+PESI,Perma-Fix Environmental Services Inc. Common Stock,13.42,-0.31,-2.258,248507024.0,United States,,221677,Industrials,Environmental Services
+TWIN,Twin Disc Incorporated Common Stock,17.04,0.07,0.412,245745052.0,United States,,29950,Industrials,Industrial Machinery/Components
+POWW,Outdoor Holding Company Common Stock,2.08,0.08,4.0,243960542.0,United States,,1028841,Industrials,Ordnance And Accessories
+MASS,908 Devices Inc. Common Stock,6.67,-0.32,-4.578,241407163.0,United States,2020.0,327979,Industrials,Industrial Machinery/Components
+ESOA,Energy Services of America Corporation Common Stock,14.21,0.51,3.723,236724944.0,United States,,654491,Industrials,Water Sewer Pipeline Comm & Power Line Construction
+AZ,A2Z Cust2Mate Solutions Corp. Common Shares,5.52,0.01,0.181,236408694.0,Canada,,180226,Industrials,Industrial Machinery/Components
+SND,Smart Sand Inc. Common Stock,5.25,-0.22,-4.022,228604908.0,United States,2016.0,352300,Industrials,Mining & Quarrying of Nonmetallic Minerals (No Fuels)
+PSNYW,Polestar Automotive Holding UK PLC Class C-1 ADS (ADW),2.7499,0.1399,5.36,211721049.0,Sweden,,2430,Industrials,Auto Manufacturing
+QSI,Quantum-Si Incorporated Class A Common Stock,0.9408,-0.0199,-2.071,202732677.0,United States,2020.0,1746991,Industrials,Industrial Machinery/Components
+CBUS,Cibus Inc. Class A Common Stock,2.99,0.01,0.336,201751649.0,United States,2017.0,664275,Industrials,Agricultural Chemicals
+AIRJ,AirJoule Technologies Corporation Class A Common Stock,3.24,-0.06,-1.818,196602247.0,United States,2022.0,290292,Industrials,Industrial Machinery/Components
+GDC,GD Culture Group Limited Common Stock,3.41,0.11,3.333,195454759.0,United States,2015.0,39837,Industrials,Steel/Iron Ore
+ALTO,Alto Ingredients Inc. Common Stock,2.42,-0.09,-3.586,187168821.0,United States,,447415,Industrials,Major Chemicals
+DPRO,Draganfly Inc. Common Shares,7.89,0.41,5.481,183529385.0,Canada,,2066875,Industrials,Aerospace
+FLX,BingEx Limited American Depositary Shares,2.58,0.16,6.612,183515168.0,China,2024.0,124932,Industrials,Trucking Freight/Courier Services
+BOOM,DMC Global Inc. Common Stock,8.55,-0.14,-1.611,176048621.0,United States,,334278,Industrials,Industrial Specialties
+SMID,Smith-Midland Corporation Common Stock,33.07,0.07,0.212,175423320.0,United States,,3145,Industrials,Building Materials
+RPID,Rapid Micro Biosystems Inc. Class A Common Stock,3.89,-0.08,-2.015,172414739.0,United States,2021.0,131328,Industrials,Biotechnology: Laboratory Analytical Instruments
+ATLX,Atlas Lithium Corporation Common Stock,4.83,-0.03,-0.617,171673149.0,United States,,184941,Industrials,Mining & Quarrying of Nonmetallic Minerals (No Fuels)
+BNC,CEA Industries Inc. Common Stock,3.85,-0.26,-6.326,169642311.0,United States,,293874,Industrials,Industrial Machinery/Components
+ACNT,Ascent Industries Co. Common Stock,17.39,0.07,0.404,162854115.0,United States,,36686,Industrials,Steel/Iron Ore
+ATLN,Atlantic International Corp. Common Stock,2.76,0.01,0.364,161530347.0,United States,2024.0,29979,Industrials,Biotechnology: Laboratory Analytical Instruments
+CODA,Coda Octopus Group Inc. Common stock,13.455,0.27,2.048,151645587.0,United States,,128659,Industrials,Industrial Machinery/Components
+ARQ,Arq Inc. Common Stock,3.46,-0.07,-1.983,147720839.0,United States,,154600,Industrials,Major Chemicals
+BAER,Bridger Aerospace Group Holdings Inc. Common Stock,2.49,-0.13,-4.962,138302329.0,United States,,255583,Industrials,Aerospace
+FRD,Friedman Industries Inc. Common Stock,18.05,-0.19,-1.042,128374885.0,United States,,44956,Industrials,Steel/Iron Ore
+LBGJ,Li Bang International Corporation Inc. Class A Ordinary Shares,0.925,-0.075,-7.5,128341900.0,China,2024.0,140215,Industrials,Industrial Machinery/Components
+SHIM,Shimmick Corporation Common Stock,3.45,0.07,2.071,123563403.0,United States,2023.0,24970,Industrials,Military/Government/Technical
+KEQU,Kewaunee Scientific Corporation Common Stock,42.55,1.0,2.407,121964639.0,United States,,4112,Industrials,Medical Specialities
+GEOS,Geospace Technologies Corporation Common Stock (Texas),9.32,-0.22,-2.306,120115396.0,United States,,148470,Industrials,Industrial Machinery/Components
+SEER,Seer Inc. Class A Common Stock,1.98,-0.09,-4.348,119350624.0,United States,2020.0,979922,Industrials,Biotechnology: Laboratory Analytical Instruments
+FORR,Forrester Research Inc. Common Stock,6.14,0.26,4.422,116678420.0,United States,1996.0,316628,Industrials,Diversified Commercial Services
+LGO,Largo Inc. Common Shares,1.39,-0.02,-1.418,115805070.0,Canada,,1200830,Industrials,Mining & Quarrying of Nonmetallic Minerals (No Fuels)
+HURC,Hurco Companies Inc. Common Stock,17.36,0.05,0.289,114917523.0,United States,,9842,Industrials,Industrial Machinery/Components
+CRGO,Freightos Limited Ordinary shares,2.22,0.04,1.835,111094881.0,Israel,,38503,Industrials,Integrated Freight & Logistics
+CDXS,Codexis Inc. Common Stock,1.17,-0.01,-0.847,105679528.0,United States,2010.0,1751959,Industrials,Major Chemicals
+LNZA,LanzaTech Global Inc. Common Stock,10.19,1.03,11.245,102730546.0,United States,2021.0,4382,Industrials,Major Chemicals
+ZJK,ZJK Industrial Co. Ltd. Ordinary Shares,1.63,-0.08,-4.678,100051436.0,China,2024.0,21177,Industrials,Metal Fabrications
+VMAR,Vision Marine Technologies Inc. Common Shares,2.62,-0.1,-3.676,96962886.0,Canada,2020.0,50911,Industrials,Marine Transportation
+AMTX,Aemetis Inc. (DE) Common Stock,1.47,-0.03,-2.0,96385757.0,United States,,347522,Industrials,Major Chemicals
+WRAP,Wrap Technologies Inc. Common Stock,1.71,-0.07,-3.933,93197801.0,United States,,151212,Industrials,Ordnance And Accessories
+FFAI,Faraday Future Intelligent Electric Inc. Class A Common Stock,0.4472,-0.0414,-8.473,91847494.0,United States,2020.0,19574023,Industrials,Auto Manufacturing
+KNDI,Kandi Technologies Group Inc. Ordinary Shares,1.05,-0.02,-1.869,91726146.0,China,,72338,Industrials,Auto Manufacturing
+NTIC,Northern Technologies International Corporation Common Stock,9.1,-0.12,-1.302,86377209.0,United States,,1738,Industrials,Industrial Specialties
+HOVR,New Horizon Aircraft Ltd. Class A Ordinary Share,1.88,-0.08,-4.082,83195168.0,United States,2023.0,386866,Industrials,Aerospace
+NNBR,NN Inc. Common Stock,1.64,-0.04,-2.381,82321128.0,United States,1994.0,261471,Industrials,Industrial Machinery/Components
+HLP,Hongli Group Inc. Ordinary Shares,1.04,0.0,0.0,76376300.0,China,2023.0,132539,Industrials,Industrial Machinery/Components
+SFWL,Shengfeng Development Limited Class A Ordinary Shares,0.8865,0.0265,3.081,73134045.0,China,2023.0,1641,Industrials,Trucking Freight/Courier Services
+MIND,MIND Technology Inc. Common Stock (DE),7.96,-0.32,-3.865,71943133.0,United States,1994.0,114648,Industrials,Industrial Machinery/Components
+FEAM,5E Advanced Materials Inc. Common Stock,1.72,-0.04,-2.273,71400439.0,United States,,276249,Industrials,Mining & Quarrying of Nonmetallic Minerals (No Fuels)
+SYPR,Sypris Solutions Inc. Common Stock,3.1,-0.03,-0.958,71392907.0,United States,,87455,Industrials,Industrial Machinery/Components
+ZTEK,Zentek Ltd. Common Stock,0.5923,-0.0024,-0.404,63698048.0,Canada,,29052,Industrials,Major Chemicals
+LOOP,Loop Industries Inc. Common Stock,1.3,0.0,0.0,62838822.0,Canada,,29504,Industrials,Major Chemicals
+SLGB,Smart Logistics Global Limited Ordinary Shares,1.5,0.29,23.967,61500000.0,Hong Kong,2025.0,219789,Industrials,Integrated Freight & Logistics
+XCH,XCHG Limited American Depositary Share,1.03,-0.01,-0.962,61235084.0,Germany,2024.0,16451,Industrials,Electrical Products
+YIBO,Planet Image International Limited Class A Ordinary Shares,1.13,0.22,24.176,60886208.0,China,2024.0,1322148,Industrials,Industrial Machinery/Components
+PCTTW,PureCycle Technologies Inc. Warrant,0.324,-0.006,-1.818,58384262.0,United States,,13548,Industrials,Major Chemicals
+VGAS,Verde Clean Fuels Inc. Class A Common Stock,1.31,-0.04,-2.963,58360004.0,United States,2021.0,31417,Industrials,Major Chemicals
+DSWL,Deswell Industries Inc. Common Shares,3.6,-0.01,-0.277,57366860.0,Macau,1995.0,7248,Industrials,Plastic Products
+CSTE,Caesarstone Ltd. Ordinary Shares,1.63,-0.08,-4.678,56325998.0,Israel,2012.0,103155,Industrials,Building Materials
+DCX,Digital Currency X Technology Inc. Class A Ordinary Shares,2.3,0.08,3.604,54330708.0,Cayman Islands,,83597,Industrials,Auto Manufacturing
+OCC,Optical Cable Corporation Common Stock,5.87,-0.175,-2.895,52067311.0,United States,,74066,Industrials,Telecommunications Equipment
+MOB,Mobilicom Limited Ordinary Shares,4.95,-0.63,-11.29,49201362.0,Israel,2022.0,330775,Industrials,Aerospace
+LOTWW,Lotus Technology Inc. Warrants,0.0725,0.0025,3.571,49172715.0,China,,101,Industrials,Auto Manufacturing
+SORA,AsiaStrategy Ordinary Shares,1.96,0.05,2.618,48733440.0,Hong Kong,2025.0,5512,Industrials,Other Specialty Stores
+SEV,Aptera Motors Corp. Class B Common Stock,1.74,-0.05,-2.793,48691407.0,United States,,146589,Industrials,Auto Manufacturing
+PSIG,PS International Group Ltd. Ordinary Shares,5.46,-0.02,-0.365,47082137.0,Hong Kong,,5244,Industrials,Integrated Freight & Logistics
+AQMS,Aqua Metals Inc. Common Stock,4.79,0.03,0.63,45751805.0,United States,2015.0,29260,Industrials,Metal Fabrications
+FTEK,Fuel Tech Inc. Common Stock,1.45,0.07,5.072,45057935.0,United States,,206502,Industrials,Pollution Control Equipment
+PRPO,Precipio Inc.  Common Stock,25.36,1.75,7.412,44430898.0,United States,,14305,Industrials,Biotechnology: Laboratory Analytical Instruments
+AIRJW,AirJoule Technologies Corporation Warrant,0.725,0.0,0.0,43992787.0,United States,2022.0,28,Industrials,Industrial Machinery/Components
+GGR,Gogoro Inc. Ordinary Shares,2.95,0.02,0.683,43523616.0,Taiwan,,4980,Industrials,Auto Manufacturing
+PPSI,Pioneer Power Solutions Inc. Common Stock,3.79,-0.19,-4.774,42051058.0,United States,,105529,Industrials,Electrical Products
+AIIO,Robo.ai Inc. Class B Ordinary Shares,0.1099,-0.0086,-7.257,40701294.0,United Arab Emirates,,4137168,Industrials,Auto Manufacturing
+SAFX,XCF Global Inc. Class A Common Stock,0.1692,-0.0006,-0.353,39368364.0,United States,,3215136,Industrials,Major Chemicals
+TPCS,TechPrecision Corporation Common stock,3.93,-0.04,-1.008,39344535.0,United States,,136532,Industrials,Metal Fabrications
+BIOX,Bioceres Crop Solutions Corp. Ordinary Shares,0.594,-0.019,-3.1,37557574.0,Argentina,,146575,Industrials,Agricultural Chemicals
+WPRT,Westport Fuel Systems Inc Common Shares,2.04,-0.05,-2.392,35396050.0,Canada,2008.0,25186,Industrials,Industrial Machinery/Components
+SDST,Stardust Power Inc. Common Stock,3.58,-0.11,-2.981,35333018.0,United States,2021.0,28238,Industrials,Major Chemicals
+APWC,Asia Pacific Wire & Cable Corporation Ltd. Ordinary Shares (Bermuda),1.675,0.015,0.904,34532180.0,Taiwan,,2579,Industrials,Telecommunications Equipment
+QSIAW,Quantum-Si Incorporated Warrant,0.1501,0.0001,0.067,32344999.0,United States,2020.0,2200,Industrials,Industrial Machinery/Components
+CLIR,ClearSign Technologies Corporation Common Stock (DE),0.5949,-0.0202,-3.284,31896153.0,United States,2012.0,37233,Industrials,Industrial Machinery/Components
+EKSO,Ekso Bionics Holdings Inc. Common Stock,11.18,-1.12,-9.106,29327745.0,United States,,131467,Industrials,Industrial Machinery/Components
+BAERW,Bridger Aerospace Group Holdings Inc. Warrant,0.52,0.03,6.122,28882414.0,United States,,36556,Industrials,Aerospace
+DAIO,Data I/O Corporation Common Stock,2.8,-0.06,-2.098,26297382.0,United States,1981.0,6900,Industrials,Electrical Products
+HBIO,Harvard Bioscience Inc. Common Stock,0.5834,-0.0027,-0.461,26089586.0,United States,2000.0,501107,Industrials,Biotechnology: Laboratory Analytical Instruments
+NCEW,New Century Logistics (BVI) Limited Ordinary Shares,8.01,0.185,2.364,25632000.0,Hong Kong,2024.0,1279,Industrials,Integrated Freight & Logistics
+PRZO,ParaZero Technologies Ltd. Ordinary Shares,1.17,0.02,1.739,24774005.0,Israel,2023.0,962728,Industrials,Military/Government/Technical
+KITT,Nauticus Robotics Inc. Common stock,0.8754,0.0147,1.708,24559804.0,United States,2021.0,2719455,Industrials,Industrial Machinery/Components
+ORGN,Origin Materials Inc. Common Stock,0.1563,-0.0047,-2.919,24260328.0,United States,2020.0,1375992,Industrials,Major Chemicals
+ZKIN,ZK International Group Co. Ltd Ordinary Share,1.32,-0.1,-7.042,22799447.0,China,2017.0,9058,Industrials,Metal Fabrications
+ASTLW,Algoma Steel Group Inc. Warrant,0.2,0.005,2.564,20986760.0,Canada,,123629,Industrials,Steel/Iron Ore
+MOBBW,Mobilicom Limited Warrants,2.11,0.1,4.975,20972702.0,Israel,2022.0,2100,Industrials,Aerospace
+TRSG,Tungray Technologies Inc Class A Ordinary Shares,1.19,0.02,1.709,19460647.0,Singapore,2024.0,4033,Industrials,Industrial Machinery/Components
+REE,REE Automotive Ltd. Class A Ordinary Shares,0.5959,0.0258,4.526,18485373.0,Israel,,47610,Industrials,Auto Manufacturing
+TOMZ,TOMI Environmental Solutions Inc. Common Stock,0.701,0.0009,0.129,17012024.0,United States,,1815,Industrials,Major Chemicals
+HUDI,Huadi International Group Co. Ltd. Ordinary Shares,1.15,-0.13,-10.156,16444059.0,China,2021.0,4075,Industrials,Steel/Iron Ore
+HOVRW,New Horizon Aircraft Ltd. Warrant,0.365,0.0048,1.333,16152253.0,United States,2023.0,17571,Industrials,Aerospace
+ELSE,Electro-Sensors Inc. Common Stock,4.4288,0.0288,0.655,15414531.0,United States,,928,Industrials,Industrial Machinery/Components
+GTEC,Greenland Technologies Holding Corporation Ordinary Shares,0.8422,-0.0478,-5.371,14649417.0,China,2018.0,91362,Industrials,Industrial Machinery/Components
+RVSN,Rail Vision Ltd. Ordinary Share,6.28,-0.29,-4.414,13767179.0,Israel,2022.0,22300,Industrials,Railroads
+ENGS,Energys Group Limited Ordinary Shares,0.9172,-0.0028,-0.304,13104825.0,United Kingdom,2025.0,43154,Industrials,Engineering & Construction
+CRGOW,Freightos Limited Warrants,0.26,-0.0056,-2.108,13011112.0,Israel,,22365,Industrials,Integrated Freight & Logistics
+ELOG,Eastern International Ltd. Ordinary Shares,1.05,-0.02,-1.869,12617850.0,China,2025.0,16168,Industrials,Integrated Freight & Logistics
+ARTW,Art's-Way Manufacturing Co. Inc. Common Stock,2.4,0.02,0.84,12425002.0,United States,,18457,Industrials,Industrial Machinery/Components
+SNES,SenesTech Inc. Common Stock,2.37,-0.03,-1.25,12378546.0,United States,2016.0,59305,Industrials,Agricultural Chemicals
+PETZ,TDH Holdings Inc. Common Shares,1.14,0.0,0.0,11768526.0,China,2017.0,15,Industrials,Steel/Iron Ore
+BNGO,Bionano Genomics Inc. Common Stock,1.14,-0.02,-1.724,11600640.0,United States,2018.0,67210,Industrials,Biotechnology: Laboratory Analytical Instruments
+FGI,FGI Industries Ltd. Ordinary Shares,5.75,0.0,0.0,11040805.0,United States,2022.0,4609,Industrials,Industrial Specialties
+CENN,Cenntro Inc. Common Stock,0.12,0.0018,1.523,10549540.0,New Zealand,,408170,Industrials,Auto Manufacturing
+WETO,Webus International Limited Ordinary Shares,0.436,0.001,0.23,9592000.0,China,2025.0,3046,Industrials,Other Transportation
+SKYQ,Sky Quarry Inc. Common Stock,0.36,-0.0223,-5.833,9171489.0,United States,2024.0,1677319,Industrials,Environmental Services
+GURE,Gulf Resources Inc. (NV) Common Stock,5.69,-0.02,-0.35,8759931.0,China,,12412,Industrials,Major Chemicals
+ETS,Elite Express Holding Inc. Class A Common Stock,0.506,-0.0018,-0.354,8458636.0,United States,2025.0,8782,Industrials,Trucking Freight/Courier Services
+INHD,Inno Holdings Inc. Common Stock,1.0,-0.1,-9.091,8413224.0,United States,2023.0,202129,Industrials,Steel/Iron Ore
+WKHS,Workhorse Group Inc. Common Stock,3.61,-0.06,-1.635,7832862.0,United States,,60306,Industrials,Auto Manufacturing
+YHGJ,Yunhong Green CTI Ltd. Common Stock,2.75,0.18,7.004,7628123.0,United States,,1990,Industrials,Specialty Chemicals
+JYD,Jayud Global Logistics Limited Class A Ordinary Shares,2.74,0.3,12.295,7490801.0,China,2023.0,832368,Industrials,Integrated Freight & Logistics
+HXHX,Haoxin Holdings Limited Class A Ordinary Shares,0.5445,-0.0314,-5.452,7486875.0,China,2025.0,65092,Industrials,Trucking Freight/Courier Services
+INLF,INLIF LIMITED Class A Ordinary Shares,0.381,0.0049,1.303,7200900.0,China,2025.0,135820,Industrials,Industrial Machinery/Components
+MNTS,Momentus Inc. Class A Common Stock,4.97,-0.31,-5.871,6943980.0,United States,2019.0,285277,Industrials,Military/Government/Technical
+AIIOW,Robo.ai Inc. Warrant,0.0169,-0.0036,-17.561,6258889.0,United Arab Emirates,,9273,Industrials,Auto Manufacturing
+VEEE,Twin Vee PowerCats Co. Common Stock,0.4502,-0.4862,-51.922,5782081.0,United States,2021.0,5723388,Industrials,Marine Transportation
+CNEY,CN Energy Group Inc. Class A Ordinary Shares,1.01,0.0,0.0,5679994.0,China,2021.0,29362,Industrials,Major Chemicals
+SKK,SKK Holdings Limited Ordinary Shares,0.2979,-0.0132,-4.243,5585625.0,Singapore,2024.0,15506,Industrials,Water Sewer Pipeline Comm & Power Line Construction
+FCUV,Focus Universal Inc. Common Stock,5.59,-0.39,-6.522,5514669.0,United States,,20856,Industrials,Industrial Machinery/Components
+EVGN,Evogene Ltd Ordinary Shares,0.8207,-0.0669,-7.537,5346523.0,Israel,,120176,Industrials,Agricultural Chemicals
+GLXG,Galaxy Payroll Group Limited Class A Ordinary Shares,2.4409,0.099,4.227,5275432.0,Hong Kong,2024.0,23809,Industrials,Diversified Commercial Services
+DXST,Decent Holding Inc Class A Ordinary Shares,0.1676,-0.0057,-3.289,4958167.0,China,2025.0,1966353,Industrials,Miscellaneous
+FFAIW,Faraday Future Intelligent Electric Inc. Warrant,0.024,0.0057,31.148,4929204.0,United States,2020.0,62281,Industrials,Auto Manufacturing
+ASTC,Astrotech Corporation (DE) Common Stock,2.8,0.02,0.719,4925068.0,United States,,16350,Industrials,Biotechnology: Laboratory Analytical Instruments
+AEHL,Antelope Enterprise Holdings Limited Class A Ordinary Shares,0.5,-0.124,-19.872,4624439.0,China,,375661,Industrials,Building Materials
+HIHO,Highway Holdings Limited Common Stock,0.9051,-0.0049,-0.538,4165112.0,Hong Kong,,8788,Industrials,Metal Fabrications
+FLYE,Fly-E Group Inc. Common Stock,2.26,-0.16,-6.612,3689192.0,United States,2024.0,30781,Industrials,Aerospace
+GWAV,Greenwave Technology Solutions Inc. Common Stock,3.63,-0.04,-1.09,3011561.0,United States,,14863,Industrials,Metal Fabrications
+AIOS,AIOS Tech Inc. Class A Common Shares,0.6169,0.1669,37.089,2960107.0,China,2016.0,73116819,Industrials,Metal Fabrications
+CDTG,CDT Environmental Technology Investment Holdings Limited ordinary shares,0.2364,-0.0205,-7.98,2913630.0,China,2024.0,53670,Industrials,Miscellaneous
+SGLY,Singularity Future Technology Ltd. Common Stock,0.375,0.0041,1.105,2735060.0,United States,2008.0,14670,Industrials,Integrated Freight & Logistics
+NITO,N2OFF Inc. Common Stock,0.93,0.0402,4.518,2522981.0,Israel,,202597,Industrials,Agricultural Chemicals
+GVH,Globavend Holdings Limited Ordinary Shares,1.06,-0.09,-7.826,2424028.0,Australia,2023.0,276997,Industrials,Integrated Freight & Logistics
+OUSTZ,Ouster Inc. Warrants,0.038,0.0011,2.981,2280198.0,United States,,8984,Industrials,Industrial Machinery/Components
+SDSTW,Stardust Power Inc. Warrant,0.215,-0.025,-10.417,2121955.0,United States,2021.0,4794,Industrials,Major Chemicals
+KITTW,Nauticus Robotics Inc. Warrant,0.07,-0.0043,-5.787,1963887.0,United States,2021.0,19397,Industrials,Industrial Machinery/Components
+MTEN,Mingteng International Corporation Inc. Class A Ordinary Shares,1.6,-0.1,-5.882,1955408.0,China,2024.0,50676,Industrials,Building Products
+AREB,American Rebel Holdings Inc. Common Stock,0.17,-0.011,-6.077,1807792.0,United States,,2363870,Industrials,Plastic Products
+RETO,ReTo Eco-Solutions Inc. Class A Shares,0.5998,-0.0014,-0.233,1714733.0,China,2017.0,50718,Industrials,Industrial Machinery/Components
+NVVE,Nuvve Holding Corp. Common Stock,1.13,-0.07,-5.833,1664534.0,United States,2020.0,119824,Industrials,Electrical Products
+TANH,Tantech Holdings Ltd. Class A Common Shares,0.98,0.0916,10.311,1331172.0,China,2015.0,18649,Industrials,Major Chemicals
+BNRG,Brenmiller Energy Ltd Ordinary Shares,1.35,-0.08,-5.594,966400.0,Israel,,43690,Industrials,Building Products
+VGASW,Verde Clean Fuels Inc. Warrant,0.0204,-0.0021,-9.333,908812.0,United States,2021.0,6900,Industrials,Major Chemicals
+ORGNW,Origin Materials Inc. Warrants,0.0031,-0.0006,-16.216,481171.0,United States,2020.0,86538,Industrials,Major Chemicals
+DTCK,Davis Commodities Limited Class A Ordinary Shares,0.0997,-0.0283,-22.109,136443.0,Singapore,2023.0,4637642,Industrials,Farming/Seeds/Milling
+AREBW,American Rebel Holdings Inc. Warrants,0.0124,0.0042,51.22,131862.0,United States,,17547,Industrials,Plastic Products
+LNZAW,LanzaTech Global Inc. Warrant,0.0116,-0.0021,-15.328,116945.0,United States,2021.0,33154,Industrials,Major Chemicals
+GGROW,Gogoro Inc. Warrant,0.0078,-0.0016,-17.021,115079.0,Taiwan,,1384,Industrials,Auto Manufacturing
+FGIWW,FGI Industries Ltd. Warrant,0.0399,0.0043,12.079,76614.0,United States,2022.0,2800,Industrials,Industrial Specialties
+RVSNW,Rail Vision Ltd. Warrant,0.0323,-0.0079,-19.652,70809.0,Israel,2022.0,400,Industrials,Railroads
+NVVEW,Nuvve Holding Corp. Warrant,0.012,0.0,0.0,17676.0,United States,2020.0,3298,Industrials,Electrical Products
+MNTSW,Momentus Inc. Warrant,0.011,-0.005,-31.25,15369.0,United States,2019.0,914106,Industrials,Military/Government/Technical
