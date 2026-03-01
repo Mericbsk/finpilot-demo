@@ -210,29 +210,31 @@ class MarketEnv(BaseEnv):
         self._max_equity = max(self._max_equity, self._equity)
         drawdown = 1.0 - (self._equity / self._max_equity)
 
-        # Reward shaping
+        # ================================================================
+        # Sprint 18: Simplified 3-term reward (PnL + DD + Cost)
+        # Secondary terms kept but controlled by config weights (default 0)
+        # ================================================================
         reward = self._reward_weights.pnl * pnl
         reward -= self._reward_weights.cost * transaction_cost
         reward -= self._reward_weights.drawdown * drawdown
-        leverage_penalty = max(0.0, abs(target_position) - self._limits.max_leverage)
-        reward -= self._reward_weights.leverage * leverage_penalty
-        reward += self._reward_weights.regime_bonus * self._regime_alignment(target_position)
 
-        # Sprint 13: turnover penalty — penalise excessive position changes
-        turnover = abs(position_change)
-        reward -= self._reward_weights.turnover_penalty * turnover
-
-        # Sprint 14: inactivity penalty — discourage constant-HOLD behaviour
-        if abs(target_position) < 0.05:
+        # --- Secondary terms (disabled by default, weight=0 in config) ---
+        if self._reward_weights.leverage > 0:
+            leverage_penalty = max(0.0, abs(target_position) - self._limits.max_leverage)
+            reward -= self._reward_weights.leverage * leverage_penalty
+        if self._reward_weights.regime_bonus > 0:
+            reward += self._reward_weights.regime_bonus * self._regime_alignment(target_position)
+        if self._reward_weights.turnover_penalty > 0:
+            reward -= self._reward_weights.turnover_penalty * abs(position_change)
+        if self._reward_weights.inactivity_penalty > 0 and abs(target_position) < 0.05:
             reward -= self._reward_weights.inactivity_penalty
+        if self._reward_weights.position_bonus > 0:
+            reward += self._reward_weights.position_bonus * abs(target_position)
 
-        # Sprint 14: position bonus — reward conviction (non-zero positions)
-        reward += self._reward_weights.position_bonus * abs(target_position)
-
-        # Sprint 13: rolling Sharpe bonus — reward risk-adjusted returns
+        # Rolling Sharpe bonus (only when enabled)
         self._returns_buffer.append(pnl)
-        if len(self._returns_buffer) >= 20:
-            _ret = np.array(self._returns_buffer[-60:])  # last 60 steps
+        if self._reward_weights.sharpe_bonus > 0 and len(self._returns_buffer) >= 20:
+            _ret = np.array(self._returns_buffer[-60:])
             _std = float(np.std(_ret))
             if _std > 1e-8:
                 rolling_sharpe = float(np.mean(_ret)) / _std
@@ -246,21 +248,16 @@ class MarketEnv(BaseEnv):
         terminated = next_index >= (self._episode_len - 1)
         truncated = False
 
-        # Sprint 16: terminal reward — episode-end Sharpe bonus/penalty
+        # Sprint 18: terminal reward — reduced from 5.0→0.5 to prevent
+        # episode-boundary gradient spikes that dominated mid-episode learning
         if terminated and len(self._returns_buffer) > 10:
             terminal_ret = np.array(self._returns_buffer)
             terminal_std = float(np.std(terminal_ret)) or 1e-8
             terminal_sharpe = float(np.mean(terminal_ret)) / terminal_std
-            reward += 5.0 * np.clip(terminal_sharpe, -2.0, 2.0)
-            # Bonus for active trading (penalise if fewer than ~5% of steps had trades)
-            trade_ratio = self._trade_count / max(len(self._returns_buffer), 1)
-            if trade_ratio < 0.05:
-                reward -= 2.0  # severe penalty for near-zero activity
-            elif trade_ratio > 0.02:
-                reward += 1.0 * min(trade_ratio, 0.3)  # cap to avoid over-trading bonus
+            reward += 0.5 * np.clip(terminal_sharpe, -2.0, 2.0)
 
-        # Sprint 16: reward clipping — prevent extreme gradients
-        reward = float(np.clip(reward, -10.0, 10.0))
+        # Sprint 18: reward clipping — tightened from ±10 to ±5
+        reward = float(np.clip(reward, -5.0, 5.0))
 
         observation = self._feature_tensor[self._t].copy()
         # Sprint 16: inject dynamic portfolio state into observation

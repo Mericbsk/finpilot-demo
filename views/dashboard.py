@@ -147,8 +147,9 @@ def _render_ensemble_status(df):
     try:
         from drl.ensemble_router import ENSEMBLE_AVAILABLE as ENS_OK
         from drl.ensemble_router import get_ensemble_router
-    except ImportError:
+    except (ImportError, Exception) as e:
         ENS_OK = False
+        logger.warning("Ensemble Router import hatasi: %s", e)
 
     if not ENS_OK:
         st.warning("Ensemble Router modulu yuklenemedi.")

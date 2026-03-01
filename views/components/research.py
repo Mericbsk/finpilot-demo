@@ -8,6 +8,8 @@ print() → logger, cache-skip for error/offline reports.
 
 Sprint 11-12: Parallel DDG fetch via ThreadPoolExecutor, Groq streaming,
 disk-based L2 cache, modular refactor (fetch/dedup/llm/fallback helpers).
+
+Sprint 19: Integrated LLM Router (Groq → Claude → Gemini failover).
 """
 
 from __future__ import annotations
@@ -34,6 +36,17 @@ except ImportError:
     genai = None
     DDGS = None
     Groq = None
+
+# LLM Router (Sprint 19)
+try:
+    from llm import get_router as _get_llm_router
+    from llm.base import LLMError as _LLMError
+
+    _LLM_ROUTER_AVAILABLE = True
+except ImportError:
+    _LLM_ROUTER_AVAILABLE = False
+    _get_llm_router = None  # type: ignore[assignment]
+    _LLMError = Exception  # type: ignore[misc,assignment]
 
 
 # ---------------------------------------------------------------------------
@@ -284,18 +297,38 @@ def _generate_llm_report(
     *,
     stream: bool = False,
 ) -> str:
-    """Call Groq LLM. Returns Markdown string.
+    """Generate LLM report via Router (Groq → Claude → Gemini failover).
 
-    Sprint 12: If *stream* is True, tokens are collected via streaming API
-    (reduces time-to-first-token).
+    Sprint 12: Streaming support.
+    Sprint 19: LLM Router with automatic failover.
     """
     news_context = _build_news_context(news_items)
     prompt_template = _PROMPTS.get(language, _PROMPTS["tr"])
     prompt = prompt_template.format(symbol=symbol, news_context=news_context)
+    system = "You are a senior financial analyst. Answer in Markdown."
 
+    # Sprint 19: Try LLM Router first (handles Groq → Claude → Gemini failover)
+    if _LLM_ROUTER_AVAILABLE:
+        try:
+            router = _get_llm_router()
+            if router.available_providers:
+                if stream:
+                    chunks: list[str] = []
+                    for token in router.stream(prompt, system=system):
+                        chunks.append(token)
+                    return "".join(chunks)
+                else:
+                    response = router.generate(prompt, system=system)
+                    return response.content
+        except _LLMError as e:
+            logger.warning("LLM Router failed, falling back: %s", e)
+        except Exception as e:
+            logger.warning("LLM Router unexpected error: %s", e)
+
+    # Legacy fallback: direct Groq call (backward compat)
     if not Groq:
         return _generate_offline_report(
-            symbol, news_items, language, reason="Groq kutuphanesi yuklu degil"
+            symbol, news_items, language, reason="LLM kutuphaneleri yuklu degil"
         )
 
     groq_key: str | None = None
@@ -309,21 +342,17 @@ def _generate_llm_report(
             symbol,
             news_items,
             language,
-            reason="GROQ_API_KEY st.secrets'de tanimlanmamis",
+            reason="API anahtari tanimlanmamis (GROQ/ANTHROPIC/GOOGLE)",
         )
 
     try:
         client = Groq(api_key=groq_key)
         messages = [
-            {
-                "role": "system",
-                "content": "You are a senior financial analyst. Answer in Markdown.",
-            },
+            {"role": "system", "content": system},
             {"role": "user", "content": prompt},
         ]
 
         if stream:
-            # Sprint 12: streaming mode
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=messages,
@@ -332,11 +361,11 @@ def _generate_llm_report(
                 top_p=1,
                 stream=True,
             )
-            chunks: list[str] = []
+            chunks_legacy: list[str] = []
             for chunk in completion:
                 delta = chunk.choices[0].delta.content or ""
-                chunks.append(delta)
-            return "".join(chunks)
+                chunks_legacy.append(delta)
+            return "".join(chunks_legacy)
 
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
@@ -353,7 +382,7 @@ def _generate_llm_report(
             symbol,
             news_items,
             language,
-            reason=f"Groq API Hatasi: {e}",
+            reason=f"LLM API Hatasi: {e}",
         )
 
 

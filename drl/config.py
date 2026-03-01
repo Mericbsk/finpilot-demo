@@ -45,22 +45,21 @@ class FeatureSpec:
 class RewardWeights:
     """Hyper-parameters for reward shaping.
 
-    Sprint 16 — Reward rebalancing:
-    PnL typically ±0.001-0.01 per step while drawdown sits in 0-1 range.
-    Previous weights let drawdown dominate, causing 3/5 models to collapse
-    into constant-HOLD.  Multiplied PnL weight by 10× and halved drawdown
-    weight so the agent perceives a meaningful signal for profitable trades.
+    Sprint 18 — Reward simplification:
+    Previous 9-term reward caused conflicting gradients (inactivity vs drawdown),
+    preventing convergence.  Reduced to 3 core terms so the agent learns a clear
+    PnL signal first.  Secondary terms preserved at weight=0 for future re-activation.
     """
 
-    pnl: float = 10.0           # Sprint 16: 1.0→10.0 — scale up to match drawdown magnitude
-    drawdown: float = 0.5       # Sprint 16: 1.0→0.5  — reduce dominance of DD penalty
-    cost: float = 0.1
-    leverage: float = 0.2
-    regime_bonus: float = 0.05
-    turnover_penalty: float = 0.02  # Sprint 14: reduced — only penalise excessive churn
-    sharpe_bonus: float = 0.15  # Sprint 16: 0.10→0.15 — stronger risk-adjusted incentive
-    inactivity_penalty: float = 0.01  # Sprint 16: 0.003→0.01 — 3× stronger anti-HOLD
-    position_bonus: float = 0.005  # Sprint 16: 0.002→0.005 — stronger conviction reward
+    pnl: float = 10.0           # PRIMARY: scaled PnL — the core learning signal
+    drawdown: float = 0.3       # PRIMARY: penalise drawdown (reduced from 0.5)
+    cost: float = 0.1           # PRIMARY: transaction cost awareness
+    leverage: float = 0.0       # DISABLED Sprint 18: folded into PilotShield clamp
+    regime_bonus: float = 0.0   # DISABLED Sprint 18: noisy — re-enable after convergence
+    turnover_penalty: float = 0.0   # DISABLED Sprint 18: conflicts with exploration
+    sharpe_bonus: float = 0.0   # DISABLED Sprint 18: re-enable in Faz 2 after base PnL learned
+    inactivity_penalty: float = 0.0  # DISABLED Sprint 18: conflicts with drawdown penalty
+    position_bonus: float = 0.0  # DISABLED Sprint 18: conflicts with turnover penalty
 
 
 @dataclass(frozen=True)

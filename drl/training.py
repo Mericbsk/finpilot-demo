@@ -41,13 +41,14 @@ from .persistence import (
 
 try:  # pragma: no cover - optional heavy dependency
     from stable_baselines3 import A2C, PPO, SAC, TD3  # type: ignore
-    from stable_baselines3.common.vec_env import DummyVecEnv  # type: ignore
+    from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack  # type: ignore
 except Exception:  # pragma: no cover - missing SB3 is handled at runtime
     PPO = None
     SAC = None
     TD3 = None
     A2C = None
     DummyVecEnv = None
+    VecFrameStack = None
 
 if TYPE_CHECKING:  # pragma: no cover - for static type checking only
     import mlflow  # type: ignore
@@ -84,6 +85,7 @@ class WalkForwardConfig:
     pipeline_artifact_dir: str | None = None
     load_pipeline_artifact: str | None = None
     allow_pipeline_signature_mismatch: bool = False
+    n_stack: int = 4  # Sprint 18: observation stacking — agent sees last N timesteps
 
 
 @dataclass
@@ -237,6 +239,17 @@ class WalkForwardTrainer:
             return MarketEnv(split, pipeline, self.env_config)
 
         vec_env = DummyVecEnv([_make_env])
+
+        # Sprint 18: observation stacking — gives the agent temporal context
+        # Without stacking the MlpPolicy sees only 1 timestep (no momentum sense)
+        n_stack = self.algo_config.n_stack
+        if n_stack > 1 and VecFrameStack is not None:
+            vec_env = VecFrameStack(vec_env, n_stack=n_stack)
+            logger.info("Observation stacking: n_stack=%d (obs_dim: %d → %d)",
+                        n_stack,
+                        len(self.env_config.feature_columns),
+                        len(self.env_config.feature_columns) * n_stack)
+
         algo = self.algo_config.algorithm.upper()
         common = dict(
             learning_rate=self.algo_config.learning_rate,

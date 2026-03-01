@@ -33,6 +33,9 @@ from .model_registry import ModelRegistry, get_registry
 
 logger = logging.getLogger(__name__)
 
+# Flag indicating successful module load (consumed by UI layers)
+ENSEMBLE_AVAILABLE = True
+
 
 # ---------------------------------------------------------------------------
 # Dataclasses
@@ -208,7 +211,10 @@ class EnsembleRouter:
                 # Pick the latest model for this name
                 latest = models[0]  # already sorted desc by created_at
                 engine = DRLInference(registry=self.registry, config=self.config)
-                engine.load_from_path(latest.model_path + ".zip")
+                success = engine.load_from_path(latest.model_path + ".zip")
+                if not success or not engine.is_loaded:
+                    logger.warning("Ensemble: model file load failed for %s", tag)
+                    continue
                 self._agents[tag] = engine
                 self._model_ids[tag] = latest.model_id
                 loaded += 1
@@ -435,6 +441,7 @@ def get_ensemble_predictions(
 
 
 __all__ = [
+    "ENSEMBLE_AVAILABLE",
     "EnsembleRouter",
     "EnsembleResult",
     "AgentVote",

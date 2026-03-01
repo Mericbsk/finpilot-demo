@@ -15,7 +15,9 @@ import numpy as np
 import pandas as pd
 
 from .config import DEFAULT_CONFIG, MarketEnvConfig
+from .feature_pipeline import FeatureFrame, FeaturePipeline
 from .model_registry import ModelRegistry, get_registry
+from .persistence import FeaturePipelineArtifact, load_artifact, restore_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +135,7 @@ class DRLInference:
         self.config = config or DEFAULT_CONFIG
         self.model = None
         self.model_id: str | None = None
-        self.pipeline = None
+        self.pipeline: FeaturePipeline | None = None
         self._is_loaded = False
 
     @property
@@ -221,12 +223,37 @@ class DRLInference:
 
             self._is_loaded = True
             self.model_id = f"direct:{model_path}"
-            logger.info(f"Model loaded from path: {model_path}")
+
+            # Sprint 18: auto-load pipeline artifact if it exists alongside model
+            self._try_load_pipeline(model_path)
+
+            logger.info(f"Model loaded from path: {model_path} (pipeline={'yes' if self.pipeline else 'no'})")
             return True
 
         except Exception as e:
             logger.error(f"Failed to load model from path: {e}")
             return False
+
+    def _try_load_pipeline(self, model_path: str) -> None:
+        """Sprint 18: Attempt to load pipeline.json from the same directory as the model.
+
+        This ensures inference uses the same normalization statistics that were
+        used during training, eliminating the train/inference distribution shift.
+        """
+        from pathlib import Path
+
+        try:
+            model_dir = Path(model_path).parent
+            pipeline_path = model_dir / "pipeline.json"
+            if pipeline_path.exists():
+                artifact = load_artifact(pipeline_path)
+                pipeline = FeaturePipeline(self.config)
+                restore_pipeline(pipeline, artifact, allow_signature_mismatch=True)
+                self.pipeline = pipeline
+                logger.info(f"Pipeline restored from {pipeline_path}")
+        except Exception as e:
+            logger.warning(f"Could not load pipeline artifact: {e}")
+            self.pipeline = None
 
     def _prepare_features(self, symbol: str) -> pd.DataFrame | None:
         """Prepare features for a symbol."""
@@ -252,18 +279,27 @@ class DRLInference:
             return None
 
     def _prepare_observation(self, df: pd.DataFrame) -> np.ndarray:
-        """Convert DataFrame to model observation."""
-        # Get the last row as observation
-        last_row = df.iloc[-1]
+        """Convert DataFrame to model observation.
 
-        # Extract feature columns in order
+        Sprint 18: Uses FeaturePipeline.transform when available so that
+        inference observations are normalised identically to training.
+        Falls back to raw extraction only when no pipeline is loaded.
+        """
+        # --- Preferred path: use fitted pipeline (same normalisation as training) ---
+        if self.pipeline is not None:
+            try:
+                frame = FeatureFrame(data=df.tail(1))
+                obs = self.pipeline.transform(frame)[0]  # shape: (feature_dim,)
+                return obs.astype(np.float32)
+            except Exception as e:
+                logger.warning("Pipeline transform failed, falling back to raw: %s", e)
+
+        # --- Fallback: raw feature extraction (legacy behaviour) ---
+        last_row = df.iloc[-1]
         obs = np.array(
             [float(last_row.get(col, 0.0)) for col in self.config.feature_columns], dtype=np.float32
         )
-
-        # Handle NaN/Inf
         obs = np.nan_to_num(obs, nan=0.0, posinf=1e6, neginf=-1e6)
-
         return obs
 
     def _compute_confidence(self, action: float | int | np.ndarray, df: pd.DataFrame) -> float:
