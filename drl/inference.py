@@ -137,6 +137,8 @@ class DRLInference:
         self.model_id: str | None = None
         self.pipeline: FeaturePipeline | None = None
         self._is_loaded = False
+        self._lstm_states = None  # Sprint 18: RecurrentPPO hidden states
+        self._episode_starts: np.ndarray | None = None  # for LSTM reset tracking
 
     @property
     def is_loaded(self) -> bool:
@@ -195,7 +197,7 @@ class DRLInference:
 
         Args:
             model_path: Path to the saved model
-            algorithm: Algorithm type ("PPO", "SAC", "TD3", or "A2C")
+            algorithm: Algorithm type ("PPO", "SAC", "TD3", "A2C", or "RecurrentPPO")
 
         Returns:
             True if loaded successfully
@@ -218,6 +220,11 @@ class DRLInference:
                 from stable_baselines3 import A2C
 
                 self.model = A2C.load(model_path)
+            elif algo in ("RECURRENTPPO", "RPPO"):
+                from sb3_contrib import RecurrentPPO
+
+                self.model = RecurrentPPO.load(model_path)
+                self._lstm_states = None  # reset LSTM hidden states
             else:
                 raise ValueError(f"Unknown algorithm: {algorithm}")
 
@@ -417,8 +424,20 @@ class DRLInference:
             # Get observation
             obs = self._prepare_observation(df)
 
-            # Predict
-            action, _states = self.model.predict(obs, deterministic=True)
+            # Predict — RecurrentPPO needs LSTM states and episode_starts
+            is_recurrent = hasattr(self.model, "lstm_states") or self._lstm_states is not None
+            if is_recurrent:
+                if self._episode_starts is None:
+                    self._episode_starts = np.array([True])  # first call = new episode
+                action, self._lstm_states = self.model.predict(
+                    obs,
+                    state=self._lstm_states,
+                    episode_start=self._episode_starts,
+                    deterministic=True,
+                )
+                self._episode_starts = np.array([False])  # subsequent calls continue
+            else:
+                action, _states = self.model.predict(obs, deterministic=True)
 
             # Interpret action
             if isinstance(action, np.ndarray):

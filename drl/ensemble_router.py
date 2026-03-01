@@ -211,7 +211,8 @@ class EnsembleRouter:
                 # Pick the latest model for this name
                 latest = models[0]  # already sorted desc by created_at
                 engine = DRLInference(registry=self.registry, config=self.config)
-                success = engine.load_from_path(latest.model_path + ".zip")
+                algo = latest.algorithm if latest.algorithm else "PPO"
+                success = engine.load_from_path(latest.model_path + ".zip", algorithm=algo)
                 if not success or not engine.is_loaded:
                     logger.warning("Ensemble: model file load failed for %s", tag)
                     continue

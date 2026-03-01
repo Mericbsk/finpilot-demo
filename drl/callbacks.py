@@ -413,9 +413,174 @@ class TrainingMetricsCallback(BaseCallback):
         return list(self._metrics_log)
 
 
+# ============================================================================
+# MULTI-SYMBOL CURRICULUM
+# ============================================================================
+
+
+@dataclass
+class SymbolTier:
+    """A group of symbols introduced at a specific training progress point."""
+
+    name: str
+    symbols: list[str]
+    start_pct: float  # training progress when this tier activates (0.0-1.0)
+
+
+@dataclass
+class MultiSymbolCurriculumConfig:
+    """Configuration for progressive multi-symbol introduction.
+
+    Training starts with a few stable, high-liquidity symbols and gradually
+    adds more volatile / less-liquid ones as the agent matures.
+
+    The default 3-tier schedule:
+      - Tier 1 (0-30%):  mega-cap liquid (SPY, QQQ, AAPL, MSFT)
+      - Tier 2 (30-60%): large-cap tech (GOOGL, AMZN, NVDA, META)
+      - Tier 3 (60-100%): mid-cap + volatile (AMD, CRM, ADBE, INTC, TSLA, IWM)
+    """
+
+    tiers: list[SymbolTier] | None = None
+    rotation_interval: int = 2048  # switch symbol every N steps
+    total_timesteps: int = 3_000_000
+
+    def __post_init__(self) -> None:
+        if self.tiers is None:
+            self.tiers = self._default_tiers()
+
+    @staticmethod
+    def _default_tiers() -> list[SymbolTier]:
+        return [
+            SymbolTier(
+                name="mega_cap",
+                symbols=["SPY", "QQQ", "AAPL", "MSFT"],
+                start_pct=0.0,
+            ),
+            SymbolTier(
+                name="large_cap",
+                symbols=["GOOGL", "AMZN", "NVDA", "META"],
+                start_pct=0.30,
+            ),
+            SymbolTier(
+                name="mid_volatile",
+                symbols=["AMD", "CRM", "ADBE", "INTC", "TSLA", "IWM"],
+                start_pct=0.60,
+            ),
+        ]
+
+    def get_active_symbols(self, progress: float) -> list[str]:
+        """Return all symbols available at the given training progress."""
+        if self.tiers is None:
+            self.tiers = self._default_tiers()
+        active: list[str] = []
+        for tier in self.tiers:
+            if progress >= tier.start_pct:
+                active.extend(tier.symbols)
+        return active
+
+
+class MultiSymbolCallback(BaseCallback):
+    """SB3 callback that rotates training episodes across symbols.
+
+    Works with :class:`SymbolRotatingEnv` to progressively introduce new
+    symbols as training progresses, implementing a diversity curriculum.
+
+    Parameters
+    ----------
+    config:
+        Multi-symbol curriculum configuration.
+    episodes:
+        Dict mapping symbol → EpisodeData (pre-computed).
+    pipeline:
+        Fitted FeaturePipeline instance.
+    env_config:
+        Market environment configuration.
+    """
+
+    def __init__(
+        self,
+        config: MultiSymbolCurriculumConfig,
+        episodes: dict,  # symbol → EpisodeData
+        pipeline: "FeaturePipeline",
+        env_config: "MarketEnvConfig",
+        verbose: int = 0,
+    ) -> None:
+        super().__init__(verbose=verbose)
+        self.config = config
+        self.episodes = episodes
+        self.pipeline = pipeline
+        self.env_config = env_config
+        self._active_symbols: list[str] = []
+        self._current_symbol: str = ""
+        self._last_rotation_step: int = 0
+        self._rng = np.random.default_rng(42)
+
+    def _on_training_start(self) -> None:
+        self._apply_symbol_update(0.0)
+        if self.verbose:
+            logger.info("🌍 Multi-symbol curriculum: %d total symbols across %d tiers",
+                        sum(len(t.symbols) for t in (self.config.tiers or [])),
+                        len(self.config.tiers or []))
+
+    def _on_step(self) -> bool:
+        progress = self.num_timesteps / max(self.config.total_timesteps, 1)
+        self._apply_symbol_update(progress)
+
+        # Periodic symbol rotation
+        if (self.num_timesteps - self._last_rotation_step) >= self.config.rotation_interval:
+            self._rotate_symbol()
+            self._last_rotation_step = self.num_timesteps
+
+        return True
+
+    def _apply_symbol_update(self, progress: float) -> None:
+        """Update the set of active symbols based on progress."""
+        new_active = self.config.get_active_symbols(progress)
+        # Filter to symbols we actually have episodes for
+        new_active = [s for s in new_active if s in self.episodes]
+
+        if set(new_active) != set(self._active_symbols):
+            added = set(new_active) - set(self._active_symbols)
+            self._active_symbols = new_active
+            if added and self.verbose:
+                logger.info("  🌍 Symbols expanded: +%s → %d total",
+                            ", ".join(sorted(added)), len(self._active_symbols))
+
+    def _rotate_symbol(self) -> None:
+        """Swap the underlying environment's episode to a random active symbol."""
+        if not self._active_symbols or self.training_env is None:
+            return
+
+        next_symbol = self._rng.choice(self._active_symbols)
+        if next_symbol not in self.episodes:
+            return
+
+        try:
+            from .market_env import MarketEnv
+            episode = self.episodes[next_symbol]
+
+            for env_idx in range(self.training_env.num_envs):
+                env = self.training_env.envs[env_idx]  # type: ignore[attr-defined]
+                if isinstance(env, MarketEnv):
+                    # Re-initialize env with new episode data
+                    env.__init__(episode, self.pipeline, self.env_config)  # type: ignore[misc]
+                    env.reset()
+                    self._current_symbol = next_symbol
+
+        except Exception as e:
+            logger.debug("Symbol rotation failed: %s", e)
+
+    def get_active_symbols(self) -> list[str]:
+        """Return currently active symbols."""
+        return list(self._active_symbols)
+
+
 __all__ = [
     "CurriculumCallback",
     "CurriculumConfig",
     "CurriculumPhase",
+    "MultiSymbolCallback",
+    "MultiSymbolCurriculumConfig",
+    "SymbolTier",
     "TrainingMetricsCallback",
 ]

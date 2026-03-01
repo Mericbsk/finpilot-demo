@@ -4,15 +4,18 @@
 Trains 3 regime-specific agents (trend/range/volatile) with:
   - Simplified 3-term reward (PnL + DD + Cost)
   - HMM-based regime detection
-  - Observation stacking (n_stack=4)
+  - Observation stacking (n_stack=4) OR RecurrentPPO (LSTM)
   - Real multi-symbol data (14 symbols, 2y history)
+  - Multi-symbol curriculum (progressive symbol introduction)
   - 3M timesteps per agent (vs 500K before)
   - Pipeline artifact saved alongside model
 
 Usage:
-    python scripts/train_sprint18.py                    # Train all 3
-    python scripts/train_sprint18.py --agent trend      # Train one
-    python scripts/train_sprint18.py --timesteps 500000 # Quick test
+    python scripts/train_sprint18.py                        # PPO + stacking
+    python scripts/train_sprint18.py --algorithm RPPO       # RecurrentPPO (LSTM)
+    python scripts/train_sprint18.py --curriculum           # Multi-symbol curriculum
+    python scripts/train_sprint18.py --agent trend          # Train one
+    python scripts/train_sprint18.py --timesteps 500000     # Quick test
 """
 
 import argparse
@@ -80,6 +83,18 @@ def parse_args():
         default=42,
         help="Random seed",
     )
+    parser.add_argument(
+        "--algorithm",
+        choices=["PPO", "RPPO", "RecurrentPPO"],
+        default="PPO",
+        help="Algorithm: PPO (MLP+stacking) or RPPO/RecurrentPPO (LSTM)",
+    )
+    parser.add_argument(
+        "--curriculum",
+        action="store_true",
+        default=False,
+        help="Enable multi-symbol curriculum (progressive symbol introduction)",
+    )
     return parser.parse_args()
 
 
@@ -146,6 +161,8 @@ def train_single_agent(
     n_stack: int,
     lr: float,
     seed: int,
+    algorithm: str = "PPO",
+    use_curriculum: bool = False,
 ) -> dict:
     """Train one regime-specific agent and save it."""
     from drl.config import DEFAULT_CONFIG
@@ -154,13 +171,25 @@ def train_single_agent(
     from drl.market_env import EpisodeData, MarketEnv
     from drl.model_registry import get_registry
     from drl.persistence import build_artifact, save_artifact
-    from stable_baselines3 import PPO
     from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
 
-    model_name = f"ppo_{agent_tag}"
+    is_recurrent = algorithm.upper() in ("RPPO", "RECURRENTPPO")
+
+    if is_recurrent:
+        from sb3_contrib import RecurrentPPO
+        algo_cls = RecurrentPPO
+        policy_name = "MlpLstmPolicy"
+        algo_label = "RecurrentPPO"
+    else:
+        from stable_baselines3 import PPO
+        algo_cls = PPO
+        policy_name = "MlpPolicy"
+        algo_label = "PPO"
+
+    model_name = f"{'rppo' if is_recurrent else 'ppo'}_{agent_tag}"
     logger.info("=" * 60)
-    logger.info("TRAINING: %s | timesteps=%d | n_stack=%d | lr=%s",
-                model_name, timesteps, n_stack, lr)
+    logger.info("TRAINING: %s | algo=%s | timesteps=%d | n_stack=%d | lr=%s",
+                model_name, algo_label, timesteps, n_stack, lr)
     logger.info("=" * 60)
 
     # 1. Prepare data (merge all symbols, weighted toward target regime)
@@ -181,21 +210,58 @@ def train_single_agent(
     pipeline = FeaturePipeline(config)
     pipeline.fit(train_episode.features)
 
-    # 4. Create env with observation stacking
+    # 4. Create env with observation stacking (disabled for LSTM)
     def make_env():
         return MarketEnv(train_episode, pipeline, config)
 
     vec_env = DummyVecEnv([make_env])
-    if n_stack > 1:
+    if n_stack > 1 and not is_recurrent:
         vec_env = VecFrameStack(vec_env, n_stack=n_stack)
         logger.info("Obs stacking: %d → %d features",
                      len(config.feature_columns),
                      len(config.feature_columns) * n_stack)
+    elif is_recurrent:
+        logger.info("LSTM policy: temporal memory handled internally (no frame stacking)")
+
+    # 4b. Multi-symbol curriculum callbacks
+    callbacks = []
+    if use_curriculum:
+        from drl.callbacks import (
+            CurriculumCallback,
+            CurriculumConfig,
+            MultiSymbolCallback,
+            MultiSymbolCurriculumConfig,
+        )
+
+        # Build per-symbol episodes for rotation
+        symbol_episodes = {}
+        for symbol, sym_df in data.items():
+            try:
+                ep = create_episode(sym_df)
+                symbol_episodes[symbol] = ep
+            except Exception as e:
+                logger.warning("Skipping %s for curriculum: %s", symbol, e)
+
+        # Difficulty curriculum (costs + position limits)
+        diff_cfg = CurriculumConfig(total_timesteps=timesteps)
+        callbacks.append(CurriculumCallback(diff_cfg, smooth=True, verbose=1))
+
+        # Symbol diversity curriculum
+        sym_cfg = MultiSymbolCurriculumConfig(total_timesteps=timesteps)
+        callbacks.append(MultiSymbolCallback(
+            config=sym_cfg,
+            episodes=symbol_episodes,
+            pipeline=pipeline,
+            env_config=config,
+            verbose=1,
+        ))
+        logger.info("Curriculum: %d symbol episodes | 3-phase difficulty | symbol rotation",
+                     len(symbol_episodes))
 
     # 5. Build model
     t0 = time.time()
-    model = PPO(
-        "MlpPolicy",
+    model = algo_cls(
+        policy_name,
         vec_env,
         learning_rate=lr,
         n_steps=2048,
@@ -203,36 +269,46 @@ def train_single_agent(
         n_epochs=10,
         gamma=0.99,
         gae_lambda=0.95,
-        ent_coef=0.005,  # slightly higher exploration for financial data
+        ent_coef=0.005,
         vf_coef=0.5,
         max_grad_norm=0.5,
         verbose=0,
         seed=seed,
     )
 
-    logger.info("Training started...")
-    model.learn(total_timesteps=timesteps, progress_bar=True)
+    logger.info("Training started... (%s)", algo_label)
+    model.learn(total_timesteps=timesteps, callback=callbacks or None, progress_bar=True)
     train_time = time.time() - t0
     logger.info("Training completed in %.1fs", train_time)
 
     # 6. Evaluate on test data
     logger.info("Evaluating on test set...")
-    eval_env = MarketEnv(test_episode, pipeline, config)
-    obs, _info = eval_env.reset()
-    done = False
-    while not done:
-        # For stacked models we need to track the last n_stack frames
-        # But for evaluation simplicity, use raw env (no stacking)
-        action, _ = model.predict(obs, deterministic=True)
-        result = eval_env.step(action)
-        if len(result) == 5:
-            obs, _, terminated, truncated, _ = result
-            done = terminated or truncated
-        else:
-            obs, _, done, _ = result
-            done = bool(done)
 
-    history = eval_env.get_history()
+    def make_eval_env():
+        return MarketEnv(test_episode, pipeline, config)
+
+    eval_vec = DummyVecEnv([make_eval_env])
+    if n_stack > 1 and not is_recurrent:
+        eval_vec = VecFrameStack(eval_vec, n_stack=n_stack)
+
+    obs = eval_vec.reset()
+    done = False
+    # RecurrentPPO needs LSTM states tracking
+    lstm_states = None
+    episode_starts = np.array([True])
+    while not done:
+        if is_recurrent:
+            action, lstm_states = model.predict(
+                obs, state=lstm_states, episode_start=episode_starts, deterministic=True
+            )
+            episode_starts = np.array([False])
+        else:
+            action, _ = model.predict(obs, deterministic=True)
+        obs, _, dones, infos = eval_vec.step(action)
+        done = bool(dones[0])
+
+    # Get history from underlying env
+    history = eval_vec.envs[0].get_history()  # type: ignore[attr-defined]
     metrics = _compute_metrics(history)
     metrics["train_time_s"] = round(train_time, 1)
     logger.info(

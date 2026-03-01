@@ -201,6 +201,56 @@ class Database:
             """
             )
 
+            # Signals table — Sprint 20
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS signals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp TEXT NOT NULL,
+                    symbol TEXT NOT NULL,
+                    price REAL,
+                    stop_loss REAL,
+                    take_profit REAL,
+                    score REAL,
+                    strength REAL,
+                    regime TEXT,
+                    sentiment TEXT,
+                    onchain TEXT,
+                    entry_ok INTEGER DEFAULT 0,
+                    summary TEXT,
+                    reason TEXT,
+                    status TEXT DEFAULT 'open',
+                    outcome_price REAL,
+                    outcome_date TEXT,
+                    outcome_pct REAL,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+                )
+            """
+            )
+
+            # Scan results table — Sprint 20
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS scan_results (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    scan_id TEXT NOT NULL,
+                    scan_timestamp TEXT NOT NULL,
+                    symbol TEXT NOT NULL,
+                    price REAL,
+                    stop_loss REAL,
+                    take_profit REAL,
+                    score REAL,
+                    strength REAL,
+                    regime TEXT,
+                    sentiment TEXT,
+                    entry_ok INTEGER DEFAULT 0,
+                    summary TEXT,
+                    source_file TEXT,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+                )
+            """
+            )
+
             # Create indexes
             conn.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
             conn.execute(
@@ -209,12 +259,26 @@ class Database:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_trades_portfolio ON trades(portfolio_id)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_trades_symbol ON trades(symbol)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_quiz_user ON quiz_scores(user_id)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_signals_symbol ON signals(symbol)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_signals_timestamp ON signals(timestamp)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_scan_results_scan ON scan_results(scan_id)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_scan_results_symbol ON scan_results(symbol)"
+            )
 
             logger.info(f"Database initialized: {self.db_path}")
 
     def drop_all(self) -> None:
         """Drop all tables (for testing)."""
         with self.connection() as conn:
+            conn.execute("DROP TABLE IF EXISTS scan_results")
+            conn.execute("DROP TABLE IF EXISTS signals")
             conn.execute("DROP TABLE IF EXISTS quiz_scores")
             conn.execute("DROP TABLE IF EXISTS trades")
             conn.execute("DROP TABLE IF EXISTS positions")
@@ -700,6 +764,301 @@ class QuizRepository:
 
 
 # ============================================================================
+# SIGNAL REPOSITORY — Sprint 20
+# ============================================================================
+
+
+class SignalRepository:
+    """Persist and query trading signals (replaces CSV-based signal_log)."""
+
+    def __init__(self, db: Database):
+        self.db = db
+
+    def save(self, signal: dict[str, Any]) -> int:
+        """
+        Insert a new signal record.
+
+        Returns the auto-generated row id.
+        """
+        with self.db.connection() as conn:
+            cursor = conn.execute(
+                """
+                INSERT INTO signals
+                (timestamp, symbol, price, stop_loss, take_profit, score,
+                 strength, regime, sentiment, onchain, entry_ok,
+                 summary, reason, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    signal.get("timestamp", datetime.utcnow().isoformat()),
+                    signal["symbol"],
+                    signal.get("price"),
+                    signal.get("stop_loss"),
+                    signal.get("take_profit"),
+                    signal.get("score"),
+                    signal.get("strength"),
+                    signal.get("regime"),
+                    signal.get("sentiment"),
+                    signal.get("onchain"),
+                    int(signal.get("entry_ok", False)),
+                    signal.get("summary"),
+                    signal.get("reason"),
+                    signal.get("status", "open"),
+                    datetime.utcnow().isoformat(),
+                ),
+            )
+            return cursor.lastrowid or 0
+
+    def save_batch(self, signals: list[dict[str, Any]]) -> int:
+        """Insert multiple signals in a single transaction. Returns count."""
+        if not signals:
+            return 0
+        now = datetime.utcnow().isoformat()
+        rows = [
+            (
+                s.get("timestamp", now),
+                s["symbol"],
+                s.get("price"),
+                s.get("stop_loss"),
+                s.get("take_profit"),
+                s.get("score"),
+                s.get("strength"),
+                s.get("regime"),
+                s.get("sentiment"),
+                s.get("onchain"),
+                int(s.get("entry_ok", False)),
+                s.get("summary"),
+                s.get("reason"),
+                s.get("status", "open"),
+                now,
+            )
+            for s in signals
+        ]
+        with self.db.connection() as conn:
+            conn.executemany(
+                """
+                INSERT INTO signals
+                (timestamp, symbol, price, stop_loss, take_profit, score,
+                 strength, regime, sentiment, onchain, entry_ok,
+                 summary, reason, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                rows,
+            )
+            return len(rows)
+
+    def get_by_symbol(
+        self, symbol: str, limit: int = 100
+    ) -> list[dict[str, Any]]:
+        """Get signals for a specific symbol."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM signals WHERE symbol = ? ORDER BY timestamp DESC LIMIT ?",
+                (symbol, limit),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_recent(self, limit: int = 200) -> list[dict[str, Any]]:
+        """Get most recent signals."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM signals ORDER BY timestamp DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_open(self) -> list[dict[str, Any]]:
+        """Get all signals with status='open'."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM signals WHERE status = 'open' ORDER BY timestamp DESC"
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def update_outcome(
+        self,
+        signal_id: int,
+        status: str,
+        outcome_price: float | None = None,
+        outcome_date: str | None = None,
+        outcome_pct: float | None = None,
+    ) -> bool:
+        """Update signal outcome (TP hit, SL hit, etc.)."""
+        with self.db.connection() as conn:
+            cursor = conn.execute(
+                """
+                UPDATE signals
+                SET status = ?, outcome_price = ?, outcome_date = ?, outcome_pct = ?
+                WHERE id = ?
+                """,
+                (status, outcome_price, outcome_date, outcome_pct, signal_id),
+            )
+            return cursor.rowcount > 0
+
+    def count(self) -> int:
+        """Total signal count."""
+        with self.db.connection() as conn:
+            row = conn.execute("SELECT COUNT(*) FROM signals").fetchone()
+            return row[0] if row else 0
+
+    def get_stats(self) -> dict[str, Any]:
+        """Aggregate signal statistics."""
+        with self.db.connection() as conn:
+            row = conn.execute(
+                """
+                SELECT
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) as open_count,
+                    SUM(CASE WHEN status = 'tp_hit' THEN 1 ELSE 0 END) as tp_count,
+                    SUM(CASE WHEN status = 'sl_hit' THEN 1 ELSE 0 END) as sl_count,
+                    AVG(score) as avg_score,
+                    COUNT(DISTINCT symbol) as unique_symbols
+                FROM signals
+                """
+            ).fetchone()
+            if not row or row[0] == 0:
+                return {
+                    "total": 0, "open": 0, "tp_hit": 0, "sl_hit": 0,
+                    "avg_score": 0.0, "unique_symbols": 0, "win_rate": 0.0,
+                }
+            closed = (row[2] or 0) + (row[3] or 0)
+            return {
+                "total": row[0],
+                "open": row[1] or 0,
+                "tp_hit": row[2] or 0,
+                "sl_hit": row[3] or 0,
+                "avg_score": round(row[4] or 0, 2),
+                "unique_symbols": row[5] or 0,
+                "win_rate": round((row[2] or 0) / closed * 100, 1) if closed else 0.0,
+            }
+
+
+# ============================================================================
+# SCAN RESULT REPOSITORY — Sprint 20
+# ============================================================================
+
+
+class ScanResultRepository:
+    """Persist and query scan results (replaces CSV shortlists)."""
+
+    def __init__(self, db: Database):
+        self.db = db
+
+    def save_scan(
+        self, scan_id: str, scan_timestamp: str, results: list[dict[str, Any]],
+        source_file: str | None = None,
+    ) -> int:
+        """
+        Save an entire scan batch.
+
+        Args:
+            scan_id: Unique identifier for this scan run.
+            scan_timestamp: When the scan was executed.
+            results: List of scan result dicts (one per symbol).
+            source_file: Optional source CSV filename.
+
+        Returns:
+            Number of rows inserted.
+        """
+        if not results:
+            return 0
+        now = datetime.utcnow().isoformat()
+        rows = [
+            (
+                scan_id,
+                scan_timestamp,
+                r["symbol"],
+                r.get("price"),
+                r.get("stop_loss"),
+                r.get("take_profit"),
+                r.get("score", r.get("recommendation_score")),
+                r.get("strength", r.get("filter_score")),
+                r.get("regime"),
+                r.get("sentiment"),
+                int(r.get("entry_ok", False)),
+                r.get("summary", r.get("why", "")),
+                source_file,
+                now,
+            )
+            for r in results
+        ]
+        with self.db.connection() as conn:
+            conn.executemany(
+                """
+                INSERT INTO scan_results
+                (scan_id, scan_timestamp, symbol, price, stop_loss, take_profit,
+                 score, strength, regime, sentiment, entry_ok, summary,
+                 source_file, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                rows,
+            )
+            return len(rows)
+
+    def get_scan(self, scan_id: str) -> list[dict[str, Any]]:
+        """Get all results for a specific scan."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM scan_results WHERE scan_id = ? ORDER BY score DESC",
+                (scan_id,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_recent_scans(self, limit: int = 20) -> list[dict[str, Any]]:
+        """Get metadata for the most recent scans."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT scan_id, scan_timestamp, COUNT(*) as symbol_count,
+                       AVG(score) as avg_score, source_file
+                FROM scan_results
+                GROUP BY scan_id
+                ORDER BY scan_timestamp DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_symbol_history(
+        self, symbol: str, limit: int = 50
+    ) -> list[dict[str, Any]]:
+        """Get scan history for a specific symbol across all scans."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT * FROM scan_results
+                WHERE symbol = ?
+                ORDER BY scan_timestamp DESC
+                LIMIT ?
+                """,
+                (symbol, limit),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_all_as_dataframe(self) -> "pd.DataFrame":
+        """Load all scan results as a pandas DataFrame."""
+        import pandas as pd  # noqa: F811
+
+        with self.db.connection() as conn:
+            return pd.read_sql_query(
+                "SELECT * FROM scan_results ORDER BY scan_timestamp DESC", conn
+            )
+
+    def count(self) -> int:
+        """Total scan result rows."""
+        with self.db.connection() as conn:
+            row = conn.execute("SELECT COUNT(*) FROM scan_results").fetchone()
+            return row[0] if row else 0
+
+    def scan_count(self) -> int:
+        """Number of distinct scans."""
+        with self.db.connection() as conn:
+            row = conn.execute("SELECT COUNT(DISTINCT scan_id) FROM scan_results").fetchone()
+            return row[0] if row else 0
+
+
+# ============================================================================
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
@@ -722,5 +1081,7 @@ __all__ = [
     "PortfolioRepository",
     "SettingsRepository",
     "QuizRepository",
+    "SignalRepository",
+    "ScanResultRepository",
     "get_database",
 ]

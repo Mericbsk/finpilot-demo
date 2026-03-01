@@ -1,6 +1,8 @@
 """
 Scanner History — Tüm tarama sonuçlarını birleştirip takip eden modül.
 
+Sprint 20: DB-first persistence with CSV fallback.
+
 77+ ayrı shortlist CSV dosyasını tek bir konsolide görünümde sunar.
 Tarih/saat, hisse bazlı filtreleme, entry sinyal geçmişi ve trend takibi sağlar.
 """
@@ -17,6 +19,16 @@ logger = logging.getLogger(__name__)
 
 SHORTLIST_DIR = os.path.join("data", "shortlists")
 SUGGESTIONS_DIR = os.path.join("data", "suggestions")
+
+# ---------------------------------------------------------------------------
+# DB Integration (Sprint 20)
+# ---------------------------------------------------------------------------
+try:
+    from auth.database import ScanResultRepository, get_database
+
+    _SCAN_DB_AVAILABLE = True
+except ImportError:
+    _SCAN_DB_AVAILABLE = False
 
 
 # ─── DATA LOADING ──────────────────────────────────────────
@@ -44,7 +56,34 @@ def _parse_scan_datetime(filename: str):
 
 @st.cache_data(ttl=120, show_spinner=False)
 def load_all_scans() -> pd.DataFrame:
-    """Load all shortlist CSVs into a single DataFrame with scan metadata."""
+    """Load scan results from DB (primary) or CSV shortlists (fallback)."""
+    # Try DB first
+    if _SCAN_DB_AVAILABLE:
+        try:
+            db = get_database()
+            repo = ScanResultRepository(db)
+            if repo.count() > 0:
+                df = repo.get_all_as_dataframe()
+                # Add columns expected by downstream code
+                if "scan_timestamp" in df.columns:
+                    df["scan_datetime"] = pd.to_datetime(
+                        df["scan_timestamp"], errors="coerce"
+                    )
+                    df["scan_date"] = df["scan_datetime"].dt.strftime("%Y-%m-%d")
+                    df["scan_time"] = df["scan_datetime"].dt.strftime("%H:%M")
+                if "source_file" in df.columns:
+                    df["scan_file"] = df["source_file"]
+                df = df.sort_values("scan_datetime", ascending=False)
+                return df
+        except Exception as e:
+            logger.warning(f"DB scan read failed, falling back to CSV: {e}")
+
+    # Fallback: CSV shortlists
+    return _load_all_scans_csv()
+
+
+def _load_all_scans_csv() -> pd.DataFrame:
+    """Legacy CSV-based scan loading."""
     all_files = sorted(glob.glob(os.path.join(SHORTLIST_DIR, "shortlist_*.csv")))
 
     if not all_files:

@@ -50,6 +50,11 @@ except Exception:  # pragma: no cover - missing SB3 is handled at runtime
     DummyVecEnv = None
     VecFrameStack = None
 
+try:  # pragma: no cover - optional LSTM policy
+    from sb3_contrib import RecurrentPPO  # type: ignore
+except Exception:  # pragma: no cover
+    RecurrentPPO = None
+
 if TYPE_CHECKING:  # pragma: no cover - for static type checking only
     import mlflow  # type: ignore
 else:
@@ -127,7 +132,7 @@ class WalkForwardTrainer:
             target_dir.mkdir(parents=True, exist_ok=True)
             self._artifact_dir = target_dir
 
-        _SUPPORTED = {"PPO", "SAC", "TD3", "A2C"}
+        _SUPPORTED = {"PPO", "SAC", "TD3", "A2C", "RecurrentPPO", "RPPO"}
         if self.algo_config.algorithm not in _SUPPORTED:
             raise ValueError(f"algorithm must be one of {_SUPPORTED}")
 
@@ -240,17 +245,20 @@ class WalkForwardTrainer:
 
         vec_env = DummyVecEnv([_make_env])
 
+        algo = self.algo_config.algorithm.upper()
+        is_recurrent = algo in ("RECURRENTPPO", "RPPO")
+
         # Sprint 18: observation stacking — gives the agent temporal context
-        # Without stacking the MlpPolicy sees only 1 timestep (no momentum sense)
+        # Disabled for recurrent models (LSTM handles memory internally)
         n_stack = self.algo_config.n_stack
-        if n_stack > 1 and VecFrameStack is not None:
+        if n_stack > 1 and VecFrameStack is not None and not is_recurrent:
             vec_env = VecFrameStack(vec_env, n_stack=n_stack)
             logger.info("Observation stacking: n_stack=%d (obs_dim: %d → %d)",
                         n_stack,
                         len(self.env_config.feature_columns),
                         len(self.env_config.feature_columns) * n_stack)
-
-        algo = self.algo_config.algorithm.upper()
+        elif is_recurrent:
+            logger.info("RecurrentPPO: LSTM handles temporal memory — stacking disabled")
         common = dict(
             learning_rate=self.algo_config.learning_rate,
             gamma=self.algo_config.gamma,
@@ -261,7 +269,20 @@ class WalkForwardTrainer:
             vf_coef=self.algo_config.vf_coef,
         )
 
-        if algo == "PPO":
+        if algo in ("RECURRENTPPO", "RPPO"):
+            if RecurrentPPO is None:
+                raise ImportError(
+                    "sb3-contrib is not installed. Run 'pip install sb3-contrib'"
+                )
+            model = RecurrentPPO(
+                "MlpLstmPolicy",
+                vec_env,
+                verbose=0,
+                seed=self.algo_config.seed,
+                **common,
+                **on_policy_extras,
+            )
+        elif algo == "PPO":
             model = PPO(
                 "MlpPolicy",
                 vec_env,
