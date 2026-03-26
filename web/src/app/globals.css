@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #f5f5f7;
+  --bg-secondary: #111118;
+  --bg-card: #111118;
+  --bg-card-hover: #1a1a24;
+  --bg-glass: rgba(255, 255, 255, 0.06);
+  --border-subtle: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.22);
+  --bg-primary: #0a0a10;
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-tertiary: #6e6e73;
+  --accent-cyan: #00d4ff;
+  --accent-blue: #0a84ff;
+  --accent-green: #30d158;
+  --accent-red: #ff453a;
+  --accent-purple: #bf5af2;
+  --glow-cyan: rgba(0, 212, 255, 0.15);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+::selection {
+  background: var(--accent-cyan);
+  color: #000;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border-subtle);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 60px var(--glow-cyan), 0 0 120px rgba(0, 212, 255, 0.05);
+}
+
+.glow-text {
+  text-shadow: 0 0 40px var(--glow-cyan);
+}
+
+.dot-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Apple-style fade-in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out both;
+}

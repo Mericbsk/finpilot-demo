@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 __all__ = ["Session"]
 
@@ -25,9 +25,9 @@ class Session:
     refresh_token: str
 
     # Metadata
-    device_info: Optional[str] = None
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
+    device_info: str | None = None
+    ip_address: str | None = None
+    user_agent: str | None = None
 
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -37,7 +37,7 @@ class Session:
     # Status
     is_active: bool = True
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -53,7 +53,7 @@ class Session:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Session:
+    def from_dict(cls, data: dict[str, Any]) -> Session:
         return cls(
             id=data["id"],
             user_id=data["user_id"],

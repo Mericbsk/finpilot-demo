@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinPilot — NVIDIA Inception Pitch Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --nvidia-green: #76b900;
+    --nvidia-dark: #1a1a2e;
+    --accent-cyan: #00e6e6;
+    --accent-blue: #38bdf8;
+    --bg-dark: #0f0f1a;
+    --bg-card: #1a1a2e;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --gradient-nvidia: linear-gradient(135deg, #76b900, #4a8c00);
+    --gradient-dark: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .slide {
+    width: 100%;
+    min-height: 100vh;
+    padding: 60px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--gradient-nvidia);
+  }
+
+  .slide-number {
+    position: absolute;
+    bottom: 30px;
+    right: 60px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .footer-logo {
+    position: absolute;
+    bottom: 28px;
+    left: 60px;
+    font-size: 14px;
+    color: #555;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* === SLIDE 1: COVER === */
+  .cover {
+    background: radial-gradient(ellipse at 70% 30%, rgba(118,185,0,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(0,230,230,0.08) 0%, transparent 50%),
+                var(--gradient-dark);
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cover .logo {
+    font-size: 72px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cover .tagline {
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    line-height: 1.4;
+  }
+
+  .cover .meta {
+    font-size: 15px;
+    color: #666;
+    margin-top: 30px;
+  }
+
+  .nvidia-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(118,185,0,0.15);
+    border: 1px solid rgba(118,185,0,0.4);
+    border-radius: 50px;
+    padding: 10px 24px;
+    margin-top: 24px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--nvidia-green);
+  }
+
+  /* === COMMON STYLES === */
+  .slide-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+
+  .slide-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    font-weight: 400;
+  }
+
+  .highlight {
+    color: var(--nvidia-green);
+    font-weight: 700;
+  }
+
+  .highlight-cyan {
+    color: var(--accent-cyan);
+    font-weight: 700;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+
+  .grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 20px;
+  }
+
+  .card {
+    background: rgba(30, 30, 50, 0.8);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card p, .card li {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .card ul { list-style: none; padding: 0; }
+  .card li { padding: 4px 0; }
+  .card li::before { content: '→ '; color: var(--nvidia-green); font-weight: 600; }
+
+  .metric-box {
+    background: rgba(30, 30, 50, 0.8);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .metric-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--nvidia-green);
+    line-height: 1.1;
+  }
+
+  .metric-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-label { font-size: 15px; color: var(--text-secondary); }
+  .stat-value { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+
+  /* Problem slide */
+  .problem-stat {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .problem-stat .big-number {
+    font-size: 48px;
+    font-weight: 900;
+    color: #ef4444;
+  }
+
+  .problem-stat .label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  /* Tech architecture */
+  .arch-box {
+    background: rgba(118,185,0,0.08);
+    border: 1px solid rgba(118,185,0,0.25);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .arch-box.nvidia-box {
+    background: rgba(118,185,0,0.15);
+    border: 2px solid rgba(118,185,0,0.5);
+  }
+
+  .arch-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    color: var(--nvidia-green);
+  }
+
+  .arch-items {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .connector {
+    text-align: center;
+    font-size: 24px;
+    color: var(--nvidia-green);
+    padding: 8px 0;
+  }
+
+  /* Timeline */
+  .timeline-item {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+
+  .timeline-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--nvidia-green);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .timeline-content h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .timeline-content p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  /* Table styles */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    background: rgba(118,185,0,0.1);
+    border-bottom: 2px solid rgba(118,185,0,0.3);
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--nvidia-green);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--text-secondary);
+  }
+
+  tr:hover td {
+    background: rgba(255,255,255,0.02);
+  }
+
+  /* Ask slide */
+  .ask-box {
+    background: linear-gradient(135deg, rgba(118,185,0,0.12), rgba(0,230,230,0.06));
+    border: 2px solid rgba(118,185,0,0.3);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .ask-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--nvidia-green);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+
+  .ask-items {
+    font-size: 18px;
+    line-height: 2;
+    color: var(--text-primary);
+  }
+
+  /* Print optimizations */
+  @media print {
+    .slide {
+      height: 100vh;
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
+    body { -webkit-print-color-adjust: exact; }
+  }
+
+  @page {
+    size: 16in 9in;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== SLIDE 1: COVER ==================== -->
+<div class="slide cover">
+  <div class="logo">🚀 FinPilot</div>
+  <div class="tagline">
+    AI-Powered Stock Analysis &amp; Financial Literacy Platform<br>
+    <span style="font-size:20px; color:#666;">Deep Reinforcement Learning · Real-Time Signals · Democratized Finance</span>
+  </div>
+
+  <div class="grid-4" style="max-width:800px; margin: 0 auto;">
+    <div class="metric-box">
+      <div class="metric-value">15</div>
+      <div class="metric-label">DRL Models</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">56K+</div>
+      <div class="metric-label">Lines of Code</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">493</div>
+      <div class="metric-label">Tests Passing</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">3</div>
+      <div class="metric-label">Languages</div>
+    </div>
+  </div>
+
+  <div class="nvidia-badge">
+    ⬛ NVIDIA Inception Application · March 2026
+  </div>
+
+  <div class="meta">Vienna, Austria · finpilot.ai · Pre-Seed Stage</div>
+  <div class="slide-number">1 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 2: PROBLEM ==================== -->
+<div class="slide" style="background: var(--gradient-dark);">
+  <div class="slide-title">The Problem</div>
+  <div class="slide-subtitle">Retail investors are left behind in the AI revolution</div>
+
+  <div class="grid-3" style="margin-bottom: 40px;">
+    <div class="problem-stat">
+      <div class="big-number">87%</div>
+      <div class="label">of retail investors <strong>underperform</strong><br>market benchmarks (Dalbar 2025)</div>
+    </div>
+    <div class="problem-stat">
+      <div class="big-number">€0</div>
+      <div class="label">access to institutional-grade<br><strong>AI trading tools</strong> for individuals</div>
+    </div>
+    <div class="problem-stat">
+      <div class="big-number">62%</div>
+      <div class="label">of Europeans lack basic<br><strong>financial literacy</strong> (OECD 2024)</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="color:#ef4444;">🔴 Status Quo</div>
+      <ul>
+        <li>Institutional AI tools cost $50K-500K/year</li>
+        <li>Free tools lack DRL/ML — rely on lagging indicators</li>
+        <li>Financial education is boring, text-heavy, and disconnected from practice</li>
+        <li>No platform combines analysis + education + risk management</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--nvidia-green);">🟢 Opportunity</div>
+      <ul>
+        <li>$12B retail trading tools market (CAGR 18%)</li>
+        <li>500M+ retail investors globally seeking AI advantage</li>
+        <li>EU pushing financial literacy mandates (OECD PISA)</li>
+        <li>GPU compute cost has dropped 90% in 5 years — enabling personal AI</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">2 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 3: SOLUTION ==================== -->
+<div class="slide" style="background: var(--gradient-dark);">
+  <div class="slide-title">The Solution</div>
+  <div class="slide-subtitle">FinPilot: Your AI-powered financial copilot</div>
+
+  <div class="grid-3">
+    <div class="card" style="border-top: 3px solid #38bdf8;">
+      <div class="card-title"><span style="font-size:28px;">⚡</span> Smart Scanner</div>
+      <p>Scans 500+ stocks in seconds using multi-timeframe analysis (15m/1h/4h/1D) with ML-calibrated signals. Filters noise, surfaces actionable opportunities.</p>
+      <br>
+      <p style="color:var(--accent-cyan); font-weight:600; font-size:13px;">RSI · MACD · EMA · Bollinger · ATR</p>
+    </div>
+    <div class="card" style="border-top: 3px solid var(--nvidia-green);">
+      <div class="card-title"><span style="font-size:28px;">🧠</span> DRL Strategy Engine</div>
+      <p>15 trained Deep Reinforcement Learning agents (PPO, SAC, TD3, A2C, Recurrent PPO) generate adaptive buy/sell/hold signals that respond to market regime changes.</p>
+      <br>
+      <p style="color:var(--nvidia-green); font-weight:600; font-size:13px;">PyTorch · Stable-Baselines3 · CUDA</p>
+    </div>
+    <div class="card" style="border-top: 3px solid #a78bfa;">
+      <div class="card-title"><span style="font-size:28px;">🎓</span> FinSense Academy</div>
+      <p>Interactive financial literacy platform with 100+ term dictionary, AI-powered explanations, quiz module, strategy guides, and compound interest calculator.</p>
+      <br>
+      <p style="color:#a78bfa; font-weight:600; font-size:13px;">LLM-Powered · 3 Languages · Gamified</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 32px;">
+    <div class="card" style="border-left: 4px solid var(--accent-cyan);">
+      <div class="grid-2" style="gap:40px; align-items:center;">
+        <div>
+          <div class="card-title"><span style="font-size:28px;">🛡️</span> PilotShield Risk Controls</div>
+          <ul>
+            <li>Kelly Fraction position sizing with ATR-adjusted stops</li>
+            <li>Portfolio concentration & correlation warnings</li>
+            <li>Automated pre-flight checklists before every trade</li>
+          </ul>
+        </div>
+        <div>
+          <div class="card-title"><span style="font-size:28px;">📱</span> Telegram + Web + PWA</div>
+          <ul>
+            <li>Real-time signal alerts via Telegram bot</li>
+            <li>Responsive Streamlit dashboard + planned Next.js UI</li>
+            <li>Public website with PWA support (EN/TR/DE)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">3 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 4: TECHNOLOGY ==================== -->
+<div class="slide" style="background: var(--gradient-dark);">
+  <div class="slide-title">Technology Stack</div>
+  <div class="slide-subtitle">GPU-accelerated Deep Reinforcement Learning at the core</div>
+
+  <div class="grid-2" style="gap:40px;">
+    <div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title" style="color:var(--nvidia-green);">🔬 DRL Pipeline (GPU-Intensive)</div>
+        <table>
+          <tr><td style="font-weight:600; color:#fff;">Framework</td><td>PyTorch + Stable-Baselines3</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Algorithms</td><td>PPO, SAC, TD3, A2C, Recurrent PPO (LSTM)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Models</td><td>15 trained specialists (market, swing, day, scalp)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">HP Optimization</td><td>Optuna (400+ trial grid search)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Validation</td><td>Walk-Forward Optimization (WFO)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Regime Detection</td><td>HMM + regime-aware ensemble voting</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:var(--accent-cyan);">🤖 LLM / AI Inference</div>
+        <table>
+          <tr><td style="font-weight:600; color:#fff;">Cloud LLM</td><td>OpenAI GPT-4o API (FinSense)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Local LLM</td><td>Ollama (Llama 3, Mistral) — planned</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Inference</td><td>TensorRT optimization planned</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title" style="color:#fbbf24;">⚙️ Platform Stack</div>
+        <table>
+          <tr><td style="font-weight:600; color:#fff;">Language</td><td>Python 3.11 (56,500+ LOC)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">UI</td><td>Streamlit → Next.js (migration planned)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Data</td><td>yfinance, Polygon.io, alternative data APIs</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Alerts</td><td>Telegram Bot API (real-time signals)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">CI/CD</td><td>GitHub Actions, Docker, pytest (493 tests)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Monitoring</td><td>Prometheus + Grafana + Sentry</td></tr>
+        </table>
+      </div>
+
+      <div class="arch-box nvidia-box">
+        <div class="arch-title">🟢 NVIDIA Technology Stack</div>
+        <div class="arch-items">
+          <strong>PyTorch + CUDA</strong> — DRL training acceleration<br>
+          <strong>TensorRT</strong> — Model inference optimization (planned)<br>
+          <strong>NVIDIA GB10 DGX Spark</strong> — On-prem training hardware (purchasing)<br>
+          <strong>cuDNN + NCCL</strong> — Deep learning primitives<br>
+          <strong>Blackwell Tensor Cores</strong> — FP4/FP8 inference for local LLMs
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">4 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 5: NVIDIA ALIGNMENT ==================== -->
+<div class="slide" style="background: radial-gradient(ellipse at 50% 50%, rgba(118,185,0,0.08) 0%, transparent 70%), var(--gradient-dark);">
+  <div class="slide-title">NVIDIA Alignment</div>
+  <div class="slide-subtitle">Why FinPilot is a natural fit for the NVIDIA Inception ecosystem</div>
+
+  <div class="grid-2" style="gap:36px; margin-bottom: 32px;">
+    <div class="card" style="border: 2px solid rgba(118,185,0,0.3);">
+      <div class="card-title" style="color:var(--nvidia-green); font-size:18px;">🖥️ Hardware Investment</div>
+      <p style="font-size:16px; color:var(--text-primary); margin-bottom: 16px;">
+        We are <strong>purchasing an NVIDIA GB10 DGX Spark</strong> (Blackwell architecture) as our primary AI training and inference workstation.
+      </p>
+      <ul>
+        <li>128GB unified LPDDR5x memory</li>
+        <li>1 PFLOP FP4 AI compute (Blackwell Tensor Core)</li>
+        <li>NVLink-C2C for zero-copy CPU↔GPU data transfer</li>
+        <li>Budget: €3,800 — already evaluated and ready to purchase</li>
+      </ul>
+    </div>
+    <div class="card" style="border: 2px solid rgba(118,185,0,0.3);">
+      <div class="card-title" style="color:var(--nvidia-green); font-size:18px;">⚡ Performance Impact</div>
+      <table>
+        <tr>
+          <th>Workload</th>
+          <th>Current (CPU)</th>
+          <th>With GB10</th>
+        </tr>
+        <tr>
+          <td>15 DRL Models Training</td>
+          <td style="color:#ef4444;">9.2 hours</td>
+          <td style="color:var(--nvidia-green); font-weight:700;">~30-60 min</td>
+        </tr>
+        <tr>
+          <td>Optuna HP Search (400 trials)</td>
+          <td style="color:#ef4444;">~12 days</td>
+          <td style="color:var(--nvidia-green); font-weight:700;">~14-28 hours</td>
+        </tr>
+        <tr>
+          <td>RPPO/LSTM Training</td>
+          <td style="color:#ef4444;">3.5 hours</td>
+          <td style="color:var(--nvidia-green); font-weight:700;">~5-20 min</td>
+        </tr>
+        <tr>
+          <td>Local LLM (70B)</td>
+          <td style="color:#ef4444;">Impossible</td>
+          <td style="color:var(--nvidia-green); font-weight:700;">✅ Real-time</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="border: 1px solid rgba(118,185,0,0.2);">
+    <div class="card-title" style="color:var(--nvidia-green); font-size:16px;">🏗️ Hybrid Architecture — On-Prem GB10 + Cloud GPU</div>
+    <div class="grid-2" style="gap:24px;">
+      <div>
+        <p style="font-weight:600; color:#fff; margin-bottom:8px;">On-Prem (NVIDIA GB10)</p>
+        <ul>
+          <li>Daily DRL model training & retraining</li>
+          <li>Local LLM inference (privacy-safe, 70B models)</li>
+          <li>Real-time signal engine (low-latency)</li>
+          <li>Model registry & experiment tracking</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:600; color:#fff; margin-bottom:8px;">Cloud (NVIDIA GPUs on GCP/AWS)</p>
+        <ul>
+          <li>Burst Optuna hyperparameter search (100+ parallel trials)</li>
+          <li>Large-scale backtesting across 1000+ symbols</li>
+          <li>TensorRT model optimization & serving</li>
+          <li>Global web UI deployment via CDN</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">5 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 6: TRACTION ==================== -->
+<div class="slide" style="background: var(--gradient-dark);">
+  <div class="slide-title">Traction &amp; Milestones</div>
+  <div class="slide-subtitle">Built and validated — ready for GPU-accelerated scale</div>
+
+  <div class="grid-4" style="margin-bottom: 32px;">
+    <div class="metric-box">
+      <div class="metric-value">56.5K</div>
+      <div class="metric-label">Lines of Code</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">195</div>
+      <div class="metric-label">Python Modules</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">493</div>
+      <div class="metric-label">Tests Passing</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">15</div>
+      <div class="metric-label">Trained DRL Agents</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="gap:32px;">
+    <div class="card">
+      <div class="card-title" style="font-size:18px;">✅ Completed</div>
+      <ul style="font-size:14px;">
+        <li>Full MVP — working Streamlit dashboard (3 pages)</li>
+        <li>15 DRL agents: PPO, SAC, TD3, A2C, Recurrent PPO specialists</li>
+        <li>FinSense Academy — 100+ terms, quiz, compound interest calc</li>
+        <li>Public website (PWA) — 3 languages (EN/TR/DE)</li>
+        <li>Beta waitlist active + BrokeAI landing page</li>
+        <li>Telegram bot for real-time signal alerts</li>
+        <li>PilotShield risk management suite</li>
+        <li>Walk-forward backtesting validation pipeline</li>
+        <li>CI/CD pipeline (GitHub Actions, Docker, 493 tests)</li>
+        <li>Privacy policy & GDPR compliance foundation</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="font-size:18px;">🎯 Next (GPU-Accelerated)</div>
+      <ul style="font-size:14px;">
+        <li>DRL model performance: Sharpe 0.057 → target >0.5 (GPU training enables 10x more iterations)</li>
+        <li>Curriculum learning + market regime specialization</li>
+        <li>Local 70B LLM inference via NVIDIA GB10</li>
+        <li>TensorRT model optimization for real-time scoring</li>
+        <li>Next.js web UI migration (Apple-style design)</li>
+        <li>1,000 beta users within 12 months</li>
+        <li>EU regulatory preparation (MiFID II compliance)</li>
+        <li>SaaS launch — subscription model (Freemium/Pro/Enterprise)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">6 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 7: MARKET ==================== -->
+<div class="slide" style="background: var(--gradient-dark);">
+  <div class="slide-title">Market Opportunity</div>
+  <div class="slide-subtitle">Massive TAM at the intersection of AI, FinTech, and EdTech</div>
+
+  <div class="grid-3" style="margin-bottom:36px;">
+    <div class="metric-box" style="border: 1px solid rgba(118,185,0,0.3);">
+      <div class="metric-value" style="font-size:32px;">$12B</div>
+      <div class="metric-label">TAM — Retail Trading Tools</div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">CAGR 18% (2024-2030)</div>
+    </div>
+    <div class="metric-box" style="border: 1px solid rgba(0,230,230,0.3);">
+      <div class="metric-value" style="font-size:32px; color:var(--accent-cyan);">$5.2B</div>
+      <div class="metric-label">SAM — AI-Powered Analytics</div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">European market share target</div>
+    </div>
+    <div class="metric-box" style="border: 1px solid rgba(167,139,250,0.3);">
+      <div class="metric-value" style="font-size:32px; color:#a78bfa;">$380M</div>
+      <div class="metric-label">SOM — Initial Target (3 yr)</div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">DACH + EU early adopters</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="gap:32px;">
+    <div class="card">
+      <div class="card-title">🎯 Target Segments</div>
+      <table>
+        <tr><th>Segment</th><th>Size</th><th>Approach</th></tr>
+        <tr><td><strong>Self-directed retail investors</strong></td><td>150M (EU)</td><td>AI signals + risk tools</td></tr>
+        <tr><td><strong>Financial literacy seekers</strong></td><td>200M+ (EU)</td><td>FinSense Academy (free tier)</td></tr>
+        <tr><td><strong>Active traders/day traders</strong></td><td>15M (EU)</td><td>DRL strategies + Telegram alerts</td></tr>
+        <tr><td><strong>Neobroker partners (B2B)</strong></td><td>50+ brokers</td><td>White-label API integration</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">💡 Competitive Advantage</div>
+      <ul>
+        <li><span class="highlight">DRL-powered</span> — real ML, not pattern matching</li>
+        <li><span class="highlight">Education-first</span> — FinSense builds trust & reduces churn</li>
+        <li><span class="highlight">Privacy-safe</span> — local LLM inference (no data leaves device)</li>
+        <li><span class="highlight">Multi-lingual</span> — EN/TR/DE → 5 languages planned</li>
+        <li><span class="highlight">NVIDIA-optimized</span> — GPU-native training & inference</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">7 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 8: BUSINESS MODEL ==================== -->
+<div class="slide" style="background: var(--gradient-dark);">
+  <div class="slide-title">Business Model</div>
+  <div class="slide-subtitle">Freemium SaaS with strong upgrade incentives</div>
+
+  <div class="grid-3" style="margin-bottom: 36px;">
+    <div class="card" style="text-align:center; border-top:3px solid #94a3b8;">
+      <div style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8; margin-bottom:12px;">Free Tier</div>
+      <div style="font-size:36px; font-weight:800; margin-bottom:8px;">€0</div>
+      <div style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">forever</div>
+      <ul style="text-align:left;">
+        <li>FinSense Academy (full access)</li>
+        <li>Basic scanner (limited symbols)</li>
+        <li>Educational content & quizzes</li>
+        <li>Community access</li>
+      </ul>
+    </div>
+    <div class="card" style="text-align:center; border-top:3px solid var(--nvidia-green); transform:scale(1.03);">
+      <div style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--nvidia-green); margin-bottom:12px;">Pro</div>
+      <div style="font-size:36px; font-weight:800; margin-bottom:8px;">€29<span style="font-size:16px; color:var(--text-secondary);">/mo</span></div>
+      <div style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">most popular</div>
+      <ul style="text-align:left;">
+        <li>Full DRL signal engine (15 agents)</li>
+        <li>Real-time Telegram alerts</li>
+        <li>Multi-timeframe scanner (500+ stocks)</li>
+        <li>PilotShield risk controls</li>
+        <li>AI financial agent (LLM-powered)</li>
+      </ul>
+    </div>
+    <div class="card" style="text-align:center; border-top:3px solid var(--accent-cyan);">
+      <div style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-cyan); margin-bottom:12px;">Enterprise / API</div>
+      <div style="font-size:36px; font-weight:800; margin-bottom:8px;">Custom</div>
+      <div style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">B2B white-label</div>
+      <ul style="text-align:left;">
+        <li>White-label API for neobrokers</li>
+        <li>Custom DRL model training</li>
+        <li>Dedicated GPU inference endpoints</li>
+        <li>Co-branded FinSense education</li>
+        <li>Priority support + SLA</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📈 Revenue Projections</div>
+    <div class="grid-4">
+      <div class="metric-box">
+        <div class="metric-value" style="font-size:28px;">Y1</div>
+        <div class="metric-label">1K users · €150K ARR</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-value" style="font-size:28px;">Y2</div>
+        <div class="metric-label">10K users · €1.5M ARR</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-value" style="font-size:28px;">Y3</div>
+        <div class="metric-label">50K users · €8M ARR</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-value" style="font-size:28px;">80%+</div>
+        <div class="metric-label">Gross Margin (SaaS)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">8 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 9: ROADMAP ==================== -->
+<div class="slide" style="background: var(--gradient-dark);">
+  <div class="slide-title">Roadmap</div>
+  <div class="slide-subtitle">From MVP to scalable AI platform — powered by NVIDIA</div>
+
+  <div class="grid-2" style="gap:36px;">
+    <div>
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:#94a3b8;"></div>
+        <div class="timeline-content">
+          <h4 style="color:#94a3b8;">✅ Completed (2024-Q1 2026)</h4>
+          <p>MVP built: 15 DRL models, FinSense Academy, scanner, Telegram bot, public website, 493 tests, CI/CD pipeline, beta waitlist</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4 style="color:var(--nvidia-green);">🔄 Q2 2026 — GPU Acceleration</h4>
+          <p>NVIDIA GB10 deployment, DRL model retraining (10-20x faster), Sharpe optimization >0.5, TensorRT inference setup</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4 style="color:var(--nvidia-green);">🚀 Q3 2026 — Beta Launch</h4>
+          <p>1,000 beta users, Next.js web UI (Apple-style), local 70B LLM inference, subscription payment integration</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4 style="color:var(--nvidia-green);">📈 Q4 2026-H1 2027 — Scale</h4>
+          <p>SaaS public launch, B2B API for neobrokers, 5 languages, EU regulatory compliance, Series Seed fundraise</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title" style="color:var(--nvidia-green);">🟢 NVIDIA Inception Benefits Sought</div>
+        <ul>
+          <li><strong>DLI Training Courses</strong> — upskill team on CUDA, TensorRT, DRL optimization</li>
+          <li><strong>Preferred Hardware Pricing</strong> — GB10 DGX Spark purchase with Inception discount</li>
+          <li><strong>Cloud Partner Credits</strong> — AWS/GCP/Azure for burst GPU training</li>
+          <li><strong>VC Alliance Access</strong> — investor introductions for future Seed round</li>
+          <li><strong>Inception Showcase</strong> — visibility in NVIDIA startup ecosystem</li>
+          <li><strong>Technical Support</strong> — direct access to NVIDIA engineers for optimization</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💰 Funding Status</div>
+        <table>
+          <tr><td style="font-weight:600; color:#fff;">Stage</td><td>Pre-Seed</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Bootstrapped Invested</td><td>~€15K (development time + infra)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Grants Pipeline</td><td>€300K-1M (Austrian grants applied/planned)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Cloud Credits Target</td><td>$250K-800K (global programs)</td></tr>
+          <tr><td style="font-weight:600; color:#fff;">Planned Seed Round</td><td>2027 — post product-market fit</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">9 / 10</div>
+</div>
+
+<!-- ==================== SLIDE 10: CLOSING ==================== -->
+<div class="slide" style="background: radial-gradient(ellipse at 50% 40%, rgba(118,185,0,0.12) 0%, transparent 60%), var(--gradient-dark); text-align:center; justify-content: center; align-items:center;">
+  <div style="max-width: 800px; margin: 0 auto;">
+    <div style="font-size:64px; margin-bottom:20px;">🚀</div>
+    <div class="slide-title" style="font-size:48px; margin-bottom:16px;">
+      Let's democratize<br>finance with <span class="highlight">AI</span>.
+    </div>
+    <div class="slide-subtitle" style="font-size:20px; margin-bottom:40px;">
+      FinPilot combines Deep Reinforcement Learning, financial literacy education,<br>
+      and real-time market intelligence — all powered by NVIDIA GPU compute.
+    </div>
+
+    <div class="ask-box">
+      <div class="ask-title">What we're looking for from NVIDIA Inception</div>
+      <div class="ask-items">
+        🎓 DLI Training Access &nbsp;&nbsp;·&nbsp;&nbsp;
+        💻 Preferred Hardware Pricing &nbsp;&nbsp;·&nbsp;&nbsp;
+        ☁️ Cloud Credits<br>
+        🤝 VC Alliance Network &nbsp;&nbsp;·&nbsp;&nbsp;
+        📢 Ecosystem Visibility &nbsp;&nbsp;·&nbsp;&nbsp;
+        🛠️ Technical Support
+      </div>
+    </div>
+
+    <div style="margin-top: 48px;">
+      <div style="font-size:28px; font-weight:700; margin-bottom:16px;">FinPilot</div>
+      <div style="font-size:16px; color:var(--text-secondary); line-height:2;">
+        📍 Vienna, Austria<br>
+        🌐 finpilot.ai<br>
+        📧 contact@finpilot.ai<br>
+        🐙 github.com/finpilot
+      </div>
+    </div>
+  </div>
+
+  <div class="nvidia-badge" style="margin-top:40px;">
+    ⬛ Ready for NVIDIA Inception · Building the future of AI-powered finance
+  </div>
+
+  <div class="footer-logo">FINPILOT</div>
+  <div class="slide-number">10 / 10</div>
+</div>
+
+</body>
+</html>

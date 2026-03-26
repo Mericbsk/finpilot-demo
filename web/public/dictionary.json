@@ -1,0 +1,1672 @@
+[
+  {
+    "term": "BÜTÇE (Budget)",
+    "definition": "Belirli bir dönem için gelir ve giderlerin planlandığı finansal araç.",
+    "example": "Zeynep aylık 15.000 TL maaş alıyor. Bütçesi: Kira: 5.000 TL, Yemek: 3.000 TL, Ulaşım: 1.000 TL, Faturalar: 2.000 TL, Tasarruf: 2.000 TL, Diğer: 2.000 TL",
+    "category": "Temel Finans Kavramları",
+    "level": "Başlangıç",
+    "related": [
+      "Gelir",
+      "Gider",
+      "Tasarruf",
+      "Nakit Akışı"
+    ],
+    "term_en": "Budget",
+    "definition_en": "A financial tool for planning income and expenses over a specific period."
+  },
+  {
+    "term": "GELİR (Income)",
+    "definition": "Bir kişi veya kuruluşun belirli bir dönemde elde ettiği para ve değerler.",
+    "example": "Ahmet'in aylık gelirleri: Maaş: 20.000 TL, Freelance çalışma: 3.000 TL, Kira geliri: 2.000 TL. Toplam: 25.000 TL",
+    "category": "Temel Finans Kavramları",
+    "level": "Başlangıç",
+    "related": [
+      "Brüt Gelir",
+      "Net Gelir",
+      "Pasif Gelir",
+      "Aktif Gelir"
+    ],
+    "term_en": "Income",
+    "definition_en": "Money and values earned by a person or organization in a given period."
+  },
+  {
+    "term": "GİDER (Expense)",
+    "definition": "Mal veya hizmet satın almak için yapılan harcamalar.",
+    "example": "Sabit Giderler: Kira, kredi taksiti, sigorta. Değişken Giderler: Market, eğlence, giyim",
+    "category": "Temel Finans Kavramları",
+    "level": "Başlangıç",
+    "related": [
+      "Sabit Gider",
+      "Değişken Gider",
+      "Operasyonel Gider"
+    ],
+    "term_en": "Expense",
+    "definition_en": "Expenditures made to purchase goods or services."
+  },
+  {
+    "term": "TASARRUF (Savings)",
+    "definition": "Gelirin harcanmayıp ileride kullanılmak üzere biriktirilen kısmı.",
+    "example": "50/30/20 Kuralı: %50 ihtiyaçlar, %30 istekler, %20 tasarruf → 15.000 TL maaşta 3.000 TL tasarruf",
+    "category": "Temel Finans Kavramları",
+    "level": "Başlangıç",
+    "related": [
+      "Acil Fon",
+      "Vadeli Mevduat",
+      "Yatırım"
+    ],
+    "term_en": "Savings",
+    "definition_en": "The portion of income set aside for future use rather than spent."
+  },
+  {
+    "term": "FAİZ (Interest)",
+    "definition": "Ödünç verilen paranın kullanım bedeli veya tasarruf edilenlerin getirisi.",
+    "example": "10.000 TL'yi %10 yıllık faizle bankaya yatırdınız. 1 yıl sonra: 10.000 + (10.000 × 0.10) = 11.000 TL",
+    "category": "Temel Finans Kavramları",
+    "level": "Başlangıç",
+    "related": [
+      "Basit Faiz",
+      "Bileşik Faiz",
+      "Faiz Oranı",
+      "TCMB Politika Faizi"
+    ],
+    "term_en": "Interest",
+    "definition_en": "The cost of borrowing money or the return earned on savings."
+  },
+  {
+    "term": "BİLEŞİK FAİZ (Compound Interest)",
+    "definition": "Anapara ve birikmiş faizin üzerinden hesaplanan faiz.",
+    "example": "10.000 TL, yıllık %10 faiz, 3 yıl: Yıl 1: 11.000 TL, Yıl 2: 12.100 TL, Yıl 3: 13.310 TL. Basit faizle 13.000 TL olurdu.",
+    "category": "Temel Finans Kavramları",
+    "level": "Başlangıç",
+    "related": [
+      "Anapara",
+      "Faiz Getirisi",
+      "Yıllık Yüzde Oranı"
+    ],
+    "term_en": "Compound Interest"
+  },
+  {
+    "term": "ENFLASYON (Inflation)",
+    "definition": "Mal ve hizmet fiyatlarının genel seviyesinin sürekli artması.",
+    "example": "2023'te 100 TL'ye aldığınız market alışverişi 2024'te %60 enflasyonla 160 TL oldu.",
+    "category": "Temel Finans Kavramları",
+    "level": "Başlangıç",
+    "related": [
+      "TÜFE",
+      "Deflasyon",
+      "Stagflasyon"
+    ],
+    "term_en": "Inflation",
+    "definition_en": "A general and sustained increase in the price level of goods and services."
+  },
+  {
+    "term": "BANKA HESABI (Bank Account)",
+    "definition": "Bir bankada para yatırma, çekme ve işlem yapma imkanı sağlayan hesap.",
+    "example": "Vadesiz Hesap: Günlük işlemler için. Vadeli Hesap: 3-12 ay vadeyle yüksek faiz. Döviz Hesabı: EUR/USD tutmak için.",
+    "category": "Temel Finans Kavramları",
+    "level": "Başlangıç",
+    "related": [
+      "Mevduat",
+      "Banka Kartı",
+      "IBAN",
+      "EFT/Havale"
+    ],
+    "term_en": "Bank Account"
+  },
+  {
+    "term": "KREDİ (Credit/Loan)",
+    "definition": "Geri ödeme taahhüdüyle ödünç alınan para.",
+    "example": "Konut kredisi: 500.000 TL, 120 ay vade, aylık 7.500 TL taksit",
+    "category": "Kredi ve Borç Yönetimi",
+    "level": "Orta Seviye",
+    "related": [
+      "Faiz Oranı",
+      "Taksit",
+      "Anapara",
+      "Erken Ödeme"
+    ],
+    "term_en": "Credit/Loan"
+  },
+  {
+    "term": "KREDİ KARTI (Credit Card)",
+    "definition": "Kredi limiti dahilinde alışveriş yapma ve sonradan ödeme imkanı sağlayan kart.",
+    "example": "Limit: 20.000 TL, Harcama: 5.000 TL, Asgari ödeme: 1.000 TL (kalan 4.000 TL'ye %3/ay faiz)",
+    "category": "Kredi ve Borç Yönetimi",
+    "level": "Orta Seviye",
+    "related": [
+      "Asgari Ödeme",
+      "Ekstre",
+      "Bonus/Mil",
+      "Nakit Avans"
+    ],
+    "term_en": "Credit Card"
+  },
+  {
+    "term": "KREDİ SKORU (Credit Score)",
+    "definition": "Kişinin kredi geçmişine göre borç ödeme güvenilirliğini gösteren sayısal değer.",
+    "example": "Findeks Skoru: 1900 (mükemmel) → düşük faizle kredi alabilirsiniz. Findeks Skoru: 1200 (zayıf) → kredi başvurusu reddedilebilir.",
+    "category": "Kredi ve Borç Yönetimi",
+    "level": "Orta Seviye",
+    "related": [
+      "Findeks",
+      "Kredi Geçmişi",
+      "Ödeme Disiplini"
+    ],
+    "term_en": "Credit Score"
+  },
+  {
+    "term": "BORÇ/VARLIK ORANI (Debt-to-Asset Ratio)",
+    "definition": "Toplam borcun toplam varlıklara oranı.",
+    "example": "Varlıklar: 500.000 TL, Borçlar: 200.000 TL. Oran: 200.000/500.000 = %40 (sağlıklı seviye)",
+    "category": "Kredi ve Borç Yönetimi",
+    "level": "Orta Seviye",
+    "related": [
+      "Kaldıraç Oranı",
+      "Finansal Risk",
+      "Ödeme Kapasitesi"
+    ],
+    "term_en": "Debt-to-Asset Ratio"
+  },
+  {
+    "term": "ANAPARA (Principal)",
+    "definition": "Ödünç alınan veya yatırılan orijinal para miktarı (faiz hariç).",
+    "example": "100.000 TL kredi aldınız (anapara). Toplam geri ödeme: 150.000 TL. 50.000 TL → faiz",
+    "category": "Kredi ve Borç Yönetimi",
+    "level": "Orta Seviye",
+    "related": [
+      "Faiz",
+      "Taksit",
+      "Erken Ödeme İndirimi"
+    ],
+    "term_en": "Principal"
+  },
+  {
+    "term": "YATIRIM (Investment)",
+    "definition": "Gelecekte getiri elde etmek amacıyla yapılan harcama.",
+    "example": "10.000 TL'yi şu şekilde yatırabilirsiniz: Hisse senedi (Yüksek risk), Altın (Orta risk), Tahvil (Düşük risk)",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "İleri Seviye",
+    "related": [
+      "Portföy",
+      "Risk",
+      "Getiri",
+      "Çeşitlendirme"
+    ],
+    "term_en": "Investment"
+  },
+  {
+    "term": "HİSSE SENEDİ (Stock/Share)",
+    "definition": "Bir şirketin ortaklık payını temsil eden menkul kıymet.",
+    "example": "THY hissesinden 100 adet aldınız. Alış: 200 TL, Satış: 250 TL. Kar: 5.000 TL (%25 getiri)",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "İleri Seviye",
+    "related": [
+      "BIST",
+      "Temettü",
+      "Piyasa Değeri",
+      "Volatilite"
+    ],
+    "term_en": "Stock/Share"
+  },
+  {
+    "term": "TAHVİL (Bond)",
+    "definition": "Devlet veya şirketlerin borçlanma aracı, sabit getirili menkul kıymet.",
+    "example": "10 yıllık Hazine tahvili: %15 yıllık faiz. 100.000 TL yatırım → yılda 15.000 TL getiri",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "İleri Seviye",
+    "related": [
+      "Kupon Ödemesi",
+      "Vade",
+      "Nominal Değer",
+      "Eurobond"
+    ],
+    "term_en": "Bond",
+    "definition_en": "A debt instrument where the investor lends money to the issuer for a fixed return."
+  },
+  {
+    "term": "PORTFÖY (Portfolio)",
+    "definition": "Bir yatırımcının sahip olduğu tüm finansal varlıkların toplamı.",
+    "example": "Dengeli Portföy: %40 Hisse senedi, %30 Tahvil, %20 Altın, %10 Nakit",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "İleri Seviye",
+    "related": [
+      "Varlık Dağılımı",
+      "Rebalancing",
+      "Risk Toleransı"
+    ],
+    "term_en": "Portfolio",
+    "definition_en": "The total collection of investments held by an individual or institution."
+  },
+  {
+    "term": "ÇEŞİTLENDİRME (Diversification)",
+    "definition": "Riski azaltmak için yatırımları farklı varlıklara dağıtma stratejisi.",
+    "example": "❌ 100.000 TL → tek bir teknoloji hissesi. ✅ 100.000 TL → 10 farklı sektörden hisse.",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "İleri Seviye",
+    "related": [
+      "Varlık Dağılımı",
+      "Korelasyon",
+      "Sistematik Olmayan Risk"
+    ],
+    "term_en": "Diversification"
+  },
+  {
+    "term": "RİSK (Risk)",
+    "definition": "Bir yatırımın beklenen getiriyi sağlayamaması veya zarar etme olasılığı.",
+    "example": "Düşük Risk: Devlet tahvili. Orta Risk: Karma fon. Yüksek Risk: Kripto para.",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "İleri Seviye",
+    "related": [
+      "Risk Toleransı",
+      "Volatilite",
+      "Risk-Getiri İlişkisi"
+    ],
+    "term_en": "Risk",
+    "definition_en": "The probability that an investment's actual return will differ from expected returns."
+  },
+  {
+    "term": "GETİRİ (Return)",
+    "definition": "Bir yatırımdan elde edilen kar veya zarar oranı.",
+    "example": "50.000 TL yatırım → 1 yıl sonra 60.000 TL. Getiri: %20",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "İleri Seviye",
+    "related": [
+      "Nominal Getiri",
+      "Reel Getiri",
+      "Yıllıklandırılmış Getiri"
+    ],
+    "term_en": "Return"
+  },
+  {
+    "term": "EMEKLİLİK PLANI (Pension Plan)",
+    "definition": "Çalışma hayatı boyunca birikim yaparak emeklilik dönemi için gelir sağlama sistemi.",
+    "example": "BES: Aylık 1.000 TL katkı, %25 devlet katkısı. 30 yıl sonra ~1.000.000 TL birikim.",
+    "category": "Emeklilik ve Sigorta",
+    "level": "İleri Seviye",
+    "related": [
+      "BES",
+      "Emeklilik Fonu",
+      "Vesting Süresi",
+      "Taşınabilirlik"
+    ],
+    "term_en": "Pension Plan"
+  },
+  {
+    "term": "SİGORTA (Insurance)",
+    "definition": "Belirli risklere karşı finansal koruma sağlayan sözleşme.",
+    "example": "Sağlık Sigortası, Kasko, Hayat Sigortası, DASK.",
+    "category": "Emeklilik ve Sigorta",
+    "level": "İleri Seviye",
+    "related": [
+      "Prim",
+      "Teminat",
+      "Hasar",
+      "Muafiyet"
+    ],
+    "term_en": "Insurance"
+  },
+  {
+    "term": "LİKİDİTE (Liquidity)",
+    "definition": "Bir varlığın nakde dönüştürülme kolaylığı.",
+    "example": "Yüksek Likidite: Banka hesabı. Orta Likidite: Hisse senedi. Düşük Likidite: Gayrimenkul.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Nakit Benzerleri",
+      "Likidite Riski",
+      "Likidasyon"
+    ],
+    "term_en": "Liquidity",
+    "definition_en": "The degree to which an asset can be quickly bought or sold without significant price impact."
+  },
+  {
+    "term": "VARLIK (Asset)",
+    "definition": "Gelecekte ekonomik fayda sağlayabilecek sahip olunan değer.",
+    "example": "Finansal Varlıklar: Hisse, tahvil. Fiziksel Varlıklar: Ev, araba. Dijital Varlıklar: Kripto.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Dönen Varlık",
+      "Duran Varlık",
+      "Maddi/Maddi Olmayan Varlık"
+    ],
+    "term_en": "Asset"
+  },
+  {
+    "term": "BORÇ (Liability/Debt)",
+    "definition": "Gelecekte ödenmesi gereken mali yükümlülük.",
+    "example": "Kısa Vadeli: Kredi kartı borcu. Uzun Vadeli: Konut kredisi.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Borç Servisi",
+      "Vadeli Borç",
+      "Aciz"
+    ],
+    "term_en": "Liability/Debt"
+  },
+  {
+    "term": "NET DEĞER (Net Worth)",
+    "definition": "Toplam varlıklar eksi toplam borçlar.",
+    "example": "Varlıklar: 800.000 TL, Borçlar: 300.000 TL. Net Değer: 500.000 TL.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Özkaynak",
+      "Bilanço",
+      "Finansal Pozisyon"
+    ],
+    "term_en": "Net Worth"
+  },
+  {
+    "term": "VERGİ (Tax)",
+    "definition": "Devlet tarafından gelir, tüketim veya servet üzerinden alınan zorunlu ödemeler.",
+    "example": "Gelir Vergisi, KDV, Emlak Vergisi.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Matrah",
+      "Vergi Dilimi",
+      "Stopaj",
+      "Vergi İndirimi"
+    ],
+    "term_en": "Tax"
+  },
+  {
+    "term": "YATIRIM FONU (Mutual Fund)",
+    "definition": "Birçok yatırımcının parasının toplanıp profesyonel yönetildiği ortak yatırım aracı.",
+    "example": "Hisse Senedi Fonu, Karma Fon, Para Piyasası Fonu.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Fon Portföyü",
+      "Birim Pay",
+      "Fon Yönetim Ücreti"
+    ],
+    "term_en": "Mutual Fund"
+  },
+  {
+    "term": "DÖVIZ KURU (Exchange Rate)",
+    "definition": "Bir ülke parasının başka bir ülke parası cinsinden değeri.",
+    "example": "USD/TRY = 34.50 → 1 Dolar = 34.50 TL.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Parite",
+      "Alış/Satış Kuru",
+      "Kur Riski",
+      "Arbitraj"
+    ],
+    "term_en": "Exchange Rate"
+  },
+  {
+    "term": "BIST 100 (Borsa Istanbul 100)",
+    "definition": "Borsa İstanbul'da işlem gören en yüksek piyasa değerine sahip 100 şirketin endeksi.",
+    "example": "BIST 100: 10.000 puan → %5 artış → 10.500 puan.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Piyasa Endeksi",
+      "Puan",
+      "Şirket Ağırlığı",
+      "BIST 30"
+    ],
+    "term_en": "Borsa Istanbul 100"
+  },
+  {
+    "term": "BITCOIN (Bitcoin)",
+    "definition": "Merkezi olmayan, blokzincir teknolojisine dayalı ilk kripto para birimi.",
+    "example": "1 Bitcoin = 65.000 USD. Dijital altın olarak da adlandırılır.",
+    "category": "Dijital Finans",
+    "level": "İleri Seviye",
+    "related": [
+      "Blockchain",
+      "Satoshi Nakamoto",
+      "Altcoin"
+    ],
+    "term_en": "Bitcoin"
+  },
+  {
+    "term": "BLOCKCHAIN (Blokzincir)",
+    "definition": "Verilerin şifrelenerek zincirleme bir modelle saklandığı dağıtık veri tabanı teknolojisi.",
+    "example": "Bitcoin transferleri, banka olmadan blockchain üzerindeki kayıtlarla doğrulanır.",
+    "category": "Dijital Finans",
+    "level": "Uzman",
+    "related": [
+      "Kriptografi",
+      "Madencilik",
+      "Akıllı Kontrat"
+    ],
+    "term_en": "Blokzincir"
+  },
+  {
+    "term": "DEFI (Merkeziyetsiz Finans)",
+    "definition": "Aracı kurumlar (bankalar) olmadan finansal işlemlerin yapıldığı blokzincir tabanlı ekosistem.",
+    "example": "Uniswap üzerinden banka olmadan kripto para takası yapmak.",
+    "category": "Dijital Finans",
+    "level": "Uzman",
+    "related": [
+      "DEX",
+      "Likidite Havuzu",
+      "Yield Farming"
+    ],
+    "term_en": "Merkeziyetsiz Finans"
+  },
+  {
+    "term": "NFT (Nitelikli Fikri Tapu)",
+    "definition": "Benzersiz ve değiştirilemez dijital varlık sertifikası.",
+    "example": "Bir dijital sanat eserinin orijinal olduğunu kanıtlayan NFT sertifikası.",
+    "category": "Dijital Finans",
+    "level": "İleri Seviye",
+    "related": [
+      "Dijital Sanat",
+      "Ethereum",
+      "Metaverse"
+    ],
+    "term_en": "Nitelikli Fikri Tapu"
+  },
+  {
+    "term": "GSYH (Gayri Safi Yurtiçi Hasıla)",
+    "definition": "Bir ülkede belirli bir dönemde üretilen tüm nihai mal ve hizmetlerin piyasa değeri.",
+    "example": "Türkiye'nin 2023 GSYH'si yaklaşık 1.1 trilyon dolardır.",
+    "category": "Makroekonomi",
+    "level": "Orta Seviye",
+    "related": [
+      "Büyüme Oranı",
+      "Kişi Başına Gelir",
+      "Ekonomi"
+    ],
+    "term_en": "Gayri Safi Yurtiçi Hasıla"
+  },
+  {
+    "term": "CARİ AÇIK (Current Account Deficit)",
+    "definition": "Bir ülkenin ithalatının ihracatından fazla olması durumu.",
+    "example": "Türkiye enerji ithalatı nedeniyle cari açık verebilir.",
+    "category": "Makroekonomi",
+    "level": "İleri Seviye",
+    "related": [
+      "Dış Ticaret",
+      "Ödemeler Dengesi",
+      "Döviz Kuru"
+    ],
+    "term_en": "Current Account Deficit"
+  },
+  {
+    "term": "RESESYON (Recession)",
+    "definition": "Ekonomik faaliyetlerin duraklaması veya gerilemesi durumu (genellikle iki çeyrek üst üste küçülme).",
+    "example": "2008 Küresel Krizi büyük bir resesyona yol açtı.",
+    "category": "Makroekonomi",
+    "level": "İleri Seviye",
+    "related": [
+      "Ekonomik Kriz",
+      "İşsizlik",
+      "Daralma"
+    ],
+    "term_en": "Recession"
+  },
+  {
+    "term": "MERKEZ BANKASI (Central Bank)",
+    "definition": "Bir ülkenin para politikasını yöneten ve para basma yetkisine sahip kurumu.",
+    "example": "TCMB (Türkiye Cumhuriyet Merkez Bankası) faiz kararlarıyla enflasyonu kontrol etmeye çalışır.",
+    "category": "Makroekonomi",
+    "level": "Orta Seviye",
+    "related": [
+      "Para Politikası",
+      "Faiz",
+      "Rezerv"
+    ],
+    "term_en": "Central Bank"
+  },
+  {
+    "term": "EFT (Elektronik Fon Transferi)",
+    "definition": "Farklı bankalar arasındaki para transferi işlemi.",
+    "example": "Ziraat Bankası'ndan Garanti Bankası'na para göndermek.",
+    "category": "Bankacılık",
+    "level": "Başlangıç",
+    "related": [
+      "Havale",
+      "FAST",
+      "IBAN"
+    ],
+    "term_en": "Elektronik Fon Transferi"
+  },
+  {
+    "term": "HAVALE (Money Order)",
+    "definition": "Aynı bankanın şubeleri veya hesapları arasındaki para transferi.",
+    "example": "İş Bankası hesabınızdan arkadaşınızın İş Bankası hesabına para göndermek.",
+    "category": "Bankacılık",
+    "level": "Başlangıç",
+    "related": [
+      "EFT",
+      "Virman",
+      "Masraf"
+    ],
+    "term_en": "Money Order"
+  },
+  {
+    "term": "KMH (Kredili Mevduat Hesabı)",
+    "definition": "Hesapta para olmasa bile limit dahilinde para çekmeye veya ödeme yapmaya yarayan hesap (Ek Hesap).",
+    "example": "Hesabınızda 0 TL var ama 1000 TL KMH limitiniz varsa, 500 TL fatura ödeyebilirsiniz (faiz işler).",
+    "category": "Bankacılık",
+    "level": "Orta Seviye",
+    "related": [
+      "Ek Hesap",
+      "Faiz",
+      "Limit"
+    ],
+    "term_en": "Kredili Mevduat Hesabı"
+  },
+  {
+    "term": "START-UP (Girişim)",
+    "definition": "Hızlı büyüme potansiyeline sahip, yenilikçi bir iş modeli olan yeni kurulmuş şirket.",
+    "example": "Getir, Trendyol gibi şirketler start-up olarak başlamıştır.",
+    "category": "Girişimcilik",
+    "level": "Orta Seviye",
+    "related": [
+      "Unicorn",
+      "Yatırım",
+      "Ölçeklenme"
+    ],
+    "term_en": "Girişim"
+  },
+  {
+    "term": "MELEK YATIRIMCI (Angel Investor)",
+    "definition": "Start-up'lara erken aşamada sermaye ve mentorluk sağlayan bireysel yatırımcı.",
+    "example": "Bir fikre inanıp %10 hisse karşılığı 50.000 dolar yatırım yapan kişi.",
+    "category": "Girişimcilik",
+    "level": "İleri Seviye",
+    "related": [
+      "Venture Capital",
+      "Tohum Yatırım",
+      "Hisse"
+    ],
+    "term_en": "Angel Investor"
+  },
+  {
+    "term": "UNICORN",
+    "definition": "Değeri 1 milyar doları aşan start-up şirket.",
+    "example": "Türkiye'den çıkan ilk unicorn Peak Games olmuştur.",
+    "category": "Girişimcilik",
+    "level": "Uzman",
+    "related": [
+      "Decacorn",
+      "Değerleme",
+      "Exit"
+    ]
+  },
+  {
+    "term": "RSI (Göreceli Güç Endeksi)",
+    "definition": "Bir varlığın aşırı alım veya aşırı satım bölgesinde olup olmadığını gösteren momentum indikatörü.",
+    "example": "RSI 70 üzeri aşırı alım (satış sinyali), 30 altı aşırı satım (alış sinyali) olarak yorumlanabilir.",
+    "category": "Teknik Analiz",
+    "level": "İleri Seviye",
+    "related": [
+      "Momentum",
+      "Aşırı Alım",
+      "Aşırı Satım"
+    ],
+    "term_en": "Göreceli Güç Endeksi"
+  },
+  {
+    "term": "MACD",
+    "definition": "Kısa ve uzun vadeli hareketli ortalamaların ilişkisini gösteren trend takip indikatörü.",
+    "example": "MACD çizgisi sinyal çizgisini yukarı kestiğinde 'Al', aşağı kestiğinde 'Sat' sinyali üretebilir.",
+    "category": "Teknik Analiz",
+    "level": "İleri Seviye",
+    "related": [
+      "Trend",
+      "Hareketli Ortalama",
+      "Momentum"
+    ]
+  },
+  {
+    "term": "HAREKETLİ ORTALAMA (Moving Average)",
+    "definition": "Belirli bir zaman dilimindeki fiyatların ortalamasını alarak trendi gösteren çizgi.",
+    "example": "50 günlük hareketli ortalama (MA50), orta vadeli trend yönünü gösterir.",
+    "category": "Teknik Analiz",
+    "level": "Orta Seviye",
+    "related": [
+      "SMA",
+      "EMA",
+      "Trend"
+    ],
+    "term_en": "Moving Average"
+  },
+  {
+    "term": "BOLLINGER BANTLARI",
+    "definition": "Fiyatın standart sapmasına dayalı olarak oluşturulan, volatiliteyi ölçen bantlar.",
+    "example": "Fiyat üst banda değdiğinde pahalı, alt banda değdiğinde ucuz kabul edilebilir.",
+    "category": "Teknik Analiz",
+    "level": "İleri Seviye",
+    "related": [
+      "Volatilite",
+      "Standart Sapma",
+      "Sıkışma"
+    ]
+  },
+  {
+    "term": "DESTEK (Support)",
+    "definition": "Fiyatın düşerken zorlandığı ve tepki alıp yükselmesinin beklendiği fiyat seviyesi.",
+    "example": "Hisse 100 TL'ye her düştüğünde alıcılar geliyorsa 100 TL destek noktasıdır.",
+    "category": "Teknik Analiz",
+    "level": "Orta Seviye",
+    "related": [
+      "Direnç",
+      "Trend",
+      "Psikolojik Seviye"
+    ],
+    "term_en": "Support"
+  },
+  {
+    "term": "DİRENÇ (Resistance)",
+    "definition": "Fiyatın yükselirken zorlandığı ve satış yiyip düşmesinin beklendiği fiyat seviyesi.",
+    "example": "Hisse 150 TL'yi bir türlü geçemiyorsa 150 TL direnç noktasıdır.",
+    "category": "Teknik Analiz",
+    "level": "Orta Seviye",
+    "related": [
+      "Destek",
+      "Kırılım",
+      "Trend"
+    ],
+    "term_en": "Resistance"
+  },
+  {
+    "term": "TREND",
+    "definition": "Fiyatların genel yönü (Yükseliş, Düşüş veya Yatay).",
+    "example": "Yükselen trendde dipler ve tepeler sürekli daha yukarıda oluşur.",
+    "category": "Teknik Analiz",
+    "level": "Başlangıç",
+    "related": [
+      "Boğa Piyasası",
+      "Ayı Piyasası",
+      "Kanal"
+    ]
+  },
+  {
+    "term": "HACİM (Volume)",
+    "definition": "Belirli bir zaman diliminde el değiştiren varlık miktarı.",
+    "example": "Fiyat artarken hacmin de artması, yükselişin sağlıklı olduğunu gösterir.",
+    "category": "Teknik Analiz",
+    "level": "Orta Seviye",
+    "related": [
+      "Likidite",
+      "Trend Onayı",
+      "Takas"
+    ],
+    "term_en": "Volume"
+  },
+  {
+    "term": "MUM GRAFİĞİ (Candlestick)",
+    "definition": "Açılış, kapanış, en yüksek ve en düşük fiyatları gösteren grafik türü.",
+    "example": "Yeşil mum kapanışın açılıştan yüksek olduğunu, kırmızı mum ise düşük olduğunu gösterir.",
+    "category": "Teknik Analiz",
+    "level": "Başlangıç",
+    "related": [
+      "Doji",
+      "Çekiç",
+      "Formasyon"
+    ],
+    "term_en": "Candlestick"
+  },
+  {
+    "term": "ALTIN KESİŞİM (Golden Cross)",
+    "definition": "Kısa vadeli hareketli ortalamanın (örn. 50 gün), uzun vadeli ortalamayı (örn. 200 gün) yukarı kesmesi.",
+    "example": "Golden Cross genellikle uzun vadeli bir boğa piyasasının habercisi kabul edilir.",
+    "category": "Teknik Analiz",
+    "level": "Uzman",
+    "related": [
+      "Ölüm Kesişimi",
+      "MA50",
+      "MA200"
+    ],
+    "term_en": "Golden Cross"
+  },
+  {
+    "term": "ÖLÜM KESİŞİMİ (Death Cross)",
+    "definition": "Kısa vadeli hareketli ortalamanın, uzun vadeli ortalamayı aşağı kesmesi.",
+    "example": "Death Cross genellikle uzun vadeli bir ayı piyasasının habercisi kabul edilir.",
+    "category": "Teknik Analiz",
+    "level": "Uzman",
+    "related": [
+      "Altın Kesişim",
+      "Düşüş Trendi"
+    ],
+    "term_en": "Death Cross"
+  },
+  {
+    "term": "FIBONACCI DÜZELTMESİ",
+    "definition": "Bir trendin ne kadar geri çekilebileceğini tahmin etmek için kullanılan oranlar.",
+    "example": "%61.8 (0.618) seviyesi en güçlü düzeltme ve destek seviyesi olarak bilinir.",
+    "category": "Teknik Analiz",
+    "level": "İleri Seviye",
+    "related": [
+      "Altın Oran",
+      "Destek",
+      "Direnç"
+    ]
+  },
+  {
+    "term": "BİLANÇO (Balance Sheet)",
+    "definition": "Bir şirketin belirli bir tarihteki varlıklarını, borçlarını ve özkaynaklarını gösteren mali tablo.",
+    "example": "Varlıklar = Borçlar + Özkaynaklar denklemi bilançonun temelidir.",
+    "category": "Temel Analiz",
+    "level": "İleri Seviye",
+    "related": [
+      "Gelir Tablosu",
+      "Özkaynak",
+      "Borç"
+    ],
+    "term_en": "Balance Sheet"
+  },
+  {
+    "term": "GELİR TABLOSU (Income Statement)",
+    "definition": "Şirketin belirli bir dönemdeki gelirlerini, giderlerini ve kar/zararını gösteren tablo.",
+    "example": "Satışlar - Maliyetler = Brüt Kar. Brüt Kar - Giderler = Net Kar.",
+    "category": "Temel Analiz",
+    "level": "İleri Seviye",
+    "related": [
+      "Net Kar",
+      "FAVÖK",
+      "Ciro"
+    ],
+    "term_en": "Income Statement"
+  },
+  {
+    "term": "NAKİT AKIŞ TABLOSU",
+    "definition": "Şirketin kasasına giren ve çıkan nakdi gösteren tablo.",
+    "example": "Şirket kar ediyor görünebilir ama nakit akışı negatifse borçlarını ödeyemeyebilir.",
+    "category": "Temel Analiz",
+    "level": "Uzman",
+    "related": [
+      "İşletme Faaliyetleri",
+      "Yatırım Faaliyetleri",
+      "Serbest Nakit Akışı"
+    ]
+  },
+  {
+    "term": "F/K ORANI (P/E Ratio)",
+    "definition": "Fiyat/Kazanç oranı. Şirketin hisse fiyatının hisse başına kara oranı.",
+    "example": "F/K'sı 10 olan bir şirket, kendini 10 yılda amorti ediyor demektir (teorik olarak).",
+    "category": "Temel Analiz",
+    "level": "Orta Seviye",
+    "related": [
+      "PD/DD",
+      "Değerleme",
+      "Ucuzluk"
+    ],
+    "term_en": "P/E Ratio"
+  },
+  {
+    "term": "PD/DD ORANI (P/B Ratio)",
+    "definition": "Piyasa Değeri / Defter Değeri oranı. Şirketin piyasa değerinin özkaynaklarına oranı.",
+    "example": "PD/DD < 1 ise şirket defter değerinin altında (iskontolu) işlem görüyor olabilir.",
+    "category": "Temel Analiz",
+    "level": "Orta Seviye",
+    "related": [
+      "F/K",
+      "Özkaynak",
+      "Defter Değeri"
+    ],
+    "term_en": "P/B Ratio"
+  },
+  {
+    "term": "EPS (Hisse Başına Kar)",
+    "definition": "Şirketin net karının hisse senedi sayısına bölünmesiyle bulunan değer.",
+    "example": "Şirket 1 milyon TL kar etti, 100 bin hissesi var. EPS = 10 TL.",
+    "category": "Temel Analiz",
+    "level": "İleri Seviye",
+    "related": [
+      "Net Kar",
+      "Temettü",
+      "F/K"
+    ],
+    "term_en": "Hisse Başına Kar"
+  },
+  {
+    "term": "ROE (Özkaynak Karlılığı)",
+    "definition": "Net karın özkaynaklara oranı. Şirketin sermayesini ne kadar verimli kullandığını gösterir.",
+    "example": "ROE %30 ise şirket her 100 TL'lik sermayesiyle 30 TL kar üretiyor demektir.",
+    "category": "Temel Analiz",
+    "level": "Uzman",
+    "related": [
+      "ROA",
+      "Verimlilik",
+      "Karlılık"
+    ],
+    "term_en": "Özkaynak Karlılığı"
+  },
+  {
+    "term": "TEMETTÜ VERİMİ (Dividend Yield)",
+    "definition": "Hisse başına ödenen temettünün hisse fiyatına oranı.",
+    "example": "Hisse fiyatı 100 TL, ödenen temettü 5 TL ise verim %5'tir.",
+    "category": "Temel Analiz",
+    "level": "Orta Seviye",
+    "related": [
+      "Temettü",
+      "Pasif Gelir",
+      "Temettü Emekliliği"
+    ],
+    "term_en": "Dividend Yield"
+  },
+  {
+    "term": "PİYASA DEĞERİ (Market Cap)",
+    "definition": "Bir şirketin toplam hisse sayısının güncel hisse fiyatıyla çarpılması.",
+    "example": "1 milyon hisse x 50 TL fiyat = 50 Milyon TL Piyasa Değeri.",
+    "category": "Temel Analiz",
+    "level": "Başlangıç",
+    "related": [
+      "BIST 30",
+      "Büyük Ölçekli Şirket",
+      "Halka Açıklık"
+    ],
+    "term_en": "Market Cap",
+    "definition_en": "Total market value of a company's outstanding shares."
+  },
+  {
+    "term": "HALKA ARZ (IPO)",
+    "definition": "Bir şirketin hisselerinin ilk kez borsada satışa sunulması.",
+    "example": "Şirket büyümek için kaynak arıyor ve borsaya açılarak halktan sermaye topluyor.",
+    "category": "Temel Analiz",
+    "level": "Orta Seviye",
+    "related": [
+      "Talep Toplama",
+      "Borsa",
+      "İzahname"
+    ],
+    "term_en": "IPO"
+  },
+  {
+    "term": "BEDELLİ SERMAYE ARTIRIMI",
+    "definition": "Şirketin kasasına nakit girmesi amacıyla ortaklardan yeni hisse karşılığı para istemesi.",
+    "example": "Bedelliye katılırsanız cebinizden para çıkar ama hisse adediniz artar.",
+    "category": "Temel Analiz",
+    "level": "Uzman",
+    "related": [
+      "Rüçhan Hakkı",
+      "Sermaye",
+      "Bedelsiz"
+    ]
+  },
+  {
+    "term": "BEDELSİZ SERMAYE ARTIRIMI",
+    "definition": "Şirketin iç kaynaklarını kullanarak sermaye artırması ve ortaklara bedelsiz hisse dağıtması.",
+    "example": "%100 bedelsiz: 100 hisseniz varsa 200 olur, fiyat yarıya düşer, portföy değeri değişmez.",
+    "category": "Temel Analiz",
+    "level": "Uzman",
+    "related": [
+      "Bölünme",
+      "Sermaye",
+      "Bedelli"
+    ]
+  },
+  {
+    "term": "EMİR (Order)",
+    "definition": "Borsada bir varlığı almak veya satmak için verilen talimat.",
+    "example": "'THY hissesinden 10 adet al' bir emirdir.",
+    "category": "Piyasa İşleyişi",
+    "level": "Başlangıç",
+    "related": [
+      "Piyasa Emri",
+      "Limit Emir",
+      "İptal"
+    ],
+    "term_en": "Order"
+  },
+  {
+    "term": "PİYASA EMRİ (Market Order)",
+    "definition": "Fiyata bakılmaksızın o anki en iyi fiyattan işlemin gerçekleşmesini sağlayan emir.",
+    "example": "Hemen almak istiyorsanız piyasa emri gönderirsiniz, o an satıcı kaça satıyorsa oradan alır.",
+    "category": "Piyasa İşleyişi",
+    "level": "Orta Seviye",
+    "related": [
+      "Limit Emir",
+      "Aktif Fiyat",
+      "Hız"
+    ],
+    "term_en": "Market Order"
+  },
+  {
+    "term": "LİMİT EMİR (Limit Order)",
+    "definition": "Belirlenen fiyattan veya daha iyisinden işlem gerçekleşmesini sağlayan emir.",
+    "example": "Hisse 50 TL ama siz '48 TL'ye düşerse al' emri girersiniz.",
+    "category": "Piyasa İşleyişi",
+    "level": "Orta Seviye",
+    "related": [
+      "Piyasa Emri",
+      "Pasif Emir",
+      "Bekleyen Emir"
+    ],
+    "term_en": "Limit Order"
+  },
+  {
+    "term": "STOP LOSS (Zarar Kes)",
+    "definition": "Zararı sınırlamak için belirli bir fiyat seviyesine gelindiğinde otomatik satış emri.",
+    "example": "100 TL'ye aldınız, 90 TL'ye stop koydunuz. 90'a düşerse satılır, daha büyük zarar önlenir.",
+    "category": "Piyasa İşleyişi",
+    "level": "İleri Seviye",
+    "related": [
+      "Take Profit",
+      "Risk Yönetimi",
+      "İzleyen Stop"
+    ],
+    "term_en": "Zarar Kes"
+  },
+  {
+    "term": "TAKE PROFIT (Kar Al)",
+    "definition": "Hedeflenen kar seviyesine ulaşıldığında pozisyonu kapatmak için verilen emir.",
+    "example": "100 TL'ye aldınız, 120 TL'ye kar al emri girdiniz. Fiyat oraya gelince otomatik satılır.",
+    "category": "Piyasa İşleyişi",
+    "level": "İleri Seviye",
+    "related": [
+      "Stop Loss",
+      "Hedef Fiyat",
+      "Strateji"
+    ],
+    "term_en": "Kar Al"
+  },
+  {
+    "term": "SPREAD (Makas)",
+    "definition": "Alış fiyatı ile satış fiyatı arasındaki fark.",
+    "example": "Döviz bürosunda Dolar Alış: 34.00, Satış: 34.50. Spread: 0.50 TL.",
+    "category": "Piyasa İşleyişi",
+    "level": "Orta Seviye",
+    "related": [
+      "Likidite",
+      "Marj",
+      "Komisyon"
+    ],
+    "term_en": "Makas"
+  },
+  {
+    "term": "TAHTA (Order Book)",
+    "definition": "Bir varlık için bekleyen tüm alış ve satış emirlerinin listelendiği tablo.",
+    "example": "Derinlikli ekranda alıcıların ve satıcıların hangi fiyatta ne kadar beklediğini görürsünüz.",
+    "category": "Piyasa İşleyişi",
+    "level": "İleri Seviye",
+    "related": [
+      "Derinlik",
+      "Kademe",
+      "Eşleşme"
+    ],
+    "term_en": "Order Book"
+  },
+  {
+    "term": "AÇIĞA SATIŞ (Short Selling)",
+    "definition": "Elde olmayan bir varlığı, fiyatının düşeceği beklentisiyle ödünç alıp satmak.",
+    "example": "Hisse 100 TL iken açığa sattınız. 80 TL'ye düşünce geri alıp yerine koydunuz. 20 TL kar.",
+    "category": "Piyasa İşleyişi",
+    "level": "Uzman",
+    "related": [
+      "Long Pozisyon",
+      "Short Pozisyon",
+      "Ödünç Pay"
+    ],
+    "term_en": "Short Selling"
+  },
+  {
+    "term": "BOĞA PİYASASI (Bull Market)",
+    "definition": "Fiyatların genel olarak yükseldiği ve iyimserliğin hakim olduğu piyasa dönemi.",
+    "example": "Borsanın sürekli rekor kırdığı dönemler boğa piyasasıdır.",
+    "category": "Piyasa İşleyişi",
+    "level": "Başlangıç",
+    "related": [
+      "Ayı Piyasası",
+      "Ralli",
+      "Trend"
+    ],
+    "term_en": "Bull Market"
+  },
+  {
+    "term": "AYI PİYASASI (Bear Market)",
+    "definition": "Fiyatların genel olarak düştüğü ve kötümserliğin hakim olduğu piyasa dönemi.",
+    "example": "Genellikle tepeden %20'den fazla düşüş ayı piyasası olarak kabul edilir.",
+    "category": "Piyasa İşleyişi",
+    "level": "Başlangıç",
+    "related": [
+      "Boğa Piyasası",
+      "Düzeltme",
+      "Çöküş"
+    ],
+    "term_en": "Bear Market"
+  },
+  {
+    "term": "VOLATİLİTE (Oynaklık)",
+    "definition": "Fiyatların belirli bir sürede ne kadar hızlı ve sert değiştiğinin ölçüsü.",
+    "example": "Kripto paralar yüksek volatiliteli, tahviller düşük volatiliteli varlıklardır.",
+    "category": "Piyasa İşleyişi",
+    "level": "Orta Seviye",
+    "related": [
+      "Risk",
+      "VIX Endeksi",
+      "Belirsizlik"
+    ],
+    "term_en": "Oynaklık"
+  },
+  {
+    "term": "DEVRE KESİCİ",
+    "definition": "Borsada ani ve sert düşüşlerde işlemleri geçici olarak durduran sigorta mekanizması.",
+    "example": "BIST 100 %5 düşerse devre kesici çalışır ve işlemler bir süre durur.",
+    "category": "Piyasa İşleyişi",
+    "level": "İleri Seviye",
+    "related": [
+      "Panik Satışı",
+      "Borsa İstanbul",
+      "Volatilite"
+    ]
+  },
+  {
+    "term": "VİOP (Vadeli İşlem ve Opsiyon Piyasası)",
+    "definition": "Gelecek vadeli sözleşmelerin alınıp satıldığı, kaldıraçlı piyasa.",
+    "example": "VİOP'ta az bir teminatla büyük pozisyonlar açabilir, düşüşten de para kazanabilirsiniz.",
+    "category": "Piyasa İşleyişi",
+    "level": "Uzman",
+    "related": [
+      "Kaldıraç",
+      "Teminat",
+      "Vade Sonu"
+    ],
+    "term_en": "Vadeli İşlem ve Opsiyon Piyasası"
+  },
+  {
+    "term": "STAGFLASYON",
+    "definition": "Ekonomide durgunluk (resesyon) ile yüksek enflasyonun aynı anda yaşanması.",
+    "example": "Hem işsizlik artıyor hem de fiyatlar yükseliyorsa stagflasyon vardır.",
+    "category": "Makroekonomi",
+    "level": "Uzman",
+    "related": [
+      "Enflasyon",
+      "Resesyon",
+      "İşsizlik"
+    ]
+  },
+  {
+    "term": "DEFLASYON",
+    "definition": "Fiyatların genel seviyesinin sürekli düşmesi durumu (Negatif enflasyon).",
+    "example": "Fiyatlar düşerse insanlar 'daha da düşecek' diye harcamayı erteler, ekonomi durur.",
+    "category": "Makroekonomi",
+    "level": "İleri Seviye",
+    "related": [
+      "Enflasyon",
+      "Talep Darlığı",
+      "Japonya Ekonomisi"
+    ]
+  },
+  {
+    "term": "DEVALÜASYON",
+    "definition": "Sabit kur rejiminde ulusal paranın değerinin resmi olarak düşürülmesi.",
+    "example": "Devletin 1 Doları 10 TL'den 15 TL'ye sabitlemesi.",
+    "category": "Makroekonomi",
+    "level": "İleri Seviye",
+    "related": [
+      "Revalüasyon",
+      "Kur",
+      "İhracat"
+    ]
+  },
+  {
+    "term": "PARİTE",
+    "definition": "İki ülke parasının birbirine oranı.",
+    "example": "EUR/USD paritesi 1.10 ise 1 Euro, 1.10 Dolar eder.",
+    "category": "Makroekonomi",
+    "level": "Orta Seviye",
+    "related": [
+      "Döviz",
+      "Forex",
+      "Arbitraj"
+    ]
+  },
+  {
+    "term": "DIŞ TİCARET AÇIĞI",
+    "definition": "İthalatın ihracattan fazla olması durumu.",
+    "example": "Ülke 100 milyar $ satıp 150 milyar $ alıyorsa 50 milyar $ açık vardır.",
+    "category": "Makroekonomi",
+    "level": "Orta Seviye",
+    "related": [
+      "Cari Açık",
+      "İhracat",
+      "İthalat"
+    ]
+  },
+  {
+    "term": "BÜTÇE AÇIĞI",
+    "definition": "Devletin harcamalarının gelirlerinden fazla olması.",
+    "example": "Vergi gelirleri harcamaları karşılamazsa devlet borçlanmak zorunda kalır.",
+    "category": "Makroekonomi",
+    "level": "Orta Seviye",
+    "related": [
+      "Kamu Borcu",
+      "Maliye Politikası",
+      "Vergi"
+    ]
+  },
+  {
+    "term": "FAİZ ARTIRIMI (Sıkılaşma)",
+    "definition": "Merkez bankasının enflasyonu düşürmek için faizleri yükseltmesi.",
+    "example": "Faiz artarsa kredi çekmek zorlaşır, harcama azalır, enflasyon düşer.",
+    "category": "Makroekonomi",
+    "level": "İleri Seviye",
+    "related": [
+      "Para Politikası",
+      "Şahin Politika",
+      "Enflasyon"
+    ],
+    "term_en": "Sıkılaşma"
+  },
+  {
+    "term": "PMI (Satın Alma Yöneticileri Endeksi)",
+    "definition": "Ekonomik aktivitenin yönünü gösteren öncü gösterge.",
+    "example": "PMI 50'nin üzerindeyse ekonomi büyüyor, altındaysa daralıyor demektir.",
+    "category": "Makroekonomi",
+    "level": "Uzman",
+    "related": [
+      "Büyüme",
+      "Sanayi Üretimi",
+      "Öncü Gösterge"
+    ],
+    "term_en": "Satın Alma Yöneticileri Endeksi"
+  },
+  {
+    "term": "FOMO (Fırsatı Kaçırma Korkusu)",
+    "definition": "Fear Of Missing Out. Başkaları kazanırken geride kalma korkusuyla yapılan dürtüsel işlem.",
+    "example": "Hisse %50 yükselmiş, 'daha da gider' diye tepeden almak FOMO'dur.",
+    "category": "Psikoloji",
+    "level": "Başlangıç",
+    "related": [
+      "FUD",
+      "Dürtüsel İşlem",
+      "Disiplin"
+    ],
+    "term_en": "Fırsatı Kaçırma Korkusu"
+  },
+  {
+    "term": "FUD (Korku, Belirsizlik, Şüphe)",
+    "definition": "Fear, Uncertainty, Doubt. Piyasada yayılan olumsuz haberlerle yatırımcıyı korkutma taktiği.",
+    "example": "'Bitcoin yasaklanacak' haberleri FUD yaratıp insanlara sattırmayı amaçlar.",
+    "category": "Psikoloji",
+    "level": "Orta Seviye",
+    "related": [
+      "Manipülasyon",
+      "Panik Satışı",
+      "Haber"
+    ],
+    "term_en": "Korku, Belirsizlik, Şüphe"
+  },
+  {
+    "term": "SÜRÜ PSİKOLOJİSİ",
+    "definition": "Bireylerin kendi analizleri yerine çoğunluğun hareketlerine uyarak işlem yapması.",
+    "example": "Herkes alıyor diye bilmediği bir hisseyi almak.",
+    "category": "Psikoloji",
+    "level": "Orta Seviye",
+    "related": [
+      "Trend",
+      "Balon",
+      "Panik"
+    ]
+  },
+  {
+    "term": "PANİK SATIŞI (Panic Selling)",
+    "definition": "Fiyat düşerken korkuya kapılıp zararına ve aceleyle satış yapmak.",
+    "example": "Borsa %3 düşünce 'batıyoruz' diyip elindeki her şeyi satmak.",
+    "category": "Psikoloji",
+    "level": "Başlangıç",
+    "related": [
+      "Volatilite",
+      "Duygusal Kontrol",
+      "Zarar Kes"
+    ],
+    "term_en": "Panic Selling"
+  },
+  {
+    "term": "ARBİTRAJ",
+    "definition": "Fiyat farklarından yararlanarak risksiz kar elde etme işlemi.",
+    "example": "Altını A piyasasında 2000'e alıp B piyasasında 2010'a satmak.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Piyasa Etkinliği",
+      "Spread",
+      "Algoritmik İşlem"
+    ]
+  },
+  {
+    "term": "HEDGE (Korunma)",
+    "definition": "Olası zararları sınırlamak için ters yönde işlem açmak.",
+    "example": "Hisse senediniz var ama düşüş bekliyorsunuz; VİOP'ta Short açarak düşüşten korunursunuz.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Risk Yönetimi",
+      "Türev Araçlar",
+      "Sigorta"
+    ],
+    "term_en": "Korunma"
+  },
+  {
+    "term": "KALDIRAÇ (Leverage)",
+    "definition": "Yatırımcının sermayesinden daha büyük pozisyonlar açmasını sağlayan mekanizma.",
+    "example": "1:10 kaldıraçla 1.000 TL paranızla 10.000 TL'lik işlem yapabilirsiniz.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Marjin",
+      "Risk",
+      "Likidasyon"
+    ],
+    "term_en": "Leverage"
+  },
+  {
+    "term": "MARJİN (Teminat)",
+    "definition": "Kaldıraçlı işlem yapabilmek için hesapta bulundurulması gereken minimum para.",
+    "example": "Pozisyon açmak için gereken teminat.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Margin Call",
+      "Kaldıraç",
+      "Sürdürme Teminatı"
+    ],
+    "term_en": "Teminat"
+  },
+  {
+    "term": "LİKİDASYON (Tasfiye)",
+    "definition": "Kaldıraçlı işlemlerde zararın teminatı eritmesi sonucu pozisyonun zorla kapatılması.",
+    "example": "Kriptoda 'Likit oldum' demek, tüm paranın sıfırlanması demektir.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Stop Out",
+      "Margin Call",
+      "Risk"
+    ],
+    "term_en": "Tasfiye"
+  },
+  {
+    "term": "SHARPE ORANI (Sharpe Ratio)",
+    "definition": "Risksiz getiri üzerindeki fazla getirinin standart sapmaya bölünmesiyle hesaplanan risk-getiri ölçüsü.",
+    "example": "Sharpe oranı 1.5 olan portföy, aldığı her birim risk için 1.5 birim getiri sağlıyor demektir.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "İleri",
+    "related": [
+      "Standart Sapma",
+      "Risk-Getiri",
+      "Portföy Yönetimi"
+    ],
+    "term_en": "Sharpe Ratio",
+    "definition_en": "A risk-return measure calculated by dividing excess return over the risk-free rate by standard deviation."
+  },
+  {
+    "term": "DRAWDOWN (Düşüş Derinliği)",
+    "definition": "Bir yatırımın zirve noktasından dip noktasına kadar yaşadığı en büyük kayıp yüzdesi.",
+    "example": "Portföy 100.000 TL'den 70.000 TL'ye düştüyse, maksimum drawdown %30'dur.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "İleri",
+    "related": [
+      "Risk Yönetimi",
+      "Volatilite",
+      "Stop-Loss"
+    ],
+    "term_en": "Düşüş Derinliği",
+    "definition_en": "The largest percentage decline from a peak to a trough in an investment's value."
+  },
+  {
+    "term": "KELLY KRİTERİ (Kelly Criterion)",
+    "definition": "Her işlemde sermayenin ne kadarının riske edilmesi gerektiğini matematiksel olarak hesaplayan formül.",
+    "example": "Kazanma olasılığı %60, kazanç/kayıp oranı 2:1 ise Kelly f* = 0.40 (sermayenin %40'ı).",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Pozisyon Büyüklüğü",
+      "Risk Yönetimi",
+      "Beklenen Değer"
+    ],
+    "term_en": "Kelly Criterion",
+    "definition_en": "A formula that calculates the optimal fraction of capital to risk on each trade."
+  },
+  {
+    "term": "BACKTEST (Geriye Dönük Test)",
+    "definition": "Bir yatırım stratejisinin geçmiş verilere uygulanarak performansının değerlendirilmesi.",
+    "example": "FinPilot'ta momentum stratejisini son 5 yıllık verilerle backtest yaparak karlılığını ölçebilirsiniz.",
+    "category": "Teknik Analiz",
+    "level": "İleri",
+    "related": [
+      "Walk-Forward Analiz",
+      "Overfitting",
+      "Monte Carlo Simülasyonu"
+    ],
+    "term_en": "Geriye Dönük Test",
+    "definition_en": "Evaluating an investment strategy's performance by applying it to historical data."
+  },
+  {
+    "term": "WALK-FORWARD ANALİZ",
+    "definition": "Stratejinin sürekli güncellenen zaman pencereleriyle test edilmesi; overfitting'i önler.",
+    "example": "2019-2022 ile optimize et, 2023'te test et; pencereyi kaydırarak tekrarla.",
+    "category": "Teknik Analiz",
+    "level": "Uzman",
+    "related": [
+      "Backtest",
+      "Overfitting",
+      "Out-of-Sample"
+    ]
+  },
+  {
+    "term": "ATR (Average True Range)",
+    "definition": "Belirli bir dönemdeki fiyat dalgalanmasını ölçen volatilite göstergesi.",
+    "example": "ATR=2.5 ise hisse günde ortalama 2.5$ oynuyor; stop-loss mesafesi buna göre ayarlanır.",
+    "category": "Teknik Analiz",
+    "level": "Orta",
+    "related": [
+      "Volatilite",
+      "Stop-Loss",
+      "Risk Yönetimi"
+    ],
+    "term_en": "Average True Range",
+    "definition_en": "A volatility indicator measuring the average range of price fluctuations over a period."
+  },
+  {
+    "term": "RSI (Relative Strength Index)",
+    "definition": "Fiyat hareketlerinin hızını ve büyüklüğünü 0-100 arasında ölçen momentum osilatörü.",
+    "example": "RSI 30 altı = aşırı satım (alım fırsatı), RSI 70 üstü = aşırı alım (satış sinyali).",
+    "category": "Teknik Analiz",
+    "level": "Orta",
+    "related": [
+      "Momentum",
+      "MACD",
+      "Stokastik"
+    ],
+    "term_en": "Relative Strength Index",
+    "definition_en": "A momentum oscillator measuring the speed and magnitude of price movements on a 0-100 scale."
+  },
+  {
+    "term": "MACD (Moving Average Convergence Divergence)",
+    "definition": "İki üstel hareketli ortalamanın farkını kullanarak trend yönünü ve gücünü gösteren gösterge.",
+    "example": "MACD çizgisi sinyal çizgisini yukarı kestiğinde alım, aşağı kestiğinde satım sinyali verir.",
+    "category": "Teknik Analiz",
+    "level": "Orta",
+    "related": [
+      "EMA",
+      "Sinyal Çizgisi",
+      "Histogram"
+    ],
+    "term_en": "Moving Average Convergence Divergence",
+    "definition_en": "An indicator showing trend direction and strength using the difference between two exponential moving averages."
+  },
+  {
+    "term": "BOLLINGER BANTLARI (Bollinger Bands)",
+    "definition": "Hareketli ortalama etrafında standart sapma bazlı üst ve alt bantlar çizen volatilite göstergesi.",
+    "example": "Fiyat alt banda dokunduğunda ucuzlama, üst banda dokunduğunda pahalılaşma sinyali olabilir.",
+    "category": "Teknik Analiz",
+    "level": "Orta",
+    "related": [
+      "Standart Sapma",
+      "Hareketli Ortalama",
+      "Sıkışma"
+    ],
+    "term_en": "Bollinger Bands",
+    "definition_en": "A volatility indicator drawing upper and lower bands based on standard deviations around a moving average."
+  },
+  {
+    "term": "Z-SKORU (Z-Score)",
+    "definition": "Bir değerin ortalamadan kaç standart sapma uzakta olduğunu gösteren istatistiksel ölçü.",
+    "example": "Z-skoru +2 ise fiyat ortalamaların çok üstünde; ortalamaya dönüş beklentisi artar.",
+    "category": "Teknik Analiz",
+    "level": "İleri",
+    "related": [
+      "Standart Sapma",
+      "Mean Reversion",
+      "Normal Dağılım"
+    ],
+    "term_en": "Z-Score",
+    "definition_en": "A statistical measure indicating how many standard deviations a value is from the mean."
+  },
+  {
+    "term": "PİYASA REJİMİ (Market Regime)",
+    "definition": "Piyasanın bulunduğu genel durum: boğa piyasası, ayı piyasası veya yatay seyir.",
+    "example": "HMM modeli piyasanın 'düşük volatilite' veya 'yüksek volatilite' rejiminde olduğunu tespit eder.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "İleri",
+    "related": [
+      "HMM",
+      "Volatilite",
+      "Trend"
+    ],
+    "term_en": "Market Regime"
+  },
+  {
+    "term": "HMM (Hidden Markov Model)",
+    "definition": "Gözlemlenemeyen piyasa durumlarını istatistiksel olarak tahmin eden makine öğrenmesi modeli.",
+    "example": "FinPilot rejim tespiti modülünde fiyat getirilerinden piyasa rejimini belirlemek için HMM kullanılır.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Piyasa Rejimi",
+      "Makine Öğrenmesi",
+      "Gauss Dağılımı"
+    ],
+    "term_en": "Hidden Markov Model"
+  },
+  {
+    "term": "DRL (Deep Reinforcement Learning)",
+    "definition": "Derin öğrenme ile pekiştirmeli öğrenmeyi birleştiren; ajanın deneme-yanılma ile optimal strateji öğrendiği yapay zeka tekniği.",
+    "example": "FinPilot DRL ajanı PPO/SAC algoritmaları ile al-sat-tut kararları öğrenir.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "PPO",
+      "Yapay Zeka",
+      "Ödül Fonksiyonu"
+    ],
+    "term_en": "Deep Reinforcement Learning",
+    "definition_en": "An AI technique combining deep learning with reinforcement learning where an agent learns optimal strategies through trial and error."
+  },
+  {
+    "term": "PPO (Proximal Policy Optimization)",
+    "definition": "Stabil ve verimli politika güncellemeleri yapan popüler pekiştirmeli öğrenme algoritması.",
+    "example": "FinPilot DRL modülünde varsayılan eğitim algoritması PPO'dur.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "DRL",
+      "SAC",
+      "TD3",
+      "Politika Gradyan"
+    ],
+    "term_en": "Proximal Policy Optimization",
+    "definition_en": "A popular reinforcement learning algorithm that performs stable and efficient policy updates."
+  },
+  {
+    "term": "STOP-LOSS (Zarar Durdur)",
+    "definition": "Belirlenen fiyat seviyesine ulaşıldığında pozisyonun otomatik kapatılarak zararın sınırlandırılması.",
+    "example": "100 TL'den alınan hissede %5 stop-loss = 95 TL'ye düşerse otomatik satış.",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "Başlangıç",
+    "related": [
+      "Risk Yönetimi",
+      "Take-Profit",
+      "ATR"
+    ],
+    "term_en": "Zarar Durdur",
+    "definition_en": "An order to automatically close a position when it reaches a specified loss level."
+  },
+  {
+    "term": "TAKE-PROFIT (Kar Al)",
+    "definition": "Hedeflenen kar seviyesine ulaşıldığında pozisyonu kapatma emri.",
+    "example": "100 TL'den alınan hisse 120 TL'ye ulaştığında %20 kar alınır.",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "Başlangıç",
+    "related": [
+      "Stop-Loss",
+      "Risk-Reward",
+      "Hedef Fiyat"
+    ],
+    "term_en": "Kar Al",
+    "definition_en": "An order to close a position when it reaches a target profit level."
+  },
+  {
+    "term": "RİSK-REWARD ORANI (Risk-Reward Ratio)",
+    "definition": "Potansiyel kayıp ile potansiyel kazanç arasındaki oran.",
+    "example": "Stop-loss 5 TL uzakta, hedef 15 TL uzakta ise risk-reward oranı 1:3'tür.",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "Orta",
+    "related": [
+      "Stop-Loss",
+      "Take-Profit",
+      "Beklenen Değer"
+    ],
+    "term_en": "Risk-Reward Ratio"
+  },
+  {
+    "term": "POZISYON BÜYÜKLÜĞÜ (Position Sizing)",
+    "definition": "Toplam sermayenin ne kadarının tek bir işleme ayrılacağını belirleyen risk yönetimi prensibi.",
+    "example": "%2 kuralı: Tek bir işlemde toplam sermayenin en fazla %2'si riske edilir.",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "Orta",
+    "related": [
+      "Kelly Kriteri",
+      "Risk Yönetimi",
+      "Sermaye Yönetimi"
+    ],
+    "term_en": "Position Sizing"
+  },
+  {
+    "term": "DOLLAR-COST AVERAGING (DCA)",
+    "definition": "Düzenli aralıklarla sabit miktarda yatırım yaparak ortalama maliyeti düşürme stratejisi.",
+    "example": "Her ay 1.000 TL'lik BİST ETF alarak, fiyat yüksekken az, düşükken çok birim alırsınız.",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "Başlangıç",
+    "related": [
+      "Düzenli Yatırım",
+      "Risk Azaltma",
+      "Uzun Vadeli Yatırım"
+    ],
+    "term_en": "DCA"
+  },
+  {
+    "term": "ETF (Borsa Yatırım Fonu)",
+    "definition": "Bir endeksi, sektörü veya varlık sınıfını takip eden ve borsada hisse gibi alınıp satılabilen fon.",
+    "example": "S&P 500 ETF (SPY), ABD'nin en büyük 500 şirketine tek seferde yatırım yapmanızı sağlar.",
+    "category": "Yatırım ve Varlık Yönetimi",
+    "level": "Başlangıç",
+    "related": [
+      "Endeks Fon",
+      "Diversifikasyon",
+      "Borsa"
+    ],
+    "term_en": "Borsa Yatırım Fonu"
+  },
+  {
+    "term": "SPREAD (Alım-Satım Farkı)",
+    "definition": "Bir varlığın alış (bid) ve satış (ask) fiyatı arasındaki fark; işlem maliyetini temsil eder.",
+    "example": "Hisse alış: 99.90 TL, satış: 100.10 TL ise spread 0.20 TL'dir.",
+    "category": "Piyasa İşleyişi",
+    "level": "Orta",
+    "related": [
+      "Likidite",
+      "Bid-Ask",
+      "İşlem Maliyeti"
+    ],
+    "term_en": "Alım-Satım Farkı"
+  },
+  {
+    "term": "VOLATILITE (Dalgalanma)",
+    "definition": "Bir varlığın fiyatının belirli bir dönemde ne kadar değiştiğinin istatistiksel ölçümü.",
+    "example": "Yıllık volatilitesi %30 olan hisse, %10 olandan 3 kat daha fazla fiyat dalgalanması yaşar.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Orta",
+    "related": [
+      "Standart Sapma",
+      "ATR",
+      "VIX",
+      "Risk"
+    ],
+    "term_en": "Dalgalanma"
+  },
+  {
+    "term": "ALFA (Alpha)",
+    "definition": "Bir yatırımın karşılaştırma endeksine (benchmark) göre sağladığı fazla getiri.",
+    "example": "Portföyünüz %15, endeks %10 getirdiyse, alfanız +5'dir.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "İleri",
+    "related": [
+      "Beta",
+      "Benchmark",
+      "Aktif Yönetim"
+    ],
+    "term_en": "Alpha"
+  },
+  {
+    "term": "BETA",
+    "definition": "Bir hissenin genel piyasaya göre duyarlılığını ölçen risk katsayısı.",
+    "example": "Beta=1.5 ise piyasa %10 yükseldiğinde hisse %15 yükselme eğilimindedir.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "İleri",
+    "related": [
+      "Sistematik Risk",
+      "Alfa",
+      "CAPM"
+    ]
+  },
+  {
+    "term": "SLIPPAGE (Kayma)",
+    "definition": "Emir verildiğindeki fiyat ile emrin gerçekleştiği fiyat arasındaki fark.",
+    "example": "100 TL'den al emri verdik ama yoğun piyasada 100.15 TL'den gerçekleşti → 15 kuruş slippage.",
+    "category": "Piyasa İşleyişi",
+    "level": "İleri",
+    "related": [
+      "Likidite",
+      "Emir Türleri",
+      "İşlem Maliyeti"
+    ],
+    "term_en": "Kayma"
+  },
+  {
+    "term": "OVERFITTING (Aşırı Uyum)",
+    "definition": "Bir modelin eğitim verilerine aşırı uyum sağlayıp yeni verilerde kötü performans göstermesi.",
+    "example": "Backtest'te %200 getiri veren strateji, canlıda zarar ediyorsa overfitting olmuş demektir.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Backtest",
+      "Walk-Forward",
+      "Validasyon"
+    ],
+    "term_en": "Aşırı Uyum"
+  },
+  {
+    "term": "SENTİMENT ANALİZİ (Sentiment Analysis)",
+    "definition": "Haber, sosyal medya ve piyasa verilerinden yatırımcı ruh halini ölçme tekniği.",
+    "example": "Twitter'da Bitcoin ile ilgili pozitif paylaşımlar artıyorsa boğa sentimenti güçleniyor demektir.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "İleri",
+    "related": [
+      "FOMO",
+      "FUD",
+      "Alternatif Veri"
+    ],
+    "term_en": "Sentiment Analysis"
+  },
+  {
+    "term": "ALTERNATIF VERİ (Alternative Data)",
+    "definition": "Geleneksel finansal verilerin ötesinde (uydu, web trafik, sosyal medya gibi) kullanılan veri kaynakları.",
+    "example": "Bir şirketin otoparkındaki araç sayısını uydu görüntüsüyle sayarak satışları tahmin etmek.",
+    "category": "İleri Düzey Kavramlar",
+    "level": "Uzman",
+    "related": [
+      "Sentiment Analizi",
+      "On-chain Veri",
+      "Makine Öğrenmesi"
+    ],
+    "term_en": "Alternative Data"
+  },
+  {
+    "term": "ON-CHAIN VERİ",
+    "definition": "Blockchain üzerinden kamuya açık olarak erişilebilen işlem ve cüzdan verileri.",
+    "example": "Büyük balinaların BTC cüzdanlarındaki hareket, piyasa yönüne dair ipucu verebilir.",
+    "category": "Dijital Finans",
+    "level": "İleri",
+    "related": [
+      "Blockchain",
+      "Kripto",
+      "Alternatif Veri"
+    ]
+  }
+]

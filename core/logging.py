@@ -305,10 +305,7 @@ def configure_logging(
     root_logger.handlers.clear()
 
     # Choose formatter
-    if format == "json":
-        formatter = JSONFormatter()
-    else:
-        formatter = ColoredTextFormatter(use_colors=use_colors)
+    formatter = JSONFormatter() if format == "json" else ColoredTextFormatter(use_colors=use_colors)
 
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)

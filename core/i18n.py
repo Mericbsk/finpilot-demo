@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import streamlit as st
@@ -36,7 +36,7 @@ import streamlit as st
 # ============================================
 
 
-class Language(str, Enum):
+class Language(StrEnum):
     """Supported languages."""
 
     TURKISH = "tr"
@@ -527,26 +527,30 @@ def render_language_toggle() -> Language | None:
     col1, col2 = st.columns(2)
 
     with col1:
-        if st.button(
-            "🇹🇷 TR",
-            key="lang_tr",
-            type="primary" if current == Language.TURKISH else "secondary",
-            use_container_width=True,
+        if (
+            st.button(
+                "🇹🇷 TR",
+                key="lang_tr",
+                type="primary" if current == Language.TURKISH else "secondary",
+                use_container_width=True,
+            )
+            and current != Language.TURKISH
         ):
-            if current != Language.TURKISH:
-                set_language(Language.TURKISH)
-                return Language.TURKISH
+            set_language(Language.TURKISH)
+            return Language.TURKISH
 
     with col2:
-        if st.button(
-            "🇺🇸 EN",
-            key="lang_en",
-            type="primary" if current == Language.ENGLISH else "secondary",
-            use_container_width=True,
+        if (
+            st.button(
+                "🇺🇸 EN",
+                key="lang_en",
+                type="primary" if current == Language.ENGLISH else "secondary",
+                use_container_width=True,
+            )
+            and current != Language.ENGLISH
         ):
-            if current != Language.ENGLISH:
-                set_language(Language.ENGLISH)
-                return Language.ENGLISH
+            set_language(Language.ENGLISH)
+            return Language.ENGLISH
 
     return None
 

@@ -7,7 +7,7 @@ Extracted from auth/core.py (Sprint P8).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 import jwt
 
@@ -32,7 +32,7 @@ class TokenPayload:
         """Alias for sub field."""
         return self.sub
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "sub": self.sub,
             "exp": self.exp,
@@ -61,29 +61,27 @@ class JWTHandler:
         self.secret_key = secret_key
         self.algorithm = algorithm
 
-    def encode(self, payload: Dict[str, Any]) -> str:
+    def encode(self, payload: dict[str, Any]) -> str:
         """Create JWT token."""
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
-    def decode(self, token: str, verify_exp: bool = True) -> Dict[str, Any]:
+    def decode(self, token: str, verify_exp: bool = True) -> dict[str, Any]:
         """Decode and verify JWT token."""
         try:
             options = {"verify_exp": verify_exp}
-            return jwt.decode(
-                token, self.secret_key, algorithms=[self.algorithm], options=options
-            )
-        except jwt.ExpiredSignatureError:
-            raise TokenExpiredError("Token has expired")
-        except jwt.InvalidSignatureError:
-            raise TokenInvalidError("Invalid token signature")
+            return jwt.decode(token, self.secret_key, algorithms=[self.algorithm], options=options)
+        except jwt.ExpiredSignatureError as exc:
+            raise TokenExpiredError("Token has expired") from exc
+        except jwt.InvalidSignatureError as exc:
+            raise TokenInvalidError("Invalid token signature") from exc
         except jwt.DecodeError as e:
-            raise TokenInvalidError(f"Invalid token format: {e}")
+            raise TokenInvalidError(f"Invalid token format: {e}") from e
         except jwt.PyJWTError as e:
-            raise TokenInvalidError(f"Token validation failed: {e}")
+            raise TokenInvalidError(f"Token validation failed: {e}") from e
 
-    def decode_without_verification(self, token: str) -> Dict[str, Any]:
+    def decode_without_verification(self, token: str) -> dict[str, Any]:
         """Decode token without signature verification. Only for debugging."""
         try:
             return jwt.decode(token, options={"verify_signature": False, "verify_exp": False})
         except jwt.DecodeError as e:
-            raise TokenInvalidError(f"Invalid token format: {e}")
+            raise TokenInvalidError(f"Invalid token format: {e}") from e

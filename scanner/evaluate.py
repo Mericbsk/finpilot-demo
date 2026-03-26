@@ -8,35 +8,30 @@ geriye dönük uyumluluk için bu modülü import eder.
 from __future__ import annotations
 
 import logging
-import os
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 
 from .config import get_setting
 from .data_fetcher import (
     fetch_multi_timeframe,
-    get_market_regime_status,
     prefetch_symbols_multi_timeframe,
 )
 from .signals import (
     analyze_price_momentum,
-    build_explanation,
-    build_reason,
     check_momentum_confluence,
     check_timeframe_alignment,
     check_trend_strength,
     check_volume_spike,
-    compute_recommendation_score,
-    compute_recommendation_strength,
     safe_float,
 )
 
 logger = logging.getLogger(__name__)
 
 # Global market status (set at scan-time)
-CURRENT_MARKET_STATUS: Dict[str, Any] = {"safe": True, "reason": "Varsayılan"}
+CURRENT_MARKET_STATUS: dict[str, Any] = {"safe": True, "reason": "Varsayılan"}
 
 STRATEGY_PARAMS = {
     "Normal": {"min_score": 1, "rsi_low": 30, "rsi_high": 70},
@@ -46,9 +41,7 @@ STRATEGY_PARAMS = {
 }
 
 
-def calculate_risk_management(
-    price: float, atr_val: float, momentum_score: int
-) -> Dict[str, Any]:
+def calculate_risk_management(price: float, atr_val: float, momentum_score: int) -> dict[str, Any]:
     """ATR-based dynamic stop-loss & take-profit."""
     if momentum_score >= 70:
         stop_mult, tp1_mult, tp2_mult, tp3_mult = 1.5, 3.0, 5.0, 8.0
@@ -87,8 +80,8 @@ def calculate_risk_management(
 def evaluate_symbol(
     symbol: str,
     kelly_fraction: float = 0.5,
-    prefetched_data: Optional[Dict[str, pd.DataFrame]] = None,
-) -> Optional[Dict[str, Any]]:
+    prefetched_data: dict[str, pd.DataFrame] | None = None,
+) -> dict[str, Any] | None:
     """Comprehensive single-symbol evaluation with multi-timeframe analysis."""
     try:
         if prefetched_data is not None:
@@ -127,9 +120,9 @@ def evaluate_symbol(
                     score += 1
                 if safe_float(row["Volume"]) > safe_float(row["vol_med20"]) * 1.2:
                     score += 1
-                if safe_float(row["macd_hist"]) > 0 and safe_float(
-                    row["macd_hist"]
-                ) > safe_float(prev["macd_hist"]):
+                if safe_float(row["macd_hist"]) > 0 and safe_float(row["macd_hist"]) > safe_float(
+                    prev["macd_hist"]
+                ):
                     score += 1
         except Exception:
             score = 0
@@ -162,23 +155,17 @@ def evaluate_symbol(
             else 0
         )
         z_threshold_effective = float(
-            momentum_analysis.get(
-                "z_threshold_effective", get_setting("momentum_z_threshold", 1.5)
-            )
+            momentum_analysis.get("z_threshold_effective", get_setting("momentum_z_threshold", 1.5))
         )
         z_threshold_base = float(
-            momentum_analysis.get(
-                "z_threshold_base", get_setting("momentum_z_threshold", 1.5)
-            )
+            momentum_analysis.get("z_threshold_base", get_setting("momentum_z_threshold", 1.5))
         )
         z_segment_raw = momentum_analysis.get("z_threshold_segment")
         z_dynamic_raw = momentum_analysis.get("z_threshold_dynamic")
         z_threshold_segment = float(z_segment_raw) if z_segment_raw is not None else None
         z_threshold_dynamic = float(z_dynamic_raw) if z_dynamic_raw is not None else None
         baseline_window_used = int(
-            momentum_analysis.get(
-                "baseline_window", get_setting("momentum_baseline_window", 20)
-            )
+            momentum_analysis.get("baseline_window", get_setting("momentum_baseline_window", 20))
         )
         liquidity_segment = momentum_analysis.get("liquidity_segment")
         dynamic_sample_count = int(momentum_analysis.get("dynamic_threshold_samples", 0))
@@ -203,10 +190,7 @@ def evaluate_symbol(
         min_score_threshold = 2
         core_signal = bool(regime and direction and (score >= min_score_threshold))
         mtf_ok = alignment_ratio >= 0.66
-        if core_signal:
-            entry_ok = bool(score == 3 or (score == 2 and mtf_ok))
-        else:
-            entry_ok = False
+        entry_ok = bool(score == 3 or score == 2 and mtf_ok) if core_signal else False
 
         is_premium_symbol = symbol in ["SPY", "QQQ", "GOOGL", "NVDA", "AAPL", "MSFT"]
         high_quality_signal = entry_ok
@@ -245,11 +229,9 @@ def evaluate_symbol(
         try:
             from regime_detection import detect_market_regime
 
-            prices_for_regime = df_1d["Close"] if "Close" in df_1d else None
+            prices_for_regime = df_1d.get("Close", None)
             regime = (
-                detect_market_regime(prices_for_regime)
-                if prices_for_regime is not None
-                else regime
+                detect_market_regime(prices_for_regime) if prices_for_regime is not None else regime
             )
         except Exception:
             logger.debug("Regime detection unavailable", exc_info=True)
@@ -289,12 +271,8 @@ def evaluate_symbol(
             "momentum_bias": momentum_bias,
             "momentum_z_effective": round(z_threshold_effective, 2),
             "momentum_z_base": round(z_threshold_base, 2),
-            "momentum_z_segment": (
-                round(z_threshold_segment, 2) if z_threshold_segment else None
-            ),
-            "momentum_z_dynamic": (
-                round(z_threshold_dynamic, 2) if z_threshold_dynamic else None
-            ),
+            "momentum_z_segment": (round(z_threshold_segment, 2) if z_threshold_segment else None),
+            "momentum_z_dynamic": (round(z_threshold_dynamic, 2) if z_threshold_dynamic else None),
             "momentum_liquidity_segment": liquidity_segment,
             "momentum_dynamic_samples": dynamic_sample_count,
             "momentum_baseline_window": baseline_window_used,
@@ -320,13 +298,13 @@ def evaluate_symbol(
 
 
 def evaluate_symbols_parallel(
-    symbols: List[str],
+    symbols: list[str],
     kelly_fraction: float = 0.5,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
+    progress_callback: Callable[[int, int], None] | None = None,
     use_prefetch: bool = True,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Evaluate multiple symbols in parallel with optimized data fetching."""
-    results: List[Dict[str, Any]] = []
+    results: list[dict[str, Any]] = []
     total = len(symbols)
 
     if use_prefetch and total > 1:
@@ -337,19 +315,26 @@ def evaluate_symbols_parallel(
                 pct = int((current / subtotal) * 50)
                 progress_callback(pct, 100)
 
-        all_data = prefetch_symbols_multi_timeframe(
-            symbols,
-            with_indicators=True,
-            max_workers=10,
-            progress_callback=prefetch_progress,
-        )
+        try:
+            all_data = prefetch_symbols_multi_timeframe(
+                symbols,
+                with_indicators=True,
+                max_workers=10,
+                progress_callback=prefetch_progress,
+            )
+        except TimeoutError:
+            logger.warning("Prefetch phase timed out — continuing with partial data")
+            all_data = {}
 
         completed = 0
         for symbol in symbols:
             symbol_data = all_data.get(symbol, {})
-            result = evaluate_symbol(symbol, kelly_fraction, prefetched_data=symbol_data)
-            if result:
-                results.append(result)
+            try:
+                result = evaluate_symbol(symbol, kelly_fraction, prefetched_data=symbol_data)
+                if result:
+                    results.append(result)
+            except Exception as e:
+                logger.warning("Evaluate error for %s: %s", symbol, e)
             completed += 1
             if progress_callback:
                 try:
@@ -361,8 +346,7 @@ def evaluate_symbols_parallel(
         completed = 0
         with ThreadPoolExecutor(max_workers=8) as executor:
             futures = [
-                executor.submit(evaluate_symbol, symbol, kelly_fraction, None)
-                for symbol in symbols
+                executor.submit(evaluate_symbol, symbol, kelly_fraction, None) for symbol in symbols
             ]
             for future in futures:
                 result = future.result()

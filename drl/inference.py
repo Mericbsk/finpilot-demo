@@ -17,7 +17,7 @@ import pandas as pd
 from .config import DEFAULT_CONFIG, MarketEnvConfig
 from .feature_pipeline import FeatureFrame, FeaturePipeline
 from .model_registry import ModelRegistry, get_registry
-from .persistence import FeaturePipelineArtifact, load_artifact, restore_pipeline
+from .persistence import load_artifact, restore_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,23 @@ class ActionType(Enum):
             return cls.SELL
         else:
             return cls.HOLD
+
+
+# Sprint 26: 7-bin quantization — standalone to avoid Enum attribute issues
+_ACTION_BINS = [-0.75, -0.50, -0.25, 0.0, 0.25, 0.50, 0.75]
+
+
+def quantize_action(action: float) -> float:
+    """Sprint 26: Snap continuous action to nearest discrete bin.
+
+    Converts bang-bang continuous output to 7 meaningful levels,
+    forcing a natural HOLD zone around 0.
+    """
+    import numpy as np
+
+    bins = np.array(_ACTION_BINS)
+    idx = int(np.argmin(np.abs(bins - action)))
+    return float(bins[idx])
 
     @classmethod
     def from_discrete(cls, action: int) -> ActionType:
@@ -139,6 +156,8 @@ class DRLInference:
         self._is_loaded = False
         self._lstm_states = None  # Sprint 18: RecurrentPPO hidden states
         self._episode_starts: np.ndarray | None = None  # for LSTM reset tracking
+        self._obs_stack: np.ndarray | None = None  # Sprint 19: obs stacking buffer
+        self._n_stack: int = 0  # 0 = no stacking
 
     @property
     def is_loaded(self) -> bool:
@@ -234,7 +253,9 @@ class DRLInference:
             # Sprint 18: auto-load pipeline artifact if it exists alongside model
             self._try_load_pipeline(model_path)
 
-            logger.info(f"Model loaded from path: {model_path} (pipeline={'yes' if self.pipeline else 'no'})")
+            logger.info(
+                f"Model loaded from path: {model_path} (pipeline={'yes' if self.pipeline else 'no'})"
+            )
             return True
 
         except Exception as e:
@@ -291,23 +312,71 @@ class DRLInference:
         Sprint 18: Uses FeaturePipeline.transform when available so that
         inference observations are normalised identically to training.
         Falls back to raw extraction only when no pipeline is loaded.
+
+        Sprint 19: Detects observation stacking (VecFrameStack) and
+        maintains a rolling buffer of past observations.  When the model
+        expects obs_dim = n_features * n_stack, we automatically stack
+        the last n_stack transformed observations.
         """
-        # --- Preferred path: use fitted pipeline (same normalisation as training) ---
+        n_features = len(self.config.feature_columns)
+
+        # --- Determine n_stack from model obs space (first call only) ---
+        if self._n_stack == 0 and self.model is not None:
+            try:
+                model_obs_dim = self.model.observation_space.shape[0]
+                if model_obs_dim > n_features and model_obs_dim % n_features == 0:
+                    self._n_stack = model_obs_dim // n_features
+                else:
+                    self._n_stack = 1  # no stacking
+            except Exception:
+                self._n_stack = 1
+
+        effective_stack = max(self._n_stack, 1)
+
+        # --- Build per-row observations for the last n_stack rows ---
+        n_rows = min(len(df), effective_stack)
+        tail_df = df.tail(n_rows)
+
         if self.pipeline is not None:
             try:
-                frame = FeatureFrame(data=df.tail(1))
-                obs = self.pipeline.transform(frame)[0]  # shape: (feature_dim,)
-                return obs.astype(np.float32)
+                frame = FeatureFrame(data=tail_df)
+                obs_matrix = self.pipeline.transform(frame)  # (n_rows, n_features)
+                obs_matrix = np.nan_to_num(obs_matrix, nan=0.0, posinf=5.0, neginf=-5.0)
             except Exception as e:
                 logger.warning("Pipeline transform failed, falling back to raw: %s", e)
+                obs_matrix = self._raw_obs_matrix(tail_df, n_features)
+        else:
+            obs_matrix = self._raw_obs_matrix(tail_df, n_features)
 
-        # --- Fallback: raw feature extraction (legacy behaviour) ---
-        last_row = df.iloc[-1]
-        obs = np.array(
-            [float(last_row.get(col, 0.0)) for col in self.config.feature_columns], dtype=np.float32
-        )
-        obs = np.nan_to_num(obs, nan=0.0, posinf=1e6, neginf=-1e6)
-        return obs
+        # --- Stack observations ---
+        if effective_stack > 1:
+            # Initialise or update rolling buffer
+            if self._obs_stack is None or self._obs_stack.shape[1] != n_features:
+                self._obs_stack = np.zeros((effective_stack, n_features), dtype=np.float32)
+
+            # Fill buffer with available rows (right-aligned)
+            if n_rows >= effective_stack:
+                self._obs_stack[:] = obs_matrix[-effective_stack:]
+            else:
+                # Shift old obs left, append new rows at end
+                self._obs_stack = np.roll(self._obs_stack, -n_rows, axis=0)
+                self._obs_stack[-n_rows:] = obs_matrix
+
+            # Flatten: oldest first → newest last (same order as VecFrameStack)
+            return self._obs_stack.flatten().astype(np.float32)
+        else:
+            return obs_matrix[-1].astype(np.float32)
+
+    @staticmethod
+    def _raw_obs_matrix(df: pd.DataFrame, n_features: int) -> np.ndarray:
+        """Fallback: build observation matrix from raw DataFrame columns."""
+        from .config import DEFAULT_CONFIG
+
+        cols = DEFAULT_CONFIG.feature_columns
+        result = np.zeros((len(df), n_features), dtype=np.float32)
+        for i, (_, row) in enumerate(df.iterrows()):
+            result[i] = np.array([float(row.get(c, 0.0)) for c in cols[:n_features]])
+        return np.nan_to_num(result, nan=0.0, posinf=1e6, neginf=-1e6)
 
     def _compute_confidence(self, action: float | int | np.ndarray, df: pd.DataFrame) -> float:
         """
@@ -445,6 +514,8 @@ class DRLInference:
             else:
                 action_val = float(action)
 
+            # Sprint 26: 7-bin quantization — snap to nearest discrete level
+            action_val = quantize_action(action_val)
             action_type = ActionType.from_continuous(action_val)
 
             # Compute confidence

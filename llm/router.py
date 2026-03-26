@@ -17,8 +17,9 @@ from __future__ import annotations
 import logging
 import time
 from collections import defaultdict
-from dataclasses import dataclass, field
-from typing import Any, Generator
+from collections.abc import Generator
+from dataclasses import dataclass
+from typing import Any
 
 from llm.base import (
     LLMAuthError,
@@ -90,9 +91,7 @@ class LLMRouter:
         return [
             p.name
             for p in self._providers
-            if p.name not in self._disabled
-            and p.is_available()
-            and self._stats[p.name].is_healthy
+            if p.name not in self._disabled and p.is_available() and self._stats[p.name].is_healthy
         ]
 
     @property

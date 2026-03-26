@@ -129,25 +129,36 @@ def calculate_technical_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculates technical indicators required by the FeaturePipeline.
     Expects df to have 'Close', 'High', 'Low', 'Volume' columns.
+
+    Sprint 18 Phase 3.1 — Symbol-Agnostic Features:
+    All features are now expressed as *ratios* or *percentages* so that
+    a single model generalises across 1,542 symbols without retraining.
+    Absolute price/volume columns are still computed internally (used by
+    regime detection and EpisodeData.prices) but are NOT exposed as agent
+    features.
     """
     df = df.copy()
 
     # Ensure lowercase columns for consistency with DRL config
     df.columns = [c.lower() for c in df.columns]
 
+    # ------------------------------------------------------------------
+    # 1. Compute traditional absolute indicators (internal use)
+    # ------------------------------------------------------------------
+
     # Basic EMAs
     df["ema_20"] = df["close"].ewm(span=20, adjust=False).mean()
     df["ema_50"] = df["close"].ewm(span=50, adjust=False).mean()
     df["ema_200"] = df["close"].ewm(span=200, adjust=False).mean()
 
-    # RSI (14)
+    # RSI (14) — already 0-100, symbol-agnostic
     delta = df["close"].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
     rs = gain / loss
     df["rsi"] = 100 - (100 / (1 + rs))
 
-    # MACD
+    # MACD (absolute, used to derive normalised version)
     ema_12 = df["close"].ewm(span=12, adjust=False).mean()
     ema_26 = df["close"].ewm(span=26, adjust=False).mean()
     df["macd"] = ema_12 - ema_26
@@ -175,7 +186,35 @@ def calculate_technical_features(df: pd.DataFrame) -> pd.DataFrame:
     df["returns"] = df["close"].pct_change()
     df["log_returns"] = np.log(df["close"] / df["close"].shift(1))
 
-    # Sprint 18: HMM-based Regime Detection (with rule-based fallback)
+    # ------------------------------------------------------------------
+    # 2. Sprint 18 Phase 3.1: Symbol-agnostic RELATIVE features
+    # ------------------------------------------------------------------
+
+    # Price-to-EMA ratios (centred around 0; positive → above moving avg)
+    df["close_ema20_ratio"] = df["close"] / df["ema_20"] - 1.0
+    df["ema20_ema50_ratio"] = df["ema_20"] / df["ema_50"] - 1.0
+    df["ema50_ema200_ratio"] = df["ema_50"] / df["ema_200"] - 1.0
+
+    # Bollinger band width (% of price) and position within bands (0-1)
+    bb_span = df["bb_upper"] - df["bb_lower"]
+    df["bb_width"] = bb_span / df["close"]
+    df["bb_position"] = (df["close"] - df["bb_lower"]) / bb_span.replace(0, np.nan)
+
+    # MACD normalised by ATR (removes price scale)
+    atr_safe = df["atr"].replace(0, np.nan)
+    df["macd_norm"] = df["macd"] / atr_safe
+    df["macd_signal_norm"] = df["macd_signal"] / atr_safe
+    df["macd_hist_norm"] = df["macd_hist"] / atr_safe
+
+    # ATR as percentage of price (pure volatility measure)
+    df["atr_pct"] = df["atr"] / df["close"]
+
+    # Volume ratio (vs 20-day avg; 1.0 = normal, >1 = high volume)
+    df["volume_ratio"] = df["volume"] / df["volume_avg_20"].replace(0, np.nan)
+
+    # ------------------------------------------------------------------
+    # 3. Regime detection (uses absolute columns internally)
+    # ------------------------------------------------------------------
     df["volatility_ratio"] = df["atr"] / df["close"]
     df = _assign_regime_labels(df)
 

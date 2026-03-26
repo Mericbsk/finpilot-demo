@@ -23,10 +23,7 @@ def _to_unix(ts: pd.Timestamp | str | int | float | None) -> int | None:
     if ts is None:
         return None
     stamp = pd.Timestamp(ts)
-    if stamp.tzinfo is None:
-        stamp = stamp.tz_localize("UTC")
-    else:
-        stamp = stamp.tz_convert("UTC")
+    stamp = stamp.tz_localize("UTC") if stamp.tzinfo is None else stamp.tz_convert("UTC")
     return int(stamp.timestamp())
 
 

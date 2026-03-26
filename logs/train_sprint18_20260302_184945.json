@@ -1,0 +1,18 @@
+[
+  {
+    "agent": "momentum",
+    "model_id": "ppo_momentum_20260302_184945",
+    "status": "success",
+    "metrics": {
+      "sharpe_ratio": 0.0519,
+      "total_return": 0.2203,
+      "max_drawdown": 0.2326,
+      "avg_reward": 0.012882,
+      "n_trades": 118,
+      "active_pct": 98.1,
+      "action_diversity": 0.04,
+      "train_time_s": 314.9
+    },
+    "train_time_s": 314.89818239212036
+  }
+]

@@ -44,4 +44,4 @@ if not _config_status["valid"]:
     import warnings
 
     for issue in _config_status["issues"]:
-        warnings.warn(f"Telegram: {issue} .env dosyasını kontrol edin.")
+        warnings.warn(f"Telegram: {issue} .env dosyasını kontrol edin.", stacklevel=2)

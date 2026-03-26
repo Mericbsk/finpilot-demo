@@ -1,6 +1,10 @@
 """
-FinPilot Social Trading
-=======================
+FinPilot Social Trading (EXPERIMENTAL)
+========================================
+
+⚠️ STATUS: This module is not used by any production code.
+It was built speculatively for a future social trading feature.
+Do not depend on it — the API may change or be removed.
 
 Signal sharing, leaderboards, and community features.
 
@@ -25,7 +29,7 @@ import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -36,14 +40,14 @@ logger = logging.getLogger(__name__)
 # ============================================
 
 
-class SignalDirection(str, Enum):
+class SignalDirection(StrEnum):
     """Signal direction."""
 
     LONG = "long"
     SHORT = "short"
 
 
-class SignalStatus(str, Enum):
+class SignalStatus(StrEnum):
     """Signal lifecycle status."""
 
     ACTIVE = "active"
@@ -52,7 +56,7 @@ class SignalStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class TraderTier(str, Enum):
+class TraderTier(StrEnum):
     """Trader ranking tier."""
 
     BRONZE = "bronze"
@@ -62,7 +66,7 @@ class TraderTier(str, Enum):
     DIAMOND = "diamond"
 
 
-class LeaderboardType(str, Enum):
+class LeaderboardType(StrEnum):
     """Leaderboard time periods."""
 
     DAILY = "daily"
@@ -332,7 +336,7 @@ class LeaderboardEntry:
 # ============================================
 
 
-class FeedItemType(str, Enum):
+class FeedItemType(StrEnum):
     """Feed item types."""
 
     SIGNAL = "signal"

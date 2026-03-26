@@ -766,7 +766,7 @@ class MetricsRegistry:
         """Collect all metrics for export."""
         result = {}
         for name, metric in self._metrics.items():
-            if isinstance(metric, (Counter, Gauge)) or isinstance(metric, Histogram):
+            if isinstance(metric, (Counter, Gauge, Histogram)):
                 result[name] = metric.collect()
         return result
 
@@ -1028,6 +1028,7 @@ class MLflowTracker:
                 self._mlflow.sklearn.log_model(model, artifact_path)
             except Exception:
                 import logging
+
                 logging.getLogger(__name__).warning(
                     "MLflow model logging failed for %s", artifact_path, exc_info=True
                 )
@@ -1072,7 +1073,7 @@ def count_calls(metric: Counter, **labels: str) -> Callable[[Callable[P, T]], Ca
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         @functools.wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
-            metric.inc(**{k: v for k, v in labels.items()})  # type: ignore[arg-type]
+            metric.inc(**dict(labels.items()))  # type: ignore[arg-type]
             return func(*args, **kwargs)
 
         return wrapper

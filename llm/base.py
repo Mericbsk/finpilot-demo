@@ -8,12 +8,13 @@ from __future__ import annotations
 
 import time
 from abc import ABC, abstractmethod
+from collections.abc import Generator
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Generator
+from enum import StrEnum
+from typing import Any
 
 
-class LLMRole(str, Enum):
+class LLMRole(StrEnum):
     """Message roles for chat completion APIs."""
 
     SYSTEM = "system"
@@ -124,9 +125,7 @@ class LLMProvider(ABC):
     ) -> LLMResponse:
         """Wrapper that records latency. Subclasses use generate() internally."""
         t0 = time.perf_counter()
-        response = self.generate(
-            messages, temperature=temperature, max_tokens=max_tokens, **kwargs
-        )
+        response = self.generate(messages, temperature=temperature, max_tokens=max_tokens, **kwargs)
         response.latency_ms = (time.perf_counter() - t0) * 1000
         return response
 

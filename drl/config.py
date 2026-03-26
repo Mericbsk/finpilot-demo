@@ -51,15 +51,18 @@ class RewardWeights:
     PnL signal first.  Secondary terms preserved at weight=0 for future re-activation.
     """
 
-    pnl: float = 10.0           # PRIMARY: scaled PnL — the core learning signal
-    drawdown: float = 0.3       # PRIMARY: penalise drawdown (reduced from 0.5)
-    cost: float = 0.1           # PRIMARY: transaction cost awareness
-    leverage: float = 0.0       # DISABLED Sprint 18: folded into PilotShield clamp
-    regime_bonus: float = 0.0   # DISABLED Sprint 18: noisy — re-enable after convergence
-    turnover_penalty: float = 0.0   # DISABLED Sprint 18: conflicts with exploration
-    sharpe_bonus: float = 0.0   # DISABLED Sprint 18: re-enable in Faz 2 after base PnL learned
+    pnl: float = 10.0  # PRIMARY: scaled PnL — the core learning signal
+    drawdown: float = 0.3  # PRIMARY: penalise drawdown (reduced from 0.5)
+    cost: float = 0.1  # PRIMARY: transaction cost awareness
+    leverage: float = 0.0  # DISABLED Sprint 18: folded into PilotShield clamp
+    regime_bonus: float = 0.0  # DISABLED Sprint 18: noisy — re-enable after convergence
+    turnover_penalty: float = 0.0  # DISABLED Sprint 18: conflicts with exploration
+    sharpe_bonus: float = 0.0  # DISABLED Sprint 18: re-enable in Faz 2 after base PnL learned
     inactivity_penalty: float = 0.0  # DISABLED Sprint 18: conflicts with drawdown penalty
     position_bonus: float = 0.0  # DISABLED Sprint 18: conflicts with turnover penalty
+    action_smoothing: float = 0.0  # Sprint 25: penalise large action jumps to prevent bang-bang
+    terminal_dd_penalty: float = 0.0  # Sprint 26: quadratic terminal DD ceza (α·MaxDD²)
+    dd_quadratic: bool = False  # Sprint 26: per-step DD² instead of linear DD
 
 
 @dataclass(frozen=True)
@@ -107,21 +110,21 @@ DEFAULT_FEATURE_SPECS: list[FeatureSpec] = [
     FeatureSpec(
         name="technicals",
         columns=[
-            "close",
-            "ema_20",
-            "ema_50",
-            "ema_200",
-            "rsi",
-            "macd",
-            "macd_signal",
-            "macd_hist",
-            "atr",
-            "bb_upper",
-            "bb_lower",
-            "volume",
-            "volume_avg_20",
+            # Sprint 18 Phase 3.2 — Symbol-agnostic relative features.
+            # All ratios/percentages; no absolute price or volume values.
+            "close_ema20_ratio",  # price vs short-term trend
+            "ema20_ema50_ratio",  # short vs medium trend alignment
+            "ema50_ema200_ratio",  # medium vs long trend alignment
+            "rsi",  # already 0-100, symbol-agnostic
+            "macd_norm",  # MACD / ATR (scale-free momentum)
+            "macd_signal_norm",  # MACD signal / ATR
+            "macd_hist_norm",  # MACD histogram / ATR
+            "atr_pct",  # ATR / close  (volatility %)
+            "bb_width",  # Bollinger width / close
+            "bb_position",  # position inside Bollinger (0-1)
+            "volume_ratio",  # volume / 20d avg volume
         ],
-        scaler="zscore",
+        scaler="robust",  # robust scaling — resilient to outliers in ratios
     ),
     FeatureSpec(
         name="regime",

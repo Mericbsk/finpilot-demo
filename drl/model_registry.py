@@ -273,10 +273,10 @@ class ModelRegistry:
                 return A2C.load(metadata.model_path)
             else:
                 raise ValueError(f"Unknown algorithm: {metadata.algorithm}")
-        except ImportError:
+        except ImportError as exc:
             raise ImportError(
                 "stable-baselines3 required. Install: pip install stable-baselines3[extra]"
-            )
+            ) from exc
 
     def load_best(
         self, name: str, metric: str = "sharpe_ratio", higher_is_better: bool = True
@@ -454,7 +454,7 @@ class ModelRegistry:
             "total_models": len(self._registry),
             "model_names": list(models_by_name.keys()),
             "versions_per_name": {k: len(v) for k, v in models_by_name.items()},
-            "algorithms": list(set(m.algorithm for m in self._registry.values())),
+            "algorithms": list({m.algorithm for m in self._registry.values()}),
             "storage_path": str(self.storage_path),
         }
 

@@ -41,7 +41,7 @@ import threading
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from queue import Empty, Queue
 from typing import Any
@@ -51,7 +51,7 @@ from typing import Any
 # ============================================
 
 
-class AuditAction(str, Enum):
+class AuditAction(StrEnum):
     """Standard audit action types."""
 
     # Authentication
@@ -59,7 +59,7 @@ class AuditAction(str, Enum):
     LOGIN_FAILED = "auth.login.failed"
     LOGOUT = "auth.logout"
     SESSION_EXPIRED = "auth.session.expired"
-    PASSWORD_CHANGED = "auth.password.changed"
+    PASSWORD_CHANGED = "auth.password.changed"  # pragma: allowlist secret
 
     # Scanning
     SCAN_STARTED = "scan.started"
@@ -95,7 +95,7 @@ class AuditAction(str, Enum):
     UNAUTHORIZED_ACCESS = "security.access.unauthorized"
 
 
-class AuditLevel(str, Enum):
+class AuditLevel(StrEnum):
     """Audit log severity levels."""
 
     DEBUG = "DEBUG"

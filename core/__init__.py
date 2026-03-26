@@ -103,7 +103,7 @@ _LAZY_MODULES = {
     "TradeStatus": "core.backtest",
     "TrendFollowingStrategy": "core.backtest",
     "compare_strategies": "core.backtest",
-    # plugins
+    # plugins (EXPERIMENTAL — not used in production yet)
     "BuiltinHooks": "core.plugins",
     "DataSourcePlugin": "core.plugins",
     "HookPriority": "core.plugins",
@@ -129,7 +129,7 @@ _LAZY_MODULES = {
     "WebSocketFeed": "core.websocket_feeds",
     "create_feed": "core.websocket_feeds",
     "list_providers": "core.websocket_feeds",
-    # social
+    # social (EXPERIMENTAL — not used in production yet)
     "FeedItem": "core.social",
     "FeedItemType": "core.social",
     "LeaderboardEntry": "core.social",

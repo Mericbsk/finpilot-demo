@@ -19,9 +19,13 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from drl.config import MarketEnvConfig
+    from drl.feature_pipeline import FeaturePipeline
 
 try:
     from stable_baselines3.common.callbacks import BaseCallback  # type: ignore
@@ -501,8 +505,8 @@ class MultiSymbolCallback(BaseCallback):
         self,
         config: MultiSymbolCurriculumConfig,
         episodes: dict,  # symbol → EpisodeData
-        pipeline: "FeaturePipeline",
-        env_config: "MarketEnvConfig",
+        pipeline: FeaturePipeline,
+        env_config: MarketEnvConfig,
         verbose: int = 0,
     ) -> None:
         super().__init__(verbose=verbose)
@@ -518,9 +522,11 @@ class MultiSymbolCallback(BaseCallback):
     def _on_training_start(self) -> None:
         self._apply_symbol_update(0.0)
         if self.verbose:
-            logger.info("🌍 Multi-symbol curriculum: %d total symbols across %d tiers",
-                        sum(len(t.symbols) for t in (self.config.tiers or [])),
-                        len(self.config.tiers or []))
+            logger.info(
+                "🌍 Multi-symbol curriculum: %d total symbols across %d tiers",
+                sum(len(t.symbols) for t in (self.config.tiers or [])),
+                len(self.config.tiers or []),
+            )
 
     def _on_step(self) -> bool:
         progress = self.num_timesteps / max(self.config.total_timesteps, 1)
@@ -543,8 +549,11 @@ class MultiSymbolCallback(BaseCallback):
             added = set(new_active) - set(self._active_symbols)
             self._active_symbols = new_active
             if added and self.verbose:
-                logger.info("  🌍 Symbols expanded: +%s → %d total",
-                            ", ".join(sorted(added)), len(self._active_symbols))
+                logger.info(
+                    "  🌍 Symbols expanded: +%s → %d total",
+                    ", ".join(sorted(added)),
+                    len(self._active_symbols),
+                )
 
     def _rotate_symbol(self) -> None:
         """Swap the underlying environment's episode to a random active symbol."""
@@ -557,6 +566,7 @@ class MultiSymbolCallback(BaseCallback):
 
         try:
             from .market_env import MarketEnv
+
             episode = self.episodes[next_symbol]
 
             for env_idx in range(self.training_env.num_envs):

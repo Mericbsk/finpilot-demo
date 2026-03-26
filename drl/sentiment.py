@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
@@ -30,6 +31,16 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Optional imports (graceful degradation)
 # ---------------------------------------------------------------------------
+try:
+    from tavily import TavilyClient  # type: ignore[import-untyped]
+
+    _TAVILY_KEY = os.environ.get("TAVILY_API_KEY", "")
+    _HAS_TAVILY = bool(_TAVILY_KEY)
+except ImportError:
+    TavilyClient = None  # type: ignore[assignment,misc]
+    _TAVILY_KEY = ""
+    _HAS_TAVILY = False
+
 try:
     from duckduckgo_search import DDGS
 
@@ -201,19 +212,53 @@ def _ddg_news(
     return []
 
 
+def _tavily_search(symbol: str, max_results: int = 10) -> list[dict]:
+    """Sprint — Tavily AI-ranked financial news search (primary source)."""
+    if not _HAS_TAVILY or TavilyClient is None:
+        return []
+    try:
+        client = TavilyClient(api_key=_TAVILY_KEY)
+        resp = client.search(
+            query=f"{symbol} stock market news analysis",
+            search_depth="basic",
+            topic="news",
+            max_results=max_results,
+            include_answer=False,
+        )
+        results = []
+        for r in resp.get("results", []):
+            results.append(
+                {
+                    "title": r.get("title", ""),
+                    "body": r.get("content", ""),
+                    "url": r.get("url", ""),
+                    "source": r.get("url", "").split("/")[2] if r.get("url") else "tavily",
+                }
+            )
+        logger.info("Tavily: %d results for %s", len(results), symbol)
+        return results
+    except Exception as e:
+        logger.warning("Tavily search error for %s: %s", symbol, e)
+        return []
+
+
 def _fetch_headlines(symbol: str) -> list[dict]:
-    """Parallel DDG searches for a symbol, return raw headline dicts."""
-    queries = [
-        (f"{symbol} stock news", "wt-wt", "w", 5),
-        (f"{symbol} earnings report", "wt-wt", "m", 3),
-        (f"{symbol} analyst rating", "wt-wt", "m", 3),
-    ]
-    results: list[dict] = []
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        futs = {pool.submit(_ddg_news, q, r, t, m): q for q, r, t, m in queries}
-        for fut in as_completed(futs):
-            with contextlib.suppress(Exception):
-                results.extend(fut.result())
+    """Fetch headlines: Tavily (primary) → DDG (fallback)."""
+    # Try Tavily first (AI-ranked, higher quality)
+    results = _tavily_search(symbol, max_results=10)
+
+    # Fallback to DDG if Tavily unavailable or returned too few
+    if len(results) < 3:
+        queries = [
+            (f"{symbol} stock news", "wt-wt", "w", 5),
+            (f"{symbol} earnings report", "wt-wt", "m", 3),
+            (f"{symbol} analyst rating", "wt-wt", "m", 3),
+        ]
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            futs = {pool.submit(_ddg_news, q, r, t, m): q for q, r, t, m in queries}
+            for fut in as_completed(futs):
+                with contextlib.suppress(Exception):
+                    results.extend(fut.result())
 
     # Dedup by title
     seen: set[str] = set()

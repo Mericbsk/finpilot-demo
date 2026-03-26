@@ -17,6 +17,57 @@ import streamlit as st
 
 logger = logging.getLogger(__name__)
 
+
+def _render_fundamentals_row(symbol: str) -> None:
+    """Show a compact fundamental‐data row below the header."""
+    try:
+        from drl.fundamentals import get_fundamentals
+
+        fd = get_fundamentals(symbol)
+    except Exception:
+        return  # silently skip if unavailable
+
+    # Only render if we got at least some data
+    has_data = any(
+        v is not None
+        for v in [fd.pe_ratio, fd.forward_pe, fd.analyst_target_mean, fd.profit_margin]
+    )
+    if not has_data:
+        return
+
+    cols = st.columns(6)
+
+    def _fmt(v, suffix=""):
+        return f"{v:.1f}{suffix}" if v is not None else "—"
+
+    def _fmt_pct(v):
+        return f"{v * 100:.1f}%" if v is not None else "—"
+
+    with cols[0]:
+        st.metric("P/E", _fmt(fd.pe_ratio))
+    with cols[1]:
+        st.metric("Fwd P/E", _fmt(fd.forward_pe))
+    with cols[2]:
+        st.metric("PEG", _fmt(fd.peg_ratio))
+    with cols[3]:
+        st.metric("Profit Margin", _fmt_pct(fd.profit_margin))
+    with cols[4]:
+        st.metric(
+            "Analyst Hedef",
+            f"${fd.analyst_target_mean:.0f}" if fd.analyst_target_mean else "—",
+        )
+    with cols[5]:
+        rec_map = {
+            "buy": "🟢 Al",
+            "strong_buy": "🟢 Güçlü Al",
+            "hold": "🟡 Tut",
+            "sell": "🔴 Sat",
+            "strong_sell": "🔴 Güçlü Sat",
+        }
+        rec_label = rec_map.get(fd.recommendation or "", fd.recommendation or "—")
+        st.metric("Tavsiye", rec_label)
+
+
 # Sprint 10: Canonical re-exports so existing consumers don't break
 from .components.ai_signals import (  # noqa: F401, E402
     get_drl_predictions,
@@ -138,6 +189,9 @@ def render_detail_card(
     """,
         unsafe_allow_html=True,
     )
+
+    # --- Fundamental data row ---
+    _render_fundamentals_row(row["symbol"])
 
     c1, c2, c3 = st.columns([2, 1, 1])
 

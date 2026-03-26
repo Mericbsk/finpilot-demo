@@ -4,10 +4,12 @@ Tests for auth module.
 Tests authentication, password hashing, JWT handling, and rate limiting.
 """
 
+import contextlib
 import time
 from datetime import datetime, timedelta
 
 import pytest
+
 from auth.core import (
     AccountLockedError,
     AuthConfig,
@@ -42,7 +44,7 @@ class TestPasswordHasher:
     def test_verify_correct_password(self):
         """Should return True for correct password."""
         hasher = PasswordHasher(rounds=4)
-        password = "MySecurePassword123!"
+        password = "MySecurePassword123!"  # pragma: allowlist secret
         password_hash, _ = hasher.hash(password)
 
         assert hasher.verify(password, password_hash) is True
@@ -182,7 +184,9 @@ class TestAuthManagerRegistration:
         auth = AuthManager()
 
         user = auth.register(
-            email="test@example.com", username="testuser", password="SecurePass123!"
+            email="test@example.com",
+            username="testuser",
+            password="SecurePass123!",  # pragma: allowlist secret
         )
 
         assert user.email == "test@example.com"
@@ -250,10 +254,8 @@ class TestRateLimiting:
 
         # Fail 3 times
         for _ in range(3):
-            try:
+            with contextlib.suppress(InvalidCredentialsError, AccountLockedError):
                 auth.login("test@example.com", "WrongPassword!")
-            except (InvalidCredentialsError, AccountLockedError):
-                pass
 
         # 4th attempt should be locked
         with pytest.raises(AccountLockedError):
@@ -268,10 +270,8 @@ class TestRateLimiting:
 
         # Fail twice
         for _ in range(2):
-            try:
+            with contextlib.suppress(InvalidCredentialsError):
                 auth.login("test@example.com", "Wrong!")
-            except InvalidCredentialsError:
-                pass
 
         # Successful login
         session = auth.login("test@example.com", "SecurePass123!")
@@ -279,10 +279,8 @@ class TestRateLimiting:
 
         # Should be able to fail 5 more times (counter reset)
         for _ in range(4):
-            try:
+            with contextlib.suppress(InvalidCredentialsError):
                 auth.login("test@example.com", "Wrong!")
-            except InvalidCredentialsError:
-                pass
 
         # Still not locked (only 4 fails after reset)
         session = auth.login("test@example.com", "SecurePass123!")
@@ -391,7 +389,7 @@ class TestUserModel:
             id="user-123",
             email="test@example.com",
             username="testuser",
-            password_hash="hash",
+            password_hash="hash",  # pragma: allowlist secret
             salt="",
             locked_until=datetime.utcnow() + timedelta(minutes=10),
         )
@@ -404,7 +402,7 @@ class TestUserModel:
             id="user-123",
             email="test@example.com",
             username="testuser",
-            password_hash="hash",
+            password_hash="hash",  # pragma: allowlist secret
             salt="",
             locked_until=None,
         )

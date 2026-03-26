@@ -119,9 +119,15 @@ class MarketEnv(BaseEnv):
         self._equity = 1.0
         self._cash = 1.0
         self._max_equity = 1.0
+        self._prev_action: float = 0.0  # Sprint 25: track previous raw action for smoothing
         self._history: list[dict[str, float | str]] = []
         self._returns_buffer: list[float] = []  # Sprint 13: rolling Sharpe
         self._trade_count: int = 0  # Sprint 16: track trade count for terminal reward
+
+        # Sprint 26: RCRN — regime-conditioned reward running stats
+        self._regime_reward_sums: dict[str, float] = {}
+        self._regime_reward_sq_sums: dict[str, float] = {}
+        self._regime_reward_counts: dict[str, int] = {}
 
         # Spaces (if gym available)
         feature_dim = self._feature_tensor.shape[1]
@@ -159,9 +165,14 @@ class MarketEnv(BaseEnv):
         self._equity = 1.0
         self._cash = 1.0
         self._max_equity = 1.0
+        self._prev_action = 0.0  # Sprint 25: reset action smoothing
         self._history.clear()
         self._returns_buffer.clear()
         self._trade_count = 0
+        # Sprint 26: reset RCRN stats
+        self._regime_reward_sums.clear()
+        self._regime_reward_sq_sums.clear()
+        self._regime_reward_counts.clear()
         observation = self._feature_tensor[self._t].copy()
         # Sprint 16: inject dynamic portfolio state into observation
         self._inject_portfolio_state(observation)
@@ -216,7 +227,11 @@ class MarketEnv(BaseEnv):
         # ================================================================
         reward = self._reward_weights.pnl * pnl
         reward -= self._reward_weights.cost * transaction_cost
-        reward -= self._reward_weights.drawdown * drawdown
+        # Sprint 26: quadratic DD penalty — small DD barely penalised, deep DD punished hard
+        if self._reward_weights.dd_quadratic:
+            reward -= self._reward_weights.drawdown * (drawdown**2)
+        else:
+            reward -= self._reward_weights.drawdown * drawdown
 
         # --- Secondary terms (disabled by default, weight=0 in config) ---
         if self._reward_weights.leverage > 0:
@@ -230,6 +245,11 @@ class MarketEnv(BaseEnv):
             reward -= self._reward_weights.inactivity_penalty
         if self._reward_weights.position_bonus > 0:
             reward += self._reward_weights.position_bonus * abs(target_position)
+        # Sprint 25: action smoothing — penalise abrupt action changes (bang-bang)
+        if self._reward_weights.action_smoothing > 0:
+            action_delta = abs(target_position - self._prev_action)
+            reward -= self._reward_weights.action_smoothing * action_delta
+        self._prev_action = target_position
 
         # Rolling Sharpe bonus (only when enabled)
         self._returns_buffer.append(pnl)
@@ -248,6 +268,24 @@ class MarketEnv(BaseEnv):
         terminated = next_index >= (self._episode_len - 1)
         truncated = False
 
+        # Sprint 26: RCRN — Regime-Conditioned Reward Normalization
+        # Trending dönemde PnL reward ~10x büyük, range dönemde küçük.
+        # RCRN her regime'de eşit öğrenme sağlar.
+        current_regime = (
+            self._regimes[self._t] if self._regimes and self._t < len(self._regimes) else "unknown"
+        )
+        rk = current_regime
+        self._regime_reward_sums[rk] = self._regime_reward_sums.get(rk, 0.0) + reward
+        self._regime_reward_sq_sums[rk] = self._regime_reward_sq_sums.get(rk, 0.0) + reward**2
+        self._regime_reward_counts[rk] = self._regime_reward_counts.get(rk, 0) + 1
+        rn = self._regime_reward_counts[rk]
+        if rn >= 20:  # enough samples for stable stats
+            r_mu = self._regime_reward_sums[rk] / rn
+            r_var = self._regime_reward_sq_sums[rk] / rn - r_mu**2
+            r_sigma = max(r_var, 0.0) ** 0.5
+            if r_sigma > 1e-8:
+                reward = (reward - r_mu) / r_sigma
+
         # Sprint 18: terminal reward — reduced from 5.0→0.5 to prevent
         # episode-boundary gradient spikes that dominated mid-episode learning
         if terminated and len(self._returns_buffer) > 10:
@@ -255,6 +293,25 @@ class MarketEnv(BaseEnv):
             terminal_std = float(np.std(terminal_ret)) or 1e-8
             terminal_sharpe = float(np.mean(terminal_ret)) / terminal_std
             reward += 0.5 * np.clip(terminal_sharpe, -2.0, 2.0)
+
+            # Sprint 26: Terminal DD² penalty — episod sonunda MaxDD² cezası
+            max_dd = 1.0 - (self._equity / self._max_equity) if self._max_equity > 0 else 0.0
+            # Also check historical max drawdown from equity curve
+            if self._history:
+                hist_dd = max(
+                    (
+                        h.get("drawdown", 0.0)
+                        for h in self._history
+                        if isinstance(h.get("drawdown"), (int, float))
+                    ),
+                    default=0.0,
+                )
+                max_dd = max(max_dd, hist_dd)
+            if self._reward_weights.terminal_dd_penalty > 0:
+                reward -= self._reward_weights.terminal_dd_penalty * (max_dd**2)
+                # Hard threshold: extra penalty if DD > 15%
+                if max_dd > 0.15:
+                    reward -= self._reward_weights.terminal_dd_penalty * 0.5
 
         # Sprint 18: reward clipping — tightened from ±10 to ±5
         reward = float(np.clip(reward, -5.0, 5.0))

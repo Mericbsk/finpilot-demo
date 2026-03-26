@@ -16,7 +16,6 @@ from datetime import datetime
 from typing import Any
 
 import pandas as pd
-import yfinance as yf
 
 try:
     import streamlit as st
@@ -101,6 +100,8 @@ def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
     yf_period = period_map.get(interval, f"{days}d")
 
     try:
+        import yfinance as yf
+
         tkr = yf.Ticker(symbol)
         df = tkr.history(
             period=yf_period,
@@ -131,7 +132,11 @@ def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
                 if getattr(df.index, "tz", None) is not None:
                     df.index = df.index.tz_convert(None)
         except (TypeError, AttributeError):
-            logger.debug("Timezone conversion skipped for %s", symbol if 'symbol' in dir() else '?', exc_info=True)
+            logger.debug(
+                "Timezone conversion skipped for %s",
+                symbol if "symbol" in dir() else "?",
+                exc_info=True,
+            )
 
         df = df.dropna()
         return df
@@ -363,11 +368,14 @@ def prefetch_symbols_multi_timeframe(
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(_fetch_all_timeframes, symbol): symbol for symbol in symbols}
 
-        for future in as_completed(futures):
+        for future in as_completed(futures, timeout=180):
             symbol = futures[future]
             try:
-                _, data = future.result()
+                _, data = future.result(timeout=30)
                 results[symbol] = data
+            except TimeoutError:
+                logger.warning("Prefetch timeout: %s — atlanıyor", symbol)
+                results[symbol] = {tf[0]: pd.DataFrame() for tf in timeframes}
             except Exception as e:
                 logger.warning("Multi-timeframe prefetch hatası: %s - %s", symbol, e)
                 results[symbol] = {tf[0]: pd.DataFrame() for tf in timeframes}
@@ -378,6 +386,12 @@ def prefetch_symbols_multi_timeframe(
                     progress_callback(completed, total)
                 except Exception:
                     logger.debug("Progress callback failed", exc_info=True)
+
+    # Fill in any symbols that didn't complete (timeout)
+    for sym in symbols:
+        if sym not in results:
+            logger.warning("Prefetch incomplete: %s — boş veri", sym)
+            results[sym] = {tf[0]: pd.DataFrame() for tf in timeframes}
 
     return results
 
@@ -427,6 +441,8 @@ def _fetch_market_index(index_symbol: str) -> pd.DataFrame:
         DataFrame with index OHLCV data
     """
     try:
+        import yfinance as yf
+
         result = yf.download(index_symbol, period="1y", interval="1d", progress=False)
         if result is None or result.empty:
             logger.warning("Market index verisi alınamadı: %s", index_symbol)

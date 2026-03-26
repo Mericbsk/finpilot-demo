@@ -8,9 +8,7 @@ with mocked data fetching.
 import numpy as np
 import pandas as pd
 import pytest
-
 from scanner.evaluate import (
-    CURRENT_MARKET_STATUS,
     STRATEGY_PARAMS,
     calculate_risk_management,
     evaluate_symbol,

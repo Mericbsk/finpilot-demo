@@ -27,7 +27,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import numpy as np
@@ -41,14 +41,14 @@ logger = logging.getLogger(__name__)
 # ============================================
 
 
-class TradeDirection(str, Enum):
+class TradeDirection(StrEnum):
     """Trade direction enum."""
 
     LONG = "long"
     SHORT = "short"
 
 
-class TradeStatus(str, Enum):
+class TradeStatus(StrEnum):
     """Trade status enum."""
 
     OPEN = "open"
@@ -739,7 +739,7 @@ class Backtest:
 
         for date, row in self.data.iterrows():
             equity = self.portfolio.cash
-            for symbol, shares in self.portfolio.positions.items():
+            for _symbol, shares in self.portfolio.positions.items():
                 equity += shares * row["Close"]
 
             curve_data.append(

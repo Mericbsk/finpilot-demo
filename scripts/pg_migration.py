@@ -52,7 +52,12 @@ def check_pg_available() -> bool:
 
         conn = psycopg2.connect(**PG_CONFIG)
         conn.close()
-        logger.info("PostgreSQL connection OK: %s:%s/%s", PG_CONFIG["host"], PG_CONFIG["port"], PG_CONFIG["database"])
+        logger.info(
+            "PostgreSQL connection OK: %s:%s/%s",
+            PG_CONFIG["host"],
+            PG_CONFIG["port"],
+            PG_CONFIG["database"],
+        )
         return True
     except ImportError:
         logger.error("psycopg2 not installed. Run: pip install psycopg2-binary")
@@ -78,7 +83,7 @@ def export_sqlite_data(db_path: str = SQLITE_PATH) -> dict[str, list[dict[str, A
 
     data: dict[str, list[dict[str, Any]]] = {}
     for table in tables:
-        cursor.execute(f"SELECT * FROM {table}")  # noqa: S608
+        cursor.execute(f"SELECT * FROM {table}")  # noqa: S608  # nosec B608
         rows = cursor.fetchall()
         data[table] = [dict(row) for row in rows]
         logger.info("Exported %d rows from %s", len(rows), table)
@@ -215,7 +220,9 @@ def migrate_data_to_pg(data: dict[str, list[dict[str, Any]]]) -> bool:
             columns = rows[0].keys()
             col_str = ", ".join(columns)
             placeholders = ", ".join(["%s"] * len(columns))
-            insert_sql = f"INSERT INTO {table} ({col_str}) VALUES ({placeholders}) ON CONFLICT DO NOTHING"  # noqa: S608
+            insert_sql = (
+                f"INSERT INTO {table} ({col_str}) VALUES ({placeholders}) ON CONFLICT DO NOTHING"  # noqa: S608
+            )
 
             values = [tuple(row[c] for c in columns) for row in rows]
             psycopg2.extras.execute_batch(cursor, insert_sql, values)

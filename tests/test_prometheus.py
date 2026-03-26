@@ -166,7 +166,7 @@ class TestMetricsServer:
 
             try:
                 response = urllib.request.urlopen("http://127.0.0.1:29995/ready", timeout=2)
-                data = response.read().decode()
+                response.read().decode()
                 assert response.status == 200
             except urllib.error.URLError as e:
                 pytest.skip(f"Could not connect to ready endpoint: {e}")
@@ -213,7 +213,7 @@ class TestMetricsServer:
             time.sleep(0.3)
 
             try:
-                response = urllib.request.urlopen("http://127.0.0.1:29992/unknown", timeout=2)
+                urllib.request.urlopen("http://127.0.0.1:29992/unknown", timeout=2)
                 pytest.fail("Expected 404 error")
             except urllib.error.HTTPError as e:
                 assert e.code == 404
@@ -388,7 +388,7 @@ class TestIntegration:
             assert isinstance(output1, str)
 
             # Start server
-            server = start_metrics_server(host="127.0.0.1", port=29987)
+            start_metrics_server(host="127.0.0.1", port=29987)
             time.sleep(0.2)
 
             # Get metrics while server running

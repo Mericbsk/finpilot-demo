@@ -1,0 +1,18 @@
+[
+  {
+    "agent": "meanrev",
+    "model_id": "ppo_meanrev_20260302_190334",
+    "status": "success",
+    "metrics": {
+      "sharpe_ratio": 0.0142,
+      "total_return": 0.0215,
+      "max_drawdown": 0.337,
+      "avg_reward": -0.030932,
+      "n_trades": 127,
+      "active_pct": 99.3,
+      "action_diversity": 0.04,
+      "train_time_s": 355.0
+    },
+    "train_time_s": 354.966272354126
+  }
+]

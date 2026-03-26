@@ -1,0 +1,18 @@
+[
+  {
+    "agent": "conservative",
+    "model_id": "ppo_conservative_20260306_063457",
+    "status": "success",
+    "metrics": {
+      "sharpe_ratio": 0.0207,
+      "total_return": 0.2302,
+      "max_drawdown": 0.1248,
+      "avg_reward": -0.120017,
+      "n_trades": 615,
+      "active_pct": 38.8,
+      "action_diversity": 0.0,
+      "train_time_s": 18526.1
+    },
+    "train_time_s": 18526.096108675003
+  }
+]

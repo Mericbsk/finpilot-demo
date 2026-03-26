@@ -27,14 +27,38 @@ credentials*.json
 *.sqlite
 *.sqlite3
 
-# Model artifacts
+# Model artifacts — weights are managed externally, only registry.json tracked
 models/*.zip
 models/*.pkl
+models/ppo_*/
+models/rppo_*/
+models/best/
+models/checkpoints/
 
 # OS
 Thumbs.db
 desktop.ini
+
+# Temp/debug artifacts — never commit
 _analysis.py
 _analysis_output.txt
 _scan.txt
 _step1.txt
+_*.txt
+*.bak
+
+# Broken pip install artifacts (e.g. pip install pkg>=1.0 without quotes)
+=*
+
+# Credential fragments
+1.txt
+
+# Model training artifacts (weights tracked externally)
+models/*/
+models/best/
+models/checkpoints/
+!models/registry.json
+
+# Archive bloat
+archive/SettingsCard/node_modules/
+archive/SettingsCard/dist/

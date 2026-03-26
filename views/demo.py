@@ -521,7 +521,7 @@ def render_demo_page(standalone=False):
                 go.Scatter(
                     x=df_tech.index,
                     y=df_tech["SMA50"],
-                    line=dict(color="orange", width=1),
+                    line={"color": "orange", "width": 1},
                     name="SMA 50",
                 )
             )
@@ -531,7 +531,7 @@ def render_demo_page(standalone=False):
                 go.Scatter(
                     x=df_tech.index,
                     y=df_tech["BB_Upper"],
-                    line=dict(color="gray", width=1, dash="dot"),
+                    line={"color": "gray", "width": 1, "dash": "dot"},
                     name="BB Upper",
                     showlegend=False,
                 )
@@ -540,7 +540,7 @@ def render_demo_page(standalone=False):
                 go.Scatter(
                     x=df_tech.index,
                     y=df_tech["BB_Lower"],
-                    line=dict(color="gray", width=1, dash="dot"),
+                    line={"color": "gray", "width": 1, "dash": "dot"},
                     name="BB Lower",
                     fill="tonexty",
                     fillcolor="rgba(128,128,128,0.1)",
@@ -553,7 +553,7 @@ def render_demo_page(standalone=False):
                 yaxis_title=t["col_price"],
                 xaxis_rangeslider_visible=False,
                 height=400,
-                margin=dict(l=0, r=0, t=30, b=0),
+                margin={"l": 0, "r": 0, "t": 30, "b": 0},
                 template="plotly_dark",
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",

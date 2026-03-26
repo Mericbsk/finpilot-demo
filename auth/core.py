@@ -17,7 +17,6 @@ import secrets
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +36,7 @@ def _require_secret_key() -> str:
     import hashlib
     import socket
 
-    dev_key = hashlib.sha256(
-        f"finpilot-dev-{socket.gethostname()}".encode()
-    ).hexdigest()
+    dev_key = hashlib.sha256(f"finpilot-dev-{socket.gethostname()}".encode()).hexdigest()
     logger.warning(
         "⚠️  FINPILOT_SECRET_KEY not set! Using dev-only key derived from hostname. "
         "Set FINPILOT_SECRET_KEY in .env for production."
@@ -58,9 +55,7 @@ class AuthConfig:
 
     # JWT Settings — Güvenli anahtar: .env'deki FINPILOT_SECRET_KEY zorunludur.
     # Eksikse uygulama başlatılmaz (fail-fast). Production'da mutlaka güçlü anahtar kullanılmalıdır.
-    secret_key: str = field(
-        default_factory=lambda: _require_secret_key()
-    )
+    secret_key: str = field(default_factory=lambda: _require_secret_key())
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 24 hours
     refresh_token_expire_days: int = 30
@@ -136,15 +131,12 @@ class AccountLockedError(AuthError):
 # ============================================================================
 
 from .sessions import Session  # noqa: E402
-from .users import PasswordHasher, User, UserRole  # noqa: E402
-
 
 # ============================================================================
 # JWT UTILITIES (imported from sub-modules — Sprint P8)
 # ============================================================================
-
 from .tokens import JWTHandler, TokenPayload  # noqa: E402
-
+from .users import PasswordHasher, User, UserRole  # noqa: E402
 
 # ============================================================================
 # AUTH MANAGER
@@ -173,7 +165,7 @@ class AuthManager:
     """
 
     def __init__(
-        self, config: Optional[AuthConfig] = None, user_repository=None, session_repository=None
+        self, config: AuthConfig | None = None, user_repository=None, session_repository=None
     ):
         self.config = config or AuthConfig()
         self.hasher = PasswordHasher(self.config.bcrypt_rounds)
@@ -184,10 +176,10 @@ class AuthManager:
         self._session_repo = session_repository
 
         # In-memory fallback (for testing/simple usage)
-        self._users: Dict[str, User] = {}
-        self._sessions: Dict[str, Session] = {}
+        self._users: dict[str, User] = {}
+        self._sessions: dict[str, Session] = {}
 
-    def _get_user_by_email(self, email: str) -> Optional[User]:
+    def _get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""
         if self._user_repo:
             return self._user_repo.get_by_email(email)
@@ -197,7 +189,7 @@ class AuthManager:
                 return user
         return None
 
-    def _get_user_by_id(self, user_id: str) -> Optional[User]:
+    def _get_user_by_id(self, user_id: str) -> User | None:
         """Get user by ID."""
         if self._user_repo:
             return self._user_repo.get_by_id(user_id)
@@ -217,7 +209,7 @@ class AuthManager:
         else:
             self._sessions[session.id] = session
 
-    def _get_session(self, session_id: str) -> Optional[Session]:
+    def _get_session(self, session_id: str) -> Session | None:
         """Get session by ID."""
         if self._session_repo:
             return self._session_repo.get_by_id(session_id)
@@ -231,7 +223,7 @@ class AuthManager:
             del self._sessions[session_id]
 
     def register(
-        self, email: str, username: str, password: str, display_name: Optional[str] = None
+        self, email: str, username: str, password: str, display_name: str | None = None
     ) -> User:
         """
         Register a new user.
@@ -285,9 +277,9 @@ class AuthManager:
         self,
         email: str,
         password: str,
-        device_info: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        device_info: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
         remember_me: bool = False,
     ) -> Session:
         """
@@ -456,7 +448,7 @@ class AuthManager:
             role=payload["role"],
         )
 
-    def refresh_tokens(self, refresh_token: str) -> Tuple[str, str]:
+    def refresh_tokens(self, refresh_token: str) -> tuple[str, str]:
         """
         Refresh access and refresh tokens.
 
@@ -484,7 +476,7 @@ class AuthManager:
 
         return new_access, new_refresh
 
-    def get_current_user(self, token: str) -> Optional[User]:
+    def get_current_user(self, token: str) -> User | None:
         """
         Get current user from token.
 
@@ -546,7 +538,7 @@ class AuthManager:
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
-_default_auth_manager: Optional[AuthManager] = None
+_default_auth_manager: AuthManager | None = None
 
 
 def get_auth_manager() -> AuthManager:

@@ -187,7 +187,7 @@ try:
 
     metrics = momentum.get("metrics", [])
     horizons = [m["horizon"] for m in metrics]
-    assert set([1, 3, 5]).issubset(set(horizons)), f"Eksik horizonlar: {horizons}"
+    assert {1, 3, 5}.issubset(set(horizons)), f"Eksik horizonlar: {horizons}"
 
     z_eff = momentum.get("z_threshold_effective", "N/A")
     z_seg = momentum.get("liquidity_segment", "N/A")
@@ -878,7 +878,7 @@ if shortlists:
                 entry_ok_count += (
                     df_s["entry_ok"].sum()
                     if df_s["entry_ok"].dtype == bool
-                    else (df_s["entry_ok"] == True).sum()
+                    else (df_s["entry_ok"]).sum()
                 )
             if "symbol" in df_s.columns:
                 all_symbols.update(df_s["symbol"].unique())
@@ -902,7 +902,7 @@ if shortlists:
             try:
                 df_s = pd.read_csv(f)
                 if "symbol" in df_s.columns and "entry_ok" in df_s.columns:
-                    entries = df_s[df_s["entry_ok"] == True] if "entry_ok" in df_s.columns else df_s
+                    entries = df_s[df_s["entry_ok"]] if "entry_ok" in df_s.columns else df_s
                     for sym in entries["symbol"].unique():
                         symbol_counts[sym] = symbol_counts.get(sym, 0) + 1
             except:

@@ -403,7 +403,6 @@ def run_optuna_search(
     # Create and run objective
     objective = _create_objective(env_config, splits, search_config)
 
-    log_level = logging.WARNING if not search_config.verbose else logging.INFO
     optuna.logging.set_verbosity(
         optuna.logging.WARNING if not search_config.verbose else optuna.logging.INFO
     )

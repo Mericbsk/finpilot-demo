@@ -172,7 +172,7 @@ class SafeSerializer:
         if type_hint == "set":
             if data is None:
                 return set()
-            return set(SafeSerializer._from_serializable(item) for item in data)
+            return {SafeSerializer._from_serializable(item) for item in data}
 
         if type_hint == "dict":
             if data is None:
@@ -415,7 +415,11 @@ class RedisCache(CacheBackend):
         try:
             import redis  # type: ignore[import-not-found]
 
-            self._client = redis.from_url(self.url)
+            self._client = redis.from_url(
+                self.url,
+                socket_connect_timeout=2,
+                socket_timeout=2,
+            )
             self._client.ping()
             self._enabled = True
             logger.info(f"Redis connected: {self.url.split('@')[-1]}")

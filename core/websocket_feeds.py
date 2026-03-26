@@ -32,7 +32,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 # ============================================
 
 
-class FeedStatus(str, Enum):
+class FeedStatus(StrEnum):
     """WebSocket connection status."""
 
     DISCONNECTED = "disconnected"
@@ -53,7 +53,7 @@ class FeedStatus(str, Enum):
     ERROR = "error"
 
 
-class MessageType(str, Enum):
+class MessageType(StrEnum):
     """WebSocket message types."""
 
     TRADE = "trade"

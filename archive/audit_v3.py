@@ -182,7 +182,7 @@ try:
 
     metrics = momentum.get("metrics", [])
     horizons = [m["horizon"] for m in metrics]
-    assert set([1, 3, 5]).issubset(set(horizons))
+    assert {1, 3, 5}.issubset(set(horizons))
     for m in metrics:
         log_info(
             f"  Horizon {m['horizon']}d",
@@ -884,7 +884,7 @@ if shortlists:
                 entry_ok_count += (
                     df_s["entry_ok"].sum()
                     if df_s["entry_ok"].dtype == bool
-                    else (df_s["entry_ok"] == True).sum()
+                    else (df_s["entry_ok"]).sum()
                 )
             if "symbol" in df_s.columns:
                 all_symbols.update(df_s["symbol"].unique())
@@ -906,7 +906,7 @@ if shortlists:
         try:
             df_s = pd.read_csv(f)
             if "symbol" in df_s.columns and "entry_ok" in df_s.columns:
-                entries = df_s[df_s["entry_ok"] == True]
+                entries = df_s[df_s["entry_ok"]]
                 for sym in entries["symbol"].unique():
                     symbol_counts[sym] = symbol_counts.get(sym, 0) + 1
         except:

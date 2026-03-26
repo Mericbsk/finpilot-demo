@@ -175,7 +175,7 @@ class TestSentryClientWithMockedSDK:
             },
         ):
             client = SentryClient()
-            result = client.init(dsn="https://fake@sentry.io/123")
+            client.init(dsn="https://fake@sentry.io/123")
 
             # Should call sentry_sdk.init
             mock_sentry.init.assert_called_once()

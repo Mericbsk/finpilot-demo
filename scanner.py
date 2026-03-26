@@ -325,13 +325,7 @@ def evaluate_symbol(
         core_signal = bool(regime and direction and (score >= min_score_threshold))
         mtf_ok = alignment_ratio >= 0.66
 
-        if core_signal:
-            if score == 3 or score == 2 and mtf_ok:
-                entry_ok = True
-            else:
-                entry_ok = False
-        else:
-            entry_ok = False
+        entry_ok = bool(score == 3 or score == 2 and mtf_ok) if core_signal else False
 
         # Premium symbols
         is_premium_symbol = symbol in ["SPY", "QQQ", "GOOGL", "NVDA", "AAPL", "MSFT"]
@@ -377,7 +371,7 @@ def evaluate_symbol(
         try:
             from regime_detection import detect_market_regime
 
-            prices_for_regime = df_1d["Close"] if "Close" in df_1d else None
+            prices_for_regime = df_1d.get("Close", None)
             regime = (
                 detect_market_regime(prices_for_regime) if prices_for_regime is not None else regime
             )
@@ -484,17 +478,24 @@ def evaluate_symbols_parallel(
                 pct = int((current / subtotal) * 50)
                 progress_callback(pct, 100)
 
-        all_data = prefetch_symbols_multi_timeframe(
-            symbols, with_indicators=True, max_workers=10, progress_callback=prefetch_progress
-        )
+        try:
+            all_data = prefetch_symbols_multi_timeframe(
+                symbols, with_indicators=True, max_workers=10, progress_callback=prefetch_progress
+            )
+        except TimeoutError:
+            logger.warning("Prefetch phase timed out — continuing with partial data")
+            all_data = {}
 
         # Phase 2: Evaluate with prefetched data
         completed = 0
         for symbol in symbols:
             symbol_data = all_data.get(symbol, {})
-            result = evaluate_symbol(symbol, kelly_fraction, prefetched_data=symbol_data)
-            if result:
-                results.append(result)
+            try:
+                result = evaluate_symbol(symbol, kelly_fraction, prefetched_data=symbol_data)
+                if result:
+                    results.append(result)
+            except Exception as e:
+                logger.warning("Evaluate error for %s: %s", symbol, e)
 
             completed += 1
             if progress_callback:

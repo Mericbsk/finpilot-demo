@@ -181,7 +181,6 @@ class TestGetMarketRegimeStatus:
         """Should use XU100 for Turkish stocks."""
         # This is a behavior test - we can't easily mock this
         # Just verify it doesn't crash with Turkish symbols
-        symbols = ["THYAO.IS", "AKBNK.IS"]
         # Would need network, so just test the symbol detection logic
 
 

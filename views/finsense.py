@@ -2,9 +2,7 @@ import json
 import os
 import random
 
-import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
 
 # Finansal Okuryazarlık Sözlüğü Veri Seti
@@ -14,7 +12,7 @@ import streamlit as st
 def load_dictionary():
     file_path = os.path.join("data", "dictionary.json")
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         return []
@@ -79,7 +77,7 @@ def render_compound_interest_calculator():
     c3.metric(
         "Gelecekteki Değer",
         f"₺{future_value:,.0f}",
-        delta=f"%{((future_value/total_invested)-1)*100:.1f}",
+        delta=f"%{((future_value / total_invested) - 1) * 100:.1f}",
     )
 
     # Grafik
@@ -200,11 +198,11 @@ def render_finsense_page():
                     "🔍 Sözlükte Ara", placeholder="Örn: Enflasyon, Hisse, Risk..."
                 ).lower()
             with col_filter:
-                all_levels = sorted(list(set(t["level"] for t in terms)))
+                all_levels = sorted({t["level"] for t in terms})
                 selected_levels = st.multiselect("Seviye Filtrele", all_levels, default=all_levels)
 
             # Kategorilere Göre Grupla
-            categories = sorted(list(set(t["category"] for t in terms)))
+            categories = sorted({t["category"] for t in terms})
 
             for category in categories:
                 # Kategoriye ait terimleri filtrele
@@ -229,9 +227,7 @@ def render_finsense_page():
                                 # E2: Related terms
                                 related = term.get("related", [])
                                 if related:
-                                    st.markdown(
-                                        "🔗 " + " · ".join(f"*{r}*" for r in related)
-                                    )
+                                    st.markdown("🔗 " + " · ".join(f"*{r}*" for r in related))
                                 st.markdown("---")
 
     # --- TAB 2: QUIZ MODU ---

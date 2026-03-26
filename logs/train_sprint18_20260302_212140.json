@@ -1,0 +1,18 @@
+[
+  {
+    "agent": "swing",
+    "model_id": "rppo_swing_20260302_212140",
+    "status": "success",
+    "metrics": {
+      "sharpe_ratio": 0.0221,
+      "total_return": 0.2263,
+      "max_drawdown": 0.2221,
+      "avg_reward": 0.000924,
+      "n_trades": 150,
+      "active_pct": 99.5,
+      "action_diversity": 0.01,
+      "train_time_s": 3941.3
+    },
+    "train_time_s": 3941.3136706352234
+  }
+]

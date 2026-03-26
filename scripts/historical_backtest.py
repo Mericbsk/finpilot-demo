@@ -51,7 +51,7 @@ def historical_backtest(
         # Sadece hafta içi (basit kontrol)
         if current_date.weekday() < 5:  # 0=Pazartesi, 4=Cuma
             try:
-                daily_signals = run_paper_trading_day(engines, symbols, current_date)
+                run_paper_trading_day(engines, symbols, current_date)
                 trading_days += 1
 
             except Exception as e:
@@ -152,7 +152,7 @@ def historical_backtest(
     for name, engine in engines.items():
         if len(engine.daily_portfolio_value) > 0:
             values = [d["total_value"] for d in engine.daily_portfolio_value]
-            dates = [d["date"].strftime("%Y-%m-%d") for d in engine.daily_portfolio_value]
+            [d["date"].strftime("%Y-%m-%d") for d in engine.daily_portfolio_value]
 
             print(f"\n{name}:")
             print(f"   Start: ${values[0]:,.0f}")

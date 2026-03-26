@@ -161,7 +161,7 @@ def generate_weekly_report():
     if days_count < 5:
         print(f"""
 ⏳ Henüz erken ({days_count} gün)
-   
+
    Öneriler:
    - En az 5-7 gün daha test edin
    - Günlük scan'leri düzenli çalıştırın
@@ -186,7 +186,7 @@ def generate_weekly_report():
    Scanner:  {scanner_return:+.2f}%
    DRL:      {drl_return:+.2f}%
    Hybrid:   {hybrid_return:+.2f}%
-   
+
    ➡️  {"DRL production-ready!" if drl_return > scanner_return else "Daha fazla test gerekli"}
 """)
 

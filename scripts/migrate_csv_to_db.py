@@ -32,7 +32,9 @@ def migrate_signal_log(force: bool = False) -> int:
     repo = SignalRepository(db)
 
     if not force and repo.count() > 0:
-        logger.info(f"Signals table already has {repo.count()} rows — skipping (use --force to override)")
+        logger.info(
+            f"Signals table already has {repo.count()} rows — skipping (use --force to override)"
+        )
         return 0
 
     signal_log_path = os.path.join(os.getcwd(), "data", "logs", "signal_log.csv")
@@ -41,18 +43,28 @@ def migrate_signal_log(force: bool = False) -> int:
         return 0
 
     COLUMNS = [
-        "timestamp", "symbol", "price", "stop_loss", "take_profit",
-        "score", "strength", "regime", "sentiment", "onchain",
-        "entry_ok", "summary", "reason",
+        "timestamp",
+        "symbol",
+        "price",
+        "stop_loss",
+        "take_profit",
+        "score",
+        "strength",
+        "regime",
+        "sentiment",
+        "onchain",
+        "entry_ok",
+        "summary",
+        "reason",
     ]
 
     signals = []
-    with open(signal_log_path, "r", encoding="utf-8") as f:
+    with open(signal_log_path, encoding="utf-8") as f:
         reader = csv.reader(f)
         for row in reader:
             if not row or len(row) < 3:
                 continue
-            rec = dict(zip(COLUMNS, row))
+            rec = dict(zip(COLUMNS, row, strict=False))
             # Convert types
             for num_field in ("price", "stop_loss", "take_profit", "score", "strength"):
                 try:
@@ -60,7 +72,11 @@ def migrate_signal_log(force: bool = False) -> int:
                 except (ValueError, TypeError):
                     rec[num_field] = None
             rec["entry_ok"] = str(rec.get("entry_ok", "")).lower() in {
-                "1", "true", "evet", "al", "yes",
+                "1",
+                "true",
+                "evet",
+                "al",
+                "yes",
             }
             signals.append(rec)
 
@@ -75,17 +91,15 @@ def migrate_signal_log(force: bool = False) -> int:
 
 def migrate_shortlists(force: bool = False) -> int:
     """Import all shortlist CSVs into the scan_results table."""
-    from auth.database import ScanResultRepository, get_database
-
     import pandas as pd
+
+    from auth.database import ScanResultRepository, get_database
 
     db = get_database()
     repo = ScanResultRepository(db)
 
     if not force and repo.count() > 0:
-        logger.info(
-            f"Scan results table already has {repo.count()} rows — skipping (use --force)"
-        )
+        logger.info(f"Scan results table already has {repo.count()} rows — skipping (use --force)")
         return 0
 
     shortlist_dir = os.path.join(os.getcwd(), "data", "shortlists")

@@ -1,6 +1,10 @@
 """
-FinPilot Plugin Architecture
-============================
+FinPilot Plugin Architecture (EXPERIMENTAL)
+============================================
+
+⚠️ STATUS: This module is not used by any production code.
+It was built speculatively for a future plugin system.
+Do not depend on it — the API may change or be removed.
 
 Modular plugin system for strategies, indicators, and data sources.
 
@@ -37,7 +41,7 @@ import sys
 from abc import ABC
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -49,7 +53,7 @@ logger = logging.getLogger(__name__)
 # ============================================
 
 
-class PluginStatus(str, Enum):
+class PluginStatus(StrEnum):
     """Plugin lifecycle status."""
 
     REGISTERED = "registered"
@@ -519,7 +523,7 @@ class PluginManager:
         spec.loader.exec_module(module)
 
         # Find Plugin subclass
-        for name, obj in inspect.getmembers(module):
+        for _name, obj in inspect.getmembers(module):
             if inspect.isclass(obj) and issubclass(obj, Plugin) and obj is not Plugin:
                 return obj()
 
@@ -538,8 +542,7 @@ class PluginManager:
         if plugin_name not in self._plugins:
             return False
 
-        plugin = self._plugins[plugin_name]
-        was_active = plugin.status == PluginStatus.ACTIVE
+        self._plugins[plugin_name]
 
         # Deactivate and unregister
         self.unregister(plugin_name)

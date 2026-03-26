@@ -1,0 +1,170 @@
+{
+  "date": "2026-03-01",
+  "total_signals": 32,
+  "orders_placed": 32,
+  "orders_failed": 0,
+  "target_per_position": 3000,
+  "orders": [
+    {
+      "symbol": "CGON",
+      "order_id": "a890feaa-3311-47e0-9866-1d6a216f1b6f",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "CZR",
+      "order_id": "e923620d-ca92-4be1-8951-be270f2600ac",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "GSAT",
+      "order_id": "a92c342e-e7c0-401e-ae40-9fea7ff8d6d0",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "ILMN",
+      "order_id": "88f53b20-f347-4a3b-b7fc-93e57d994250",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "MRVL",
+      "order_id": "32a40553-885f-44b9-a029-f3980882439e",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "TMDX",
+      "order_id": "b6f7d62e-1eff-41af-87b4-82e90b765e44",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "ABNB",
+      "order_id": "919e2c5b-2f30-47d7-8337-240b3e7f6f23",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "BATRK",
+      "order_id": "20dbf5b7-f88d-4b78-b8f2-97ba25eaf87b",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "CAMT",
+      "order_id": "3e036250-fd29-4d3c-9d47-146bb205fd85",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "CASY",
+      "order_id": "8641e74c-ce88-4357-9ced-bfd9936d11fe",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "CEG",
+      "order_id": "e3de067e-22c1-46b1-9d4b-96edf3961a7e",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "CELC",
+      "order_id": "314b8016-bbe8-4245-962e-28e6f5e778a5",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "CRUS",
+      "order_id": "f14e08dd-fab6-4917-8140-f7961be64c3d",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "EXC",
+      "order_id": "56f70501-0126-4aac-b0a7-36de8cd83a65",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "FAST",
+      "order_id": "997ee429-f87f-43f5-a1df-b9f8ad3017bf",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "FELE",
+      "order_id": "9edc4fd5-f6b7-47aa-bc78-fddd97472b48",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "FORM",
+      "order_id": "8e9272b5-d750-40a4-b85d-0919096224c5",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "GILD",
+      "order_id": "218f02af-f644-407a-8a64-3498158a3143",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "GTX",
+      "order_id": "458bb524-0af9-4b12-950b-b42d7c8a5338",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "HTHT",
+      "order_id": "122a031b-5dab-4362-86b0-b99ea9215f75",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "IEP",
+      "order_id": "5de497fe-f2c6-451d-8bcf-e9aa7d938972",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "IMVT",
+      "order_id": "7f45c9dd-237c-4bb5-a791-ff14cc1d1f52",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "LRCX",
+      "order_id": "1d943a84-401f-4f41-8e29-e8c515da4710",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "NWE",
+      "order_id": "b1c995e2-0c8d-4ffe-af90-459e205629b3",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "RUSHA",
+      "order_id": "a2ca1aaf-7a71-4429-82d7-160c13562a81",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "SANM",
+      "order_id": "81fd4183-bf39-4204-abd2-418c335682c5",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "SIRI",
+      "order_id": "6809f552-7ade-4a24-819d-f90578a54237",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "SMTC",
+      "order_id": "86f15b81-348e-4fe6-b16c-857e2531e056",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "TLN",
+      "order_id": "e5e6b418-8561-4e84-8bf1-9b4ee10ff099",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "ULTA",
+      "order_id": "535cfa71-e52f-4b42-8387-2db78f9feee9",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "VRTX",
+      "order_id": "faed78b8-8858-4680-abae-c8223acc251f",
+      "status": "OrderStatus.ACCEPTED"
+    },
+    {
+      "symbol": "VTRS",
+      "order_id": "95b17028-3d71-4489-bd26-4d38d0ae68f6",
+      "status": "OrderStatus.ACCEPTED"
+    }
+  ],
+  "failures": []
+}

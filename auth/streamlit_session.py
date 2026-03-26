@@ -189,7 +189,7 @@ class StreamlitSessionManager:
             (success, error_message)
         """
         try:
-            user = self.auth.register(email, username, password, display_name)
+            self.auth.register(email, username, password, display_name)
 
             # Auto-login after registration
             return self.login(email, password)
@@ -227,7 +227,7 @@ class StreamlitSessionManager:
             return False
 
         try:
-            payload = self.auth.verify_token(token)
+            self.auth.verify_token(token)
             return True
         except TokenExpiredError:
             # Try to refresh
@@ -498,12 +498,10 @@ def require_auth(session_mgr: StreamlitSessionManager):
 _session_manager: StreamlitSessionManager | None = None
 
 
+@st.cache_resource
 def get_session_manager(db_path: str = "data/finpilot.db") -> StreamlitSessionManager:
-    """Get or create session manager singleton."""
-    global _session_manager
-    if _session_manager is None:
-        _session_manager = StreamlitSessionManager(db_path)
-    return _session_manager
+    """Get or create session manager singleton (cached across reruns)."""
+    return StreamlitSessionManager(db_path)
 
 
 __all__ = [

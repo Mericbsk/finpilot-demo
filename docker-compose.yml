@@ -5,7 +5,67 @@
 
 services:
   # ============================================
-  # 📊 Main Application - Streamlit Dashboard
+  # 🌐 Next.js Frontend
+  # ============================================
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: finpilot_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - API_HOST=http://api:8000
+      - NODE_ENV=production
+    networks:
+      - finpilot_network
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ============================================
+  # ⚡ FastAPI Backend
+  # ============================================
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: finpilot_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=Europe/Istanbul
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models:ro
+    networks:
+      - finpilot_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+  # ============================================
+  # 📊 Streamlit Dashboard (Legacy)
   # ============================================
   finpilot:
     build:
@@ -110,6 +170,32 @@ services:
       timeout: 5s
       retries: 3
 
+  # ============================================
+  # 🐘 PostgreSQL Database (Production-ready)
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: finpilot_postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: finpilot
+      POSTGRES_USER: finpilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-finpilot_dev_2026}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/pg_init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    networks:
+      - finpilot_network
+    profiles:
+      - db  # Only run with: docker-compose --profile db up
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finpilot -d finpilot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 # ============================================
 # 🌐 Networks
 # ============================================
@@ -124,4 +210,6 @@ volumes:
   finpilot_logs:
     driver: local
   redis_data:
+    driver: local
+  postgres_data:
     driver: local

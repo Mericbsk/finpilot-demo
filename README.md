@@ -67,7 +67,7 @@ cp .env.example .env
 
 ```bash
 # Start Streamlit dashboard
-streamlit run panel_new.py
+streamlit run streamlit_app.py
 
 # Run scanner
 python scanner.py

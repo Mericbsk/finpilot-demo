@@ -412,15 +412,16 @@ def signal_score_row(df: pd.DataFrame) -> int:
     try:
         # Bollinger band signal
         if (
-            not pd.isna(prev["Close"])
-            and not pd.isna(prev["bb_lower"])
-            and not pd.isna(row["Close"])
-            and not pd.isna(row["bb_lower"])
+            (
+                not pd.isna(prev["Close"])
+                and not pd.isna(prev["bb_lower"])
+                and not pd.isna(row["Close"])
+                and not pd.isna(row["bb_lower"])
+            )
+            and safe_float(prev["Close"]) < safe_float(prev["bb_lower"])
+            and safe_float(row["Close"]) > safe_float(row["bb_lower"])
         ):
-            if safe_float(prev["Close"]) < safe_float(prev["bb_lower"]) and safe_float(
-                row["Close"]
-            ) > safe_float(row["bb_lower"]):
-                score += 1
+            score += 1
 
         # RSI signal
         if not pd.isna(row["rsi"]) and not pd.isna(prev["rsi"]):

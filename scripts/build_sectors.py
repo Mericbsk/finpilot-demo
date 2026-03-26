@@ -129,7 +129,7 @@ def build_all():
     with open(index_path, "w", encoding="utf-8") as f:
         json.dump(index, f, indent=2, ensure_ascii=False)
 
-    unique = len(set(s for entry in index.values() for s in entry["symbols"]))
+    unique = len({s for entry in index.values() for s in entry["symbols"]})
     print(f"\n📊 Toplam: {len(index)} sektör, {total_symbols} sembol ({unique} benzersiz)")
     print(f"📁 Index: {index_path}")
 

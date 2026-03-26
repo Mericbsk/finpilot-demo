@@ -54,7 +54,7 @@ def create_admin(email: str, username: str, password: str, display_name: str = N
 
     # Register user first
     try:
-        session = auth.register(
+        auth.register(
             email=email, username=username, password=password, display_name=display_name or "Admin"
         )
         print(f"✅ Kullanıcı oluşturuldu: {email}")

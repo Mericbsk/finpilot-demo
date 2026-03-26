@@ -14,7 +14,8 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 from llm.base import (
     LLMAuthError,
@@ -132,9 +133,7 @@ class ClaudeProvider(LLMProvider):
 
         content = ""
         if response.content:
-            content = "".join(
-                block.text for block in response.content if hasattr(block, "text")
-            )
+            content = "".join(block.text for block in response.content if hasattr(block, "text"))
 
         usage_data = {}
         if hasattr(response, "usage") and response.usage:

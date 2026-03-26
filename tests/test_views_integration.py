@@ -8,7 +8,6 @@ Does NOT require a running Streamlit server.
 import importlib
 import json
 import os
-import sys
 
 import pytest
 

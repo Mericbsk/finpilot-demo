@@ -336,9 +336,9 @@ try:
 
     # Sniper modu (momentum >= 70)
     rm_sniper = calculate_risk_management(price=100.0, atr_val=2.0, momentum_score=75)
-    assert rm_sniper["strategy_tag"] == "Sniper 🎯", (
-        f"Beklenen Sniper, gelen: {rm_sniper['strategy_tag']}"
-    )
+    assert (
+        rm_sniper["strategy_tag"] == "Sniper 🎯"
+    ), f"Beklenen Sniper, gelen: {rm_sniper['strategy_tag']}"
     assert rm_sniper["stop_loss"] == 100 - 1.5 * 2, f"SL hatası: {rm_sniper['stop_loss']}"
     assert rm_sniper["tp1"] == 100 + 3.0 * 2, f"TP1 hatası: {rm_sniper['tp1']}"
     assert rm_sniper["tp2"] == 100 + 5.0 * 2, f"TP2 hatası: {rm_sniper['tp2']}"
@@ -895,10 +895,7 @@ for r in RESULTS["info"]:
 
 # Özet
 total = len(RESULTS["passed"]) + len(RESULTS["failed"])
-if total > 0:
-    pass_rate = len(RESULTS["passed"]) / total * 100
-else:
-    pass_rate = 0
+pass_rate = len(RESULTS["passed"]) / total * 100 if total > 0 else 0
 
 print(f"\n{'=' * 80}")
 print(

@@ -1,0 +1,18 @@
+[
+  {
+    "agent": "trend",
+    "model_id": "ppo_trend_20260304_233619",
+    "status": "success",
+    "metrics": {
+      "sharpe_ratio": 0.057,
+      "total_return": 5.7363,
+      "max_drawdown": 0.4651,
+      "avg_reward": -0.029102,
+      "n_trades": 149,
+      "active_pct": 99.2,
+      "action_diversity": 0.01,
+      "train_time_s": 1803.5
+    },
+    "train_time_s": 1803.5110938549042
+  }
+]

@@ -1,42 +1,42 @@
 {
-  "BKNG": {
-    "ai_score": 5.32,
+  "HON": {
+    "ai_score": 11.68,
     "signal": "SELL",
     "confidence": 0.85,
-    "regime": "False",
-    "price": 4236.3652,
-    "timestamp": "2026-03-01T21:32:37.447967+00:00"
+    "regime": "1",
+    "price": 243.88,
+    "timestamp": "2026-03-03T22:18:42.275017+00:00"
   },
-  "SBUX": {
-    "ai_score": 10.66,
+  "ADP": {
+    "ai_score": 4.0,
     "signal": "SELL",
     "confidence": 0.85,
-    "regime": "True",
-    "price": 98.03,
-    "timestamp": "2026-03-01T21:32:37.447967+00:00"
+    "regime": "0",
+    "price": 216.26,
+    "timestamp": "2026-03-03T22:18:42.275017+00:00"
   },
-  "MAR": {
-    "ai_score": 9.68,
+  "CTAS": {
+    "ai_score": 7.0,
     "signal": "SELL",
     "confidence": 0.85,
-    "regime": "True",
-    "price": 341.63,
-    "timestamp": "2026-03-01T21:32:37.447967+00:00"
+    "regime": "0",
+    "price": 201.57,
+    "timestamp": "2026-03-03T22:18:42.275017+00:00"
   },
-  "ORLY": {
-    "ai_score": 6.0,
+  "CSX": {
+    "ai_score": 8.0,
     "signal": "SELL",
     "confidence": 0.85,
-    "regime": "False",
-    "price": 93.885,
-    "timestamp": "2026-03-01T21:32:37.447967+00:00"
+    "regime": "1",
+    "price": 42.68,
+    "timestamp": "2026-03-03T22:18:42.275017+00:00"
   },
-  "ABNB": {
-    "ai_score": 9.66,
+  "TER": {
+    "ai_score": 8.68,
     "signal": "SELL",
     "confidence": 0.85,
-    "regime": "True",
-    "price": 135.11,
-    "timestamp": "2026-03-01T21:32:37.447967+00:00"
+    "regime": "1",
+    "price": 304.23,
+    "timestamp": "2026-03-03T22:18:42.275017+00:00"
   }
 }

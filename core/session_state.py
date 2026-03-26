@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import datetime
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 import pandas as pd
 
@@ -41,7 +41,7 @@ except ImportError:
 # ============================================
 
 
-class ScanStatus(str, Enum):
+class ScanStatus(StrEnum):
     """Scan operation status."""
 
     IDLE = "idle"
@@ -50,14 +50,14 @@ class ScanStatus(str, Enum):
     ERROR = "error"
 
 
-class ViewMode(str, Enum):
+class ViewMode(StrEnum):
     """Dashboard view mode."""
 
     SIMPLE = "simple"
     ADVANCED = "advanced"
 
 
-class Theme(str, Enum):
+class Theme(StrEnum):
     """UI theme."""
 
     DARK = "dark"
@@ -203,9 +203,7 @@ class AuthState:
         """Check if session is still valid."""
         if not self.is_authenticated:
             return False
-        if self.expires_at and datetime.datetime.now() > self.expires_at:
-            return False
-        return True
+        return not (self.expires_at and datetime.datetime.now() > self.expires_at)
 
     def logout(self) -> None:
         """Clear auth state."""

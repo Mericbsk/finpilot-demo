@@ -1,0 +1,742 @@
+{
+  "agent": "momentum",
+  "timestamp": "2026-03-05T18:43:41.513334",
+  "n_trials": 30,
+  "timesteps_per_trial": 30000,
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "NVDA",
+    "META",
+    "TSLA",
+    "AMD",
+    "CRM",
+    "ADBE",
+    "INTC",
+    "SPY",
+    "QQQ",
+    "IWM"
+  ],
+  "best_trial": 22,
+  "best_value": 0.1906,
+  "best_params": {
+    "lr": 0.0003904598834078164,
+    "gamma": 0.9953211304271343,
+    "n_epochs": 4,
+    "batch_size": 256,
+    "pnl_weight": 20.143168686905227,
+    "dd_weight": 0.5008096412230285,
+    "cost_weight": 0.06442147208959244,
+    "sharpe_bonus": 0.0798767570188865
+  },
+  "fixed_params": {
+    "n_steps": 1024,
+    "gae_lambda": 0.95,
+    "ent_coef": 0.01,
+    "clip_range": 0.2,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5
+  },
+  "best_attrs": {
+    "sharpe": 0.136,
+    "return": 0.4156,
+    "max_dd": 0.0643,
+    "trades": 179,
+    "active_pct": 92.5,
+    "train_time": 89.2
+  },
+  "all_trials": [
+    {
+      "number": 0,
+      "value": 0.1036,
+      "params": {
+        "lr": 4.3284502212938785e-05,
+        "gamma": 0.9975707148858876,
+        "n_epochs": 5,
+        "batch_size": 256,
+        "pnl_weight": 10.183923284706836,
+        "dd_weight": 0.1732334448672798,
+        "cost_weight": 0.10795585311974416,
+        "sharpe_bonus": 0.12022300234864176
+      },
+      "attrs": {
+        "sharpe": 0.1033,
+        "return": 0.0167,
+        "max_dd": 0.0033,
+        "trades": 20,
+        "active_pct": 0.0,
+        "train_time": 97.5
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 1,
+      "value": 0.1295,
+      "params": {
+        "lr": 0.00015958573588141273,
+        "gamma": 0.9705969503345783,
+        "n_epochs": 5,
+        "batch_size": 256,
+        "pnl_weight": 10.545549540899408,
+        "dd_weight": 0.2233618039413735,
+        "cost_weight": 0.0573818018663584,
+        "sharpe_bonus": 0.10495128632644757
+      },
+      "attrs": {
+        "sharpe": 0.0862,
+        "return": 0.1363,
+        "max_dd": 0.0544,
+        "trades": 233,
+        "active_pct": 81.2,
+        "train_time": 132.3
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 2,
+      "value": 0.1099,
+      "params": {
+        "lr": 5.4182823195332406e-05,
+        "gamma": 0.9784456450657432,
+        "n_epochs": 4,
+        "batch_size": 512,
+        "pnl_weight": 13.129065806111683,
+        "dd_weight": 0.3324279936868144,
+        "cost_weight": 0.10066583652537121,
+        "sharpe_bonus": 0.03993475643167195
+      },
+      "attrs": {
+        "sharpe": 0.1096,
+        "return": 0.014,
+        "max_dd": 0.0028,
+        "trades": 7,
+        "active_pct": 0.0,
+        "train_time": 73.4
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 3,
+      "value": 0.1195,
+      "params": {
+        "lr": 7.475992999956501e-05,
+        "gamma": 0.9871800224969992,
+        "n_epochs": 3,
+        "batch_size": 256,
+        "pnl_weight": 8.910722301793914,
+        "dd_weight": 0.5295542149013334,
+        "cost_weight": 0.11690688297671034,
+        "sharpe_bonus": 0.16167946962329224
+      },
+      "attrs": {
+        "sharpe": 0.1192,
+        "return": 0.0173,
+        "max_dd": 0.0016,
+        "trades": 1,
+        "active_pct": 0.0,
+        "train_time": 98.1
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 4,
+      "value": 0.0661,
+      "params": {
+        "lr": 3.292529363110524e-05,
+        "gamma": 0.9728324913061851,
+        "n_epochs": 5,
+        "batch_size": 256,
+        "pnl_weight": 14.932476741557782,
+        "dd_weight": 0.16375540844608735,
+        "cost_weight": 0.11183883618709038,
+        "sharpe_bonus": 0.05175599632000338
+      },
+      "attrs": {
+        "sharpe": 0.0657,
+        "return": 0.011,
+        "max_dd": 0.0066,
+        "trades": 55,
+        "active_pct": 0.4,
+        "train_time": 84.7
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 5,
+      "value": 0.1516,
+      "params": {
+        "lr": 0.00013353819088790598,
+        "gamma": 0.9790396212065929,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 21.574184788703818,
+        "dd_weight": 0.46005312934444587,
+        "cost_weight": 0.11455490474077702,
+        "sharpe_bonus": 0.17896547008552977
+      },
+      "attrs": {
+        "sharpe": 0.1229,
+        "return": 0.0711,
+        "max_dd": 0.0138,
+        "trades": 154,
+        "active_pct": 54.5,
+        "train_time": 101.6
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 6,
+      "value": 0.1394,
+      "params": {
+        "lr": 0.0001037084466895453,
+        "gamma": 0.9967343528156704,
+        "n_epochs": 3,
+        "batch_size": 256,
+        "pnl_weight": 12.554624630685701,
+        "dd_weight": 0.3054709158757928,
+        "cost_weight": 0.05442141285965063,
+        "sharpe_bonus": 0.1657475018303859
+      },
+      "attrs": {
+        "sharpe": 0.1386,
+        "return": 0.0295,
+        "max_dd": 0.0037,
+        "trades": 24,
+        "active_pct": 0.4,
+        "train_time": 114.9
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 7,
+      "value": 0.0994,
+      "params": {
+        "lr": 4.0375061884407564e-05,
+        "gamma": 0.978147100780934,
+        "n_epochs": 4,
+        "batch_size": 512,
+        "pnl_weight": 9.04370901151679,
+        "dd_weight": 0.5447547746402069,
+        "cost_weight": 0.09950202923669917,
+        "sharpe_bonus": 0.03974313630683449
+      },
+      "attrs": {
+        "sharpe": 0.0992,
+        "return": 0.0091,
+        "max_dd": 0.0016,
+        "trades": 1,
+        "active_pct": 0.0,
+        "train_time": 89.0
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 8,
+      "value": 0.0569,
+      "params": {
+        "lr": 1.0218376758008082e-05,
+        "gamma": 0.9936483814251902,
+        "n_epochs": 5,
+        "batch_size": 512,
+        "pnl_weight": 9.036625124277265,
+        "dd_weight": 0.29338629141770906,
+        "cost_weight": 0.040428215357261675,
+        "sharpe_bonus": 0.17262068517511872
+      },
+      "attrs": {
+        "sharpe": 0.0568,
+        "return": 0.0029,
+        "max_dd": 0.0015,
+        "trades": 0,
+        "active_pct": 0.0,
+        "train_time": 71.3
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 9,
+      "value": 0.1127,
+      "params": {
+        "lr": 0.0001145420156259939,
+        "gamma": 0.9795960427207268,
+        "n_epochs": 3,
+        "batch_size": 512,
+        "pnl_weight": 18.214486496732896,
+        "dd_weight": 0.4050229885420853,
+        "cost_weight": 0.10984914683186939,
+        "sharpe_bonus": 0.09444298503238986
+      },
+      "attrs": {
+        "sharpe": 0.1123,
+        "return": 0.022,
+        "max_dd": 0.0047,
+        "trades": 40,
+        "active_pct": 0.0,
+        "train_time": 71.8
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 10,
+      "value": 0.1176,
+      "params": {
+        "lr": 0.00043219879037387384,
+        "gamma": 0.9867615716837056,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 21.774529455296463,
+        "dd_weight": 0.44327933776180833,
+        "cost_weight": 0.08466974055799067,
+        "sharpe_bonus": 0.19531216206766755
+      },
+      "attrs": {
+        "sharpe": 0.065,
+        "return": 0.2229,
+        "max_dd": 0.1463,
+        "trades": 179,
+        "active_pct": 96.2,
+        "train_time": 134.4
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 11,
+      "value": 0.1611,
+      "params": {
+        "lr": 0.00021995182007875753,
+        "gamma": 0.9920241858837167,
+        "n_epochs": 3,
+        "batch_size": 256,
+        "pnl_weight": 18.816025624703144,
+        "dd_weight": 0.45078353185126974,
+        "cost_weight": 0.06783865446322983,
+        "sharpe_bonus": 0.14488720013840553
+      },
+      "attrs": {
+        "sharpe": 0.1396,
+        "return": 0.0796,
+        "max_dd": 0.0121,
+        "trades": 126,
+        "active_pct": 39.8,
+        "train_time": 121.8
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 12,
+      "value": 0.1592,
+      "params": {
+        "lr": 0.00027405612741274296,
+        "gamma": 0.9907434885464236,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 21.759635240809498,
+        "dd_weight": 0.4607528035396516,
+        "cost_weight": 0.07469388910052792,
+        "sharpe_bonus": 0.13536361161912305
+      },
+      "attrs": {
+        "sharpe": 0.1119,
+        "return": 0.2246,
+        "max_dd": 0.0499,
+        "trades": 227,
+        "active_pct": 85.7,
+        "train_time": 158.5
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 13,
+      "value": 0.1596,
+      "params": {
+        "lr": 0.00031463188379992826,
+        "gamma": 0.9918435074267676,
+        "n_epochs": 3,
+        "batch_size": 256,
+        "pnl_weight": 18.891657400484,
+        "dd_weight": 0.3957923970258499,
+        "cost_weight": 0.07123669225760589,
+        "sharpe_bonus": 0.13384163219684495
+      },
+      "attrs": {
+        "sharpe": 0.1209,
+        "return": 0.148,
+        "max_dd": 0.0282,
+        "trades": 203,
+        "active_pct": 71.4,
+        "train_time": 85.1
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 14,
+      "value": 0.1537,
+      "params": {
+        "lr": 0.00026470487726555045,
+        "gamma": 0.9914486613811592,
+        "n_epochs": 3,
+        "batch_size": 256,
+        "pnl_weight": 18.217687613443818,
+        "dd_weight": 0.39672910941618383,
+        "cost_weight": 0.07159032825610152,
+        "sharpe_bonus": 0.07942421225071408
+      },
+      "attrs": {
+        "sharpe": 0.1238,
+        "return": 0.1033,
+        "max_dd": 0.0175,
+        "trades": 182,
+        "active_pct": 55.6,
+        "train_time": 104.7
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 15,
+      "value": 0.1148,
+      "params": {
+        "lr": 0.0004984583744827694,
+        "gamma": 0.9832708578258331,
+        "n_epochs": 3,
+        "batch_size": 256,
+        "pnl_weight": 18.376144676519267,
+        "dd_weight": 0.3788678319831146,
+        "cost_weight": 0.08306386516611833,
+        "sharpe_bonus": 0.14081899833903766
+      },
+      "attrs": {
+        "sharpe": 0.0633,
+        "return": 0.1976,
+        "max_dd": 0.1372,
+        "trades": 179,
+        "active_pct": 95.1,
+        "train_time": 73.4
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 16,
+      "value": 0.1534,
+      "params": {
+        "lr": 0.00027317622827903985,
+        "gamma": 0.9936231137317242,
+        "n_epochs": 3,
+        "batch_size": 256,
+        "pnl_weight": 19.570087191036222,
+        "dd_weight": 0.49619697500832466,
+        "cost_weight": 0.058831003420736584,
+        "sharpe_bonus": 0.004182713296680768
+      },
+      "attrs": {
+        "sharpe": 0.1283,
+        "return": 0.0991,
+        "max_dd": 0.0143,
+        "trades": 159,
+        "active_pct": 46.2,
+        "train_time": 69.3
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 17,
+      "value": 0.1424,
+      "params": {
+        "lr": 0.0002052928829250331,
+        "gamma": 0.9881539398199676,
+        "n_epochs": 3,
+        "batch_size": 256,
+        "pnl_weight": 16.173734464246788,
+        "dd_weight": 0.26256570383158373,
+        "cost_weight": 0.03118612929428311,
+        "sharpe_bonus": 0.1422935395250736
+      },
+      "attrs": {
+        "sharpe": 0.1116,
+        "return": 0.0748,
+        "max_dd": 0.0177,
+        "trades": 180,
+        "active_pct": 58.6,
+        "train_time": 82.4
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 18,
+      "value": 0.0719,
+      "params": {
+        "lr": 2.3864909454131206e-05,
+        "gamma": 0.9829382062201719,
+        "n_epochs": 3,
+        "batch_size": 512,
+        "pnl_weight": 16.6054053908778,
+        "dd_weight": 0.35271050274866683,
+        "cost_weight": 0.08608132033702753,
+        "sharpe_bonus": 0.11790748997873966
+      },
+      "attrs": {
+        "sharpe": 0.0718,
+        "return": 0.0041,
+        "max_dd": 0.0017,
+        "trades": 0,
+        "active_pct": 0.0,
+        "train_time": 62.8
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 19,
+      "value": 0.175,
+      "params": {
+        "lr": 0.00036940323100254953,
+        "gamma": 0.9950123578205162,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 19.973056599546258,
+        "dd_weight": 0.41910903415689593,
+        "cost_weight": 0.06693970380449372,
+        "sharpe_bonus": 0.07275335717268269
+      },
+      "attrs": {
+        "sharpe": 0.1221,
+        "return": 0.351,
+        "max_dd": 0.0694,
+        "trades": 195,
+        "active_pct": 91.7,
+        "train_time": 135.0
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 20,
+      "value": 0.1624,
+      "params": {
+        "lr": 0.00019504352138570506,
+        "gamma": 0.9988559620128232,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 20.017784973755706,
+        "dd_weight": 0.43612402214769963,
+        "cost_weight": 0.04994358790574088,
+        "sharpe_bonus": 0.07330412184786665
+      },
+      "attrs": {
+        "sharpe": 0.1379,
+        "return": 0.0891,
+        "max_dd": 0.0137,
+        "trades": 136,
+        "active_pct": 45.5,
+        "train_time": 95.1
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 21,
+      "value": 0.1591,
+      "params": {
+        "lr": 0.0001862812858690264,
+        "gamma": 0.9987845564752603,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 20.181879586419036,
+        "dd_weight": 0.43300427964616045,
+        "cost_weight": 0.04447026910104061,
+        "sharpe_bonus": 0.0679012994888096
+      },
+      "attrs": {
+        "sharpe": 0.1369,
+        "return": 0.0828,
+        "max_dd": 0.0126,
+        "trades": 134,
+        "active_pct": 41.0,
+        "train_time": 94.1
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 22,
+      "value": 0.1906,
+      "params": {
+        "lr": 0.0003904598834078164,
+        "gamma": 0.9953211304271343,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 20.143168686905227,
+        "dd_weight": 0.5008096412230285,
+        "cost_weight": 0.06442147208959244,
+        "sharpe_bonus": 0.0798767570188865
+      },
+      "attrs": {
+        "sharpe": 0.136,
+        "return": 0.4156,
+        "max_dd": 0.0643,
+        "trades": 179,
+        "active_pct": 92.5,
+        "train_time": 89.2
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 23,
+      "value": 0.1904,
+      "params": {
+        "lr": 0.00040714294194192944,
+        "gamma": 0.9955078893262084,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 20.547970641259226,
+        "dd_weight": 0.4964326105900939,
+        "cost_weight": 0.049250587062560705,
+        "sharpe_bonus": 0.07818051333039967
+      },
+      "attrs": {
+        "sharpe": 0.1354,
+        "return": 0.4376,
+        "max_dd": 0.07,
+        "trades": 174,
+        "active_pct": 92.5,
+        "train_time": 89.9
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 24,
+      "value": 0.1825,
+      "params": {
+        "lr": 0.00036503032967368437,
+        "gamma": 0.9954160774925386,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 20.382070754623598,
+        "dd_weight": 0.49948236499873083,
+        "cost_weight": 0.06086384912984711,
+        "sharpe_bonus": 0.09243926341795392
+      },
+      "attrs": {
+        "sharpe": 0.1296,
+        "return": 0.3549,
+        "max_dd": 0.0626,
+        "trades": 188,
+        "active_pct": 91.7,
+        "train_time": 78.8
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 25,
+      "value": 0.1439,
+      "params": {
+        "lr": 0.0004986199411232462,
+        "gamma": 0.995520760806958,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 16.957338407530717,
+        "dd_weight": 0.4971397936075646,
+        "cost_weight": 0.06307182757309268,
+        "sharpe_bonus": 0.09314539117835768
+      },
+      "attrs": {
+        "sharpe": 0.0886,
+        "return": 0.351,
+        "max_dd": 0.122,
+        "trades": 152,
+        "active_pct": 96.6,
+        "train_time": 119.0
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 26,
+      "value": 0.1621,
+      "params": {
+        "lr": 0.00034830942083371904,
+        "gamma": 0.9903069106173794,
+        "n_epochs": 4,
+        "batch_size": 512,
+        "pnl_weight": 20.577822496557417,
+        "dd_weight": 0.5155184522668782,
+        "cost_weight": 0.03669953920536187,
+        "sharpe_bonus": 0.012183969939470393
+      },
+      "attrs": {
+        "sharpe": 0.1263,
+        "return": 0.1361,
+        "max_dd": 0.0224,
+        "trades": 188,
+        "active_pct": 66.2,
+        "train_time": 90.4
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 27,
+      "value": 0.126,
+      "params": {
+        "lr": 9.269360353065186e-05,
+        "gamma": 0.9945328415027989,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 17.34468906987354,
+        "dd_weight": 0.5022345788023355,
+        "cost_weight": 0.04746742122242037,
+        "sharpe_bonus": 0.05400689085271296
+      },
+      "attrs": {
+        "sharpe": 0.1246,
+        "return": 0.0325,
+        "max_dd": 0.004,
+        "trades": 42,
+        "active_pct": 1.5,
+        "train_time": 107.0
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 28,
+      "value": 0.0877,
+      "params": {
+        "lr": 0.00037410197102445274,
+        "gamma": 0.9885256250244872,
+        "n_epochs": 5,
+        "batch_size": 256,
+        "pnl_weight": 15.58453496377431,
+        "dd_weight": 0.4728270133596414,
+        "cost_weight": 0.07879158303478465,
+        "sharpe_bonus": 0.10690055316164404
+      },
+      "attrs": {
+        "sharpe": 0.0379,
+        "return": 0.1308,
+        "max_dd": 0.1683,
+        "trades": 162,
+        "active_pct": 94.4,
+        "train_time": 114.6
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "number": 29,
+      "value": 0.1517,
+      "params": {
+        "lr": 0.00015450858758666984,
+        "gamma": 0.9978127184555128,
+        "n_epochs": 4,
+        "batch_size": 256,
+        "pnl_weight": 21.061373869457867,
+        "dd_weight": 0.48236792748571855,
+        "cost_weight": 0.05317789683193688,
+        "sharpe_bonus": 0.08699875110197627
+      },
+      "attrs": {
+        "sharpe": 0.1371,
+        "return": 0.0647,
+        "max_dd": 0.009,
+        "trades": 98,
+        "active_pct": 26.7,
+        "train_time": 109.4
+      },
+      "state": "TrialState.COMPLETE"
+    }
+  ]
+}

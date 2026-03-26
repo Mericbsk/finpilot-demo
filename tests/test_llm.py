@@ -7,11 +7,11 @@ Sprint 19: Unit tests for base types, providers, and router failover logic.
 
 from __future__ import annotations
 
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from llm.base import (
     LLMAuthError,
     LLMError,
@@ -22,7 +22,6 @@ from llm.base import (
     LLMRole,
 )
 from llm.router import LLMRouter, ProviderStats, reset_router
-
 
 # ---------------------------------------------------------------------------
 # Fixtures: Mock Providers

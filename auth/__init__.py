@@ -26,16 +26,21 @@ from .database import (
     UserRepository,
 )
 from .portfolio import Portfolio, PortfolioManager, Position, Trade, TradeSide
-from .streamlit_session import (
-    StreamlitSessionManager,
-    get_session_manager,
-    render_auth_page,
-    render_login_form,
-    render_register_form,
-    render_settings_panel,
-    render_user_profile,
-    require_auth,
-)
+
+# Streamlit imports are conditional — streamlit may not be installed in API-only envs
+try:
+    from .streamlit_session import (
+        StreamlitSessionManager,
+        get_session_manager,
+        render_auth_page,
+        render_login_form,
+        render_register_form,
+        render_settings_panel,
+        render_user_profile,
+        require_auth,
+    )
+except ImportError:
+    pass
 
 __all__ = [
     # Core

@@ -33,8 +33,9 @@ def _dataframe_hash(df: pd.DataFrame) -> str:
     if df is None or df.empty:
         return "empty"
     # Use shape and column names for quick hash
-    return hashlib.md5(
-        f"{df.shape}_{list(df.columns)}_{df.iloc[0].tolist() if len(df) > 0 else []}".encode()
+    return hashlib.md5(  # nosec B324
+        f"{df.shape}_{list(df.columns)}_{df.iloc[0].tolist() if len(df) > 0 else []}".encode(),
+        usedforsecurity=False,
     ).hexdigest()[:16]
 
 
@@ -85,7 +86,7 @@ def cached_filter_buyable(
     Returns list of symbols that are buyable.
     """
     buyable = []
-    for symbol, entry_ok, score in zip(symbols, entry_oks, scores):
+    for symbol, entry_ok, _score in zip(symbols, entry_oks, scores, strict=False):
         if entry_ok:
             buyable.append(symbol)
     return buyable
@@ -208,7 +209,7 @@ def prepare_for_cache(df: pd.DataFrame, columns: list[str]) -> dict[str, tuple]:
         if col in df.columns:
             result[col] = tuple(df[col].tolist())
         else:
-            result[col] = tuple()
+            result[col] = ()
     return result
 
 

@@ -75,7 +75,7 @@ class TickerList(BaseModel):
                 ts = TickerSymbol(symbol=symbol)
                 validated.append(ts.symbol)
             except ValueError as e:
-                raise ValueError(f"Invalid symbol in list: {e}")
+                raise ValueError(f"Invalid symbol in list: {e}") from e
 
         # Remove duplicates while preserving order
         seen = set()

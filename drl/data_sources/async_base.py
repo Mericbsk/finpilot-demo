@@ -280,7 +280,7 @@ class AsyncBaseAdapter(BaseAdapter):
         end: Any | None = None,
     ) -> DataSlice:
         try:
-            loop = asyncio.get_running_loop()
+            asyncio.get_running_loop()
         except RuntimeError:
             return asyncio.run(self.fetch_async(symbol, start=start, end=end))
         raise RuntimeError(

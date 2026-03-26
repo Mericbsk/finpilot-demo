@@ -33,7 +33,6 @@ from .components.watchlist import (
     render_watchlist_sidebar,
 )
 from .finsense import render_finsense_page
-from .scan_history import render_scan_history_page
 
 # DRL Integration
 try:
@@ -68,30 +67,30 @@ def load_csv(path: str):
 
 
 def _render_drl_model_status():
-    """DRL Model Registry durumunu gosteren panel (flat-dict format, 3 rejim ajani)."""
+    """DRL Model Registry durumunu gösteren panel (flat-dict format, 3 rejim ajanı)."""
     st.markdown("### \U0001f916 DRL Model Durumu \u2014 3 Rejim Ajani")
 
     registry_path = os.path.join(os.getcwd(), "models", "registry.json")
     if not os.path.exists(registry_path):
-        st.info("Henuz egitilmis model bulunamadi. Sprint 14 model egitimini calistirin.")
+        st.info("Henüz eğitilmiş model bulunamadı. Sprint 14 model eğitimini çalıştırın.")
         return
 
     try:
         with open(registry_path) as f:
             registry = json.load(f)
     except Exception as e:
-        st.error(f"Registry okunamadi: {e}")
+        st.error(f"Registry okunamadı: {e}")
         return
 
     if not isinstance(registry, dict) or not registry:
-        st.info("Registry'de kayitli model yok.")
+        st.info("Registry'de kayıtlı model yok.")
         return
 
     # Collect active models by regime tag
     active_models = {k: v for k, v in registry.items() if v.get("is_active")}
     tag_icons = {"trend": "\U0001f4c8", "volatile": "\U0001f30a", "range": "\U0001f4d0"}
 
-    st.success(f"**Aktif Model Sayisi:** {len(active_models)} / {len(registry)}")
+    st.success(f"**Aktif Model Sayısı:** {len(active_models)} / {len(registry)}")
 
     cols = st.columns(min(len(active_models), 3)) if active_models else []
     for idx, (model_id, meta) in enumerate(active_models.items()):
@@ -109,10 +108,10 @@ def _render_drl_model_status():
             m1, m2 = st.columns(2)
             m1.metric("Sharpe", f"{sharpe:.4f}" if isinstance(sharpe, (int, float)) else "N/A")
             m2.metric("Return", f"{ret:+.1%}" if isinstance(ret, (int, float)) else "N/A")
-            st.metric("Islem Sayisi", trades)
+            st.metric("İşlem Sayısı", trades)
 
     # All models table
-    with st.expander(f"\U0001f4cb Tum Modeller ({len(registry)})", expanded=False):
+    with st.expander(f"\U0001f4cb Tüm Modeller ({len(registry)})", expanded=False):
         rows = []
         for mid, meta in registry.items():
             met = meta.get("metrics", {})
@@ -224,19 +223,19 @@ def _render_ensemble_status(df):
 
 
 def _render_optuna_results():
-    """Optuna HP optimizasyon sonuclarini gosterir."""
+    """Optuna HP optimizasyon sonuçlarını gösterir."""
     st.markdown("### \U0001f52c Optuna Hiperparametre Optimizasyonu")
 
     results_path = os.path.join(os.getcwd(), "data", "optuna_range_results.json")
     if not os.path.exists(results_path):
-        st.info("Henuz Optuna sonucu bulunamadi. `scripts/optuna_range.py` calistirin.")
+        st.info("Henüz Optuna sonucu bulunamadı. `scripts/optuna_range.py` çalıştırın.")
         return
 
     try:
         with open(results_path) as f:
             data = json.load(f)
     except Exception as e:
-        st.error(f"Optuna sonuclari okunamadi: {e}")
+        st.error(f"Optuna sonuçları okunamadı: {e}")
         return
 
     best = data.get("best_params", {})
@@ -474,7 +473,14 @@ def render_scanner_page():
         st.session_state["preset_symbols"] = None
 
     preset_tabs = st.tabs(
-        ["🔥 Popüler", "💼 Sektörler", "🌐 FinPilot Sektör", "🎯 Tematik", "📈 Strateji", "🌐 Bölgesel"]
+        [
+            "🔥 Popüler",
+            "💼 Sektörler",
+            "🌐 FinPilot Sektör",
+            "🎯 Tematik",
+            "📈 Strateji",
+            "🌐 Bölgesel",
+        ]
     )
 
     def _render_preset_row(keys, prefix):
@@ -1284,41 +1290,8 @@ def render_scanner_page():
 
     # --- TAB 4: Performans ---
     with tab_perf:
-        perf_sub1, perf_sub2, perf_sub3, perf_sub4 = st.tabs(
-            [
-                "\U0001f4c8 Sinyal Performans",
-                "\U0001f4cb Scanner Gecmisi",
-                "\U0001f916 DRL Model Karsilastirma",
-                "\U0001f4ca WFO & Backtest",
-            ]
-        )
+        render_signal_performance_tab()
 
-        with perf_sub1:
-            render_signal_performance_tab()
-
-        with perf_sub2:
-            render_scan_history_page()
-
-        with perf_sub3:
-            _render_drl_model_status()
-
-        with perf_sub4:
-            st.markdown("### \U0001f4ca WFO & Backtest Sonuclari")
-            # WFO Grid Search
-            wfo_path = os.path.join(os.getcwd(), "wfo_grid_search_results.csv")
-            if os.path.exists(wfo_path):
-                wfo_df = pd.read_csv(wfo_path)
-                st.dataframe(wfo_df, use_container_width=True, hide_index=True)
-            else:
-                st.info("WFO backtest sonuclari bulunamadi.")
-
-            # Walk-Forward Validation Report
-            wf_report = os.path.join(os.getcwd(), "reports", "wf_validation_report.txt")
-            if os.path.exists(wf_report):
-                with st.expander("\U0001f4dd Walk-Forward Validation Raporu", expanded=False):
-                    report_text = open(wf_report).read()  # noqa: SIM115
-                    st.code(report_text, language="text")
-
-    # --- TAB 5: FinSense Egitim ---
+    # --- TAB 5: FinSense Eğitim ---
     with tab_edu:
         render_finsense_page()

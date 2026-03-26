@@ -1,0 +1,18 @@
+[
+  {
+    "agent": "breakout",
+    "model_id": "ppo_breakout_20260302_191605",
+    "status": "success",
+    "metrics": {
+      "sharpe_ratio": -0.1251,
+      "total_return": -0.1796,
+      "max_drawdown": 0.3867,
+      "avg_reward": -0.151878,
+      "n_trades": 17,
+      "active_pct": 100.0,
+      "action_diversity": 0.21,
+      "train_time_s": 324.2
+    },
+    "train_time_s": 324.1587016582489
+  }
+]

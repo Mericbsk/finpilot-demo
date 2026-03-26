@@ -1,0 +1,18 @@
+[
+  {
+    "agent": "aggressive",
+    "model_id": "ppo_aggressive_20260302_215335",
+    "status": "success",
+    "metrics": {
+      "sharpe_ratio": 0.0068,
+      "total_return": -0.0613,
+      "max_drawdown": 0.5192,
+      "avg_reward": 0.031863,
+      "n_trades": 158,
+      "active_pct": 98.5,
+      "action_diversity": 0.04,
+      "train_time_s": 405.8
+    },
+    "train_time_s": 405.75392603874207
+  }
+]

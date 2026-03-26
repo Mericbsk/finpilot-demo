@@ -72,7 +72,6 @@ def export_to_excel(
         df.to_excel(writer, sheet_name=sheet_name, index=False)
 
         # Get workbook and worksheet for styling
-        workbook = writer.book
         worksheet = writer.sheets[sheet_name]
 
         # Auto-adjust column widths (use get_column_letter for >26 columns)

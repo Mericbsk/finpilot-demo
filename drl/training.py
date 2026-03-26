@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import logging
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,6 +18,8 @@ from time import perf_counter
 from typing import TYPE_CHECKING
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 from .config import MarketEnvConfig
 from .feature_pipeline import FeaturePipeline
@@ -151,16 +154,16 @@ class WalkForwardTrainer:
 
         results: list[TrainResult] = []
         configure_mlflow(self._mlflow_settings)
-        common_params = dict(
-            algorithm=self.algo_config.algorithm,
-            total_timesteps=self.algo_config.total_timesteps,
-            learning_rate=self.algo_config.learning_rate,
-            gamma=self.algo_config.gamma,
-            gae_lambda=self.algo_config.gae_lambda,
-            ent_coef=self.algo_config.ent_coef,
-            vf_coef=self.algo_config.vf_coef,
-            seed=self.algo_config.seed,
-        )
+        common_params = {
+            "algorithm": self.algo_config.algorithm,
+            "total_timesteps": self.algo_config.total_timesteps,
+            "learning_rate": self.algo_config.learning_rate,
+            "gamma": self.algo_config.gamma,
+            "gae_lambda": self.algo_config.gae_lambda,
+            "ent_coef": self.algo_config.ent_coef,
+            "vf_coef": self.algo_config.vf_coef,
+            "seed": self.algo_config.seed,
+        }
         for split in splits:
             pipeline = FeaturePipeline(self.env_config)
             if self._loaded_artifact is not None:
@@ -253,27 +256,27 @@ class WalkForwardTrainer:
         n_stack = self.algo_config.n_stack
         if n_stack > 1 and VecFrameStack is not None and not is_recurrent:
             vec_env = VecFrameStack(vec_env, n_stack=n_stack)
-            logger.info("Observation stacking: n_stack=%d (obs_dim: %d → %d)",
-                        n_stack,
-                        len(self.env_config.feature_columns),
-                        len(self.env_config.feature_columns) * n_stack)
+            logger.info(
+                "Observation stacking: n_stack=%d (obs_dim: %d → %d)",
+                n_stack,
+                len(self.env_config.feature_columns),
+                len(self.env_config.feature_columns) * n_stack,
+            )
         elif is_recurrent:
             logger.info("RecurrentPPO: LSTM handles temporal memory — stacking disabled")
-        common = dict(
-            learning_rate=self.algo_config.learning_rate,
-            gamma=self.algo_config.gamma,
-        )
-        on_policy_extras = dict(
-            gae_lambda=self.algo_config.gae_lambda,
-            ent_coef=self.algo_config.ent_coef,
-            vf_coef=self.algo_config.vf_coef,
-        )
+        common = {
+            "learning_rate": self.algo_config.learning_rate,
+            "gamma": self.algo_config.gamma,
+        }
+        on_policy_extras = {
+            "gae_lambda": self.algo_config.gae_lambda,
+            "ent_coef": self.algo_config.ent_coef,
+            "vf_coef": self.algo_config.vf_coef,
+        }
 
         if algo in ("RECURRENTPPO", "RPPO"):
             if RecurrentPPO is None:
-                raise ImportError(
-                    "sb3-contrib is not installed. Run 'pip install sb3-contrib'"
-                )
+                raise ImportError("sb3-contrib is not installed. Run 'pip install sb3-contrib'")
             model = RecurrentPPO(
                 "MlpLstmPolicy",
                 vec_env,

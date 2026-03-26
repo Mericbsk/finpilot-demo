@@ -14,7 +14,7 @@
     "codespaces": {
       "openFiles": [
         "README.md",
-        "panel_new.py"
+        "streamlit_app.py"
       ]
     },
     "vscode": {
@@ -32,7 +32,7 @@
   "updateContentCommand": "sudo chown -R $(id -u):$(id -g) /opt/venv /opt/app 2>/dev/null; [ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; python3 -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt && /opt/venv/bin/pip install streamlit && echo '✅ venv ready'; cp -a . /opt/app/ && echo '✅ App files synced to /opt/app (overlay FS)'",
 
   // ── Başlatma: git clone ile senkronize et (9p cp/rsync takılır), sonra çalıştır ──
-  "postAttachCommand": "rm -rf /tmp/_finpilot_sync 2>/dev/null; git clone --depth 1 https://github.com/Mericbsk/finpilot-demo.git /tmp/_finpilot_sync && rm -rf /opt/app/* 2>/dev/null && cp -a /tmp/_finpilot_sync/. /opt/app/ && rm -rf /tmp/_finpilot_sync && echo '✅ App synced' && cd /opt/app && /opt/venv/bin/streamlit run panel_new.py --server.enableCORS false --server.enableXsrfProtection false --server.headless true",
+  "postAttachCommand": "rm -rf /tmp/_finpilot_sync 2>/dev/null; git clone --depth 1 https://github.com/Mericbsk/finpilot-demo.git /tmp/_finpilot_sync && rm -rf /opt/app/* 2>/dev/null && cp -a /tmp/_finpilot_sync/. /opt/app/ && rm -rf /tmp/_finpilot_sync && echo '✅ App synced' && cd /opt/app && /opt/venv/bin/streamlit run streamlit_app.py --server.enableCORS false --server.enableXsrfProtection false --server.headless true",
 
   "portsAttributes": {
     "8501": {

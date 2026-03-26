@@ -274,10 +274,7 @@ class MultiAssetMarketEnv(BaseEnv):
         # Apply per-asset weight cap
         weights = np.minimum(weights, self._max_weight)
         total = weights.sum()
-        if total > 0:
-            weights = weights / total
-        else:
-            weights = np.ones(self._n_assets) / self._n_assets
+        weights = weights / total if total > 0 else np.ones(self._n_assets) / self._n_assets
 
         # If shorting is not allowed, weights are already non-negative via softmax
         if not self._limits.allow_shorting:
@@ -344,8 +341,10 @@ class MultiAssetMarketEnv(BaseEnv):
             "reward": float(reward),
             "drawdown": float(drawdown),
             "equity": float(self._equity),
-            "weights": {s: float(w) for s, w in zip(self._symbols, self._weights)},
-            "asset_returns": {s: float(r) for s, r in zip(self._symbols, asset_returns)},
+            "weights": {s: float(w) for s, w in zip(self._symbols, self._weights, strict=False)},
+            "asset_returns": {
+                s: float(r) for s, r in zip(self._symbols, asset_returns, strict=False)
+            },
         }
         return info
 

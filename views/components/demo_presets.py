@@ -479,7 +479,7 @@ def get_all_demo_symbols() -> list[str]:
     all_symbols = set()
     for cat in DEMO_CATEGORIES.values():
         all_symbols.update(cat.symbols)
-    return sorted(list(all_symbols))
+    return sorted(all_symbols)
 
 
 def get_category_count() -> int:

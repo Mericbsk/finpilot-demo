@@ -23,11 +23,33 @@ ignore = [
     "B008",   # function call in default arg (Streamlit pattern)
     "S603",   # subprocess call
     "S607",   # partial path
+    "S110",   # try-except-pass (intentional in many scanner/data flows)
+    "S112",   # try-except-continue (intentional in batch processing)
+    "S311",   # pseudo-random (not used for crypto here)
+    "S324",   # md5 (used for cache keys, not security)
+    "SIM102", # nested if (often more readable)
+    "SIM108", # ternary (multi-line if/else often more readable)
+    "SIM113", # enumerate for counter (explicit counter sometimes clearer)
+    "SIM103", # return negated condition directly
+    "SIM105", # contextlib.suppress
+    "SIM115", # context manager for open
+    "SIM117", # combined with statements
+    "E402",   # import order (needed for sys.path manipulation)
+    "B024",   # abstract base class without abstract methods (design choice)
+    "B027",   # empty method in ABC without abstract decorator (hook pattern)
+    "B039",   # mutable ContextVar default
+    "UP007",  # X | Y union syntax (compat with older type checkers)
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "T201"]
-"scripts/*" = ["T201"]
+"tests/*" = ["S101", "T201", "S106", "S104", "S105", "B017", "SIM117"]
+"scripts/*" = ["T201", "E402", "S104", "S608"]
+"views/*" = ["E731"]
+"archive/*" = ["E722", "B904", "F821", "S105", "S106"]
+"core/prometheus_exporter.py" = ["S104"]
+"core/audit.py" = ["S105"]
+"drl/observability.py" = ["S104"]
+"telegram_test.py" = ["S105"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -127,7 +127,7 @@ clean-data:
 # ============================================
 run:
 	@echo "$(BLUE)Starting Streamlit dashboard...$(NC)"
-	streamlit run panel_new.py --server.port 8501
+	streamlit run streamlit_app.py --server.port 8501
 
 scanner:
 	@echo "$(BLUE)Running stock scanner...$(NC)"

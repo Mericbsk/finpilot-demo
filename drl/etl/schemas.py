@@ -71,10 +71,7 @@ def validate_dataframe(frame: pd.DataFrame, source: str) -> tuple[pd.DataFrame, 
     """Validate a DataFrame against source-specific schema."""
 
     _require_pydantic()
-    if source.lower().startswith("news"):
-        model = NewsRecordModel
-    else:
-        model = OnChainRecordModel
+    model = NewsRecordModel if source.lower().startswith("news") else OnChainRecordModel
 
     records = _frame_records(frame)
     errors: list[str] = []

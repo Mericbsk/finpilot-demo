@@ -37,6 +37,16 @@ except ImportError:
     DDGS = None
     Groq = None
 
+try:
+    from tavily import TavilyClient  # type: ignore[import-untyped]
+
+    _TAVILY_KEY = os.environ.get("TAVILY_API_KEY", "")
+    _HAS_TAVILY = bool(_TAVILY_KEY)
+except ImportError:
+    TavilyClient = None  # type: ignore[assignment,misc]
+    _TAVILY_KEY = ""
+    _HAS_TAVILY = False
+
 # LLM Router (Sprint 19)
 try:
     from llm import get_router as _get_llm_router
@@ -168,26 +178,61 @@ def _ddg_safe_search(
     return []
 
 
+def _tavily_news(symbol: str, max_results: int = 8) -> list[dict]:
+    """Tavily AI-ranked news search (primary source for research)."""
+    if not _HAS_TAVILY or TavilyClient is None:
+        return []
+    try:
+        client = TavilyClient(api_key=_TAVILY_KEY)
+        resp = client.search(
+            query=f"{symbol} stock market earnings financial analysis",
+            search_depth="advanced",
+            topic="news",
+            max_results=max_results,
+            include_answer=False,
+        )
+        results = []
+        for r in resp.get("results", []):
+            results.append(
+                {
+                    "title": r.get("title", ""),
+                    "body": r.get("content", ""),
+                    "url": r.get("url", ""),
+                    "date": r.get("published_date", ""),
+                    "source": r.get("url", "").split("/")[2] if r.get("url") else "tavily",
+                }
+            )
+        logger.info("Tavily research: %d results for %s", len(results), symbol)
+        return results
+    except Exception as e:
+        logger.warning("Tavily research error for %s: %s", symbol, e)
+        return []
+
+
 def _fetch_news(symbol: str) -> list[dict]:
-    """Parallel DDG searches (4 queries) + yfinance fallback.
+    """Tavily (primary) → DDG (fallback) → yfinance (last resort).
 
     Sprint 11: Uses ThreadPoolExecutor for ~3-4x wall-clock speedup.
+    Tavily integration: AI-ranked results as primary source.
     """
-    queries = [
-        (f"{symbol} stock news finance", "wt-wt", "w", 5),
-        (f"{symbol} sec filings lawsuit regulation", "wt-wt", "m", 3),
-        (f"{symbol} aktie finanzen", "de-de", "w", 2),
-        (f"{symbol} hisse haber borsa", "tr-tr", "w", 3),
-    ]
+    # Primary: Tavily AI-ranked search
+    results = _tavily_news(symbol, max_results=8)
 
-    results: list[dict] = []
-    with ThreadPoolExecutor(max_workers=4) as pool:
-        futures = {pool.submit(_ddg_safe_search, q, r, t, m): q for q, r, t, m in queries}
-        for fut in as_completed(futures):
-            try:
-                results.extend(fut.result())
-            except Exception as e:
-                logger.warning("DDG future error: %s", e)
+    # Fallback: DDG parallel searches if Tavily returned too few
+    if len(results) < 3:
+        queries = [
+            (f"{symbol} stock news finance", "wt-wt", "w", 5),
+            (f"{symbol} sec filings lawsuit regulation", "wt-wt", "m", 3),
+            (f"{symbol} aktie finanzen", "de-de", "w", 2),
+            (f"{symbol} hisse haber borsa", "tr-tr", "w", 3),
+        ]
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            futures = {pool.submit(_ddg_safe_search, q, r, t, m): q for q, r, t, m in queries}
+            for fut in as_completed(futures):
+                try:
+                    results.extend(fut.result())
+                except Exception as e:
+                    logger.warning("DDG future error: %s", e)
 
     # Company-name fallback if too few results
     if len(results) < 3:

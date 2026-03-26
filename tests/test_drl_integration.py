@@ -175,9 +175,9 @@ def test_curriculum_callback():
     try:
         params_easy = cc.interpolate(0.1)
         params_hard = cc.interpolate(0.9)
-        assert params_easy["cost_multiplier"] < params_hard["cost_multiplier"], (
-            "Easy cost should be < hard cost"
-        )
+        assert (
+            params_easy["cost_multiplier"] < params_hard["cost_multiplier"]
+        ), "Easy cost should be < hard cost"
         report(
             "Interpolasyon",
             True,
@@ -205,7 +205,7 @@ def test_curriculum_callback():
 
         pipeline = FeaturePipeline(DEFAULT_CONFIG)
         pipeline.fit(splits[0].train.features)
-        model = trainer._create_model(pipeline, splits[0].train, callbacks=[curriculum, metrics_cb])
+        trainer._create_model(pipeline, splits[0].train, callbacks=[curriculum, metrics_cb])
 
         phase_history = curriculum.get_phase_history()
         report(

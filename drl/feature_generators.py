@@ -94,10 +94,7 @@ def calculate_momentum(
     for period in periods:
         if period <= 0:
             raise ValueError("periods must contain positive integers")
-        if pct:
-            momentum = series.pct_change(periods=period)
-        else:
-            momentum = series.diff(periods=period)
+        momentum = series.pct_change(periods=period) if pct else series.diff(periods=period)
         col_name = f"{column}_{suffix}_{period}"
         data[col_name] = momentum
     return pd.DataFrame(data, index=frame.index).sort_index()

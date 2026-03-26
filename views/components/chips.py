@@ -58,10 +58,7 @@ def build_zscore_chip(data: dict) -> str:
         horizon = None
 
     segment_key = data.get("momentum_liquidity_segment")
-    if segment_key in (None, ""):
-        segment_key_cast = None
-    else:
-        segment_key_cast = str(segment_key)
+    segment_key_cast = None if segment_key in (None, "") else str(segment_key)
     segment_labels = {
         "high_liquidity": "Yüksek hacim",
         "mid_liquidity": "Orta hacim",
@@ -79,10 +76,7 @@ def build_zscore_chip(data: dict) -> str:
     else:
         unusual_pct = None
 
-    if z_abs >= threshold_val:
-        variant = "success" if z_val >= 0 else "warning"
-    else:
-        variant = "neutral"
+    variant = ("success" if z_val >= 0 else "warning") if z_abs >= threshold_val else "neutral"
 
     horizon_text = f"{horizon} periyot" if horizon else "Son getiri"
     baseline_text = f"{baseline} periyot"

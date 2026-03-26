@@ -323,7 +323,7 @@ def estimate_regime_success(
         return RegimeStats(name=regime)
 
     rewards_array = np.asarray(
-        [r for r, reg in zip(rewards, regimes) if reg == target_regime], dtype=float
+        [r for r, reg in zip(rewards, regimes, strict=False) if reg == target_regime], dtype=float
     )
     if rewards_array.size == 0:
         return RegimeStats(name=regime)

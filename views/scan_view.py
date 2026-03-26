@@ -20,13 +20,13 @@ from scanner import evaluate_symbols_parallel, load_symbols
 
 from .components.helpers import validate_csv_upload
 from .components.signal_tracker import log_signals_to_csv
-from .detail_view import refresh_inference_json
 from .components.stock_presets import STOCK_PRESETS
 from .components.watchlist import (
     get_watchlist_scan_symbols,
     is_watchlist_scan_triggered,
     render_watchlist_sidebar,
 )
+from .detail_view import refresh_inference_json
 
 logger = logging.getLogger(__name__)
 
@@ -136,9 +136,7 @@ def render_sidebar() -> dict:
 
             if dynamic_enabled_ui:
                 dynamic_window_ui = st.slider("Adaptasyon Penceresi", 20, 160, 60)
-                dynamic_quantile_ui = st.slider(
-                    "Hassasiyet (Quantile)", 0.90, 0.995, 0.975, 0.005
-                )
+                dynamic_quantile_ui = st.slider("Hassasiyet (Quantile)", 0.90, 0.995, 0.975, 0.005)
             else:
                 dynamic_window_ui = 60
                 dynamic_quantile_ui = 0.975
@@ -317,8 +315,14 @@ def render_preset_selector() -> None:
     with preset_tabs[1]:
         _render_preset_row(
             [
-                "biotech_large", "finance_banks", "energy_oil", "industrials",
-                "pharma_pipeline", "medical_devices", "enterprise_software", "finance_diversified",
+                "biotech_large",
+                "finance_banks",
+                "energy_oil",
+                "industrials",
+                "pharma_pipeline",
+                "medical_devices",
+                "enterprise_software",
+                "finance_diversified",
             ],
             "sec",
         )
@@ -329,7 +333,13 @@ def render_preset_selector() -> None:
         )
     with preset_tabs[3]:
         _render_preset_row(
-            ["high_dividend", "value_picks", "small_cap_growth", "biotech_emerging", "trending_momentum"],
+            [
+                "high_dividend",
+                "value_picks",
+                "small_cap_growth",
+                "biotech_emerging",
+                "trending_momentum",
+            ],
             "strat",
         )
     with preset_tabs[4]:
@@ -410,44 +420,59 @@ def render_scan_controls(kelly_fraction: float) -> None:
         c1, c2, c3, c4 = st.columns([2, 2, 1, 1], gap="small")
         with c1:
             run_btn = st.button(
-                primary_label, key="run_btn",
-                disabled=status == "loading", use_container_width=True, type="secondary",
+                primary_label,
+                key="run_btn",
+                disabled=status == "loading",
+                use_container_width=True,
+                type="secondary",
             )
         with c2:
             preset_btn = st.button(
                 f"🎯 Seçili Seti Tara ({len(st.session_state['preset_symbols'])})",
                 key="preset_scan_btn",
-                disabled=status == "loading", use_container_width=True, type="primary",
+                disabled=status == "loading",
+                use_container_width=True,
+                type="primary",
             )
         with c3:
             refresh_btn = st.button(
-                "🔄 Temizle", key="refresh_btn",
-                disabled=status == "loading", use_container_width=True,
+                "🔄 Temizle",
+                key="refresh_btn",
+                disabled=status == "loading",
+                use_container_width=True,
             )
         with c4:
             load_btn = st.button(
-                "📂 Yükle", key="load_btn",
-                disabled=status == "loading", use_container_width=True,
+                "📂 Yükle",
+                key="load_btn",
+                disabled=status == "loading",
+                use_container_width=True,
             )
     else:
         preset_btn = False
         c1, c2, c3 = st.columns([2, 1, 1], gap="small")
         with c1:
             run_btn = st.button(
-                primary_label, key="run_btn",
-                disabled=status == "loading", use_container_width=True,
+                primary_label,
+                key="run_btn",
+                disabled=status == "loading",
+                use_container_width=True,
                 type="primary" if status != "loading" else "secondary",
             )
         with c2:
             refresh_btn = st.button(
-                "🔄 Önbelleği Temizle", key="refresh_btn",
-                disabled=status == "loading", use_container_width=True,
+                "🔄 Önbelleği Temizle",
+                key="refresh_btn",
+                disabled=status == "loading",
+                use_container_width=True,
                 help="Verileri ve önbelleği temizleyip sayfayı yeniler.",
             )
         with c3:
             load_btn = st.button(
-                "📂 Yükle", key="load_btn",
-                disabled=status == "loading", use_container_width=True,
+                "📂 Yükle",
+                key="load_btn",
+                disabled=status == "loading",
+                use_container_width=True,
                 help="Kaydedilmiş bir shortlist CSV dosyasını yükle.",
             )
 
@@ -467,8 +492,10 @@ def render_scan_controls(kelly_fraction: float) -> None:
         if uploaded_csv:
             st.caption("Dosya yüklendi. 'Symbol' sütunu aranacak.")
         csv_scan_btn = st.button(
-            "▶️ CSV Listesini Tara", key="csv_scan_btn",
-            disabled=(uploaded_csv is None or status == "loading"), type="primary",
+            "▶️ CSV Listesini Tara",
+            key="csv_scan_btn",
+            disabled=(uploaded_csv is None or status == "loading"),
+            type="primary",
         )
 
     # Execution logic

@@ -106,7 +106,7 @@ def analyze_recommendations(df, user_portfolio=None, start_date=None, end_date=N
     )
 
     # Detay butonu ve grafik
-    for idx, row in df_top.iterrows():
+    for _idx, row in df_top.iterrows():
         with st.expander(f"Detay: {row['symbol']}"):
             st.write(f"Sinyal tipi: {row['signal_type']}, Strateji: {row['strategy']}")
             st.write(f"Not: {row['note']}")
@@ -784,15 +784,16 @@ def signal_score_row(df):
     try:
         # Bollinger band sinyali
         if (
-            not pd.isna(prev["Close"])
-            and not pd.isna(prev["bb_lower"])
-            and not pd.isna(row["Close"])
-            and not pd.isna(row["bb_lower"])
+            (
+                not pd.isna(prev["Close"])
+                and not pd.isna(prev["bb_lower"])
+                and not pd.isna(row["Close"])
+                and not pd.isna(row["bb_lower"])
+            )
+            and safe_float(prev["Close"]) < safe_float(prev["bb_lower"])
+            and safe_float(row["Close"]) > safe_float(row["bb_lower"])
         ):
-            if safe_float(prev["Close"]) < safe_float(prev["bb_lower"]) and safe_float(
-                row["Close"]
-            ) > safe_float(row["bb_lower"]):
-                score += 1
+            score += 1
         # RSI sinyali
         if not pd.isna(row["rsi"]) and not pd.isna(prev["rsi"]):
             if 30 <= safe_float(row["rsi"]) <= 45 and safe_float(row["rsi"]) > safe_float(
@@ -1009,7 +1010,7 @@ def evaluate_symbol(symbol, kelly_fraction=0.5):
         try:
             from regime_detection import detect_market_regime
 
-            prices_for_regime = df_1d["Close"] if "Close" in df_1d else None
+            prices_for_regime = df_1d.get("Close", None)
             regime = (
                 detect_market_regime(prices_for_regime) if prices_for_regime is not None else regime
             )
@@ -1094,10 +1095,7 @@ def get_market_regime_status(symbols):
     Returns: {'safe': bool, 'reason': str}
     """
     # Determine index
-    if any(s.endswith(".IS") for s in symbols[:5]):
-        index_symbol = "XU100.IS"
-    else:
-        index_symbol = "^IXIC"
+    index_symbol = "XU100.IS" if any(s.endswith(".IS") for s in symbols[:5]) else "^IXIC"
 
     print(f"📊 Piyasa Analizi Yapılıyor: {index_symbol}")
     try:

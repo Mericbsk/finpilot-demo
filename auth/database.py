@@ -12,9 +12,12 @@ import sqlite3
 from abc import ABC, abstractmethod
 from collections.abc import Generator
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 from .core import Session, User, UserRole
 
@@ -251,6 +254,63 @@ class Database:
             """
             )
 
+            # Buy signals table — Sprint 21
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS buy_signals (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date TEXT NOT NULL,
+                    symbol TEXT NOT NULL,
+                    entry_price REAL NOT NULL,
+                    stop_loss REAL,
+                    take_profit REAL,
+                    risk_reward REAL,
+                    score REAL,
+                    strength REAL,
+                    regime TEXT,
+                    sentiment REAL,
+                    position_size REAL,
+                    kelly_fraction REAL,
+                    reason TEXT,
+                    scan_source TEXT,
+                    status TEXT DEFAULT 'active',
+                    exit_price REAL,
+                    exit_date TEXT,
+                    pnl_pct REAL,
+                    pnl_dollar REAL,
+                    alpaca_order_id TEXT,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    UNIQUE(date, symbol)
+                )
+            """
+            )
+
+            # Alpaca orders table — Sprint 21
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS alpaca_orders (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    order_id TEXT UNIQUE NOT NULL,
+                    buy_signal_id INTEGER,
+                    symbol TEXT NOT NULL,
+                    side TEXT NOT NULL,
+                    qty REAL NOT NULL,
+                    order_type TEXT DEFAULT 'limit',
+                    limit_price REAL,
+                    stop_price REAL,
+                    time_in_force TEXT DEFAULT 'day',
+                    status TEXT DEFAULT 'new',
+                    filled_price REAL,
+                    filled_qty REAL,
+                    filled_at TEXT,
+                    submitted_at TEXT NOT NULL,
+                    raw_response TEXT,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    FOREIGN KEY (buy_signal_id) REFERENCES buy_signals(id)
+                )
+            """
+            )
+
             # Create indexes
             conn.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
             conn.execute(
@@ -259,17 +319,18 @@ class Database:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_trades_portfolio ON trades(portfolio_id)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_trades_symbol ON trades(symbol)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_quiz_user ON quiz_scores(user_id)")
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_signals_symbol ON signals(symbol)"
-            )
-            conn.execute(
-                "CREATE INDEX IF NOT EXISTS idx_signals_timestamp ON signals(timestamp)"
-            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_signals_symbol ON signals(symbol)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_signals_timestamp ON signals(timestamp)")
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_scan_results_scan ON scan_results(scan_id)"
             )
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_scan_results_symbol ON scan_results(symbol)"
+            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_buy_signals_date ON buy_signals(date)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_buy_signals_symbol ON buy_signals(symbol)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_alpaca_orders_symbol ON alpaca_orders(symbol)"
             )
 
             logger.info(f"Database initialized: {self.db_path}")
@@ -277,6 +338,8 @@ class Database:
     def drop_all(self) -> None:
         """Drop all tables (for testing)."""
         with self.connection() as conn:
+            conn.execute("DROP TABLE IF EXISTS alpaca_orders")
+            conn.execute("DROP TABLE IF EXISTS buy_signals")
             conn.execute("DROP TABLE IF EXISTS scan_results")
             conn.execute("DROP TABLE IF EXISTS signals")
             conn.execute("DROP TABLE IF EXISTS quiz_scores")
@@ -700,7 +763,7 @@ class QuizRepository:
         category: str | None = None,
     ) -> None:
         """Record a quiz attempt."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         with self.db.connection() as conn:
             conn.execute(
@@ -708,7 +771,7 @@ class QuizRepository:
                 INSERT INTO quiz_scores (user_id, score, total, category, played_at)
                 VALUES (?, ?, ?, ?, ?)
                 """,
-                (user_id, score, total, category, datetime.now(timezone.utc).isoformat()),
+                (user_id, score, total, category, datetime.now(UTC).isoformat()),
             )
 
     def get_user_stats(self, user_id: str) -> dict[str, Any]:
@@ -847,9 +910,7 @@ class SignalRepository:
             )
             return len(rows)
 
-    def get_by_symbol(
-        self, symbol: str, limit: int = 100
-    ) -> list[dict[str, Any]]:
+    def get_by_symbol(self, symbol: str, limit: int = 100) -> list[dict[str, Any]]:
         """Get signals for a specific symbol."""
         with self.db.connection() as conn:
             rows = conn.execute(
@@ -918,8 +979,13 @@ class SignalRepository:
             ).fetchone()
             if not row or row[0] == 0:
                 return {
-                    "total": 0, "open": 0, "tp_hit": 0, "sl_hit": 0,
-                    "avg_score": 0.0, "unique_symbols": 0, "win_rate": 0.0,
+                    "total": 0,
+                    "open": 0,
+                    "tp_hit": 0,
+                    "sl_hit": 0,
+                    "avg_score": 0.0,
+                    "unique_symbols": 0,
+                    "win_rate": 0.0,
                 }
             closed = (row[2] or 0) + (row[3] or 0)
             return {
@@ -945,7 +1011,10 @@ class ScanResultRepository:
         self.db = db
 
     def save_scan(
-        self, scan_id: str, scan_timestamp: str, results: list[dict[str, Any]],
+        self,
+        scan_id: str,
+        scan_timestamp: str,
+        results: list[dict[str, Any]],
         source_file: str | None = None,
     ) -> int:
         """
@@ -1020,9 +1089,7 @@ class ScanResultRepository:
             ).fetchall()
             return [dict(r) for r in rows]
 
-    def get_symbol_history(
-        self, symbol: str, limit: int = 50
-    ) -> list[dict[str, Any]]:
+    def get_symbol_history(self, symbol: str, limit: int = 50) -> list[dict[str, Any]]:
         """Get scan history for a specific symbol across all scans."""
         with self.db.connection() as conn:
             rows = conn.execute(
@@ -1036,7 +1103,7 @@ class ScanResultRepository:
             ).fetchall()
             return [dict(r) for r in rows]
 
-    def get_all_as_dataframe(self) -> "pd.DataFrame":
+    def get_all_as_dataframe(self) -> pd.DataFrame:
         """Load all scan results as a pandas DataFrame."""
         import pandas as pd  # noqa: F811
 
@@ -1055,6 +1122,256 @@ class ScanResultRepository:
         """Number of distinct scans."""
         with self.db.connection() as conn:
             row = conn.execute("SELECT COUNT(DISTINCT scan_id) FROM scan_results").fetchone()
+            return row[0] if row else 0
+
+
+# ============================================================================
+# BUY SIGNAL REPOSITORY — Sprint 21
+# ============================================================================
+
+
+class BuySignalRepository:
+    """Track daily BUY signals with entry/exit details and P&L."""
+
+    def __init__(self, db: Database):
+        self.db = db
+
+    def save(self, signal: dict[str, Any]) -> int:
+        """Insert a daily BUY signal. Returns row id (skips duplicates)."""
+        with self.db.connection() as conn:
+            try:
+                cursor = conn.execute(
+                    """
+                    INSERT OR IGNORE INTO buy_signals
+                    (date, symbol, entry_price, stop_loss, take_profit,
+                     risk_reward, score, strength, regime, sentiment,
+                     position_size, kelly_fraction, reason, scan_source,
+                     status, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?)
+                    """,
+                    (
+                        signal["date"],
+                        signal["symbol"],
+                        signal["entry_price"],
+                        signal.get("stop_loss"),
+                        signal.get("take_profit"),
+                        signal.get("risk_reward"),
+                        signal.get("score"),
+                        signal.get("strength"),
+                        signal.get("regime"),
+                        signal.get("sentiment"),
+                        signal.get("position_size"),
+                        signal.get("kelly_fraction"),
+                        signal.get("reason"),
+                        signal.get("scan_source"),
+                        datetime.utcnow().isoformat(),
+                    ),
+                )
+                return cursor.lastrowid or 0
+            except Exception as e:
+                logger.error(f"Failed to save buy signal: {e}")
+                return 0
+
+    def save_batch(self, signals: list[dict[str, Any]]) -> int:
+        """Save multiple BUY signals, skipping same-day duplicates."""
+        count = 0
+        for s in signals:
+            if self.save(s):
+                count += 1
+        return count
+
+    def get_by_date(self, date: str) -> list[dict[str, Any]]:
+        """Get all BUY signals for a date (YYYY-MM-DD)."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM buy_signals WHERE date = ? ORDER BY score DESC",
+                (date,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_active(self) -> list[dict[str, Any]]:
+        """Get all active (open) positions."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM buy_signals WHERE status = 'active' ORDER BY date DESC"
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_history(self, limit: int = 100) -> list[dict[str, Any]]:
+        """Get signal history."""
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM buy_signals ORDER BY date DESC, score DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def close_position(
+        self,
+        signal_id: int,
+        exit_price: float,
+        exit_date: str,
+    ) -> bool:
+        """Mark a position as closed with P&L."""
+        with self.db.connection() as conn:
+            row = conn.execute(
+                "SELECT entry_price FROM buy_signals WHERE id = ?", (signal_id,)
+            ).fetchone()
+            if not row:
+                return False
+            entry = row["entry_price"]
+            pnl_pct = ((exit_price - entry) / entry) * 100 if entry else 0
+            cursor = conn.execute(
+                """
+                UPDATE buy_signals
+                SET status = 'closed', exit_price = ?, exit_date = ?,
+                    pnl_pct = ?, pnl_dollar = ?
+                WHERE id = ?
+                """,
+                (exit_price, exit_date, round(pnl_pct, 2), round(exit_price - entry, 4), signal_id),
+            )
+            return cursor.rowcount > 0
+
+    def link_alpaca_order(self, signal_id: int, order_id: str) -> bool:
+        """Associate an Alpaca order ID with a buy signal."""
+        with self.db.connection() as conn:
+            cursor = conn.execute(
+                "UPDATE buy_signals SET alpaca_order_id = ? WHERE id = ?",
+                (order_id, signal_id),
+            )
+            return cursor.rowcount > 0
+
+    def get_stats(self) -> dict[str, Any]:
+        """Aggregate buy signal statistics."""
+        with self.db.connection() as conn:
+            row = conn.execute(
+                """
+                SELECT
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+                    SUM(CASE WHEN status = 'closed' AND pnl_pct > 0 THEN 1 ELSE 0 END) as wins,
+                    SUM(CASE WHEN status = 'closed' AND pnl_pct <= 0 THEN 1 ELSE 0 END) as losses,
+                    AVG(CASE WHEN status = 'closed' THEN pnl_pct END) as avg_pnl,
+                    COUNT(DISTINCT date) as trading_days,
+                    COUNT(DISTINCT symbol) as unique_symbols
+                FROM buy_signals
+                """
+            ).fetchone()
+            if not row or row[0] == 0:
+                return {
+                    "total": 0,
+                    "active": 0,
+                    "wins": 0,
+                    "losses": 0,
+                    "avg_pnl": 0.0,
+                    "win_rate": 0.0,
+                }
+            closed = (row[2] or 0) + (row[3] or 0)
+            return {
+                "total": row[0],
+                "active": row[1] or 0,
+                "wins": row[2] or 0,
+                "losses": row[3] or 0,
+                "avg_pnl": round(row[4] or 0, 2),
+                "trading_days": row[5] or 0,
+                "unique_symbols": row[6] or 0,
+                "win_rate": round((row[2] or 0) / closed * 100, 1) if closed else 0.0,
+            }
+
+    def count(self) -> int:
+        with self.db.connection() as conn:
+            row = conn.execute("SELECT COUNT(*) FROM buy_signals").fetchone()
+            return row[0] if row else 0
+
+
+# ============================================================================
+# ALPACA ORDER REPOSITORY — Sprint 21
+# ============================================================================
+
+
+class AlpacaOrderRepository:
+    """Track Alpaca paper trading orders."""
+
+    def __init__(self, db: Database):
+        self.db = db
+
+    def save(self, order: dict[str, Any]) -> int:
+        with self.db.connection() as conn:
+            cursor = conn.execute(
+                """
+                INSERT OR REPLACE INTO alpaca_orders
+                (order_id, buy_signal_id, symbol, side, qty, order_type,
+                 limit_price, stop_price, time_in_force, status,
+                 filled_price, filled_qty, filled_at, submitted_at,
+                 raw_response, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    order["order_id"],
+                    order.get("buy_signal_id"),
+                    order["symbol"],
+                    order["side"],
+                    order["qty"],
+                    order.get("order_type", "limit"),
+                    order.get("limit_price"),
+                    order.get("stop_price"),
+                    order.get("time_in_force", "day"),
+                    order.get("status", "new"),
+                    order.get("filled_price"),
+                    order.get("filled_qty"),
+                    order.get("filled_at"),
+                    order.get("submitted_at", datetime.utcnow().isoformat()),
+                    order.get("raw_response"),
+                    datetime.utcnow().isoformat(),
+                ),
+            )
+            return cursor.lastrowid or 0
+
+    def get_by_order_id(self, order_id: str) -> dict[str, Any] | None:
+        with self.db.connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM alpaca_orders WHERE order_id = ?", (order_id,)
+            ).fetchone()
+            return dict(row) if row else None
+
+    def get_by_symbol(self, symbol: str, limit: int = 20) -> list[dict[str, Any]]:
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM alpaca_orders WHERE symbol = ? ORDER BY submitted_at DESC LIMIT ?",
+                (symbol, limit),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_recent(self, limit: int = 50) -> list[dict[str, Any]]:
+        with self.db.connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM alpaca_orders ORDER BY submitted_at DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    def update_status(
+        self,
+        order_id: str,
+        status: str,
+        filled_price: float | None = None,
+        filled_qty: float | None = None,
+        filled_at: str | None = None,
+    ) -> bool:
+        with self.db.connection() as conn:
+            cursor = conn.execute(
+                """
+                UPDATE alpaca_orders
+                SET status = ?, filled_price = ?, filled_qty = ?, filled_at = ?
+                WHERE order_id = ?
+                """,
+                (status, filled_price, filled_qty, filled_at, order_id),
+            )
+            return cursor.rowcount > 0
+
+    def count(self) -> int:
+        with self.db.connection() as conn:
+            row = conn.execute("SELECT COUNT(*) FROM alpaca_orders").fetchone()
             return row[0] if row else 0
 
 
@@ -1083,5 +1400,7 @@ __all__ = [
     "QuizRepository",
     "SignalRepository",
     "ScanResultRepository",
+    "BuySignalRepository",
+    "AlpacaOrderRepository",
     "get_database",
 ]

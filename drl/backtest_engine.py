@@ -910,8 +910,8 @@ class MonteCarloSimulator:
         n_sims = self.config.n_simulations
 
         # Daily parameters
-        daily_mean = mean_return / 252
-        daily_vol = volatility / np.sqrt(252)
+        mean_return / 252
+        volatility / np.sqrt(252)
 
         # Generate paths using GBM
         dt = 1 / 252
@@ -1009,7 +1009,7 @@ def run_full_analysis(
 
     # Walk-forward
     wfo = WalkForwardOptimizer(config)
-    wf_results = wfo.run_anchored(df, signal_generator, price_col)
+    wfo.run_anchored(df, signal_generator, price_col)
     wf_summary = wfo.summary()
 
     # Monte Carlo

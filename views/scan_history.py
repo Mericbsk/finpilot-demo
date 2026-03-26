@@ -66,9 +66,7 @@ def load_all_scans() -> pd.DataFrame:
                 df = repo.get_all_as_dataframe()
                 # Add columns expected by downstream code
                 if "scan_timestamp" in df.columns:
-                    df["scan_datetime"] = pd.to_datetime(
-                        df["scan_timestamp"], errors="coerce"
-                    )
+                    df["scan_datetime"] = pd.to_datetime(df["scan_timestamp"], errors="coerce")
                     df["scan_date"] = df["scan_datetime"].dt.strftime("%Y-%m-%d")
                     df["scan_time"] = df["scan_datetime"].dt.strftime("%H:%M")
                 if "source_file" in df.columns:

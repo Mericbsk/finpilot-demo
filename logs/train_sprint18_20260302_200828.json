@@ -1,0 +1,18 @@
+[
+  {
+    "agent": "scalper",
+    "model_id": "ppo_scalper_20260302_200828",
+    "status": "success",
+    "metrics": {
+      "sharpe_ratio": -0.0517,
+      "total_return": -0.0708,
+      "max_drawdown": 0.0914,
+      "avg_reward": -0.041557,
+      "n_trades": 130,
+      "active_pct": 99.3,
+      "action_diversity": 0.03,
+      "train_time_s": 929.1
+    },
+    "train_time_s": 929.1452560424805
+  }
+]

@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import bcrypt
 
@@ -36,8 +36,8 @@ class User:
     salt: str
 
     # Profile
-    display_name: Optional[str] = None
-    avatar_url: Optional[str] = None
+    display_name: str | None = None
+    avatar_url: str | None = None
 
     # Status
     role: UserRole = UserRole.USER
@@ -47,13 +47,13 @@ class User:
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    last_login: Optional[datetime] = None
+    last_login: datetime | None = None
 
     # Security
     failed_login_attempts: int = 0
-    locked_until: Optional[datetime] = None
+    locked_until: datetime | None = None
 
-    def to_dict(self, include_sensitive: bool = False) -> Dict[str, Any]:
+    def to_dict(self, include_sensitive: bool = False) -> dict[str, Any]:
         """Convert to dictionary."""
         data = {
             "id": self.id,
@@ -75,7 +75,7 @@ class User:
         return data
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> User:
+    def from_dict(cls, data: dict[str, Any]) -> User:
         """Create from dictionary."""
         return cls(
             id=data["id"],
@@ -103,9 +103,7 @@ class User:
             ),
             failed_login_attempts=data.get("failed_login_attempts", 0),
             locked_until=(
-                datetime.fromisoformat(data["locked_until"])
-                if data.get("locked_until")
-                else None
+                datetime.fromisoformat(data["locked_until"]) if data.get("locked_until") else None
             ),
         )
 
@@ -123,7 +121,7 @@ class PasswordHasher:
     def __init__(self, rounds: int = 12):
         self.rounds = rounds
 
-    def hash(self, password: str, salt: Optional[str] = None) -> Tuple[str, str]:
+    def hash(self, password: str, salt: str | None = None) -> tuple[str, str]:
         """Hash a password with bcrypt. Returns (hash, empty_salt)."""
         password_bytes = password.encode("utf-8")
         hashed = bcrypt.hashpw(password_bytes, bcrypt.gensalt(rounds=self.rounds))
@@ -139,7 +137,7 @@ class PasswordHasher:
             return False
 
     @staticmethod
-    def validate_strength(password: str, min_length: int = 8) -> Tuple[bool, List[str]]:
+    def validate_strength(password: str, min_length: int = 8) -> tuple[bool, list[str]]:
         """Validate password strength. Returns (is_valid, issues)."""
         issues = []
         if len(password) < min_length:

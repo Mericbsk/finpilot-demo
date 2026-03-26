@@ -7,13 +7,9 @@ across separate connections in the Database context manager).
 
 from __future__ import annotations
 
-import os
-import tempfile
-
 import pytest
 
 from auth.database import Database, ScanResultRepository, SignalRepository
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -88,11 +84,13 @@ class TestSignalRepoSave:
 
 class TestSignalRepoQuery:
     def test_get_by_symbol(self, signal_repo):
-        signal_repo.save_batch([
-            _make_signal(symbol="AAPL"),
-            _make_signal(symbol="AAPL"),
-            _make_signal(symbol="MSFT"),
-        ])
+        signal_repo.save_batch(
+            [
+                _make_signal(symbol="AAPL"),
+                _make_signal(symbol="AAPL"),
+                _make_signal(symbol="MSFT"),
+            ]
+        )
         results = signal_repo.get_by_symbol("AAPL")
         assert len(results) == 2
         assert all(r["symbol"] == "AAPL" for r in results)
@@ -138,11 +136,13 @@ class TestSignalRepoStats:
         assert stats["win_rate"] == 0.0
 
     def test_stats_with_data(self, signal_repo):
-        signal_repo.save_batch([
-            _make_signal(symbol="AAPL"),
-            _make_signal(symbol="MSFT"),
-            _make_signal(symbol="GOOGL"),
-        ])
+        signal_repo.save_batch(
+            [
+                _make_signal(symbol="AAPL"),
+                _make_signal(symbol="MSFT"),
+                _make_signal(symbol="GOOGL"),
+            ]
+        )
         # Close one as TP
         signal_repo.update_outcome(1, "tp_hit")
         signal_repo.update_outcome(2, "sl_hit")
@@ -207,30 +207,46 @@ class TestScanResultRepoQuery:
         assert recent[0]["scan_id"] == "scan_4"
 
     def test_get_symbol_history(self, scan_repo):
-        scan_repo.save_scan("s1", "2025-06-01", [
-            {"symbol": "AAPL", "price": 195, "score": 7},
-            {"symbol": "MSFT", "price": 420, "score": 6},
-        ])
-        scan_repo.save_scan("s2", "2025-06-02", [
-            {"symbol": "AAPL", "price": 200, "score": 8},
-        ])
+        scan_repo.save_scan(
+            "s1",
+            "2025-06-01",
+            [
+                {"symbol": "AAPL", "price": 195, "score": 7},
+                {"symbol": "MSFT", "price": 420, "score": 6},
+            ],
+        )
+        scan_repo.save_scan(
+            "s2",
+            "2025-06-02",
+            [
+                {"symbol": "AAPL", "price": 200, "score": 8},
+            ],
+        )
 
         history = scan_repo.get_symbol_history("AAPL")
         assert len(history) == 2
 
     def test_count_and_scan_count(self, scan_repo):
         scan_repo.save_scan("s1", "ts1", [{"symbol": "A", "price": 1, "score": 1}])
-        scan_repo.save_scan("s2", "ts2", [
-            {"symbol": "B", "price": 2, "score": 2},
-            {"symbol": "C", "price": 3, "score": 3},
-        ])
+        scan_repo.save_scan(
+            "s2",
+            "ts2",
+            [
+                {"symbol": "B", "price": 2, "score": 2},
+                {"symbol": "C", "price": 3, "score": 3},
+            ],
+        )
         assert scan_repo.count() == 3
         assert scan_repo.scan_count() == 2
 
     def test_get_all_as_dataframe(self, scan_repo):
-        scan_repo.save_scan("s1", "2025-06-01", [
-            {"symbol": "AAPL", "price": 195, "score": 7},
-        ])
+        scan_repo.save_scan(
+            "s1",
+            "2025-06-01",
+            [
+                {"symbol": "AAPL", "price": 195, "score": 7},
+            ],
+        )
         df = scan_repo.get_all_as_dataframe()
         assert len(df) == 1
         assert "symbol" in df.columns
