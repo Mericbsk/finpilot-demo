@@ -45,40 +45,35 @@ interface InferenceEntry {
   regime: string; price: number; timestamp: string;
 }
 
-/* ── Generate research report ─────────────────────────────── */
-function genReport(ticker: string, liveQuote?: LiveQuote) {
-  const h = hashStr(ticker);
+/* ── Generate research report (offline fallback) ─────────── */
+function genReport(ticker: string, liveQuote?: LiveQuote, scanScore?: number | null) {
   const name = companyNames[ticker] || `${ticker} Corp`;
-  const price = liveQuote?.price ?? (20 + (h % 480));
-  const score = 30 + (h % 65);
+  const price = liveQuote?.price ?? 0;
+  const score = scanScore ?? 0;
   const sentiment = score >= 65 ? "bullish" : score <= 40 ? "bearish" : "neutral";
-  const socialChange = 10 + (h % 60);
-  const revGrowth = 5 + (h % 40);
-  const margin = 40 + (h % 35);
-  const target1 = (price * 1.05).toFixed(0);
-  const target2 = (price * 1.10).toFixed(0);
-  const target3 = (price * 1.15).toFixed(0);
-  const stop = (price * 0.93).toFixed(0);
+  const target1 = price > 0 ? (price * 1.05).toFixed(2) : "N/A";
+  const target2 = price > 0 ? (price * 1.10).toFixed(2) : "N/A";
+  const target3 = price > 0 ? (price * 1.15).toFixed(2) : "N/A";
+  const stop = price > 0 ? (price * 0.93).toFixed(2) : "N/A";
+  const reco = score >= 65 ? "Strong buy" : score >= 50 ? "Moderate buy" : score >= 30 ? "Hold" : score > 0 ? "Caution" : "No data";
   return [
     {
       title: "📊 Market Sentiment",
-      content: `Overall market sentiment for ${name} is strongly ${sentiment}. Social media mentions increased ${socialChange}% week-over-week. Institutional investors have been ${score > 55 ? "net buyers" : "cautious"} for ${3 + (h % 8)} consecutive weeks. Options flow shows ${score > 60 ? "heavy call buying" : "mixed positioning"}.`,
+      content: `Overall market sentiment for ${name} is ${sentiment} based on technical scanner analysis. Scanner Score: ${score}/100.${score === 0 ? " No scanner data available — run a scan first." : ""}`,
     },
     {
-      title: "⚖️ Legal & Regulatory",
-      content: `${score > 50 ? "No significant regulatory concerns" : "Some regulatory headwinds noted"} for ${name}. ${h % 3 === 0 ? "Recent SEC filings indicate strong insider confidence with notable purchases." : "The company maintains compliance across all operating jurisdictions."} ESG rating: ${["A+", "A", "A-", "B+"][h % 4]}.`,
+      title: "💰 Price & Targets",
+      content: price > 0
+        ? `Current price: $${price.toFixed(2)}. Targets: $${target1}, $${target2}, $${target3}. Stop loss: $${stop}.`
+        : `Price data not available. Run a scan or wait for market data.`,
     },
     {
-      title: "💰 Key Financial Developments",
-      content: `Revenue grew ${revGrowth}% YoY, ${score > 55 ? "beating" : "meeting"} consensus estimates. Gross margin at ${margin}%. ${h % 2 === 0 ? "Cash position strengthened with $" + (2 + h % 50) + "B in reserves." : "Free cash flow improved significantly quarter-over-quarter."} EPS: $${(1 + (h % 15)).toFixed(2)}.`,
-    },
-    {
-      title: "⚠️ Risks & Opportunities",
-      content: `Key risk: ${["Market concentration in core segment", "Competitive pressure intensifying", "Macro headwinds may impact growth", "Supply chain dependencies"][h % 4]}. Opportunity: ${["Expanding TAM estimated at $" + (50 + h % 200) + "B by 2028", "New product launches could drive 20%+ growth", "Strategic acquisitions strengthening moat", "International expansion accelerating"][h % 4]}.`,
+      title: "⚠️ Note",
+      content: `This is an offline fallback report. For real AI-powered analysis, ensure the LLM backend is online (Groq/Claude/Gemini).`,
     },
     {
       title: "🎯 Conclusion",
-      content: `${name} ${score >= 65 ? "presents a compelling opportunity" : score >= 50 ? "requires careful positioning" : "faces near-term challenges"}. AI Score: ${score}/100. Targets: $${target1}, $${target2}, $${target3}. Stop loss: $${stop}. ${score >= 65 ? "Strong buy" : score >= 50 ? "Moderate buy" : "Hold"} recommendation.`,
+      content: `${name}: Scanner Score ${score}/100. Recommendation: ${reco}.${score === 0 ? " Score unavailable — the ticker may not have been scanned yet." : ""}`,
     },
   ];
 }
@@ -163,6 +158,9 @@ export default function AILabPage() {
   const [allSymbols, setAllSymbols] = useState<string[]>([]);
   const [researchTicker, setResearchTicker] = useState("");
   const [researchReport, setResearchReport] = useState<ReturnType<typeof genReport> | null>(null);
+  const [researchProvider, setResearchProvider] = useState<string | null>(null);
+  const [researchLoading, setResearchLoading] = useState(false);
+  const [scannerScore, setScannerScore] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [hoverCard, setHoverCard] = useState<string | null>(null);
@@ -175,9 +173,12 @@ export default function AILabPage() {
 
   const [hybridData, setHybridData] = useState<any[]>([]);
   const [hybridLoading, setHybridLoading] = useState(false);
+  const [hybridTimestamp, setHybridTimestamp] = useState<string | null>(null);
+  const [inferenceRunning, setInferenceRunning] = useState(false);
 
   const [ensembleData, setEnsembleData] = useState<any[]>([]);
   const [ensembleLoading, setEnsembleLoading] = useState(false);
+  const [customSymbols, setCustomSymbols] = useState("AAPL,MSFT,NVDA,GOOGL,TSLA");
 
   const [optunaAgents, setOptunaAgents] = useState<string[]>([]);
   const [optunaAgent, setOptunaAgent] = useState("conservative");
@@ -218,13 +219,13 @@ export default function AILabPage() {
   }, [apiOnline]);
 
   /* ── Load Hybrid data from inference cache ──────────────── */
-  useEffect(() => {
-    if (apiOnline !== true) return;
+  const fetchInferenceCache = () => {
     setHybridLoading(true);
     fetch("/py-api/inference-cache")
       .then((r) => r.json())
       .then((cache: Record<string, InferenceEntry>) => {
-        const rows = Object.entries(cache)
+        const entries = Object.entries(cache);
+        const rows = entries
           .map(([sym, d]) => ({
             ticker: sym,
             scanner: d.signal,
@@ -237,9 +238,19 @@ export default function AILabPage() {
           }))
           .sort((a, b) => b.confidence - a.confidence);
         setHybridData(rows);
+        // Extract freshest timestamp
+        if (entries.length > 0) {
+          const ts = entries.map(([, d]) => d.timestamp).sort().pop();
+          setHybridTimestamp(ts || null);
+        }
       })
       .catch(() => {})
       .finally(() => setHybridLoading(false));
+  };
+
+  useEffect(() => {
+    if (apiOnline !== true) return;
+    fetchInferenceCache();
   }, [apiOnline]);
 
   /* ── Load Optuna agents list → results ──────────────────── */
@@ -283,15 +294,69 @@ export default function AILabPage() {
   function doResearch(ticker: string) {
     if (!ticker) return;
     setResearchTicker(ticker);
-    setResearchReport(genReport(ticker, live[ticker]));
     setDropdownOpen(false);
     setSearchQuery("");
+    setResearchProvider(null);
+    setScannerScore(null);
+    setResearchLoading(true);
+
+    // Step 1: Fetch scanner score for the ticker (parallel with LLM)
+    const scanPromise = apiOnline
+      ? fetch("/py-api/scan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ symbols: [ticker] }),
+        })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            if (data && data[ticker]) {
+              const r = data[ticker];
+              const raw = Math.max(r.filter_score || 0, r.score || 0);
+              const normalized = Math.round((raw / 5) * 100);
+              setScannerScore(normalized);
+              return normalized;
+            }
+            return null;
+          })
+          .catch(() => null)
+      : Promise.resolve(null);
+
+    // Step 2: Try real LLM with scanner context
+    if (apiOnline) {
+      scanPromise.then((scScore) => {
+        const context = scScore != null
+          ? `Scanner technical score: ${scScore}/100. Use this as reference for your analysis.`
+          : "";
+        return fetch("/py-api/llm/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ symbol: ticker, language: "en", context }),
+        })
+          .then((r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+          })
+          .then((data: { sections: { title: string; content: string }[]; provider: string; latency_ms: number }) => {
+            setResearchReport(data.sections.map((s) => ({ title: s.title, content: s.content })));
+            setResearchProvider(`${data.provider} — ${Math.round(data.latency_ms)}ms`);
+          })
+          .catch(() => {
+            // Fallback to local genReport with real scanner score
+            setResearchReport(genReport(ticker, live[ticker], scScore));
+            setResearchProvider(null);
+          });
+      }).finally(() => setResearchLoading(false));
+    } else {
+      scanPromise.then((scScore) => {
+        setResearchReport(genReport(ticker, live[ticker], scScore));
+      }).finally(() => setResearchLoading(false));
+    }
   }
 
-  /* Re-generate report when live data arrives */
+  /* Re-generate report when live data arrives (only for fallback/offline mode) */
   useEffect(() => {
-    if (researchTicker && live[researchTicker]) {
-      setResearchReport(genReport(researchTicker, live[researchTicker]));
+    if (researchTicker && live[researchTicker] && !researchProvider) {
+      setResearchReport(genReport(researchTicker, live[researchTicker], scannerScore));
     }
   }, [live, researchTicker]);
 
@@ -415,21 +480,29 @@ export default function AILabPage() {
                   if (researchTicker || searchQuery)
                     doResearch(researchTicker || searchQuery.toUpperCase());
                 }}
+                disabled={researchLoading}
                 style={{
                   display: "flex", alignItems: "center", gap: 6, borderRadius: 12,
                   padding: "10px 20px", fontSize: 12, fontWeight: 600, color: "#000",
-                  border: "none", cursor: "pointer",
-                  background: `linear-gradient(135deg, ${C.cyan}, ${C.blue})`,
+                  border: "none", cursor: researchLoading ? "not-allowed" : "pointer",
+                  background: researchLoading ? C.text3 : `linear-gradient(135deg, ${C.cyan}, ${C.blue})`,
+                  opacity: researchLoading ? 0.7 : 1,
                 }}
               >
-                <Brain size={14} />
-                Research
+                {researchLoading ? <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> : <Brain size={14} />}
+                {researchLoading ? "Analyzing..." : "Research"}
               </button>
             </div>
           </div>
 
           {/* Report output */}
-          {researchReport ? (
+          {researchLoading ? (
+            <div style={{ borderRadius: 16, border: `1px solid ${C.border}`, backgroundColor: C.card, padding: 48, textAlign: "center" }}>
+              <Loader2 size={28} style={{ color: C.cyan, animation: "spin 1s linear infinite", margin: "0 auto 12px" }} />
+              <p style={{ fontSize: 13, color: C.text3 }}>Analyzing {researchTicker} with LLM...</p>
+              <p style={{ fontSize: 11, color: C.text3, marginTop: 4 }}>Groq → Claude → Gemini failover</p>
+            </div>
+          ) : researchReport ? (
             <div style={{ borderRadius: 16, border: `1px solid ${C.border}`, backgroundColor: C.card, padding: 24 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <div
@@ -442,12 +515,38 @@ export default function AILabPage() {
                 >
                   {researchTicker.slice(0, 2)}
                 </div>
-                <div>
+                <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: 14, fontWeight: 600, color: C.text1 }}>{researchTicker}</h3>
                   <p style={{ fontSize: 11, color: C.text3 }}>
                     {companyNames[researchTicker] || `${researchTicker} Corp`} — AI Research Report
                   </p>
                 </div>
+                {scannerScore != null && (
+                  <span style={{
+                    borderRadius: 9999,
+                    backgroundColor: scannerScore >= 60 ? "rgba(48,209,88,0.15)" : scannerScore >= 40 ? "rgba(255,214,10,0.15)" : "rgba(255,69,58,0.15)",
+                    padding: "4px 10px", fontSize: 10, fontWeight: 600,
+                    color: scannerScore >= 60 ? C.green : scannerScore >= 40 ? C.yellow : C.red,
+                  }}>
+                    Scanner: {scannerScore}/100
+                  </span>
+                )}
+                {researchProvider && (
+                  <span style={{
+                    borderRadius: 9999, backgroundColor: "rgba(48,209,88,0.1)",
+                    padding: "4px 10px", fontSize: 10, fontWeight: 600, color: C.green,
+                  }}>
+                    ✦ {researchProvider}
+                  </span>
+                )}
+                {!researchProvider && (
+                  <span style={{
+                    borderRadius: 9999, backgroundColor: "rgba(255,214,10,0.1)",
+                    padding: "4px 10px", fontSize: 10, fontWeight: 600, color: C.yellow,
+                  }}>
+                    ⚠ Offline Fallback
+                  </span>
+                )}
               </div>
               {researchReport.map((s) => (
                 <div key={s.title} style={{ marginBottom: 16 }}>
@@ -486,8 +585,55 @@ export default function AILabPage() {
                 <span style={{ fontSize: 11, color: apiOnline ? C.green : C.text3 }}>
                   {apiOnline ? `${hybridData.length} signals from inference cache` : "Demo mode"}
                 </span>
+                {hybridTimestamp && (
+                  <span style={{ fontSize: 10, color: C.text3 }}>
+                    • Updated: {(() => {
+                      const diff = Date.now() - new Date(hybridTimestamp).getTime();
+                      const mins = Math.floor(diff / 60000);
+                      if (mins < 1) return "just now";
+                      if (mins < 60) return `${mins}m ago`;
+                      const hours = Math.floor(mins / 60);
+                      if (hours < 24) return `${hours}h ago`;
+                      return `${Math.floor(hours / 24)}d ago`;
+                    })()}
+                  </span>
+                )}
               </div>
-              <div style={{ display: "flex", gap: 2, borderRadius: 8, backgroundColor: C.primary, padding: 2 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {/* Refresh inference button */}
+                <button
+                  onClick={() => {
+                    if (inferenceRunning) return;
+                    setInferenceRunning(true);
+                    const syms = hybridData.length
+                      ? hybridData.map((r) => r.ticker)
+                      : customSymbols.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean).slice(0, 20);
+                    fetch("/py-api/inference/run", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ symbols: syms }),
+                    })
+                      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+                      .then(() => fetchInferenceCache())
+                      .catch(() => {})
+                      .finally(() => setInferenceRunning(false));
+                  }}
+                  disabled={!apiOnline || inferenceRunning}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 4, borderRadius: 8,
+                    border: `1px solid ${C.border}`, backgroundColor: C.card,
+                    padding: "4px 10px", fontSize: 11, fontWeight: 500,
+                    color: inferenceRunning ? C.cyan : C.text2,
+                    cursor: inferenceRunning || !apiOnline ? "not-allowed" : "pointer",
+                    opacity: !apiOnline ? 0.4 : 1,
+                  }}
+                >
+                  {inferenceRunning
+                    ? <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} />
+                    : <RefreshCw size={12} />}
+                  {inferenceRunning ? "Running DRL..." : "↻ Refresh"}
+                </button>
+                <div style={{ display: "flex", gap: 2, borderRadius: 8, backgroundColor: C.primary, padding: 2 }}>
                 {["hybrid", "scanner", "drl"].map((m) => (
                   <button
                     key={m}
@@ -502,6 +648,7 @@ export default function AILabPage() {
                     {m.charAt(0).toUpperCase() + m.slice(1)}
                   </button>
                 ))}
+              </div>
               </div>
             </div>
             {hybridLoading ? (
@@ -719,12 +866,34 @@ export default function AILabPage() {
             ) : ensembleData.length === 0 ? (
               <div style={{ padding: 32, textAlign: "center" }}>
                 <p style={{ fontSize: 12, color: C.text3, marginBottom: 12 }}>
-                  Run ensemble on inference-cached symbols to see agent votes.
+                  {hybridData.length > 0
+                    ? "Run ensemble on inference-cached symbols to see agent votes."
+                    : "Enter symbols below to run ensemble predictions."}
                 </p>
+                {hybridData.length === 0 && (
+                  <div style={{ maxWidth: 400, margin: "0 auto 16px" }}>
+                    <input
+                      type="text"
+                      value={customSymbols}
+                      onChange={(e) => setCustomSymbols(e.target.value)}
+                      placeholder="AAPL, MSFT, NVDA, GOOGL, TSLA"
+                      style={{
+                        width: "100%", borderRadius: 8, border: `1px solid ${C.border}`,
+                        backgroundColor: C.primary, padding: "8px 12px", fontSize: 12,
+                        color: C.text1, outline: "none", textAlign: "center",
+                      }}
+                    />
+                    <p style={{ fontSize: 10, color: C.text3, marginTop: 4 }}>
+                      Comma-separated symbols (max 20)
+                    </p>
+                  </div>
+                )}
                 <button
                   onClick={() => {
                     setEnsembleLoading(true);
-                    const syms = hybridData.map((r) => r.ticker);
+                    const syms = hybridData.length
+                      ? hybridData.map((r) => r.ticker)
+                      : customSymbols.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean).slice(0, 20);
                     if (syms.length === 0) { setEnsembleLoading(false); return; }
                     fetch("/py-api/ensemble", {
                       method: "POST",

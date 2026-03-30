@@ -829,9 +829,9 @@ def _render_signal_cards(signals: list[dict]) -> str:
         html_parts.append(
             f'<div class="ds-score-section">'
             f'<div class="ds-score-label {css_cls}">'
-            f"{'🟢' if css_cls == 'strong' else '🟡' if css_cls == 'medium' else '⚪'} "
-            f"{label} ({len(group)})"
-            f"</div>"
+            f'{"🟢" if css_cls == "strong" else "🟡" if css_cls == "medium" else "⚪"} '
+            f'{label} ({len(group)})'
+            f'</div>'
             f'<div class="ds-signal-grid">'
         )
 
@@ -1046,7 +1046,9 @@ def render_daily_signals_tab():
     # --- Outcome refresh button ---
     refresh_col1, refresh_col2 = st.columns([3, 1])
     with refresh_col1:
-        st.caption("Her gün kaç sembol tarandı, kaç AL sinyali üretildi, ve bu sinyallerin durumu.")
+        st.caption(
+            "Her gün kaç sembol tarandı, kaç AL sinyali üretildi, " "ve bu sinyallerin durumu."
+        )
     with refresh_col2:
         if st.button(
             "🔄 Sonuçları Güncelle",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -16,9 +16,10 @@ import {
   LineChart,
   GraduationCap,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { C, genStockExtended as genStock, withLivePrice } from "@/lib/stockData";
+import { C, companyNames } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
 import DemoBanner from "@/components/DemoBanner";
 
@@ -65,18 +66,36 @@ function HoverCard({ children, className = "", style = {}, ...rest }: React.Comp
   );
 }
 
-/* ── DRL Models (static display) ───────────────────────────── */
-const drlModels = [
-  { name: "Trend Agent", regime: "📈 Trend", status: "active", accuracy: "73%", trades: 142 },
-  { name: "Volatility Agent", regime: "🌊 Volatile", status: "active", accuracy: "68%", trades: 98 },
-  { name: "Range Agent", regime: "📐 Range", status: "active", accuracy: "71%", trades: 115 },
-];
+/* ── DRL Models (loaded from API) ───────────────────────────── */
+interface DRLModelDisplay {
+  name: string;
+  regime: string;
+  status: string;
+  algorithm: string;
+  sharpe: string;
+}
+
+interface ScanResult {
+  ticker: string;
+  name: string;
+  price: number;
+  change: number;
+  score: number;
+  signal: string;
+  regime?: string;
+  target?: number;
+  stop?: number;
+}
 
 /* ── Main Page ─────────────────────────────────────────────── */
 export default function DashboardOverview() {
   const [allSymbols, setAllSymbols] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scanResults, setScanResults] = useState<ScanResult[]>([]);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [drlModels, setDrlModels] = useState<DRLModelDisplay[]>([]);
 
+  /* Load presets */
   useEffect(() => {
     fetch("/stock_presets.json")
       .then((r) => r.json())
@@ -88,22 +107,77 @@ export default function DashboardOverview() {
       .catch(() => setLoading(false));
   }, []);
 
-  /* Generate data for all stocks */
-  const allStocks = useMemo(() => allSymbols.map(genStock), [allSymbols]);
+  /* Load DRL models from API */
+  useEffect(() => {
+    fetch("/py-api/models")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const regimeEmoji: Record<string, string> = { trend: "📈", volatile: "🌊", range: "📐", momentum: "🚀", breakout: "💥" };
+          setDrlModels(
+            data.slice(0, 4).map((m: Record<string, unknown>) => ({
+              name: String(m.model_id || "Agent"),
+              regime: (Array.isArray(m.tags) ? m.tags : []).map((t: string) => `${regimeEmoji[t] || "🔧"} ${t}`).join(", ") || "General",
+              status: "active",
+              algorithm: String(m.algorithm || "PPO"),
+              sharpe: m.sharpe != null ? Number(m.sharpe).toFixed(2) : "—",
+            })),
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  /* Scan top symbols for real data */
+  const runQuickScan = useCallback(async (symbols: string[]) => {
+    if (symbols.length === 0) return;
+    setScanLoading(true);
+    try {
+      const batch = symbols.slice(0, 30);
+      const res = await fetch("/py-api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbols: batch }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const results: ScanResult[] = Object.entries(data).map(([ticker, d]: [string, unknown]) => {
+        const r = d as Record<string, unknown>;
+        const score = Math.max(Number(r.filter_score ?? 0), Number(r.score ?? 0));
+        const normalized = Math.round((score / 5) * 100);
+        const signal = normalized >= 70 ? "BUY" : normalized >= 45 ? "HOLD" : normalized >= 25 ? "CAUTION" : "SELL";
+        return {
+          ticker,
+          name: companyNames[ticker] || ticker,
+          price: 0,
+          change: 0,
+          score: normalized,
+          signal,
+          regime: String(r.regime || "—"),
+          target: 0,
+          stop: 0,
+        };
+      });
+      setScanResults(results);
+    } catch { /* silent */ }
+    finally { setScanLoading(false); }
+  }, []);
+
+  useEffect(() => {
+    if (allSymbols.length > 0) runQuickScan(allSymbols);
+  }, [allSymbols, runQuickScan]);
 
   /* Top 4 by score */
   const topOppsBase = useMemo(
-    () => [...allStocks].sort((a, b) => b.score - a.score).slice(0, 4),
-    [allStocks],
+    () => [...scanResults].sort((a, b) => b.score - a.score).slice(0, 4),
+    [scanResults],
   );
 
-  /* Recent signals: top 8 BUY/SELL signals by score */
+  /* Recent signals: top 8 BUY/SELL by score */
   const recentSigsBase = useMemo(() => {
-    const signalStocks = allStocks.filter((s) => s.signal === "BUY" || s.signal === "SELL");
-    const sorted = [...signalStocks].sort((a, b) => b.score - a.score).slice(0, 8);
-    const times = ["14:32", "14:28", "14:15", "13:58", "13:42", "13:30", "13:18", "13:05"];
-    return sorted.map((s, i) => ({ ...s, time: times[i % times.length] }));
-  }, [allStocks]);
+    const signalStocks = scanResults.filter((s) => s.signal === "BUY" || s.signal === "SELL");
+    return [...signalStocks].sort((a, b) => b.score - a.score).slice(0, 8);
+  }, [scanResults]);
 
   /* Live prices for displayed tickers */
   const liveTickers = useMemo(
@@ -113,30 +187,39 @@ export default function DashboardOverview() {
   const { data: live } = useStockPrices(liveTickers);
 
   const topOpportunities = useMemo(
-    () => topOppsBase.map((s) => withLivePrice(s, live[s.ticker])),
+    () => topOppsBase.map((s) => ({
+      ...s,
+      price: live[s.ticker]?.price ?? s.price,
+      change: live[s.ticker]?.change ?? s.change,
+    })),
     [topOppsBase, live],
   );
   const recentSignals = useMemo(
-    () => recentSigsBase.map((s) => withLivePrice(s, live[s.ticker])),
+    () => recentSigsBase.map((s) => ({
+      ...s,
+      price: live[s.ticker]?.price ?? s.price,
+      change: live[s.ticker]?.change ?? s.change,
+    })),
     [recentSigsBase, live],
   );
 
-  /* Market Pulse computed */
+  /* Market Pulse computed from real scan results */
   const marketPulse = useMemo(() => {
-    if (allStocks.length === 0) return [];
-    const buyCount = allStocks.filter((s) => s.signal === "BUY").length;
-    const avgScore = (allStocks.reduce((a, s) => a + s.score, 0) / allStocks.length).toFixed(1);
-    const buyPct = ((buyCount / allStocks.length) * 100).toFixed(0);
+    const stocks = scanResults.length > 0 ? scanResults : [];
+    if (stocks.length === 0) return [];
+    const buyCount = stocks.filter((s) => s.signal === "BUY").length;
+    const avgScore = (stocks.reduce((a, s) => a + s.score, 0) / stocks.length).toFixed(1);
+    const buyPct = ((buyCount / stocks.length) * 100).toFixed(0);
     const regime = +buyPct >= 60 ? "Bullish" : +buyPct >= 40 ? "Neutral" : "Bearish";
     const now = new Date();
     const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
     return [
       { label: "Market Regime", value: regime, change: `${buyPct}% buy`, up: +buyPct >= 50, icon: TrendingUp },
-      { label: "Avg Score", value: avgScore, change: `${allStocks.length} stocks`, up: +avgScore >= 55, icon: BarChart3 },
-      { label: "Buy Signals", value: buyCount.toString(), change: `of ${allStocks.length}`, up: true, icon: Zap },
+      { label: "Avg Score", value: avgScore, change: `${stocks.length} stocks`, up: +avgScore >= 55, icon: BarChart3 },
+      { label: "Buy Signals", value: buyCount.toString(), change: `of ${stocks.length}`, up: true, icon: Zap },
       { label: "Last Update", value: timeStr, change: "live", up: true, icon: Clock },
     ];
-  }, [allStocks]);
+  }, [scanResults]);
 
   if (loading) {
     return (
@@ -148,12 +231,13 @@ export default function DashboardOverview() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <DemoBanner />
+      <DemoBanner connected={Object.keys(live).length > 0} />
       {/* Header */}
       <div>
         <h1 className="text-xl font-semibold" style={{ color: C.text1 }}>Dashboard</h1>
         <p className="text-sm" style={{ color: C.text3 }}>
           {allSymbols.length.toLocaleString()} stocks · Market overview & AI insights
+          {scanLoading && <span className="ml-2"><Loader2 size={12} className="inline animate-spin" /> Scanning...</span>}
         </p>
       </div>
 
@@ -205,20 +289,22 @@ export default function DashboardOverview() {
                 <Signal signal={s.signal} />
               </div>
               <div className="mb-2 flex items-baseline gap-2">
-                <span className="text-lg font-bold" style={{ color: C.text1 }}>${s.price}</span>
+                <span className="text-lg font-bold" style={{ color: C.text1 }}>
+                  {s.price > 0 ? `$${s.price.toFixed(2)}` : "—"}
+                </span>
                 <span className="text-xs font-medium" style={{ color: s.change >= 0 ? C.green : C.red }}>
-                  {s.change >= 0 ? "+" : ""}{s.change}%
+                  {s.change !== 0 ? `${s.change >= 0 ? "+" : ""}${s.change.toFixed(2)}%` : ""}
                 </span>
               </div>
               <ScoreBar score={s.score} />
               <div className="mt-3 grid grid-cols-2 gap-2" style={{ fontSize: 10 }}>
                 <div className="rounded-lg px-2 py-1" style={{ backgroundColor: C.primary }}>
-                  <span style={{ color: C.text3 }}>Target</span>
-                  <div className="font-medium" style={{ color: C.green }}>${s.target}</div>
+                  <span style={{ color: C.text3 }}>Score</span>
+                  <div className="font-medium" style={{ color: C.green }}>{s.score}/100</div>
                 </div>
                 <div className="rounded-lg px-2 py-1" style={{ backgroundColor: C.primary }}>
-                  <span style={{ color: C.text3 }}>Stop</span>
-                  <div className="font-medium" style={{ color: C.red }}>${s.stop}</div>
+                  <span style={{ color: C.text3 }}>Regime</span>
+                  <div className="font-medium" style={{ color: C.cyan }}>{s.regime || "—"}</div>
                 </div>
               </div>
             </Link>
@@ -255,8 +341,7 @@ export default function DashboardOverview() {
                 </div>
                 <div className="flex items-center gap-4">
                   <ScoreBar score={s.score} />
-                  <span className="rounded-md px-2 py-0.5" style={{ fontSize: 10, backgroundColor: C.card, color: C.text3 }}>{s.regime}</span>
-                  <span style={{ fontSize: 10, color: C.text3 }}>{s.time}</span>
+                  <span className="rounded-md px-2 py-0.5" style={{ fontSize: 10, backgroundColor: C.card, color: C.text3 }}>{s.regime || "—"}</span>
                 </div>
               </Link>
             ))}
@@ -270,7 +355,7 @@ export default function DashboardOverview() {
             <h2 className="text-sm font-semibold" style={{ color: C.text1 }}>DRL Agents</h2>
           </div>
           <div className="space-y-3">
-            {drlModels.map((m) => (
+            {drlModels.length > 0 ? drlModels.map((m) => (
               <div key={m.name} className="rounded-xl p-3" style={{ backgroundColor: C.primary }}>
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -282,19 +367,24 @@ export default function DashboardOverview() {
                   </span>
                 </div>
                 <div className="flex gap-4" style={{ fontSize: 10, color: C.text3 }}>
-                  <span>Accuracy: <strong style={{ color: C.text2 }}>{m.accuracy}</strong></span>
-                  <span>Trades: <strong style={{ color: C.text2 }}>{m.trades}</strong></span>
+                  <span>Algorithm: <strong style={{ color: C.text2 }}>{m.algorithm}</strong></span>
+                  <span>Sharpe: <strong style={{ color: C.text2 }}>{m.sharpe}</strong></span>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="flex flex-col items-center gap-2 py-6" style={{ color: C.text3 }}>
+                <Brain size={24} />
+                <span className="text-xs">No DRL models registered</span>
+              </div>
+            )}
           </div>
           <Link
-            href="/dashboard/ai-lab"
+            href="/dashboard/drl"
             className="mt-3 flex items-center justify-center gap-1 rounded-xl py-2 text-xs"
             style={{ backgroundColor: C.primary, color: C.cyan }}
           >
             <Activity size={12} />
-            Open AI Lab
+            Open DRL Agents
           </Link>
         </div>
       </div>

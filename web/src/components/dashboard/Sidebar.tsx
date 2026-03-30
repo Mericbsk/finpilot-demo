@@ -15,6 +15,8 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  Brain,
+  Wallet,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -36,6 +38,8 @@ const navItems = [
   { href: "/dashboard/scanner", icon: ScanSearch, label: "Scanner" },
   { href: "/dashboard/analysis", icon: BrainCircuit, label: "AI Analysis" },
   { href: "/dashboard/ai-lab", icon: FlaskConical, label: "AI Lab" },
+  { href: "/dashboard/drl", icon: Brain, label: "DRL Agents" },
+  { href: "/dashboard/portfolio", icon: Wallet, label: "Portfolio" },
   { href: "/dashboard/backtest", icon: LineChart, label: "Backtest" },
   { href: "/dashboard/finsense", icon: GraduationCap, label: "FinSense" },
   { href: "/dashboard/watchlist", icon: Star, label: "Watchlist" },

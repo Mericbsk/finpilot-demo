@@ -82,6 +82,7 @@ export default function WatchlistPage() {
   const [scanDone, setScanDone] = useState(false);
   const [scanPct, setScanPct] = useState(0);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [scanResults, setScanResults] = useState<Record<string, { score: number; signal: string }>>({});
   const dropRef = useRef<HTMLDivElement>(null);
 
   /* Load 1,542 symbols */
@@ -108,8 +109,15 @@ export default function WatchlistPage() {
   /* Live prices */
   const { data: live } = useStockPrices(tickers);
 
-  /* Derived watchlist data */
-  const watchlist = tickers.map((t) => withLivePrice(genStock(t), live[t]));
+  /* Derived watchlist data — merge scan results */
+  const watchlist = tickers.map((t) => {
+    const base = withLivePrice(genStock(t), live[t]);
+    const sr = scanResults[t];
+    if (sr) {
+      return { ...base, score: sr.score, signal: sr.signal };
+    }
+    return base;
+  });
 
   /* Filtered dropdown */
   const filtered = search.length >= 1
@@ -133,25 +141,39 @@ export default function WatchlistPage() {
     try { localStorage.setItem(WATCHLIST_KEY, JSON.stringify(next)); } catch {}
   };
 
-  /* Scan watchlist */
-  const runScan = () => {
-    if (scanning) return;
+  /* Scan watchlist — REAL API */
+  const runScan = async () => {
+    if (scanning || tickers.length === 0) return;
     setScanning(true);
     setScanDone(false);
     setScanPct(0);
-    let pct = 0;
-    const iv = setInterval(() => {
-      pct += Math.random() * 18 + 5;
-      if (pct >= 100) {
-        pct = 100;
-        clearInterval(iv);
-        setTimeout(() => {
-          setScanning(false);
-          setScanDone(true);
-        }, 400);
+    try {
+      setScanPct(20);
+      const res = await fetch("/py-api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbols: tickers }),
+      });
+      setScanPct(80);
+      if (res.ok) {
+        const data = await res.json();
+        const results: Record<string, { score: number; signal: string }> = {};
+        for (const [sym, d] of Object.entries(data)) {
+          const r = d as Record<string, unknown>;
+          const sc = Math.max(Number(r.filter_score ?? 0), Number(r.score ?? 0));
+          const normalized = Math.round((sc / 5) * 100);
+          const signal = normalized >= 70 ? "BUY" : normalized >= 45 ? "HOLD" : normalized >= 25 ? "CAUTION" : "SELL";
+          results[sym] = { score: normalized, signal };
+        }
+        setScanResults(results);
       }
-      setScanPct(Math.min(100, Math.round(pct)));
-    }, 220);
+      setScanPct(100);
+      setScanDone(true);
+    } catch {
+      /* silent */
+    } finally {
+      setScanning(false);
+    }
   };
 
   /* Export CSV */
@@ -181,7 +203,7 @@ export default function WatchlistPage() {
 
   return (
     <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
-      <DemoBanner />
+      <DemoBanner connected={Object.keys(live).length > 0} />
       {/* ── Header ─────────────────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>

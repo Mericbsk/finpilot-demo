@@ -164,6 +164,14 @@ export default function HistoryPage() {
         </p>
       </div>
 
+      {/* Data source banner */}
+      {!apiSource && !loading && (
+        <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs"
+          style={{ backgroundColor: "rgba(255,214,10,0.08)", border: "1px solid rgba(255,214,10,0.2)", color: "#ffd60a" }}>
+          ⚠ Signal API unavailable — showing simulated history. Run a scan to populate real data.
+        </div>
+      )}
+
       {/* Aggregate stats */}
       <div className="grid grid-cols-4 gap-3">
         {[

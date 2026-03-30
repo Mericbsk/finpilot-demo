@@ -434,6 +434,31 @@ export default function BacktestPage() {
           </button>
           {r && (
             <button
+              onClick={() => {
+                const header = "Metric,Value\n";
+                const rows = [
+                  `Symbol,${symbol}`,
+                  `Strategy,${strategy}`,
+                  `Period,${period}`,
+                  `Initial Capital,${r.capital}`,
+                  `Final Capital,${r.finalCapital?.toFixed(2) ?? "—"}`,
+                  `Total Return,${r.totalReturn}%`,
+                  `Sharpe Ratio,${r.sharpeRatio}`,
+                  `Sortino Ratio,${r.sortinoRatio}`,
+                  `Max Drawdown,${r.maxDrawdown}%`,
+                  `Win Rate,${r.winRate}%`,
+                  `Total Trades,${r.totalTrades}`,
+                  `Profit Factor,${r.profitFactor}`,
+                ].join("\n");
+                const eq = r.equity ? "\n\nEquity Curve\n" + r.equity.map((v: number, i: number) => `${i},${v.toFixed(2)}`).join("\n") : "";
+                const blob = new Blob([header + rows + eq], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `backtest_${symbol}_${strategy}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
               style={{
                 display: "flex", alignItems: "center", gap: 6, borderRadius: 12,
                 border: `1px solid ${C.border}`, backgroundColor: C.card,
@@ -564,7 +589,7 @@ export default function BacktestPage() {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                   <Activity size={14} style={{ color: C.cyan }} />
-                  <h3 style={{ fontSize: 14, fontWeight: 600, color: C.cyan }}>Monte Carlo</h3>
+                  <h3 style={{ fontSize: 14, fontWeight: 600, color: C.cyan }}>Monte Carlo <span style={{ fontSize: 10, color: C.text3, fontWeight: 400 }}>(estimated)</span></h3>
                 </div>
                 {[
                   { label: "Expected Value", value: `+${r.monteCarlo.expectedValue}%`, color: C.green },

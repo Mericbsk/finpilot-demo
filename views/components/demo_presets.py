@@ -117,7 +117,7 @@ DEMO_CATEGORIES: dict[str, DemoCategory] = {
             "de": "Große Biotechnologie-Unternehmen",
             "tr": "Büyük biyoteknoloji şirketleri",
         },
-        symbols=["AMGN", "GILD", "VRTX", "REGN", "BIIB", "MRNA", "BNTX", "ILMN", "ALNY", "SGEN"],
+        symbols=["AMGN", "GILD", "VRTX", "REGN", "BIIB", "MRNA", "BNTX", "ILMN", "ALNY", "BMRN"],
     ),
     "pharma_leaders": DemoCategory(
         key="pharma_leaders",

@@ -5,34 +5,34 @@
 streamlit>=1.53.0,<2.0.0
 
 # Data Processing
-pandas>=2.3.0,<3.0.0
-numpy>=2.4.0,<3.0.0
-yfinance>=1.0.0,<2.0.0
+pandas==3.0.1
+numpy==2.4.2
+yfinance==1.2.0
 
 # Visualization
 plotly>=6.5.0,<7.0.0
 
 # HTTP & Parsing
-requests>=2.32.0,<3.0.0
-beautifulsoup4>=4.14.0,<5.0.0
+requests==2.32.5
+beautifulsoup4==4.14.3
 lxml>=6.0.0,<7.0.0
 
 # LLM Integration
 google-genai>=1.0.0,<2.0.0
 duckduckgo-search>=8.1.0,<9.0.0
-groq>=0.12.0,<1.0.0
-anthropic>=0.52.0,<1.0.0
-tavily-python>=0.5.0,<1.0.0
+groq==1.1.2
+anthropic==0.86.0
+tavily-python==0.7.22
 
 # Core Infrastructure
-pydantic>=2.12.0,<3.0.0
-pydantic-settings>=2.12.0,<3.0.0
+pydantic==2.12.5
+pydantic-settings==2.13.1
 structlog>=25.0.0,<26.0.0
 
 # Security - Sprint 1
-pyjwt>=2.10.0,<3.0.0
-bcrypt>=5.0.0,<6.0.0
-cryptography>=46.0.0,<47.0.0
+pyjwt==2.12.1
+bcrypt==5.0.0
+cryptography==46.0.6
 
 # Observability - Sprint 4
 sentry-sdk>=2.31.0,<3.0.0
@@ -44,12 +44,12 @@ reportlab>=4.2.0,<5.0.0
 
 # Google Sheets Integration
 gspread>=6.1.0,<7.0.0
-google-auth>=2.29.0,<3.0.0
+google-auth==2.49.1
 
 # Broker & Scheduling - Sprint 21
-alpaca-py>=0.30.0,<1.0.0
+alpaca-py==0.43.2
 apscheduler>=3.10.0,<4.0.0
 
 # Testing (dev)
-pytest>=9.0.0
+pytest==9.0.2
 pytest-cov>=7.0.0

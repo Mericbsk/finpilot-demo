@@ -68,9 +68,8 @@ class TestBackendFactory:
 
     def test_postgres_url_selects_postgres(self, monkeypatch):
         monkeypatch.setenv(
-            "DATABASE_URL",
-            "postgresql://user:pass@localhost:5432/db",  # pragma: allowlist secret
-        )
+            "DATABASE_URL", "postgresql://user:pass@localhost:5432/db"
+        )  # pragma: allowlist secret
         from auth.db_backend import get_backend, reset_backend
 
         reset_backend()

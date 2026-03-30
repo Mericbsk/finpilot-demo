@@ -510,6 +510,14 @@ function AnalysisInner() {
         </div>
       </div>
 
+      {/* Data source indicator */}
+      {scanError && !scanData && (
+        <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs"
+          style={{ backgroundColor: "rgba(255,214,10,0.08)", border: "1px solid rgba(255,214,10,0.2)", color: C.yellow }}>
+          ⚠ Scanner API unavailable — showing estimated data. Technical indicators may not reflect real-time values.
+        </div>
+      )}
+
       {/* Stock header card */}
       <div className="rounded-2xl p-6" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
         <div className="flex flex-wrap items-start justify-between gap-4">

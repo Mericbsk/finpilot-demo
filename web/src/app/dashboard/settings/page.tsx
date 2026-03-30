@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Settings,
   Shield,
@@ -9,6 +9,7 @@ import {
   BarChart3,
   Save,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 
 /* ── Default settings ──────────────────────────────────────── */
@@ -56,16 +57,40 @@ export default function SettingsPage() {
     return defaultSettings;
   });
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState<"risk" | "strategy" | "notifications" | "indicators">("risk");
+
+  /* Load settings from backend on mount */
+  useEffect(() => {
+    fetch("/py-api/user/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.settings && Object.keys(data.settings).length > 0) {
+          setSettings((prev: typeof defaultSettings) => ({ ...prev, ...data.settings }));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const update = <K extends keyof typeof defaultSettings>(key: K, value: (typeof defaultSettings)[K]) => {
     setSettings({ ...settings, [key]: value });
     setSaved(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true);
+    // Save to localStorage
     try { localStorage.setItem("finpilot_settings", JSON.stringify(settings)); } catch {}
+    // Also save to backend
+    try {
+      await fetch("/py-api/user/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: "default", settings }),
+      });
+    } catch { /* localStorage still works as fallback */ }
     setSaved(true);
+    setSaving(false);
     setTimeout(() => setSaved(false), 2000);
   };
 
@@ -92,9 +117,9 @@ export default function SettingsPage() {
             <RotateCcw size={14} />
             Reset
           </button>
-          <button onClick={handleSave} className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--accent-cyan)] to-[var(--accent-blue)] px-4 py-2 text-xs font-semibold text-black">
-            <Save size={14} />
-            {saved ? "Saved ✓" : "Save"}
+          <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--accent-cyan)] to-[var(--accent-blue)] px-4 py-2 text-xs font-semibold text-black disabled:opacity-50">
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            {saved ? "Saved ✓" : saving ? "Saving…" : "Save"}
           </button>
         </div>
       </div>

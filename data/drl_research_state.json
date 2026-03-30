@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "created_at": "2026-03-27 12:21 UTC",
+  "iteration": 2,
+  "active_reward_terms": {
+    "pnl_weight": 10.0,
+    "dd_weight": 0.3,
+    "cost_weight": 0.1,
+    "sharpe_bonus": 0.0,
+    "turnover_penalty": 0.0,
+    "regime_bonus": 0.0,
+    "action_smoothing": 0.0
+  },
+  "baseline_metrics": {
+    "ppo_trend_20260304_233619": {
+      "sharpe": 0.057,
+      "return": 5.7363,
+      "dd": 0.4651,
+      "score": 4.270043001505052
+    },
+    "ppo_trend_20260305_233633": {
+      "sharpe": 0.0527,
+      "return": 3.5314,
+      "dd": 0.3774,
+      "score": 3.334154213036566
+    },
+    "ppo_momentum_20260306_001305": {
+      "sharpe": 0.0629,
+      "return": 2.9983,
+      "dd": 0.4728,
+      "score": 2.23147461928934
+    },
+    "ppo_trend_20260304_221324": {
+      "sharpe": 0.0426,
+      "return": 2.7005,
+      "dd": 0.4679,
+      "score": 2.15745971361402
+    },
+    "ppo_momentum_20260303_191357": {
+      "sharpe": 0.0554,
+      "return": 2.112,
+      "dd": 0.411,
+      "score": 1.7956058394160583
+    }
+  },
+  "experiment_log": [],
+  "best_per_agent": {},
+  "top5_ids": [
+    "ppo_trend_20260304_233619",
+    "ppo_trend_20260305_233633",
+    "ppo_momentum_20260306_001305",
+    "ppo_trend_20260304_221324",
+    "ppo_momentum_20260303_191357"
+  ],
+  "next_action": "Optuna ile 'dd_weight' optimize et (önerilen: 0.8, aralık: (0.5, 2.0))",
+  "last_run": "2026-03-27 12:23 UTC"
+}

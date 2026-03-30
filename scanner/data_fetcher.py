@@ -103,6 +103,17 @@ def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
         import yfinance as yf
 
         tkr = yf.Ticker(symbol)
+
+        # Pre-validate: yfinance raises NoneType errors for delisted/invalid tickers
+        try:
+            info = tkr.fast_info if hasattr(tkr, "fast_info") else None
+            if info is not None and getattr(info, "last_price", None) is None:
+                logger.warning(
+                    "yfinance fast_info boş: %s — delisted veya geçersiz sembol olabilir", symbol
+                )
+        except Exception:
+            pass  # fast_info check is best-effort
+
         df = tkr.history(
             period=yf_period,
             interval=yf_interval,
