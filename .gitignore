@@ -5,6 +5,7 @@ node_modules/
 .env.local
 .env.production
 .venv
+.venv-*/
 env/
 venv/
 .vscode/
@@ -62,3 +63,20 @@ models/checkpoints/
 # Archive bloat
 archive/SettingsCard/node_modules/
 archive/SettingsCard/dist/
+
+# MkDocs build output
+site/
+
+# LibreOffice / Office lock files
+.~lock.*
+
+# Large generated data files
+reports/chat_recovery/
+data/combined_results_*.csv
+data/experiments_results_*.csv
+
+# Generated reports cache
+data/reports_cache/
+
+# Claude settings
+.claude/

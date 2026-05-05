@@ -9,6 +9,8 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+        args: ['--unsafe']
+        exclude: data/openclaw_manifest_20260416_1503\.yaml$
       - id: check-json
         exclude: \.devcontainer/devcontainer\.json$
       - id: check-added-large-files

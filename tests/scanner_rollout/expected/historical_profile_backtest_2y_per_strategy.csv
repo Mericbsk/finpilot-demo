@@ -1,0 +1,3 @@
+profile,description,initial_capital,final_capital,total_return_pct,signals_found,executed_trades,win_rate_pct,avg_trade_pnl,avg_win,avg_loss,profit_factor,avg_hold_days,cagr_pct,sharpe,max_drawdown_pct
+baseline_current_proxy,Current sade backtest mantigi: regime + direction + score >= 2,10000.0,105362.11,953.62,9930,1791,43.94,53.25,434.31,-245.46,1.39,34.61,225.65,2.24,43.46
+optimized_candidate_proxy,Published optimized candidate thresholds applied to the same daily proxy features,10000.0,70228.91,602.29,8069,1626,43.79,37.04,327.03,-188.86,1.35,34.4,165.72,2.05,38.76

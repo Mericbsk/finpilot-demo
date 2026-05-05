@@ -1,0 +1,98 @@
+site_name: FinPilot Documentation
+site_description: AI-powered stock analysis platform with DRL agents
+site_url: ""
+repo_url: https://github.com/finpilot/borsa
+repo_name: finpilot/borsa
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: cyan
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: cyan
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
+
+docs_dir: docs
+
+nav:
+  - Home:
+      - Overview: index.md
+      - Dependencies: DEPENDENCIES.md
+      - Evolution Timeline: FINPILOT_EVOLUTION_TIMELINE.md
+  - Architecture:
+      - Core Migration Guide: CORE_MIGRATION_GUIDE.md
+      - Integration Plan: INTEGRATION_PLAN.md
+      - Infrastructure Roadmap: INFRASTRUCTURE_ACCELERATION_ROADMAP.md
+      - Gap Analysis: GAP_ANALYSIS_REPORT.md
+      - Gap Analysis v3: gap_analysis_v3.md
+  - DRL & ML:
+      - Academic Analysis: ACADEMIC_DRL_ANALYSIS.md
+      - Comprehensive Analysis: DRL_COMPREHENSIVE_ANALYSIS.md
+      - Agent Analysis: DRL_AGENT_ANALYSIS.md
+      - Improvement Roadmap: DRL_IMPROVEMENT_ROADMAP.md
+      - Parallel Testing Guide: DRL_PARALLEL_TESTING_GUIDE.md
+      - Workflow Alternatives: DRL_WORKFLOW_ALTERNATIF.md
+      - Entegrasyon Değerlendirme: drl_entegrasyon_degerlendirme.md
+      - Next Steps: drl_next_steps.md
+      - Sprint 1 Report: drl_sprint1_completion_report.md
+      - Trend Agent (Sprint 23): trend_agent_sprint23.md
+      - Z-Score Calibration: zscore_calibration.md
+  - Deployment:
+      - Demo Deployment: DEMO_DEPLOYMENT.md
+      - Demo to Real Roadmap: DEMO_TO_REAL_ROADMAP.md
+      - Paper Trading Guide: PAPER_TRADING_GUIDE.md
+      - Ollama Setup: OLLAMA_SETUP.md
+  - Guides:
+      - Financial Agent Guide: FINANCIAL_AGENT_GUIDE.md
+      - Financial Agent Quickstart: FINANCIAL_AGENT_QUICKSTART.md
+      - Effort Summary: finpilot_effort_summary.md
+  - Analysis & Reports:
+      - Full Audit Report: FULL_AUDIT_REPORT.md
+      - Critical Issues: CRITICAL_ISSUES_DETAILED.md
+      - Critical Roadmap: CRITICAL_ROADMAP.md
+      - Professional Analysis 2025: FINPILOT_PROFESSIONAL_ANALYSIS_2025.md
+      - Professional Analysis Jan 2026: FINPILOT_PROFESSIONAL_ANALYSIS_JAN2026.md
+      - Project Analysis: PROJECT_ANALYSIS_PROFESSIONAL.md
+      - DGX Spark Evaluation: DGX_SPARK_EVALUATION.md
+      - Hibe/Fon Değerlendirme: HIBE_FON_DEGERLENDIRME.md
+  - Roadmaps:
+      - Q1 2025: ROADMAP_Q1_2025.md
+      - UI/UX Apple Style: UI_UX_APPLE_STYLE_ROADMAP.md
+      - Trio Improvement: TRIO_IMPROVEMENT_ROADMAP.md
+      - LinkedIn Strategy: linkedin_content_strategy.md
+  - Sprints:
+      - ETL Sprint 2: etl_sprint2.md
+      - Feature Sprint 3: feature_sprint3.md
+      - Feature Store Sprint 4: feature_store_sprint4.md
+      - Feature Importance Sprint 5: feature_importance_sprint5.md
+      - Observability Sprint 5: observability_sprint5.md

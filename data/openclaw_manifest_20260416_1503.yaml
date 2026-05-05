@@ -1,0 +1,114 @@
+# OpenClaw — FinPilot Scanner Otomasyon Manifestosu
+# Version: 1.0  |  Generated: 2026-04-16
+# Run this manifest with: openclaw run openclaw_manifest.yaml
+
+name: finpilot-scanner-optimizer
+version: "1.0"
+schedule: "0 6 * * 1"   # Her Pazartesi 06:00 UTC
+timeout_minutes: 30
+run_id_format: "OPT-{YYYYMMDD}-{HHmm}"
+
+secrets:
+  - FINPILOT_DB_URL
+  - FINPILOT_ALERT_WEBHOOK
+  - FINPILOT_DATA_API_KEY
+
+parameters:
+  # Best parameters from last optimization run
+  min_alignment_ratio: 0.6
+  min_momentum_ratio:  0.4
+  min_filter_score:    1
+  min_signal_score:    2
+  min_zscore:          0.0
+  min_price_filter:    2.0
+  # Cost model
+  capital_per_signal:  1000
+  fp_cost:             15.0
+  fn_cost:             5.0
+
+tasks:
+  - id: task_1_data_pull
+    name: "Veri Çekme ve Ön İşleme"
+    description: "Son 30 günün shortlist CSV verilerini çek, temizle, snapshot oluştur"
+    command: python scanner_optimizer.py --mode=data_pull --output=snapshots/
+    retry: 2
+    timeout_minutes: 5
+    outputs:
+      - snapshots/master_{run_id}.parquet
+      - snapshots/stats_{run_id}.json
+    on_failure: alert_and_stop
+
+  - id: task_2_grid_search
+    name: "Grid Search — Parametre Taraması"
+    description: "Tüm threshold kombinasyonlarını paralel test et"
+    command: python scanner_optimizer.py --mode=grid_search --data=snapshots/master_{run_id}.parquet
+    depends_on: [task_1_data_pull]
+    parallel: true
+    max_workers: 4
+    retry: 1
+    timeout_minutes: 15
+    outputs:
+      - results/experiments_{run_id}.csv
+    on_failure: alert_and_continue
+
+  - id: task_3_analysis
+    name: "Sonuç Analizi ve Rapor"
+    description: "Top 10 kombinasyon seç, bootstrap CI hesapla, rapor üret"
+    command: python scanner_optimizer.py --mode=report --results=results/experiments_{run_id}.csv
+    depends_on: [task_2_grid_search]
+    outputs:
+      - reports/optimization_report_{run_id}.md
+      - reports/executive_summary_{run_id}.md
+    on_failure: alert_and_stop
+
+  - id: task_4_human_approval
+    name: "İnsan Onayı — Yeni Parametreler"
+    description: "Yeni parametreler mevcut baseline'dan >10% farklıysa onay iste"
+    type: human_in_the_loop
+    depends_on: [task_3_analysis]
+    condition: "profit_score_delta > 10 OR precision_delta > 0.05"
+    approval_channel: telegram  # veya email
+    approval_timeout_hours: 24
+    message: |
+      FinPilot Scanner Optimizasyon Sonucu
+      Yeni Profit Score: {new_profit_score}
+      Mevcut: {baseline_profit_score}
+      Delta: {delta_pct}%
+      Onaylamak için: /approve {run_id}
+      Reddetmek için: /reject {run_id}
+    on_timeout: keep_current_params
+
+  - id: task_5_deploy
+    name: "Parametreleri Canlıya Al (Canary)"
+    description: "Onaylanan parametreleri scanner/config.py'ye yaz ve canary başlat"
+    depends_on: [task_4_human_approval]
+    condition: "human_approved == true"
+    command: python deploy_params.py --params=reports/best_params_{run_id}.json --canary_pct=10
+    outputs:
+      - scanner/config_{run_id}_backup.py  # rollback dosyası
+    rollback:
+      trigger_condition: "fp_rate > 0.25 OR consecutive_failures >= 3"
+      command: python deploy_params.py --rollback --backup=scanner/config_{run_id}_backup.py
+      alert: true
+
+alerting:
+  channels:
+    - type: telegram
+      webhook: ${FINPILOT_ALERT_WEBHOOK}
+      events: [task_failure, human_approval_needed, rollback_triggered, run_complete]
+  thresholds:
+    profit_score_min: 10.0
+    fp_rate_max: 0.25
+    f1_min: 0.40
+
+audit_log:
+  enabled: true
+  store: ${FINPILOT_DB_URL}
+  fields: [run_id, params, metrics, model_version, data_snapshot_id, human_approver]
+
+---
+# Örnek Manuel Çalıştırma (CI/CD olmadan):
+# python scanner_optimizer.py --mode=full --output-dir=./results/
+#
+# Rollback:
+# python deploy_params.py --rollback --backup=scanner/config_20260101_backup.py

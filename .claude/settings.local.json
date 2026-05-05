@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /workspaces/Borsa/core/*.py /workspaces/Borsa/web/src/**/*.tsx)",
+      "Bash(grep -l \"class\\\\|def \" /workspaces/Borsa/llm/*.py)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(grep -r \"APIRouter\\\\|@router\" /workspaces/Borsa/api/routers/*.py)",
+      "Bash(grep -r \"class.*Repository\\\\|class.*Database\" /workspaces/Borsa/auth/*.py)",
+      "Bash(python3 -c \"import json; data = json.load\\(open\\(''/workspaces/Borsa/models/registry.json''\\)\\); print\\(f''Total models: {len\\(data\\)}''\\); print\\(''Model IDs:''\\); [print\\(f''  - {k}''\\) for k in list\\(data.keys\\(\\)\\)[:15]]\")",
+      "Bash(grep -r \"sitemap\\\\|robots\" /workspaces/Borsa/web --include=*.ts --include=*.tsx --include=*.json)",
+      "Bash(cat /workspaces/Borsa/web/.env*)",
+      "Bash(ls -la /workspaces/Borsa/web/src/app/dashboard/*/page.tsx)",
+      "Bash(ls -la /workspaces/Borsa/web/.env*)",
+      "Bash(ls -la /workspaces/Borsa/web/public/favicon*)",
+      "Bash(ls -la /workspaces/Borsa/web/public/og-image*)",
+      "Bash(ls /workspaces/Borsa/web/public/icon*)",
+      "Bash(docker exec *)"
+    ]
+  }
+}

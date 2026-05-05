@@ -1,0 +1,4444 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <meta name="description" content="AI-powered stock analysis platform with DRL agents">
+
+
+
+
+        <link rel="prev" href="../ROADMAP_Q1_2025/">
+
+
+        <link rel="next" href="../TRIO_IMPROVEMENT_ROADMAP/">
+
+
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+
+
+
+        <title>UI/UX Apple Style - FinPilot Documentation</title>
+
+
+
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+
+
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+
+
+
+
+
+
+
+
+
+
+
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+
+
+
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+
+
+
+
+
+
+  </head>
+
+
+
+
+
+
+
+
+
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="teal">
+
+
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+
+
+        <a href="#finpilot-apple-stil-elegant-web-arayuzu-yol-haritas" class="md-skip">
+          Skip to content
+        </a>
+
+    </div>
+    <div data-md-component="announce">
+
+    </div>
+
+
+
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FinPilot Documentation" class="md-header__button md-logo" aria-label="FinPilot Documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FinPilot Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+
+              UI/UX Apple Style
+
+          </span>
+        </div>
+      </div>
+    </div>
+
+
+        <form class="md-header__option" data-md-component="palette">
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+</form>
+
+
+
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+
+
+
+
+
+        <label class="md-header__button md-icon" for="__search">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      <div class="md-header__source">
+        <a href="https://github.com/finpilot/borsa" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    finpilot/borsa
+  </div>
+</a>
+      </div>
+
+  </nav>
+
+</header>
+
+    <div class="md-container" data-md-component="container">
+
+
+
+
+
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+
+
+
+  Home
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../CORE_MIGRATION_GUIDE/" class="md-tabs__link">
+
+
+
+  Architecture
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../ACADEMIC_DRL_ANALYSIS/" class="md-tabs__link">
+
+
+
+  DRL & ML
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../DEMO_DEPLOYMENT/" class="md-tabs__link">
+
+
+
+  Deployment
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../FINANCIAL_AGENT_GUIDE/" class="md-tabs__link">
+
+
+
+  Guides
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../FULL_AUDIT_REPORT/" class="md-tabs__link">
+
+
+
+  Analysis & Reports
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../ROADMAP_Q1_2025/" class="md-tabs__link">
+
+
+
+  Roadmaps
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../etl_sprint2/" class="md-tabs__link">
+
+
+
+  Sprints
+
+        </a>
+      </li>
+
+
+
+
+    </ul>
+  </div>
+</nav>
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+
+
+
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FinPilot Documentation" class="md-nav__button md-logo" aria-label="FinPilot Documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FinPilot Documentation
+  </label>
+
+    <div class="md-nav__source">
+      <a href="https://github.com/finpilot/borsa" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    finpilot/borsa
+  </div>
+</a>
+    </div>
+
+  <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+
+
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Home
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Overview
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEPENDENCIES/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Dependencies
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_EVOLUTION_TIMELINE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Evolution Timeline
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+
+
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Architecture
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CORE_MIGRATION_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Core Migration Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../INTEGRATION_PLAN/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Integration Plan
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../INFRASTRUCTURE_ACCELERATION_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Infrastructure Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../GAP_ANALYSIS_REPORT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Gap Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../gap_analysis_v3/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Gap Analysis v3
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+
+
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    DRL & ML
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            DRL & ML
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ACADEMIC_DRL_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Academic Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_COMPREHENSIVE_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Comprehensive Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_AGENT_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Agent Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_IMPROVEMENT_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Improvement Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_PARALLEL_TESTING_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Parallel Testing Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_WORKFLOW_ALTERNATIF/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Workflow Alternatives
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_entegrasyon_degerlendirme/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Entegrasyon Değerlendirme
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_next_steps/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Next Steps
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_sprint1_completion_report/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Sprint 1 Report
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../trend_agent_sprint23/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Trend Agent (Sprint 23)
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../zscore_calibration/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Z-Score Calibration
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+
+
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Deployment
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Deployment
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEMO_DEPLOYMENT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Demo Deployment
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEMO_TO_REAL_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Demo to Real Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../PAPER_TRADING_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Paper Trading Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../OLLAMA_SETUP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Ollama Setup
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+
+
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Guides
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINANCIAL_AGENT_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Financial Agent Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINANCIAL_AGENT_QUICKSTART/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Financial Agent Quickstart
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../finpilot_effort_summary/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Effort Summary
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+
+
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Analysis & Reports
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Analysis & Reports
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FULL_AUDIT_REPORT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Full Audit Report
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CRITICAL_ISSUES_DETAILED/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Critical Issues
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CRITICAL_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Critical Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_PROFESSIONAL_ANALYSIS_2025/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Professional Analysis 2025
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_PROFESSIONAL_ANALYSIS_JAN2026/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Professional Analysis Jan 2026
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../PROJECT_ANALYSIS_PROFESSIONAL/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Project Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DGX_SPARK_EVALUATION/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    DGX Spark Evaluation
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../HIBE_FON_DEGERLENDIRME/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Hibe/Fon Değerlendirme
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+
+
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    Roadmaps
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Roadmaps
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ROADMAP_Q1_2025/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Q1 2025
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+
+
+
+
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+
+  <span class="md-ellipsis">
+    UI/UX Apple Style
+
+  </span>
+
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+
+      <a href="./" class="md-nav__link md-nav__link--active">
+
+
+
+  <span class="md-ellipsis">
+    UI/UX Apple Style
+
+  </span>
+
+
+      </a>
+
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#1-mevcut-durum-auditi" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. MEVCUt DURUM AUDİTİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="1. MEVCUt DURUM AUDİTİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#11-mimari-envanter" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Mimari Envanter
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#12-mevcut-design-token-sistemi-sprint-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Mevcut Design Token Sistemi (Sprint 7)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#13-performans-tahmini-simule-lighthouse" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Performans Tahmini (Simüle Lighthouse)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#14-erisilebilirlik-auditi" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4 Erişilebilirlik Auditi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#15-icerik-ve-yap-auditi" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5 İçerik ve Yapı Auditi
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#2-design-system-ds-token-tanimi-figma-yapisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. DESIGN SYSTEM (DS) TOKEN TANIMI + FIGMA YAPISI
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2. DESIGN SYSTEM (DS) TOKEN TANIMI + FIGMA YAPISI">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#21-tipografi-token-skalas" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Tipografi Token Skalası
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#22-renk-token-genislemesi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Renk Token Genişlemesi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#23-spacing-breakpoint-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Spacing + Breakpoint Token
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#24-figma-yap-onerisi-3-ana-sayfa-6-komponent" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Figma Yapı Önerisi (3 Ana Sayfa + 6 Komponent)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#25-alt-temel-komponent-storybook-tanmlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 Altı Temel Komponent — Storybook Tanımları
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2.5 Altı Temel Komponent — Storybook Tanımları">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#251-button" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.1 Button
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#252-card" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.2 Card
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#253-modal" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.3 Modal
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#254-form-input-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.4 Form (Input Group)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#255-header-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.5 Header (Navigation)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#256-footer" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.6 Footer
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#3-nextjs-tailwind-scaffold-onerisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. NEXT.JS + TAILWIND SCAFFOLD ÖNERİSİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="3. NEXT.JS + TAILWIND SCAFFOLD ÖNERİSİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#31-neden-streamlitten-gecis" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Neden Streamlit'ten Geçiş?
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#32-gecis-stratejisi-kademeli-ykc-degil" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Geçiş Stratejisi: Kademeli (Yıkıcı Değil)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#33-nextjs-proje-yaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Next.js Proje Yapısı
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#34-design-token-tailwind-eslestirme" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 Design Token → Tailwind Eşleştirme
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#35-token-eslestirme-admlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.5 Token Eşleştirme Adımları
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#4-erisilebilirlik-performans-ve-seo-yapilacaklar-listesi" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ERİŞİLEBİLİRLİK, PERFORMANS VE SEO YAPILACAKLAR LİSTESİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="4. ERİŞİLEBİLİRLİK, PERFORMANS VE SEO YAPILACAKLAR LİSTESİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#41-erisilebilirlik-wcag-21-aa-uyumu" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Erişilebilirlik — WCAG 2.1 AA Uyumu
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#42-performans-core-web-vitals-hedefleri" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Performans — Core Web Vitals Hedefleri
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#43-seo-yaplacaklar" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 SEO Yapılacaklar
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#5-sekiz-haftalik-onceliklendirilmis-yol-haritasi" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. SEKİZ HAFTALIK ÖNCELİKLENDİRİLMİŞ YOL HARİTASI
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5. SEKİZ HAFTALIK ÖNCELİKLENDİRİLMİŞ YOL HARİTASI">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#genel-baks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Genel Bakış
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-1-design-token-erisilebilirlik-temeli" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 1 — Design Token &amp; Erişilebilirlik Temeli
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-2-aria-semantic-markup-reduced-motion" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 2 — ARIA, Semantic Markup &amp; Reduced Motion
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-3-core-component-build-button-card-badge" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 3 — Core Component Build (Button, Card, Badge)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-4-core-component-build-modal-form-header-footer" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 4 — Core Component Build (Modal, Form, Header, Footer)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-5-public-website-nextjs-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 5 — Public Website Next.js Migration
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-6-dashboard-prototype-nextjs-fastapi-bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 6 — Dashboard Prototype (Next.js + FastAPI Bridge)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-7-performans-optimizasyonu-polish" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 7 — Performans Optimizasyonu &amp; Polish
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-8-qa-ab-test-setup-launch" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 8 — QA, A/B Test Setup &amp; Launch
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#yol-haritas-ozet-tablosu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Yol Haritası Özet Tablosu
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#beklenen-nihai-kpilar-8-hafta-sonunda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Beklenen Nihai KPI'lar (8 Hafta Sonunda)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#dikkat-edilecek-riskler" class="md-nav__link">
+    <span class="md-ellipsis">
+      DİKKAT EDİLECEK RİSKLER
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../TRIO_IMPROVEMENT_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Trio Improvement
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../linkedin_content_strategy/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    LinkedIn Strategy
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+
+
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Sprints
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Sprints
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../etl_sprint2/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    ETL Sprint 2
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_sprint3/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Sprint 3
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_store_sprint4/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Store Sprint 4
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_importance_sprint5/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Importance Sprint 5
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../observability_sprint5/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Observability Sprint 5
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#1-mevcut-durum-auditi" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. MEVCUt DURUM AUDİTİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="1. MEVCUt DURUM AUDİTİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#11-mimari-envanter" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Mimari Envanter
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#12-mevcut-design-token-sistemi-sprint-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Mevcut Design Token Sistemi (Sprint 7)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#13-performans-tahmini-simule-lighthouse" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Performans Tahmini (Simüle Lighthouse)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#14-erisilebilirlik-auditi" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4 Erişilebilirlik Auditi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#15-icerik-ve-yap-auditi" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.5 İçerik ve Yapı Auditi
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#2-design-system-ds-token-tanimi-figma-yapisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. DESIGN SYSTEM (DS) TOKEN TANIMI + FIGMA YAPISI
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2. DESIGN SYSTEM (DS) TOKEN TANIMI + FIGMA YAPISI">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#21-tipografi-token-skalas" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Tipografi Token Skalası
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#22-renk-token-genislemesi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Renk Token Genişlemesi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#23-spacing-breakpoint-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Spacing + Breakpoint Token
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#24-figma-yap-onerisi-3-ana-sayfa-6-komponent" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Figma Yapı Önerisi (3 Ana Sayfa + 6 Komponent)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#25-alt-temel-komponent-storybook-tanmlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 Altı Temel Komponent — Storybook Tanımları
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2.5 Altı Temel Komponent — Storybook Tanımları">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#251-button" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.1 Button
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#252-card" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.2 Card
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#253-modal" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.3 Modal
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#254-form-input-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.4 Form (Input Group)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#255-header-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.5 Header (Navigation)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#256-footer" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5.6 Footer
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#3-nextjs-tailwind-scaffold-onerisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. NEXT.JS + TAILWIND SCAFFOLD ÖNERİSİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="3. NEXT.JS + TAILWIND SCAFFOLD ÖNERİSİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#31-neden-streamlitten-gecis" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Neden Streamlit'ten Geçiş?
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#32-gecis-stratejisi-kademeli-ykc-degil" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Geçiş Stratejisi: Kademeli (Yıkıcı Değil)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#33-nextjs-proje-yaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Next.js Proje Yapısı
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#34-design-token-tailwind-eslestirme" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 Design Token → Tailwind Eşleştirme
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#35-token-eslestirme-admlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.5 Token Eşleştirme Adımları
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#4-erisilebilirlik-performans-ve-seo-yapilacaklar-listesi" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ERİŞİLEBİLİRLİK, PERFORMANS VE SEO YAPILACAKLAR LİSTESİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="4. ERİŞİLEBİLİRLİK, PERFORMANS VE SEO YAPILACAKLAR LİSTESİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#41-erisilebilirlik-wcag-21-aa-uyumu" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Erişilebilirlik — WCAG 2.1 AA Uyumu
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#42-performans-core-web-vitals-hedefleri" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Performans — Core Web Vitals Hedefleri
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#43-seo-yaplacaklar" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 SEO Yapılacaklar
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#5-sekiz-haftalik-onceliklendirilmis-yol-haritasi" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. SEKİZ HAFTALIK ÖNCELİKLENDİRİLMİŞ YOL HARİTASI
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5. SEKİZ HAFTALIK ÖNCELİKLENDİRİLMİŞ YOL HARİTASI">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#genel-baks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Genel Bakış
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-1-design-token-erisilebilirlik-temeli" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 1 — Design Token &amp; Erişilebilirlik Temeli
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-2-aria-semantic-markup-reduced-motion" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 2 — ARIA, Semantic Markup &amp; Reduced Motion
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-3-core-component-build-button-card-badge" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 3 — Core Component Build (Button, Card, Badge)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-4-core-component-build-modal-form-header-footer" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 4 — Core Component Build (Modal, Form, Header, Footer)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-5-public-website-nextjs-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 5 — Public Website Next.js Migration
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-6-dashboard-prototype-nextjs-fastapi-bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 6 — Dashboard Prototype (Next.js + FastAPI Bridge)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-7-performans-optimizasyonu-polish" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 7 — Performans Optimizasyonu &amp; Polish
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#hafta-8-qa-ab-test-setup-launch" class="md-nav__link">
+    <span class="md-ellipsis">
+      HAFTA 8 — QA, A/B Test Setup &amp; Launch
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#yol-haritas-ozet-tablosu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Yol Haritası Özet Tablosu
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#beklenen-nihai-kpilar-8-hafta-sonunda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Beklenen Nihai KPI'lar (8 Hafta Sonunda)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#dikkat-edilecek-riskler" class="md-nav__link">
+    <span class="md-ellipsis">
+      DİKKAT EDİLECEK RİSKLER
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+
+
+
+
+
+
+
+
+<h1 id="finpilot-apple-stil-elegant-web-arayuzu-yol-haritas">FinPilot — Apple-Stil, Elegant Web Arayüzü Yol Haritası<a class="headerlink" href="#finpilot-apple-stil-elegant-web-arayuzu-yol-haritas" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Tarih:</strong> 2026-03-05
+<strong>Kapsam:</strong> Streamlit dashboard (views/) + public_website/ statik site
+<strong>Hedef:</strong> WCAG AA uyumlu, FCP &lt; 1.5s, LCP &lt; 2.5s, Lighthouse ≥ 90, marka-özgün design system</p>
+</blockquote>
+<hr />
+<h2 id="1-mevcut-durum-auditi">1. MEVCUt DURUM AUDİTİ<a class="headerlink" href="#1-mevcut-durum-auditi" title="Permanent link">&para;</a></h2>
+<h3 id="11-mimari-envanter">1.1 Mimari Envanter<a class="headerlink" href="#11-mimari-envanter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Katman</th>
+<th>Teknoloji</th>
+<th>Dosya</th>
+<th>Satır</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Uygulama çatısı</strong></td>
+<td>Streamlit (Python)</td>
+<td><code>streamlit_app.py</code></td>
+<td>121</td>
+</tr>
+<tr>
+<td><strong>Tema</strong></td>
+<td><code>.streamlit/config.toml</code></td>
+<td>1 dosya</td>
+<td>16</td>
+</tr>
+<tr>
+<td><strong>Görünümler (Views)</strong></td>
+<td>15 Python dosyası</td>
+<td><code>views/*.py</code></td>
+<td>6,672</td>
+</tr>
+<tr>
+<td><strong>Bileşenler</strong></td>
+<td>22 Python dosyası</td>
+<td><code>views/components/*.py</code></td>
+<td>7,531</td>
+</tr>
+<tr>
+<td><strong>Design Tokens + CSS</strong></td>
+<td>Tek monolitik dosya</td>
+<td><code>views/styles.py</code></td>
+<td>1,047</td>
+</tr>
+<tr>
+<td><strong>Statik site</strong></td>
+<td>Vanilla HTML/CSS</td>
+<td><code>public_website/</code></td>
+<td>6 HTML + 1 CSS (421 satır)</td>
+</tr>
+<tr>
+<td><strong>Varlıklar</strong></td>
+<td>Tek SVG logo</td>
+<td><code>assets/logo.svg</code></td>
+<td>1 dosya</td>
+</tr>
+<tr>
+<td><strong>TOPLAM UI LOC</strong></td>
+<td></td>
+<td></td>
+<td><strong>~14,200</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-mevcut-design-token-sistemi-sprint-7">1.2 Mevcut Design Token Sistemi (Sprint 7)<a class="headerlink" href="#12-mevcut-design-token-sistemi-sprint-7" title="Permanent link">&para;</a></h3>
+<p><code>views/styles.py</code> dosyasında CSS custom properties olarak tanımlı:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>✅ Bulunan Token Kategorileri:
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>   • Renk: Brand (primary, hover), BG (4 katman + 2 glass), Text (4 seviye),
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>     Semantic (success/error/warning/info/ai — her biri soft + border + text varyantları)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>   • Sınır: default, hover, focus
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>   • Boşluk: 4px tabanlı skala (space-1 → space-12, 8 kademe)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>   • Yarıçap: 5 kademe (sm 6px → full 999px)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>   • Gölge: 3 kademe (card, card-hover, glow)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   • Geçiş: 3 kademe (fast 0.15s, normal 0.25s, smooth 0.4s)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>❌ Eksik Token Kategorileri:
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>   • Tipografi: font-family, font-size skalası, line-height, letter-spacing tanımsız
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>   • Z-index katmanları: Yok
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>   • Motion/easing: Sadece ease, spring/bezier yok
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>   • Breakpoint: styles.py&#39;de yok (grid.py&#39;de hardcoded: 480/768)
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>   • Opacity skalası: Yok
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>   • Light mode: Yok (sadece dark tema)
+</code></pre></div>
+<h3 id="13-performans-tahmini-simule-lighthouse">1.3 Performans Tahmini (Simüle Lighthouse)<a class="headerlink" href="#13-performans-tahmini-simule-lighthouse" title="Permanent link">&para;</a></h3>
+<p>Streamlit doğası gereği gerçek Lighthouse ölçümü kısıtlı, ancak yapısal analiz:</p>
+<table>
+<thead>
+<tr>
+<th>Metrik</th>
+<th>Tahmini Durum</th>
+<th>Sorun</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FCP</strong></td>
+<td>~2.5-4s ⚠️</td>
+<td>Streamlit runtime + Python backend → yüksek TTFB</td>
+</tr>
+<tr>
+<td><strong>LCP</strong></td>
+<td>~4-6s 🔴</td>
+<td>Dashboard kartları server-side render, full page redraw</td>
+</tr>
+<tr>
+<td><strong>CLS</strong></td>
+<td>0.05-0.15 ⚠️</td>
+<td>Skeleton loader var ama st.rerun() layout kayması yaratıyor</td>
+</tr>
+<tr>
+<td><strong>TBT</strong></td>
+<td>Yüksek 🔴</td>
+<td>st.markdown(unsafe_allow_html) 70 kez — DOM mutation ağır</td>
+</tr>
+<tr>
+<td><strong>Bundle boyutu</strong></td>
+<td>N/A</td>
+<td>Streamlit kendi JS runtime'ı kontrol ediyor</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-erisilebilirlik-auditi">1.4 Erişilebilirlik Auditi<a class="headerlink" href="#14-erisilebilirlik-auditi" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kriter</th>
+<th>Durum</th>
+<th>Detay</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ARIA attributes</strong></td>
+<td>🔴 8 / ~200 gerekli</td>
+<td>Sadece 4 bileşende role/aria-label var</td>
+</tr>
+<tr>
+<td><strong>Keyboard navigation</strong></td>
+<td>🟡 Kısmi</td>
+<td>Streamlit widget'ları default erişilebilir, custom HTML değil</td>
+</tr>
+<tr>
+<td><strong>Color contrast</strong></td>
+<td>🟡 Riskli</td>
+<td><code>--text-muted: rgba(148,163,184,0.75)</code> → #0f172a üzerinde kontrast 3.2:1 (AA = 4.5:1 gerekli)</td>
+</tr>
+<tr>
+<td><strong>Focus indicators</strong></td>
+<td>🔴 Yok</td>
+<td>styles.py'de :focus-visible tanımı yok</td>
+</tr>
+<tr>
+<td><strong>Screen reader</strong></td>
+<td>🔴 Zayıf</td>
+<td>70 unsafe_allow_html blok, semantik etiket yok</td>
+</tr>
+<tr>
+<td><strong>Reduced motion</strong></td>
+<td>🔴 Yok</td>
+<td>prefers-reduced-motion sorgusu yok, 35+ animasyon var</td>
+</tr>
+<tr>
+<td><strong>Alt text</strong></td>
+<td>🟡</td>
+<td>Logo SVG'de title yok, emoji-as-icon yaygın (412 emoji)</td>
+</tr>
+<tr>
+<td><strong>Language</strong></td>
+<td>🟡</td>
+<td><code>lang="en"</code> ama içerik Türkçe — mismatch</td>
+</tr>
+</tbody>
+</table>
+<h3 id="15-icerik-ve-yap-auditi">1.5 İçerik ve Yapı Auditi<a class="headerlink" href="#15-icerik-ve-yap-auditi" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Alan</th>
+<th>Bulgu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Inline CSS</strong></td>
+<td>130 <code>style='...'</code> satırı views/*.py'de — bakımı imkânsız</td>
+</tr>
+<tr>
+<td><strong>unsafe_allow_html</strong></td>
+<td>70 kullanım — XSS riski, erişilebilirlik sıfır</td>
+</tr>
+<tr>
+<td><strong>Emoji-as-icon</strong></td>
+<td>412 emoji — ekran okuyucularda gürültü, farklı platformlarda tutarsız</td>
+</tr>
+<tr>
+<td><strong>Font sistemi</strong></td>
+<td>Streamlit default "sans serif" — marka kimliği yok</td>
+</tr>
+<tr>
+<td><strong>Dark-only tema</strong></td>
+<td>Light mode desteği yok</td>
+</tr>
+<tr>
+<td><strong>Responsive</strong></td>
+<td>grid.py var ama 480/768 breakpoint — modern cihazlara yetersiz</td>
+</tr>
+<tr>
+<td><strong>PWA</strong></td>
+<td>public_website'da manifest + service worker var, Streamlit'te yok</td>
+</tr>
+<tr>
+<td><strong>i18n</strong></td>
+<td>views/translations.py (531 LOC) + public_website/translations.js var</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-design-system-ds-token-tanimi-figma-yapisi">2. DESIGN SYSTEM (DS) TOKEN TANIMI + FIGMA YAPISI<a class="headerlink" href="#2-design-system-ds-token-tanimi-figma-yapisi" title="Permanent link">&para;</a></h2>
+<h3 id="21-tipografi-token-skalas">2.1 Tipografi Token Skalası<a class="headerlink" href="#21-tipografi-token-skalas" title="Permanent link">&para;</a></h3>
+<p>Apple-stil tipografi: SF Pro / Inter ailesi, net hiyerarşi, bol beyaz alan.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">:</span><span class="nd">root</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="c">/* ── Font Family ── */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nv">--font-sans</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Inter&#39;</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">apple-system</span><span class="p">,</span><span class="w"> </span><span class="n">BlinkMacSystemFont</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Segoe UI&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">system-ui</span><span class="p">,</span><span class="w"> </span><span class="kc">sans-serif</span><span class="p">;</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nv">--font-mono</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;SF Mono&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;JetBrains Mono&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Fira Code&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">monospace</span><span class="p">;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="c">/* ── Type Scale (Major Third 1.250) ── */</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nv">--text-xs</span><span class="p">:</span><span class="w">    </span><span class="mf">0.694</span><span class="kt">rem</span><span class="p">;</span><span class="w">   </span><span class="c">/* 11.1px — caption, footnote */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="nv">--text-sm</span><span class="p">:</span><span class="w">    </span><span class="mf">0.833</span><span class="kt">rem</span><span class="p">;</span><span class="w">   </span><span class="c">/* 13.3px — label, badge */</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nv">--text-base</span><span class="p">:</span><span class="w">  </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span><span class="w">       </span><span class="c">/* 16px   — body default */</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nv">--text-md</span><span class="p">:</span><span class="w">    </span><span class="mf">1.125</span><span class="kt">rem</span><span class="p">;</span><span class="w">   </span><span class="c">/* 18px   — body emphasis */</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nv">--text-lg</span><span class="p">:</span><span class="w">    </span><span class="mf">1.25</span><span class="kt">rem</span><span class="p">;</span><span class="w">    </span><span class="c">/* 20px   — card title */</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">  </span><span class="nv">--text-xl</span><span class="p">:</span><span class="w">    </span><span class="mf">1.563</span><span class="kt">rem</span><span class="p">;</span><span class="w">   </span><span class="c">/* 25px   — section heading */</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="nv">--text-2xl</span><span class="p">:</span><span class="w">   </span><span class="mf">1.953</span><span class="kt">rem</span><span class="p">;</span><span class="w">   </span><span class="c">/* 31.3px — page heading */</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="nv">--text-3xl</span><span class="p">:</span><span class="w">   </span><span class="mf">2.441</span><span class="kt">rem</span><span class="p">;</span><span class="w">   </span><span class="c">/* 39px   — hero heading */</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="nv">--text-4xl</span><span class="p">:</span><span class="w">   </span><span class="mf">3.052</span><span class="kt">rem</span><span class="p">;</span><span class="w">   </span><span class="c">/* 48.8px — display/splash */</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="c">/* ── Line Height ── */</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">  </span><span class="nv">--leading-none</span><span class="p">:</span><span class="w">  </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">  </span><span class="nv">--leading-tight</span><span class="p">:</span><span class="w"> </span><span class="mf">1.2</span><span class="p">;</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">  </span><span class="nv">--leading-snug</span><span class="p">:</span><span class="w">  </span><span class="mf">1.375</span><span class="p">;</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="nv">--leading-normal</span><span class="p">:</span><span class="mf">1.5</span><span class="p">;</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">  </span><span class="nv">--leading-relaxed</span><span class="p">:</span><span class="mf">1.625</span><span class="p">;</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">  </span><span class="c">/* ── Font Weight ── */</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">  </span><span class="nv">--weight-normal</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">;</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">  </span><span class="nv">--weight-medium</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">;</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">  </span><span class="nv">--weight-semibold</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">  </span><span class="nv">--weight-bold</span><span class="p">:</span><span class="w"> </span><span class="mi">700</span><span class="p">;</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">  </span><span class="nv">--weight-extrabold</span><span class="p">:</span><span class="w"> </span><span class="mi">800</span><span class="p">;</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">  </span><span class="c">/* ── Letter Spacing ── */</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w">  </span><span class="nv">--tracking-tight</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.025</span><span class="kt">em</span><span class="p">;</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">  </span><span class="nv">--tracking-normal</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="w">  </span><span class="nv">--tracking-wide</span><span class="p">:</span><span class="w"> </span><span class="mf">0.025</span><span class="kt">em</span><span class="p">;</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="w">  </span><span class="nv">--tracking-wider</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="kt">em</span><span class="p">;</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="w">  </span><span class="nv">--tracking-caps</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="kt">em</span><span class="p">;</span>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="22-renk-token-genislemesi">2.2 Renk Token Genişlemesi<a class="headerlink" href="#22-renk-token-genislemesi" title="Permanent link">&para;</a></h3>
+<p>Mevcut palette'i koruya rak, Apple-stil soft/muted gradations ekliyoruz:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">:</span><span class="nd">root</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="c">/* ── Brand (mevcut — kalıyor) ── */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nv">--color-primary</span><span class="p">:</span><span class="w"> </span><span class="mh">#00e6e6</span><span class="p">;</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nv">--color-primary-hover</span><span class="p">:</span><span class="w"> </span><span class="mh">#0ea5e9</span><span class="p">;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nv">--color-primary-muted</span><span class="p">:</span><span class="w"> </span><span class="nb">rgba</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">230</span><span class="p">,</span><span class="w"> </span><span class="mi">230</span><span class="p">,</span><span class="w"> </span><span class="mf">0.12</span><span class="p">);</span><span class="w">  </span><span class="c">/* YENİ */</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nv">--color-primary-subtle</span><span class="p">:</span><span class="w"> </span><span class="nb">rgba</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">230</span><span class="p">,</span><span class="w"> </span><span class="mi">230</span><span class="p">,</span><span class="w"> </span><span class="mf">0.06</span><span class="p">);</span><span class="w">  </span><span class="c">/* YENİ */</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="c">/* ── Neutral Surface Scale (Apple dark style) ── */</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nv">--surface-0</span><span class="p">:</span><span class="w"> </span><span class="mh">#000000</span><span class="p">;</span><span class="w">      </span><span class="c">/* True black — OLED */</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nv">--surface-1</span><span class="p">:</span><span class="w"> </span><span class="mh">#0a0f1a</span><span class="p">;</span><span class="w">      </span><span class="c">/* Deepest BG */</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="nv">--surface-2</span><span class="p">:</span><span class="w"> </span><span class="mh">#0f172a</span><span class="p">;</span><span class="w">      </span><span class="c">/* = mevcut bg-primary */</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="nv">--surface-3</span><span class="p">:</span><span class="w"> </span><span class="mh">#1e293b</span><span class="p">;</span><span class="w">      </span><span class="c">/* = mevcut bg-secondary */</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">  </span><span class="nv">--surface-4</span><span class="p">:</span><span class="w"> </span><span class="mh">#334155</span><span class="p">;</span><span class="w">      </span><span class="c">/* = mevcut bg-tertiary */</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="nv">--surface-5</span><span class="p">:</span><span class="w"> </span><span class="mh">#475569</span><span class="p">;</span><span class="w">      </span><span class="c">/* YENİ — elevated cards */</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="nv">--surface-glass</span><span class="p">:</span><span class="w"> </span><span class="nb">rgba</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mf">0.72</span><span class="p">);</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="nv">--surface-glass-heavy</span><span class="p">:</span><span class="w"> </span><span class="nb">rgba</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mf">0.88</span><span class="p">);</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="c">/* ── Text Contrast-Safe Scale ── */</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">  </span><span class="nv">--text-primary</span><span class="p">:</span><span class="w">    </span><span class="mh">#f8fafc</span><span class="p">;</span><span class="w">   </span><span class="c">/* 16.8:1 on surface-2 ✅ AAA */</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">  </span><span class="nv">--text-secondary</span><span class="p">:</span><span class="w">  </span><span class="mh">#cbd5e1</span><span class="p">;</span><span class="w">   </span><span class="c">/* 10.6:1 on surface-2 ✅ AAA */</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">  </span><span class="nv">--text-tertiary</span><span class="p">:</span><span class="w">   </span><span class="mh">#94a3b8</span><span class="p">;</span><span class="w">   </span><span class="c">/* 5.6:1  on surface-2 ✅ AA  */</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">  </span><span class="nv">--text-muted</span><span class="p">:</span><span class="w">      </span><span class="mh">#64748b</span><span class="p">;</span><span class="w">   </span><span class="c">/* 3.4:1  on surface-2 ❌ large text only */</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">  </span><span class="nv">--text-disabled</span><span class="p">:</span><span class="w">   </span><span class="mh">#475569</span><span class="p">;</span><span class="w">   </span><span class="c">/* disabled state only */</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">  </span><span class="c">/* ── Semantic (mevcut&#39;u inherit + accessible variants) ── */</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">  </span><span class="nv">--color-success</span><span class="p">:</span><span class="w">       </span><span class="mh">#22c55e</span><span class="p">;</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">  </span><span class="nv">--color-success-light</span><span class="p">:</span><span class="w"> </span><span class="mh">#4ade80</span><span class="p">;</span><span class="w">  </span><span class="c">/* AA uyumlu text rengi */</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="w">  </span><span class="nv">--color-error</span><span class="p">:</span><span class="w">         </span><span class="mh">#ef4444</span><span class="p">;</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="w">  </span><span class="nv">--color-error-light</span><span class="p">:</span><span class="w">   </span><span class="mh">#fca5a5</span><span class="p">;</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">  </span><span class="nv">--color-warning</span><span class="p">:</span><span class="w">       </span><span class="mh">#eab308</span><span class="p">;</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">  </span><span class="nv">--color-warning-light</span><span class="p">:</span><span class="w"> </span><span class="mh">#fde047</span><span class="p">;</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">  </span><span class="nv">--color-info</span><span class="p">:</span><span class="w">          </span><span class="mh">#3b82f6</span><span class="p">;</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">  </span><span class="nv">--color-info-light</span><span class="p">:</span><span class="w">    </span><span class="mh">#93c5fd</span><span class="p">;</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">  </span><span class="c">/* ── Elevation / Z-index ── */</span>
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="w">  </span><span class="nv">--z-base</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="w">  </span><span class="nv">--z-dropdown</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="w">  </span><span class="nv">--z-sticky</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">;</span>
+<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="w">  </span><span class="nv">--z-modal-backdrop</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">;</span>
+<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a><span class="w">  </span><span class="nv">--z-modal</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">;</span>
+<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a><span class="w">  </span><span class="nv">--z-toast</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">;</span>
+<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a><span class="w">  </span><span class="nv">--z-tooltip</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span>
+<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="23-spacing-breakpoint-token">2.3 Spacing + Breakpoint Token<a class="headerlink" href="#23-spacing-breakpoint-token" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">:</span><span class="nd">root</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="c">/* ── Spacing (mevcut 4px base korunuyor, eksikler ekleniyor) ── */</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nv">--space-0</span><span class="p">:</span><span class="w">  </span><span class="mi">0</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nv">--space-px</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="err">--space-0.5:</span><span class="w"> </span><span class="err">2px</span><span class="p">;</span><span class="w">   </span><span class="c">/* YENİ */</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nv">--space-1</span><span class="p">:</span><span class="w">  </span><span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="err">--space-1.5:</span><span class="w"> </span><span class="err">6px</span><span class="p">;</span><span class="w">   </span><span class="c">/* YENİ */</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nv">--space-2</span><span class="p">:</span><span class="w">  </span><span class="mi">8</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nv">--space-3</span><span class="p">:</span><span class="w">  </span><span class="mi">12</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nv">--space-4</span><span class="p">:</span><span class="w">  </span><span class="mi">16</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="nv">--space-5</span><span class="p">:</span><span class="w">  </span><span class="mi">20</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="nv">--space-6</span><span class="p">:</span><span class="w">  </span><span class="mi">24</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="nv">--space-8</span><span class="p">:</span><span class="w">  </span><span class="mi">32</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span><span class="nv">--space-10</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">  </span><span class="nv">--space-12</span><span class="p">:</span><span class="w"> </span><span class="mi">48</span><span class="kt">px</span><span class="p">;</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">  </span><span class="nv">--space-16</span><span class="p">:</span><span class="w"> </span><span class="mi">64</span><span class="kt">px</span><span class="p">;</span><span class="w">   </span><span class="c">/* YENİ — section gutter */</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="nv">--space-20</span><span class="p">:</span><span class="w"> </span><span class="mi">80</span><span class="kt">px</span><span class="p">;</span><span class="w">   </span><span class="c">/* YENİ — page gutter */</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="nv">--space-24</span><span class="p">:</span><span class="w"> </span><span class="mi">96</span><span class="kt">px</span><span class="p">;</span><span class="w">   </span><span class="c">/* YENİ — hero spacing */</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">  </span><span class="c">/* ── Breakpoints (CSS custom prop olarak kullanılmaz, referans) ── */</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">  </span><span class="c">/* --bp-xs: 375px;  — mobile small */</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">  </span><span class="c">/* --bp-sm: 640px;  — mobile large */</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">  </span><span class="c">/* --bp-md: 768px;  — tablet */</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">  </span><span class="c">/* --bp-lg: 1024px; — desktop */</span>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">  </span><span class="c">/* --bp-xl: 1280px; — wide desktop */</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="w">  </span><span class="c">/* --bp-2xl: 1536px; — ultrawide */</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="24-figma-yap-onerisi-3-ana-sayfa-6-komponent">2.4 Figma Yapı Önerisi (3 Ana Sayfa + 6 Komponent)<a class="headerlink" href="#24-figma-yap-onerisi-3-ana-sayfa-6-komponent" title="Permanent link">&para;</a></h3>
+<p><strong>Figma Dosya Hiyerarşisi:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>📁 FinPilot DS v2.0
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>├── 📄 Cover &amp; Index
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>├── 📁 Foundations
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>│   ├── 🎨 Colors (Primitive → Semantic → Component)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>│   ├── 📝 Typography (Scale + Preset styles)
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>│   ├── 📐 Spacing &amp; Grid (4px grid, 12-col layout)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>│   ├── 🔲 Elevation &amp; Shadows
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>│   └── ⚡ Motion &amp; Easing
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>├── 📁 Components (Storybook 1:1)
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>│   ├── 🔘 Button (Primary / Secondary / Ghost / Danger / Icon-only)
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>│   ├── 🃏 Card (Signal / Metric / Feature / Empty state)
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>│   ├── 📋 Modal (Default / Confirmation / Full-screen)
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>│   ├── 📝 Form (Input / Select / Checkbox / Radio / Toggle)
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>│   ├── 🔝 Header (Nav bar + breadcrumb)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>│   └── 🔚 Footer (Minimal + Extended)
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>├── 📁 Patterns
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>│   ├── Skeleton Loading
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>│   ├── Empty State
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>│   ├── Error State
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>│   ├── Toast / Notification
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>│   └── Data Table
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>└── 📁 Pages (3 Ana Sayfa Prototipi)
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>    ├── 🏠 Landing Page — Hero + Feature grid + CTA
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    ├── 📊 Dashboard — Scan results + Signal cards + DRL panel
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>    └── 🎓 FinSense — Academy + Dictionary + Quiz
+</code></pre></div>
+<h3 id="25-alt-temel-komponent-storybook-tanmlar">2.5 Altı Temel Komponent — Storybook Tanımları<a class="headerlink" href="#25-alt-temel-komponent-storybook-tanmlar" title="Permanent link">&para;</a></h3>
+<h4 id="251-button">2.5.1 Button<a class="headerlink" href="#251-button" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Komponent: FPButton
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Varyantlar: primary | secondary | ghost | danger | icon-only
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Boyutlar:   sm (32px) | md (40px) | lg (48px)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Durumlar:   default | hover | active | focus | disabled | loading
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>Props:
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  label:     string
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>  variant:   &quot;primary&quot; | &quot;secondary&quot; | &quot;ghost&quot; | &quot;danger&quot;
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>  size:      &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot;
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>  icon?:     ReactNode (sol ikon)
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>  iconOnly?: boolean
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>  loading?:  boolean
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>  disabled?: boolean
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>  fullWidth?:boolean
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>Erişilebilirlik:
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>  • role=&quot;button&quot;
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>  • aria-label (iconOnly olduğunda zorunlu)
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>  • aria-disabled={disabled}
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>  • aria-busy={loading}
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>  • :focus-visible → 2px solid var(--color-primary), offset 2px
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>Stil Detayları (Primary):
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>  border: none
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>  border-radius: var(--radius-md)    /* 12px */
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>  color: var(--surface-2)            /* dark text on bright bg */
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>  font-weight: var(--weight-semibold)
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>  font-size: var(--text-sm)
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>  padding: var(--space-2) var(--space-5)
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>  transition: transform var(--transition-fast), box-shadow var(--transition-normal)
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a>  hover: translateY(-1px), shadow-card-hover
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>  active: translateY(0), scale(0.98)
+</code></pre></div>
+<h4 id="252-card">2.5.2 Card<a class="headerlink" href="#252-card" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Komponent: FPCard
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Varyantlar: signal | metric | feature | empty
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>Boyutlar:   compact | default | expanded
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>Props:
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  variant:    &quot;signal&quot; | &quot;metric&quot; | &quot;feature&quot; | &quot;empty&quot;
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  title:      string
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>  subtitle?:  string
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>  badge?:     { label: string, color: &quot;success&quot; | &quot;warning&quot; | &quot;error&quot; | &quot;info&quot; }
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>  metrics?:   Array&lt;{ label: string, value: string | number }&gt;
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>  children:   ReactNode
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>  onClick?:   () =&gt; void
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>  hoverable?: boolean  (default: true)
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>Erişilebilirlik:
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>  • role=&quot;article&quot; veya role=&quot;region&quot;
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>  • aria-label=&quot;{title}&quot;
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>  • role=&quot;button&quot; + tabindex=&quot;0&quot; (onClick varsa)
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>Stil Detayları:
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>  background: var(--surface-3)
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>  border: 1px solid var(--border-default)
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>  border-radius: var(--radius-lg)    /* 16px */
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>  padding: var(--space-5) var(--space-6)
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>  box-shadow: var(--shadow-card)
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>  transition: transform var(--transition-normal), box-shadow var(--transition-normal)
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>  hover: translateY(-2px), border-color var(--border-hover), shadow-card-hover
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>  /* Apple-stil frosted glass efekti */
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>  @supports (backdrop-filter: blur(20px)) {
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>    background: var(--surface-glass);
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>    backdrop-filter: blur(20px) saturate(180%);
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>    -webkit-backdrop-filter: blur(20px) saturate(180%);
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>  }
+</code></pre></div>
+<h4 id="253-modal">2.5.3 Modal<a class="headerlink" href="#253-modal" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Komponent: FPModal
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Varyantlar: default | confirmation | fullscreen
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>Props:
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>  isOpen:     boolean
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  onClose:    () =&gt; void
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  title:      string
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>  size:       &quot;sm&quot; (480px) | &quot;md&quot; (640px) | &quot;lg&quot; (800px) | &quot;fullscreen&quot;
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>  children:   ReactNode
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>  footer?:    ReactNode
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>  closeOnOverlay?: boolean (default: true)
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>Erişilebilirlik:
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>  • role=&quot;dialog&quot;
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>  • aria-modal=&quot;true&quot;
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>  • aria-labelledby=&quot;{titleId}&quot;
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>  • Focus trap: Tab döngüsü modal içinde
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>  • Escape tuşu ile kapatılır
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>  • Açılınca ilk focusable element&#39;e focus
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>  • Kapanınca trigger element&#39;e focus dönüşü
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>Stil Detayları:
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>  Backdrop: background rgba(0,0,0,0.6) + backdrop-filter blur(8px)
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>  Panel: background var(--surface-3), border-radius var(--radius-xl) (20px)
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>  Animasyon: opacity 0→1 + translateY(16px→0), 0.3s cubic-bezier(0.32,0.72,0,1) — Apple spring
+</code></pre></div>
+<h4 id="254-form-input-group">2.5.4 Form (Input Group)<a class="headerlink" href="#254-form-input-group" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Komponent: FPInput / FPSelect / FPCheckbox / FPToggle
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>FPInput Props:
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  label:       string
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  placeholder: string
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  type:        &quot;text&quot; | &quot;number&quot; | &quot;email&quot; | &quot;password&quot; | &quot;search&quot;
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  value:       string
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>  onChange:    (value: string) =&gt; void
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  error?:      string
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>  hint?:       string
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>  icon?:       ReactNode (sol)
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>  disabled?:   boolean
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>  required?:   boolean
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>Erişilebilirlik:
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>  • &lt;label&gt; ile htmlFor bağlantısı (id auto-gen)
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>  • aria-describedby → hint ve error message
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>  • aria-invalid={!!error}
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>  • aria-required={required}
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>  • :focus-visible → ring-2 var(--border-focus)
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>Stil Detayları:
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>  background: var(--surface-2)
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>  border: 1px solid var(--border-default)
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>  border-radius: var(--radius-md)
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>  padding: var(--space-3) var(--space-4)
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>  color: var(--text-primary)
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>  font-size: var(--text-base)
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>  transition: border-color var(--transition-fast), box-shadow var(--transition-fast)
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>  focus: border-color var(--color-primary), box-shadow 0 0 0 3px var(--color-primary-muted)
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>  error: border-color var(--color-error), box-shadow 0 0 0 3px var(--color-error-soft)
+</code></pre></div>
+<h4 id="255-header-navigation">2.5.5 Header (Navigation)<a class="headerlink" href="#255-header-navigation" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Komponent: FPHeader
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>Props:
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  logo:       ReactNode
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  navItems:   Array&lt;{ label: string, href: string, active?: boolean }&gt;
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>  user?:      { name: string, avatar?: string }
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>  onLogout?:  () =&gt; void
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>Erişilebilirlik:
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>  • &lt;header role=&quot;banner&quot;&gt;
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>  • &lt;nav role=&quot;navigation&quot; aria-label=&quot;Ana menü&quot;&gt;
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>  • aria-current=&quot;page&quot; aktif link&#39;te
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>  • Hamburger menü: aria-expanded, aria-controls
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>Stil Detayları:
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>  position: sticky, top: 0, z-index: var(--z-sticky)
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>  background: var(--surface-glass-heavy)
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>  backdrop-filter: blur(20px) saturate(180%)
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>  border-bottom: 1px solid var(--border-default)
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>  padding: var(--space-3) var(--space-6)
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>  height: 64px
+</code></pre></div>
+<h4 id="256-footer">2.5.6 Footer<a class="headerlink" href="#256-footer" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Komponent: FPFooter
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Props:
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>  links:      Array&lt;{ label: string, href: string }&gt;
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>  copyright:  string
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>  socials?:   Array&lt;{ icon: ReactNode, href: string, label: string }&gt;
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>  variant:    &quot;minimal&quot; | &quot;extended&quot;
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>Erişilebilirlik:
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>  • &lt;footer role=&quot;contentinfo&quot;&gt;
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>  • Sosyal medya linkleri: aria-label=&quot;Twitter&#39;da FinPilot&quot; vb.
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>Stil Detayları:
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>  background: var(--surface-1)
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>  border-top: 1px solid var(--border-default)
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>  padding: var(--space-8) var(--space-6)
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>  font-size: var(--text-sm)
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>  color: var(--text-tertiary)
+</code></pre></div>
+<hr />
+<h2 id="3-nextjs-tailwind-scaffold-onerisi">3. NEXT.JS + TAILWIND SCAFFOLD ÖNERİSİ<a class="headerlink" href="#3-nextjs-tailwind-scaffold-onerisi" title="Permanent link">&para;</a></h2>
+<h3 id="31-neden-streamlitten-gecis">3.1 Neden Streamlit'ten Geçiş?<a class="headerlink" href="#31-neden-streamlitten-gecis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kriter</th>
+<th>Streamlit</th>
+<th>Next.js + Tailwind</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FCP</strong></td>
+<td>2.5-4s (Python TTFB)</td>
+<td>0.5-1s (Edge/static)</td>
+</tr>
+<tr>
+<td><strong>SEO</strong></td>
+<td>Yok (SPA, JS render)</td>
+<td>SSR/SSG native</td>
+</tr>
+<tr>
+<td><strong>Erişilebilirlik</strong></td>
+<td>Sınırlı (70 unsafe_allow_html)</td>
+<td>Tam kontrol (semantic HTML)</td>
+</tr>
+<tr>
+<td><strong>Tasarım esnekliği</strong></td>
+<td>CSS injection</td>
+<td>Tailwind + CSS Modules</td>
+</tr>
+<tr>
+<td><strong>Bundle size</strong></td>
+<td>~3.5 MB (Streamlit runtime)</td>
+<td>~80-150 KB (tree-shaken)</td>
+</tr>
+<tr>
+<td><strong>PWA</strong></td>
+<td>Yok</td>
+<td>next-pwa native</td>
+</tr>
+<tr>
+<td><strong>Komponent reuse</strong></td>
+<td>Python fonksiyonları</td>
+<td>React component tree</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>Custom (auth/ modülü)</td>
+<td>NextAuth.js</td>
+</tr>
+<tr>
+<td><strong>Backend</strong></td>
+<td>Streamlit server</td>
+<td>API Routes / tRPC</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-gecis-stratejisi-kademeli-ykc-degil">3.2 Geçiş Stratejisi: Kademeli (Yıkıcı Değil)<a class="headerlink" href="#32-gecis-stratejisi-kademeli-ykc-degil" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>FAZ 1 (Hemen): Streamlit DS iyileştirme — mevcut styles.py token genişletme
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>FAZ 2 (Hafta 3-4): public_website/ → Next.js migration (static pages)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>FAZ 3 (Hafta 5-6): Dashboard → Next.js + API (Streamlit backend korunur)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>FAZ 4 (Hafta 7-8): Tam geçiş, Streamlit → FastAPI + Next.js
+</code></pre></div>
+<h3 id="33-nextjs-proje-yaps">3.3 Next.js Proje Yapısı<a class="headerlink" href="#33-nextjs-proje-yaps" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>finpilot-web/
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>├── app/                           # Next.js 14 App Router
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>│   ├── layout.tsx                 # Root layout + font loading
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>│   ├── page.tsx                   # Landing page (SSG)
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>│   ├── dashboard/
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>│   │   ├── layout.tsx             # Auth-gated layout
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>│   │   ├── page.tsx               # Ana panel
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>│   │   └── scan/[id]/page.tsx     # Scan detail
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>│   ├── academy/
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>│   │   ├── page.tsx               # FinSense
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>│   │   └── quiz/page.tsx
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>│   ├── demo/page.tsx
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>│   ├── auth/
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>│   │   ├── login/page.tsx
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>│   │   └── register/page.tsx
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>│   └── api/                       # API Routes (FastAPI proxy/bridge)
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>│       ├── scan/route.ts
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>│       ├── signals/route.ts
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>│       └── auth/[...nextauth]/route.ts
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>├── components/                    # Storybook-aligned
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>│   ├── ui/                        # Atomic
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>│   │   ├── Button.tsx
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>│   │   ├── Card.tsx
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>│   │   ├── Modal.tsx
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>│   │   ├── Input.tsx
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>│   │   ├── Badge.tsx
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>│   │   ├── Skeleton.tsx
+<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>│   │   └── Tooltip.tsx
+<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>│   ├── layout/
+<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>│   │   ├── Header.tsx
+<a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a>│   │   ├── Footer.tsx
+<a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a>│   │   ├── Sidebar.tsx
+<a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a>│   │   └── PageContainer.tsx
+<a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a>│   ├── dashboard/
+<a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a>│   │   ├── SignalCard.tsx
+<a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a>│   │   ├── MetricPanel.tsx
+<a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a>│   │   ├── ScanControls.tsx
+<a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a>│   │   └── DRLPanel.tsx
+<a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a>│   └── academy/
+<a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a>│       ├── DictionaryBrowser.tsx
+<a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a>│       └── QuizModule.tsx
+<a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a>├── lib/
+<a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a>│   ├── api.ts                     # Fetch helpers
+<a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a>│   ├── auth.ts                    # NextAuth config
+<a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a>│   └── hooks/                     # Custom hooks
+<a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a>│       ├── useScan.ts
+<a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a>│       └── useSignals.ts
+<a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a>├── styles/
+<a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a>│   ├── globals.css                # @tailwind directives + token overrides
+<a id="__codelineno-12-50" name="__codelineno-12-50" href="#__codelineno-12-50"></a>│   └── tokens.css                 # Design token custom properties (2.1-2.3)
+<a id="__codelineno-12-51" name="__codelineno-12-51" href="#__codelineno-12-51"></a>├── public/
+<a id="__codelineno-12-52" name="__codelineno-12-52" href="#__codelineno-12-52"></a>│   ├── fonts/                     # Inter self-hosted (GDPR)
+<a id="__codelineno-12-53" name="__codelineno-12-53" href="#__codelineno-12-53"></a>│   ├── icons/
+<a id="__codelineno-12-54" name="__codelineno-12-54" href="#__codelineno-12-54"></a>│   └── manifest.json
+<a id="__codelineno-12-55" name="__codelineno-12-55" href="#__codelineno-12-55"></a>├── tailwind.config.ts
+<a id="__codelineno-12-56" name="__codelineno-12-56" href="#__codelineno-12-56"></a>├── next.config.ts
+<a id="__codelineno-12-57" name="__codelineno-12-57" href="#__codelineno-12-57"></a>├── .storybook/                    # Storybook 8 config
+<a id="__codelineno-12-58" name="__codelineno-12-58" href="#__codelineno-12-58"></a>│   ├── main.ts
+<a id="__codelineno-12-59" name="__codelineno-12-59" href="#__codelineno-12-59"></a>│   └── preview.ts
+<a id="__codelineno-12-60" name="__codelineno-12-60" href="#__codelineno-12-60"></a>├── package.json
+<a id="__codelineno-12-61" name="__codelineno-12-61" href="#__codelineno-12-61"></a>└── tsconfig.json
+</code></pre></div>
+<h3 id="34-design-token-tailwind-eslestirme">3.4 Design Token → Tailwind Eşleştirme<a class="headerlink" href="#34-design-token-tailwind-eslestirme" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1">// tailwind.config.ts</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">import</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Config</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;tailwindcss&#39;</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">  </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;./app/**/*.tsx&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;./components/**/*.tsx&#39;</span><span class="p">],</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="nx">extend</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">      </span><span class="c1">// ── Typography ──</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">      </span><span class="nx">fontFamily</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">        </span><span class="nx">sans</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;Inter&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-apple-system&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;BlinkMacSystemFont&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;system-ui&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sans-serif&#39;</span><span class="p">],</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">        </span><span class="nx">mono</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;SF Mono&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;JetBrains Mono&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Fira Code&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;monospace&#39;</span><span class="p">],</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">      </span><span class="nx">fontSize</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">        </span><span class="s1">&#39;xs&#39;</span><span class="o">:</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;0.694rem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.2&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">        </span><span class="s1">&#39;sm&#39;</span><span class="o">:</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;0.833rem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.375&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">        </span><span class="s1">&#39;base&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;1rem&#39;</span><span class="p">,</span><span class="w">     </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.5&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">        </span><span class="s1">&#39;md&#39;</span><span class="o">:</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;1.125rem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.5&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="w">        </span><span class="s1">&#39;lg&#39;</span><span class="o">:</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;1.25rem&#39;</span><span class="p">,</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.375&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="w">        </span><span class="s1">&#39;xl&#39;</span><span class="o">:</span><span class="w">   </span><span class="p">[</span><span class="s1">&#39;1.563rem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.2&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="w">        </span><span class="s1">&#39;2xl&#39;</span><span class="o">:</span><span class="w">  </span><span class="p">[</span><span class="s1">&#39;1.953rem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.2&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="w">        </span><span class="s1">&#39;3xl&#39;</span><span class="o">:</span><span class="w">  </span><span class="p">[</span><span class="s1">&#39;2.441rem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.1&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="w">        </span><span class="s1">&#39;4xl&#39;</span><span class="o">:</span><span class="w">  </span><span class="p">[</span><span class="s1">&#39;3.052rem&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lineHeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.05&#39;</span><span class="w"> </span><span class="p">}],</span>
+<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>
+<a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="w">      </span><span class="c1">// ── Colors ──</span>
+<a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a><span class="w">      </span><span class="nx">colors</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a><span class="w">        </span><span class="nx">brand</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-28" name="__codelineno-13-28" href="#__codelineno-13-28"></a><span class="w">          </span><span class="nx">DEFAULT</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#00e6e6&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-29" name="__codelineno-13-29" href="#__codelineno-13-29"></a><span class="w">          </span><span class="nx">hover</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0ea5e9&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-30" name="__codelineno-13-30" href="#__codelineno-13-30"></a><span class="w">          </span><span class="nx">muted</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rgba(0, 230, 230, 0.12)&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-31" name="__codelineno-13-31" href="#__codelineno-13-31"></a><span class="w">          </span><span class="nx">subtle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;rgba(0, 230, 230, 0.06)&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-32" name="__codelineno-13-32" href="#__codelineno-13-32"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-13-33" name="__codelineno-13-33" href="#__codelineno-13-33"></a><span class="w">        </span><span class="nx">surface</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-34" name="__codelineno-13-34" href="#__codelineno-13-34"></a><span class="w">          </span><span class="mf">0</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#000000&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-35" name="__codelineno-13-35" href="#__codelineno-13-35"></a><span class="w">          </span><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0a0f1a&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-36" name="__codelineno-13-36" href="#__codelineno-13-36"></a><span class="w">          </span><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0f172a&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-37" name="__codelineno-13-37" href="#__codelineno-13-37"></a><span class="w">          </span><span class="mf">3</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1e293b&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-38" name="__codelineno-13-38" href="#__codelineno-13-38"></a><span class="w">          </span><span class="mf">4</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#334155&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-39" name="__codelineno-13-39" href="#__codelineno-13-39"></a><span class="w">          </span><span class="mf">5</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#475569&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-40" name="__codelineno-13-40" href="#__codelineno-13-40"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-13-41" name="__codelineno-13-41" href="#__codelineno-13-41"></a><span class="w">        </span><span class="c1">// Semantic colors: success, error, warning, info — Tailwind defaults</span>
+<a id="__codelineno-13-42" name="__codelineno-13-42" href="#__codelineno-13-42"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-43" name="__codelineno-13-43" href="#__codelineno-13-43"></a>
+<a id="__codelineno-13-44" name="__codelineno-13-44" href="#__codelineno-13-44"></a><span class="w">      </span><span class="c1">// ── Spacing (4px base, extend beyond default) ──</span>
+<a id="__codelineno-13-45" name="__codelineno-13-45" href="#__codelineno-13-45"></a><span class="w">      </span><span class="nx">spacing</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-46" name="__codelineno-13-46" href="#__codelineno-13-46"></a><span class="w">        </span><span class="s1">&#39;0.5&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-47" name="__codelineno-13-47" href="#__codelineno-13-47"></a><span class="w">        </span><span class="s1">&#39;1.5&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;6px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-48" name="__codelineno-13-48" href="#__codelineno-13-48"></a><span class="w">        </span><span class="s1">&#39;13&#39;</span><span class="o">:</span><span class="w">  </span><span class="s1">&#39;52px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-49" name="__codelineno-13-49" href="#__codelineno-13-49"></a><span class="w">        </span><span class="s1">&#39;15&#39;</span><span class="o">:</span><span class="w">  </span><span class="s1">&#39;60px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-50" name="__codelineno-13-50" href="#__codelineno-13-50"></a><span class="w">        </span><span class="s1">&#39;18&#39;</span><span class="o">:</span><span class="w">  </span><span class="s1">&#39;72px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-51" name="__codelineno-13-51" href="#__codelineno-13-51"></a><span class="w">        </span><span class="s1">&#39;22&#39;</span><span class="o">:</span><span class="w">  </span><span class="s1">&#39;88px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-52" name="__codelineno-13-52" href="#__codelineno-13-52"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-53" name="__codelineno-13-53" href="#__codelineno-13-53"></a>
+<a id="__codelineno-13-54" name="__codelineno-13-54" href="#__codelineno-13-54"></a><span class="w">      </span><span class="c1">// ── Border Radius ──</span>
+<a id="__codelineno-13-55" name="__codelineno-13-55" href="#__codelineno-13-55"></a><span class="w">      </span><span class="nx">borderRadius</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-56" name="__codelineno-13-56" href="#__codelineno-13-56"></a><span class="w">        </span><span class="nx">sm</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;6px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-57" name="__codelineno-13-57" href="#__codelineno-13-57"></a><span class="w">        </span><span class="nx">DEFAULT</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;12px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-58" name="__codelineno-13-58" href="#__codelineno-13-58"></a><span class="w">        </span><span class="nx">lg</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-59" name="__codelineno-13-59" href="#__codelineno-13-59"></a><span class="w">        </span><span class="nx">xl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;20px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-60" name="__codelineno-13-60" href="#__codelineno-13-60"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-61" name="__codelineno-13-61" href="#__codelineno-13-61"></a>
+<a id="__codelineno-13-62" name="__codelineno-13-62" href="#__codelineno-13-62"></a><span class="w">      </span><span class="c1">// ── Shadows (Apple-style diffused) ──</span>
+<a id="__codelineno-13-63" name="__codelineno-13-63" href="#__codelineno-13-63"></a><span class="w">      </span><span class="nx">boxShadow</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-64" name="__codelineno-13-64" href="#__codelineno-13-64"></a><span class="w">        </span><span class="nx">card</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;0 4px 24px -8px rgba(14, 165, 233, 0.25)&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-65" name="__codelineno-13-65" href="#__codelineno-13-65"></a><span class="w">        </span><span class="s1">&#39;card-hover&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;0 8px 32px -8px rgba(14, 165, 233, 0.4)&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-66" name="__codelineno-13-66" href="#__codelineno-13-66"></a><span class="w">        </span><span class="nx">glow</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;0 20px 48px -20px rgba(14, 165, 233, 0.55)&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-67" name="__codelineno-13-67" href="#__codelineno-13-67"></a><span class="w">        </span><span class="nx">modal</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;0 24px 64px -16px rgba(0, 0, 0, 0.5)&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-68" name="__codelineno-13-68" href="#__codelineno-13-68"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-69" name="__codelineno-13-69" href="#__codelineno-13-69"></a>
+<a id="__codelineno-13-70" name="__codelineno-13-70" href="#__codelineno-13-70"></a><span class="w">      </span><span class="c1">// ── Transitions ──</span>
+<a id="__codelineno-13-71" name="__codelineno-13-71" href="#__codelineno-13-71"></a><span class="w">      </span><span class="nx">transitionDuration</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-72" name="__codelineno-13-72" href="#__codelineno-13-72"></a><span class="w">        </span><span class="nx">fast</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;150ms&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-73" name="__codelineno-13-73" href="#__codelineno-13-73"></a><span class="w">        </span><span class="nx">normal</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;250ms&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-74" name="__codelineno-13-74" href="#__codelineno-13-74"></a><span class="w">        </span><span class="nx">smooth</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;400ms&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-75" name="__codelineno-13-75" href="#__codelineno-13-75"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-76" name="__codelineno-13-76" href="#__codelineno-13-76"></a>
+<a id="__codelineno-13-77" name="__codelineno-13-77" href="#__codelineno-13-77"></a><span class="w">      </span><span class="c1">// ── Z-index ──</span>
+<a id="__codelineno-13-78" name="__codelineno-13-78" href="#__codelineno-13-78"></a><span class="w">      </span><span class="nx">zIndex</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-79" name="__codelineno-13-79" href="#__codelineno-13-79"></a><span class="w">        </span><span class="nx">dropdown</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;100&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-80" name="__codelineno-13-80" href="#__codelineno-13-80"></a><span class="w">        </span><span class="nx">sticky</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;200&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-81" name="__codelineno-13-81" href="#__codelineno-13-81"></a><span class="w">        </span><span class="s1">&#39;modal-backdrop&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;300&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-82" name="__codelineno-13-82" href="#__codelineno-13-82"></a><span class="w">        </span><span class="nx">modal</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;400&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-83" name="__codelineno-13-83" href="#__codelineno-13-83"></a><span class="w">        </span><span class="nx">toast</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;500&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-84" name="__codelineno-13-84" href="#__codelineno-13-84"></a><span class="w">        </span><span class="nx">tooltip</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;600&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-85" name="__codelineno-13-85" href="#__codelineno-13-85"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-86" name="__codelineno-13-86" href="#__codelineno-13-86"></a>
+<a id="__codelineno-13-87" name="__codelineno-13-87" href="#__codelineno-13-87"></a><span class="w">      </span><span class="c1">// ── Backdrop Blur (glassmorphism) ──</span>
+<a id="__codelineno-13-88" name="__codelineno-13-88" href="#__codelineno-13-88"></a><span class="w">      </span><span class="nx">backdropBlur</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-13-89" name="__codelineno-13-89" href="#__codelineno-13-89"></a><span class="w">        </span><span class="nx">glass</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;20px&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-90" name="__codelineno-13-90" href="#__codelineno-13-90"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-13-91" name="__codelineno-13-91" href="#__codelineno-13-91"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-13-92" name="__codelineno-13-92" href="#__codelineno-13-92"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-13-93" name="__codelineno-13-93" href="#__codelineno-13-93"></a><span class="w">  </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-13-94" name="__codelineno-13-94" href="#__codelineno-13-94"></a><span class="w">    </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;@tailwindcss/forms&#39;</span><span class="p">),</span>
+<a id="__codelineno-13-95" name="__codelineno-13-95" href="#__codelineno-13-95"></a><span class="w">    </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;@tailwindcss/typography&#39;</span><span class="p">),</span>
+<a id="__codelineno-13-96" name="__codelineno-13-96" href="#__codelineno-13-96"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-13-97" name="__codelineno-13-97" href="#__codelineno-13-97"></a><span class="p">}</span><span class="w"> </span><span class="nx">satisfies</span><span class="w"> </span><span class="nx">Config</span>
+</code></pre></div>
+<h3 id="35-token-eslestirme-admlar">3.5 Token Eşleştirme Adımları<a class="headerlink" href="#35-token-eslestirme-admlar" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Adım 1: styles/tokens.css oluştur → tüm CSS custom properties
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>Adım 2: tailwind.config.ts → token&#39;ları theme.extend&#39;e map et
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>Adım 3: globals.css → @layer base, @layer components, @layer utilities
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>Adım 4: Her Figma komponent → Tailwind class combination belgele
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>Adım 5: Storybook → her komponent için light/dark, responsive, a11y story
+</code></pre></div>
+<p><strong>Örnek Token → Tailwind → JSX akışı:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1">// Figma&#39;da: Button/Primary/MD</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="c1">// Token:   bg=brand, radius=md, text=surface-2, weight=semibold</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1">// Tailwind: bg-brand rounded text-surface-2 font-semibold px-5 py-2</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">Button</span><span class="p">({</span><span class="w"> </span><span class="nx">label</span><span class="p">,</span><span class="w"> </span><span class="nx">variant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;primary&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;md&#39;</span><span class="w"> </span><span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="nx">ButtonProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="p">&lt;</span><span class="nt">button</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">      </span><span class="na">className</span><span class="o">=</span><span class="p">{</span><span class="nx">cn</span><span class="p">(</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">        </span><span class="c1">// Base</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">        </span><span class="s1">&#39;inline-flex items-center justify-center rounded font-semibold&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">        </span><span class="s1">&#39;transition-all duration-fast&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">        </span><span class="s1">&#39;focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface-2&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">        </span><span class="c1">// Variant</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">        </span><span class="nx">variant</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;primary&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s1">&#39;bg-gradient-to-r from-brand to-brand-hover text-surface-2 shadow-card hover:-translate-y-px hover:shadow-card-hover active:scale-[0.98]&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">        </span><span class="nx">variant</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;secondary&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s1">&#39;border border-brand/30 bg-surface-3 text-white hover:bg-brand/10&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">        </span><span class="nx">variant</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;ghost&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s1">&#39;text-brand hover:bg-brand/10&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">        </span><span class="c1">// Size</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">        </span><span class="nx">size</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;sm&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s1">&#39;h-8 px-3 text-xs&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">        </span><span class="nx">size</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;md&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s1">&#39;h-10 px-5 text-sm&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">        </span><span class="nx">size</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;lg&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="s1">&#39;h-12 px-6 text-base&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">      </span><span class="p">)}</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">    </span><span class="p">&gt;</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">      </span><span class="p">{</span><span class="nx">label</span><span class="p">}</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="w">    </span><span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="w">  </span><span class="p">)</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="4-erisilebilirlik-performans-ve-seo-yapilacaklar-listesi">4. ERİŞİLEBİLİRLİK, PERFORMANS VE SEO YAPILACAKLAR LİSTESİ<a class="headerlink" href="#4-erisilebilirlik-performans-ve-seo-yapilacaklar-listesi" title="Permanent link">&para;</a></h2>
+<h3 id="41-erisilebilirlik-wcag-21-aa-uyumu">4.1 Erişilebilirlik — WCAG 2.1 AA Uyumu<a class="headerlink" href="#41-erisilebilirlik-wcag-21-aa-uyumu" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Görev</th>
+<th>Etki</th>
+<th>Öncelik</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td><strong>Renk kontrastı düzelt:</strong> <code>--text-muted</code> 3.2:1 → 4.5:1 (<code>#94a3b8 → #a0aec0</code>)</td>
+<td>WCAG 1.4.3</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>A2</td>
+<td><strong>Focus-visible göstergesi ekle:</strong> Tüm interactive element'lere <code>outline: 2px solid var(--color-primary)</code></td>
+<td>WCAG 2.4.7</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>A3</td>
+<td><strong>ARIA role + label:</strong> 70 unsafe_allow_html bloğuna semantik role ve aria-label</td>
+<td>WCAG 4.1.2</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>A4</td>
+<td><strong>Emoji → icon swap:</strong> 412 emoji yerine SVG icon (Lucide/Heroicons) + <code>aria-hidden="true"</code></td>
+<td>WCAG 1.1.1</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>A5</td>
+<td><strong><code>lang="tr"</code> düzelt:</strong> public_website <code>lang="en"</code> → <code>lang="tr"</code> (veya multi-lang desteği)</td>
+<td>WCAG 3.1.1</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>A6</td>
+<td><strong>Reduced motion:</strong> <code>@media (prefers-reduced-motion: reduce)</code> → tüm animasyonları kapat</td>
+<td>WCAG 2.3.3</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>A7</td>
+<td><strong>Keyboard navigation:</strong> Custom HTML kartlarda Tab/Enter/Space desteği + tabindex</td>
+<td>WCAG 2.1.1</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>A8</td>
+<td><strong>Skip to content:</strong> Sayfa başlarına "Ana içeriğe geç" link'i</td>
+<td>WCAG 2.4.1</td>
+<td>🟢 P2</td>
+</tr>
+<tr>
+<td>A9</td>
+<td><strong>Form label bağlama:</strong> Streamlit custom form'lardaki input'lara label + describedby</td>
+<td>WCAG 1.3.1</td>
+<td>🟢 P2</td>
+</tr>
+<tr>
+<td>A10</td>
+<td><strong>Error messages:</strong> Accessible error announcements (aria-live="assertive")</td>
+<td>WCAG 3.3.1</td>
+<td>🟢 P2</td>
+</tr>
+<tr>
+<td>A11</td>
+<td><strong>Color-blind safe palette:</strong> Semantic renklerde shape + icon ek gösterge (yeşil/kırmızı ayrımı)</td>
+<td>WCAG 1.4.1</td>
+<td>🟢 P2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-performans-core-web-vitals-hedefleri">4.2 Performans — Core Web Vitals Hedefleri<a class="headerlink" href="#42-performans-core-web-vitals-hedefleri" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metrik</th>
+<th>Mevcut (Tahm.)</th>
+<th>Hedef</th>
+<th>Nasıl</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FCP</strong></td>
+<td>~3s</td>
+<td><strong>&lt; 1.5s</strong></td>
+<td>SSR/SSG (Next.js), font preload, critical CSS inline</td>
+</tr>
+<tr>
+<td><strong>LCP</strong></td>
+<td>~5s</td>
+<td><strong>&lt; 2.5s</strong></td>
+<td>Hero image → SVG inline, lazy-load below-fold, edge CDN</td>
+</tr>
+<tr>
+<td><strong>CLS</strong></td>
+<td>~0.1</td>
+<td><strong>&lt; 0.05</strong></td>
+<td>Skeleton boyutları sabit, font fallback metrikleri eşle</td>
+</tr>
+<tr>
+<td><strong>TBT</strong></td>
+<td>Yüksek</td>
+<td><strong>&lt; 200ms</strong></td>
+<td>unsafe_allow_html → React component, code splitting</td>
+</tr>
+<tr>
+<td><strong>INP</strong></td>
+<td>Bilinmiyor</td>
+<td><strong>&lt; 200ms</strong></td>
+<td>Event handler'ları debounce, React.memo, transitions</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Görev</th>
+<th>Etki</th>
+<th>Öncelik</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td><strong>Font optimizasyonu:</strong> Inter woff2 self-host, <code>font-display: swap</code>, size-adjust fallback</td>
+<td>FCP -0.3s</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><strong>Critical CSS inline:</strong> İlk ekran için gereken CSS'i <code>&lt;head&gt;</code>'e inline et</td>
+<td>FCP -0.5s</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>P3</td>
+<td><strong>Image optimization:</strong> SVG inline, WebP/AVIF lazy-load, <code>&lt;Image&gt;</code> Next.js component</td>
+<td>LCP -1s</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>P4</td>
+<td><strong>Code splitting:</strong> Dashboard, Academy, Demo ayrı chunk'lar → initial bundle küçültme</td>
+<td>TBT -%40</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>P5</td>
+<td><strong>API response caching:</strong> SWR/React Query ile stale-while-revalidate</td>
+<td>TTI -1s</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>P6</td>
+<td><strong>Service Worker (Streamlit):</strong> Offline shell + cache-first stratejisi</td>
+<td>Repeat visit -%50</td>
+<td>🟢 P2</td>
+</tr>
+<tr>
+<td>P7</td>
+<td><strong>Edge deployment:</strong> Vercel Edge / Cloudflare Pages</td>
+<td>TTFB &lt; 100ms</td>
+<td>🟢 P2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-seo-yaplacaklar">4.3 SEO Yapılacaklar<a class="headerlink" href="#43-seo-yaplacaklar" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Görev</th>
+<th>Etki</th>
+<th>Öncelik</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td><strong>Meta tags:</strong> Her sayfa için benzersiz <code>&lt;title&gt;</code>, <code>&lt;meta description&gt;</code>, <code>og:image</code></td>
+<td>Arama görünürlüğü</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>S2</td>
+<td><strong>Semantic HTML:</strong> <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;footer&gt;</code> doğru kullanım</td>
+<td>Crawl quality</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>S3</td>
+<td><strong>Structured data:</strong> JSON-LD — Organization, WebApplication, FAQPage şemaları</td>
+<td>Rich snippets</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>S4</td>
+<td><strong>Sitemap.xml:</strong> Otomatik generate (next-sitemap)</td>
+<td>Indexing hızı</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>S5</td>
+<td><strong>robots.txt:</strong> Doğru allow/disallow, sitemap referansı</td>
+<td>Crawl kontrolü</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>S6</td>
+<td><strong>Canonical URL:</strong> Her sayfada <code>&lt;link rel="canonical"&gt;</code></td>
+<td>Duplicate content</td>
+<td>🟢 P2</td>
+</tr>
+<tr>
+<td>S7</td>
+<td><strong>hreflang:</strong> TR/EN için <code>&lt;link rel="alternate" hreflang="tr"&gt;</code></td>
+<td>Multi-lang SEO</td>
+<td>🟢 P2</td>
+</tr>
+<tr>
+<td>S8</td>
+<td><strong>Performance SEO:</strong> Core Web Vitals → Google ranking signal</td>
+<td>Sıralama iyileşme</td>
+<td>🟢 P2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-sekiz-haftalik-onceliklendirilmis-yol-haritasi">5. SEKİZ HAFTALIK ÖNCELİKLENDİRİLMİŞ YOL HARİTASI<a class="headerlink" href="#5-sekiz-haftalik-onceliklendirilmis-yol-haritasi" title="Permanent link">&para;</a></h2>
+<h3 id="genel-baks">Genel Bakış<a class="headerlink" href="#genel-baks" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>H1-H2:  Foundation        → DS token genişletme, a11y critical fix, font sistemi
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>H3-H4:  Component Layer   → 6 core komponent build, Storybook, inline style tasfiye
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>H5-H6:  Page Migration    → public_website Next.js, Dashboard prototype
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>H7-H8:  Polish &amp; Ship     → Perf optimization, SEO, test, launch
+</code></pre></div>
+<hr />
+<h3 id="hafta-1-design-token-erisilebilirlik-temeli">HAFTA 1 — Design Token &amp; Erişilebilirlik Temeli<a class="headerlink" href="#hafta-1-design-token-erisilebilirlik-temeli" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Görev</th>
+<th>Detay</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>KPI Etkisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>styles.py</code> tipografi token'ları ekle</td>
+<td>§2.1'deki font-family, text-scale, line-height, weight</td>
+<td>1 gün</td>
+<td>🟢 Düşük</td>
+<td>Tipografi tutarlılığı: 0% → 100%</td>
+</tr>
+<tr>
+<td>Renk kontrastı düzelt (A1)</td>
+<td><code>--text-muted</code> → 4.5:1 AA uyumlu, 3 problem renk</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>WCAG AA contrst ihlali: ~15 → 0</td>
+</tr>
+<tr>
+<td>Focus-visible ekle (A2)</td>
+<td>Global <code>:focus-visible</code> kural + outline token</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Keyboard a11y: 0% → ~60%</td>
+</tr>
+<tr>
+<td>Inter font self-host + preload</td>
+<td><code>assets/fonts/inter-*.woff2</code> + CSS @font-face</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>FCP: -0.2-0.3s</td>
+</tr>
+<tr>
+<td><code>.streamlit/config.toml</code> güncelle</td>
+<td>Font: "sans serif" → Inter fallback chain</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Marka tutarlılığı</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hafta 1 Toplam: 3 gün | Risk: 🟢 Düşük</strong>
+<strong>KPI:</strong> Kontrast ihlalleri sıfırlanır, tipografi sistemi kurulur.</p>
+<hr />
+<h3 id="hafta-2-aria-semantic-markup-reduced-motion">HAFTA 2 — ARIA, Semantic Markup &amp; Reduced Motion<a class="headerlink" href="#hafta-2-aria-semantic-markup-reduced-motion" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Görev</th>
+<th>Detay</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>KPI Etkisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ARIA audit: ilk 20 unsafe_allow_html (A3)</td>
+<td>En çok kullanılan kartlar + panellere role/aria-label</td>
+<td>2 gün</td>
+<td>🟡 Orta</td>
+<td>Erişilebilir komponent: 4 → 24</td>
+</tr>
+<tr>
+<td>Reduced motion media query (A6)</td>
+<td><code>@media (prefers-reduced-motion)</code> global kural</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Motion-safe kullanıcı desteği: 0 → %100</td>
+</tr>
+<tr>
+<td><code>lang="tr"</code> düzeltmesi (A5)</td>
+<td>public_website + Streamlit meta tag</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>i18n doğruluğu</td>
+</tr>
+<tr>
+<td>Spacing token genişletme</td>
+<td>§2.3'teki space-16/20/24 + breakpoint referans</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Layout tutarlılığı</td>
+</tr>
+<tr>
+<td>Color palette QA + color-blind test</td>
+<td>Figma Color Blind plugin veya Sim Daltonism ile doğrulama</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Color-blind uyumluluk</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hafta 2 Toplam: 4 gün | Risk: 🟡 Orta (ARIA kırılma riski)</strong>
+<strong>KPI:</strong> WCAG AA erişilebilirlik skoru: ~35 → ~65/100 tahmini.</p>
+<hr />
+<h3 id="hafta-3-core-component-build-button-card-badge">HAFTA 3 — Core Component Build (Button, Card, Badge)<a class="headerlink" href="#hafta-3-core-component-build-button-card-badge" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Görev</th>
+<th>Detay</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>KPI Etkisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FPButton: Python helper → HTML</td>
+<td>§2.5.1 spec, 5 varyant, 3 boyut, tüm durumlar</td>
+<td>1.5 gün</td>
+<td>🟡 Orta</td>
+<td>Buton tutarlılığı: ~20% → 100%</td>
+</tr>
+<tr>
+<td>FPCard: Signal/Metric/Feature/Empty</td>
+<td>§2.5.2 spec, glassmorphism, hover mikroanimasyonu</td>
+<td>2 gün</td>
+<td>🟡 Orta</td>
+<td>Kart stilı: inline → token-based</td>
+</tr>
+<tr>
+<td>FPBadge: Status/Signal/Score</td>
+<td>Buy/Hold/Sell + info/warning varyantları</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Badge tutarlılığı</td>
+</tr>
+<tr>
+<td>Inline style cleanup başlangıcı</td>
+<td>İlk 30/130 inline style → CSS class migration</td>
+<td>1 gün</td>
+<td>🟡 Orta</td>
+<td>Inline style: 130 → ~100</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hafta 3 Toplam: 5 gün | Risk: 🟡 Orta (regression potansiyeli)</strong>
+<strong>KPI:</strong> 3 core komponent üretime hazır, inline CSS %23 azalır.</p>
+<hr />
+<h3 id="hafta-4-core-component-build-modal-form-header-footer">HAFTA 4 — Core Component Build (Modal, Form, Header, Footer)<a class="headerlink" href="#hafta-4-core-component-build-modal-form-header-footer" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Görev</th>
+<th>Detay</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>KPI Etkisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FPModal: Default + Confirmation</td>
+<td>§2.5.3 spec, focus trap, Escape, animasyon</td>
+<td>1.5 gün</td>
+<td>🟡 Orta</td>
+<td>Modal a11y: 0% → 100%</td>
+</tr>
+<tr>
+<td>FPInput/FPSelect: Form controls</td>
+<td>§2.5.4 spec, label bağlama, error state</td>
+<td>1.5 gün</td>
+<td>🟡 Orta</td>
+<td>Form a11y: ~30% → 90%</td>
+</tr>
+<tr>
+<td>FPHeader + FPFooter</td>
+<td>§2.5.5-6 spec, sticky nav, responsive</td>
+<td>1 gün</td>
+<td>🟢 Düşük</td>
+<td>Nav tutarlılığı</td>
+</tr>
+<tr>
+<td>Storybook setup (Streamlit alternatif)</td>
+<td>Python-based component catalog sayfası veya docs</td>
+<td>1 gün</td>
+<td>🟡 Orta</td>
+<td>Komponent dokümantasyonu</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hafta 4 Toplam: 5 gün | Risk: 🟡 Orta</strong>
+<strong>KPI:</strong> 6/6 core komponent hazır. Tüm formlar accessible. Storybook/catalog canlı.</p>
+<hr />
+<h3 id="hafta-5-public-website-nextjs-migration">HAFTA 5 — Public Website Next.js Migration<a class="headerlink" href="#hafta-5-public-website-nextjs-migration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Görev</th>
+<th>Detay</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>KPI Etkisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Next.js 14 scaffold</td>
+<td>§3.3 yapı, tailwind.config.ts token mapping</td>
+<td>1 gün</td>
+<td>🟡 Orta</td>
+<td>Modern framework temeli</td>
+</tr>
+<tr>
+<td>Landing page migration</td>
+<td><code>public_website/index.html</code> → <code>app/page.tsx</code> SSG</td>
+<td>2 gün</td>
+<td>🟡 Orta</td>
+<td>FCP: ~3s → &lt;1s</td>
+</tr>
+<tr>
+<td>About/Contact/Terms pages</td>
+<td>4 statik sayfa Next.js'e</td>
+<td>1 gün</td>
+<td>🟢 Düşük</td>
+<td>SEO: full SSG</td>
+</tr>
+<tr>
+<td>Meta tags + structured data (S1, S3)</td>
+<td>Her sayfa unique title/desc + JSON-LD</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>SEO: rich snippets</td>
+</tr>
+<tr>
+<td>sitemap.xml + robots.txt (S4, S5)</td>
+<td>next-sitemap config</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Indexing hızı</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hafta 5 Toplam: 5 gün | Risk: 🟡 Orta (yeni teknoloji stack)</strong>
+<strong>KPI:</strong> Public site Lighthouse: ~55 → ~90. FCP: 3s → &lt;1s. SEO: meta tag kapsamı 100%.</p>
+<hr />
+<h3 id="hafta-6-dashboard-prototype-nextjs-fastapi-bridge">HAFTA 6 — Dashboard Prototype (Next.js + FastAPI Bridge)<a class="headerlink" href="#hafta-6-dashboard-prototype-nextjs-fastapi-bridge" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Görev</th>
+<th>Detay</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>KPI Etkisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FastAPI bridge endpoint'leri</td>
+<td><code>/api/scan</code>, <code>/api/signals</code>, <code>/api/auth</code> — Streamlit backend proxy</td>
+<td>2 gün</td>
+<td>🔴 Yüksek</td>
+<td>Backend bağlantısı</td>
+</tr>
+<tr>
+<td>Dashboard page prototype</td>
+<td>SignalCard + MetricPanel + ScanControls Next.js'te</td>
+<td>2 gün</td>
+<td>🔴 Yüksek</td>
+<td>Dashboard proof-of-concept</td>
+</tr>
+<tr>
+<td>Auth integration</td>
+<td>NextAuth.js + mevcut auth/ modülü adapter</td>
+<td>1 gün</td>
+<td>🔴 Yüksek</td>
+<td>Kullanıcı oturum yönetimi</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hafta 6 Toplam: 5 gün | Risk: 🔴 Yüksek (backend entegrasyon)</strong>
+<strong>KPI:</strong> Dashboard fonksiyonel prototype. En az 3 sinyal kartı canlı veri ile render.</p>
+<hr />
+<h3 id="hafta-7-performans-optimizasyonu-polish">HAFTA 7 — Performans Optimizasyonu &amp; Polish<a class="headerlink" href="#hafta-7-performans-optimizasyonu-polish" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Görev</th>
+<th>Detay</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>KPI Etkisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Font optimization wrap-up (P1)</td>
+<td>font-display: swap, size-adjust, preload tag'ları</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>FCP: -0.3s</td>
+</tr>
+<tr>
+<td>Image optimization (P3)</td>
+<td>Logo → inline SVG, OG images → WebP</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>LCP: -0.5s</td>
+</tr>
+<tr>
+<td>Code splitting (P4)</td>
+<td>Next.js dynamic import — Dashboard/Academy/Demo</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>TBT: -%40</td>
+</tr>
+<tr>
+<td>Kalan inline CSS temizliği</td>
+<td>100 → 0 inline style (Streamlit views)</td>
+<td>2 gün</td>
+<td>🟡 Orta</td>
+<td>Bakım kolaylığı: büyük artış</td>
+</tr>
+<tr>
+<td>Micro-interaction polish</td>
+<td>Apple-stil hover, press, skeleton transitions</td>
+<td>1.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Kullanıcı memnuniyeti (UX puanı)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hafta 7 Toplam: 5 gün | Risk: 🟡 Orta</strong>
+<strong>KPI:</strong> Lighthouse Performance: ≥90. LCP &lt; 2.5s. CLS &lt; 0.05. Inline CSS: 0.</p>
+<hr />
+<h3 id="hafta-8-qa-ab-test-setup-launch">HAFTA 8 — QA, A/B Test Setup &amp; Launch<a class="headerlink" href="#hafta-8-qa-ab-test-setup-launch" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Görev</th>
+<th>Detay</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>KPI Etkisi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A11y automated test suite</td>
+<td>axe-core CI integration — her PR'da WCAG scan</td>
+<td>1 gün</td>
+<td>🟢 Düşük</td>
+<td>Regression koruması</td>
+</tr>
+<tr>
+<td>Cross-browser QA</td>
+<td>Chrome, Firefox, Safari, Edge + mobil (3 cihaz)</td>
+<td>1 gün</td>
+<td>🟡 Orta</td>
+<td>Tarayıcı uyumluluk: %100</td>
+</tr>
+<tr>
+<td>Lighthouse CI gate</td>
+<td>GitHub Actions'a lighthouse-ci — skor &lt; 85 → fail</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Performans regresyon koruması</td>
+</tr>
+<tr>
+<td>Analytics setup</td>
+<td>Vercel Analytics / Plausible (GDPR-uyumlu)</td>
+<td>0.5 gün</td>
+<td>🟢 Düşük</td>
+<td>Veri toplama başlangıcı</td>
+</tr>
+<tr>
+<td>A/B test framework</td>
+<td>Feature flag sistemi (eski vs yeni UI toggle)</td>
+<td>1 gün</td>
+<td>🟡 Orta</td>
+<td>Risk azaltma: rollback imkânı</td>
+</tr>
+<tr>
+<td>Production deploy + monitoring</td>
+<td>Edge CDN, error tracking (Sentry), uptime check</td>
+<td>1 gün</td>
+<td>🟡 Orta</td>
+<td>%99.9 uptime hedefi</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hafta 8 Toplam: 5 gün | Risk: 🟡 Orta</strong>
+<strong>KPI:</strong> Otomatik test kapsamı: a11y + perf CI. Production launch. A/B mekanizması aktif.</p>
+<hr />
+<h3 id="yol-haritas-ozet-tablosu">Yol Haritası Özet Tablosu<a class="headerlink" href="#yol-haritas-ozet-tablosu" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hafta</th>
+<th>Odak</th>
+<th>İş Gücü</th>
+<th>Risk</th>
+<th>Kümülatif Kazanım</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H1</strong></td>
+<td>Token + Font + Kontrast</td>
+<td>3 gün</td>
+<td>🟢</td>
+<td>Tipografi sistemi, kontrast düzeltmesi</td>
+</tr>
+<tr>
+<td><strong>H2</strong></td>
+<td>ARIA + Reduced Motion</td>
+<td>4 gün</td>
+<td>🟡</td>
+<td>WCAG skoru ~35 → ~65</td>
+</tr>
+<tr>
+<td><strong>H3</strong></td>
+<td>Button + Card + Badge</td>
+<td>5 gün</td>
+<td>🟡</td>
+<td>3 core komponent, inline CSS -%23</td>
+</tr>
+<tr>
+<td><strong>H4</strong></td>
+<td>Modal + Form + Header/Footer</td>
+<td>5 gün</td>
+<td>🟡</td>
+<td>6/6 komponent, form a11y %90+</td>
+</tr>
+<tr>
+<td><strong>H5</strong></td>
+<td>Public site → Next.js</td>
+<td>5 gün</td>
+<td>🟡</td>
+<td>Lighthouse ~55 → ~90, FCP &lt;1s</td>
+</tr>
+<tr>
+<td><strong>H6</strong></td>
+<td>Dashboard prototype</td>
+<td>5 gün</td>
+<td>🔴</td>
+<td>Canlı veri ile sinyal kartları</td>
+</tr>
+<tr>
+<td><strong>H7</strong></td>
+<td>Perf polish + CSS cleanup</td>
+<td>5 gün</td>
+<td>🟡</td>
+<td>LCP &lt;2.5s, CLS &lt;0.05, 0 inline CSS</td>
+</tr>
+<tr>
+<td><strong>H8</strong></td>
+<td>QA + CI + Launch</td>
+<td>5 gün</td>
+<td>🟡</td>
+<td>axe-core CI, A/B test, prod deploy</td>
+</tr>
+<tr>
+<td><strong>TOPLAM</strong></td>
+<td></td>
+<td><strong>37 gün</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="beklenen-nihai-kpilar-8-hafta-sonunda">Beklenen Nihai KPI'lar (8 Hafta Sonunda)<a class="headerlink" href="#beklenen-nihai-kpilar-8-hafta-sonunda" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Öncesi</th>
+<th>Sonrası</th>
+<th>Değişim</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lighthouse Performance</strong></td>
+<td>~45</td>
+<td>≥ 90</td>
+<td>+100%</td>
+</tr>
+<tr>
+<td><strong>Lighthouse Accessibility</strong></td>
+<td>~35</td>
+<td>≥ 90</td>
+<td>+157%</td>
+</tr>
+<tr>
+<td><strong>Lighthouse SEO</strong></td>
+<td>~50</td>
+<td>≥ 95</td>
+<td>+90%</td>
+</tr>
+<tr>
+<td><strong>FCP</strong></td>
+<td>~3s</td>
+<td>&lt; 1.5s</td>
+<td>-%50</td>
+</tr>
+<tr>
+<td><strong>LCP</strong></td>
+<td>~5s</td>
+<td>&lt; 2.5s</td>
+<td>-%50</td>
+</tr>
+<tr>
+<td><strong>CLS</strong></td>
+<td>~0.1</td>
+<td>&lt; 0.05</td>
+<td>-%50</td>
+</tr>
+<tr>
+<td><strong>WCAG AA ihlalleri</strong></td>
+<td>~50+</td>
+<td>0</td>
+<td>-%100</td>
+</tr>
+<tr>
+<td><strong>Inline CSS satırı</strong></td>
+<td>130</td>
+<td>0</td>
+<td>-%100</td>
+</tr>
+<tr>
+<td><strong>Core komponent kütüphanesi</strong></td>
+<td>0</td>
+<td>6</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>Design token kapsamı</strong></td>
+<td>%60</td>
+<td>%100</td>
+<td>+67%</td>
+</tr>
+<tr>
+<td><strong>unsafe_allow_html kullanımı</strong></td>
+<td>70</td>
+<td>≤ 20</td>
+<td>-%71</td>
+</tr>
+<tr>
+<td><strong>Emoji-as-icon</strong></td>
+<td>412</td>
+<td>≤ 50</td>
+<td>-%88</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="dikkat-edilecek-riskler">DİKKAT EDİLECEK RİSKLER<a class="headerlink" href="#dikkat-edilecek-riskler" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Etki</th>
+<th>Azaltma</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Streamlit → Next.js migration scope creep</strong></td>
+<td>Timeline kayması</td>
+<td>H5-6'yı public_website ile sınırla; dashboard'ı aşamalı geçir</td>
+</tr>
+<tr>
+<td><strong>Hazır tema tuzağı</strong></td>
+<td>Marka-özgünlük kaybı</td>
+<td>Kendi token sisteminizi kurun (§2), hazır UI kit kullanmayın</td>
+</tr>
+<tr>
+<td><strong>ARIA ekleme → regression</strong></td>
+<td>Mevcut işlevsellik bozulur</td>
+<td>Her ARIA değişikliği için smoke test, axe-core CI kapısı</td>
+</tr>
+<tr>
+<td><strong>Agresif optimizasyon → UX bozulma</strong></td>
+<td>Kullanıcı deneyimi bozulur</td>
+<td>A/B test framework (H8), feature flag ile kademeli rollout</td>
+</tr>
+<tr>
+<td><strong>Font/CSS değişiklik → görsel kırılma</strong></td>
+<td>Mevcut arayüz bozulur</td>
+<td>Screenshot regression test (Percy/Chromatic)</td>
+</tr>
+<tr>
+<td><strong>Backend API bridge karmaşıklığı</strong></td>
+<td>H6 tamamlanmaz</td>
+<td>İlk iteration'da read-only endpoint'ler, write H9+'a</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Bu yol haritası FinPilot projesinin 2026-03-05 itibarıyla 14,200 LOC UI katmanının kapsamlı auditine dayanmaktadır.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </article>
+            </div>
+
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+
+      </main>
+
+        <footer class="md-footer">
+
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+
+</div>
+
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+
+
+
+
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+
+
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+
+
+  </body>
+</html>

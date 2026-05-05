@@ -1,0 +1,4220 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <meta name="description" content="AI-powered stock analysis platform with DRL agents">
+
+
+
+
+        <link rel="prev" href="../DRL_COMPREHENSIVE_ANALYSIS/">
+
+
+        <link rel="next" href="../DRL_IMPROVEMENT_ROADMAP/">
+
+
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+
+
+
+        <title>Agent Analysis - FinPilot Documentation</title>
+
+
+
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+
+
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+
+
+
+
+
+
+
+
+
+
+
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+
+
+
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+
+
+
+
+
+
+  </head>
+
+
+
+
+
+
+
+
+
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="teal">
+
+
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+
+
+        <a href="#finpilot-drl-agent-kapsaml-analiz-raporu" class="md-skip">
+          Skip to content
+        </a>
+
+    </div>
+    <div data-md-component="announce">
+
+    </div>
+
+
+
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FinPilot Documentation" class="md-header__button md-logo" aria-label="FinPilot Documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FinPilot Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+
+              Agent Analysis
+
+          </span>
+        </div>
+      </div>
+    </div>
+
+
+        <form class="md-header__option" data-md-component="palette">
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+</form>
+
+
+
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+
+
+
+
+
+        <label class="md-header__button md-icon" for="__search">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      <div class="md-header__source">
+        <a href="https://github.com/finpilot/borsa" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    finpilot/borsa
+  </div>
+</a>
+      </div>
+
+  </nav>
+
+</header>
+
+    <div class="md-container" data-md-component="container">
+
+
+
+
+
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+
+
+
+  Home
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../CORE_MIGRATION_GUIDE/" class="md-tabs__link">
+
+
+
+  Architecture
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../ACADEMIC_DRL_ANALYSIS/" class="md-tabs__link">
+
+
+
+  DRL & ML
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../DEMO_DEPLOYMENT/" class="md-tabs__link">
+
+
+
+  Deployment
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../FINANCIAL_AGENT_GUIDE/" class="md-tabs__link">
+
+
+
+  Guides
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../FULL_AUDIT_REPORT/" class="md-tabs__link">
+
+
+
+  Analysis & Reports
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../ROADMAP_Q1_2025/" class="md-tabs__link">
+
+
+
+  Roadmaps
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../etl_sprint2/" class="md-tabs__link">
+
+
+
+  Sprints
+
+        </a>
+      </li>
+
+
+
+
+    </ul>
+  </div>
+</nav>
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+
+
+
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FinPilot Documentation" class="md-nav__button md-logo" aria-label="FinPilot Documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FinPilot Documentation
+  </label>
+
+    <div class="md-nav__source">
+      <a href="https://github.com/finpilot/borsa" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    finpilot/borsa
+  </div>
+</a>
+    </div>
+
+  <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+
+
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Home
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Overview
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEPENDENCIES/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Dependencies
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_EVOLUTION_TIMELINE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Evolution Timeline
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+
+
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Architecture
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CORE_MIGRATION_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Core Migration Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../INTEGRATION_PLAN/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Integration Plan
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../INFRASTRUCTURE_ACCELERATION_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Infrastructure Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../GAP_ANALYSIS_REPORT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Gap Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../gap_analysis_v3/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Gap Analysis v3
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+
+
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    DRL & ML
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            DRL & ML
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ACADEMIC_DRL_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Academic Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_COMPREHENSIVE_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Comprehensive Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+
+
+
+
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+
+  <span class="md-ellipsis">
+    Agent Analysis
+
+  </span>
+
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+
+      <a href="./" class="md-nav__link md-nav__link--active">
+
+
+
+  <span class="md-ellipsis">
+    Agent Analysis
+
+  </span>
+
+
+      </a>
+
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#icindekiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      İçindekiler
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#1-mevcut-ajanlarn-genel-durumu" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Mevcut Ajanların Genel Durumu
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="1. Mevcut Ajanların Genel Durumu">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#11-registry-ozeti" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Registry Özeti
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#12-mimari" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Mimari
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#13-kritik-bulgu" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Kritik Bulgu
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#2-performans-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Performans Analizi
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2. Performans Analizi">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#21-calsan-model-ppo_longhorizon" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Çalışan Model: ppo_longhorizon
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#22-performans-derecelendirmesi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Performans Derecelendirmesi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#23-sorunlarn-kok-neden-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Sorunların Kök Neden Analizi
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#3-blind-point-kor-nokta-tespiti" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Blind Point (Kör Nokta) Tespiti
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="3. Blind Point (Kör Nokta) Tespiti">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#31-varlk-snf-korlugu-kritik" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Varlık Sınıfı Körlüğü 🔴 KRİTİK
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#32-market-regime-korlugu-kritik" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Market Regime Körlüğü 🔴 KRİTİK
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#33-zaman-dilimi-korlugu-orta" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Zaman Dilimi Körlüğü 🟡 ORTA
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#34-likidite-korlugu-orta" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 Likidite Körlüğü 🟡 ORTA
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#35-makroekonomik-korluk-orta" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.5 Makroekonomik Körlük 🟡 ORTA
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#36-portfolio-interaction-korlugu-dusuk-ksmen-cozulmus" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.6 Portfolio İnteraction Körlüğü 🟢 DÜŞÜK (kısmen çözülmüş)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#37-korelasyon-korlugu-kritik" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.7 Korelasyon Körlüğü 🔴 KRİTİK
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#4-odul-fonksiyonu-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Ödül Fonksiyonu Analizi
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="4. Ödül Fonksiyonu Analizi">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#41-mevcut-odul-yaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Mevcut Ödül Yapısı
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#42-guclu-yonler" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Güçlü Yönler ✅
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#43-zayf-yonler-ve-sorunlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 Zayıf Yönler ve Sorunlar ⚠️
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#44-curriculum-learning-detay" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4 Curriculum Learning Detayı
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#5-veri-kalitesi-ve-state-representation" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Veri Kalitesi ve State Representation
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5. Veri Kalitesi ve State Representation">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#51-feature-matrisi-24-boyut" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Feature Matrisi (24 boyut)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#52-kritik-veri-sorunlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Kritik Veri Sorunları
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#53-featurepipeline-degerlendirmesi" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 FeaturePipeline Değerlendirmesi
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#6-maksimum-verim-icin-gerekli-ajan-says" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Maksimum Verim İçin Gerekli Ajan Sayısı
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="6. Maksimum Verim İçin Gerekli Ajan Sayısı">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#61-mevcut-durum-5-ajan-1-calsyor" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Mevcut Durum: 5 ajan, 1 çalışıyor
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#62-onerilen-ajan-mimarisi-3-katmanl-ensemble-9-ajan" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Önerilen Ajan Mimarisi: 3 Katmanlı Ensemble (9 Ajan)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#63-neden-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Neden 9?
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#64-minimum-viable-3-ajan" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 Minimum Viable: 3 Ajan
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#7-egitim-stratejisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Eğitim Stratejisi
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="7. Eğitim Stratejisi">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#71-mevcut-egitim-sorunlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Mevcut Eğitim Sorunları
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#72-onerilen-egitim-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 Önerilen Eğitim Pipeline'ı
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#73-hyperparametre-onerileri" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3 Hyperparametre Önerileri
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#8-performans-optimizasyonu" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Performans Optimizasyonu
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="8. Performans Optimizasyonu">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#81-ksa-vadeli-iyilestirmeler-1-2-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 Kısa Vadeli İyileştirmeler (1-2 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#82-orta-vadeli-iyilestirmeler-2-4-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Orta Vadeli İyileştirmeler (2-4 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#83-uzun-vadeli-iyilestirmeler-1-3-ay" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 Uzun Vadeli İyileştirmeler (1-3 ay)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#9-aktif-kullanm-stratejisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Aktif Kullanım Stratejisi
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="9. Aktif Kullanım Stratejisi">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#91-mevcut-durum" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 Mevcut Durum
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#92-onerilen-kullanm-hiyerarsisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 Önerilen Kullanım Hiyerarşisi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#93-drl-guven-seviyesi-haritalama" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.3 DRL Güven Seviyesi Haritalama
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#94-risk-kontrol-kurallar" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.4 Risk Kontrol Kuralları
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#10-riskler-ve-snrlamalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Riskler ve Sınırlamalar
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="10. Riskler ve Sınırlamalar">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#101-yuksek-riskler" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.1 Yüksek Riskler 🔴
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#102-orta-riskler" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2 Orta Riskler 🟡
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#103-dusuk-riskler" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3 Düşük Riskler 🟢
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#104-kritik-uyar" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.4 Kritik Uyarı
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#11-yol-haritas" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Yol Haritası
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="11. Yol Haritası">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#sprint-16-foundation-fix-1-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 16: Foundation Fix (1 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#sprint-17-multi-regime-training-1-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 17: Multi-Regime Training (1 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#sprint-18-ensemble-validation-1-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 18: Ensemble &amp; Validation (1 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#sprint-19-advanced-features-2-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 19: Advanced Features (2 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#sprint-20-production-readiness-2-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 20: Production Readiness (2 hafta)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#12-genel-ozet-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Genel Özet (Executive Summary)
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="12. Genel Özet (Executive Summary)">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#mevcut-durum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mevcut Durum
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#temel-bulgular" class="md-nav__link">
+    <span class="md-ellipsis">
+      Temel Bulgular
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#oncelik-sralamas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Öncelik Sıralaması
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#tahmini-hedefler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tahmini Hedefler
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+    </ul>
+
+</nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_IMPROVEMENT_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Improvement Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_PARALLEL_TESTING_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Parallel Testing Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_WORKFLOW_ALTERNATIF/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Workflow Alternatives
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_entegrasyon_degerlendirme/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Entegrasyon Değerlendirme
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_next_steps/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Next Steps
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_sprint1_completion_report/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Sprint 1 Report
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../trend_agent_sprint23/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Trend Agent (Sprint 23)
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../zscore_calibration/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Z-Score Calibration
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+
+
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Deployment
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Deployment
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEMO_DEPLOYMENT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Demo Deployment
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEMO_TO_REAL_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Demo to Real Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../PAPER_TRADING_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Paper Trading Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../OLLAMA_SETUP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Ollama Setup
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+
+
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Guides
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINANCIAL_AGENT_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Financial Agent Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINANCIAL_AGENT_QUICKSTART/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Financial Agent Quickstart
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../finpilot_effort_summary/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Effort Summary
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+
+
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Analysis & Reports
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Analysis & Reports
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FULL_AUDIT_REPORT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Full Audit Report
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CRITICAL_ISSUES_DETAILED/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Critical Issues
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CRITICAL_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Critical Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_PROFESSIONAL_ANALYSIS_2025/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Professional Analysis 2025
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_PROFESSIONAL_ANALYSIS_JAN2026/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Professional Analysis Jan 2026
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../PROJECT_ANALYSIS_PROFESSIONAL/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Project Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DGX_SPARK_EVALUATION/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    DGX Spark Evaluation
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../HIBE_FON_DEGERLENDIRME/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Hibe/Fon Değerlendirme
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+
+
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Roadmaps
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Roadmaps
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ROADMAP_Q1_2025/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Q1 2025
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../UI_UX_APPLE_STYLE_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    UI/UX Apple Style
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../TRIO_IMPROVEMENT_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Trio Improvement
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../linkedin_content_strategy/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    LinkedIn Strategy
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+
+
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Sprints
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Sprints
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../etl_sprint2/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    ETL Sprint 2
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_sprint3/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Sprint 3
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_store_sprint4/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Store Sprint 4
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_importance_sprint5/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Importance Sprint 5
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../observability_sprint5/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Observability Sprint 5
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#icindekiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      İçindekiler
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#1-mevcut-ajanlarn-genel-durumu" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Mevcut Ajanların Genel Durumu
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="1. Mevcut Ajanların Genel Durumu">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#11-registry-ozeti" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 Registry Özeti
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#12-mimari" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 Mimari
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#13-kritik-bulgu" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 Kritik Bulgu
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#2-performans-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Performans Analizi
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2. Performans Analizi">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#21-calsan-model-ppo_longhorizon" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Çalışan Model: ppo_longhorizon
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#22-performans-derecelendirmesi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Performans Derecelendirmesi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#23-sorunlarn-kok-neden-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Sorunların Kök Neden Analizi
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#3-blind-point-kor-nokta-tespiti" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Blind Point (Kör Nokta) Tespiti
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="3. Blind Point (Kör Nokta) Tespiti">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#31-varlk-snf-korlugu-kritik" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Varlık Sınıfı Körlüğü 🔴 KRİTİK
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#32-market-regime-korlugu-kritik" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Market Regime Körlüğü 🔴 KRİTİK
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#33-zaman-dilimi-korlugu-orta" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Zaman Dilimi Körlüğü 🟡 ORTA
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#34-likidite-korlugu-orta" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 Likidite Körlüğü 🟡 ORTA
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#35-makroekonomik-korluk-orta" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.5 Makroekonomik Körlük 🟡 ORTA
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#36-portfolio-interaction-korlugu-dusuk-ksmen-cozulmus" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.6 Portfolio İnteraction Körlüğü 🟢 DÜŞÜK (kısmen çözülmüş)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#37-korelasyon-korlugu-kritik" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.7 Korelasyon Körlüğü 🔴 KRİTİK
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#4-odul-fonksiyonu-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Ödül Fonksiyonu Analizi
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="4. Ödül Fonksiyonu Analizi">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#41-mevcut-odul-yaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Mevcut Ödül Yapısı
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#42-guclu-yonler" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Güçlü Yönler ✅
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#43-zayf-yonler-ve-sorunlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 Zayıf Yönler ve Sorunlar ⚠️
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#44-curriculum-learning-detay" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4 Curriculum Learning Detayı
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#5-veri-kalitesi-ve-state-representation" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Veri Kalitesi ve State Representation
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5. Veri Kalitesi ve State Representation">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#51-feature-matrisi-24-boyut" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Feature Matrisi (24 boyut)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#52-kritik-veri-sorunlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Kritik Veri Sorunları
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#53-featurepipeline-degerlendirmesi" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 FeaturePipeline Değerlendirmesi
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#6-maksimum-verim-icin-gerekli-ajan-says" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Maksimum Verim İçin Gerekli Ajan Sayısı
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="6. Maksimum Verim İçin Gerekli Ajan Sayısı">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#61-mevcut-durum-5-ajan-1-calsyor" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Mevcut Durum: 5 ajan, 1 çalışıyor
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#62-onerilen-ajan-mimarisi-3-katmanl-ensemble-9-ajan" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Önerilen Ajan Mimarisi: 3 Katmanlı Ensemble (9 Ajan)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#63-neden-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Neden 9?
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#64-minimum-viable-3-ajan" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 Minimum Viable: 3 Ajan
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#7-egitim-stratejisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Eğitim Stratejisi
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="7. Eğitim Stratejisi">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#71-mevcut-egitim-sorunlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Mevcut Eğitim Sorunları
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#72-onerilen-egitim-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 Önerilen Eğitim Pipeline'ı
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#73-hyperparametre-onerileri" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3 Hyperparametre Önerileri
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#8-performans-optimizasyonu" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Performans Optimizasyonu
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="8. Performans Optimizasyonu">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#81-ksa-vadeli-iyilestirmeler-1-2-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 Kısa Vadeli İyileştirmeler (1-2 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#82-orta-vadeli-iyilestirmeler-2-4-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Orta Vadeli İyileştirmeler (2-4 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#83-uzun-vadeli-iyilestirmeler-1-3-ay" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 Uzun Vadeli İyileştirmeler (1-3 ay)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#9-aktif-kullanm-stratejisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Aktif Kullanım Stratejisi
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="9. Aktif Kullanım Stratejisi">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#91-mevcut-durum" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 Mevcut Durum
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#92-onerilen-kullanm-hiyerarsisi" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 Önerilen Kullanım Hiyerarşisi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#93-drl-guven-seviyesi-haritalama" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.3 DRL Güven Seviyesi Haritalama
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#94-risk-kontrol-kurallar" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.4 Risk Kontrol Kuralları
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#10-riskler-ve-snrlamalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Riskler ve Sınırlamalar
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="10. Riskler ve Sınırlamalar">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#101-yuksek-riskler" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.1 Yüksek Riskler 🔴
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#102-orta-riskler" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2 Orta Riskler 🟡
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#103-dusuk-riskler" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3 Düşük Riskler 🟢
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#104-kritik-uyar" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.4 Kritik Uyarı
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#11-yol-haritas" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Yol Haritası
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="11. Yol Haritası">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#sprint-16-foundation-fix-1-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 16: Foundation Fix (1 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#sprint-17-multi-regime-training-1-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 17: Multi-Regime Training (1 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#sprint-18-ensemble-validation-1-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 18: Ensemble &amp; Validation (1 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#sprint-19-advanced-features-2-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 19: Advanced Features (2 hafta)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#sprint-20-production-readiness-2-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sprint 20: Production Readiness (2 hafta)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#12-genel-ozet-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Genel Özet (Executive Summary)
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="12. Genel Özet (Executive Summary)">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#mevcut-durum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mevcut Durum
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#temel-bulgular" class="md-nav__link">
+    <span class="md-ellipsis">
+      Temel Bulgular
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#oncelik-sralamas" class="md-nav__link">
+    <span class="md-ellipsis">
+      Öncelik Sıralaması
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#tahmini-hedefler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tahmini Hedefler
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+    </ul>
+
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+
+
+
+
+
+
+
+
+<h1 id="finpilot-drl-agent-kapsaml-analiz-raporu">FinPilot DRL Agent — Kapsamlı Analiz Raporu<a class="headerlink" href="#finpilot-drl-agent-kapsaml-analiz-raporu" title="Permanent link">&para;</a></h1>
+<p><strong>Tarih:</strong> 2026-02-25
+<strong>Versiyon:</strong> 1.0
+<strong>Kapsam:</strong> 5 PPO Ajan × 3 Sembol × 24 Feature</p>
+<hr />
+<h2 id="icindekiler">İçindekiler<a class="headerlink" href="#icindekiler" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-mevcut-ajanların-genel-durumu">Mevcut Ajanların Genel Durumu</a></li>
+<li><a href="#2-performans-analizi">Performans Analizi</a></li>
+<li><a href="#3-blind-point-kör-nokta-tespiti">Blind Point (Kör Nokta) Tespiti</a></li>
+<li><a href="#4-ödül-fonksiyonu-analizi">Ödül Fonksiyonu Analizi</a></li>
+<li><a href="#5-veri-kalitesi-ve-state-representation">Veri Kalitesi ve State Representation</a></li>
+<li><a href="#6-maksimum-verim-için-gerekli-ajan-sayısı">Maksimum Verim İçin Gerekli Ajan Sayısı</a></li>
+<li><a href="#7-eğitim-stratejisi">Eğitim Stratejisi</a></li>
+<li><a href="#8-performans-optimizasyonu">Performans Optimizasyonu</a></li>
+<li><a href="#9-aktif-kullanım-stratejisi">Aktif Kullanım Stratejisi</a></li>
+<li><a href="#10-riskler-ve-sınırlamalar">Riskler ve Sınırlamalar</a></li>
+<li><a href="#11-yol-haritası">Yol Haritası</a></li>
+<li><a href="#12-genel-özet-executive-summary">Genel Özet (Executive Summary)</a></li>
+</ol>
+<hr />
+<h2 id="1-mevcut-ajanlarn-genel-durumu">1. Mevcut Ajanların Genel Durumu<a class="headerlink" href="#1-mevcut-ajanlarn-genel-durumu" title="Permanent link">&para;</a></h2>
+<h3 id="11-registry-ozeti">1.1 Registry Özeti<a class="headerlink" href="#11-registry-ozeti" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Timesteps</th>
+<th>LR</th>
+<th>γ</th>
+<th>ent_coef</th>
+<th>Curriculum</th>
+<th>Aktif</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ppo_conservative</strong></td>
+<td>80K</td>
+<td>1e-4</td>
+<td>0.995</td>
+<td>0.005</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>ppo_balanced</strong></td>
+<td>60K</td>
+<td>3e-4</td>
+<td>0.990</td>
+<td>0.010</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>ppo_aggressive</strong></td>
+<td>60K</td>
+<td>5e-4</td>
+<td>0.970</td>
+<td>0.020</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>ppo_explorer</strong></td>
+<td>60K</td>
+<td>3e-4</td>
+<td>0.990</td>
+<td>0.050</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>ppo_longhorizon</strong> ★</td>
+<td>100K</td>
+<td>2e-4</td>
+<td>0.995</td>
+<td>0.010</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Algoritma:</strong> Tüm ajanlar PPO (Proximal Policy Optimization), <code>MlpPolicy</code></li>
+<li><strong>Eğitim Sembolleri:</strong> AAPL, NVDA, TSLA (yalnızca 3 sembol)</li>
+<li><strong>Feature Boyutu:</strong> 24 (13 teknik + 3 regime + 2 sentiment + 2 onchain + 4 portfolio state)</li>
+<li><strong>Action Space:</strong> Continuous Box(−0.75, +0.75) — pozisyon fraksiyonu</li>
+</ul>
+<h3 id="12-mimari">1.2 Mimari<a class="headerlink" href="#12-mimari" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Observation (24-dim float32)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>   → MLP Policy (SB3 default: 64×64 hidden layers, tanh activation)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>   → Action (1-dim continuous: −0.75 to +0.75)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>   → MarketEnv.step() → reward shaping → next observation
+</code></pre></div>
+<h3 id="13-kritik-bulgu">1.3 Kritik Bulgu<a class="headerlink" href="#13-kritik-bulgu" title="Permanent link">&para;</a></h3>
+<p><strong>5 modelin 3'ü tamamen ÖLÜ:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Test Sharpe</th>
+<th>Test Return</th>
+<th>Max DD</th>
+<th>Win Rate</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ppo_conservative</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>🔴 <strong>ÖLÜ</strong></td>
+</tr>
+<tr>
+<td>ppo_balanced</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>🔴 <strong>ÖLÜ</strong></td>
+</tr>
+<tr>
+<td>ppo_aggressive</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>🔴 <strong>ÖLÜ</strong></td>
+</tr>
+<tr>
+<td>ppo_explorer</td>
+<td>−0.119</td>
+<td>0.009</td>
+<td>0.023</td>
+<td>0.317</td>
+<td>🟡 <strong>ZAYIF</strong></td>
+</tr>
+<tr>
+<td>ppo_longhorizon</td>
+<td><strong>0.735</strong></td>
+<td><strong>0.023</strong></td>
+<td>0.026</td>
+<td>0.302</td>
+<td>🟢 <strong>AKTİF</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Yorum:</strong> Conservative, balanced ve aggressive modellerin tüm metrikleri sıfır. Bu, eğitim sırasında policy'nin collapse ettiğini (constant HOLD) gösteriyor. Explorer zayıf ama işlem yapabiliyor. Sadece longhorizon modeli anlamlı bir policy öğrenmiş.</p>
+</blockquote>
+<hr />
+<h2 id="2-performans-analizi">2. Performans Analizi<a class="headerlink" href="#2-performans-analizi" title="Permanent link">&para;</a></h2>
+<h3 id="21-calsan-model-ppo_longhorizon">2.1 Çalışan Model: ppo_longhorizon<a class="headerlink" href="#21-calsan-model-ppo_longhorizon" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metrik</th>
+<th>Değer</th>
+<th>Yorum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Test Sharpe</td>
+<td>0.735</td>
+<td>Kabul edilebilir ama yüksek değil</td>
+</tr>
+<tr>
+<td>Train Sharpe</td>
+<td>1.459</td>
+<td>İyi eğitim performansı</td>
+</tr>
+<tr>
+<td>Sharpe Degradation</td>
+<td>49.6%</td>
+<td>⚠️ Yüksek — overfitting göstergesi</td>
+</tr>
+<tr>
+<td>Total Return</td>
+<td>2.26%</td>
+<td>Düşük — 2yr veri üzerinde</td>
+</tr>
+<tr>
+<td>Max Drawdown</td>
+<td>2.57%</td>
+<td>Conservative — risk kontrolü iyi</td>
+</tr>
+<tr>
+<td>Win Rate</td>
+<td>30.2%</td>
+<td>⚠️ Düşük — 3 işlemden 1'i kazanıyor</td>
+</tr>
+<tr>
+<td>Profit Factor</td>
+<td>∞</td>
+<td>Veri sorunu (muhtemelen 0 zarar)</td>
+</tr>
+<tr>
+<td>Overfit Folds</td>
+<td>9/15</td>
+<td>⚠️ %60 fold'da overfitting</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-performans-derecelendirmesi">2.2 Performans Derecelendirmesi<a class="headerlink" href="#22-performans-derecelendirmesi" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ÜSTÜN   : Sharpe &gt; 2.0, degrad &lt; 20%
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>İYİ     : Sharpe 1.0-2.0, degrad &lt; 30%
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>KABUL   : Sharpe 0.5-1.0, degrad &lt; 50%  ← ppo_longhorizon BURASI
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>ZAYIF   : Sharpe 0.0-0.5
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>BAŞARISIZ: Sharpe ≤ 0.0 veya sıfır return  ← 3 ölü model + explorer
+</code></pre></div>
+<h3 id="23-sorunlarn-kok-neden-analizi">2.3 Sorunların Kök Neden Analizi<a class="headerlink" href="#23-sorunlarn-kok-neden-analizi" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>3 ÖLÜ model neden öldü?</strong></li>
+<li><code>sharpe_train = -1.86e16</code> → NaN/Inf hesaplama hatası (muhtemelen tüm PnL = 0)</li>
+<li>Constant HOLD behaviour: model hiç pozisyon almıyor</li>
+<li>
+<p><strong>Kök neden:</strong> 60K-80K timestep, 3 sembol verisinde (toplam ~1500 satır) çok az episode var. PPO her episode'da birkaç yüz step görüyor. Curriculum learning başlangıçta maliyetleri düşük tutsa da, agent HOLD'da sıkışıp kalıyor.</p>
+</li>
+<li>
+<p><strong>Longhorizon neden çalışıyor?</strong></p>
+</li>
+<li>100K timestep → %25 daha fazla deneyim</li>
+<li>Curriculum'un son aşamasına (hard phase) ulaşabilmiş</li>
+<li>
+<p>LR=2e-4 ile gamma=0.995 dengeli bir combo</p>
+</li>
+<li>
+<p><strong>%49.6 Sharpe degradation:</strong></p>
+</li>
+<li>Train'de 1.46, test'te 0.74 — modelin train verisine partial overfit olduğu açık</li>
+<li>9/15 fold'da overfit → Walk-forward validation güvenilmez</li>
+</ol>
+<hr />
+<h2 id="3-blind-point-kor-nokta-tespiti">3. Blind Point (Kör Nokta) Tespiti<a class="headerlink" href="#3-blind-point-kor-nokta-tespiti" title="Permanent link">&para;</a></h2>
+<h3 id="31-varlk-snf-korlugu-kritik">3.1 Varlık Sınıfı Körlüğü 🔴 KRİTİK<a class="headerlink" href="#31-varlk-snf-korlugu-kritik" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Sadece 3 ABD teknoloji hissesi ile eğitilmiş:</strong> AAPL, NVDA, TSLA</li>
+<li>Farklı korelasyon yapıları görmemiş:</li>
+<li>❌ Enerji, Sağlık, Finans sektörleri</li>
+<li>❌ ETF'ler (SPY, QQQ, IWM)</li>
+<li>❌ Kripto (BTC-USD, ETH-USD)</li>
+<li>❌ Emtia</li>
+<li>❌ Uluslararası hisseler</li>
+<li>Sonuç: agent, yalnızca yüksek-beta tech davranışını öğrenmiş</li>
+</ul>
+<h3 id="32-market-regime-korlugu-kritik">3.2 Market Regime Körlüğü 🔴 KRİTİK<a class="headerlink" href="#32-market-regime-korlugu-kritik" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Regime detection basit kural tabanlı: <code>ATR/Close &gt; 0.02 → volatility</code>, <code>Close &gt; EMA50 &gt; EMA200 → trend</code></li>
+<li>2yr daily veri → 2020 crash, 2022 bear market gibi extreme eventleri görmemiş olabilir (tarih bağımlı)</li>
+<li>Agent hiç <strong>bear market uzun süreli düşüş</strong> görmemiş olabilir</li>
+<li>Regime geçiş noktalarında (transition) özel davranış öğrenmemiş</li>
+</ul>
+<h3 id="33-zaman-dilimi-korlugu-orta">3.3 Zaman Dilimi Körlüğü 🟡 ORTA<a class="headerlink" href="#33-zaman-dilimi-korlugu-orta" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sadece <strong>günlük (1d)</strong> verilerle eğitilmiş</li>
+<li>Intraday (1h, 15m) dinamiklere tamamen kör</li>
+<li>Multi-timeframe analiz kapasitesi yok</li>
+</ul>
+<h3 id="34-likidite-korlugu-orta">3.4 Likidite Körlüğü 🟡 ORTA<a class="headerlink" href="#34-likidite-korlugu-orta" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Volume sadece bir feature olarak mevcut, ama stochastic slippage basit</li>
+<li>Düşük hacimli piyasa koşullarına gerçek tepki öğrenmemiş</li>
+<li>Pre/post market, earnings gaps gibi likidite eventleri yok</li>
+</ul>
+<h3 id="35-makroekonomik-korluk-orta">3.5 Makroekonomik Körlük 🟡 ORTA<a class="headerlink" href="#35-makroekonomik-korluk-orta" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fed faiz kararları, CPI, GDP gibi makro veri yok</li>
+<li>VIX, yield curve gibi risk göstergeleri eksik</li>
+<li>Sector rotation görmemiş</li>
+</ul>
+<h3 id="36-portfolio-interaction-korlugu-dusuk-ksmen-cozulmus">3.6 Portfolio İnteraction Körlüğü 🟢 DÜŞÜK (kısmen çözülmüş)<a class="headerlink" href="#36-portfolio-interaction-korlugu-dusuk-ksmen-cozulmus" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>cash_ratio, position_ratio, open_risk, kelly_fraction</code> feature'ları var</li>
+<li><strong>Ama eğitimde hep statik:</strong> cash_ratio=1.0, position_ratio=0.0, open_risk=0.0</li>
+<li>Agent, portfolio state değişimlerine gerçek tepki öğrenememiş</li>
+</ul>
+<h3 id="37-korelasyon-korlugu-kritik">3.7 Korelasyon Körlüğü 🔴 KRİTİK<a class="headerlink" href="#37-korelasyon-korlugu-kritik" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Her sembol bağımsız eğitiliyor (concat multi-asset)</li>
+<li>Cross-asset korelasyon yok (AAPL-NVDA birlikte düşerken ne yapılmalı?)</li>
+<li>Portföy çeşitlendirme kavramı eksik</li>
+</ul>
+<hr />
+<h2 id="4-odul-fonksiyonu-analizi">4. Ödül Fonksiyonu Analizi<a class="headerlink" href="#4-odul-fonksiyonu-analizi" title="Permanent link">&para;</a></h2>
+<h3 id="41-mevcut-odul-yaps">4.1 Mevcut Ödül Yapısı<a class="headerlink" href="#41-mevcut-odul-yaps" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">reward</span> <span class="o">=</span> <span class="n">pnl_weight</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="err">×</span> <span class="n">PnL</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>       <span class="err">−</span> <span class="n">cost_weight</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span> <span class="err">×</span> <span class="n">transaction_cost</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>       <span class="err">−</span> <span class="n">drawdown_weight</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="err">×</span> <span class="n">drawdown</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>       <span class="err">−</span> <span class="n">leverage_weight</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span> <span class="err">×</span> <span class="n">leverage_penalty</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>       <span class="o">+</span> <span class="n">regime_bonus</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span> <span class="err">×</span> <span class="n">regime_alignment</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>       <span class="err">−</span> <span class="n">turnover_penalty</span><span class="p">(</span><span class="mf">0.02</span><span class="p">)</span> <span class="err">×</span> <span class="o">|</span><span class="n">position_change</span><span class="o">|</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>       <span class="err">−</span> <span class="n">inactivity_penalty</span><span class="p">(</span><span class="mf">0.003</span><span class="p">)</span>  <span class="c1"># if |position| &lt; 0.05</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>       <span class="o">+</span> <span class="n">position_bonus</span><span class="p">(</span><span class="mf">0.002</span><span class="p">)</span> <span class="err">×</span> <span class="o">|</span><span class="n">position</span><span class="o">|</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>       <span class="o">+</span> <span class="n">sharpe_bonus</span><span class="p">(</span><span class="mf">0.10</span><span class="p">)</span> <span class="err">×</span> <span class="n">clip</span><span class="p">(</span><span class="n">rolling_sharpe</span><span class="p">,</span> <span class="err">−</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># if buffer ≥ 20</span>
+</code></pre></div>
+<h3 id="42-guclu-yonler">4.2 Güçlü Yönler ✅<a class="headerlink" href="#42-guclu-yonler" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Multi-signal reward:</strong> PnL, risk, regime, turnover hepsi var</li>
+<li><strong>Curriculum learning:</strong> Maliyet multiplier'ı aşamalı artıyor (0.2 → 0.6 → 1.0)</li>
+<li><strong>Inactivity penalty:</strong> Constant HOLD'u cezalandırıyor (Sprint 14 eklendi)</li>
+<li><strong>Rolling Sharpe bonus:</strong> Risk-adjusted getiri teşvik ediliyor</li>
+<li><strong>Stochastic slippage:</strong> Volume-dependent maliyet gerçekçi</li>
+</ol>
+<h3 id="43-zayf-yonler-ve-sorunlar">4.3 Zayıf Yönler ve Sorunlar ⚠️<a class="headerlink" href="#43-zayf-yonler-ve-sorunlar" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Sorun</th>
+<th>Seviye</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Reward ölçek dengesizliği</strong></td>
+<td>🔴</td>
+<td>PnL tipik olarak ±0.001-0.01 aralığında. Drawdown 0-1 aralığında. Drawdown reward'ı domine ediyor</td>
+</tr>
+<tr>
+<td><strong>Inactivity penalty çok küçük</strong></td>
+<td>🟡</td>
+<td>0.003/step yeterli değil — 3 ölü model kanıtı</td>
+</tr>
+<tr>
+<td><strong>Profit factor hesaplanmıyor</strong></td>
+<td>🟡</td>
+<td>Reward'da kazanç/kayıp oranı yok</td>
+</tr>
+<tr>
+<td><strong>Time-based incentive yok</strong></td>
+<td>🟡</td>
+<td>Agent, ne zaman işlem açacağını değil HER step'te ne yapacağını öğreniyor</td>
+</tr>
+<tr>
+<td><strong>Win streak/Loss streak</strong></td>
+<td>🟡</td>
+<td>Ardışık kayıptan sonra pozisyon küçültme yok</td>
+</tr>
+<tr>
+<td><strong>Terminal reward yok</strong></td>
+<td>🟡</td>
+<td>Episode sonunda toplam performansa bonus/ceza yok</td>
+</tr>
+<tr>
+<td><strong>Reward clipping yok</strong></td>
+<td>🟡</td>
+<td>Extreme PnL veya drawdown spike'ları gradient'i bozabilir</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44-curriculum-learning-detay">4.4 Curriculum Learning Detayı<a class="headerlink" href="#44-curriculum-learning-detay" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Phase A (0-30%):  cost×0.2, pos_limit×0.5, PnL×1.5, DD×0.3, explore=0.05
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Phase B (30-70%): cost×0.6, pos_limit×0.8, PnL×1.2, DD×0.7, explore=0.02
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Phase C (70-100%): cost×1.0, pos_limit×1.0, PnL×1.0, DD×1.2, explore=0.0
+</code></pre></div>
+<p><strong>Problem:</strong> Phase A çok kolay, Phase C'ye geçişte agent şok yaşıyor. Smooth interpolation var ama geçiş hâlâ sert.</p>
+<hr />
+<h2 id="5-veri-kalitesi-ve-state-representation">5. Veri Kalitesi ve State Representation<a class="headerlink" href="#5-veri-kalitesi-ve-state-representation" title="Permanent link">&para;</a></h2>
+<h3 id="51-feature-matrisi-24-boyut">5.1 Feature Matrisi (24 boyut)<a class="headerlink" href="#51-feature-matrisi-24-boyut" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Grup</th>
+<th>Features</th>
+<th>Scaler</th>
+<th>Kalite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Teknik</strong> (13)</td>
+<td>close, ema_20/50/200, rsi, macd, macd_signal, macd_hist, atr, bb_upper/lower, volume, volume_avg_20</td>
+<td>zscore</td>
+<td>✅ İyi</td>
+</tr>
+<tr>
+<td><strong>Regime</strong> (3)</td>
+<td>regime_trend, regime_range, regime_volatility</td>
+<td>none (binary)</td>
+<td>⚠️ Basit</td>
+</tr>
+<tr>
+<td><strong>Sentiment</strong> (2)</td>
+<td>sentiment_score, news_sentiment</td>
+<td>robust</td>
+<td>🟡 Genellikle 0</td>
+</tr>
+<tr>
+<td><strong>Onchain</strong> (2)</td>
+<td>onchain_active_addresses, onchain_tx_volume</td>
+<td>robust</td>
+<td>🔴 Hep 0</td>
+</tr>
+<tr>
+<td><strong>Portfolio</strong> (4)</td>
+<td>cash_ratio, position_ratio, open_risk, kelly_fraction</td>
+<td>minmax</td>
+<td>🔴 Statik</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-kritik-veri-sorunlar">5.2 Kritik Veri Sorunları<a class="headerlink" href="#52-kritik-veri-sorunlar" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Onchain features tamamen placeholder (0.0):</strong></li>
+<li>Equities için onchain verisi mantıksız</li>
+<li>2/24 feature boş → agent bu boyutları ignore ediyor</li>
+<li>
+<p>Feature space gereksiz büyük</p>
+</li>
+<li>
+<p><strong>Sentiment genellikle 0:</strong></p>
+</li>
+<li><code>_add_placeholder_features()</code> sentiment'ı 0.0 ile dolduruyor</li>
+<li>DDG scraping bazen başarısız, fallback = 0</li>
+<li>
+<p>Eğitimde çoğu satır sentiment=0 → Agent sentiment'ı ignore ediyor</p>
+</li>
+<li>
+<p><strong>Portfolio state eğitimde statik:</strong></p>
+</li>
+<li><code>cash_ratio=1.0, position_ratio=0.0, open_risk=0.0, kelly_fraction=0.0</code> sabit</li>
+<li>Agent bu feature'ları hiç öğrenememiş</li>
+<li>
+<p>4/24 feature etkisiz</p>
+</li>
+<li>
+<p><strong>Feature Scaling sorunları:</strong></p>
+</li>
+<li><code>close</code> fiyatı zscore ile scale ediliyor ama AAPL ($150-200) vs TSLA ($180-400) çok farklı</li>
+<li>Multi-asset concat'te istatistikler karışıyor</li>
+<li>
+<p>ATR, volume gibi magnitude-sensitive feature'lar semboller arası tutarsız</p>
+</li>
+<li>
+<p><strong>Toplam etki:</strong> 24 feature'ın yalnızca ~16'sı gerçekten bilgi taşıyor. Etkili feature ratio: <strong>~67%</strong></p>
+</li>
+</ol>
+<h3 id="53-featurepipeline-degerlendirmesi">5.3 FeaturePipeline Değerlendirmesi<a class="headerlink" href="#53-featurepipeline-degerlendirmesi" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bileşen</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>zscore normalization</td>
+<td>✅ İyi</td>
+</tr>
+<tr>
+<td>robust (median/IQR)</td>
+<td>✅ İyi</td>
+</tr>
+<tr>
+<td>minmax scaling</td>
+<td>✅ İyi</td>
+</tr>
+<tr>
+<td>NaN/Inf handling</td>
+<td>✅ <code>nan_to_num + clip(−10, 10)</code></td>
+</tr>
+<tr>
+<td>Feature validation</td>
+<td>✅ <code>fit()</code> sırasında column check</td>
+</tr>
+<tr>
+<td>Pipeline serialization</td>
+<td>✅ JSON artifact olarak kayıt</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-maksimum-verim-icin-gerekli-ajan-says">6. Maksimum Verim İçin Gerekli Ajan Sayısı<a class="headerlink" href="#6-maksimum-verim-icin-gerekli-ajan-says" title="Permanent link">&para;</a></h2>
+<h3 id="61-mevcut-durum-5-ajan-1-calsyor">6.1 Mevcut Durum: 5 ajan, 1 çalışıyor<a class="headerlink" href="#61-mevcut-durum-5-ajan-1-calsyor" title="Permanent link">&para;</a></h3>
+<p>5 modelin 4'ü ya ölü ya zayıf. Bu, "çok ajan eğitin, en iyisini seçin" yaklaşımının <strong>naive versiyonu</strong>. Hyperparametre farklılıkları yeterli değil.</p>
+<h3 id="62-onerilen-ajan-mimarisi-3-katmanl-ensemble-9-ajan">6.2 Önerilen Ajan Mimarisi: <strong>3 Katmanlı Ensemble (9 Ajan)</strong><a class="headerlink" href="#62-onerilen-ajan-mimarisi-3-katmanl-ensemble-9-ajan" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>KATMAN 1: REGIME-SPECIFIC AJANLAR (3 ajan)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  ├── trend_agent   — Trend piyasalarda uzmanlaşmış
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  ├── range_agent   — Yatay (mean-revert) piyasalarda uzman
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  └── volatile_agent — Yüksek volatilite dönemlerinde uzman
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>KATMAN 2: ASSET CLASS AJANLAR (3 ajan)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  ├── tech_agent    — US Teknoloji (AAPL, NVDA, MSFT, GOOGL, META)
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  ├── broad_agent   — ETF + Diversified (SPY, QQQ, IWM)
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>  └── momentum_agent — Yüksek-beta momentum (TSLA, AMD, COIN)
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>KATMAN 3: META-AJAN / ROUTER (3 ajan → 1 ensemble)
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  ├── conservative_ensemble — Düşük risk, düşük turnover
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>  ├── aggressive_ensemble  — Yüksek frekans, yüksek risk
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>  └── adaptive_router      — Hangi ajanı ne zaman dinleyeceğine karar verir
+</code></pre></div>
+<h3 id="63-neden-9">6.3 Neden 9?<a class="headerlink" href="#63-neden-9" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Ölçüt</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Regime çeşitliliği</strong></td>
+<td>En az 3 piyasa koşulu (trend/range/volatile) → 3 uzman ajan</td>
+</tr>
+<tr>
+<td><strong>Asset çeşitliliği</strong></td>
+<td>Korelasyon grupları ayrı eğitim → 3 asset ajan</td>
+</tr>
+<tr>
+<td><strong>Risk profili</strong></td>
+<td>Conservative + Aggressive + Adaptive → 3 ensemble ajan</td>
+</tr>
+<tr>
+<td><strong>Computational budget</strong></td>
+<td>Her ajan 200K-500K step, 3 sembol minimum → 9 × ~30dk = ~4.5 saat</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64-minimum-viable-3-ajan">6.4 Minimum Viable: <strong>3 Ajan</strong><a class="headerlink" href="#64-minimum-viable-3-ajan" title="Permanent link">&para;</a></h3>
+<p>Budget kısıtlı ise <strong>minimum 3 ajan</strong>:
+1. <code>trend_ppo</code> — Trend rejimde aktif, başka zaman HOLD
+2. <code>meanrevert_ppo</code> — Range rejimde aktif
+3. <code>defensive_ppo</code> — Volatilite rejimde risk azaltan</p>
+<p>Bu 3'lü bile mevcut 5 ajan × tek rejim yaklaşımından <strong>çok daha etkili</strong> olacaktır.</p>
+<hr />
+<h2 id="7-egitim-stratejisi">7. Eğitim Stratejisi<a class="headerlink" href="#7-egitim-stratejisi" title="Permanent link">&para;</a></h2>
+<h3 id="71-mevcut-egitim-sorunlar">7.1 Mevcut Eğitim Sorunları<a class="headerlink" href="#71-mevcut-egitim-sorunlar" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Sorun</th>
+<th>Sebep</th>
+<th>Çözüm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3/5 model ölü</td>
+<td>Yetersiz timestep + veri</td>
+<td>Min 200K step, 10+ sembol</td>
+</tr>
+<tr>
+<td>Sadece 3 sembol</td>
+<td>Generalization = 0</td>
+<td>15-20 sembol, sektör çeşitliliği</td>
+</tr>
+<tr>
+<td>Multi-asset concat</td>
+<td>İstatistikler karışıyor</td>
+<td>Per-symbol normalization</td>
+</tr>
+<tr>
+<td>train/test aynı semboller</td>
+<td>Data leakage riski</td>
+<td>Train/test farklı semboller</td>
+</tr>
+<tr>
+<td>80/20 kronolojik split</td>
+<td>Tek dönem test</td>
+<td>Walk-forward 5+ fold</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-onerilen-egitim-pipeline">7.2 Önerilen Eğitim Pipeline'ı<a class="headerlink" href="#72-onerilen-egitim-pipeline" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>1. VERİ HAZIRLIK
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>   ├── 20 sembol × 3yr daily veri (≈15,000 satır/sembol)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>   ├── Train symbols: AAPL, MSFT, GOOGL, AMZN, NVDA, META, AMD, CRM
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>   ├── Validation symbols: ADBE, INTC, QCOM, PYPL
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>   ├── Test symbols (hiç eğitimde kullanılmayan): TSLA, NFLX, SPY, QQQ
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>   └── Feature engineering: 24 → 30+ feature (makro ekle)
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>2. EĞİTİM
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>   ├── Per-regime data split (trend/range/volatile günleri ayrı)
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>   ├── 500K timestep minimum
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>   ├── Curriculum: 5-phase (exploration → easy → medium → hard → adversarial)
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>   ├── Early stopping on validation Sharpe plateau
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>   └── Hyperparameter search: Optuna Bayesian (50 trial)
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>3. DOĞRULAMA
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>   ├── Walk-forward: 10 fold, anchored
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>   ├── Overfitting test: train Sharpe / test Sharpe &lt; 1.5×
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>   ├── Out-of-distribution test: hiç görülmemiş sembollerle
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>   ├── Regime transition test: trend→range geçiş gücü
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>   └── Sharpe confidence interval (bootstrap)
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>4. DEPLOYMENT
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>   ├── Ensemble voting (3+ ajan consensus)
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>   ├── Rolling retrain: ayda 1 — son 6 ay verisiyle
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>   └── Shadow mode: 2 hafta paper trade → canlı
+</code></pre></div>
+<h3 id="73-hyperparametre-onerileri">7.3 Hyperparametre Önerileri<a class="headerlink" href="#73-hyperparametre-onerileri" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parametre</th>
+<th>Mevcut (longhorizon)</th>
+<th>Önerilen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>total_timesteps</td>
+<td>100K</td>
+<td>500K-1M</td>
+</tr>
+<tr>
+<td>learning_rate</td>
+<td>2e-4</td>
+<td>1e-4 → cosine anneal</td>
+</tr>
+<tr>
+<td>gamma</td>
+<td>0.995</td>
+<td>0.99 (regime-dependent)</td>
+</tr>
+<tr>
+<td>ent_coef</td>
+<td>0.01</td>
+<td>0.02 (daha fazla exploration)</td>
+</tr>
+<tr>
+<td>n_steps</td>
+<td>default (2048)</td>
+<td>4096</td>
+</tr>
+<tr>
+<td>batch_size</td>
+<td>default (64)</td>
+<td>256</td>
+</tr>
+<tr>
+<td>n_epochs</td>
+<td>default (10)</td>
+<td>5 (overfitting azaltma)</td>
+</tr>
+<tr>
+<td>clip_range</td>
+<td>default (0.2)</td>
+<td>0.15</td>
+</tr>
+<tr>
+<td>max_grad_norm</td>
+<td>default (0.5)</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td>network</td>
+<td>[64, 64]</td>
+<td>[256, 128, 64]</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-performans-optimizasyonu">8. Performans Optimizasyonu<a class="headerlink" href="#8-performans-optimizasyonu" title="Permanent link">&para;</a></h2>
+<h3 id="81-ksa-vadeli-iyilestirmeler-1-2-hafta">8.1 Kısa Vadeli İyileştirmeler (1-2 hafta)<a class="headerlink" href="#81-ksa-vadeli-iyilestirmeler-1-2-hafta" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Ölü feature'ları temizle:</strong></li>
+<li><code>onchain_active_addresses</code>, <code>onchain_tx_volume</code> → kaldır (veya gerçek veri bağla)</li>
+<li>
+<p>Eğitimde statik olan <code>cash_ratio, position_ratio, open_risk, kelly_fraction</code> → simüle et</p>
+</li>
+<li>
+<p><strong>Reward rebalancing:</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Mevcut: drawdown 0-1 aralığında, PnL 0.001 aralığında → drawdown domine ediyor</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># Çözüm: PnL&#39;yi scale et</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">reward</span><span class="o">.</span><span class="n">pnl</span> <span class="o">=</span> <span class="mf">10.0</span>  <span class="c1"># 1.0 → 10.0</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">reward</span><span class="o">.</span><span class="n">drawdown</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># 1.0 → 0.5</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">reward</span><span class="o">.</span><span class="n">inactivity_penalty</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># 0.003 → 0.01</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">reward</span><span class="o">.</span><span class="n">position_bonus</span> <span class="o">=</span> <span class="mf">0.005</span>  <span class="c1"># 0.002 → 0.005</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Veri artırma:</strong></p>
+</li>
+<li>3 sembol → 15 sembol (AAPL, MSFT, GOOGL, AMZN, NVDA, META, AMD, CRM, ADBE, INTC, SPY, QQQ, IWM, TSLA, NFLX)</li>
+<li>2yr → 5yr veri</li>
+<li>
+<p>Timestep: 100K → 500K</p>
+</li>
+<li>
+<p><strong>Terminal reward:</strong>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">if</span> <span class="n">terminated</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">final_sharpe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">returns_buffer</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">returns_buffer</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">reward</span> <span class="o">+=</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">final_sharpe</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># Episode sonu Sharpe bonus</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="82-orta-vadeli-iyilestirmeler-2-4-hafta">8.2 Orta Vadeli İyileştirmeler (2-4 hafta)<a class="headerlink" href="#82-orta-vadeli-iyilestirmeler-2-4-hafta" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Per-symbol normalization:</strong> Multi-asset concat yerine her sembolü kendi istatistikleriyle normalize et</li>
+<li><strong>Regime-conditioned training:</strong> Trend günlerinde ayrı eğitim, range günlerinde ayrı</li>
+<li><strong>LSTM/Transformer:</strong> MlpPolicy → RecurrentPPO (sequential dependency öğrenme)</li>
+<li><strong>Prioritized Experience Replay:</strong> Zor market koşullarını daha çok öğret</li>
+<li><strong>Makro features ekle:</strong> VIX, 10yr yield, DXY</li>
+</ol>
+<h3 id="83-uzun-vadeli-iyilestirmeler-1-3-ay">8.3 Uzun Vadeli İyileştirmeler (1-3 ay)<a class="headerlink" href="#83-uzun-vadeli-iyilestirmeler-1-3-ay" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Multi-agent ensemble:</strong> 9 uzman ajan + router</li>
+<li><strong>Sim-to-real transfer:</strong> Sintetik veri (GAN) + gerçek veri karışım</li>
+<li><strong>Online learning:</strong> Canlı piyasadan sürekli öğrenme (micro-batch)</li>
+<li><strong>Risk parity integration:</strong> Ajan çıktılarını risk parity ile ağırlıklandır</li>
+</ol>
+<hr />
+<h2 id="9-aktif-kullanm-stratejisi">9. Aktif Kullanım Stratejisi<a class="headerlink" href="#9-aktif-kullanm-stratejisi" title="Permanent link">&para;</a></h2>
+<h3 id="91-mevcut-durum">9.1 Mevcut Durum<a class="headerlink" href="#91-mevcut-durum" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Aktif model: <strong>ppo_longhorizon</strong> (tek ajan)</li>
+<li>Inference: <code>DRLInference.predict(symbol)</code> → <code>PredictionResult</code></li>
+<li>Hybrid engine: Scanner + DRL consensus</li>
+<li>Güven eşiği: 0.3 (continuous action → BUY/SELL/HOLD)</li>
+</ul>
+<h3 id="92-onerilen-kullanm-hiyerarsisi">9.2 Önerilen Kullanım Hiyerarşisi<a class="headerlink" href="#92-onerilen-kullanm-hiyerarsisi" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>SINYAL ÜRETME
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  Scanner (kural tabanlı) ─────────────────────┐
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  DRL Agent (ppo_longhorizon) ─────────────────┤
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  AI Research (Groq/Gemini) ──────────────────┤
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>                                                ▼
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>                                      Hybrid Consensus
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>                                        │
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>                        ┌───────────────┼────────────────┐
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>                        ▼               ▼                ▼
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>                    3/3 AGREE      2/3 AGREE         DISAGREE
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>                    → EXECUTE      → CAUTION          → HOLD
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>                    (Full pos)     (½ position)       (No trade)
+</code></pre></div>
+<h3 id="93-drl-guven-seviyesi-haritalama">9.3 DRL Güven Seviyesi Haritalama<a class="headerlink" href="#93-drl-guven-seviyesi-haritalama" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>DRL Confidence</th>
+<th>Eylem</th>
+<th>Pozisyon Boyutu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&gt; 0.8</td>
+<td>Güçlü sinyal, Scanner ile uyunca execute</td>
+<td>%15-20 portföy</td>
+</tr>
+<tr>
+<td>0.6-0.8</td>
+<td>Orta sinyal, yalnızca Scanner onaylarsa</td>
+<td>%10 portföy</td>
+</tr>
+<tr>
+<td>0.4-0.6</td>
+<td>Zayıf sinyal, yalnızca bilgi amaçlı</td>
+<td>%5 veya bekle</td>
+</tr>
+<tr>
+<td>&lt; 0.4</td>
+<td>Ses/noise — ignore et</td>
+<td>%0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="94-risk-kontrol-kurallar">9.4 Risk Kontrol Kuralları<a class="headerlink" href="#94-risk-kontrol-kurallar" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Max single-position:</strong> %20 (PilotShield max_absolute_position = 0.75 → normalize)</li>
+<li><strong>Max drawdown stop:</strong> Equity %10 düşerse tüm pozisyonları kapat</li>
+<li><strong>Daily trade limit:</strong> Max 5 işlem/gün (turnover penalty'nin canlı karşılığı)</li>
+<li><strong>Regime check:</strong> Volatility rejimde pozisyon boyutunu %50 azalt</li>
+<li><strong>Model confidence decay:</strong> Son 30 günde DRL win_rate &lt; %25 ise ajan'ı devre dışı bırak</li>
+</ol>
+<hr />
+<h2 id="10-riskler-ve-snrlamalar">10. Riskler ve Sınırlamalar<a class="headerlink" href="#10-riskler-ve-snrlamalar" title="Permanent link">&para;</a></h2>
+<h3 id="101-yuksek-riskler">10.1 Yüksek Riskler 🔴<a class="headerlink" href="#101-yuksek-riskler" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Olasılık</th>
+<th>Etki</th>
+<th>Mitigasyon</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Overfitting</strong> — 9/15 fold overfit</td>
+<td>Yüksek</td>
+<td>Gerçek piyasada kayıp</td>
+<td>Walk-forward + OOD test</td>
+</tr>
+<tr>
+<td><strong>Distribution shift</strong> — Piyasa rejimi değişimi</td>
+<td>Yüksek</td>
+<td>Policy geçersiz olur</td>
+<td>Rolling retrain + regime filter</td>
+</tr>
+<tr>
+<td><strong>Single model dependency</strong> — 1 aktif ajan</td>
+<td>Yüksek</td>
+<td>Tek nokta arıza</td>
+<td>Ensemble (3+ ajan)</td>
+</tr>
+<tr>
+<td><strong>Data quality</strong> — Placeholder features</td>
+<td>Kesin</td>
+<td>Yanlış sinyaller</td>
+<td>Feature audit + temizlik</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102-orta-riskler">10.2 Orta Riskler 🟡<a class="headerlink" href="#102-orta-riskler" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Liquidity</strong></td>
+<td>Gerçek piyasa slippage modelden çok farklı olabilir</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>Inference latency &gt; market move hızı</td>
+</tr>
+<tr>
+<td><strong>Concept drift</strong></td>
+<td>Piyasa yapısal değişim (AI trading artışı vb.)</td>
+</tr>
+<tr>
+<td><strong>Regulatory</strong></td>
+<td>Algoritmic trading düzenlemeleri</td>
+</tr>
+</tbody>
+</table>
+<h3 id="103-dusuk-riskler">10.3 Düşük Riskler 🟢<a class="headerlink" href="#103-dusuk-riskler" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Infrastructure</strong></td>
+<td>SB3 + PyTorch stack stabil</td>
+</tr>
+<tr>
+<td><strong>Computation</strong></td>
+<td>CPU inference yeterli (GPU gereksiz)</td>
+</tr>
+<tr>
+<td><strong>API limits</strong></td>
+<td>yfinance + DDG rate limiting mevcut</td>
+</tr>
+</tbody>
+</table>
+<h3 id="104-kritik-uyar">10.4 Kritik Uyarı<a class="headerlink" href="#104-kritik-uyar" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>⚠️ <strong>Bu DRL ajanları ARAŞTIRMA durumundadır.</strong> Gerçek para ile kullanılmamalıdır. Mevcut performans metrikleri (Sharpe 0.735) sınırlı veri ve basit backtest ile elde edilmiştir. Live trading'e geçmeden önce minimum 6 ay paper trading gereklidir.</p>
+</blockquote>
+<hr />
+<h2 id="11-yol-haritas">11. Yol Haritası<a class="headerlink" href="#11-yol-haritas" title="Permanent link">&para;</a></h2>
+<h3 id="sprint-16-foundation-fix-1-hafta">Sprint 16: Foundation Fix (1 hafta)<a class="headerlink" href="#sprint-16-foundation-fix-1-hafta" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Ölü feature'ları temizle (onchain → kaldır veya mock)</li>
+<li>[ ] Reward function rebalancing (PnL×10, DD×0.5)</li>
+<li>[ ] Eğitim verisi genişlet (3 → 15 sembol)</li>
+<li>[ ] Portfolio state simülasyonu ekle (eğitimde dinamik cash_ratio)</li>
+<li>[ ] Timestep artışı: 100K → 500K</li>
+<li>[ ] Terminal reward ekle</li>
+</ul>
+<h3 id="sprint-17-multi-regime-training-1-hafta">Sprint 17: Multi-Regime Training (1 hafta)<a class="headerlink" href="#sprint-17-multi-regime-training-1-hafta" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Regime-specific veri bölümleme</li>
+<li>[ ] 3 regime uzman ajan eğit (trend, range, volatile)</li>
+<li>[ ] Per-symbol normalization</li>
+<li>[ ] Optuna hyperparameter search (50 trial)</li>
+</ul>
+<h3 id="sprint-18-ensemble-validation-1-hafta">Sprint 18: Ensemble &amp; Validation (1 hafta)<a class="headerlink" href="#sprint-18-ensemble-validation-1-hafta" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Regime-router ajan eğit</li>
+<li>[ ] Ensemble voting mekanizması</li>
+<li>[ ] 10-fold walk-forward validation</li>
+<li>[ ] Out-of-distribution test (hiç görülmemiş sembollerle)</li>
+<li>[ ] Bootstrap confidence intervals</li>
+</ul>
+<h3 id="sprint-19-advanced-features-2-hafta">Sprint 19: Advanced Features (2 hafta)<a class="headerlink" href="#sprint-19-advanced-features-2-hafta" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Makro features ekle (VIX, yield curve, DXY)</li>
+<li>[ ] RecurrentPPO (LSTM policy)</li>
+<li>[ ] Multi-timeframe features (1d + 1h)</li>
+<li>[ ] Improved sentiment (FinBERT → VADER yerine)</li>
+</ul>
+<h3 id="sprint-20-production-readiness-2-hafta">Sprint 20: Production Readiness (2 hafta)<a class="headerlink" href="#sprint-20-production-readiness-2-hafta" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Paper trading pipeline</li>
+<li>[ ] A/B testing framework (Scanner vs DRL vs Ensemble)</li>
+<li>[ ] Automated retrain cron job (haftalık)</li>
+<li>[ ] Monitoring dashboard (Sharpe decay, drift detection)</li>
+<li>[ ] Alerting (win_rate &lt; %25 → model disable)</li>
+</ul>
+<hr />
+<h2 id="12-genel-ozet-executive-summary">12. Genel Özet (Executive Summary)<a class="headerlink" href="#12-genel-ozet-executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="mevcut-durum">Mevcut Durum<a class="headerlink" href="#mevcut-durum" title="Permanent link">&para;</a></h3>
+<p>FinPilot DRL stack'i <strong>erken araştırma aşamasındadır.</strong> 5 PPO ajandan yalnızca 1 tanesi (ppo_longhorizon) anlamlı bir trading policy öğrenmiştir. Diğer 3'ü tamamen ölü (constant HOLD), 1'i zayıf. Tek çalışan model Test Sharpe 0.735 ile kabul edilebilir ama güvenilir değildir (%49.6 overfitting, 9/15 fold fail).</p>
+<h3 id="temel-bulgular">Temel Bulgular<a class="headerlink" href="#temel-bulgular" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Alan</th>
+<th>Değerlendirme</th>
+<th>Skor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model çeşitliliği</td>
+<td>5 ajan var, 1 çalışıyor → <strong>yetersiz</strong></td>
+<td>★☆☆☆☆</td>
+</tr>
+<tr>
+<td>Performans</td>
+<td>Sharpe 0.735 → kabul edilebilir ama güvenilmez</td>
+<td>★★☆☆☆</td>
+</tr>
+<tr>
+<td>Veri kalitesi</td>
+<td>8/24 feature boş veya statik → <strong>kötü</strong></td>
+<td>★★☆☆☆</td>
+</tr>
+<tr>
+<td>Reward tasarımı</td>
+<td>Multi-signal ama dengesiz → <strong>orta</strong></td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td>Eğitim altyapısı</td>
+<td>Curriculum + WFO + registry → <strong>iyi</strong></td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>Risk kontrolü</td>
+<td>PilotShield + confidence + hybrid → <strong>iyi</strong></td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>Production readiness</td>
+<td>Paper trade yok, tek model → <strong>düşük</strong></td>
+<td>★☆☆☆☆</td>
+</tr>
+</tbody>
+</table>
+<h3 id="oncelik-sralamas">Öncelik Sıralaması<a class="headerlink" href="#oncelik-sralamas" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>🔴 ACİL:</strong> Reward rebalancing + veri genişletme + 500K timestep retrain</li>
+<li><strong>🟡 KISA VADE:</strong> Ölü feature temizliği + 15 sembol + per-symbol normalization</li>
+<li><strong>🟢 ORTA VADE:</strong> Regime-specific ajanlar + ensemble + validation</li>
+<li><strong>🔵 UZUN VADE:</strong> RecurrentPPO + makro features + production pipeline</li>
+</ol>
+<h3 id="tahmini-hedefler">Tahmini Hedefler<a class="headerlink" href="#tahmini-hedefler" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metrik</th>
+<th>Mevcut</th>
+<th>Hedef (3 ay)</th>
+<th>Hedef (6 ay)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aktif Ajan</td>
+<td>1/5</td>
+<td>3/3 (regime uzmanlar)</td>
+<td>9 (full ensemble)</td>
+</tr>
+<tr>
+<td>Test Sharpe</td>
+<td>0.735</td>
+<td>&gt;1.2</td>
+<td>&gt;1.5</td>
+</tr>
+<tr>
+<td>Win Rate</td>
+<td>30%</td>
+<td>&gt;45%</td>
+<td>&gt;50%</td>
+</tr>
+<tr>
+<td>Overfit Rate</td>
+<td>60%</td>
+<td>&lt;30%</td>
+<td>&lt;20%</td>
+</tr>
+<tr>
+<td>Sembol Coverage</td>
+<td>3</td>
+<td>15</td>
+<td>30+</td>
+</tr>
+<tr>
+<td>Feature Utilization</td>
+<td>67%</td>
+<td>90%+</td>
+<td>95%+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Bu rapor <code>/workspaces/Borsa/docs/DRL_AGENT_ANALYSIS.md</code> olarak kaydedilmiştir.</em>
+<em>Son güncelleme: 2026-02-25</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </article>
+            </div>
+
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+
+      </main>
+
+        <footer class="md-footer">
+
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+
+</div>
+
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+
+
+
+
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+
+
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+
+
+  </body>
+</html>

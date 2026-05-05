@@ -1,0 +1,4 @@
+change_type,entry_date,symbol,profile,price,score,filter_score,alignment_ratio,momentum_ratio,liquidity_ok
+removed_by_candidate,2025-10-17,ORCL,baseline_current_proxy,289.53076171875,2,2,0.6667,0.1667,True
+removed_by_candidate,2025-10-23,WDAY,baseline_current_proxy,243.27999877929688,2,0,1.0,1.0,True
+removed_by_candidate,2025-11-05,ARM,baseline_current_proxy,160.19000244140625,2,2,0.6667,0.1667,True

@@ -1,0 +1,14 @@
+{
+  "min_alignment_ratio": 0.6,
+  "min_momentum_ratio": 0.4,
+  "min_filter_score": 1.0,
+  "min_signal_score": 2.0,
+  "min_zscore": 0.0,
+  "min_price_filter": 2.0,
+  "_meta": {
+    "run_id": "RUN-20260416_1503",
+    "profit_score": 8217.32,
+    "f1": 0.8863,
+    "generated": "2026-04-16T15:04:01.250875"
+  }
+}

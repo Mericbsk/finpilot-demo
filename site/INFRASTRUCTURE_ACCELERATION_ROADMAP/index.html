@@ -1,0 +1,3958 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <meta name="description" content="AI-powered stock analysis platform with DRL agents">
+
+
+
+
+        <link rel="prev" href="../INTEGRATION_PLAN/">
+
+
+        <link rel="next" href="../GAP_ANALYSIS_REPORT/">
+
+
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+
+
+
+        <title>Infrastructure Roadmap - FinPilot Documentation</title>
+
+
+
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+
+
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+
+
+
+
+
+
+
+
+
+
+
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+
+
+
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+
+
+
+
+
+
+  </head>
+
+
+
+
+
+
+
+
+
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="teal">
+
+
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+
+
+        <a href="#finpilot-altyap-hzlandrma-yol-haritas" class="md-skip">
+          Skip to content
+        </a>
+
+    </div>
+    <div data-md-component="announce">
+
+    </div>
+
+
+
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FinPilot Documentation" class="md-header__button md-logo" aria-label="FinPilot Documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FinPilot Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+
+              Infrastructure Roadmap
+
+          </span>
+        </div>
+      </div>
+    </div>
+
+
+        <form class="md-header__option" data-md-component="palette">
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+</form>
+
+
+
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+
+
+
+
+
+        <label class="md-header__button md-icon" for="__search">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      <div class="md-header__source">
+        <a href="https://github.com/finpilot/borsa" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    finpilot/borsa
+  </div>
+</a>
+      </div>
+
+  </nav>
+
+</header>
+
+    <div class="md-container" data-md-component="container">
+
+
+
+
+
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+
+
+
+  Home
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../CORE_MIGRATION_GUIDE/" class="md-tabs__link">
+
+
+
+  Architecture
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../ACADEMIC_DRL_ANALYSIS/" class="md-tabs__link">
+
+
+
+  DRL & ML
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../DEMO_DEPLOYMENT/" class="md-tabs__link">
+
+
+
+  Deployment
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../FINANCIAL_AGENT_GUIDE/" class="md-tabs__link">
+
+
+
+  Guides
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../FULL_AUDIT_REPORT/" class="md-tabs__link">
+
+
+
+  Analysis & Reports
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../ROADMAP_Q1_2025/" class="md-tabs__link">
+
+
+
+  Roadmaps
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../etl_sprint2/" class="md-tabs__link">
+
+
+
+  Sprints
+
+        </a>
+      </li>
+
+
+
+
+    </ul>
+  </div>
+</nav>
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+
+
+
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FinPilot Documentation" class="md-nav__button md-logo" aria-label="FinPilot Documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FinPilot Documentation
+  </label>
+
+    <div class="md-nav__source">
+      <a href="https://github.com/finpilot/borsa" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    finpilot/borsa
+  </div>
+</a>
+    </div>
+
+  <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+
+
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Home
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Overview
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEPENDENCIES/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Dependencies
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_EVOLUTION_TIMELINE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Evolution Timeline
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+
+
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    Architecture
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CORE_MIGRATION_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Core Migration Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../INTEGRATION_PLAN/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Integration Plan
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+
+
+
+
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+
+  <span class="md-ellipsis">
+    Infrastructure Roadmap
+
+  </span>
+
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+
+      <a href="./" class="md-nav__link md-nav__link--active">
+
+
+
+  <span class="md-ellipsis">
+    Infrastructure Roadmap
+
+  </span>
+
+
+      </a>
+
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#1-mevcut-altyapi-profili" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. MEVCUT ALTYAPI PROFİLİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="1. MEVCUT ALTYAPI PROFİLİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#egitim-profil-ozeti-sprint-18-loglarndan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Eğitim Profil Özeti (Sprint-18 Loglarından)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#tam-pipeline-projeksiyon-tahmin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tam Pipeline Projeksiyon (Tahmin)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#2-darbogaz-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. DARBOĞAZ ANALİZİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2. DARBOĞAZ ANALİZİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#kritik-darbogazlar-etkisi-5x" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔴 Kritik Darboğazlar (Etkisi &gt; 5x)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#orta-darbogazlar-etkisi-15-3x" class="md-nav__link">
+    <span class="md-ellipsis">
+      🟡 Orta Darboğazlar (Etkisi 1.5-3x)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#dusuk-etki-ama-kolay-duzeltme" class="md-nav__link">
+    <span class="md-ellipsis">
+      🟢 Düşük Etki (Ama Kolay Düzeltme)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#3-hizlandirma-secenekleri-karsilastirmasi" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. HIZLANDIRMA SEÇENEKLERİ KARŞILAŞTIRMASI
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="3. HIZLANDIRMA SEÇENEKLERİ KARŞILAŞTIRMASI">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#secenek-puanlama-matrisi-1-5-5en-iyi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Seçenek Puanlama Matrisi (1-5, 5=en iyi)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#detayl-gerekceler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detaylı Gerekçeler
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Detaylı Gerekçeler">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#a-yerel-gpu-istasyonu-on-premise" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. Yerel GPU İstasyonu (On-Premise)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#b-bulut-gpu-on-demand" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. Bulut GPU (On-Demand)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#c-hibrit-on-prem-burst-to-cloud" class="md-nav__link">
+    <span class="md-ellipsis">
+      C. Hibrit (On-Prem + Burst-to-Cloud)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#d-edge-spot-budget" class="md-nav__link">
+    <span class="md-ellipsis">
+      D. Edge / Spot (Budget)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#onerilen-strateji" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 ÖNERİLEN STRATEJİ
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#4-hizli-kazanimlar-quick-wins-1-4-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. HIZLI KAZANIMLAR (Quick Wins) — 1-4 Hafta
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="4. HIZLI KAZANIMLAR (Quick Wins) — 1-4 Hafta">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#qw-1-subprocessvecenv-ile-paralel-ortam-hzlanma-2-4x-sure-1-gun" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-1: SubprocessVecEnv ile Paralel Ortam (Hızlanma: 2-4x | Süre: 1 gün)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-2-optuna-pruning-paralel-trial-hzlanma-3-8x-sure-2-gun" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-2: Optuna Pruning + Paralel Trial (Hızlanma: 3-8x | Süre: 2 gün)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-3-egitim-timestep-optimizasyonu-hzlanma-2-3x-sure-1-gun" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-3: Eğitim Timestep Optimizasyonu (Hızlanma: 2-3x | Süre: 1 gün)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-4-deviceauto-gpu-destegi-ekleme-hzlanma-4-20x-sure-2-saat" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-4: device="auto" GPU Desteği Ekleme (Hızlanma: 4-20x* | Süre: 2 saat)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-5-veri-onbellekleme-data-caching-hzlanma-15-2x-io-sure-1-gun" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-5: Veri Önbellekleme (Data Caching) (Hızlanma: 1.5-2x I/O | Süre: 1 gün)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-6-mixed-precision-training-hzlanma-13-15x-sure-3-saat" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-6: Mixed Precision Training (Hızlanma: 1.3-1.5x* | Süre: 3 saat)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#quick-win-ozet-tablosu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Win Özet Tablosu
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#5-orta-ve-uzun-vadeli-yatirimlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. ORTA VE UZUN VADELİ YATIRIMLAR
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5. ORTA VE UZUN VADELİ YATIRIMLAR">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#51-orta-vade-1-3-ay" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Orta Vade (1-3 Ay)
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5.1 Orta Vade (1-3 Ay)">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#ov-1-gpu-bulut-pipeline-runpodlambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      OV-1: GPU Bulut Pipeline (RunPod/Lambda)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#ov-2-paralel-specialist-egitimi" class="md-nav__link">
+    <span class="md-ellipsis">
+      OV-2: Paralel Specialist Eğitimi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#ov-3-offline-rl-data-pipeline-sac-replay-buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      OV-3: Offline RL Data Pipeline (SAC Replay Buffer)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#ov-4-feature-pipeline-vektorizasyonu" class="md-nav__link">
+    <span class="md-ellipsis">
+      OV-4: Feature Pipeline Vektörizasyonu
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#52-uzun-vade-3-12-ay" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Uzun Vade (3-12 Ay)
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5.2 Uzun Vade (3-12 Ay)">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#uv-1-yerel-gpu-istasyonu-kurulumu" class="md-nav__link">
+    <span class="md-ellipsis">
+      UV-1: Yerel GPU İstasyonu Kurulumu
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#uv-2-rayrllib-migrasyon" class="md-nav__link">
+    <span class="md-ellipsis">
+      UV-2: Ray/RLlib Migrasyon
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#uv-3-onnx-runtime-tensorrt-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      UV-3: ONNX Runtime / TensorRT Inference
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#uv-4-cicd-training-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      UV-4: CI/CD Training Pipeline
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#6-maliyet-vs-fayda-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. MALİYET vs FAYDA ANALİZİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="6. MALİYET vs FAYDA ANALİZİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#senaryo-karslastrmas-12-aylk-projeksiyon" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo Karşılaştırması (12 Aylık Projeksiyon)
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Senaryo Karşılaştırması (12 Aylık Projeksiyon)">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#senaryo-a-sadece-quick-wins-yazlm-optimizasyonu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo A: Sadece Quick Wins (Yazılım Optimizasyonu)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-b-quick-wins-bulut-gpu-sprint-tabanl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo B: Quick Wins + Bulut GPU (Sprint-Tabanlı)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-c-quick-wins-yerel-gpu-uzun-vadeli" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo C: Quick Wins + Yerel GPU (Uzun Vadeli)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-d-full-stack-quick-wins-gpu-ray" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo D: Full Stack (Quick Wins + GPU + Ray)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#maliyet-zaman-grafigi" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Maliyet-Zaman Grafiği
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#onerilen-uygulama-sras" class="md-nav__link">
+    <span class="md-ellipsis">
+      Önerilen Uygulama Sırası
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#7-oncelik-matrisi-impact-vs-effort" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. ÖNCELİK MATRİSİ (Impact vs Effort)
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#8-sonuc-ve-tavsiyeler" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. SONUÇ VE TAVSİYELER
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="8. SONUÇ VE TAVSİYELER">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#ilk-30-gun-eylem-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      İlk 30 Gün Eylem Planı
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#stratejik-notlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stratejik Notlar
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+    </ul>
+
+</nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../GAP_ANALYSIS_REPORT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Gap Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../gap_analysis_v3/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Gap Analysis v3
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+
+
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    DRL & ML
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            DRL & ML
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ACADEMIC_DRL_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Academic Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_COMPREHENSIVE_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Comprehensive Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_AGENT_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Agent Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_IMPROVEMENT_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Improvement Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_PARALLEL_TESTING_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Parallel Testing Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_WORKFLOW_ALTERNATIF/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Workflow Alternatives
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_entegrasyon_degerlendirme/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Entegrasyon Değerlendirme
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_next_steps/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Next Steps
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_sprint1_completion_report/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Sprint 1 Report
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../trend_agent_sprint23/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Trend Agent (Sprint 23)
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../zscore_calibration/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Z-Score Calibration
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+
+
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Deployment
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Deployment
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEMO_DEPLOYMENT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Demo Deployment
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEMO_TO_REAL_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Demo to Real Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../PAPER_TRADING_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Paper Trading Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../OLLAMA_SETUP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Ollama Setup
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+
+
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Guides
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINANCIAL_AGENT_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Financial Agent Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINANCIAL_AGENT_QUICKSTART/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Financial Agent Quickstart
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../finpilot_effort_summary/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Effort Summary
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+
+
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Analysis & Reports
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Analysis & Reports
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FULL_AUDIT_REPORT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Full Audit Report
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CRITICAL_ISSUES_DETAILED/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Critical Issues
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CRITICAL_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Critical Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_PROFESSIONAL_ANALYSIS_2025/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Professional Analysis 2025
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_PROFESSIONAL_ANALYSIS_JAN2026/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Professional Analysis Jan 2026
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../PROJECT_ANALYSIS_PROFESSIONAL/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Project Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DGX_SPARK_EVALUATION/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    DGX Spark Evaluation
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../HIBE_FON_DEGERLENDIRME/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Hibe/Fon Değerlendirme
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+
+
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Roadmaps
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Roadmaps
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ROADMAP_Q1_2025/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Q1 2025
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../UI_UX_APPLE_STYLE_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    UI/UX Apple Style
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../TRIO_IMPROVEMENT_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Trio Improvement
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../linkedin_content_strategy/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    LinkedIn Strategy
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+
+
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Sprints
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Sprints
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../etl_sprint2/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    ETL Sprint 2
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_sprint3/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Sprint 3
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_store_sprint4/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Store Sprint 4
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_importance_sprint5/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Importance Sprint 5
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../observability_sprint5/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Observability Sprint 5
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#1-mevcut-altyapi-profili" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. MEVCUT ALTYAPI PROFİLİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="1. MEVCUT ALTYAPI PROFİLİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#egitim-profil-ozeti-sprint-18-loglarndan" class="md-nav__link">
+    <span class="md-ellipsis">
+      Eğitim Profil Özeti (Sprint-18 Loglarından)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#tam-pipeline-projeksiyon-tahmin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tam Pipeline Projeksiyon (Tahmin)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#2-darbogaz-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. DARBOĞAZ ANALİZİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2. DARBOĞAZ ANALİZİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#kritik-darbogazlar-etkisi-5x" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔴 Kritik Darboğazlar (Etkisi &gt; 5x)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#orta-darbogazlar-etkisi-15-3x" class="md-nav__link">
+    <span class="md-ellipsis">
+      🟡 Orta Darboğazlar (Etkisi 1.5-3x)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#dusuk-etki-ama-kolay-duzeltme" class="md-nav__link">
+    <span class="md-ellipsis">
+      🟢 Düşük Etki (Ama Kolay Düzeltme)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#3-hizlandirma-secenekleri-karsilastirmasi" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. HIZLANDIRMA SEÇENEKLERİ KARŞILAŞTIRMASI
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="3. HIZLANDIRMA SEÇENEKLERİ KARŞILAŞTIRMASI">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#secenek-puanlama-matrisi-1-5-5en-iyi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Seçenek Puanlama Matrisi (1-5, 5=en iyi)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#detayl-gerekceler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detaylı Gerekçeler
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Detaylı Gerekçeler">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#a-yerel-gpu-istasyonu-on-premise" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. Yerel GPU İstasyonu (On-Premise)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#b-bulut-gpu-on-demand" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. Bulut GPU (On-Demand)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#c-hibrit-on-prem-burst-to-cloud" class="md-nav__link">
+    <span class="md-ellipsis">
+      C. Hibrit (On-Prem + Burst-to-Cloud)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#d-edge-spot-budget" class="md-nav__link">
+    <span class="md-ellipsis">
+      D. Edge / Spot (Budget)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#onerilen-strateji" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 ÖNERİLEN STRATEJİ
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#4-hizli-kazanimlar-quick-wins-1-4-hafta" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. HIZLI KAZANIMLAR (Quick Wins) — 1-4 Hafta
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="4. HIZLI KAZANIMLAR (Quick Wins) — 1-4 Hafta">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#qw-1-subprocessvecenv-ile-paralel-ortam-hzlanma-2-4x-sure-1-gun" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-1: SubprocessVecEnv ile Paralel Ortam (Hızlanma: 2-4x | Süre: 1 gün)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-2-optuna-pruning-paralel-trial-hzlanma-3-8x-sure-2-gun" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-2: Optuna Pruning + Paralel Trial (Hızlanma: 3-8x | Süre: 2 gün)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-3-egitim-timestep-optimizasyonu-hzlanma-2-3x-sure-1-gun" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-3: Eğitim Timestep Optimizasyonu (Hızlanma: 2-3x | Süre: 1 gün)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-4-deviceauto-gpu-destegi-ekleme-hzlanma-4-20x-sure-2-saat" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-4: device="auto" GPU Desteği Ekleme (Hızlanma: 4-20x* | Süre: 2 saat)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-5-veri-onbellekleme-data-caching-hzlanma-15-2x-io-sure-1-gun" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-5: Veri Önbellekleme (Data Caching) (Hızlanma: 1.5-2x I/O | Süre: 1 gün)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#qw-6-mixed-precision-training-hzlanma-13-15x-sure-3-saat" class="md-nav__link">
+    <span class="md-ellipsis">
+      QW-6: Mixed Precision Training (Hızlanma: 1.3-1.5x* | Süre: 3 saat)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#quick-win-ozet-tablosu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Win Özet Tablosu
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#5-orta-ve-uzun-vadeli-yatirimlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. ORTA VE UZUN VADELİ YATIRIMLAR
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5. ORTA VE UZUN VADELİ YATIRIMLAR">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#51-orta-vade-1-3-ay" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Orta Vade (1-3 Ay)
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5.1 Orta Vade (1-3 Ay)">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#ov-1-gpu-bulut-pipeline-runpodlambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      OV-1: GPU Bulut Pipeline (RunPod/Lambda)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#ov-2-paralel-specialist-egitimi" class="md-nav__link">
+    <span class="md-ellipsis">
+      OV-2: Paralel Specialist Eğitimi
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#ov-3-offline-rl-data-pipeline-sac-replay-buffer" class="md-nav__link">
+    <span class="md-ellipsis">
+      OV-3: Offline RL Data Pipeline (SAC Replay Buffer)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#ov-4-feature-pipeline-vektorizasyonu" class="md-nav__link">
+    <span class="md-ellipsis">
+      OV-4: Feature Pipeline Vektörizasyonu
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#52-uzun-vade-3-12-ay" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Uzun Vade (3-12 Ay)
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="5.2 Uzun Vade (3-12 Ay)">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#uv-1-yerel-gpu-istasyonu-kurulumu" class="md-nav__link">
+    <span class="md-ellipsis">
+      UV-1: Yerel GPU İstasyonu Kurulumu
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#uv-2-rayrllib-migrasyon" class="md-nav__link">
+    <span class="md-ellipsis">
+      UV-2: Ray/RLlib Migrasyon
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#uv-3-onnx-runtime-tensorrt-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      UV-3: ONNX Runtime / TensorRT Inference
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#uv-4-cicd-training-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      UV-4: CI/CD Training Pipeline
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#6-maliyet-vs-fayda-analizi" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. MALİYET vs FAYDA ANALİZİ
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="6. MALİYET vs FAYDA ANALİZİ">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#senaryo-karslastrmas-12-aylk-projeksiyon" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo Karşılaştırması (12 Aylık Projeksiyon)
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Senaryo Karşılaştırması (12 Aylık Projeksiyon)">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#senaryo-a-sadece-quick-wins-yazlm-optimizasyonu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo A: Sadece Quick Wins (Yazılım Optimizasyonu)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-b-quick-wins-bulut-gpu-sprint-tabanl" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo B: Quick Wins + Bulut GPU (Sprint-Tabanlı)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-c-quick-wins-yerel-gpu-uzun-vadeli" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo C: Quick Wins + Yerel GPU (Uzun Vadeli)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-d-full-stack-quick-wins-gpu-ray" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo D: Full Stack (Quick Wins + GPU + Ray)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#maliyet-zaman-grafigi" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Maliyet-Zaman Grafiği
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#onerilen-uygulama-sras" class="md-nav__link">
+    <span class="md-ellipsis">
+      Önerilen Uygulama Sırası
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#7-oncelik-matrisi-impact-vs-effort" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. ÖNCELİK MATRİSİ (Impact vs Effort)
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#8-sonuc-ve-tavsiyeler" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. SONUÇ VE TAVSİYELER
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="8. SONUÇ VE TAVSİYELER">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#ilk-30-gun-eylem-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      İlk 30 Gün Eylem Planı
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#stratejik-notlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stratejik Notlar
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+    </ul>
+
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+
+
+
+
+
+
+
+
+<h1 id="finpilot-altyap-hzlandrma-yol-haritas">🏗️ FinPilot Altyapı Hızlandırma Yol Haritası<a class="headerlink" href="#finpilot-altyap-hzlandrma-yol-haritas" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Tarih:</strong> 2026-03 | <strong>Kapsam:</strong> DRL eğitim pipeline, veri besleme, inference, CI/CD
+<strong>Mevcut Durum:</strong> CPU-only, GitHub Codespaces devcontainer
+<strong>Hedef:</strong> Eğitim süresini 10-50x kısaltmak, Optuna HP-arama döngüsünü günlerden saatlere indirmek</p>
+</blockquote>
+<hr />
+<h2 id="1-mevcut-altyapi-profili">1. MEVCUT ALTYAPI PROFİLİ<a class="headerlink" href="#1-mevcut-altyapi-profili" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Parametre</th>
+<th>Mevcut Değer</th>
+<th>Not</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CPU</strong></td>
+<td>AMD Ryzen 7 7730U (16 thread)</td>
+<td>Mobil-sınıf, TDP 15-28W</td>
+</tr>
+<tr>
+<td><strong>RAM</strong></td>
+<td>16 GB (8 GB kullanılabilir)</td>
+<td>DevContainer sınırı</td>
+</tr>
+<tr>
+<td><strong>GPU</strong></td>
+<td>Yok (NVIDIA yok)</td>
+<td><code>torch.cuda.is_available() = False</code></td>
+</tr>
+<tr>
+<td><strong>Disk I/O</strong></td>
+<td>~199 MB/s (SSD/NVMe)</td>
+<td>Yeterli — darboğaz burada değil</td>
+</tr>
+<tr>
+<td><strong>PyTorch</strong></td>
+<td>2.10.0+cu128 (CUDA runtime var, GPU yok)</td>
+<td>Binary GPU-ready, donanım eksik</td>
+</tr>
+<tr>
+<td><strong>SB3</strong></td>
+<td>2.7.1</td>
+<td>Güncel</td>
+</tr>
+<tr>
+<td><strong>Docker Bellek Limiti</strong></td>
+<td>finpilot: 2 GB / scanner: sınırsız</td>
+<td>Eğitim için kısıtlayıcı</td>
+</tr>
+<tr>
+<td><strong>Ortam</strong></td>
+<td>DevContainer (Python 3.11, Debian 12)</td>
+<td>Overlay FS + volume mount</td>
+</tr>
+</tbody>
+</table>
+<h3 id="egitim-profil-ozeti-sprint-18-loglarndan">Eğitim Profil Özeti (Sprint-18 Loglarından)<a class="headerlink" href="#egitim-profil-ozeti-sprint-18-loglarndan" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Specialist</th>
+<th>Algo</th>
+<th>Adım</th>
+<th>Süre (CPU)</th>
+<th>Sharpe</th>
+<th>MaxDD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>momentum</td>
+<td>PPO</td>
+<td>500K-3M</td>
+<td>315-2605s</td>
+<td>0.047-0.052</td>
+<td>0.23-0.54</td>
+</tr>
+<tr>
+<td>trend</td>
+<td>PPO</td>
+<td>3M</td>
+<td>1804-2980s</td>
+<td>0.038-0.057</td>
+<td>0.36-0.47</td>
+</tr>
+<tr>
+<td>conservative</td>
+<td>PPO</td>
+<td>2-3M</td>
+<td>783-2310s</td>
+<td>0.012-0.017</td>
+<td>0.11-0.13</td>
+</tr>
+<tr>
+<td>aggressive</td>
+<td>PPO</td>
+<td>500K</td>
+<td>406s</td>
+<td>0.007</td>
+<td>0.52</td>
+</tr>
+<tr>
+<td>swing</td>
+<td>RPPO</td>
+<td>3M</td>
+<td>3941-12692s</td>
+<td>0.013-0.022</td>
+<td>0.22-0.49</td>
+</tr>
+<tr>
+<td>breakout</td>
+<td>PPO</td>
+<td>500K</td>
+<td>324s</td>
+<td>-0.125</td>
+<td>0.39</td>
+</tr>
+<tr>
+<td>scalper</td>
+<td>PPO</td>
+<td>1M</td>
+<td>929s</td>
+<td>-0.052</td>
+<td>0.09</td>
+</tr>
+<tr>
+<td>meanrev</td>
+<td>PPO</td>
+<td>500K</td>
+<td>355s</td>
+<td>0.014</td>
+<td>0.34</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Toplam 15 model = 33,148 saniye = 9.2 saat (CPU)</strong>
+<strong>Ortalama model başına = 2,210 saniye (37 dakika)</strong></p>
+<h3 id="tam-pipeline-projeksiyon-tahmin">Tam Pipeline Projeksiyon (Tahmin)<a class="headerlink" href="#tam-pipeline-projeksiyon-tahmin" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>10 specialist × 2-5M adım = ~25,000s = 6.9 saat (tek seferlik eğitim)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>10 specialist × 40 Optuna trial = ~1,000,000s = 278 saat = 11.6 gün
+</code></pre></div>
+<p><strong>→ Optuna ile tam HP arama 12 gün sürüyor. Bu ENGELLEYICI bir darboğaz.</strong></p>
+<hr />
+<h2 id="2-darbogaz-analizi">2. DARBOĞAZ ANALİZİ<a class="headerlink" href="#2-darbogaz-analizi" title="Permanent link">&para;</a></h2>
+<h3 id="kritik-darbogazlar-etkisi-5x">🔴 Kritik Darboğazlar (Etkisi &gt; 5x)<a class="headerlink" href="#kritik-darbogazlar-etkisi-5x" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Darboğaz</th>
+<th>Etki</th>
+<th>Kök Neden</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>D1</strong></td>
+<td><strong>GPU yokluğu</strong></td>
+<td>4-20x yavaşlık</td>
+<td>PyTorch tensor işlemleri CPU'da; policy ağı forward/backward pass GPU'dan faydalanamıyor</td>
+</tr>
+<tr>
+<td><strong>D2</strong></td>
+<td><strong>Tek ortam (DummyVecEnv×1)</strong></td>
+<td>2-8x kayıp</td>
+<td><code>_create_model()</code> yalnızca <code>DummyVecEnv([_make_env])</code> kullanıyor; paralel env yok</td>
+</tr>
+<tr>
+<td><strong>D3</strong></td>
+<td><strong>Seri specialist eğitimi</strong></td>
+<td>10x kayıp</td>
+<td>10 specialist sırayla eğitiliyor; bağımsız oldukları için paralel çalışabilirler</td>
+</tr>
+<tr>
+<td><strong>D4</strong></td>
+<td><strong>Optuna seri trial</strong></td>
+<td>40x kayıp</td>
+<td>Her deneme tam eğitim döngüsü; pruning kısıtlı, MedianPruner bile yok</td>
+</tr>
+</tbody>
+</table>
+<h3 id="orta-darbogazlar-etkisi-15-3x">🟡 Orta Darboğazlar (Etkisi 1.5-3x)<a class="headerlink" href="#orta-darbogazlar-etkisi-15-3x" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Darboğaz</th>
+<th>Etki</th>
+<th>Kök Neden</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>D5</strong></td>
+<td><strong>yfinance senkron veri çekimi</strong></td>
+<td>1.5-2x I/O bloğu</td>
+<td>Rate limiting + sıralı istek; warm-up süresi artıyor</td>
+</tr>
+<tr>
+<td><strong>D6</strong></td>
+<td><strong>RecurrentPPO LSTM overhead</strong></td>
+<td>3-5x (swing)</td>
+<td>LSTM policy 7.4 MB vs PPO 169 KB; sequential rollout zorunlu</td>
+</tr>
+<tr>
+<td><strong>D7</strong></td>
+<td><strong>VecFrameStack (n=4)</strong></td>
+<td>1.2-1.5x bellek</td>
+<td>obs_dim 20→80; gereksiz kopyalama, bellek baskısı</td>
+</tr>
+<tr>
+<td><strong>D8</strong></td>
+<td><strong>Sabit episode uzunluğu</strong></td>
+<td>1.1-1.3x</td>
+<td>Curriculum callback var ama episode truncation yok</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dusuk-etki-ama-kolay-duzeltme">🟢 Düşük Etki (Ama Kolay Düzeltme)<a class="headerlink" href="#dusuk-etki-ama-kolay-duzeltme" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Darboğaz</th>
+<th>Etki</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>D9</strong></td>
+<td>Docker bellek limiti (2 GB)</td>
+<td>Büyük model eğitimlerinde OOM riski</td>
+</tr>
+<tr>
+<td><strong>D10</strong></td>
+<td>Mixed precision kullanılmıyor</td>
+<td>FP32 default; FP16/BF16 ile %30-50 hızlanma potansiyeli</td>
+</tr>
+<tr>
+<td><strong>D11</strong></td>
+<td>Model checkpoint sıklığı</td>
+<td>Her eval'de save — disk I/O overhead</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-hizlandirma-secenekleri-karsilastirmasi">3. HIZLANDIRMA SEÇENEKLERİ KARŞILAŞTIRMASI<a class="headerlink" href="#3-hizlandirma-secenekleri-karsilastirmasi" title="Permanent link">&para;</a></h2>
+<h3 id="secenek-puanlama-matrisi-1-5-5en-iyi">Seçenek Puanlama Matrisi (1-5, 5=en iyi)<a class="headerlink" href="#secenek-puanlama-matrisi-1-5-5en-iyi" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Kriter</th>
+<th>A: Yerel GPU İstasyonu</th>
+<th>B: Bulut GPU (On-Demand)</th>
+<th>C: Hibrit (Burst-to-Cloud)</th>
+<th>D: Edge / Spot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Performans</strong></td>
+<td>⭐⭐⭐⭐⭐ (5)</td>
+<td>⭐⭐⭐⭐⭐ (5)</td>
+<td>⭐⭐⭐⭐ (4)</td>
+<td>⭐⭐⭐ (3)</td>
+</tr>
+<tr>
+<td><strong>Maliyet (Başlangıç)</strong></td>
+<td>⭐⭐ (2)</td>
+<td>⭐⭐⭐⭐⭐ (5)</td>
+<td>⭐⭐⭐⭐ (4)</td>
+<td>⭐⭐⭐⭐ (4)</td>
+</tr>
+<tr>
+<td><strong>Maliyet (1 Yıl)</strong></td>
+<td>⭐⭐⭐⭐ (4)</td>
+<td>⭐⭐ (2)</td>
+<td>⭐⭐⭐ (3)</td>
+<td>⭐⭐⭐⭐ (4)</td>
+</tr>
+<tr>
+<td><strong>Ölçeklenebilirlik</strong></td>
+<td>⭐⭐ (2)</td>
+<td>⭐⭐⭐⭐⭐ (5)</td>
+<td>⭐⭐⭐⭐⭐ (5)</td>
+<td>⭐⭐⭐⭐ (4)</td>
+</tr>
+<tr>
+<td><strong>Gizlilik</strong></td>
+<td>⭐⭐⭐⭐⭐ (5)</td>
+<td>⭐⭐⭐ (3)</td>
+<td>⭐⭐⭐⭐ (4)</td>
+<td>⭐⭐⭐ (3)</td>
+</tr>
+<tr>
+<td><strong>Operasyonel Karmaşıklık</strong></td>
+<td>⭐⭐⭐⭐ (4)</td>
+<td>⭐⭐⭐ (3)</td>
+<td>⭐⭐ (2)</td>
+<td>⭐⭐⭐ (3)</td>
+</tr>
+<tr>
+<td><strong>TOPLAM</strong></td>
+<td><strong>22/30</strong></td>
+<td><strong>23/30</strong></td>
+<td><strong>22/30</strong></td>
+<td><strong>21/30</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="detayl-gerekceler">Detaylı Gerekçeler<a class="headerlink" href="#detayl-gerekceler" title="Permanent link">&para;</a></h3>
+<h4 id="a-yerel-gpu-istasyonu-on-premise">A. Yerel GPU İstasyonu (On-Premise)<a class="headerlink" href="#a-yerel-gpu-istasyonu-on-premise" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Donanım Önerisi:
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  Bütçe:  RTX 4070 Ti (12 GB VRAM)   → $800
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  Orta:   RTX 4090 (24 GB VRAM)      → $1600
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  Yüksek: RTX 6000 Ada (48 GB VRAM)  → $6500
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Tahmini Hızlanma: 8-15x (SB3 PPO/SAC on single GPU)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Artı</th>
+<th>Eksi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅ Tek seferlik maliyet, süresiz kullanım</td>
+<td>❌ $800-6500 başlangıç yatırımı</td>
+</tr>
+<tr>
+<td>✅ Tam veri gizliliği (finansal veriler dışarı çıkmaz)</td>
+<td>❌ Bakım/güncelleme sorumluluğu</td>
+</tr>
+<tr>
+<td>✅ Sınırsız eğitim süresi, ek maliyet yok</td>
+<td>❌ Ölçekleme = yeni donanım satın alma</td>
+</tr>
+<tr>
+<td>✅ Düşük gecikme (yerel disk &amp; ağ)</td>
+<td>❌ Donanım eskimesi (2-3 yıl)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Uygunluk:</strong> Haftada 20+ saat eğitim yapılacaksa, 4-6 ayda geri ödeme.</p>
+<h4 id="b-bulut-gpu-on-demand">B. Bulut GPU (On-Demand)<a class="headerlink" href="#b-bulut-gpu-on-demand" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Platformlar &amp; Tahmini Fiyat:
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  Lambda Cloud  T4      → $0.50/saat
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  Vast.ai       A10G    → $0.30-0.50/saat
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  RunPod        A100    → $1.10-2.49/saat
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  AWS p3        V100    → $3.06/saat (on-demand)
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  GCP a2        A100    → $3.67/saat (on-demand)
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  Spot/Preemptible      → %60-80 indirimle
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>Tahmini Hızlanma: 4-20x (GPU tipine bağlı)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Artı</th>
+<th>Eksi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅ Sıfır başlangıç maliyeti</td>
+<td>❌ Kullandıkça öde — düzenli kullanımda pahalılanır</td>
+</tr>
+<tr>
+<td>✅ Farklı GPU tipleri denenebilir</td>
+<td>❌ Veri transferi gerekli (gizlilik endişesi)</td>
+</tr>
+<tr>
+<td>✅ Anında ölçekleme (10 GPU paralel)</td>
+<td>❌ Spot preemption riski (checkpoint gerekli)</td>
+</tr>
+<tr>
+<td>✅ Bakım yok, güncellemeler otomatik</td>
+<td>❌ Ağ gecikmesi, data egress maliyeti</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Uygunluk:</strong> Haftada &lt;10 saat eğitim veya HP arama sprint'leri için ideal.</p>
+<h4 id="c-hibrit-on-prem-burst-to-cloud">C. Hibrit (On-Prem + Burst-to-Cloud)<a class="headerlink" href="#c-hibrit-on-prem-burst-to-cloud" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Model: Rutin eğitim yerelde, Optuna/grid search burst&#39;leri bulutta
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  Yerel: RTX 4070 Ti (günlük iterasyon)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  Burst: Lambda/RunPod (HP arama kampanyaları, ayda 1-2 kez)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Artı</th>
+<th>Eksi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅ En iyi maliyet/performans dengesi</td>
+<td>❌ İki ortam yönetimi gerekli</td>
+</tr>
+<tr>
+<td>✅ Gizli veriler yerelde, HP arama bulutta</td>
+<td>❌ Ortam pariteleri tutturulmalı (Docker)</td>
+</tr>
+<tr>
+<td>✅ Burs'larda sınırsız ölçekleme</td>
+<td>❌ Data sync pipeline gerekli</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Uygunluk:</strong> Projenin şu anki ölçeği için en uygun seçenek.</p>
+<h4 id="d-edge-spot-budget">D. Edge / Spot (Budget)<a class="headerlink" href="#d-edge-spot-budget" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Platformlar:
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  GitHub Codespaces GPU (beta) → ~$0.36/saat (T4)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  Google Colab Pro+             → $49.99/ay (A100 sınırlı)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  Kaggle Notebooks              → Ücretsiz T4 (30 saat/hafta)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  Paperspace Gradient           → Ücretsiz GPU (sınırlı)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Artı</th>
+<th>Eksi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅ Düşük/sıfır maliyet</td>
+<td>❌ Sınırlı GPU süresi ve bellek</td>
+</tr>
+<tr>
+<td>✅ Hemen kullanılabilir, setup minimal</td>
+<td>❌ Preemption + session timeout</td>
+</tr>
+<tr>
+<td>✅ Deneme/prototip için mükemmel</td>
+<td>❌ Üretim workload'ları için güvenilmez</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Uygunluk:</strong> İlk GPU adaptasyonunu test etmek, tek model eğitimi için.</p>
+<h3 id="onerilen-strateji">📊 ÖNERİLEN STRATEJİ<a class="headerlink" href="#onerilen-strateji" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Kısa Vade (0-4 hafta):  D — Colab/Kaggle ile GPU adaptasyonu test et (SIFIR MALİYET)
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Orta Vade (1-3 ay):     B → C — RunPod/Lambda ile HP arama sprint&#39;leri
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Uzun Vade (3-12 ay):    C — Yerel GPU + Bulut burst hibrit model
+</code></pre></div>
+<hr />
+<h2 id="4-hizli-kazanimlar-quick-wins-1-4-hafta">4. HIZLI KAZANIMLAR (Quick Wins) — 1-4 Hafta<a class="headerlink" href="#4-hizli-kazanimlar-quick-wins-1-4-hafta" title="Permanent link">&para;</a></h2>
+<p>Sıfır veya düşük maliyetle uygulanabilen, koda dokunarak elde edilecek hızlanmalar:</p>
+<h3 id="qw-1-subprocessvecenv-ile-paralel-ortam-hzlanma-2-4x-sure-1-gun">QW-1: SubprocessVecEnv ile Paralel Ortam (Hızlanma: 2-4x | Süre: 1 gün)<a class="headerlink" href="#qw-1-subprocessvecenv-ile-paralel-ortam-hzlanma-2-4x-sure-1-gun" title="Permanent link">&para;</a></h3>
+<p><strong>Sorun:</strong> <code>DummyVecEnv([_make_env])</code> — tek ortam, tek thread.
+<strong>Çözüm:</strong> <code>SubprocessVecEnv</code> ile <code>n_envs=4-8</code> paralel ortam.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># drl/training.py — _create_model() içinde değişiklik</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># ÖNCE:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">vec_env</span> <span class="o">=</span> <span class="n">DummyVecEnv</span><span class="p">([</span><span class="n">_make_env</span><span class="p">])</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># SONRA:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">stable_baselines3.common.vec_env</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubprocessVecEnv</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">n_envs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">4</span><span class="p">)</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">vec_env</span> <span class="o">=</span> <span class="n">SubprocessVecEnv</span><span class="p">([</span><span class="n">_make_env</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_envs</span><span class="p">)])</span>
+</code></pre></div>
+<p><strong>Beklenen Etki:</strong>
+- 16 thread CPU → 8 paralel env → ~3-4x eğitim hızlanması
+- PPO n_steps toplama hızı doğrusal ölçeklenir
+- Bellek: ortam başına ~50 MB → 8 env ≈ 400 MB (kabul edilebilir)</p>
+<p><strong>Risk:</strong> Düşük. SB3 native destekli.</p>
+<hr />
+<h3 id="qw-2-optuna-pruning-paralel-trial-hzlanma-3-8x-sure-2-gun">QW-2: Optuna Pruning + Paralel Trial (Hızlanma: 3-8x | Süre: 2 gün)<a class="headerlink" href="#qw-2-optuna-pruning-paralel-trial-hzlanma-3-8x-sure-2-gun" title="Permanent link">&para;</a></h3>
+<p><strong>Sorun:</strong> 40 Optuna trial, hepsi tam süre çalışıyor. Kötü denemeler bile 3M step koşuyor.
+<strong>Çözüm:</strong> MedianPruner + SuccessiveHalvingPruner + paralel worker.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Optuna konfigürasyon önerisi</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">optuna</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">study</span> <span class="o">=</span> <span class="n">optuna</span><span class="o">.</span><span class="n">create_study</span><span class="p">(</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;maximize&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">pruner</span><span class="o">=</span><span class="n">optuna</span><span class="o">.</span><span class="n">pruners</span><span class="o">.</span><span class="n">SuccessiveHalvingPruner</span><span class="p">(</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="n">min_resource</span><span class="o">=</span><span class="mi">50_000</span><span class="p">,</span>      <span class="c1"># En az 50K step</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>       <span class="c1"># Her aşamada 1/3&#39;ü ele</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="n">min_early_stopping_rate</span><span class="o">=</span><span class="mi">0</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="p">),</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="n">sampler</span><span class="o">=</span><span class="n">optuna</span><span class="o">.</span><span class="n">samplers</span><span class="o">.</span><span class="n">TPESampler</span><span class="p">(</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>        <span class="n">n_startup_trials</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>      <span class="c1"># İlk 10 rastgele, sonra TPE</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        <span class="n">multivariate</span><span class="o">=</span><span class="kc">True</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="p">)</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="p">)</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="c1"># Trial içinde intermediate reporting:</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="c1"># Her 100K step&#39;te bir EvalCallback ile Sharpe raporla</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="c1"># Sharpe &lt; median ise trial pruned → %60-80 zaman tasarrufu</span>
+</code></pre></div>
+<p><strong>Beklenen Etki:</strong>
+- 40 trial'ın ~25-30'u erken kesilir → %60-75 zaman tasarrufu
+- Paralel 4 worker ile ek %75 tasarruf → kombine 10-15x hızlanma
+- 12 gün → 1-2 gün'e indirilir</p>
+<hr />
+<h3 id="qw-3-egitim-timestep-optimizasyonu-hzlanma-2-3x-sure-1-gun">QW-3: Eğitim Timestep Optimizasyonu (Hızlanma: 2-3x | Süre: 1 gün)<a class="headerlink" href="#qw-3-egitim-timestep-optimizasyonu-hzlanma-2-3x-sure-1-gun" title="Permanent link">&para;</a></h3>
+<p><strong>Sorun:</strong> Tüm modeller aynı timestep'te (500K-3M) ancak convergence görülmüyor.
+<strong>Çözüm:</strong> Erken durdurma (early stopping) + adaptif timestep.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">stable_baselines3.common.callbacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">StopTrainingOnNoModelImprovement</span><span class="p">,</span> <span class="n">EvalCallback</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">eval_callback</span> <span class="o">=</span> <span class="n">EvalCallback</span><span class="p">(</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">eval_env</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">eval_freq</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">n_eval_episodes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="n">best_model_save_path</span><span class="o">=</span><span class="s2">&quot;./best_model/&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">callback_after_eval</span><span class="o">=</span><span class="n">StopTrainingOnNoModelImprovement</span><span class="p">(</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        <span class="n">max_no_improvement_evals</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># 10 eval sonucu iyileşme yoksa dur</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        <span class="n">min_evals</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>                 <span class="c1"># En az 20 eval (200K step) sonra kontrol</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="p">)</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>Beklenen Etki:</strong>
+- Converge etmeyen modeller 200K-500K step'te durur (vs 3M)
+- conservative ve scalper gibi hızlı converge edenler erken biter
+- Ortalama %40-60 timestep tasarrufu</p>
+<hr />
+<h3 id="qw-4-deviceauto-gpu-destegi-ekleme-hzlanma-4-20x-sure-2-saat">QW-4: <code>device="auto"</code> GPU Desteği Ekleme (Hızlanma: 4-20x* | Süre: 2 saat)<a class="headerlink" href="#qw-4-deviceauto-gpu-destegi-ekleme-hzlanma-4-20x-sure-2-saat" title="Permanent link">&para;</a></h3>
+<p><strong>Sorun:</strong> SB3 model oluşturulurken <code>device</code> parametresi geçilmiyor → default CPU.
+<strong>Çözüm:</strong> <code>device="auto"</code> veya ortam değişkeninden okuma.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># drl/training.py — _create_model() içinde</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="n">model</span> <span class="o">=</span> <span class="n">PPO</span><span class="p">(</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="s2">&quot;MlpPolicy&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="n">vec_env</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>  <span class="c1"># ← BU SATIR EKLENMELİ</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">algo_config</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="o">**</span><span class="n">common</span><span class="p">,</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="o">**</span><span class="n">on_policy_extras</span><span class="p">,</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>Not:</strong> Bu değişiklik tek başına hızlanma sağlamaz (GPU olmadan), ama GPU eklendığında anında aktif olur. Hazırlık maliyeti 2 saat.</p>
+<hr />
+<h3 id="qw-5-veri-onbellekleme-data-caching-hzlanma-15-2x-io-sure-1-gun">QW-5: Veri Önbellekleme (Data Caching) (Hızlanma: 1.5-2x I/O | Süre: 1 gün)<a class="headerlink" href="#qw-5-veri-onbellekleme-data-caching-hzlanma-15-2x-io-sure-1-gun" title="Permanent link">&para;</a></h3>
+<p><strong>Sorun:</strong> yfinance her eğitimde aynı veriyi tekrar çekiyor. Rate limiting.
+<strong>Çözüm:</strong> Yerel parquet/feather cache.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">CACHE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/cache&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">CACHE_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">cached_fetch</span><span class="p">(</span><span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="n">cache_key</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">symbol</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    <span class="n">cache_path</span> <span class="o">=</span> <span class="n">CACHE_DIR</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cache_key</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    <span class="k">if</span> <span class="n">cache_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">cache_path</span><span class="p">)</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    <span class="n">df</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>    <span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">cache_path</span><span class="p">)</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>    <span class="k">return</span> <span class="n">df</span>
+</code></pre></div>
+<p><strong>Beklenen Etki:</strong>
+- İlk çekimden sonra I/O süresi ~0
+- Optuna trial'ları arası veri çekme eliminasyonu
+- Özellikle 40+ trial'da kümülatif tasarruf büyük</p>
+<hr />
+<h3 id="qw-6-mixed-precision-training-hzlanma-13-15x-sure-3-saat">QW-6: Mixed Precision Training (Hızlanma: 1.3-1.5x* | Süre: 3 saat)<a class="headerlink" href="#qw-6-mixed-precision-training-hzlanma-13-15x-sure-3-saat" title="Permanent link">&para;</a></h3>
+<p><strong>Sorun:</strong> Tüm eğitim FP32. Modern GPU'larda FP16/BF16 ile %30-50 hızlanma mümkün.
+<strong>Çözüm:</strong> PyTorch AMP (Automatic Mixed Precision).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># SB3 v2.x doğrudan mixed precision desteklemez,</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1"># ama custom policy ile eklenebilir:</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1"># Policy network&#39;ünde:</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">autocast</span><span class="p">(</span><span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="c1"># forward pass FP16&#39;da çalışır</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="o">...</span>
+</code></pre></div>
+<p><strong>Not:</strong> SB3'te entegrasyon custom wrapper gerektirir. GPU eklenince implementasyon yapılmalı.</p>
+<hr />
+<h3 id="quick-win-ozet-tablosu">Quick Win Özet Tablosu<a class="headerlink" href="#quick-win-ozet-tablosu" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Değişiklik</th>
+<th>Hızlanma</th>
+<th>Süre</th>
+<th>Maliyet</th>
+<th>Öncelik</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>QW-1</td>
+<td>SubprocessVecEnv (n=8)</td>
+<td>2-4x</td>
+<td>1 gün</td>
+<td>$0</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>QW-2</td>
+<td>Optuna Pruning + Paralel</td>
+<td>3-8x</td>
+<td>2 gün</td>
+<td>$0</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>QW-3</td>
+<td>Early Stopping Callback</td>
+<td>2-3x</td>
+<td>1 gün</td>
+<td>$0</td>
+<td>🔴 P0</td>
+</tr>
+<tr>
+<td>QW-4</td>
+<td>device="auto" GPU readiness</td>
+<td>4-20x*</td>
+<td>2 saat</td>
+<td>$0</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>QW-5</td>
+<td>Data caching (parquet)</td>
+<td>1.5-2x I/O</td>
+<td>1 gün</td>
+<td>$0</td>
+<td>🟡 P1</td>
+</tr>
+<tr>
+<td>QW-6</td>
+<td>Mixed Precision hazırlığı</td>
+<td>1.3-1.5x*</td>
+<td>3 saat</td>
+<td>$0</td>
+<td>🟢 P2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kombine etki (QW1-3): 12-96x hızlanma potansiyeli</strong>
+<em>* GPU bağımlı — GPU eklenince aktif olur</em></p>
+<hr />
+<h2 id="5-orta-ve-uzun-vadeli-yatirimlar">5. ORTA VE UZUN VADELİ YATIRIMLAR<a class="headerlink" href="#5-orta-ve-uzun-vadeli-yatirimlar" title="Permanent link">&para;</a></h2>
+<h3 id="51-orta-vade-1-3-ay">5.1 Orta Vade (1-3 Ay)<a class="headerlink" href="#51-orta-vade-1-3-ay" title="Permanent link">&para;</a></h3>
+<h4 id="ov-1-gpu-bulut-pipeline-runpodlambda">OV-1: GPU Bulut Pipeline (RunPod/Lambda)<a class="headerlink" href="#ov-1-gpu-bulut-pipeline-runpodlambda" title="Permanent link">&para;</a></h4>
+<p><strong>Adımlar:</strong>
+1. Docker image'ı CUDA-enabled olarak yeniden build
+2. Eğitim script'ini CLI parametreli hale getir
+3. RunPod serverless veya Lambda Cloud üzerinde eğitim çalıştır
+4. S3/GCS'ye model artifact sync</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># docker-compose.gpu.yml</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">trainer</span><span class="p">:</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nt">build</span><span class="p">:</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dockerfile.gpu</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">          </span><span class="nt">devices</span><span class="p">:</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">              </span><span class="nt">count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">              </span><span class="nt">capabilities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">gpu</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python -m drl.cli train --specialist momentum --steps 2M --device cuda</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./models:/app/models</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./data:/app/data</span>
+</code></pre></div>
+<p><strong>Beklenen ROI:</strong>
+- RunPod A10G: $0.40/saat → Tam pipeline eğitimi ≈ 1 saat → $0.40/eğitim
+- Optuna 40 trial: ~4-6 saat → $2-3/specialist
+- 10 specialist full HP: ~$20-30 per sweep</p>
+<hr />
+<h4 id="ov-2-paralel-specialist-egitimi">OV-2: Paralel Specialist Eğitimi<a class="headerlink" href="#ov-2-paralel-specialist-egitimi" title="Permanent link">&para;</a></h4>
+<p><strong>Sorun:</strong> 10 specialist sırayla eğitiliyor.
+<strong>Çözüm:</strong> <code>multiprocessing</code> veya <code>Ray</code> ile paralel eğitim.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Basit yaklaşım — concurrent.futures</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolExecutor</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">train_specialist</span><span class="p">(</span><span class="n">spec_name</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">trainer</span> <span class="o">=</span> <span class="n">WalkForwardTrainer</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">env</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">algo</span><span class="p">)</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="k">return</span> <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">splits</span><span class="p">)</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="n">futures</span> <span class="o">=</span> <span class="p">{</span><span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">train_specialist</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span> <span class="n">name</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>               <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">specialist_configs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">futures</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> tamamlandı: sharpe=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">sharpe_ratio</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Beklenen Etki:</strong>
+- 4 paralel worker → toplam süre %75 azalır
+- 16 CPU thread → 4 specialist × 4 env/specialist = dengeli kullanım
+- GPU'da: farklı specialist'leri sıra ile ama SubprocessVecEnv ile paralel</p>
+<hr />
+<h4 id="ov-3-offline-rl-data-pipeline-sac-replay-buffer">OV-3: Offline RL Data Pipeline (SAC Replay Buffer)<a class="headerlink" href="#ov-3-offline-rl-data-pipeline-sac-replay-buffer" title="Permanent link">&para;</a></h4>
+<p><strong>Sorun:</strong> On-policy (PPO) her defasında sıfırdan veri topluyor — veri verimsizliği.
+<strong>Çözüm:</strong> SAC/TD3 (off-policy) ile replay buffer + offline pre-fill.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Geçmiş eğitim verilerinden replay buffer doldur</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">stable_baselines3.common.buffers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReplayBuffer</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">buffer</span> <span class="o">=</span> <span class="n">ReplayBuffer</span><span class="p">(</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">buffer_size</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="n">observation_space</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="n">action_space</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="n">device</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="p">)</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="c1"># Geçmiş episode&#39;lardan buffer&#39;a yükle</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="n">historical_episodes</span><span class="p">:</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="k">for</span> <span class="n">transition</span> <span class="ow">in</span> <span class="n">episode</span><span class="p">:</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>        <span class="n">buffer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>            <span class="n">obs</span><span class="o">=</span><span class="n">transition</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>            <span class="n">next_obs</span><span class="o">=</span><span class="n">transition</span><span class="o">.</span><span class="n">next_obs</span><span class="p">,</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>            <span class="n">action</span><span class="o">=</span><span class="n">transition</span><span class="o">.</span><span class="n">action</span><span class="p">,</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>            <span class="n">reward</span><span class="o">=</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">,</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>            <span class="n">done</span><span class="o">=</span><span class="n">transition</span><span class="o">.</span><span class="n">done</span><span class="p">,</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>            <span class="n">infos</span><span class="o">=</span><span class="p">[</span><span class="n">transition</span><span class="o">.</span><span class="n">info</span><span class="p">]</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>        <span class="p">)</span>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="c1"># SAC replay buffer ile başlat</span>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="n">model</span> <span class="o">=</span> <span class="n">SAC</span><span class="p">(</span><span class="s2">&quot;MlpPolicy&quot;</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">replay_buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Beklenen Etki:</strong>
+- Sample efficiency 5-10x artış (off-policy advantage)
+- Aynı veri defalarca kullanılabilir → eğitim süresi %50-70 azalır</p>
+<hr />
+<h4 id="ov-4-feature-pipeline-vektorizasyonu">OV-4: Feature Pipeline Vektörizasyonu<a class="headerlink" href="#ov-4-feature-pipeline-vektorizasyonu" title="Permanent link">&para;</a></h4>
+<p><strong>Sorun:</strong> <code>calculate_technical_features()</code> pandas ile satır satır çalışıyor.
+<strong>Çözüm:</strong> NumPy/Numba ile vektörel hesaplama.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numba</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">fast_rsi</span><span class="p">(</span><span class="n">close</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mi">14</span><span class="p">):</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Numba-optimized RSI — 10-50x faster than pandas.&quot;&quot;&quot;</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">close</span><span class="p">)</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="n">rsi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    <span class="n">rsi</span><span class="p">[:</span><span class="n">period</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    <span class="n">gains</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="n">losses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>        <span class="n">delta</span> <span class="o">=</span> <span class="n">close</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">close</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>        <span class="n">gains</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>        <span class="n">losses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>    <span class="c1"># EMA smoothing...</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>    <span class="k">return</span> <span class="n">rsi</span>
+</code></pre></div>
+<hr />
+<h3 id="52-uzun-vade-3-12-ay">5.2 Uzun Vade (3-12 Ay)<a class="headerlink" href="#52-uzun-vade-3-12-ay" title="Permanent link">&para;</a></h3>
+<h4 id="uv-1-yerel-gpu-istasyonu-kurulumu">UV-1: Yerel GPU İstasyonu Kurulumu<a class="headerlink" href="#uv-1-yerel-gpu-istasyonu-kurulumu" title="Permanent link">&para;</a></h4>
+<p><strong>Donanım Önerisi:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Komponent</th>
+<th>Bütçe ($1200)</th>
+<th>Performans ($2500)</th>
+<th>Profesyonel ($5000)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU</td>
+<td>RTX 4070 Ti (12GB)</td>
+<td>RTX 4090 (24GB)</td>
+<td>RTX 6000 Ada (48GB)</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>Ryzen 7 7700 (8C/16T)</td>
+<td>Ryzen 9 7900X (12C/24T)</td>
+<td>Ryzen 9 7950X (16C/32T)</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>32 GB DDR5</td>
+<td>64 GB DDR5</td>
+<td>128 GB DDR5</td>
+</tr>
+<tr>
+<td>Disk</td>
+<td>1 TB NVMe</td>
+<td>2 TB NVMe</td>
+<td>2 TB NVMe RAID</td>
+</tr>
+<tr>
+<td>PSU</td>
+<td>750W 80+ Gold</td>
+<td>1000W 80+ Platinum</td>
+<td>1200W 80+ Platinum</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Geri Ödeme Analizi (Bütçe Paket: $1200):</strong>
+- Bulut alternatif: RunPod A10G $0.40/saat, haftalık 20 saat = $8/hafta = $416/yıl
+- Yerel 62 hafta (1.2 yıl) sonra kâra geçer
+- 2 yıllık toplam tasarruf: ~$400-600</p>
+<hr />
+<h4 id="uv-2-rayrllib-migrasyon">UV-2: Ray/RLlib Migrasyon<a class="headerlink" href="#uv-2-rayrllib-migrasyon" title="Permanent link">&para;</a></h4>
+<p><strong>Sorun:</strong> SB3 tek GPU, tek makine sınırlı.
+<strong>Çözüm:</strong> Ray RLlib ile dağıtık eğitim.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ray</span><span class="w"> </span><span class="kn">import</span> <span class="n">tune</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ray.rllib.algorithms.ppo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PPOConfig</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">config</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="n">PPOConfig</span><span class="p">()</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    <span class="o">.</span><span class="n">environment</span><span class="p">(</span><span class="s2">&quot;FinPilot-MarketEnv-v0&quot;</span><span class="p">)</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="o">.</span><span class="n">training</span><span class="p">(</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>        <span class="n">lr</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">),</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>        <span class="n">gamma</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.999</span><span class="p">),</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>        <span class="n">num_sgd_iter</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">]),</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>    <span class="p">)</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>    <span class="o">.</span><span class="n">rollouts</span><span class="p">(</span><span class="n">num_rollout_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>    <span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="p">)</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>    <span class="s2">&quot;PPO&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>    <span class="n">param_space</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>        <span class="n">num_samples</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>        <span class="n">scheduler</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">schedulers</span><span class="o">.</span><span class="n">ASHAScheduler</span><span class="p">(</span>
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>            <span class="n">max_t</span><span class="o">=</span><span class="mi">3_000_000</span><span class="p">,</span>
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>            <span class="n">grace_period</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span>
+<a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>            <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a>        <span class="p">),</span>
+<a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a>    <span class="p">),</span>
+<a id="__codelineno-16-27" name="__codelineno-16-27" href="#__codelineno-16-27"></a>    <span class="n">run_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+<a id="__codelineno-16-28" name="__codelineno-16-28" href="#__codelineno-16-28"></a>        <span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
+<a id="__codelineno-16-29" name="__codelineno-16-29" href="#__codelineno-16-29"></a>    <span class="p">),</span>
+<a id="__codelineno-16-30" name="__codelineno-16-30" href="#__codelineno-16-30"></a><span class="p">)</span>
+<a id="__codelineno-16-31" name="__codelineno-16-31" href="#__codelineno-16-31"></a><span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Beklenen Etki:</strong>
+- Multi-GPU ve multi-node scaling
+- Built-in ASHA scheduler (= Optuna pruning equivalent)
+- Paralel trial + paralel env + GPU = kombine 50-100x potansiyelli</p>
+<p><strong>Risk:</strong> Yüksek migrasyon maliyeti (SB3 → RLlib). 2-4 hafta geliştirme.</p>
+<hr />
+<h4 id="uv-3-onnx-runtime-tensorrt-inference">UV-3: ONNX Runtime / TensorRT Inference<a class="headerlink" href="#uv-3-onnx-runtime-tensorrt-inference" title="Permanent link">&para;</a></h4>
+<p><strong>Sorun:</strong> Inference latency production'da kritik.
+<strong>Çözüm:</strong> Eğitilmiş modeli ONNX'e çevir, TensorRT ile optimize et.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Model → ONNX export</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">model</span><span class="o">.</span><span class="n">policy</span><span class="p">,</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">dummy_input</span><span class="p">,</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="s2">&quot;model.onnx&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="n">opset_version</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;observation&quot;</span><span class="p">],</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    <span class="n">output_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">],</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="p">)</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1"># ONNX Runtime inference</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="kn">import</span><span class="w"> </span><span class="nn">onnxruntime</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ort</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="n">session</span> <span class="o">=</span> <span class="n">ort</span><span class="o">.</span><span class="n">InferenceSession</span><span class="p">(</span><span class="s2">&quot;model.onnx&quot;</span><span class="p">)</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="n">action</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;observation&quot;</span><span class="p">:</span> <span class="n">obs</span><span class="o">.</span><span class="n">numpy</span><span class="p">()})</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="c1"># → 2-5x inference speedup, CPU&#39;da bile</span>
+</code></pre></div>
+<hr />
+<h4 id="uv-4-cicd-training-pipeline">UV-4: CI/CD Training Pipeline<a class="headerlink" href="#uv-4-cicd-training-pipeline" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># .github/workflows/drl-train.yml</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DRL Training Pipeline</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="nt">on</span><span class="p">:</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">0&#39;</span><span class="w">  </span><span class="c1"># Her Pazar 02:00</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">      </span><span class="nt">specialist</span><span class="p">:</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Specialist</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">train&#39;</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">choice</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="w">        </span><span class="nt">options</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">momentum</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">trend</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">conservative</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">all</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="nt">jobs</span><span class="p">:</span>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="w">  </span><span class="nt">train</span><span class="p">:</span>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">self-hosted</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">gpu</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># veya RunPod ephemeral runner</span>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Train specialist</span>
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python -m drl.cli train --specialist ${{ inputs.specialist }}</span>
+<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload model</span>
+<a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v4</span>
+<a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a><span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model-${{ inputs.specialist }}</span>
+<a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">models/*.zip</span>
+</code></pre></div>
+<hr />
+<h2 id="6-maliyet-vs-fayda-analizi">6. MALİYET vs FAYDA ANALİZİ<a class="headerlink" href="#6-maliyet-vs-fayda-analizi" title="Permanent link">&para;</a></h2>
+<h3 id="senaryo-karslastrmas-12-aylk-projeksiyon">Senaryo Karşılaştırması (12 Aylık Projeksiyon)<a class="headerlink" href="#senaryo-karslastrmas-12-aylk-projeksiyon" title="Permanent link">&para;</a></h3>
+<h4 id="senaryo-a-sadece-quick-wins-yazlm-optimizasyonu">Senaryo A: Sadece Quick Wins (Yazılım Optimizasyonu)<a class="headerlink" href="#senaryo-a-sadece-quick-wins-yazlm-optimizasyonu" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>Maliyet:   $0 (sadece geliştirici zamanı, ~5 gün)
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>Hızlanma:  12-24x kombine (QW1 + QW2 + QW3)
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>Sonuç:
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>  • Tam pipeline: 6.9h → 20-35 dakika
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>  • Optuna full: 12 gün → 12-24 saat
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>  • HP arama döngüsü: haftalık yapılabilir hale gelir
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>Yıllık tasarruf: ~1000 geliştirici saati
+</code></pre></div>
+<h4 id="senaryo-b-quick-wins-bulut-gpu-sprint-tabanl">Senaryo B: Quick Wins + Bulut GPU (Sprint-Tabanlı)<a class="headerlink" href="#senaryo-b-quick-wins-bulut-gpu-sprint-tabanl" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>Maliyet:   ~$50-100/ay (ayda 2-3 HP arama sprint)
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>Hızlanma:  50-100x kombine
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>Sonuç:
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>  • Tam pipeline: 6.9h → 5-15 dakika (GPU)
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>  • Optuna full: 12 gün → 4-6 saat (GPU + pruning + paralel)
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>  • HP arama döngüsü: günlük yapılabilir
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>Yıllık maliyet: $600-1200
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>Yıllık tasarruf: ~2000 geliştirici saati
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>ROI: ~50-100x (zaman değerine göre)
+</code></pre></div>
+<h4 id="senaryo-c-quick-wins-yerel-gpu-uzun-vadeli">Senaryo C: Quick Wins + Yerel GPU (Uzun Vadeli)<a class="headerlink" href="#senaryo-c-quick-wins-yerel-gpu-uzun-vadeli" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Maliyet:   $1200 başlangıç + $50/yıl elektrik
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>Hızlanma:  30-60x kombine
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>Sonuç:
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>  • Tam pipeline: 6.9h → 10-20 dakika
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>  • Optuna full: 12 gün → 4-8 saat
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>  • Kâra geçiş: 12-18 ay (bulut alternativine göre)
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>Yıllık maliyet (sonra): ~$50 elektrik
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>Yıllık tasarruf: ~1800 geliştirici saati
+</code></pre></div>
+<h4 id="senaryo-d-full-stack-quick-wins-gpu-ray">Senaryo D: Full Stack (Quick Wins + GPU + Ray)<a class="headerlink" href="#senaryo-d-full-stack-quick-wins-gpu-ray" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>Maliyet:   $1200 GPU + $500 bulut burst (yılda 2-3 kez) + 4 hafta dev
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>Hızlanma:  100-200x
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>Sonuç:
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>  • Tam pipeline: 6.9h → 2-5 dakika
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>  • Optuna full: 12 gün → 1-2 saat
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>  • Yeni specialist ekleme: saatler → dakikalar
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>  • HP arama: otomatik haftalık CI job
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>Yıllık maliyet: ~$2000
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>Yıllık tasarruf: ~3000 geliştirici saati
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>ROI: ~75x
+</code></pre></div>
+<h3 id="maliyet-zaman-grafigi">📊 Maliyet-Zaman Grafiği<a class="headerlink" href="#maliyet-zaman-grafigi" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Hızlanma (x)
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    │
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>200 │                                          ★ D (Full Stack)
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    │
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>100 │                     ★ B (Bulut GPU)
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    │
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a> 50 │
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>    │              ★ C (Yerel GPU)
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a> 25 │
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>    │  ★ A (Quick Wins)
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a> 10 │
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>    │
+<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>  1 │● Mevcut Durum
+<a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>    └──────────────────────────────────────── Maliyet ($)
+<a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>    $0    $500    $1000   $1500   $2000   $2500
+</code></pre></div>
+<h3 id="onerilen-uygulama-sras">Önerilen Uygulama Sırası<a class="headerlink" href="#onerilen-uygulama-sras" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>HAFTA 1-2:    QW-1 + QW-3 (SubprocessVecEnv + Early Stopping)     → 4-12x    $0
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>HAFTA 2-3:    QW-2 (Optuna Pruning)                                → 3-8x     $0
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>HAFTA 3-4:    QW-4 + QW-5 (GPU readiness + Data cache)            → hazırlık  $0
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>              ─── Quick wins tamamlandı: 12-24x hızlanma ───
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>AY 2:         OV-1 (RunPod GPU pipeline)                           → +4-10x   $50
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>AY 2-3:       OV-2 (Paralel specialist eğitimi)                   → +2-4x    $0
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>AY 3:         OV-3 (SAC off-policy pilot)                          → +5-10x   $0
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>              ─── Orta vade tamamlandı: 50-100x hızlanma ───
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>AY 4-6:       UV-1 (Yerel GPU istasyonu, opsiyonel)               → sabit     $1200
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>AY 6-9:       UV-2 (Ray/RLlib migrasyon)                          → +2-5x    dev time
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>AY 9-12:      UV-4 (CI/CD Training Pipeline)                      → otomatik  $0
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>              ─── Uzun vade tamamlandı: 100-200x hızlanma ───
+</code></pre></div>
+<hr />
+<h2 id="7-oncelik-matrisi-impact-vs-effort">7. ÖNCELİK MATRİSİ (Impact vs Effort)<a class="headerlink" href="#7-oncelik-matrisi-impact-vs-effort" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>          YÜKSEK ETKİ
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>              │
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>    QW-2 ◆   │   ◆ OV-1 (Bulut GPU)
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>  (Pruning)   │   ◆ UV-2 (Ray)
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>              │
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>    QW-1 ◆   │   ◆ OV-2 (Paralel)
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>  (VecEnv)    │
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>              │
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    QW-3 ◆   │   ◆ OV-3 (SAC)
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>  (EarlyStop) │
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>──────────────┼──────────────────
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>    QW-4 ◆   │   ◆ UV-1 (Yerel GPU)
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>  (device)    │
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>              │
+<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a>    QW-5 ◆   │   ◆ UV-3 (ONNX)
+<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a>  (cache)     │
+<a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a>              │   ◆ UV-4 (CI/CD)
+<a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a>    QW-6 ◆   │
+<a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a>  (FP16)      │
+<a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a>              │
+<a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a>          DÜŞÜK ETKİ
+<a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a>    KOLAY ←───┼───→ ZOR
+</code></pre></div>
+<hr />
+<h2 id="8-sonuc-ve-tavsiyeler">8. SONUÇ VE TAVSİYELER<a class="headerlink" href="#8-sonuc-ve-tavsiyeler" title="Permanent link">&para;</a></h2>
+<h3 id="ilk-30-gun-eylem-plan">İlk 30 Gün Eylem Planı<a class="headerlink" href="#ilk-30-gun-eylem-plan" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Gün 1-2:</strong> <code>SubprocessVecEnv(n=8)</code> implementasyonu → ani 3-4x hızlanma</li>
+<li><strong>Gün 3-4:</strong> <code>StopTrainingOnNoModelImprovement</code> callback ekleme → %40-60 timestep tasarrufu</li>
+<li><strong>Gün 5-7:</strong> Optuna <code>SuccessiveHalvingPruner</code> + paralel worker → HP arama 12 gün → 1-2 gün</li>
+<li><strong>Gün 8:</strong> <code>device="auto"</code> tüm model oluşturuculara ekleme → GPU-ready</li>
+<li><strong>Gün 9-10:</strong> Parquet data cache implementasyonu → I/O eliminasyonu</li>
+<li><strong>Gün 11-14:</strong> Colab/Kaggle T4 ile ilk GPU eğitim testi → ek 4-5x</li>
+</ol>
+<p><strong>30 gün sonunda beklenen durum:</strong>
+- CPU-only hızlanma: <strong>12-24x</strong> (6.9 saat → 20-35 dakika)
+- GPU ile: <strong>50-100x</strong> (6.9 saat → 5-10 dakika)
+- Optuna: <strong>12 gün → 4-12 saat</strong></p>
+<h3 id="stratejik-notlar">Stratejik Notlar<a class="headerlink" href="#stratejik-notlar" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Model kalitesi &gt; hız.</strong> Sharpe 0.057 iken 100x hızlanma anlamsız. QW-3 (early stopping) ve OV-3 (SAC off-policy) model kalitesini de doğrudan etkiler.</li>
+<li><strong>Darboğazları sırayla kaldır.</strong> SubprocessVecEnv başarılı olunca GPU eklemenin etkisi daha büyük olur (Amdahl Yasası).</li>
+<li><strong>Bulut maliyetini kontrol altında tut.</strong> Spot/preemptible instance + checkpoint-resume gerekli.</li>
+<li><strong>Gizlilik öncelik.</strong> Finansal veri buluta gönderilecekse, şifrelenmiş transfer + ephemeral instance + no-log policy zorunlu.</li>
+</ol>
+<hr />
+<p><em>Bu yol haritası FinPilot projesinin 2026-03 itibarıyla mevcut durumuna göre hazırlanmıştır. Donanım fiyatları ve bulut ücretleri değişkenlik gösterebilir.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </article>
+            </div>
+
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+
+      </main>
+
+        <footer class="md-footer">
+
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+
+</div>
+
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+
+
+
+
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+
+
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+
+
+  </body>
+</html>

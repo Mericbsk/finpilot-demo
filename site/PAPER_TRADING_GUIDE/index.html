@@ -1,0 +1,2710 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <meta name="description" content="AI-powered stock analysis platform with DRL agents">
+
+
+
+
+        <link rel="prev" href="../DEMO_TO_REAL_ROADMAP/">
+
+
+        <link rel="next" href="../OLLAMA_SETUP/">
+
+
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+
+
+
+        <title>Paper Trading Guide - FinPilot Documentation</title>
+
+
+
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+
+
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+
+
+
+
+
+
+
+
+
+
+
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+
+
+
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+
+
+
+
+
+
+  </head>
+
+
+
+
+
+
+
+
+
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="teal">
+
+
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+
+
+        <a href="#paper-trading-sistemi" class="md-skip">
+          Skip to content
+        </a>
+
+    </div>
+    <div data-md-component="announce">
+
+    </div>
+
+
+
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FinPilot Documentation" class="md-header__button md-logo" aria-label="FinPilot Documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FinPilot Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+
+              Paper Trading Guide
+
+          </span>
+        </div>
+      </div>
+    </div>
+
+
+        <form class="md-header__option" data-md-component="palette">
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+</form>
+
+
+
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+
+
+
+
+
+        <label class="md-header__button md-icon" for="__search">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      <div class="md-header__source">
+        <a href="https://github.com/finpilot/borsa" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    finpilot/borsa
+  </div>
+</a>
+      </div>
+
+  </nav>
+
+</header>
+
+    <div class="md-container" data-md-component="container">
+
+
+
+
+
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+
+
+
+  Home
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../CORE_MIGRATION_GUIDE/" class="md-tabs__link">
+
+
+
+  Architecture
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../ACADEMIC_DRL_ANALYSIS/" class="md-tabs__link">
+
+
+
+  DRL & ML
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../DEMO_DEPLOYMENT/" class="md-tabs__link">
+
+
+
+  Deployment
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../FINANCIAL_AGENT_GUIDE/" class="md-tabs__link">
+
+
+
+  Guides
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../FULL_AUDIT_REPORT/" class="md-tabs__link">
+
+
+
+  Analysis & Reports
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../ROADMAP_Q1_2025/" class="md-tabs__link">
+
+
+
+  Roadmaps
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../etl_sprint2/" class="md-tabs__link">
+
+
+
+  Sprints
+
+        </a>
+      </li>
+
+
+
+
+    </ul>
+  </div>
+</nav>
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+
+
+
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FinPilot Documentation" class="md-nav__button md-logo" aria-label="FinPilot Documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FinPilot Documentation
+  </label>
+
+    <div class="md-nav__source">
+      <a href="https://github.com/finpilot/borsa" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    finpilot/borsa
+  </div>
+</a>
+    </div>
+
+  <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+
+
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Home
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Overview
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEPENDENCIES/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Dependencies
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_EVOLUTION_TIMELINE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Evolution Timeline
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+
+
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Architecture
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CORE_MIGRATION_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Core Migration Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../INTEGRATION_PLAN/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Integration Plan
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../INFRASTRUCTURE_ACCELERATION_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Infrastructure Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../GAP_ANALYSIS_REPORT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Gap Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../gap_analysis_v3/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Gap Analysis v3
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+
+
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    DRL & ML
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            DRL & ML
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ACADEMIC_DRL_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Academic Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_COMPREHENSIVE_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Comprehensive Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_AGENT_ANALYSIS/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Agent Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_IMPROVEMENT_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Improvement Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_PARALLEL_TESTING_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Parallel Testing Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DRL_WORKFLOW_ALTERNATIF/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Workflow Alternatives
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_entegrasyon_degerlendirme/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Entegrasyon Değerlendirme
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_next_steps/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Next Steps
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drl_sprint1_completion_report/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Sprint 1 Report
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../trend_agent_sprint23/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Trend Agent (Sprint 23)
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../zscore_calibration/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Z-Score Calibration
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+
+
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    Deployment
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Deployment
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEMO_DEPLOYMENT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Demo Deployment
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DEMO_TO_REAL_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Demo to Real Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+
+
+
+
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+
+  <span class="md-ellipsis">
+    Paper Trading Guide
+
+  </span>
+
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+
+      <a href="./" class="md-nav__link md-nav__link--active">
+
+
+
+  <span class="md-ellipsis">
+    Paper Trading Guide
+
+  </span>
+
+
+      </a>
+
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#genel-baks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Genel Bakış
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#hzl-baslangc" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Hızlı Başlangıç
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="🚀 Hızlı Başlangıç">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#1-ilk-calstrma-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. İlk Çalıştırma (Manual)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#2-otomatik-calstrma-cron-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Otomatik Çalıştırma (Cron Job)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#dosya-yaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      📁 Dosya Yapısı
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#metrikler" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Metrikler
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="📊 Metrikler">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#temel-metrikler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Temel Metrikler:
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#karslastrma" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karşılaştırma:
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#kullanm-senaryolar" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Kullanım Senaryoları
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="🎯 Kullanım Senaryoları">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#senaryo-1-gunluk-takip-onerilen" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo 1: Günlük Takip (Önerilen)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-2-backtest-simulasyonu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo 2: Backtest Simülasyonu
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-3-multi-symbol-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo 3: Multi-Symbol Test
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#performans-kriterleri" class="md-nav__link">
+    <span class="md-ellipsis">
+      📈 Performans Kriterleri
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="📈 Performans Kriterleri">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#production-ready-kriterleri" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Production-Ready Kriterleri:
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#uyar-sinyalleri" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ Uyarı Sinyalleri:
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ozellestirme" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Özelleştirme
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="🔧 Özelleştirme">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#sermaye-degistirme" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sermaye Değiştirme:
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pozisyon-sizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pozisyon Sizing:
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#model-degistirme" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model Değiştirme:
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ornek-ckt" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Örnek Çıktı
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Troubleshooting
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="🐛 Troubleshooting">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#problem-gunluk-scan-calsmyor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem: Günlük scan çalışmıyor
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#problem-model-yuklenemiyor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem: Model yüklenemiyor
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#problem-veri-cekemiyor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem: Veri çekemiyor
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ilgili-dosyalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 İlgili Dosyalar
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#sonraki-admlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎓 Sonraki Adımlar
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../OLLAMA_SETUP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Ollama Setup
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+
+
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Guides
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINANCIAL_AGENT_GUIDE/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Financial Agent Guide
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINANCIAL_AGENT_QUICKSTART/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Financial Agent Quickstart
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../finpilot_effort_summary/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Effort Summary
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+
+
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Analysis & Reports
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Analysis & Reports
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FULL_AUDIT_REPORT/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Full Audit Report
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CRITICAL_ISSUES_DETAILED/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Critical Issues
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../CRITICAL_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Critical Roadmap
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_PROFESSIONAL_ANALYSIS_2025/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Professional Analysis 2025
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../FINPILOT_PROFESSIONAL_ANALYSIS_JAN2026/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Professional Analysis Jan 2026
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../PROJECT_ANALYSIS_PROFESSIONAL/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Project Analysis
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../DGX_SPARK_EVALUATION/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    DGX Spark Evaluation
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../HIBE_FON_DEGERLENDIRME/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Hibe/Fon Değerlendirme
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+
+
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Roadmaps
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Roadmaps
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ROADMAP_Q1_2025/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Q1 2025
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../UI_UX_APPLE_STYLE_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    UI/UX Apple Style
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../TRIO_IMPROVEMENT_ROADMAP/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Trio Improvement
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../linkedin_content_strategy/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    LinkedIn Strategy
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+
+
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+    Sprints
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Sprints
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../etl_sprint2/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    ETL Sprint 2
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_sprint3/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Sprint 3
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_store_sprint4/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Store Sprint 4
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../feature_importance_sprint5/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Feature Importance Sprint 5
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../observability_sprint5/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    Observability Sprint 5
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#genel-baks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Genel Bakış
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#hzl-baslangc" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Hızlı Başlangıç
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="🚀 Hızlı Başlangıç">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#1-ilk-calstrma-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. İlk Çalıştırma (Manual)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#2-otomatik-calstrma-cron-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Otomatik Çalıştırma (Cron Job)
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#dosya-yaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      📁 Dosya Yapısı
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#metrikler" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Metrikler
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="📊 Metrikler">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#temel-metrikler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Temel Metrikler:
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#karslastrma" class="md-nav__link">
+    <span class="md-ellipsis">
+      Karşılaştırma:
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#kullanm-senaryolar" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Kullanım Senaryoları
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="🎯 Kullanım Senaryoları">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#senaryo-1-gunluk-takip-onerilen" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo 1: Günlük Takip (Önerilen)
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-2-backtest-simulasyonu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo 2: Backtest Simülasyonu
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#senaryo-3-multi-symbol-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      Senaryo 3: Multi-Symbol Test
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#performans-kriterleri" class="md-nav__link">
+    <span class="md-ellipsis">
+      📈 Performans Kriterleri
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="📈 Performans Kriterleri">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#production-ready-kriterleri" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Production-Ready Kriterleri:
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#uyar-sinyalleri" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ Uyarı Sinyalleri:
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ozellestirme" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Özelleştirme
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="🔧 Özelleştirme">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#sermaye-degistirme" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sermaye Değiştirme:
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pozisyon-sizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pozisyon Sizing:
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#model-degistirme" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model Değiştirme:
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ornek-ckt" class="md-nav__link">
+    <span class="md-ellipsis">
+      📊 Örnek Çıktı
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Troubleshooting
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="🐛 Troubleshooting">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#problem-gunluk-scan-calsmyor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem: Günlük scan çalışmıyor
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#problem-model-yuklenemiyor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem: Model yüklenemiyor
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#problem-veri-cekemiyor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem: Veri çekemiyor
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ilgili-dosyalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 İlgili Dosyalar
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#sonraki-admlar" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎓 Sonraki Adımlar
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+
+
+
+
+
+
+
+
+<h1 id="paper-trading-sistemi">📊 Paper Trading Sistemi<a class="headerlink" href="#paper-trading-sistemi" title="Permanent link">&para;</a></h1>
+<h2 id="genel-baks">Genel Bakış<a class="headerlink" href="#genel-baks" title="Permanent link">&para;</a></h2>
+<p>Bu sistem Scanner, DRL ve Hybrid stratejilerini gerçek zamanlı olarak test eder.
+Sanal $10,000 sermaye ile performans karşılaştırması yapar.</p>
+<hr />
+<h2 id="hzl-baslangc">🚀 Hızlı Başlangıç<a class="headerlink" href="#hzl-baslangc" title="Permanent link">&para;</a></h2>
+<h3 id="1-ilk-calstrma-manual">1. İlk Çalıştırma (Manual)<a class="headerlink" href="#1-ilk-calstrma-manual" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Günlük scan</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>scripts/daily_paper_trading.py
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Haftalık rapor</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python<span class="w"> </span>scripts/weekly_paper_trading_report.py
+</code></pre></div>
+<h3 id="2-otomatik-calstrma-cron-job">2. Otomatik Çalıştırma (Cron Job)<a class="headerlink" href="#2-otomatik-calstrma-cron-job" title="Permanent link">&para;</a></h3>
+<p><strong>Linux/Mac:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Crontab düzenle</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>crontab<span class="w"> </span>-e
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Her gün piyasa kapanışında (17:00)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="m">0</span><span class="w"> </span><span class="m">17</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="m">1</span>-5<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/workspaces/Borsa<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>scripts/daily_paper_trading.py<span class="w"> </span>&gt;&gt;<span class="w"> </span>logs/paper_trading/cron.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Her Pazar rapor</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="m">0</span><span class="w"> </span><span class="m">20</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/workspaces/Borsa<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>scripts/weekly_paper_trading_report.py<span class="w"> </span>&gt;&gt;<span class="w"> </span>logs/paper_trading/report.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</code></pre></div>
+<p><strong>Windows (Task Scheduler):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c"># daily_paper_trading.bat oluştur</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">@echo</span> <span class="n">off</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">cd </span><span class="n">C</span><span class="p">:\</span><span class="n">path</span><span class="p">\</span><span class="n">to</span><span class="p">\</span><span class="n">Borsa</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">python</span> <span class="n">scripts</span><span class="p">\</span><span class="n">daily_paper_trading</span><span class="p">.</span><span class="n">py</span>
+</code></pre></div>
+<hr />
+<h2 id="dosya-yaps">📁 Dosya Yapısı<a class="headerlink" href="#dosya-yaps" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>logs/paper_trading/
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── state.json              # Güncel portföy durumu
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>├── daily_results.json      # Tüm günlük sonuçlar
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>├── weekly_chart.png        # Performans grafiği
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>├── cron.log               # Cron job logları
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>└── report.log             # Rapor logları
+</code></pre></div>
+<hr />
+<h2 id="metrikler">📊 Metrikler<a class="headerlink" href="#metrikler" title="Permanent link">&para;</a></h2>
+<h3 id="temel-metrikler">Temel Metrikler:<a class="headerlink" href="#temel-metrikler" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Total Return %</strong>: Toplam getiri</li>
+<li><strong>Sharpe Ratio</strong>: Risk-adjusted return</li>
+<li><strong>Max Drawdown %</strong>: En büyük düşüş</li>
+<li><strong>Win Rate %</strong>: Kazanan trade oranı</li>
+<li><strong>Total Trades</strong>: Toplam işlem sayısı</li>
+</ul>
+<h3 id="karslastrma">Karşılaştırma:<a class="headerlink" href="#karslastrma" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Scanner</strong>: Kural-tabanlı teknik analiz</li>
+<li><strong>DRL</strong>: Deep reinforcement learning</li>
+<li><strong>Hybrid</strong>: Scanner + DRL (60/40 ağırlık)</li>
+</ul>
+<hr />
+<h2 id="kullanm-senaryolar">🎯 Kullanım Senaryoları<a class="headerlink" href="#kullanm-senaryolar" title="Permanent link">&para;</a></h2>
+<h3 id="senaryo-1-gunluk-takip-onerilen">Senaryo 1: Günlük Takip (Önerilen)<a class="headerlink" href="#senaryo-1-gunluk-takip-onerilen" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Her gün</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>python<span class="w"> </span>scripts/daily_paper_trading.py
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Haftalık kontrol</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>python<span class="w"> </span>scripts/weekly_paper_trading_report.py
+</code></pre></div>
+<p><strong>Beklenen:</strong>
+- 1 hafta → İlk trendler
+- 1 ay → İstatistiksel anlamlılık
+- 3 ay → Production kararı</p>
+<h3 id="senaryo-2-backtest-simulasyonu">Senaryo 2: Backtest Simülasyonu<a class="headerlink" href="#senaryo-2-backtest-simulasyonu" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Geçmiş tarihleri test et</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># (manual olarak test_date parametresi değiştir)</span>
+</code></pre></div>
+<h3 id="senaryo-3-multi-symbol-test">Senaryo 3: Multi-Symbol Test<a class="headerlink" href="#senaryo-3-multi-symbol-test" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># SYMBOLS listesini genişlet</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1"># scripts/daily_paper_trading.py içinde</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nv">SYMBOLS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;AAPL&quot;</span>,<span class="w"> </span><span class="s2">&quot;MSFT&quot;</span>,<span class="w"> </span><span class="s2">&quot;GOOGL&quot;</span>,<span class="w"> </span><span class="s2">&quot;TSLA&quot;</span>,<span class="w"> </span><span class="s2">&quot;NVDA&quot;</span>,<span class="w"> </span><span class="s2">&quot;META&quot;</span>,<span class="w"> </span><span class="s2">&quot;AMZN&quot;</span><span class="o">]</span>
+</code></pre></div>
+<hr />
+<h2 id="performans-kriterleri">📈 Performans Kriterleri<a class="headerlink" href="#performans-kriterleri" title="Permanent link">&para;</a></h2>
+<h3 id="production-ready-kriterleri">✅ Production-Ready Kriterleri:<a class="headerlink" href="#production-ready-kriterleri" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>DRL Total Return &gt; Scanner + 20%
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>DRL Sharpe Ratio &gt; 1.5
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>DRL Max Drawdown &lt; Scanner * 0.8
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>Win Rate &gt; 60%
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>Test Period ≥ 3 months
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>Statistical Significance: p &lt; 0.05
+</code></pre></div>
+<h3 id="uyar-sinyalleri">⚠️ Uyarı Sinyalleri:<a class="headerlink" href="#uyar-sinyalleri" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Consecutive Losses &gt; 5
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Max Drawdown &gt; 25%
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Sharpe Ratio &lt; 0.5
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>Win Rate &lt; 45%
+</code></pre></div>
+<hr />
+<h2 id="ozellestirme">🔧 Özelleştirme<a class="headerlink" href="#ozellestirme" title="Permanent link">&para;</a></h2>
+<h3 id="sermaye-degistirme">Sermaye Değiştirme:<a class="headerlink" href="#sermaye-degistirme" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># scripts/daily_paper_trading.py içinde</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">engines</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">&quot;Scanner&quot;</span><span class="p">:</span> <span class="n">PaperTradingEngine</span><span class="p">(</span><span class="mi">50000</span><span class="p">,</span> <span class="s2">&quot;scanner&quot;</span><span class="p">),</span>  <span class="c1"># $50K</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="s2">&quot;DRL&quot;</span><span class="p">:</span> <span class="n">PaperTradingEngine</span><span class="p">(</span><span class="mi">50000</span><span class="p">,</span> <span class="s2">&quot;drl&quot;</span><span class="p">),</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="pozisyon-sizing">Pozisyon Sizing:<a class="headerlink" href="#pozisyon-sizing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># paper_trading.py içinde</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">position_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capital</span> <span class="o">*</span> <span class="mf">0.2</span>  <span class="c1"># %20 yerine %10</span>
+</code></pre></div>
+<h3 id="model-degistirme">Model Değiştirme:<a class="headerlink" href="#model-degistirme" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Başka model kullan</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">PPO</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;models/ppo_production_20260217_165440.zip&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="ornek-ckt">📊 Örnek Çıktı<a class="headerlink" href="#ornek-ckt" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>📊 HAFTALIK PAPER TRADING RAPORU
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>═══════════════════════════════════════════════════════════════════
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>🎯 Scanner:
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>   Total Return:    +2.34%
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>   Sharpe Ratio:    1.12
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>   Max Drawdown:    -3.45%
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>   Win Rate:        58%
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>   Total Trades:    12
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>   Final Capital:   $10,234
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>🎯 DRL:
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>   Total Return:    +3.87%
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>   Sharpe Ratio:    1.65
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>   Max Drawdown:    -2.11%
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>   Win Rate:        67%
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>   Total Trades:    8
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>   Final Capital:   $10,387
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>🎯 Hybrid:
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>   Total Return:    +3.21%
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>   Sharpe Ratio:    1.48
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>   Max Drawdown:    -2.67%
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>   Win Rate:        62%
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>   Total Trades:    10
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>   Final Capital:   $10,321
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>
+<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>🏆 KARŞILAŞTIRMA
+<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>═══════════════════════════════════════════════════════════════════
+<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>
+<a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a>   En İyi Return:    DRL (+3.87%)
+<a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a>   En İyi Sharpe:    DRL (1.65)
+<a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a>   En İyi DD:        DRL (-2.11%)
+<a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a>
+<a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a>🎯 SONUÇ: 🟢 DRL ÜSTÜN
+</code></pre></div>
+<hr />
+<h2 id="troubleshooting">🐛 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-gunluk-scan-calsmyor">Problem: Günlük scan çalışmıyor<a class="headerlink" href="#problem-gunluk-scan-calsmyor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Log kontrol</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>cat<span class="w"> </span>logs/paper_trading/cron.log
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Manuel çalıştır</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>python<span class="w"> </span>scripts/daily_paper_trading.py
+</code></pre></div>
+<h3 id="problem-model-yuklenemiyor">Problem: Model yüklenemiyor<a class="headerlink" href="#problem-model-yuklenemiyor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Model path kontrol</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>ls<span class="w"> </span>-lh<span class="w"> </span>models/ppo_balanced_*.zip
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># paper_trading.py içinde path güncelle</span>
+</code></pre></div>
+<h3 id="problem-veri-cekemiyor">Problem: Veri çekemiyor<a class="headerlink" href="#problem-veri-cekemiyor" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># İnternet kontrolü</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="c1"># yfinance version kontrolü</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>pip<span class="w"> </span>list<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>yfinance
+</code></pre></div>
+<hr />
+<h2 id="ilgili-dosyalar">📚 İlgili Dosyalar<a class="headerlink" href="#ilgili-dosyalar" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>paper_trading.py</code> - Ana engine</li>
+<li><code>scripts/daily_paper_trading.py</code> - Günlük scan</li>
+<li><code>scripts/weekly_paper_trading_report.py</code> - Haftalık rapor</li>
+<li><code>docs/DRL_WORKFLOW_ALTERNATIF.md</code> - DRL workflow</li>
+<li><code>docs/DRL_COMPREHENSIVE_ANALYSIS.md</code> - Detaylı analiz</li>
+</ul>
+<hr />
+<h2 id="sonraki-admlar">🎓 Sonraki Adımlar<a class="headerlink" href="#sonraki-admlar" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Hafta 1</strong>: Günlük scan çalıştır, sonuçları izle</li>
+<li><strong>Hafta 2-4</strong>: Trendleri analiz et, model iyileştir</li>
+<li><strong>Ay 2-3</strong>: İstatistiksel significance test</li>
+<li><strong>Ay 4+</strong>: Production deployment kararı</li>
+</ol>
+<hr />
+<p><strong>Oluşturulma:</strong> 2026-02-17<br />
+<strong>Versiyon:</strong> 1.0<br />
+<strong>Durum:</strong> ✅ Production-ready</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </article>
+            </div>
+
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+
+      </main>
+
+        <footer class="md-footer">
+
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+
+
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+
+</div>
+
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+
+
+
+
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+
+
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+
+
+  </body>
+</html>
