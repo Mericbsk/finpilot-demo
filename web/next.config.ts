@@ -34,15 +34,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async rewrites() {
-    const apiHost = process.env.API_HOST || "http://localhost:8000";
-    return [
-      {
-        source: "/py-api/:path*",
-        destination: `${apiHost}/api/v1/:path*`,
-      },
-    ];
-  },
+  // NOTE: /py-api/* proxying is handled at runtime by
+  // src/app/py-api/[...path]/route.ts so that API_HOST is read
+  // at request time instead of being frozen into the routes manifest
+  // at build time (which caused ECONNREFUSED in Docker).
 };
 
 export default nextConfig;

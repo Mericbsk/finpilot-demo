@@ -14,7 +14,7 @@ from typing import Any
 
 import pandas as pd
 
-from .config import get_setting
+from .config import DELISTED_SYMBOLS_SET, get_setting
 from .data_fetcher import (
     fetch_multi_timeframe,
     prefetch_symbols_multi_timeframe,
@@ -96,14 +96,24 @@ def evaluate_symbol(
             df_4h = data.get("4h", pd.DataFrame())
             df_1d = data.get("1d", pd.DataFrame())
 
-        if len(df_15m) < 30 or len(df_1h) < 20 or len(df_4h) < 30 or len(df_1d) < 200:
+        # Hard minimum: need at least some data to evaluate
+        if len(df_15m) < 15 or len(df_1h) < 10 or len(df_4h) < 15 or len(df_1d) < 50:
             return None
+
+        # Track whether we have enough history for high-quality signals
+        _has_full_history = len(df_1d) >= 200
 
         # Stage 1: TREND FILTER (Daily)
         try:
             c_daily = safe_float(df_1d["Close"].iloc[-1])
-            e200_daily = safe_float(df_1d["ema200"].iloc[-1])
-            e50_daily = safe_float(df_1d["ema50"].iloc[-1])
+            # Use ema200 only when 200 bars available, else fall back to ema50
+            if _has_full_history and "ema200" in df_1d.columns:
+                e200_daily = safe_float(df_1d["ema200"].iloc[-1])
+            else:
+                e200_daily = (
+                    safe_float(df_1d["ema50"].iloc[-1]) if "ema50" in df_1d.columns else c_daily
+                )
+            e50_daily = safe_float(df_1d["ema50"].iloc[-1]) if "ema50" in df_1d.columns else c_daily
             regime = c_daily > e200_daily
             direction = c_daily > e50_daily
         except Exception:
@@ -193,7 +203,8 @@ def evaluate_symbol(
         entry_ok = bool(score == 3 or score == 2 and mtf_ok) if core_signal else False
 
         is_premium_symbol = symbol in ["SPY", "QQQ", "GOOGL", "NVDA", "AAPL", "MSFT"]
-        high_quality_signal = entry_ok
+        # Downgrade to non-high-quality if we didn't have 200 days of history
+        high_quality_signal = entry_ok and _has_full_history
 
         try:
             price_ok = safe_float(df_1d["Close"].iloc[-1]) >= get_setting("min_price", 2.0)
@@ -304,6 +315,13 @@ def evaluate_symbols_parallel(
     use_prefetch: bool = True,
 ) -> list[dict[str, Any]]:
     """Evaluate multiple symbols in parallel with optimized data fetching."""
+    # Filter known-delisted / acquired symbols to eliminate yfinance "No data" noise
+    before = len(symbols)
+    symbols = [s for s in symbols if s.upper() not in DELISTED_SYMBOLS_SET]
+    removed = before - len(symbols)
+    if removed:
+        logger.info("Delisted filter: skipped %d symbol(s) from scan", removed)
+
     results: list[dict[str, Any]] = []
     total = len(symbols)
 

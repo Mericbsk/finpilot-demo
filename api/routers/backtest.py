@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
+
+from api.middleware.auth import require_auth
 
 router = APIRouter(tags=["backtest"])
 
@@ -26,7 +28,7 @@ class BacktestRequest(BaseModel):
     take_profit_pct: float = Field(15, ge=1, le=100)
 
 
-@router.post("/backtest")
+@router.post("/backtest", dependencies=[Depends(require_auth)])
 def run_backtest(req: BacktestRequest):
     """Run a real backtest using core.backtest engine + Yahoo Finance data."""
     import pandas as pd

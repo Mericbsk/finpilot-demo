@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sqlite3
 from abc import ABC, abstractmethod
 from collections.abc import Generator
@@ -44,8 +45,8 @@ class Database:
         ...     users = cursor.fetchall()
     """
 
-    def __init__(self, db_path: str = "data/finpilot.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str | None = None):
+        self.db_path = db_path or os.getenv("FINPILOT_DB_PATH", "data/finpilot.db")
         self._ensure_directory()
 
     def _ensure_directory(self) -> None:

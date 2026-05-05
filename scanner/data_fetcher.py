@@ -114,18 +114,44 @@ def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
         except Exception:
             pass  # fast_info check is best-effort
 
-        df = tkr.history(
-            period=yf_period,
-            interval=yf_interval,
-            auto_adjust=SETTINGS.get("auto_adjust", True),
-            prepost=SETTINGS.get("prepost", False),
-            actions=False,
-            back_adjust=False,
-        )
+        try:
+            df = tkr.history(
+                period=yf_period,
+                interval=yf_interval,
+                auto_adjust=SETTINGS.get("auto_adjust", True),
+                prepost=SETTINGS.get("prepost", False),
+                actions=False,
+                back_adjust=False,
+            )
+        except TypeError:
+            # yfinance MultiIndex/NoneType bug — retry without auto_adjust
+            logger.debug(
+                "yfinance TypeError on first attempt for %s, retrying with auto_adjust=False",
+                symbol,
+            )
+            try:
+                df = tkr.history(
+                    period=yf_period,
+                    interval=yf_interval,
+                    auto_adjust=False,
+                    prepost=False,
+                    actions=False,
+                )
+            except Exception:
+                return pd.DataFrame()
 
         if df is None or df.empty:
             print(f"[WARN] Veri yok: {symbol} {interval} {days}d")
             return pd.DataFrame()
+
+        # Guard: yfinance MultiIndex None-column bug (some symbols return MultiIndex
+        # with a None second level, causing "NoneType is not subscriptable" downstream)
+        if isinstance(df.columns, pd.MultiIndex):
+            try:
+                df.columns = df.columns.droplevel(1)
+            except Exception:
+                df = df.loc[:, [c for c in df.columns if c is not None and c != ""]]
+        df = df.loc[:, [c for c in df.columns if c is not None]]
 
         # Ensure required columns exist
         if "Close" not in df.columns and "Adj Close" in df.columns:

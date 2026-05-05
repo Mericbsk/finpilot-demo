@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-router = APIRouter(tags=["trade"])
+from api.middleware.auth import require_auth
+
+router = APIRouter(tags=["trade"], dependencies=[Depends(require_auth)])
 logger = logging.getLogger(__name__)
 
 

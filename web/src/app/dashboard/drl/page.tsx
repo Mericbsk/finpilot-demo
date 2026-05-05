@@ -13,19 +13,27 @@ import {
   BarChart3,
   AlertCircle,
   Zap,
+  Star,
+  CheckCircle,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import { C } from "@/lib/stockData";
 
 /* ── Types ──────────────────────────────────────────────────── */
 interface DRLModel {
   model_id: string;
+  name: string;
   algorithm: string;
   tags: string[];
-  sharpe?: number;
-  total_return?: number;
-  max_drawdown?: number;
-  training_episodes?: number;
-  last_trained?: string;
+  is_active: boolean;
+  created_at: string;
+  total_timesteps: number;
+  metrics: {
+    sharpe_ratio?: number;
+    total_return?: number;
+    max_drawdown?: number;
+    n_trades?: number;
+  };
 }
 
 interface InferenceResult {
@@ -75,6 +83,7 @@ const algoColor: Record<string, string> = {
 
 /* ═══ Main Page ═══════════════════════════════════════════════ */
 export default function DRLPage() {
+  const { isAdmin } = useAuth();
   const [tab, setTab] = useState<"models" | "inference" | "ensemble">("models");
   const [models, setModels] = useState<DRLModel[]>([]);
   const [inferenceCache, setInferenceCache] = useState<Record<string, InferenceResult>>({});
@@ -82,6 +91,8 @@ export default function DRLPage() {
   const [loading, setLoading] = useState(true);
   const [inferenceLoading, setInferenceLoading] = useState(false);
   const [ensembleLoading, setEnsembleLoading] = useState(false);
+  const [activatingId, setActivatingId] = useState<string | null>(null);
+  const [activatingBest, setActivatingBest] = useState(false);
   const [apiOnline, setApiOnline] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,7 +104,7 @@ export default function DRLPage() {
   }, []);
 
   /* ── Load models ─────────────────────────────────── */
-  useEffect(() => {
+  const loadModels = useCallback(() => {
     setLoading(true);
     fetch("/py-api/models")
       .then((r) => r.json())
@@ -104,6 +115,46 @@ export default function DRLPage() {
       .catch(() => setError("Could not load DRL models"))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { loadModels(); }, [loadModels]);
+
+  /* ── Activate single model ───────────────────────── */
+  const activateModel = useCallback(async (modelId: string) => {
+    if (!isAdmin) {
+      setError("Only admin accounts can activate models.");
+      return;
+    }
+    setActivatingId(modelId);
+    try {
+      const res = await fetch(`/py-api/models/${modelId}/activate`, { method: "POST" });
+      if (res.status === 403) throw new Error("Admin role required");
+      if (!res.ok) throw new Error("Activation failed");
+      await loadModels();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : `Failed to activate model ${modelId}`);
+    } finally {
+      setActivatingId(null);
+    }
+  }, [isAdmin, loadModels]);
+
+  /* ── Activate best models ────────────────────────── */
+  const activateBest = useCallback(async () => {
+    if (!isAdmin) {
+      setError("Only admin accounts can activate best models.");
+      return;
+    }
+    setActivatingBest(true);
+    try {
+      const res = await fetch("/py-api/models/activate-best", { method: "POST" });
+      if (res.status === 403) throw new Error("Admin role required");
+      if (!res.ok) throw new Error("Activation failed");
+      await loadModels();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to activate best models");
+    } finally {
+      setActivatingBest(false);
+    }
+  }, [isAdmin, loadModels]);
 
   /* ── Load inference cache ────────────────────────── */
   useEffect(() => {
@@ -177,6 +228,7 @@ export default function DRLPage() {
           </div>
           <p className="text-sm" style={{ color: C.text3 }}>
             Deep Reinforcement Learning models · {models.length} registered
+            · {models.filter(m => m.is_active).length} active
             {apiOnline ? (
               <span className="ml-2" style={{ color: C.green }}>● API Online</span>
             ) : (
@@ -184,6 +236,17 @@ export default function DRLPage() {
             )}
           </p>
         </div>
+        {/* Activate Best button */}
+        <button
+          onClick={activateBest}
+          disabled={activatingBest || !apiOnline || !isAdmin}
+          className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all disabled:opacity-40"
+          style={{ background: `linear-gradient(to right, ${C.cyan}, ${C.blue})`, color: "#000" }}
+          title={!isAdmin ? "Admin role required" : undefined}
+        >
+          {activatingBest ? <Loader2 size={14} className="animate-spin" /> : <Star size={14} />}
+          Activate Best Models
+        </button>
       </div>
 
       {/* Tabs */}
@@ -228,20 +291,35 @@ export default function DRLPage() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {models.map((m) => (
+              {models
+                .slice()
+                .sort((a, b) => (b.metrics?.sharpe_ratio ?? -999) - (a.metrics?.sharpe_ratio ?? -999))
+                .map((m) => (
                 <div
                   key={m.model_id}
                   className="rounded-2xl p-5 transition-all"
-                  style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+                  style={{
+                    border: `1px solid ${m.is_active ? C.cyan : C.border}`,
+                    backgroundColor: C.card,
+                    boxShadow: m.is_active ? `0 0 0 1px ${C.cyan}30` : undefined,
+                  }}
                 >
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: algoColor[m.algorithm] || C.cyan }} />
-                      <span className="text-sm font-semibold" style={{ color: C.text1 }}>{m.model_id}</span>
+                  {/* Header row */}
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <div className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: algoColor[m.algorithm] || C.cyan }} />
+                      <span className="truncate text-xs font-semibold" style={{ color: C.text1 }} title={m.model_id}>{m.name}</span>
                     </div>
-                    <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ backgroundColor: `${algoColor[m.algorithm] || C.cyan}20`, color: algoColor[m.algorithm] || C.cyan }}>
-                      {m.algorithm}
-                    </span>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      {m.is_active && (
+                        <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold" style={{ backgroundColor: `${C.green}20`, color: C.green }}>
+                          <CheckCircle size={9} /> ACTIVE
+                        </span>
+                      )}
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ backgroundColor: `${algoColor[m.algorithm] || C.cyan}20`, color: algoColor[m.algorithm] || C.cyan }}>
+                        {m.algorithm}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Tags */}
@@ -255,33 +333,55 @@ export default function DRLPage() {
 
                   {/* Metrics */}
                   <div className="space-y-2 text-xs">
-                    {m.sharpe != null && (
+                    {m.metrics?.sharpe_ratio != null && (
                       <div className="flex justify-between">
                         <span style={{ color: C.text3 }}>Sharpe Ratio</span>
-                        <span style={{ color: m.sharpe >= 1 ? C.green : C.text2 }}>{m.sharpe.toFixed(2)}</span>
-                      </div>
-                    )}
-                    {m.total_return != null && (
-                      <div className="flex justify-between">
-                        <span style={{ color: C.text3 }}>Total Return</span>
-                        <span style={{ color: m.total_return >= 0 ? C.green : C.red }}>
-                          {m.total_return >= 0 ? "+" : ""}{(m.total_return * 100).toFixed(1)}%
+                        <span style={{ color: m.metrics.sharpe_ratio >= 1 ? C.green : m.metrics.sharpe_ratio >= 0.5 ? "#f59e0b" : C.red }}
+                          title={m.metrics.sharpe_ratio < 0.5 ? "Düşük risk-getiri oranı. Bu model canlı işlem için hazır değil." : undefined}>
+                          {m.metrics.sharpe_ratio.toFixed(3)}{m.metrics.sharpe_ratio < 0.5 ? " ⚠️" : ""}
                         </span>
                       </div>
                     )}
-                    {m.max_drawdown != null && (
+                    {m.metrics?.total_return != null && (
+                      <div className="flex justify-between">
+                        <span style={{ color: C.text3 }}>Total Return <span style={{ fontSize: 9, opacity: 0.6 }}>(backtest)</span></span>
+                        <span style={{ color: m.metrics.total_return >= 0 ? C.green : C.red }}
+                          title="Bu değer eğitim verisi üzerindeki backtest sonucudur. Gerçek canlı performansı yansıtmaz.">
+                          {m.metrics.total_return >= 0 ? "+" : ""}{(m.metrics.total_return * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                    )}
+                    {m.metrics?.max_drawdown != null && (
                       <div className="flex justify-between">
                         <span style={{ color: C.text3 }}>Max Drawdown</span>
-                        <span style={{ color: C.red }}>{(m.max_drawdown * 100).toFixed(1)}%</span>
+                        <span style={{ color: C.red }}>{(m.metrics.max_drawdown * 100).toFixed(1)}%</span>
                       </div>
                     )}
-                    {m.training_episodes != null && (
+                    {m.metrics?.n_trades != null && (
                       <div className="flex justify-between">
-                        <span style={{ color: C.text3 }}>Training Episodes</span>
-                        <span style={{ color: C.text2 }}>{m.training_episodes.toLocaleString()}</span>
+                        <span style={{ color: C.text3 }}>Trades</span>
+                        <span style={{ color: C.text2 }}>{m.metrics.n_trades.toLocaleString()}</span>
                       </div>
                     )}
+                    <div className="flex justify-between">
+                      <span style={{ color: C.text3 }}>Timesteps</span>
+                      <span style={{ color: C.text2 }}>{(m.total_timesteps / 1_000_000).toFixed(1)}M</span>
+                    </div>
                   </div>
+
+                  {/* Activate button */}
+                  {!m.is_active && (
+                    <button
+                      onClick={() => activateModel(m.model_id)}
+                      disabled={activatingId === m.model_id || !isAdmin}
+                      className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition-all disabled:opacity-40"
+                      style={{ border: `1px solid ${C.cyan}`, color: C.cyan }}
+                      title={!isAdmin ? "Admin role required" : undefined}
+                    >
+                      {activatingId === m.model_id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle size={12} />}
+                      Set Active
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

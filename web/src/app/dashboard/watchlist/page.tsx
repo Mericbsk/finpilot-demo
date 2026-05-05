@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { C, hashStr, seededRandom, genStock, companyNames, genSparkline, withLivePrice } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
+import { getCurrencySymbol } from "@/lib/userSettings";
 import DemoBanner from "@/components/DemoBanner";
 
 /* ── Mini sparkline (14 days) ──────────────────────────────── */
@@ -83,7 +84,15 @@ export default function WatchlistPage() {
   const [scanPct, setScanPct] = useState(0);
   const [hovered, setHovered] = useState<string | null>(null);
   const [scanResults, setScanResults] = useState<Record<string, { score: number; signal: string }>>({});
+  const [currency, setCurrency] = useState("$");
   const dropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("finpilot_settings");
+      if (stored) setCurrency(getCurrencySymbol(JSON.parse(stored).market || "US"));
+    } catch {}
+  }, []);
 
   /* Load 1,542 symbols */
   useEffect(() => {
@@ -409,7 +418,7 @@ export default function WatchlistPage() {
                 {/* Price + sparkline row */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                    <span style={{ fontSize: 18, fontWeight: 700, color: C.text1 }}>${w.price.toFixed(2)}</span>
+                    <span style={{ fontSize: 18, fontWeight: 700, color: C.text1 }}>{currency}{w.price.toFixed(2)}</span>
                     <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 12, fontWeight: 500, color: w.change >= 0 ? C.green : C.red }}>
                       {w.change >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                       {w.change >= 0 ? "+" : ""}{w.change.toFixed(2)}%

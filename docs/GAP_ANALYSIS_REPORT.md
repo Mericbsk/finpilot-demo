@@ -333,7 +333,7 @@ Login endpoint'inde rate limiting tanımlı ama implement edilmemiş, brute forc
 
 ### Kök Nedenler
 1. **Organic growth**: Zamanla büyüyen tek dosya
-2. **Refactor erteleme**: "Çalışıyorsa dokunma" 
+2. **Refactor erteleme**: "Çalışıyorsa dokunma"
 3. **Module boundaries belirsiz**: Sorumluluklar karışık
 4. **IDE limitations**: Büyük dosyalarda navigation zor
 

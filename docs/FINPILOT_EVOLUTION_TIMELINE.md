@@ -500,14 +500,49 @@ Refactor   Complete    Complete
 
 ## 📋 ÖZET TABLO
 
-| Metrik | Phase 1 | Phase 2 | Phase 3 | Phase 4 | Phase 5 |
-|--------|---------|---------|---------|---------|---------|
-| **LOC** | 1,500 | 5,000 | 12,000 | 20,000 | 26,241 |
-| **Dosya** | 10 | 25 | 40 | 60 | 85 |
-| **Test** | 0 | 10 | 30 | 50 | 74 |
-| **Modül** | 1 | 3 | 5 | 6 | 7 |
+| Metrik | Phase 1 | Phase 2 | Phase 3 | Phase 4 | Phase 5 | **Phase 6** |
+|--------|---------|---------|---------|---------|---------|-------------|
+| **LOC** | 1,500 | 5,000 | 12,000 | 20,000 | 26,241 | **56,500+** |
+| **Dosya** | 10 | 25 | 40 | 60 | 85 | **127+** |
+| **Test** | 0 | 10 | 30 | 50 | 74 | **493** |
+| **Modül** | 1 | 3 | 5 | 6 | 7 | **10+** |
+| **DRL Modeli** | - | - | 15 | 17 | 19 | **19** |
+| **Funding** | - | - | - | - | - | **€750K Seed (aktif)** |
 
 ---
 
-*Timeline Oluşturulma: 25 Ocak 2026*
+---
+
+## 📈 PHASE 6: aws Gündungsfonds Seed Round
+
+**Zaman: Nisan 2026 (Aktif)**
+
+### Durum
+- ✅ Pitch deck hazır: Almanca, 17 sayfa, A4 landscape PDF
+- ✅ Hedef tutar: **€750.000 Seed** (aws Gündungsfonds, maks €800K)
+- ✅ Ürün çalışıyor: Next.js platform + 19 DRL modeli + 56.500+ LOC + 493 test
+- ⚠️ Şirket tescili: GmbH ve/ya Einzelunternehmen kurulumu gerekli
+
+### Fon Kullanım Planı
+| Kalem | Pay | Tutar |
+|-------|-----|-------|
+| Ekip (CTO + Backend + Growth) | %45 | €337K |
+| Go-to-Market | %20 | €150K |
+| Altyapı / Cloud | %20 | €150K |
+| Hukuk & Ops | %15 | €113K |
+| **Toplam** | **%100** | **€750K** |
+
+### 18 Ay Hedefleri
+| Metrik | Hedef |
+|--------|-------|
+| Kayıtlı Kullanıcı | 8.000+ |
+| Ödeyen Müşteri | 800+ |
+| MRR | €40K+ |
+| ARR | €480K+ |
+| Ekip | 3–4 FTE |
+| Series A hedefi | €2–4M / H1 2027 |
+
+---
+
+*Timeline Güncellenme: 8 Nisan 2026*
 *Son Güncelleme: Sprint 3 tamamlandı*

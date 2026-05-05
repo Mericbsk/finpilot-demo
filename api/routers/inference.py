@@ -8,8 +8,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+
+from api.middleware.auth import require_auth
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +46,9 @@ class InferenceRunResponse(BaseModel):
     timestamp: str
 
 
-@router.post("/inference/run", response_model=InferenceRunResponse)
+@router.post(
+    "/inference/run", response_model=InferenceRunResponse, dependencies=[Depends(require_auth)]
+)
 def run_inference(req: InferenceRunRequest):
     """Run live DRL inference on given symbols and update the cache.
 

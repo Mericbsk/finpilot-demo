@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 
 /* ── Default settings ──────────────────────────────────────── */
+const SETTINGS_KEY = "finpilot_settings";
+
 const defaultSettings = {
   /* Profile & Risk */
   riskAppetite: 3,
@@ -50,7 +52,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState(() => {
     if (typeof window !== "undefined") {
       try {
-        const stored = localStorage.getItem("finpilot_settings");
+        const stored = localStorage.getItem(SETTINGS_KEY);
         if (stored) return { ...defaultSettings, ...JSON.parse(stored) };
       } catch {}
     }
@@ -80,7 +82,7 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     // Save to localStorage
-    try { localStorage.setItem("finpilot_settings", JSON.stringify(settings)); } catch {}
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {}
     // Also save to backend
     try {
       await fetch("/py-api/user/settings", {

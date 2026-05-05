@@ -12,8 +12,9 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { C, hashStr, seededRandom, companyNames } from "@/lib/stockData";
+import { useAuth } from "@/lib/auth";
 import { useStockPrices, type LiveQuote } from "@/lib/useStockPrices";
-import { Loader2 } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import DemoBanner from "@/components/DemoBanner";
 
 /* ── Tabs ──────────────────────────────────────────────────── */
@@ -153,6 +154,7 @@ function SignalChip({ signal }: { signal: string }) {
    MAIN PAGE
    ══════════════════════════════════════════════════════════════ */
 export default function AILabPage() {
+  const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState("AI Research");
   const [strategyMode, setHybridMode] = useState("hybrid");
   const [allSymbols, setAllSymbols] = useState<string[]>([]);
@@ -184,6 +186,8 @@ export default function AILabPage() {
   const [optunaAgent, setOptunaAgent] = useState("conservative");
   const [optunaData, setOptunaData] = useState<OptunaResults | null>(null);
   const [optunaLoading, setOptunaLoading] = useState(false);
+  const [optunaJob, setOptunaJob] = useState<{ job_id: string; status: string; progress: number; error?: string } | null>(null);
+  const [optunaTrials, setOptunaTrials] = useState(10);
 
   const [apiOnline, setApiOnline] = useState<boolean | null>(null);
 
@@ -274,6 +278,48 @@ export default function AILabPage() {
       .catch(() => {})
       .finally(() => setOptunaLoading(false));
   }, [apiOnline, optunaAgent]);
+
+  /* ── Poll Optuna job status ──────────────────────────────── */
+  useEffect(() => {
+    if (!optunaJob || optunaJob.status === "done" || optunaJob.status === "error") return;
+    const interval = setInterval(() => {
+      fetch(`/py-api/optuna/status/${optunaJob.job_id}`)
+        .then((r) => r.json())
+        .then((j: { job_id: string; status: string; progress: number }) => {
+          setOptunaJob(j);
+          if (j.status === "done") {
+            // Reload results after completion
+            setOptunaLoading(true);
+            fetch(`/py-api/optuna/results?agent=${optunaAgent}`)
+              .then((r) => r.json())
+              .then((data: OptunaResults) => setOptunaData(data))
+              .catch(() => {})
+              .finally(() => setOptunaLoading(false));
+          }
+        })
+        .catch(() => {});
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [optunaJob, optunaAgent]);
+
+  function triggerOptunaRun() {
+    if (!isAdmin) {
+      setOptunaJob({ job_id: "", status: "error", progress: 0, error: "Admin role required to start Optuna runs." });
+      return;
+    }
+    fetch("/py-api/optuna/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ agent: optunaAgent, n_trials: optunaTrials }),
+    })
+      .then(async (r) => {
+        const body = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(typeof body.detail === "string" ? body.detail : `HTTP ${r.status}`);
+        return body;
+      })
+      .then((j: { job_id: string; status: string; progress: number; error?: string }) => setOptunaJob({ ...j, progress: 0 }))
+      .catch((error) => setOptunaJob({ job_id: "", status: "error", progress: 0, error: error instanceof Error ? error.message : "Optuna trigger failed." }))
+  }
 
   /* ── Outside click to close dropdown ────────────────────── */
   useEffect(() => {
@@ -977,7 +1023,7 @@ export default function AILabPage() {
       {activeTab === "Optuna" && (
         <div>
           <div style={{ borderRadius: 16, border: `1px solid ${C.border}`, backgroundColor: C.card, padding: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
               <Settings2 size={16} style={{ color: C.cyan }} />
               <h2 style={{ fontSize: 14, fontWeight: 600, color: C.text1 }}>Hyperparameter Optimization</h2>
               {/* Agent selector */}
@@ -997,15 +1043,61 @@ export default function AILabPage() {
                   </button>
                 ))}
               </div>
+              {/* Trials input + Run button */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <label style={{ fontSize: 10, color: C.text3 }}>Trials:</label>
+                <input
+                  type="number" min={1} max={100} value={optunaTrials}
+                  onChange={(e) => setOptunaTrials(Math.max(1, Math.min(100, Number(e.target.value))))}
+                  style={{ width: 52, borderRadius: 6, border: `1px solid ${C.border}`, backgroundColor: C.primary, color: C.text1, fontSize: 11, padding: "3px 6px", textAlign: "center" }}
+                />
+                <button
+                  onClick={triggerOptunaRun}
+                  disabled={optunaJob?.status === "running"}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 4,
+                    borderRadius: 8, padding: "5px 12px", fontSize: 11, fontWeight: 600,
+                    border: "none", cursor: optunaJob?.status === "running" ? "not-allowed" : "pointer",
+                    background: optunaJob?.status === "running" ? C.border : `linear-gradient(135deg, ${C.cyan}, #0088cc)`,
+                    color: optunaJob?.status === "running" ? C.text3 : "#000",
+                  }}
+                >
+                  {optunaJob?.status === "running" ? (
+                    <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} />
+                  ) : (
+                    <Play size={12} />
+                  )}
+                  {optunaJob?.status === "running" ? "Running..." : "Run Optimization"}
+                </button>
+              </div>
             </div>
 
-            {optunaLoading || !optunaData ? (
-              <div style={{ padding: 40, textAlign: "center" }}>
-                <Loader2 size={24} style={{ color: C.cyan, animation: "spin 1s linear infinite" }} />
-                <p style={{ fontSize: 12, color: C.text3, marginTop: 8 }}>Loading Optuna results...</p>
+            {/* Job progress bar */}
+            {optunaJob && optunaJob.status === "running" && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: C.text3 }}>Optimization in progress — {optunaJob.progress}%</span>
+                  <span style={{ fontSize: 11, color: C.cyan }}>Trial {Math.round(optunaJob.progress / 100 * optunaTrials)}/{optunaTrials}</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 3, backgroundColor: C.primary }}>
+                  <div style={{ height: 6, borderRadius: 3, backgroundColor: C.cyan, width: `${optunaJob.progress}%`, transition: "width 0.4s ease" }} />
+                </div>
               </div>
+            )}
+            {optunaJob && optunaJob.status === "done" && (
+              <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, backgroundColor: "rgba(48,209,88,0.08)", border: `1px solid rgba(48,209,88,0.2)`, fontSize: 11, color: C.green }}>
+                ✓ Optimization complete — results refreshed
+              </div>
+            )}
+            {optunaJob && optunaJob.status === "error" && (
+              <div style={{ marginBottom: 12, padding: "8px 12px", borderRadius: 8, backgroundColor: "rgba(255,69,58,0.08)", border: `1px solid rgba(255,69,58,0.2)`, fontSize: 11, color: C.red }}>
+                ✗ {optunaJob.error || "Optimization failed"}
+              </div>
+            )}
+            {!optunaData ? (
+              <p style={{ fontSize: 12, color: C.text3, marginTop: 8 }}>Loading Optuna results...</p>
             ) : (
-            <>
+              <div>
             {/* Summary cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 16 }}>
               <div style={{ borderRadius: 12, backgroundColor: C.primary, padding: "12px 16px", textAlign: "center" }}>
@@ -1111,7 +1203,7 @@ export default function AILabPage() {
                 </tbody>
               </table>
             </div>
-            </>
+              </div>
             )}
           </div>
         </div>

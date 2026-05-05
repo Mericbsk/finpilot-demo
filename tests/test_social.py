@@ -5,6 +5,7 @@ Tests for Social Trading module.
 from datetime import datetime, timedelta
 
 import pytest
+
 from core.social import (
     FeedItem,
     FeedItemType,

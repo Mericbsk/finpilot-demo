@@ -18,7 +18,6 @@ COPY core/ ./core/
 COPY scanner/ ./scanner/
 COPY auth/ ./auth/
 COPY drl/ ./drl/
-COPY data/ ./data/
 COPY models/ ./models/
 
 # Non-root user

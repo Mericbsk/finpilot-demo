@@ -3,11 +3,12 @@
 # Common development and deployment commands
 # ============================================
 
-.PHONY: help install test lint format clean docker run scanner
+.PHONY: help install install-dev test test-cov test-fast lint format format-check security clean clean-data run run-legacy scanner scanner-agg docker-check docker-require-env docker-build docker-build-legacy docker-up docker-up-legacy docker-down docker-logs docker-logs-legacy docker-full docker-smoke docker-clean pre-commit pre-run status docs docs-serve
 
 # Default Python
 PYTHON := python3
 PIP := pip3
+COMPOSE ?= docker compose
 
 # Colors for output
 BLUE := \033[34m
@@ -32,16 +33,25 @@ help:
 	@echo "  make clean       - Clean cache files"
 	@echo ""
 	@echo "$(GREEN)Running:$(NC)"
-	@echo "  make run         - Start Streamlit dashboard"
+	@echo "  make run         - Start primary local stack (bash start.sh)"
+	@echo "  make run-legacy  - Start legacy Streamlit dashboard"
 	@echo "  make scanner     - Run stock scanner"
 	@echo "  make scanner-agg - Run scanner (aggressive mode)"
 	@echo ""
 	@echo "$(GREEN)Docker:$(NC)"
-	@echo "  make docker-build - Build Docker image"
-	@echo "  make docker-up    - Start containers"
-	@echo "  make docker-down  - Stop containers"
-	@echo "  make docker-logs  - View container logs"
-	@echo "  make docker-full  - Start all services"
+	@echo "  make docker-build        - Build API and web images"
+	@echo "  make docker-build-legacy - Build legacy Streamlit image"
+	@echo "  make docker-up           - Start API and web containers"
+	@echo "  make docker-up-legacy    - Start API, web, and legacy Streamlit"
+	@echo "  make docker-down         - Stop compose services"
+	@echo "  make docker-logs         - View API and web logs"
+	@echo "  make docker-logs-legacy  - View legacy Streamlit logs"
+	@echo "  make docker-full         - Start API, web, scanner, telegram, cache"
+	@echo "  make docker-smoke        - Build, boot, probe ready/metrics, tear down"
+	@echo ""
+	@echo "$(GREEN)Documentation:$(NC)"
+	@echo "  make docs         - Build documentation site"
+	@echo "  make docs-serve   - Serve docs locally (port 8080)"
 	@echo ""
 	@echo "$(GREEN)Pre-commit:$(NC)"
 	@echo "  make pre-commit  - Install pre-commit hooks"
@@ -126,7 +136,11 @@ clean-data:
 # 🚀 Running
 # ============================================
 run:
-	@echo "$(BLUE)Starting Streamlit dashboard...$(NC)"
+	@echo "$(BLUE)Starting primary local stack...$(NC)"
+	bash start.sh
+
+run-legacy:
+	@echo "$(BLUE)Starting legacy Streamlit dashboard...$(NC)"
 	streamlit run streamlit_app.py --server.port 8501
 
 scanner:
@@ -140,33 +154,66 @@ scanner-agg:
 # ============================================
 # 🐳 Docker
 # ============================================
-docker-build:
-	@echo "$(BLUE)Building Docker image...$(NC)"
-	docker build --target production -t finpilot:latest .
-	@echo "$(GREEN)✓ Docker image built$(NC)"
+docker-check:
+	@command -v docker >/dev/null 2>&1 || { echo "$(RED)docker CLI not found$(NC)"; exit 1; }
+	@docker compose version >/dev/null 2>&1 || { echo "$(RED)docker compose plugin not available$(NC)"; exit 1; }
 
-docker-up:
-	@echo "$(BLUE)Starting containers...$(NC)"
-	docker-compose up -d
-	@echo "$(GREEN)✓ Containers started$(NC)"
-	@echo "Dashboard: http://localhost:8501"
+docker-require-env:
+	@if [ ! -f .env ]; then \
+		echo "$(RED).env not found. Copy .env.example to .env before starting compose services.$(NC)"; \
+		exit 1; \
+	fi
 
-docker-down:
-	@echo "$(BLUE)Stopping containers...$(NC)"
-	docker-compose down
+docker-build: docker-check
+	@echo "$(BLUE)Building API and web images...$(NC)"
+	docker build -f api/Dockerfile -t finpilot-api:latest .
+	docker build -f web/Dockerfile -t finpilot-web:latest ./web
+	@echo "$(GREEN)✓ API and web images built$(NC)"
+
+docker-build-legacy: docker-check
+	@echo "$(BLUE)Building legacy Streamlit image...$(NC)"
+	docker build --target production -t finpilot-legacy:latest .
+	@echo "$(GREEN)✓ Legacy image built$(NC)"
+
+docker-up: docker-check docker-require-env
+	@echo "$(BLUE)Starting API and web containers...$(NC)"
+	$(COMPOSE) up -d api web
+	@echo "$(GREEN)✓ Primary stack started$(NC)"
+	@echo "Frontend: http://localhost:3001"
+	@echo "API:      http://localhost:8000/api/v1/ready"
+
+docker-up-legacy: docker-check docker-require-env
+	@echo "$(BLUE)Starting API, web, and legacy Streamlit containers...$(NC)"
+	$(COMPOSE) --profile legacy up -d api web finpilot
+	@echo "$(GREEN)✓ Primary + legacy stack started$(NC)"
+	@echo "Frontend:        http://localhost:3001"
+	@echo "API:             http://localhost:8000/api/v1/ready"
+	@echo "Legacy Streamlit: http://localhost:8501"
+
+docker-down: docker-check
+	@echo "$(BLUE)Stopping compose services...$(NC)"
+	$(COMPOSE) down --remove-orphans
 	@echo "$(GREEN)✓ Containers stopped$(NC)"
 
-docker-logs:
-	docker-compose logs -f finpilot
+docker-logs: docker-check
+	$(COMPOSE) logs -f api web
 
-docker-full:
-	@echo "$(BLUE)Starting full stack...$(NC)"
-	docker-compose --profile scanner --profile telegram --profile cache up -d
-	@echo "$(GREEN)✓ Full stack started$(NC)"
+docker-logs-legacy: docker-check
+	$(COMPOSE) logs -f finpilot
 
-docker-clean:
+docker-full: docker-check docker-require-env
+	@echo "$(BLUE)Starting API, web, scanner, telegram, and cache services...$(NC)"
+	$(COMPOSE) --profile scanner --profile telegram --profile cache up -d api web scanner telegram_bot redis
+	@echo "$(GREEN)✓ Extended stack started$(NC)"
+
+docker-smoke: docker-check
+	@echo "$(BLUE)Running Docker smoke test for API + web...$(NC)"
+	bash scripts/docker_smoke.sh
+	@echo "$(GREEN)✓ Docker smoke test passed$(NC)"
+
+docker-clean: docker-check
 	@echo "$(YELLOW)Cleaning Docker resources...$(NC)"
-	docker-compose down -v --rmi local
+	$(COMPOSE) down -v --remove-orphans --rmi local
 	@echo "$(GREEN)✓ Docker resources cleaned$(NC)"
 
 # ============================================
@@ -198,3 +245,15 @@ status:
 	@echo "Data:"
 	@echo "  - Shortlists: $$(ls -1 data/shortlists/*.csv 2>/dev/null | wc -l)"
 	@echo "  - Suggestions: $$(ls -1 data/suggestions/*.csv 2>/dev/null | wc -l)"
+
+# ============================================
+# 📚 Documentation
+# ============================================
+docs:
+	@echo "$(BLUE)Building documentation site...$(NC)"
+	mkdocs build --strict 2>&1 || mkdocs build
+	@echo "$(GREEN)✓ Documentation built in site/$(NC)"
+
+docs-serve:
+	@echo "$(BLUE)Serving documentation at http://localhost:8080$(NC)"
+	mkdocs serve -a 0.0.0.0:8080

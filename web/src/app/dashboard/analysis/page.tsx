@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { C, hashStr, seededRandom, genStock as genStockBase, companyNames, withLivePrice } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
+import { getCurrencySymbol } from "@/lib/userSettings";
 
 /* ── Pools for generating realistic text ───────────────────── */
 const macdStates = ["Bullish Crossover", "Bearish Crossover", "Neutral", "Divergence", "Strong Bullish", "Weak Bearish"];
@@ -304,13 +305,18 @@ interface ScanResult {
 /** Merge real scan data into the mock analysis object */
 function mergeWithScan(mock: ReturnType<typeof genAnalysis>, scan: ScanResult) {
   const price = scan.price || mock.price;
-  const score = scan.score ?? mock.score;
+  // Normalize raw 0-5 scanner score to 0-100 (same formula as scanner/page.tsx and dashboard/page.tsx)
+  const rawScore = Math.max(Number(scan.filter_score ?? 0), Number(scan.score ?? 0));
+  const score = rawScore > 5 ? rawScore : Math.round((rawScore / 5) * 100);
   const rr = scan.risk_reward ?? mock.rr;
   const stop = scan.stop_loss ?? mock.stop;
   const tp1 = scan.take_profit ?? mock.tp1;
   const tp2 = +(tp1 * 1.04).toFixed(2);
   const tp3 = +(tp1 * 1.08).toFixed(2);
-  const signal = score >= 70 ? "BUY" : score >= 40 ? "HOLD" : score <= 20 ? "SELL" : "CAUTION";
+  // Use same signal logic as scanner: high_quality_signal / entry_ok override
+  const signal = scan.high_quality_signal || scan.entry_ok
+    ? "BUY"
+    : score >= 70 ? "BUY" : score >= 45 ? "HOLD" : score >= 25 ? "CAUTION" : "SELL";
   const regime = scan.direction ? "Trend" : scan.regime ? "Range" : "Volatile";
   const sentimentLabel = scan.sentiment > 0.3 ? "Strong Bullish" : scan.sentiment > 0 ? "Moderately Bullish" : scan.sentiment < -0.3 ? "Moderately Bearish" : "Neutral";
   const direction = score >= 60 ? "bullish" : score >= 40 ? "neutral" : "bearish";
@@ -330,7 +336,7 @@ function mergeWithScan(mock: ReturnType<typeof genAnalysis>, scan: ScanResult) {
     regime,
     sentiment: sentimentLabel,
     aiSummary,
-    confidence: Math.min(99, Math.round(score * 0.9 + (scan.alignment_ratio ?? 0) * 20)),
+    confidence: Math.min(99, Math.round(score * 0.6 + (scan.alignment_ratio ?? 0) * 30)),
     _scanData: scan, // keep raw data for display
   };
 }
@@ -347,7 +353,15 @@ function AnalysisInner() {
   const [scanData, setScanData] = useState<ScanResult | null>(null);
   const [scanLoading, setScanLoading] = useState(false);
   const [scanError, setScanError] = useState(false);
+  const [currency, setCurrency] = useState("$");
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("finpilot_settings");
+      if (stored) setCurrency(getCurrencySymbol(JSON.parse(stored).market || "US"));
+    } catch {}
+  }, []);
 
   /* Outside click to close dropdown */
   useEffect(() => {
@@ -528,7 +542,7 @@ function AnalysisInner() {
             </div>
             <p className="text-sm" style={{ color: C.text3 }}>{data.companyName}</p>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-3xl font-bold" style={{ color: C.text1 }}>${data.price}</span>
+              <span className="text-3xl font-bold" style={{ color: C.text1 }}>{currency}{data.price}</span>
               <span className="flex items-center gap-1 text-sm font-medium" style={{ color: data.change >= 0 ? C.green : C.red }}>
                 {data.change >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                 {data.change >= 0 ? "+" : ""}{data.change}%
@@ -632,17 +646,17 @@ function AnalysisInner() {
                 <Sparkline data={data.sparkline} />
                 <div className="mt-2 flex justify-between text-xs" style={{ color: C.text3 }}>
                   <span>30d ago</span>
-                  <span>Today · ${data.price}</span>
+                  <span>Today · {currency}{data.price}</span>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3 text-xs">
                 {[
                   { label: "RSI (14)", value: data.rsi.toString(), color: data.rsi > 70 ? C.red : data.rsi < 30 ? C.green : C.text1 },
                   { label: "MACD", value: data.macd, color: data.macd.includes("Bullish") ? C.green : data.macd.includes("Bearish") ? C.red : C.text1 },
-                  { label: "SMA 50", value: `$${data.sma50}`, color: data.price > data.sma50 ? C.green : C.red },
-                  { label: "SMA 200", value: `$${data.sma200}`, color: data.price > data.sma200 ? C.green : C.red },
-                  { label: "BB Upper", value: `$${data.bb_upper}`, color: C.text1 },
-                  { label: "BB Lower", value: `$${data.bb_lower}`, color: C.text1 },
+                  { label: "SMA 50", value: `${currency}${data.sma50}`, color: data.price > data.sma50 ? C.green : C.red },
+                  { label: "SMA 200", value: `${currency}${data.sma200}`, color: data.price > data.sma200 ? C.green : C.red },
+                  { label: "BB Upper", value: `${currency}${data.bb_upper}`, color: C.text1 },
+                  { label: "BB Lower", value: `${currency}${data.bb_lower}`, color: C.text1 },
                   { label: "Risk/Reward", value: `${data.rr}x`, color: data.rr >= 2 ? C.green : C.text2 },
                   { label: "Volume", value: data.volume, color: C.text1 },
                 ].map((ind) => (
@@ -663,12 +677,12 @@ function AnalysisInner() {
                 {[
                   { label: "Market Cap", value: data.marketCap },
                   { label: "P/E Ratio", value: data.pe.toString() },
-                  { label: "EPS", value: `$${data.eps}` },
+                  { label: "EPS", value: `${currency}${data.eps}` },
                   { label: "Revenue Growth", value: `${data.revenueGrowth}%`, color: data.revenueGrowth >= 0 ? C.green : C.red },
                   { label: "Debt/Equity", value: data.debtEquity.toString(), color: data.debtEquity > 1.5 ? C.red : C.text1 },
                   { label: "Div Yield", value: `${data.divYield}%` },
-                  { label: "52W High", value: `$${data.high52w}` },
-                  { label: "52W Low", value: `$${data.low52w}` },
+                  { label: "52W High", value: `${currency}${data.high52w}` },
+                  { label: "52W Low", value: `${currency}${data.low52w}` },
                   { label: "Beta", value: data.beta.toString() },
                   { label: "Float", value: data.floatStr },
                   { label: "Volume", value: data.volume },
@@ -728,7 +742,7 @@ function AnalysisInner() {
                   <Shield size={12} style={{ color: C.red }} />
                   <span style={{ color: C.red }}>Stop Loss</span>
                 </div>
-                <span className="font-bold" style={{ color: C.red }}>${data.stop}</span>
+                <span className="font-bold" style={{ color: C.red }}>{currency}{data.stop}</span>
               </div>
               <div className="rounded-lg px-3 py-2.5" style={{ backgroundColor: "rgba(48,209,88,0.06)" }}>
                 {[
@@ -739,7 +753,7 @@ function AnalysisInner() {
                   <div key={tp.label} className="flex items-center justify-between py-1.5 text-xs">
                     <span style={{ color: C.green }}>{tp.label}</span>
                     <div className="text-right">
-                      <span className="font-bold" style={{ color: C.green }}>${tp.val}</span>
+                      <span className="font-bold" style={{ color: C.green }}>{currency}{tp.val}</span>
                       <span className="ml-1" style={{ fontSize: 10, color: C.text3 }}>+{tp.pct}%</span>
                     </div>
                   </div>
@@ -784,10 +798,10 @@ function AnalysisInner() {
             <h3 className="mb-3 text-sm font-semibold" style={{ color: C.text1 }}>Key Levels</h3>
             <div className="space-y-2 text-xs">
               {[
-                { label: "SMA 50", value: `$${data.sma50}`, above: data.price > data.sma50 },
-                { label: "SMA 200", value: `$${data.sma200}`, above: data.price > data.sma200 },
-                { label: "BB Upper", value: `$${data.bb_upper}`, above: false },
-                { label: "BB Lower", value: `$${data.bb_lower}`, above: true },
+                { label: "SMA 50", value: `${currency}${data.sma50}`, above: data.price > data.sma50 },
+                { label: "SMA 200", value: `${currency}${data.sma200}`, above: data.price > data.sma200 },
+                { label: "BB Upper", value: `${currency}${data.bb_upper}`, above: false },
+                { label: "BB Lower", value: `${currency}${data.bb_lower}`, above: true },
               ].map((l) => (
                 <div key={l.label} className="flex justify-between">
                   <span style={{ color: C.text3 }}>{l.label}</span>

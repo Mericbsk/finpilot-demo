@@ -14,7 +14,7 @@
     "codespaces": {
       "openFiles": [
         "README.md",
-        "streamlit_app.py"
+        "start.sh"
       ]
     },
     "vscode": {
@@ -23,7 +23,8 @@
       },
       "extensions": [
         "ms-python.python",
-        "ms-python.vscode-pylance"
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker"
       ]
     }
   },
@@ -31,16 +32,26 @@
   // ── Build: venv + proje dosyalarını overlay FS volume'lara kur ──
   "updateContentCommand": "sudo chown -R $(id -u):$(id -g) /opt/venv /opt/app 2>/dev/null; [ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; python3 -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt && /opt/venv/bin/pip install streamlit && echo '✅ venv ready'; cp -a . /opt/app/ && echo '✅ App files synced to /opt/app (overlay FS)'",
 
-  // ── Başlatma: git clone ile senkronize et (9p cp/rsync takılır), sonra çalıştır ──
-  "postAttachCommand": "rm -rf /tmp/_finpilot_sync 2>/dev/null; git clone --depth 1 https://github.com/Mericbsk/finpilot-demo.git /tmp/_finpilot_sync && rm -rf /opt/app/* 2>/dev/null && cp -a /tmp/_finpilot_sync/. /opt/app/ && rm -rf /tmp/_finpilot_sync && echo '✅ App synced' && cd /opt/app && /opt/venv/bin/streamlit run streamlit_app.py --server.enableCORS false --server.enableXsrfProtection false --server.headless true",
+  // ── Attach: side effect üretme; güncel stack'i gerektiğinde elle başlat ──
+  "postAttachCommand": "cd /workspaces/Borsa && echo '✅ Devcontainer ready' && echo 'Primary stack: bash start.sh' && echo 'Docker smoke: make docker-smoke'",
 
   "portsAttributes": {
+    "3001": {
+      "label": "Frontend",
+      "onAutoForward": "openBrowser"
+    },
+    "8000": {
+      "label": "API",
+      "onAutoForward": "silent"
+    },
     "8501": {
-      "label": "Application",
-      "onAutoForward": "openPreview"
+      "label": "Legacy Streamlit",
+      "onAutoForward": "ignore"
     }
   },
   "forwardPorts": [
+    3001,
+    8000,
     8501
   ]
 }

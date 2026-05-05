@@ -85,7 +85,7 @@ python scripts/daily_paper_trading.py
 python scripts/weekly_paper_trading_report.py
 ```
 
-**Beklenen:** 
+**Beklenen:**
 - 1 hafta → İlk trendler
 - 1 ay → İstatistiksel anlamlılık
 - 3 ay → Production kararı
@@ -241,6 +241,6 @@ pip list | grep yfinance
 
 ---
 
-**Oluşturulma:** 2026-02-17  
-**Versiyon:** 1.0  
+**Oluşturulma:** 2026-02-17
+**Versiyon:** 1.0
 **Durum:** ✅ Production-ready

@@ -242,7 +242,7 @@ class MetricsServer:
         server.stop()
     """
 
-    def __init__(self, host: str = "0.0.0.0", port: int = 8000):
+    def __init__(self, host: str = "0.0.0.0", port: int = 8000):  # nosec B104
         self.host = host
         self.port = port
         self._server: HTTPServer | None = None
@@ -287,7 +287,7 @@ _metrics_server: MetricsServer | None = None
 
 
 def start_metrics_server(
-    host: str = "0.0.0.0",
+    host: str = "0.0.0.0",  # nosec B104
     port: int | None = None,
 ) -> MetricsServer:
     """

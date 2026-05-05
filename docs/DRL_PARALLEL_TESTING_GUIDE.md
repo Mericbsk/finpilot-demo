@@ -113,7 +113,7 @@ def send_hybrid_signal(signal: HybridSignal):
     """Send hybrid signal to Telegram."""
     agreement_icon = "✅" if signal.agreement else "⚠️"
     action_icon = {"BUY": "📈", "SELL": "📉", "HOLD": "⏸️"}[signal.final_action]
-    
+
     message = f"""
 {agreement_icon} {action_icon} **{signal.symbol}** - {signal.final_action}
 
@@ -132,7 +132,7 @@ def send_hybrid_signal(signal: HybridSignal):
 - Position Size: {signal.risk_adjusted_size:.1%}
 - Agreement: {'YES' if signal.agreement else 'NO'}
 """
-    
+
     send_telegram_message(message)
 ```
 
@@ -148,14 +148,14 @@ class PaperTradingEngine:
         self.capital = initial_capital
         self.positions = {}
         self.trades = []
-    
+
     def execute_signal(self, signal: HybridSignal):
         """Execute hybrid signal in paper trading."""
         if signal.final_action == "BUY":
             self.buy(signal.symbol, signal.risk_adjusted_size)
         elif signal.final_action == "SELL":
             self.sell(signal.symbol)
-    
+
     def get_performance(self):
         """Calculate paper trading returns."""
         return {
@@ -180,22 +180,22 @@ import pandas as pd
 
 def compare_strategies():
     """Compare scanner vs DRL vs hybrid performance."""
-    
+
     # Load logs
     scanner_df = pd.read_csv("logs/parallel_testing/baseline/...")
     drl_df = pd.read_csv("logs/parallel_testing/drl_only/...")
     hybrid_df = pd.read_csv("logs/parallel_testing/hybrid/...")
-    
+
     # Calculate metrics
     metrics = {
         "scanner": calculate_metrics(scanner_df),
         "drl": calculate_metrics(drl_df),
         "hybrid": calculate_metrics(hybrid_df)
     }
-    
+
     # Statistical significance test
     p_value = ttest_ind(scanner_returns, drl_returns)
-    
+
     return metrics, p_value
 ```
 
@@ -274,10 +274,10 @@ position_sizing_avg
    ```bash
    # Model eğit
    python ml_agent.py --algorithm PPO --timesteps 50000
-   
+
    # İlk parallel test
    python parallel_scanner.py --mode hybrid --model models/ppo_latest.zip --symbols "AAPL,MSFT,GOOGL"
-   
+
    # Dashboard kontrol
    streamlit run drl_comparison_dashboard.py
    ```

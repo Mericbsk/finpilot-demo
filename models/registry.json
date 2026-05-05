@@ -155,7 +155,7 @@
     ],
     "model_path": "models/ppo_volatile_20260225_192559/model",
     "pipeline_path": "models/ppo_volatile_20260225_192559/pipeline.json",
-    "is_active": false,
+    "is_active": true,
     "tags": [
       "volatile",
       "sprint16",
@@ -237,7 +237,7 @@
     ],
     "model_path": "models/ppo_range_20260226_170853/model",
     "pipeline_path": "models/ppo_range_20260226_170853/pipeline.json",
-    "is_active": false,
+    "is_active": true,
     "tags": [
       "range",
       "sprint16",
@@ -410,7 +410,7 @@
     ],
     "model_path": "models/ppo_meanrev_20260302_190334/model",
     "pipeline_path": "models/ppo_meanrev_20260302_190334/pipeline.json",
-    "is_active": false,
+    "is_active": true,
     "tags": [
       "meanrev",
       "sprint19",
@@ -498,7 +498,7 @@
     ],
     "model_path": "models/ppo_breakout_20260302_191605/model",
     "pipeline_path": "models/ppo_breakout_20260302_191605/pipeline.json",
-    "is_active": false,
+    "is_active": true,
     "tags": [
       "breakout",
       "sprint19",
@@ -586,7 +586,7 @@
     ],
     "model_path": "models/ppo_scalper_20260302_200828/model",
     "pipeline_path": "models/ppo_scalper_20260302_200828/pipeline.json",
-    "is_active": false,
+    "is_active": true,
     "tags": [
       "scalper",
       "sprint19",
@@ -674,7 +674,7 @@
     ],
     "model_path": "models/rppo_swing_20260302_212140/model",
     "pipeline_path": "models/rppo_swing_20260302_212140/pipeline.json",
-    "is_active": false,
+    "is_active": true,
     "tags": [
       "swing",
       "sprint19",
@@ -849,7 +849,7 @@
     ],
     "model_path": "models/ppo_aggressive_20260302_215335/model",
     "pipeline_path": "models/ppo_aggressive_20260302_215335/pipeline.json",
-    "is_active": false,
+    "is_active": true,
     "tags": [
       "aggressive",
       "sprint19",
@@ -1213,7 +1213,7 @@
     ],
     "model_path": "models/rppo_swing_20260304_220401/model",
     "pipeline_path": "models/rppo_swing_20260304_220401/pipeline.json",
-    "is_active": true,
+    "is_active": false,
     "tags": [
       "swing",
       "sprint19",

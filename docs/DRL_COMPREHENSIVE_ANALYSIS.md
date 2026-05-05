@@ -22,8 +22,8 @@
 ### 1.2 Mevcut Sisteme Entegrasyon Değeri
 
 ```python
-# Mevcut Scanner: 
-if rsi < 30 and volume_spike: 
+# Mevcut Scanner:
+if rsi < 30 and volume_spike:
     signal = "BUY"  # Binary, statik
 
 # DRL Agent:
@@ -212,7 +212,7 @@ action = agent.predict(state) = +0.6 (AL pozisyonu)
 state = [close=95, volatility=2.5, volume=5M]
 action = agent.predict(state) = -0.8 (Pozisyon kapat + SHORT)
 
-# DRL, yüksek volatilite + volume spike pattern'ini 
+# DRL, yüksek volatilite + volume spike pattern'ini
 # "tehlikeli durum" olarak öğrenmiştir
 ```
 
@@ -555,12 +555,12 @@ Ek İhtiyaç:
 class MarketEnv(gym.Env):
     observation_space: Box(shape=(n_features,))
     action_space: Box(low=-1, high=1, shape=(1,))
-    
+
     def step(action):
         # 1. Execute trade
         # 2. Calculate reward
         # 3. Return next_state
-    
+
     def reset():
         # Initialize episode
 ```
@@ -797,7 +797,7 @@ import optuna
 def objective(trial):
     lr = trial.suggest_float("lr", 1e-5, 1e-2, log=True)
     gamma = trial.suggest_float("gamma", 0.9, 0.999)
-    
+
     agent = train(lr=lr, gamma=gamma)
     return agent.evaluate()
 
@@ -1117,11 +1117,11 @@ Sonra: + DRL predictions
 
 ## 🏆 10. GENEL DEĞERLENDİRME
 
-DRL ajanlarının FinPilot projesine entegrasyonu, **mevcut kural-tabanlı scanner sisteminin yanında paralel çalışan, öğrenen ve kendini sürekli iyileştiren bir karar destek sistemi** katacaktır. Walk-forward validation ve reward shaping ile tasarlanmış PPO/SAC algoritmaları, **%50+ Sharpe ratio iyileştirmesi ve %40 drawdown azaltma** potansiyeli taşımaktadır. 
+DRL ajanlarının FinPilot projesine entegrasyonu, **mevcut kural-tabanlı scanner sisteminin yanında paralel çalışan, öğrenen ve kendini sürekli iyileştiren bir karar destek sistemi** katacaktır. Walk-forward validation ve reward shaping ile tasarlanmış PPO/SAC algoritmaları, **%50+ Sharpe ratio iyileştirmesi ve %40 drawdown azaltma** potansiyeli taşımaktadır.
 
-Multi-timeframe alignment, regime-adaptive trading ve dynamic position sizing gibi **kompleks karar verme görevlerinde geleneksel yöntemlere üstünlük** sağlar. Ancak, **3-6 aylık paper trading ve rigorous A/B testing** olmaksızın production'a alınmamalıdır; overfitting, reward hacking ve non-stationarity riskleri sürekli monitoring gerektirir. 
+Multi-timeframe alignment, regime-adaptive trading ve dynamic position sizing gibi **kompleks karar verme görevlerinde geleneksel yöntemlere üstünlük** sağlar. Ancak, **3-6 aylık paper trading ve rigorous A/B testing** olmaksızın production'a alınmamalıdır; overfitting, reward hacking ve non-stationarity riskleri sürekli monitoring gerektirir.
 
-**Teknik altyapı (GPU, MLflow, walk-forward training) zaten mevcuttur**, sadece ek kütüphaneler (stable-baselines3) ve haftalık retrain pipeline'ı gereklidir. Uzun vadede (12+ ay), DRL ajanları **%80+ otomasyon oranı** ile insan müdahalesini minimize edebilir, ancak regulatory compliance ve explainability için human-in-the-loop yaklaşımı korunmalıdır. 
+**Teknik altyapı (GPU, MLflow, walk-forward training) zaten mevcuttur**, sadece ek kütüphaneler (stable-baselines3) ve haftalık retrain pipeline'ı gereklidir. Uzun vadede (12+ ay), DRL ajanları **%80+ otomasyon oranı** ile insan müdahalesini minimize edebilir, ancak regulatory compliance ve explainability için human-in-the-loop yaklaşımı korunmalıdır.
 
 **Sonuç: DRL, projeyi incremental risk ile strategik bir üstünlük seviyesine taşıyabilir**, ancak başarı metrik-driven iterasyon ve disiplinli experiment tracking'e bağlıdır.
 
@@ -1146,6 +1146,6 @@ Multi-timeframe alignment, regime-adaptive trading ve dynamic position sizing gi
 
 ---
 
-**Son Güncelleme:** 2026-02-15  
-**Versiyon:** 1.0  
+**Son Güncelleme:** 2026-02-15
+**Versiyon:** 1.0
 **Yazar:** FinPilot DRL Research Team

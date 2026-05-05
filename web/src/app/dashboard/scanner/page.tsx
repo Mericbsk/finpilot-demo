@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { C, companyNames } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
+import { getCurrencySymbol } from "@/lib/userSettings";
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface ScanResult {
@@ -239,6 +240,39 @@ function SignalBadge({ signal }: { signal: string }) {
   );
 }
 
+/* ── sessionStorage persistence ────────────────────────────── */
+const CACHE_KEY = "finpilot_scanner_cache";
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+interface ScannerCache {
+  scanResults: Record<string, ScanResult>;
+  activePresetId: string | null;
+  scanAllMode: boolean;
+  scanComplete: boolean;
+  savedAt: number;
+}
+
+function readCache(): ScannerCache | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed: ScannerCache = JSON.parse(raw);
+    if (Date.now() - parsed.savedAt > CACHE_TTL_MS) {
+      sessionStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch { return null; }
+}
+
+function writeCache(data: Omit<ScannerCache, "savedAt">) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ...data, savedAt: Date.now() }));
+  } catch { /* quota — skip */ }
+}
+
 /* ── Scan API caller (batches of 50) ───────────────────────── */
 const BATCH_SIZE = 50;
 
@@ -258,21 +292,21 @@ async function scanBatch(
 export default function ScannerPage() {
   const [presets, setPresets] = useState<Preset[]>([]);
   const [activeCategory, setActiveCategory] = useState("Sectors");
-  const [activePresetId, setActivePresetId] = useState<string | null>(null);
+  const [activePresetId, setActivePresetId] = useState<string | null>(() => readCache()?.activePresetId ?? null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanTotal, setScanTotal] = useState(0);
-  const [scanComplete, setScanComplete] = useState(false);
+  const [scanComplete, setScanComplete] = useState<boolean>(() => readCache()?.scanComplete ?? false);
   const [scanResults, setScanResults] = useState<Record<string, ScanResult>>(
-    {},
+    () => readCache()?.scanResults ?? {},
   );
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [scanError, setScanError] = useState<string | null>(null);
   const [sortCol, setSortCol] = useState<string>("score");
   const [sortAsc, setSortAsc] = useState(false);
-  const [scanAllMode, setScanAllMode] = useState(false);
+  const [scanAllMode, setScanAllMode] = useState<boolean>(() => readCache()?.scanAllMode ?? false);
   const abortRef = useRef(false);
 
   /* Alpaca state */
@@ -282,6 +316,34 @@ export default function ScannerPage() {
   const [alpacaConnected, setAlpacaConnected] = useState(false);
   const [orderPending, setOrderPending] = useState(false);
   const [orderResult, setOrderResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  /* Load min score threshold + currency from user settings */
+  const [minScoreFilter, setMinScoreFilter] = useState(0);
+  const [currency, setCurrency] = useState("$");
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("finpilot_settings");
+      if (stored) {
+        const s = JSON.parse(stored);
+        // riskAppetite 1(conservative)→80, 3(medium)→60, 5(aggressive)→30
+        const map: Record<number, number> = { 1: 80, 2: 70, 3: 60, 4: 45, 5: 30 };
+        setMinScoreFilter(map[s.riskAppetite as number] ?? 0);
+        setCurrency(getCurrencySymbol(s.market || "US"));
+      }
+    } catch {}
+  }, []);
+
+  /* Persist preset/mode changes to sessionStorage */
+  useEffect(() => {
+    if (!activePresetId && !scanAllMode) return;
+    const cached = readCache();
+    writeCache({
+      scanResults: cached?.scanResults ?? {},
+      activePresetId,
+      scanAllMode,
+      scanComplete: cached?.scanComplete ?? false,
+    });
+  }, [activePresetId, scanAllMode]);
 
   /* Check Alpaca connection on mount */
   useEffect(() => {
@@ -294,7 +356,7 @@ export default function ScannerPage() {
   /* Place order on Alpaca */
   const placeAlpacaOrder = useCallback(async (stock: DisplayStock) => {
     if (orderPending) return;
-    const confirmed = window.confirm(`Place BUY order for ${stock.ticker}?\nPrice: $${stock.price.toFixed(2)}\nStop Loss: ${stock.stop > 0 ? '$' + stock.stop : 'Auto'}\nTake Profit: ${stock.tp1 > 0 ? '$' + stock.tp1 : 'Auto'}`);
+    const confirmed = window.confirm(`Place BUY order for ${stock.ticker}?\nPrice: ${currency}${stock.price.toFixed(2)}\nStop Loss: ${stock.stop > 0 ? currency + stock.stop : 'Auto'}\nTake Profit: ${stock.tp1 > 0 ? currency + stock.tp1 : 'Auto'}`);
     if (!confirmed) return;
     setOrderPending(true);
     setOrderResult(null);
@@ -316,7 +378,7 @@ export default function ScannerPage() {
         throw new Error(err.detail || "Order failed");
       }
       const order = await resp.json();
-      setOrderResult({ ok: true, msg: `${stock.ticker} — ${order.qty} shares @ $${order.limit_price || 'MKT'} (${order.order_id.slice(0, 8)}...)` });
+      setOrderResult({ ok: true, msg: `${stock.ticker} — ${order.qty} shares @ ${currency}${order.limit_price || 'MKT'} (${order.order_id.slice(0, 8)}...)` });
       // Refresh account
       fetch("/py-api/trade/account").then(r => r.json()).then(setAlpacaAccount).catch(() => {});
     } catch (e: unknown) {
@@ -352,7 +414,8 @@ export default function ScannerPage() {
           }));
           setPresets(list);
           const first = list.find((p) => p.category === "Sectors");
-          if (first) setActivePresetId(first.id);
+          // Only set default preset if no cached preset is available
+          if (first && !readCache()?.activePresetId) setActivePresetId(first.id);
           setLoading(false);
         },
       )
@@ -429,10 +492,17 @@ export default function ScannerPage() {
   }, [stocks, sortCol, sortAsc]);
 
   const filtered = useMemo(() => {
-    if (!searchTerm) return sorted;
-    const q = searchTerm.toLowerCase();
-    return sorted.filter((s) => s.ticker.toLowerCase().includes(q));
-  }, [sorted, searchTerm]);
+    let list = sorted;
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      list = list.filter((s) => s.ticker.toLowerCase().includes(q));
+    }
+    // Apply risk appetite filter only after a scan has been run
+    if (minScoreFilter > 0 && Object.keys(scanResults).length > 0) {
+      list = list.filter((s) => s.score >= minScoreFilter);
+    }
+    return list;
+  }, [sorted, searchTerm, minScoreFilter, scanResults]);
 
   /* ── Scan function: calls real backend in batches ──────── */
   const runScan = useCallback(
@@ -457,7 +527,8 @@ export default function ScannerPage() {
           try {
             const batchResult = await scanBatch(batch);
             Object.assign(results, batchResult);
-          } catch {
+          } catch (batchErr) {
+            console.warn("Batch scan failed:", batchErr);
             // Skip failed batch, continue with others
           }
           scanned += batch.length;
@@ -467,9 +538,21 @@ export default function ScannerPage() {
 
         setScanResults({ ...results });
         setScanComplete(true);
+        writeCache({ scanResults: { ...results }, activePresetId, scanAllMode, scanComplete: true });
 
         if (Object.keys(results).length === 0) {
-          setScanError("API yanıt vermedi. Backend çalışıyor mu?");
+          // Verify API is actually up before blaming it
+          try {
+            const hc = await fetch("/py-api/health");
+            if (hc.ok) {
+              // API is up but returned 0 results — likely all symbols filtered (delisted/no data)
+              setScanError("Sonuç bulunamadı. Seçili listedeki semboller için yeterli veri yok veya tümü delisted. Farklı bir preset deneyin.");
+            } else {
+              setScanError("Backend yanıt vermiyor (HTTP " + hc.status + "). Lütfen tekrar deneyin.");
+            }
+          } catch {
+            setScanError("Backend'e ulaşılamıyor. API çalışıyor mu? (http://localhost:8000)");
+          }
         }
       } catch {
         setScanError("Scan failed. Please try again.");
@@ -825,24 +908,32 @@ export default function ScannerPage() {
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <Search
-          size={15}
-          className="absolute left-3 top-1/2 -translate-y-1/2"
-          style={{ color: C.text3 }}
-        />
-        <input
-          type="text"
-          placeholder="Filter by ticker..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full rounded-xl py-2.5 pl-9 pr-4 text-sm outline-none"
-          style={{
-            border: `1px solid ${C.border}`,
-            backgroundColor: C.card,
-            color: C.text1,
-          }}
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2"
+            style={{ color: C.text3 }}
+          />
+          <input
+            type="text"
+            placeholder="Filter by ticker..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-xl py-2.5 pl-9 pr-4 text-sm outline-none"
+            style={{
+              border: `1px solid ${C.border}`,
+              backgroundColor: C.card,
+              color: C.text1,
+            }}
+          />
+        </div>
+        {minScoreFilter > 0 && Object.keys(scanResults).length > 0 && (
+          <div className="rounded-xl px-3 py-2.5 text-xs whitespace-nowrap" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card, color: C.text3 }}>
+            Risk filter: <span style={{ color: C.cyan, fontWeight: 600 }}>≥{minScoreFilter}</span>
+            <button onClick={() => setMinScoreFilter(0)} className="ml-2 underline" style={{ color: C.text3 }}>clear</button>
+          </div>
+        )}
       </div>
 
       {/* Results table + Detail panel */}
@@ -941,7 +1032,7 @@ export default function ScannerPage() {
                       className="px-4 py-2.5"
                       style={{ color: C.text1 }}
                     >
-                      ${s.price.toFixed(2)}
+                      {currency}{s.price.toFixed(2)}
                     </td>
                     <td
                       className="px-4 py-2.5"
@@ -1044,7 +1135,7 @@ export default function ScannerPage() {
                     className="text-2xl font-bold"
                     style={{ color: C.text1 }}
                   >
-                    ${selected.price > 0 ? selected.price.toFixed(2) : "—"}
+                    {currency}{selected.price > 0 ? selected.price.toFixed(2) : "—"}
                   </span>
                   <span
                     className="text-sm"

@@ -14,7 +14,7 @@ services:
     container_name: finpilot_web
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - API_HOST=http://api:8000
       - NODE_ENV=production
@@ -24,7 +24,7 @@ services:
       api:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -40,7 +40,7 @@ services:
     container_name: finpilot_api
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - TZ=Europe/Istanbul
       - PYTHONUNBUFFERED=1
@@ -52,7 +52,7 @@ services:
     networks:
       - finpilot_network
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/ready')"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -65,7 +65,7 @@ services:
           memory: 512M
 
   # ============================================
-  # 📊 Streamlit Dashboard (Legacy)
+  # 📊 Streamlit Dashboard (Legacy / Optional)
   # ============================================
   finpilot:
     build:
@@ -87,6 +87,8 @@ services:
       - finpilot_logs:/app/logs
     networks:
       - finpilot_network
+    profiles:
+      - legacy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
       interval: 30s
@@ -110,7 +112,7 @@ services:
       target: production
     container_name: finpilot_scanner
     restart: unless-stopped
-    command: ["python", "scanner.py"]
+    entrypoint: ["python", "scanner.py"]
     environment:
       - TZ=Europe/Istanbul
     env_file:
@@ -120,9 +122,10 @@ services:
     networks:
       - finpilot_network
     depends_on:
-      - finpilot
+      api:
+        condition: service_healthy
     profiles:
-      - scanner  # Only run with: docker-compose --profile scanner up
+      - scanner  # Only run with: docker compose --profile scanner up -d api web scanner
 
   # ============================================
   # 📱 Telegram Bot Service
@@ -134,7 +137,7 @@ services:
       target: production
     container_name: finpilot_telegram
     restart: unless-stopped
-    command: ["python", "telegram_bot_runner.py"]
+    entrypoint: ["python", "telegram_bot_runner.py"]
     environment:
       - TZ=Europe/Istanbul
     env_file:
@@ -144,9 +147,10 @@ services:
     networks:
       - finpilot_network
     depends_on:
-      - finpilot
+      api:
+        condition: service_healthy
     profiles:
-      - telegram  # Only run with: docker-compose --profile telegram up
+      - telegram  # Only run with: docker compose --profile telegram up -d api web telegram_bot
 
   # ============================================
   # 🗄️ Redis Cache (Optional)
@@ -163,7 +167,7 @@ services:
       - finpilot_network
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     profiles:
-      - cache  # Only run with: docker-compose --profile cache up
+      - cache  # Only run with: docker compose --profile cache up -d api web redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -189,7 +193,7 @@ services:
     networks:
       - finpilot_network
     profiles:
-      - db  # Only run with: docker-compose --profile db up
+      - db  # Only run with: docker compose --profile db up -d postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U finpilot -d finpilot"]
       interval: 10s

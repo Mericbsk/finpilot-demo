@@ -1,8 +1,8 @@
 # DRL Trading System → FinPilot Entegrasyon Değerlendirme Raporu
 
-**Tarih:** 2025-06-17  
-**Hazırlayan:** FinPilot AI Analiz Ekibi  
-**Versiyon:** 1.0  
+**Tarih:** 2025-06-17
+**Hazırlayan:** FinPilot AI Analiz Ekibi
+**Versiyon:** 1.0
 **Durum:** Değerlendirme Tamamlandı — Uygulama Beklemede
 
 ---
@@ -86,13 +86,13 @@
 Faz 1 - Optuna Hiperparametre Arama: ✅ BAŞARILI
   En iyi ödül: 261.31
   En iyi parametreler: lr=0.000154, n_steps=2048, batch=64, gamma=0.917
-  
+
 Faz 2 - Genişletilmiş Eğitim (100K adım): ❌ BAŞARISIZ
   Hata: "operands could not be broadcast together with shapes (19,) (20,)"
-  
+
 Faz 3 - Walk-Forward Validasyon: ❌ BAŞARISIZ
   Hata: Aynı shape mismatch
-  
+
 Faz 4 - FinRL Çoklu Varlık: ⏭️ ATLANMIŞ (demo modu)
 ```
 
@@ -265,7 +265,7 @@ DRL Trading System'den **kod değil, kavram** alınacaktır. Uygulama FinPilot'u
 
 ### Faz 1: Optuna Hiperparametre Arama (Öncelik: YÜKSEK)
 
-**Kaynak fikir:** `optuna_tuner.py`  
+**Kaynak fikir:** `optuna_tuner.py`
 **Hedef:** `WalkForwardTrainer` etrafında Optuna sarmalayıcı
 
 ```
@@ -286,14 +286,14 @@ Arama alanı:
 
 ### Faz 2: Çoklu Algoritma Desteği (Öncelik: ORTA)
 
-**Mevcut:** PPO, SAC  
+**Mevcut:** PPO, SAC
 **Eklenecek:** TD3, A2C
 
 `training.py` → `_create_model()` metoduna TD3 ve A2C desteği eklemek basit bir SB3 import/config değişikliğidir.
 
 ### Faz 3: Curriculum Learning (Öncelik: ORTA)
 
-**Kaynak fikir:** `CurriculumCallback` (DTS)  
+**Kaynak fikir:** `CurriculumCallback` (DTS)
 **Uygulama:** SB3 `BaseCallback` olarak FinPilot'un `WalkForwardTrainer`'ına entegre.
 
 Aşamalı zorluk artışı:
@@ -303,7 +303,7 @@ Aşamalı zorluk artışı:
 
 ### Faz 4: Multi-Asset Ortam (Öncelik: DÜŞÜK — Uzun Vadeli)
 
-**Kaynak fikir:** `finrl_multi_asset.py`  
+**Kaynak fikir:** `finrl_multi_asset.py`
 **Uygulama:** Yeni `MultiAssetMarketEnv(MarketEnv)` alt sınıfı
 
 Bu, mevcut `MarketEnv`'in tek varlık tasarımını çoklu varlığa genişletmek anlamına gelir. Action space `Box(-1,1,shape=(n_assets,))` olacak, portföy ağırlıkları softmax ile normalize edilecek.
@@ -329,12 +329,12 @@ Bu, mevcut `MarketEnv`'in tek varlık tasarımını çoklu varlığa genişletme
 Sprint 1 (Hafta 1-2):
   [5] Gerçek veri ile DRL eğitim testi
   [1] Optuna entegrasyonu
-  
+
 Sprint 2 (Hafta 3):
   [2] TD3 + A2C desteği
   [3] Curriculum learning
   [6] Backtest karşılaştırma
-  
+
 Sprint 3 (Hafta 4+):
   [4] Multi-asset ortam (opsiyonel)
 ```

@@ -19,7 +19,13 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import UTC, datetime
+
+try:
+    from datetime import UTC, datetime
+except ImportError:  # Python < 3.11
+    from datetime import datetime
+
+    UTC = UTC
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent

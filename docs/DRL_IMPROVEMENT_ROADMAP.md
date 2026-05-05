@@ -45,7 +45,7 @@ else: drl_action = "HOLD"
 threshold = 0.2 * (1 - confidence)  # Confidence yüksekse threshold düşer
 ```
 
-**Beklenen Etki:** 
+**Beklenen Etki:**
 - Trade sayısı 0 → 5-10 artabilir
 - Return iyileşebilir
 
@@ -333,7 +333,7 @@ def objective(trial):
     ent_coef = trial.suggest_float("ent_coef", 0.0, 0.1)
     vf_coef = trial.suggest_float("vf_coef", 0.1, 1.0)
     clip_range = trial.suggest_float("clip_range", 0.1, 0.4)
-    
+
     # Model train
     model = PPO(
         "MlpPolicy",
@@ -348,12 +348,12 @@ def objective(trial):
         clip_range=clip_range,
         verbose=0
     )
-    
+
     model.learn(total_timesteps=100_000)
-    
+
     # Evaluate
     mean_reward = evaluate_policy(model, eval_env, n_eval_episodes=10)
-    
+
     return mean_reward
 
 # Optimize
@@ -384,7 +384,7 @@ for lr in param_grid['learning_rate']:
                 # Train
                 model = train_model(lr, steps, gamma, ent)
                 score = evaluate(model)
-                
+
                 if score > best_score:
                     best_score = score
                     best_params = (lr, steps, gamma, ent)
@@ -482,24 +482,24 @@ import torch.nn as nn
 class AdvancedTradingPolicy(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
-        
+
         # Feature extraction layers
         self.feature_net = nn.Sequential(
             nn.Linear(input_dim, 256),
             nn.LayerNorm(256),
             nn.ReLU(),
             nn.Dropout(0.2),
-            
+
             nn.Linear(256, 128),
             nn.LayerNorm(128),
             nn.ReLU(),
             nn.Dropout(0.2),
-            
+
             nn.Linear(128, 64),
             nn.LayerNorm(64),
             nn.ReLU(),
         )
-        
+
         # LSTM for temporal dependencies
         self.lstm = nn.LSTM(
             input_size=64,
@@ -508,13 +508,13 @@ class AdvancedTradingPolicy(nn.Module):
             batch_first=True,
             dropout=0.2
         )
-        
+
         # Attention mechanism
         self.attention = nn.MultiheadAttention(
             embed_dim=64,
             num_heads=4
         )
-        
+
         # Output layers
         self.action_head = nn.Sequential(
             nn.Linear(64, 32),
@@ -522,27 +522,27 @@ class AdvancedTradingPolicy(nn.Module):
             nn.Linear(32, output_dim),
             nn.Tanh()  # Action space [-1, 1]
         )
-        
+
         self.value_head = nn.Sequential(
             nn.Linear(64, 32),
             nn.ReLU(),
             nn.Linear(32, 1)
         )
-    
+
     def forward(self, x):
         # Feature extraction
         features = self.feature_net(x)
-        
+
         # LSTM processing
         lstm_out, _ = self.lstm(features.unsqueeze(1))
-        
+
         # Attention
         attn_out, _ = self.attention(lstm_out, lstm_out, lstm_out)
-        
+
         # Outputs
         action = self.action_head(attn_out.squeeze(1))
         value = self.value_head(attn_out.squeeze(1))
-        
+
         return action, value
 ```
 
@@ -553,20 +553,20 @@ class AdvancedTradingPolicy(nn.Module):
 class CNNTradingPolicy(nn.Module):
     def __init__(self):
         super().__init__()
-        
+
         # CNN for price patterns
         self.cnn = nn.Sequential(
             nn.Conv1d(4, 32, kernel_size=3),  # OHLC
             nn.ReLU(),
             nn.MaxPool1d(2),
-            
+
             nn.Conv1d(32, 64, kernel_size=3),
             nn.ReLU(),
             nn.MaxPool1d(2),
-            
+
             nn.Flatten()
         )
-        
+
         # Dense layers
         self.dense = nn.Sequential(
             nn.Linear(64 * seq_len, 128),
@@ -588,29 +588,29 @@ class AdaptivePositionSizer:
         win_rate = self.historical_win_rate
         avg_win = self.avg_win_size
         avg_loss = self.avg_loss_size
-        
+
         kelly = (win_rate * avg_win - (1 - win_rate) * avg_loss) / avg_win
         kelly_fraction = kelly * 0.25  # Conservative Kelly
-        
+
         # Volatility adjustment
         vol_adjustment = 1.0 / (1 + volatility)
-        
+
         # Confidence weighting
         confidence_weight = confidence ** 2  # Quadratic
-        
+
         # Final position size
         position = (
-            capital * 
-            kelly_fraction * 
-            vol_adjustment * 
+            capital *
+            kelly_fraction *
+            vol_adjustment *
             confidence_weight *
             signal_strength
         )
-        
+
         # Caps
         position = min(position, capital * 0.2)  # Max %20
         position = max(position, capital * 0.05)  # Min %5
-        
+
         return position
 ```
 
@@ -621,22 +621,22 @@ class DynamicStopLoss:
     def calculate_stops(self, entry_price, atr, confidence):
         # ATR-based stop
         stop_distance = atr * (2.0 / confidence)  # Yüksek confidence → dar stop
-        
+
         stop_loss = entry_price - stop_distance
         take_profit = entry_price + stop_distance * 2  # 1:2 risk/reward
-        
+
         return stop_loss, take_profit
 
 class TrailingStop:
     def update_stop(self, current_price, entry_price, highest_price):
         # Trailing stop (kar koruma)
         unrealized_profit = (highest_price - entry_price) / entry_price
-        
+
         if unrealized_profit > 0.10:  # %10+ kar varsa
             # Kar'ın %50'sini koru
             trailing_stop = entry_price + (highest_price - entry_price) * 0.5
             return trailing_stop
-        
+
         return None
 ```
 
@@ -664,15 +664,15 @@ with mlflow.start_run(run_name=f"PPO_{timestamp}"):
         "symbols": symbols,
         "timeframe": "1d",
     })
-    
+
     # Training loop
     for step in range(total_steps):
         # Train
         model.learn(1000)
-        
+
         # Evaluate
         metrics = evaluate(model)
-        
+
         # Log metrics
         mlflow.log_metrics({
             "train/reward": metrics['reward'],
@@ -681,15 +681,15 @@ with mlflow.start_run(run_name=f"PPO_{timestamp}"):
             "eval/return": metrics['return'],
             "eval/drawdown": metrics['drawdown'],
         }, step=step)
-        
+
         # Log artifacts every 10K steps
         if step % 10_000 == 0:
             model.save(f"temp_model_{step}.zip")
             mlflow.log_artifact(f"temp_model_{step}.zip")
-    
+
     # Log final model
     mlflow.sklearn.log_model(model, "model")
-    
+
     # Log trade history
     mlflow.log_artifact("trade_history.csv")
 ```
@@ -766,26 +766,26 @@ class EnsembleAgent:
         self.momentum_agent = PPO.load("momentum_specialist.zip")
         self.reversal_agent = SAC.load("reversal_specialist.zip")
         self.trend_agent = TD3.load("trend_specialist.zip")
-        
+
         # Meta-learner (hangi agent'ı kullanacak?)
         self.meta_model = LogisticRegression()
-    
+
     def predict(self, state, market_regime):
         # Her agent prediction
         action_momentum, _ = self.momentum_agent.predict(state)
         action_reversal, _ = self.reversal_agent.predict(state)
         action_trend, _ = self.trend_agent.predict(state)
-        
+
         # Meta-model: Hangi agent güvenilir?
         agent_weights = self.meta_model.predict_proba(market_regime)[0]
-        
+
         # Weighted combination
         final_action = (
             agent_weights[0] * action_momentum +
             agent_weights[1] * action_reversal +
             agent_weights[2] * action_trend
         )
-        
+
         return final_action
 ```
 
@@ -797,25 +797,25 @@ class OnlineLearningAgent:
         self.model = base_model
         self.buffer = []
         self.retrain_frequency = 1000  # Her 1000 step'te retrain
-    
+
     def trade_and_learn(self, state):
         # Prediction
         action, _ = self.model.predict(state)
-        
+
         # Execute trade
         next_state, reward, done, info = env.step(action)
-        
+
         # Buffer'a ekle
         self.buffer.append((state, action, reward, next_state))
-        
+
         # Online retrain
         if len(self.buffer) >= self.retrain_frequency:
             # Son 1000 experience ile fine-tune
             self.fine_tune(self.buffer[-1000:])
             self.buffer = self.buffer[-5000:]  # Buffer limit
-        
+
         return action, reward
-    
+
     def fine_tune(self, recent_experiences):
         # Quick retrain on recent data
         temp_env = create_env_from_buffer(recent_experiences)

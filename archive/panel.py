@@ -40,7 +40,7 @@ def _hash_uploaded_file(uploaded_file) -> str | None:
     if uploaded_file is None:
         return None
     data = uploaded_file.getvalue()
-    return hashlib.sha1(data).hexdigest()
+    return hashlib.sha1(data).hexdigest()  # nosec B324 - non-security file hash
 
 
 def _set_active_symbols(symbols: list[str], *, source: str, status: str) -> None:

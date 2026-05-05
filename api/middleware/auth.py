@@ -1,7 +1,7 @@
 """FastAPI JWT authentication dependency.
 
 Usage:
-    from api.middleware.auth import require_auth, optional_auth
+    from api.middleware.auth import require_auth, optional_auth, require_admin
 
     @router.get("/protected")
     def protected(user: TokenPayload = Depends(require_auth)):
@@ -65,3 +65,27 @@ def optional_auth(
 ) -> TokenPayload | None:
     """Dependency that optionally extracts a JWT.  Returns None if absent."""
     return _extract_payload(credentials)
+
+
+def require_roles(*allowed_roles: str):
+    """Build a dependency that requires one of the provided roles."""
+    normalized_roles = {role.lower() for role in allowed_roles}
+
+    def _require_role(
+        payload: Annotated[TokenPayload, Depends(require_auth)],
+    ) -> TokenPayload:
+        if payload.role.lower() not in normalized_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"This endpoint requires one of the following roles: {', '.join(sorted(normalized_roles))}",
+            )
+        return payload
+
+    return _require_role
+
+
+def require_admin(
+    payload: Annotated[TokenPayload, Depends(require_auth)],
+) -> TokenPayload:
+    """Dependency that requires the caller to have the admin role."""
+    return require_roles("admin")(payload)

@@ -149,7 +149,7 @@ class PrometheusSettings:
     """Configuration block for Prometheus metrics exposure."""
 
     enabled: bool = False
-    host: str = "0.0.0.0"
+    host: str = "0.0.0.0"  # nosec B104
     port: int = 9000
     namespace: str = "finpilot"
     auto_start: bool = True

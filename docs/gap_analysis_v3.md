@@ -1,9 +1,9 @@
 # 🔍 FinPilot Kapsamlı Gap Analizi ve İyileştirme Raporu
 
-**Tarih:** 2026-02-15  
-**Audit v3 Sonucu:** 95/96 test geçti (%99.0)  
-**Unit Test Sonucu:** 342/342 geçti, 3 skip  
-**Kapsam:** Bölüm 2–13 (9 ana başlık)  
+**Tarih:** 2026-02-15
+**Audit v3 Sonucu:** 95/96 test geçti (%99.0)
+**Unit Test Sonucu:** 342/342 geçti, 3 skip
+**Kapsam:** Bölüm 2–13 (9 ana başlık)
 
 ---
 
@@ -32,7 +32,7 @@
 
 ### KRİTİK #1: `Backtest.calculate_results()` return None Bug
 
-**Dosya:** `backtest.py` (root level — grid_search tarafından kullanılan)  
+**Dosya:** `backtest.py` (root level — grid_search tarafından kullanılan)
 **Sorun:** `calculate_results()` metodu hiçbir zaman bir dict dönmüyor. Trade olduğunda bile implicit `None` dönüyor.
 
 ```python
@@ -65,7 +65,7 @@ def calculate_results(self):
 
 ### KRİTİK #2: Grid Search Parametreleri Bağlantısız
 
-**Dosya:** `grid_search.py`  
+**Dosya:** `grid_search.py`
 **Sorun:** Grid search 3 parametre arıyor (`rsi_threshold`, `volume_mult`, `momentum_pct`) ama bunlar `evaluate_symbol()` entry mantığında **hiç okunmuyor**. Parametreler config'e yazılıyor ama entry logic hardcoded.
 
 | Grid Search Parametresi | Entry Logic'te Kullanımı |

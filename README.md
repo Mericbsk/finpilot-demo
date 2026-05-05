@@ -22,19 +22,26 @@
 
 ```
 finpilot/
-├── scanner/              # Modular scanning system
-│   ├── indicators.py     # Technical indicators (EMA, RSI, MACD, etc.)
-│   ├── signals.py        # Signal detection and scoring
-│   ├── data_fetcher.py   # Market data retrieval
-│   └── config.py         # Configuration management
-├── drl/                  # Deep Reinforcement Learning
-│   ├── market_env.py     # Gymnasium trading environment
-│   ├── training.py       # Model training pipeline
-│   └── data_loader.py    # Feature engineering
-├── views/                # Streamlit dashboard views
+├── web/                  # Next.js frontend (local dev: http://localhost:3001)
+├── api/                  # FastAPI backend (local dev: http://localhost:8000)
+├── scanner/              # Technical scan and shortlist pipeline
+├── drl/                  # DRL training, inference, registry, backtests
+├── auth/                 # JWT auth, sessions, SQLite/PostgreSQL abstractions
+├── core/                 # Config, cache, monitoring, logging
+├── views/                # Legacy Streamlit UI surface (secondary)
 ├── tests/                # Unit and integration tests
-└── scripts/              # Utility scripts
+└── scripts/              # Utility and admin tooling
 ```
+
+## 📌 Runtime Contract
+
+- **Tek resmi lokal geliştirme giriş noktası:** `bash start.sh`
+- **Frontend local dev portu:** `3001`
+- **Backend API portu:** `8000`
+- **Liveness:** `/api/v1/health`
+- **Readiness:** `/api/v1/ready`
+- **Metrics:** `/api/v1/metrics`
+- **Legacy Streamlit:** `streamlit_app.py` ve `views/` bakım amaçlı tutulur; birincil ürün yüzeyi değildir.
 
 ## 🚀 Quick Start
 
@@ -66,14 +73,29 @@ cp .env.example .env
 ### Running the Application
 
 ```bash
-# Start Streamlit dashboard
-streamlit run streamlit_app.py
+# Start the current local stack
+bash start.sh
 
-# Run scanner
-python scanner.py
+# Or via Makefile
+make run
 
-# Run with aggressive mode
-python scanner.py --aggressive
+# Frontend
+http://localhost:3001
+
+# Backend
+http://localhost:8000/api/v1/health
+```
+
+### Authentication Bootstrap
+
+```bash
+# Create an admin user for protected endpoints
+python scripts/create_admin.py --email admin@finpilot.com --password SecurePass123!
+
+# Login and obtain JWT tokens
+curl -X POST http://localhost:8000/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@finpilot.com","password":"SecurePass123!"}'
 ```
 
 ## 🐳 Docker Deployment
@@ -81,31 +103,50 @@ python scanner.py --aggressive
 ### Quick Start with Docker
 
 ```bash
-# Build and run
-docker-compose up -d
+# First-time setup for persistent local env vars
+cp .env.example .env
+
+# Build and run the current web + API stack
+make docker-up
 
 # View logs
-docker-compose logs -f finpilot
+make docker-logs
 
 # Stop
-docker-compose down
+make docker-down
 ```
+
+Legacy Streamlit container is still present in `docker-compose.yml` as `finpilot`, but it is no longer the primary application entrypoint.
+
+### Docker Smoke Test
+
+```bash
+# Builds, starts api+web, verifies ready/health/metrics + frontend, then tears down
+make docker-smoke
+```
+
+If `.env` is missing, `make docker-smoke` creates a temporary local file with a throwaway secret just for the smoke run and removes it afterwards.
 
 ### Available Profiles
 
 ```bash
 # Main app only
-docker-compose up -d
+make docker-up
+
+# Main app + legacy Streamlit
+make docker-up-legacy
 
 # With scanner service
-docker-compose --profile scanner up -d
+docker compose --profile scanner up -d api web scanner
 
 # With Telegram bot
-docker-compose --profile telegram up -d
+docker compose --profile telegram up -d api web telegram_bot
 
 # Full stack with Redis cache
-docker-compose --profile scanner --profile telegram --profile cache up -d
+make docker-full
 ```
+
+For the legacy Streamlit surface outside Docker, use `make run-legacy`.
 
 ## ⚙️ Configuration
 

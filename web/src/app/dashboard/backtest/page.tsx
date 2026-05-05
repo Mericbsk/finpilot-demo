@@ -14,6 +14,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { C, hashStr, seededRandom, companyNames } from "@/lib/stockData";
+import { getCurrencySymbol } from "@/lib/userSettings";
 import DemoBanner from "@/components/DemoBanner";
 
 const strategies = ["Momentum", "Mean Reversion", "Trend Following", "DRL Agent"];
@@ -74,7 +75,7 @@ function genBacktest(ticker: string, strategy: string, period: string, capital: 
 }
 
 /* ── SVG Equity Curve ─────────────────────────────────────── */
-function EquityCurveSVG({ data, w = 600, h = 180 }: { data: number[]; w?: number; h?: number }) {
+function EquityCurveSVG({ data, w = 600, h = 180, currency = "$" }: { data: number[]; w?: number; h?: number; currency?: string }) {
   if (!data.length) return null;
   const mn = Math.min(...data);
   const mx = Math.max(...data);
@@ -94,8 +95,8 @@ function EquityCurveSVG({ data, w = 600, h = 180 }: { data: number[]; w?: number
       <polygon points={fillPts} fill="url(#eqGrad)" />
       <polyline points={points} fill="none" stroke={col} strokeWidth="2" />
       {/* Start & End labels */}
-      <text x={4} y={14} fill={C.text3} fontSize="10">${(data[0]/1000).toFixed(1)}K</text>
-      <text x={w - 4} y={14} fill={col} fontSize="10" textAnchor="end" fontWeight="bold">${(data[data.length-1]/1000).toFixed(1)}K</text>
+      <text x={4} y={14} fill={C.text3} fontSize="10">{currency}{(data[0]/1000).toFixed(1)}K</text>
+      <text x={w - 4} y={14} fill={col} fontSize="10" textAnchor="end" fontWeight="bold">{currency}{(data[data.length-1]/1000).toFixed(1)}K</text>
     </svg>
   );
 }
@@ -145,10 +146,32 @@ export default function BacktestPage() {
   const [positionSize, setPositionSize] = useState(10);
   const [stopLoss, setStopLoss] = useState(5);
   const [takeProfit, setTakeProfit] = useState(15);
+
+  /* Load defaults from saved user settings */
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("finpilot_settings");
+      if (stored) {
+        const s = JSON.parse(stored);
+        if (s.portfolioSize) setInitialCapital(s.portfolioSize);
+        if (s.maxLossPercent) setStopLoss(s.maxLossPercent);
+        if (s.scanStrategy) {
+          const map: Record<string, string> = {
+            hybrid: "Hybrid", momentum: "Momentum",
+            value: "Value", growth: "Growth", dividend: "Dividend",
+          };
+          const mapped = map[s.scanStrategy.toLowerCase()];
+          if (mapped) setStrategy(mapped);
+        }
+        if (s.market) setCurrency(getCurrencySymbol(s.market));
+      }
+    } catch {}
+  }, []);
   const [results, setResults] = useState<ReturnType<typeof genBacktest> | null>(null);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [hoverCard, setHoverCard] = useState<string | null>(null);
+  const [currency, setCurrency] = useState("$");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   /* Load stock presets */
@@ -504,14 +527,14 @@ export default function BacktestPage() {
                   {r.totalReturn >= 0 ? "+" : ""}{r.totalReturn}%
                 </div>
                 <div style={{ fontSize: 11, color: C.text3 }}>
-                  ${r.capital.toLocaleString()} → ${r.finalCapital.toLocaleString()}
+                  {currency}{r.capital.toLocaleString()} → {currency}{r.finalCapital.toLocaleString()}
                   <span style={{ color: r.profit >= 0 ? C.green : C.red, marginLeft: 6 }}>
-                    ({r.profit >= 0 ? "+" : ""}${r.profit.toLocaleString()})
+                    ({r.profit >= 0 ? "+" : ""}{currency}{r.profit.toLocaleString()})
                   </span>
                 </div>
               </div>
             </div>
-            <EquityCurveSVG data={r.equity} />
+            <EquityCurveSVG data={r.equity} currency={currency} />
           </div>
 
           {/* KPI Grid */}

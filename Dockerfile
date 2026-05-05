@@ -1,6 +1,6 @@
 # ============================================
-# 🏗️ FinPilot Production Dockerfile
-# Multi-stage build for optimized image size
+# 🏗️ FinPilot Legacy Streamlit Dockerfile
+# Secondary surface only. Primary runtime is web + api.
 # ============================================
 
 # ---- Stage 1: Builder ----
@@ -65,5 +65,5 @@ ENV PYTHONUNBUFFERED=1 \
     STREAMLIT_SERVER_PORT=8501 \
     STREAMLIT_SERVER_ADDRESS=0.0.0.0
 
-# Start application
+# Start legacy Streamlit application
 ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]

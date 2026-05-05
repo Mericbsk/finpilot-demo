@@ -79,6 +79,75 @@ def apply_aggressive_mode() -> None:
     SETTINGS.update(AGGRESSIVE_OVERRIDES)
 
 
+# ── Known-delisted symbols (acquired/merged/bankrupt) ──────────────────────────
+# Add symbols here to permanently exclude them from scanning.
+# Format: {TICKER: "reason"} — reason shown in logs at INFO level.
+DELISTED_SYMBOLS: dict[str, str] = {
+    # Cisco acquisitions
+    "SPLK": "Acquired by Cisco (2024)",
+    "SUMO": "Acquired by Cisco (2023)",
+    # Vista Equity acquisitions
+    "NEWR": "Acquired by Vista Equity (2024)",
+    # Other M&A
+    "SGEN": "Acquired by Pfizer (2024)",
+    "LVGO": "Merged with Teladoc (2020)",
+    "ONEM": "Acquired by Amazon (2023)",
+    "MAXR": "Acquired by Advent (2023)",
+    "ANTM": "Renamed to ELV (Elevance Health)",
+    "WLTW": "Merged into AON/rebranded",
+    "ATVI": "Acquired by Microsoft (2023)",
+    # Bankrupt / liquidated
+    "SBNY": "Signature Bank — bankrupt (2023)",
+    "FFIE": "Faraday Future — liquidation risk",
+    "RIDE": "Lordstown Motors — bankrupt (2023)",
+    "NKLA": "Nikola — high delist risk",
+    "GOEV": "Canoo — bankrupt (2024)",
+    "FREYR": "Delisted (2024)",
+    "FSR": "Fisker — bankrupt (2024)",
+    "ARVL": "Arrival — delisted (2024)",
+    "DCFC": "Tritium DCFC — delisted (2024)",
+    "VORB": "Virgin Orbit — bankrupt (2023)",
+    "ASTR": "Astra Space — delisted",
+    # Acquisitions / mergers (others)
+    "CLR": "Continental Resources — taken private (2022)",
+    "HES": "Acquired by Chevron (2024)",
+    "PXD": "Pioneer Natural Resources — acquired by Exxon (2024)",
+    "MRO": "Marathon Oil — acquired by ConocoPhillips (2024)",
+    "SWN": "Southwestern Energy — acquired by Chesapeake (2024)",
+    "CMA": "Comerica — acquisition target",
+    "ORCC": "Blue Owl Capital — rebranded",
+    "VMW": "Acquired by Broadcom (2023)",
+    "CTXS": "Citrix — acquired (2022)",
+    "XLNX": "Acquired by AMD (2022)",
+    "ATXS": "Astex Pharmaceuticals — delisted",
+    "BLUE": "bluebird bio — delisted",
+    "ACCD": "Accolade — taken private",
+    "ADAP": "Adaptimmune — clinical stage",
+    "ADVM": "Adverum — delisted",
+    "AKRO": "Akero Therapeutics — delisted",
+    "AMEH": "ApolloMed — delisted",
+    "PTRA": "Proterra — bankrupt (2023)",
+    "VERV": "Verve Therapeutics — acquired",
+    "VLNC": "Valence Technology — inactive",
+    "NOVA": "Sunnova Energy — bankrupt (2025)",
+    "AMODW": "Warrant — not a stock",
+    "AREBW": "Warrant — not a stock",
+    "CMPO": "Compounders — inactive",
+    "RNWWW": "Warrant",
+    "RVSNW": "Warrant",
+    "MOBBW": "Warrant",
+    "GIPRW": "Warrant",
+    "FGIWW": "Warrant",
+    "WLDSW": "Warrant",
+    "ESLGW": "Warrant",
+    "SENEB": "Senior note — not equity",
+    "WHLRL": "Wheeler REIT — delisted",
+}
+
+# Fast lookup set for O(1) membership tests
+DELISTED_SYMBOLS_SET: frozenset[str] = frozenset(DELISTED_SYMBOLS.keys())
+
+
 def reset_to_default() -> None:
     """Reset settings to default values."""
     global SETTINGS

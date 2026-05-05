@@ -2,24 +2,27 @@
 # Pinned for reproducibility - Sprint 3
 
 # Web Framework
-streamlit>=1.53.0,<2.0.0
+streamlit==1.45.1
+fastapi==0.135.1
+uvicorn[standard]==0.41.0
+slowapi==0.1.9
 
 # Data Processing
-pandas==3.0.1
+pandas==2.2.3
 numpy==2.4.2
 yfinance==1.2.0
 
 # Visualization
-plotly>=6.5.0,<7.0.0
+plotly==6.1.1
 
 # HTTP & Parsing
 requests==2.32.5
 beautifulsoup4==4.14.3
-lxml>=6.0.0,<7.0.0
+lxml==6.0.4
 
 # LLM Integration
-google-genai>=1.0.0,<2.0.0
-duckduckgo-search>=8.1.0,<9.0.0
+google-genai==1.15.0
+duckduckgo-search==8.1.1
 groq==1.1.2
 anthropic==0.86.0
 tavily-python==0.7.22
@@ -27,7 +30,7 @@ tavily-python==0.7.22
 # Core Infrastructure
 pydantic==2.12.5
 pydantic-settings==2.13.1
-structlog>=25.0.0,<26.0.0
+structlog==25.4.0
 
 # Security - Sprint 1
 pyjwt==2.12.1
@@ -35,21 +38,30 @@ bcrypt==5.0.0
 cryptography==46.0.6
 
 # Observability - Sprint 4
-sentry-sdk>=2.31.0,<3.0.0
-prometheus-client>=0.21.0,<1.0.0
+sentry-sdk==2.31.0
+prometheus-client==0.21.1
+
+# Cache - Redis L2
+redis==5.2.1
 
 # Export - Faz 2
-openpyxl>=3.1.0,<4.0.0
-reportlab>=4.2.0,<5.0.0
+openpyxl==3.1.5
+reportlab==4.4.1
 
 # Google Sheets Integration
-gspread>=6.1.0,<7.0.0
+gspread==6.1.4
 google-auth==2.49.1
 
 # Broker & Scheduling - Sprint 21
 alpaca-py==0.43.2
-apscheduler>=3.10.0,<4.0.0
+apscheduler==3.11.0
+
+# Documentation
+mkdocs==1.6.1
+mkdocs-material==9.6.12
 
 # Testing (dev)
 pytest==9.0.2
-pytest-cov>=7.0.0
+pytest-cov==7.1.0
+httpx==0.28.1
+pre-commit==4.2.0

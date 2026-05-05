@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import re
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+
+from api.middleware.auth import require_auth
+from core.cache import cached
 
 logger = logging.getLogger(__name__)
 
@@ -150,14 +154,56 @@ def llm_status() -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Cached LLM generation helper
+# ---------------------------------------------------------------------------
+
+
+def _llm_cache_key(symbol: str, language: str, context: str) -> str:
+    """Build a stable cache key from request parameters."""
+    ctx_digest = hashlib.sha256(context[:500].encode()).hexdigest()[:12]
+    return f"llm:analyze:{symbol}:{language}:{ctx_digest}"
+
+
+@cached(
+    ttl=1800,
+    prefix="llm",
+    key_builder=_llm_cache_key,
+    skip_cache_if=lambda symbol, language, context: any(
+        kw in context.lower() for kw in ("force", "refresh", "yenile")
+    ),
+)
+def _generate_report(symbol: str, language: str, context: str) -> dict[str, Any]:
+    """Generate and cache an LLM research report. Returns a plain dict for serialization."""
+    from llm import get_router
+
+    llm_router = get_router()
+    template = _PROMPTS.get(language, _PROMPTS["en"])
+    context_block = f"\nAdditional context:\n{context}" if context else ""
+    prompt = template.format(symbol=symbol, context_block=context_block)
+
+    response = llm_router.generate(prompt, system=_SYSTEM, max_tokens=2048)
+    sections = _parse_sections(response.content)
+
+    return {
+        "symbol": symbol,
+        "sections": [{"title": s.title, "content": s.content} for s in sections],
+        "provider": response.provider,
+        "model": response.model,
+        "latency_ms": round(response.latency_ms, 1),
+        "tokens": {"input": response.input_tokens, "output": response.output_tokens},
+    }
+
+
+# ---------------------------------------------------------------------------
 # Main analyze endpoint
 # ---------------------------------------------------------------------------
 
 
-@router.post("/llm/analyze", response_model=AnalyzeResponse)
+@router.post("/llm/analyze", response_model=AnalyzeResponse, dependencies=[Depends(require_auth)])
 def analyze_symbol(req: AnalyzeRequest) -> AnalyzeResponse:
     """Generate an LLM-powered research report for a stock symbol.
 
+    Results are cached for 30 minutes. Include "force" or "refresh" in context to bypass cache.
     Uses Groq → Claude → Gemini failover via llm.router.
     """
     try:
@@ -172,27 +218,17 @@ def analyze_symbol(req: AnalyzeRequest) -> AnalyzeResponse:
             detail="No LLM providers available. Set GROQ_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_API_KEY.",
         )
 
-    # Build prompt
-    template = _PROMPTS.get(req.language, _PROMPTS["en"])
-    context_block = f"\nAdditional context:\n{req.context}" if req.context else ""
-    prompt = template.format(symbol=req.symbol, context_block=context_block)
-
     try:
-        response = llm_router.generate(prompt, system=_SYSTEM, max_tokens=2048)
+        data = _generate_report(req.symbol, req.language, req.context)
     except Exception as e:
         logger.error("LLM generation failed for %s: %s", req.symbol, e)
         raise HTTPException(status_code=502, detail=f"LLM generation failed: {e}") from e
 
-    sections = _parse_sections(response.content)
-
     return AnalyzeResponse(
-        symbol=req.symbol,
-        sections=sections,
-        provider=response.provider,
-        model=response.model,
-        latency_ms=round(response.latency_ms, 1),
-        tokens={
-            "input": response.input_tokens,
-            "output": response.output_tokens,
-        },
+        symbol=data["symbol"],
+        sections=[AnalyzeSection(**s) for s in data["sections"]],
+        provider=data["provider"],
+        model=data["model"],
+        latency_ms=data["latency_ms"],
+        tokens=data["tokens"],
     )

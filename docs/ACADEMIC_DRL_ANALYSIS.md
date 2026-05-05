@@ -53,7 +53,7 @@ class EnsembleAgent:
         self.ppo = PPO.load("ppo_momentum.zip")      # Trend-following
         self.sac = SAC.load("sac_reversal.zip")      # Mean-reversion
         self.td3 = TD3.load("td3_balanced.zip")      # Conservative
-        
+
     def predict(self, state, market_regime):
         # Regime-based selection
         if market_regime == "trending":
@@ -97,14 +97,14 @@ class BayesianDRL:
         for _ in range(100):
             pred = self.model.predict(state, deterministic=False)
             predictions.append(pred)
-        
+
         mean_action = np.mean(predictions)
         uncertainty = np.std(predictions)
-        
+
         # Yüksek belirsizlikte conservative ol
         if uncertainty > threshold:
             action = mean_action * 0.5  # Reduce position
-        
+
         return action, uncertainty
 ```
 
@@ -112,7 +112,7 @@ class BayesianDRL:
 ```
 Çoklu ödül fonksiyonu:
 - Log returns
-- Differential Sharpe ratio  
+- Differential Sharpe ratio
 - Maximum drawdown
 
 → Sensex, Dow, TWSE, IBEX'te klasik DRL'den daha iyi
@@ -386,43 +386,43 @@ class DataPipeline:
     """
     Literatür-tabanlı data pipeline
     """
-    
+
     def clean(self, df):
         # 1. Outlier detection (IQR method)
         Q1 = df['Close'].quantile(0.25)
         Q3 = df['Close'].quantile(0.75)
         IQR = Q3 - Q1
-        df = df[(df['Close'] >= Q1 - 1.5*IQR) & 
+        df = df[(df['Close'] >= Q1 - 1.5*IQR) &
                 (df['Close'] <= Q3 + 1.5*IQR)]
-        
+
         # 2. Split/dividend adjustment (yfinance otomatik)
         # 3. Missing data imputation
         df = df.ffill().bfill()
-        
+
         # 4. Time synchronization (multi-symbol)
         df = df.resample('1D').last()
-        
+
         return df
-    
+
     def engineer_features(self, df):
         # Technical indicators (30+)
         from ta import add_all_ta_features
         df = add_all_ta_features(
-            df, 
-            open="Open", high="High", 
-            low="Low", close="Close", 
+            df,
+            open="Open", high="High",
+            low="Low", close="Close",
             volume="Volume"
         )
-        
+
         # Volatility features
         df['hist_vol'] = df['Close'].pct_change().rolling(20).std() * np.sqrt(252)
-        
+
         # Volume features
         df['volume_ratio'] = df['Volume'] / df['Volume'].rolling(50).mean()
-        
+
         # Sentiment features (eğer varsa)
         # df['sentiment'] = get_news_sentiment(df.index)
-        
+
         return df
 ```
 
@@ -442,7 +442,7 @@ reward = portfolio_value_t - portfolio_value_t-1
 ```python
 # ✅ Daha iyi ama hala basit
 reward = (
-    returns 
+    returns
     - lambda_risk * volatility
     - lambda_cost * transaction_costs
 )
@@ -455,27 +455,27 @@ class RiskAwareReward:
     def calculate(self, portfolio, action):
         # 1. Return component
         returns = portfolio.pnl / portfolio.initial_capital
-        
+
         # 2. Risk components
         sharpe = returns / (portfolio.volatility + 1e-6)
         sortino = returns / (portfolio.downside_deviation + 1e-6)
         max_dd = portfolio.max_drawdown
-        
+
         # 3. Transaction cost
         cost = abs(action) * 0.001  # 0.1%
-        
+
         # 4. Regime bonus
         if market_regime == "trending" and action_aligned_with_trend:
             regime_bonus = 0.1
         else:
             regime_bonus = 0.0
-        
+
         # 5. Trade activity (HOLD'u azalt)
         if action != "HOLD":
             activity_bonus = 0.05
         else:
             activity_bonus = -0.02  # Penalize excessive HOLD
-        
+
         # Weighted combination
         reward = (
             1.0 * returns +
@@ -486,7 +486,7 @@ class RiskAwareReward:
             0.2 * regime_bonus +
             0.1 * activity_bonus
         )
-        
+
         return reward
 ```
 
@@ -511,11 +511,11 @@ class DifferentialSharpe:
         self.A = 0  # Return exponential moving average
         self.B = 0  # Squared return EMA
         self.eta = 0.01  # Learning rate
-    
+
     def update(self, return_t):
         self.A = self.A + self.eta * (return_t - self.A)
         self.B = self.B + self.eta * (return_t**2 - self.B)
-        
+
         sharpe = self.A / (np.sqrt(self.B - self.A**2) + 1e-6)
         return sharpe
 ```
@@ -526,7 +526,7 @@ class DifferentialSharpe:
 ```python
 # Mevcut (basit)
 reward = (
-    1.0 * pnl 
+    1.0 * pnl
     - 1.5 * drawdown
     - 0.2 * cost
 )
@@ -571,16 +571,16 @@ metrics = {
     'total_return': (final_value - initial_value) / initial_value,
     'annualized_return': total_return * (252 / days),
     'excess_return': strategy_return - benchmark_return,
-    
+
     # Risk metrics
     'volatility': returns.std() * np.sqrt(252),
     'max_drawdown': (cummax - portfolio_value).max() / cummax,
     'downside_deviation': returns[returns < 0].std() * np.sqrt(252),
-    
+
     # Risk-adjusted
     'sharpe_ratio': (returns.mean() * 252) / (returns.std() * np.sqrt(252)),
     'sortino_ratio': returns.mean() / downside_deviation,
-    
+
     # Trade metrics
     'win_rate': wins / total_trades,
     'profit_factor': gross_profit / gross_loss,
@@ -594,12 +594,12 @@ advanced_metrics = {
     'VaR_95': np.percentile(returns, 5),
     'CVaR_95': returns[returns <= VaR_95].mean(),
     'expected_shortfall': CVaR_95,
-    
+
     # Drawdown analysis
     'avg_drawdown': drawdowns.mean(),
     'drawdown_duration': longest_drawdown_period,
     'recovery_time': time_to_recover_from_max_dd,
-    
+
     # Trade analysis
     'avg_win': winning_trades.mean(),
     'avg_loss': losing_trades.mean(),
@@ -607,7 +607,7 @@ advanced_metrics = {
     'largest_loss': losing_trades.min(),
     'consecutive_wins': max_consecutive_wins,
     'consecutive_losses': max_consecutive_losses,
-    
+
     # Stability
     'calmar_ratio': annualized_return / abs(max_drawdown),
     'omega_ratio': calculate_omega(returns, threshold=0),
@@ -622,35 +622,35 @@ class WalkForwardBacktest:
     """
     Literatür-standardı walk-forward backtesting
     """
-    
+
     def __init__(self, data, train_period=252, test_period=63, step=21):
         self.data = data
         self.train_period = train_period  # 1 yıl
         self.test_period = test_period    # 3 ay
         self.step = step                  # 1 ay kaydırma
-    
+
     def run(self):
         results = []
-        
+
         for start in range(0, len(self.data) - self.train_period - self.test_period, self.step):
             # Train window
             train_end = start + self.train_period
             train_data = self.data[start:train_end]
-            
+
             # Test window
             test_end = train_end + self.test_period
             test_data = self.data[train_end:test_end]
-            
+
             # Train agent
             agent = self.train_agent(train_data)
-            
+
             # Test agent
             metrics = self.test_agent(agent, test_data)
             results.append(metrics)
-            
+
             # Retrain için eski modelden başla (transfer learning)
             self.save_checkpoint(agent)
-        
+
         return self.aggregate_results(results)
 ```
 
@@ -662,19 +662,19 @@ def statistical_test(strategy_returns, benchmark_returns):
     Strategy vs benchmark statistical comparison
     """
     from scipy import stats
-    
+
     # 1. Paired t-test
     t_stat, p_value = stats.ttest_rel(strategy_returns, benchmark_returns)
-    
+
     # 2. Sharpe ratio difference test
     sharpe_diff = sharpe_strategy - sharpe_benchmark
     sharpe_se = np.sqrt((1 + 0.5 * sharpe_strategy**2) / len(returns))
     z_score = sharpe_diff / sharpe_se
     p_value_sharpe = 2 * (1 - stats.norm.cdf(abs(z_score)))
-    
+
     # 3. Diebold-Mariano test (forecast accuracy)
     dm_stat = diebold_mariano_test(strategy_returns, benchmark_returns)
-    
+
     return {
         't_test_p_value': p_value,
         'sharpe_test_p_value': p_value_sharpe,
@@ -771,13 +771,13 @@ class RegimeAdaptiveAgent:
     def detect_regime(self, data):
         # HMM veya clustering
         from hmmlearn import hmm
-        
+
         model = hmm.GaussianHMM(n_components=3)  # Bull/Bear/Sideways
         model.fit(returns)
         regime = model.predict(current_returns)
-        
+
         return regime
-    
+
     def select_policy(self, regime):
         if regime == 0:  # Bull
             return self.bull_agent
@@ -791,7 +791,7 @@ class OnlineDRL:
     def continuous_learning(self):
         # Her gün yeni data ile retrain
         buffer.add(today_experience)
-        
+
         if len(buffer) > 1000:
             model.learn(buffer[-1000:], epochs=5)  # Quick retrain
 
@@ -813,13 +813,13 @@ class ShapedReward:
     def calculate(self, action, state, next_state):
         # Immediate reward (zayıf)
         immediate = next_state.pnl - state.pnl
-        
+
         # Potential-based shaping (güçlü)
         potential = self.value_function(next_state) - self.value_function(state)
-        
+
         # Shaped = Immediate + Potential
         shaped_reward = immediate + gamma * potential
-        
+
         return shaped_reward
 
 # 2. Intrinsic Motivation
@@ -886,7 +886,7 @@ class TrendFollowingDRL:
     PPO-based trend following
     Akademik çalışmalarda kanıtlanmış
     """
-    
+
     def __init__(self):
         self.algorithm = PPO  # Trend için en iyi
         self.features = [
@@ -895,7 +895,7 @@ class TrendFollowingDRL:
             'volume_ratio',                   # Confirmation
         ]
         self.action_threshold = 0.2  # Aggressive
-    
+
     def reward(self, portfolio):
         # Trend takip ödüllendir
         if action_aligned_with_trend:
@@ -924,7 +924,7 @@ class MeanReversionDRL:
     SAC-based mean reversion
     Range-bound piyasalar için
     """
-    
+
     def __init__(self):
         self.algorithm = SAC  # Continuous action
         self.features = [
@@ -934,7 +934,7 @@ class MeanReversionDRL:
             'regime_range',                   # Confirm ranging
         ]
         self.action_threshold = 0.25
-    
+
     def reward(self, portfolio):
         # Reversal'ı ödüllendir
         if bought_oversold or sold_overbought:
@@ -963,17 +963,17 @@ class PortfolioDRL:
     A2C-based portfolio optimization
     Çoklu varlık tahsisi
     """
-    
+
     def __init__(self):
         self.algorithm = A2C  # Multi-action
-        self.assets = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA', 
+        self.assets = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA',
                        'GLD', 'TLT']  # Stocks + Safe havens
         self.features = [
             'returns', 'volatility', 'correlation',
             'sharpe', 'beta', 'alpha',
             'macro_indicators',  # GDP, interest rates
         ]
-    
+
     def reward(self, portfolio):
         # Risk-adjusted return
         return (

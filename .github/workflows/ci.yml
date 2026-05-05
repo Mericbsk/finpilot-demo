@@ -31,7 +31,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov pyjwt pydantic-settings bcrypt slowapi
 
       - name: 🧪 Run tests with coverage
         run: |
@@ -109,7 +108,7 @@ jobs:
         run: npx next lint --quiet || true
 
       - name: 🧪 Test (Vitest)
-        run: npx vitest run
+        run: npm test
 
       - name: 🏗️ Build
         run: npm run build
@@ -176,46 +175,60 @@ jobs:
       - name: 🐳 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🏗️ Build Streamlit image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false
-          tags: finpilot:${{ github.sha }}
-          load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
       - name: 🏗️ Build FastAPI image
         run: docker build -f api/Dockerfile -t finpilot-api:${{ github.sha }} .
 
       - name: 🏗️ Build Next.js image
         run: docker build -f web/Dockerfile -t finpilot-web:${{ github.sha }} ./web
 
-      - name: 🩺 Docker smoke test
-        run: |
-          # Start container in background
-          SECRET_KEY=ci-test-key-not-for-production  # pragma: allowlist secret
-          docker run -d --name finpilot-smoke \
-            -e FINPILOT_SECRET_KEY="$SECRET_KEY" \
-            -p 8501:8501 \
-            finpilot:${{ github.sha }}
+      - name: 🏗️ Build legacy Streamlit image (informational)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: finpilot-legacy:${{ github.sha }}
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        continue-on-error: true
 
-          # Wait for health check (max 30s)
+      - name: 🩺 Docker smoke test (API ready + metrics)
+        run: |
+          set -euo pipefail
+          SECRET_KEY=ci-test-key-not-for-production  # pragma: allowlist secret
+
+          cleanup() {
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              docker logs finpilot-api-smoke --tail 50 || true
+            fi
+            docker stop finpilot-api-smoke >/dev/null 2>&1 || true
+            docker rm finpilot-api-smoke >/dev/null 2>&1 || true
+            exit "$status"
+          }
+
+          trap cleanup EXIT INT TERM
+
+          docker run -d --name finpilot-api-smoke \
+            -e FINPILOT_SECRET_KEY="$SECRET_KEY" \
+            -p 8000:8000 \
+            finpilot-api:${{ github.sha }}
+
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:8501/_stcore/health > /dev/null 2>&1; then
-              echo "✅ Health check passed after ${i}s"
-              docker logs finpilot-smoke --tail 5
-              docker stop finpilot-smoke && docker rm finpilot-smoke
-              exit 0
+            if curl -sf http://localhost:8000/api/v1/ready > /dev/null 2>&1; then
+              echo "✅ API ready check passed after ${i}s"
+              break
             fi
             sleep 1
+            if [ "$i" -eq 30 ]; then
+              echo "❌ API ready check failed after 30s"
+              exit 1
+            fi
           done
 
-          echo "❌ Health check failed after 30s"
-          docker logs finpilot-smoke --tail 30
-          docker stop finpilot-smoke && docker rm finpilot-smoke
-          exit 1
+          curl -sf http://localhost:8000/api/v1/health > /dev/null
+          curl -sf http://localhost:8000/api/v1/metrics | grep -qi "finpilot"
+          echo "✅ API health and metrics checks passed"
 
   # ============================================
   # 📊 Scanner Test Job - Integration

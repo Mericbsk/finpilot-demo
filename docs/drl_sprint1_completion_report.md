@@ -1,8 +1,8 @@
 # DRL Sprint 1 — Tamamlanma Raporu
 
-**Tarih:** 2025-02-18  
-**Sprint Süresi:** Tek oturum  
-**Hedef:** Değerlendirme raporunda belirlenen 4 öncelikli geliştirmeyi hayata geçirmek  
+**Tarih:** 2025-02-18
+**Sprint Süresi:** Tek oturum
+**Hedef:** Değerlendirme raporunda belirlenen 4 öncelikli geliştirmeyi hayata geçirmek
 **Sonuç:** ✅ 4/4 tamamlandı — 18/18 entegrasyon testi geçti
 
 ---
@@ -18,7 +18,7 @@ FinPilot DRL modülüne dört kritik yetenek eklendi:
 | 3 | Curriculum Learning Callback | ✅ Tamamlandı | `drl/callbacks.py` | ~310 |
 | 4 | Multi-Asset Ortam | ✅ Tamamlandı | `drl/multi_asset_env.py` | ~310 |
 
-**Toplam:** ~1.070 satır yeni kod + ~80 satır değişiklik  
+**Toplam:** ~1.070 satır yeni kod + ~80 satır değişiklik
 **Test sonucu:** 18/18 geçti (179.4s)
 
 ---

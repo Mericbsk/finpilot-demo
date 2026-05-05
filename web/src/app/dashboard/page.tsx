@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { C, companyNames } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
+import { getCurrencySymbol } from "@/lib/userSettings";
 import DemoBanner from "@/components/DemoBanner";
 
 /* ── Signal badge ──────────────────────────────────────────── */
@@ -73,6 +74,7 @@ interface DRLModelDisplay {
   status: string;
   algorithm: string;
   sharpe: string;
+  totalReturn: string;
 }
 
 interface ScanResult {
@@ -94,6 +96,14 @@ export default function DashboardOverview() {
   const [scanResults, setScanResults] = useState<ScanResult[]>([]);
   const [scanLoading, setScanLoading] = useState(false);
   const [drlModels, setDrlModels] = useState<DRLModelDisplay[]>([]);
+  const [currency, setCurrency] = useState("$");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("finpilot_settings");
+      if (stored) setCurrency(getCurrencySymbol(JSON.parse(stored).market || "US"));
+    } catch {}
+  }, []);
 
   /* Load presets */
   useEffect(() => {
@@ -114,14 +124,21 @@ export default function DashboardOverview() {
       .then((data) => {
         if (Array.isArray(data)) {
           const regimeEmoji: Record<string, string> = { trend: "📈", volatile: "🌊", range: "📐", momentum: "🚀", breakout: "💥" };
+          const activeModels = (data as Record<string, unknown>[]).filter((m) => m.is_active !== false);
           setDrlModels(
-            data.slice(0, 4).map((m: Record<string, unknown>) => ({
-              name: String(m.model_id || "Agent"),
-              regime: (Array.isArray(m.tags) ? m.tags : []).map((t: string) => `${regimeEmoji[t] || "🔧"} ${t}`).join(", ") || "General",
-              status: "active",
-              algorithm: String(m.algorithm || "PPO"),
-              sharpe: m.sharpe != null ? Number(m.sharpe).toFixed(2) : "—",
-            })),
+            activeModels.slice(0, 6).map((m: Record<string, unknown>) => {
+              const metrics = (m.metrics ?? {}) as Record<string, unknown>;
+              const sharpeRaw = metrics.sharpe_ratio;
+              const returnRaw = metrics.total_return;
+              return {
+                name: String(m.name || m.model_id || "Agent"),
+                regime: (Array.isArray(m.tags) ? m.tags : []).map((t: string) => `${regimeEmoji[t] || "🔧"} ${t}`).join(", ") || "General",
+                status: String(m.is_active ? "active" : "paused"),
+                algorithm: String(m.algorithm || "PPO"),
+                sharpe: sharpeRaw != null ? Number(sharpeRaw).toFixed(3) : "—",
+                totalReturn: returnRaw != null ? `${Number(returnRaw) >= 0 ? "+" : ""}${(Number(returnRaw) * 100).toFixed(1)}%` : "—",
+              };
+            }),
           );
         }
       })
@@ -290,7 +307,7 @@ export default function DashboardOverview() {
               </div>
               <div className="mb-2 flex items-baseline gap-2">
                 <span className="text-lg font-bold" style={{ color: C.text1 }}>
-                  {s.price > 0 ? `$${s.price.toFixed(2)}` : "—"}
+                  {s.price > 0 ? `${currency}${s.price.toFixed(2)}` : "—"}
                 </span>
                 <span className="text-xs font-medium" style={{ color: s.change >= 0 ? C.green : C.red }}>
                   {s.change !== 0 ? `${s.change >= 0 ? "+" : ""}${s.change.toFixed(2)}%` : ""}
@@ -369,6 +386,9 @@ export default function DashboardOverview() {
                 <div className="flex gap-4" style={{ fontSize: 10, color: C.text3 }}>
                   <span>Algorithm: <strong style={{ color: C.text2 }}>{m.algorithm}</strong></span>
                   <span>Sharpe: <strong style={{ color: C.text2 }}>{m.sharpe}</strong></span>
+                  {m.totalReturn !== "—" && (
+                    <span title="Backtest result – not live performance">Return: <strong style={{ color: C.text2 }}>{m.totalReturn} <span style={{ color: C.text3, fontWeight: 400 }}>(bt)</span></strong></span>
+                  )}
                 </div>
               </div>
             )) : (

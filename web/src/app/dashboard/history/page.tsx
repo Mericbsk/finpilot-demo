@@ -11,8 +11,10 @@ import {
   Target,
   AlertTriangle,
   Loader2,
+  Activity,
 } from "lucide-react";
 import DemoBanner from "@/components/DemoBanner";
+import { getCurrencySymbol } from "@/lib/userSettings";
 
 /* ── Generate 14 days of history (fallback mock) ──────────── */
 const signalsList = ["BUY", "SELL", "HOLD", "CAUTION"] as const;
@@ -101,6 +103,32 @@ function convertAPISignals(signals: Record<string, unknown>[]): DayData[] {
 
 const history = Array.from({ length: 14 }, (_, i) => makeDay(i));
 
+interface ReturnSignal {
+  symbol: string;
+  signal_date: string;
+  t5_pct: number | null;
+  t10_pct: number | null;
+  t20_pct: number | null;
+  t5_win: boolean | null;
+  t10_win: boolean | null;
+}
+
+interface ReturnsSummary {
+  t5_win_rate: number | null;
+  t10_win_rate: number | null;
+  t5_avg_pct: number | null;
+  t10_avg_pct: number | null;
+  total_signals: number;
+  best_signal: ReturnSignal | null;
+  worst_signal: ReturnSignal | null;
+  spy_t10_avg_pct: number | null;
+}
+
+interface ReturnsData {
+  results: ReturnSignal[];
+  summary: ReturnsSummary;
+}
+
 function SignalBadge({ signal }: { signal: string }) {
   const m: Record<string, { color: string; bg: string }> = {
     BUY: { color: "var(--accent-green)", bg: "rgba(48,209,88,0.1)" },
@@ -117,6 +145,15 @@ export default function HistoryPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [apiSource, setApiSource] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [returnsData, setReturnsData] = useState<ReturnsData | null>(null);
+  const [currency, setCurrency] = useState("$");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("finpilot_settings");
+      if (stored) setCurrency(getCurrencySymbol(JSON.parse(stored).market || "US"));
+    } catch {}
+  }, []);
 
   useEffect(() => {
     fetch("/py-api/history/signals?days=14")
@@ -134,6 +171,13 @@ export default function HistoryPage() {
       })
       .catch(() => { setLoading(false); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    fetch("/py-api/history/returns?days=30")
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((data: ReturnsData) => { if (data.summary) setReturnsData(data); })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -173,12 +217,22 @@ export default function HistoryPage() {
       )}
 
       {/* Aggregate stats */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {[
           { label: "Days Tracked", value: history.length, color: "var(--text-primary)" },
           { label: "Total Scanned", value: totalScanned, color: "var(--accent-cyan)" },
           { label: "Total BUY Signals", value: totalBuys, color: "var(--accent-green)" },
           { label: "Avg Success Rate", value: `${avgSuccess}%`, color: "var(--accent-green)" },
+          {
+            label: "T+5 Win Rate",
+            value: returnsData?.summary.t5_win_rate != null ? `${returnsData.summary.t5_win_rate.toFixed(0)}%` : "\u2014",
+            color: returnsData?.summary.t5_win_rate != null && returnsData.summary.t5_win_rate >= 50 ? "var(--accent-green)" : "var(--accent-red)",
+          },
+          {
+            label: "T+10 Avg Return",
+            value: returnsData?.summary.t10_avg_pct != null ? `${returnsData.summary.t10_avg_pct >= 0 ? "+" : ""}${returnsData.summary.t10_avg_pct.toFixed(1)}%` : "\u2014",
+            color: returnsData?.summary.t10_avg_pct != null && returnsData.summary.t10_avg_pct >= 0 ? "var(--accent-green)" : "var(--accent-red)",
+          },
         ].map((s, i) => (
           <div key={i} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-4 py-3">
             <div className="text-[11px] text-[var(--text-tertiary)]">{s.label}</div>
@@ -186,6 +240,71 @@ export default function HistoryPage() {
           </div>
         ))}
       </div>
+
+      {/* Win Rate Panel */}
+      {returnsData && (
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Activity size={16} className="text-[var(--accent-cyan)]" />
+            <h2 className="text-sm font-semibold text-[var(--text-primary)]">Signal Performance — Last 30 Days</h2>
+            <span className="ml-auto text-[11px] text-[var(--text-tertiary)]">{returnsData.summary.total_signals} BUY signals tracked</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {/* T+5 Win Rate */}
+            <div className="rounded-xl bg-[var(--bg-primary)] p-4 text-center">
+              <div className="mb-1 text-[10px] text-[var(--text-tertiary)]">T+5 Win Rate</div>
+              <div className="text-2xl font-bold" style={{ color: (returnsData.summary.t5_win_rate ?? 0) >= 50 ? "var(--accent-green)" : "var(--accent-red)" }}>
+                {returnsData.summary.t5_win_rate != null ? `${returnsData.summary.t5_win_rate.toFixed(0)}%` : "\u2014"}
+              </div>
+              <div className="mt-1 text-[10px] text-[var(--text-tertiary)]">
+                avg {returnsData.summary.t5_avg_pct != null ? `${returnsData.summary.t5_avg_pct >= 0 ? "+" : ""}${returnsData.summary.t5_avg_pct.toFixed(2)}%` : "\u2014"}
+              </div>
+            </div>
+            {/* T+10 Win Rate */}
+            <div className="rounded-xl bg-[var(--bg-primary)] p-4 text-center">
+              <div className="mb-1 text-[10px] text-[var(--text-tertiary)]">T+10 Win Rate</div>
+              <div className="text-2xl font-bold" style={{ color: (returnsData.summary.t10_win_rate ?? 0) >= 50 ? "var(--accent-green)" : "var(--accent-red)" }}>
+                {returnsData.summary.t10_win_rate != null ? `${returnsData.summary.t10_win_rate.toFixed(0)}%` : "\u2014"}
+              </div>
+              <div className="mt-1 text-[10px] text-[var(--text-tertiary)]">
+                avg {returnsData.summary.t10_avg_pct != null ? `${returnsData.summary.t10_avg_pct >= 0 ? "+" : ""}${returnsData.summary.t10_avg_pct.toFixed(2)}%` : "\u2014"}
+              </div>
+            </div>
+            {/* Best Signal */}
+            <div className="rounded-xl bg-[var(--bg-primary)] p-4 text-center">
+              <div className="mb-1 text-[10px] text-[var(--text-tertiary)]">Best Signal (T+10)</div>
+              {returnsData.summary.best_signal ? (
+                <>
+                  <div className="text-lg font-bold text-[var(--accent-green)]">
+                    +{returnsData.summary.best_signal.t10_pct?.toFixed(1)}%
+                  </div>
+                  <div className="mt-0.5 text-[10px] text-[var(--text-secondary)]">{returnsData.summary.best_signal.symbol}</div>
+                  <div className="text-[9px] text-[var(--text-tertiary)]">{returnsData.summary.best_signal.signal_date}</div>
+                </>
+              ) : (
+                <div className="text-lg font-bold text-[var(--text-tertiary)]">\u2014</div>
+              )}
+            </div>
+            {/* vs S&P500 */}
+            <div className="rounded-xl bg-[var(--bg-primary)] p-4 text-center">
+              <div className="mb-1 text-[10px] text-[var(--text-tertiary)]">vs SPY (T+10 avg)</div>
+              {returnsData.summary.spy_t10_avg_pct != null && returnsData.summary.t10_avg_pct != null ? (
+                <>
+                  <div className="text-2xl font-bold" style={{ color: returnsData.summary.t10_avg_pct > returnsData.summary.spy_t10_avg_pct ? "var(--accent-green)" : "var(--accent-red)" }}>
+                    {(returnsData.summary.t10_avg_pct - returnsData.summary.spy_t10_avg_pct) >= 0 ? "+" : ""}
+                    {(returnsData.summary.t10_avg_pct - returnsData.summary.spy_t10_avg_pct).toFixed(2)}%
+                  </div>
+                  <div className="mt-1 text-[10px] text-[var(--text-tertiary)]">
+                    SPY avg: {returnsData.summary.spy_t10_avg_pct >= 0 ? "+" : ""}{returnsData.summary.spy_t10_avg_pct.toFixed(2)}%
+                  </div>
+                </>
+              ) : (
+                <div className="text-lg font-bold text-[var(--text-tertiary)]">\u2014</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Timeline */}
       <div className="space-y-2">
@@ -234,10 +353,27 @@ export default function HistoryPage() {
                       <div key={s.ticker} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] p-3">
                         <div className="mb-1.5 flex items-center justify-between">
                           <span className="text-xs font-semibold text-[var(--text-primary)]">{s.ticker}</span>
-                          <SignalBadge signal={s.signal} />
+                          <div className="flex items-center gap-1">
+                            {(() => {
+                              const ret = returnsData?.results.find(
+                                (r) => r.symbol === s.ticker && r.signal_date === day.date
+                              );
+                              if (!ret || ret.t5_pct === null) return null;
+                              return (
+                                <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold"
+                                  style={{
+                                    color: ret.t5_win ? "var(--accent-green)" : "var(--accent-red)",
+                                    backgroundColor: ret.t5_win ? "rgba(48,209,88,0.1)" : "rgba(255,69,58,0.1)",
+                                  }}>
+                                  T+5: {ret.t5_pct >= 0 ? "+" : ""}{ret.t5_pct.toFixed(1)}%
+                                </span>
+                              );
+                            })()}
+                            <SignalBadge signal={s.signal} />
+                          </div>
                         </div>
                         <div className="mb-1.5 flex items-baseline gap-2">
-                          <span className="text-sm font-bold text-[var(--text-primary)]">${s.price}</span>
+                          <span className="text-sm font-bold text-[var(--text-primary)]">{currency}{s.price}</span>
                           <span className="flex items-center gap-0.5 text-[10px] font-medium" style={{ color: s.change >= 0 ? "var(--accent-green)" : "var(--accent-red)" }}>
                             {s.change >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                             {s.change >= 0 ? "+" : ""}{s.change}%

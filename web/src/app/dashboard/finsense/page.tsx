@@ -25,11 +25,20 @@ interface DictEntry {
   term: string;
   definition: string;
   example?: string;
+  example_en?: string;
   category: string;
   level: string;
   related?: string[];
   term_en?: string;
+  term_de?: string;
   definition_en?: string;
+  definition_de?: string;
+  slug?: string;
+  formula?: string;
+  tags?: string[];
+  synonyms?: string[];
+  source?: string;
+  difficulty_score?: number;
 }
 
 /* ── Level color map ──────────────────────────────────────── */
@@ -173,7 +182,9 @@ export default function FinSensePage() {
         t.term.toLowerCase().includes(q) ||
         t.definition.toLowerCase().includes(q) ||
         (t.term_en || "").toLowerCase().includes(q) ||
-        (t.definition_en || "").toLowerCase().includes(q);
+        (t.definition_en || "").toLowerCase().includes(q) ||
+        (t.synonyms || []).some((s) => s.toLowerCase().includes(q)) ||
+        (t.tags || []).some((tag) => tag.toLowerCase().includes(q));
       const matchCat = selectedCategory === "Tümü" || t.category === selectedCategory;
       const matchLvl = selectedLevel === "Tümü" || t.level === selectedLevel;
       return matchText && matchCat && matchLvl;
@@ -376,13 +387,41 @@ export default function FinSensePage() {
                     </div>
                   )}
 
-                  {/* Expanded: EN translation + related terms */}
+                  {/* Expanded: formula, EN translation, synonyms, tags, related terms */}
                   {isExpanded && (
                     <>
+                      {t.formula && (
+                        <div style={{
+                          borderRadius: 8, backgroundColor: "rgba(167,139,250,0.08)",
+                          border: "1px solid rgba(167,139,250,0.2)",
+                          padding: "6px 10px", fontSize: 11, color: purple,
+                          fontFamily: "monospace", marginBottom: 8,
+                        }}>
+                          📐 {t.formula}
+                        </div>
+                      )}
                       {lang === "tr" && t.term_en && (
                         <div style={{ fontSize: 11, color: C.text3, marginBottom: 8 }}>
                           <Globe size={10} style={{ display: "inline", marginRight: 4 }} />
-                          EN: {t.term_en} — {t.definition_en || ""}
+                          EN: {t.term_en}{t.definition_en ? ` — ${t.definition_en.length > 80 ? t.definition_en.slice(0, 80) + "…" : t.definition_en}` : ""}
+                        </div>
+                      )}
+                      {t.synonyms && t.synonyms.length > 0 && (
+                        <div style={{ fontSize: 11, color: C.text3, marginBottom: 6 }}>
+                          <span style={{ color: C.text3 }}>Eş anlam: </span>
+                          {t.synonyms.join(", ")}
+                        </div>
+                      )}
+                      {t.tags && t.tags.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
+                          {t.tags.map((tag) => (
+                            <span key={tag} style={{
+                              borderRadius: 6, backgroundColor: "rgba(255,214,10,0.08)",
+                              padding: "1px 6px", fontSize: 9, color: C.yellow,
+                            }}>
+                              #{tag}
+                            </span>
+                          ))}
                         </div>
                       )}
                       {t.related && t.related.length > 0 && (

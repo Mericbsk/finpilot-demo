@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
+
+from api.middleware.auth import require_auth
 
 router = APIRouter(tags=["ensemble"])
 
@@ -13,7 +15,7 @@ class EnsembleRequest(BaseModel):
     max_symbols: int = Field(20, ge=1, le=50)
 
 
-@router.post("/ensemble")
+@router.post("/ensemble", dependencies=[Depends(require_auth)])
 def ensemble_predict(req: EnsembleRequest):
     """Run multi-agent ensemble predictions.
 

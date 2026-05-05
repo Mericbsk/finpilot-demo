@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { C, companyNames } from "@/lib/stockData";
+import { getCurrencySymbol } from "@/lib/userSettings";
 
 /* ── Types ──────────────────────────────────────────────────── */
 interface Position {
@@ -57,6 +58,14 @@ export default function PortfolioPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [brokerAvailable, setBrokerAvailable] = useState(false);
+  const [currency, setCurrency] = useState("$");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("finpilot_settings");
+      if (stored) setCurrency(getCurrencySymbol(JSON.parse(stored).market || "US"));
+    } catch {}
+  }, []);
 
   /* ── Fetch all data ─────────────────────────────── */
   const fetchData = useCallback(async () => {
@@ -73,6 +82,9 @@ export default function PortfolioPage() {
         const acc = await accRes.value.json();
         setAccount(acc);
         setBrokerAvailable(true);
+      } else if (accRes.status === "fulfilled" && accRes.value.status === 401) {
+        setBrokerAvailable(false);
+        setError("Sign in from Profile > Security to access live broker data.");
       } else {
         setBrokerAvailable(false);
         setError("Alpaca broker not available. Set ALPACA_API_KEY and ALPACA_SECRET_KEY in .env");
@@ -154,10 +166,10 @@ export default function PortfolioPage() {
       {account && (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[
-            { label: "Portfolio Value", value: `$${(account.portfolio_value || account.equity || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: C.text1 },
-            { label: "Cash Balance", value: `$${(account.cash || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: C.cyan },
-            { label: "Unrealized P&L", value: `${totalUnrealized >= 0 ? "+" : ""}$${totalUnrealized.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: totalUnrealized >= 0 ? C.green : C.red },
-            { label: "Buying Power", value: `$${(account.buying_power || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: C.text2 },
+            { label: "Portfolio Value", value: `${currency}${(account.portfolio_value || account.equity || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: C.text1 },
+            { label: "Cash Balance", value: `${currency}${(account.cash || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: C.cyan },
+            { label: "Unrealized P&L", value: `${totalUnrealized >= 0 ? "+" : ""}${currency}${totalUnrealized.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: totalUnrealized >= 0 ? C.green : C.red },
+            { label: "Buying Power", value: `${currency}${(account.buying_power || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: C.text2 },
           ].map((item) => (
             <div key={item.label} className="rounded-xl p-4" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
               <div className="text-[11px]" style={{ color: C.text3 }}>{item.label}</div>
@@ -238,10 +250,10 @@ export default function PortfolioPage() {
                           <div className="text-[10px]" style={{ color: C.text3 }}>{companyNames[p.symbol] || ""}</div>
                         </td>
                         <td className="px-3 py-3" style={{ color: C.text2 }}>{p.qty}</td>
-                        <td className="px-3 py-3" style={{ color: C.text2 }}>${Number(p.avg_entry_price).toFixed(2)}</td>
-                        <td className="px-3 py-3" style={{ color: C.text1 }}>${Number(p.current_price).toFixed(2)}</td>
+                        <td className="px-3 py-3" style={{ color: C.text2 }}>{currency}{Number(p.avg_entry_price).toFixed(2)}</td>
+                        <td className="px-3 py-3" style={{ color: C.text1 }}>{currency}{Number(p.current_price).toFixed(2)}</td>
                         <td className="px-3 py-3" style={{ color: C.text1 }}>
-                          ${Number(p.market_value).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          {currency}{Number(p.market_value).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </td>
                         <td className="px-3 py-3">
                           <span className="flex items-center gap-0.5" style={{ color: p.unrealized_pl >= 0 ? C.green : C.red }}>
@@ -324,10 +336,10 @@ export default function PortfolioPage() {
                             </span>
                           </td>
                           <td className="px-3 py-3" style={{ color: C.text2 }}>
-                            {o.limit_price ? `$${o.limit_price}` : "—"}
+                            {o.limit_price ? `${currency}${o.limit_price}` : "—"}
                           </td>
                           <td className="px-3 py-3" style={{ color: C.text1 }}>
-                            {o.filled_avg_price ? `$${o.filled_avg_price}` : "—"}
+                            {o.filled_avg_price ? `${currency}${o.filled_avg_price}` : "—"}
                           </td>
                           <td className="px-3 py-3" style={{ color: C.text3 }}>
                             {o.submitted_at ? new Date(o.submitted_at).toLocaleDateString() : "—"}

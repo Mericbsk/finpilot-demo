@@ -1,6 +1,6 @@
 # FinPilot — Hibe ve Fon Kaynakları Değerlendirme Raporu
 
-> **Tarih:** Mart 2026
+> **Tarih:** Nisan 2026 (Güncelleme: Pitch Deck tamamlandı, aws Gündungsfonds başvurusu aktif)
 > **Lokasyon:** Viyana, Avusturya
 > **Hazırlayan:** FinPilot Teknik Ekip
 
@@ -8,7 +8,7 @@
 
 ## PROJE ÖZETİ
 
-**FinPilot**, Viyana merkezli, yapay zeka destekli bir borsa analiz platformudur; Deep Reinforcement Learning (DRL) ile adaptif strateji üretimi, LLM tabanlı finansal okuryazarlık eğitimi ve gerçek zamanlı sinyal motoru sunarak bireysel yatırımcıların veri odaklı karar almasını sağlar. Platform; Python 3.11, Stable-Baselines3, PyTorch, Streamlit/Next.js ve Telegram entegrasyonu ile çalışır; 56.500+ LOC, 15 eğitilmiş DRL modeli, 493 geçen test, çalışan MVP ve beta waitlist'e sahiptir.
+**FinPilot**, Viyana merkezli, yapay zeka destekli bir borsa analiz platformudur; Deep Reinforcement Learning (DRL) ile adaptif strateji üretimi, LLM tabanlı finansal okuryazarlık eğitimi ve gerçek zamanlı sinyal motoru sunarak bireysel yatırımcıların veri odaklı karar almasını sağlar. Platform; Python 3.11, Stable-Baselines3, PyTorch, Streamlit/Next.js ve Telegram entegrasyonu ile çalışır; 56.500+ LOC, **19 eğitilmiş DRL modeli**, 493 geçen test, çalışan MVP ve beta waitlist'e sahiptir. **aws Gündungsfonds için €750K Seed başvurusu aktif — pitch deck hazır.**
 
 **Hedef Kullanıcı:** Bireysel yatırımcılar ve finansal okuryazarlık arayan kullanıcılar (öncelik: Avrupa pazarı, TR/DE/EN desteği)
 
@@ -20,14 +20,15 @@
 
 | Kanıt | Durum | Detay |
 |-------|-------|-------|
-| **Çalışan MVP** | ✅ Var | Streamlit dashboard, 3 sayfa, tam işlevsel |
-| **DRL Model Zinciri** | ✅ Var | 15 eğitilmiş model (PPO/SAC/TD3/A2C/RPPO), 25MB |
+| **Çalışan MVP** | ✅ Var | Streamlit dashboard + Next.js web platformu, tam işlevsel |
+| **DRL Model Zinciri** | ✅ Var | **19** eğitilmiş model (PPO/SAC/TD3/A2C/RPPO + Ensemble), 25MB |
 | **Test Coverage** | ✅ Var | 493 test geçiyor, 0 hata |
 | **Pilot Sonuçları** | ⚠️ Kısmi | Sharpe 0.057 (hedef >0.5 — geliştirilmekte) |
 | **Public Website** | ✅ Var | PWA, 3 dil desteği (EN/TR/DE) |
 | **Waitlist / Talep** | ✅ Var | Beta waitlist + BrokeAI ön kayıt sayfası aktif |
 | **Finansal Okuryazarlık** | ✅ Var | FinSense Akademi modülü + interaktif sözlük |
 | **Teknik Dokümantasyon** | ✅ Var | README, API docs, DRL analiz raporları |
+| **Pitch Deck** | ✅ Hazır | aws Gündungsfonds için Almanca, 17 sayfa, PDF — €750K Seed |
 | **Gelir Modeli** | ⚠️ Taslak | SaaS abonelik planlanıyor; henüz gelir yok |
 | **Akademik Ortak** | ❌ Yok | Potansiyel var ama resmi mektup yok |
 | **Şirket Tüzel Kişiliği** | ❓ Belirsiz | Kuruluş gerekebilir (GmbH / Einzelunternehmen) |
@@ -38,14 +39,14 @@
 
 | Kriter | Ağırlık | FinPilot Durumu |
 |--------|---------|-----------------|
-| Teknik olgunluk | %25 | **7/10** — Çalışan MVP, 15 model, 493 test; ama Sharpe düşük, üretim-ready değil |
+| Teknik olgunluk | %25 | **8/10** — Çalışan MVP, 19 model, 493 test, production-ready Next.js platform |
 | Toplumsal/ekonomik etki | %25 | **8/10** — Finansal okuryazarlık + demokratik yatırım erişimi güçlü hikaye |
-| Yerel uygunluk & istihdam | %15 | **6/10** — Viyana merkezli, FinTech ekosistemi uygun; henüz istihdam planı yok |
-| Ortaklık & konsorsiyum | %15 | **4/10** — Tek kişi/küçük ekip; akademik veya endüstri ortağı yok |
-| Bütçe gerçekçiliği & TCO | %10 | **7/10** — Düşük operasyonel maliyet; donanım ihtiyacı net (GB10 planı) |
+| Yerel uygunluk & istihdam | %15 | **7/10** — Viyana merkezli; €750K ile 3 kişi istihdam planı (CTO, Backend, Growth) |
+| Ortaklık & konsorsiyum | %15 | **4/10** — Solo founder; akademik veya endüstri ortağı yok |
+| Bütçe gerçekçiliği & TCO | %10 | **8/10** — €750K ask realistik; kullanım planı net (45% ekip / 20% GTM / 20% infra / 15% ops) |
 | Etik & yasal uyum (GDPR) | %10 | **7/10** — Privacy policy var; GDPR compliance kısmi |
 
-**Genel Hazırlık Skoru: 6.6/10** — Yerel/küçük hibelere başvuruya hazır; büyük EU fonları için ortaklık ve pilot güçlendirmesi gerekli.
+**Genel Hazırlık Skoru: 7.0/10** — aws Gündungsfonds için hazır; pitch deck tamamlandı, €750K Seed başvurusu yapılabilir.
 
 ---
 
@@ -231,14 +232,18 @@
 | **Son Tarih** | 20 Mayıs - 8 Eylül 2026 |
 | **Kabul İhtimali** | **ORTA** — "KI" kategorisi uygun; yarışma formatı (5 kazanan) |
 
-### 9. aws — Seed Financing / Preseed
-**Öncelik: B**
+### 9. aws Gündungsfonds — Seed Financing
+**Öncelik: A (Aktif Başvuru — Pitch Deck Hazır)**
 
 | Alan | Detay |
 |------|-------|
 | **Sağlayıcı** | Austria Wirtschaftsservice (Federal Fon Bankası) |
 | **Destek** | Preseed: max €200.000; Seed: max €800.000 (koşullu hibe/dönüştürülebilir kredi) |
-| **Kabul İhtimali** | **ORTA** — Güçlü startup desteği; ancak daha ileri aşama kanıt + investor readiness gerekli |
+| **Hedef Tutar** | **€750.000** (Seed aralığında; maksimum €800K'nın %94'ü — gerçekçi ve savunulabilir) |
+| **Kabul İhtimali** | **ORTA-YÜKSEK** — Pitch deck hazır, çalışan ürün var, solo founder için "ilk ekip kurma" hikayesi güçlü |
+| **Başvuru Durumu** | ✅ Pitch deck hazır (Almanca, 17 sayfa, A4 PDF) — direkten teslim edilebilir |
+| **Solo Founder Avantajı** | €750K ile 3 stratejik işe alım: CTO/ML (M1-M3), Backend/DevOps (M3-M6), Growth (M9-M12) — "Solo'dan ekibe" hikayesi tutarlı |
+| **18 Ay Hedefleri** | 8.000+ kayıtlı, 800+ ödeyen, €40K MRR, €480K ARR, 3-4 FTE |
 | **Not** | aws Förderkonfigurator'ü kullan (foerderkonfigurator) — proje profiline göre otomatik eşleştirme |
 
 ### 10. EU — EIC Accelerator (Horizon Europe)
@@ -274,7 +279,7 @@
 | 6 | WAW Gründungsstipendium | €24K | 15 Tem 2026 | Yüksek | Yok | Stipendium | **A** |
 | 7 | WAW Wissenschaft | €60K | 30 Haz 2026 | Orta-Yüksek | Yok | Hibe | **B** |
 | 8 | WAW Content Vienna | €10K | 20 May 2026 | Orta | Yok | Yarışma | **B** |
-| 9 | aws Seed/Preseed | €200-800K | Sürekli | Orta | Yok | Koşullu hibe | **B** |
+| 9 | aws Gündungsfonds Seed | €750K (max €800K) | Sürekli | **Orta-Yüksek** | Yok | Koşullu hibe | **A** |
 | 10 | EIC Accelerator | €2.5M+15M | Yılda 2-3 | Düşük | Yok | Hibe+Equity | **C** |
 | 11 | Eurostars-3 | €500K | Çeyreklik | Düşük-Orta | 2+ ülke KMU | Hibe | **C** |
 
@@ -289,12 +294,12 @@ Bu programlar birbirleriyle çakışmaz ve paralel başvuru yapılabilir:
 ```
 Mart 2026:     WAW Digitalisierung (€50K) — 30 Haziran hedefle
 Nisan 2026:    WAW Innovation (€300K) — 30 Nisan son tarih
+               **aws Gündungsfonds (€750K Seed) — AKTIF BAŞVURU — pitch deck hazır**
 Mayıs 2026:    WAW Tech4People (€600K) — 31 Mayıs son tarih
                WAW Content Vienna (€10K) — başvuru aç
 Haziran 2026:  WAW Wissenschaft verstehen (€60K) — 30 Haziran
 Temmuz 2026:   WAW Gründungsstipendium (€24K) — 15 Temmuz
 H2 2026:       FFG Basisprogramm (€100K-1M) — hazırlandığında
-               aws Seed/Preseed (€200-800K) — hazırlandığında
 ```
 
 **Potansiyel Toplam (ilk 12 ay):** €300K-1M+ (paralel hibeler toplandığında)
@@ -399,8 +404,8 @@ Bu program FinPilot için idealdir çünkü AI teknolojisini toplumsal fayda (fi
 | # | Aksiyon | Hedef Program |
 |---|---------|---------------|
 | 1 | FFG Basisprogramm başvurusu (sürekli) | €100K-1M |
-| 2 | aws Seed/Preseed değerlendirmesi | €200-800K |
-| 3 | İlk hibe sonuçlarına göre EIC Accelerator hazırlığı | €2.5M (2027 hedef) |
+| 2 | **aws Gündungsfonds Seed başvurusu gönder** | **€750K — pitch deck hazır** |
+| 3 | İlk hibe sonuçlarına göre EIC Accelerator hazırlığı | €2-4M Series A (H1 2027 hedef) |
 
 ---
 
@@ -774,6 +779,7 @@ Global cloud kredileri + yerel GB10 donanımı = **en güçlü kombinasyon:**
 |----------|------------|------------|-----------------|
 | **Viyana Hibeleri (A öncelikli)** | €50K | €950K | Orta-Yüksek |
 | **FFG / aws Federal Fonlar** | €80K | €1M+ | Orta |
+| **aws Gündungsfonds Seed (AKTIF)** | €750K | €800K | **Orta-Yüksek** |
 | **Global Cloud Kredileri** | ~$256K (~€235K) | ~$845K (~€775K) | Yüksek-Çok Yüksek |
 | **EU Fonları (C öncelikli)** | €500K | €2.5M | Düşük |
 | **Accelerator'lar (dilutive)** | $120K | $500K | Düşük |
