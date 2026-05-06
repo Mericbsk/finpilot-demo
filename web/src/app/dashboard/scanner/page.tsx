@@ -17,12 +17,12 @@ import {
   ArrowUpDown,
   ShoppingCart,
   DollarSign,
-  CheckCircle2,
-  AlertTriangle,
 } from "lucide-react";
+import { toast } from "sonner";
 import { C, companyNames } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
 import { getCurrencySymbol } from "@/lib/userSettings";
+import PriceChart from "@/components/PriceChart";
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface ScanResult {
@@ -298,13 +298,11 @@ export default function ScannerPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanTotal, setScanTotal] = useState(0);
-  const [scanComplete, setScanComplete] = useState<boolean>(() => readCache()?.scanComplete ?? false);
   const [scanResults, setScanResults] = useState<Record<string, ScanResult>>(
     () => readCache()?.scanResults ?? {},
   );
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [scanError, setScanError] = useState<string | null>(null);
   const [sortCol, setSortCol] = useState<string>("score");
   const [sortAsc, setSortAsc] = useState(false);
   const [scanAllMode, setScanAllMode] = useState<boolean>(() => readCache()?.scanAllMode ?? false);
@@ -316,7 +314,6 @@ export default function ScannerPage() {
   } | null>(null);
   const [alpacaConnected, setAlpacaConnected] = useState(false);
   const [orderPending, setOrderPending] = useState(false);
-  const [orderResult, setOrderResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
   /* Load min score threshold + currency from user settings */
   const [minScoreFilter, setMinScoreFilter] = useState(0);
@@ -360,14 +357,14 @@ export default function ScannerPage() {
     const confirmed = window.confirm(`Place BUY order for ${stock.ticker}?\nPrice: ${currency}${stock.price.toFixed(2)}\nStop Loss: ${stock.stop > 0 ? currency + stock.stop : 'Auto'}\nTake Profit: ${stock.tp1 > 0 ? currency + stock.tp1 : 'Auto'}`);
     if (!confirmed) return;
     setOrderPending(true);
-    setOrderResult(null);
+    const toastId = toast.loading(`Placing order for ${stock.ticker}…`);
     try {
       const resp = await fetch("/py-api/trade/buy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           symbol: stock.ticker,
-          qty: 0, // auto-calculate
+          qty: 0,
           limit_price: stock.price > 0 ? Math.round(stock.price * 1.005 * 100) / 100 : null,
           stop_loss: stock.stop > 0 ? stock.stop : null,
           take_profit: stock.tp1 > 0 ? stock.tp1 : null,
@@ -379,12 +376,14 @@ export default function ScannerPage() {
         throw new Error(err.detail || "Order failed");
       }
       const order = await resp.json();
-      setOrderResult({ ok: true, msg: `${stock.ticker} — ${order.qty} shares @ ${currency}${order.limit_price || 'MKT'} (${order.order_id.slice(0, 8)}...)` });
-      // Refresh account
+      toast.success(
+        `${stock.ticker} — ${order.qty} shares @ ${currency}${order.limit_price || 'MKT'} (${order.order_id.slice(0, 8)}…)`,
+        { id: toastId },
+      );
       fetch("/py-api/trade/account").then(r => r.json()).then(setAlpacaAccount).catch(() => {});
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Order failed";
-      setOrderResult({ ok: false, msg });
+      toast.error(msg, { id: toastId });
     } finally {
       setOrderPending(false);
     }
@@ -1148,6 +1147,23 @@ export default function ScannerPage() {
                     {selected.change.toFixed(2)}%
                   </span>
                 </div>
+              </div>
+
+              {/* Price Chart */}
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{
+                  border: `1px solid ${C.border}`,
+                  backgroundColor: C.card,
+                }}
+              >
+                <div
+                  className="px-4 pt-4 pb-1 text-xs font-semibold"
+                  style={{ color: C.text2 }}
+                >
+                  Price Chart
+                </div>
+                <PriceChart symbol={selected.ticker} height={240} />
               </div>
 
               {/* AI Score & Indicators */}

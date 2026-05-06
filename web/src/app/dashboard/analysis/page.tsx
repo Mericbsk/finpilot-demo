@@ -22,6 +22,7 @@ import {
 import { C, hashStr, seededRandom, genStock as genStockBase, companyNames, withLivePrice } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
 import { getCurrencySymbol } from "@/lib/userSettings";
+import PriceChart from "@/components/PriceChart";
 
 /* ── Pools for generating realistic text ───────────────────── */
 const macdStates = ["Bullish Crossover", "Bearish Crossover", "Neutral", "Divergence", "Strong Bullish", "Weak Bearish"];
@@ -569,6 +570,12 @@ function AnalysisInner() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Price Chart */}
+      <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
+        <div className="px-5 pt-4 pb-1 text-xs font-semibold" style={{ color: C.text2 }}>Price Chart</div>
+        <PriceChart symbol={selectedTicker} height={260} />
       </div>
 
       {/* Tabs */}

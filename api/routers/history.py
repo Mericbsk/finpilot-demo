@@ -225,3 +225,59 @@ def get_signal_returns(days: int = Query(30, ge=1, le=90)):
     }
 
     return {"results": results, "count": len(results), "summary": summary, "source": "database"}
+
+
+@router.get("/history/ohlcv")
+def get_ohlcv(
+    symbol: str = Query(..., description="Ticker symbol, e.g. AAPL"),
+    period: str = Query("3mo", description="yfinance period string"),
+    interval: str = Query("1d", description="yfinance interval string"),
+):
+    """Return OHLCV bars + EMA-20 for a single symbol.
+
+    The time field is formatted as YYYY-MM-DD so lightweight-charts can
+    parse it directly as a business-day time without a timestamp conversion.
+    """
+    try:
+        import yfinance as yf  # noqa: PLC0415
+    except ImportError:
+        return {"symbol": symbol, "bars": [], "ema20": [], "error": "yfinance not installed"}
+
+    try:
+        df = yf.download(symbol, period=period, interval=interval, progress=False, auto_adjust=True)
+    except Exception as exc:  # noqa: BLE001
+        return {"symbol": symbol, "bars": [], "ema20": [], "error": str(exc)}
+
+    if df is None or df.empty:
+        return {"symbol": symbol, "bars": [], "ema20": []}
+
+    # Flatten MultiIndex columns produced by yfinance ≥0.2 (e.g. ("Open", "AAPL") → "Open")
+    if hasattr(df.columns, "levels"):
+        df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
+
+    bars = []
+    for ts, row in df.iterrows():
+        try:
+            bars.append(
+                {
+                    "time": ts.strftime("%Y-%m-%d"),
+                    "open": round(float(row["Open"]), 4),
+                    "high": round(float(row["High"]), 4),
+                    "low": round(float(row["Low"]), 4),
+                    "close": round(float(row["Close"]), 4),
+                    "volume": int(row["Volume"]),
+                }
+            )
+        except Exception:  # noqa: BLE001
+            continue
+
+    # Compute 20-period EMA for the main chart overlay
+    ema20 = []
+    if len(bars) >= 2:
+        k = 2 / (20 + 1)
+        ema_val = bars[0]["close"]
+        for bar in bars:
+            ema_val = bar["close"] * k + ema_val * (1 - k)
+            ema20.append({"time": bar["time"], "value": round(ema_val, 4)})
+
+    return {"symbol": symbol, "bars": bars, "ema20": ema20}
