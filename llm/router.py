@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import logging
+import os
 import time
 from collections import defaultdict
 from collections.abc import Generator
@@ -31,6 +32,40 @@ from llm.base import (
 )
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Langfuse — optional LLM observability
+# ---------------------------------------------------------------------------
+
+_langfuse: Any = None
+_langfuse_checked: bool = False
+
+
+def _get_langfuse() -> Any | None:  # noqa: ANN401
+    """Return a shared Langfuse client, or None if not configured."""
+    global _langfuse, _langfuse_checked  # noqa: PLW0603
+    if _langfuse_checked:
+        return _langfuse
+    _langfuse_checked = True
+    pk = os.environ.get("LANGFUSE_PUBLIC_KEY", "")
+    sk = os.environ.get("LANGFUSE_SECRET_KEY", "")
+    if not pk or not sk:
+        return None
+    try:
+        from langfuse import Langfuse  # noqa: PLC0415
+
+        _langfuse = Langfuse(
+            public_key=pk,
+            secret_key=sk,
+            host=os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com"),
+        )
+        logger.info(
+            "Langfuse tracing enabled (host=%s)",
+            os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com"),
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("Langfuse unavailable: %s", exc)
+    return _langfuse
 
 
 @dataclass
@@ -178,8 +213,30 @@ class LLMRouter:
                 provider="router",
             )
 
+        lf = _get_langfuse()
+        trace = (
+            lf.trace(
+                name="llm.generate",
+                input={
+                    "messages": [{"role": m.role, "content": m.content[:500]} for m in messages]
+                },
+            )
+            if lf
+            else None
+        )
+
         last_error: Exception | None = None
         for provider in providers:
+            generation = (
+                trace.generation(
+                    name=provider.name,
+                    model=getattr(provider, "model", provider.name),
+                    model_parameters={"temperature": temperature, "max_tokens": max_tokens},
+                    input=[{"role": m.role, "content": m.content} for m in messages],
+                )
+                if trace
+                else None
+            )
             try:
                 t0 = time.perf_counter()
                 response = provider.generate(
@@ -191,6 +248,21 @@ class LLMRouter:
                 latency = (time.perf_counter() - t0) * 1000
                 response.latency_ms = latency
                 self._record_success(provider.name, latency)
+
+                if generation:
+                    generation.end(
+                        output=response.content,
+                        usage={"input": response.input_tokens, "output": response.output_tokens},
+                    )
+                if trace:
+                    trace.update(
+                        output=response.content[:500],
+                        metadata={
+                            "provider": response.provider,
+                            "model": response.model,
+                            "latency_ms": round(latency, 1),
+                        },
+                    )
 
                 logger.info(
                     "LLM response from %s (%s) in %.0fms — %d tokens",
@@ -206,18 +278,24 @@ class LLMRouter:
                 logger.warning("Auth error for %s, disabling: %s", provider.name, e)
                 self._disabled.add(provider.name)
                 self._record_error(provider.name, e)
+                if generation:
+                    generation.end(level="ERROR", status_message=str(e))
                 last_error = e
                 continue
 
             except LLMRateLimitError as e:
                 logger.warning("Rate limit for %s: %s", provider.name, e)
                 self._record_error(provider.name, e)
+                if generation:
+                    generation.end(level="WARNING", status_message=str(e))
                 last_error = e
                 continue
 
             except LLMError as e:
                 logger.warning("LLM error from %s: %s", provider.name, e)
                 self._record_error(provider.name, e)
+                if generation:
+                    generation.end(level="ERROR", status_message=str(e))
                 last_error = e
                 if e.retryable:
                     continue
@@ -227,9 +305,13 @@ class LLMRouter:
             except Exception as e:
                 logger.warning("Unexpected error from %s: %s", provider.name, e)
                 self._record_error(provider.name, e)
+                if generation:
+                    generation.end(level="ERROR", status_message=str(e))
                 last_error = e
                 continue
 
+        if trace:
+            trace.update(level="ERROR", status_message=f"All providers failed. Last: {last_error}")
         raise LLMError(
             f"All providers failed. Last error: {last_error}",
             provider="router",
@@ -269,11 +351,34 @@ class LLMRouter:
                 provider="router",
             )
 
+        lf = _get_langfuse()
+        trace = (
+            lf.trace(
+                name="llm.stream",
+                input={
+                    "messages": [{"role": m.role, "content": m.content[:500]} for m in messages]
+                },
+            )
+            if lf
+            else None
+        )
+
         last_error: Exception | None = None
         for provider in providers:
+            generation = (
+                trace.generation(
+                    name=provider.name,
+                    model=getattr(provider, "model", provider.name),
+                    model_parameters={"temperature": temperature, "max_tokens": max_tokens},
+                    input=[{"role": m.role, "content": m.content} for m in messages],
+                )
+                if trace
+                else None
+            )
             try:
                 t0 = time.perf_counter()
                 token_count = 0
+                chunks: list[str] = []
                 for token in provider.stream(
                     messages,
                     temperature=temperature,
@@ -281,10 +386,24 @@ class LLMRouter:
                     **kwargs,
                 ):
                     token_count += 1
+                    chunks.append(token)
                     yield token
 
                 latency = (time.perf_counter() - t0) * 1000
                 self._record_success(provider.name, latency)
+
+                if generation:
+                    output_text = "".join(chunks)
+                    generation.end(output=output_text, usage={"output": token_count})
+                if trace:
+                    trace.update(
+                        metadata={
+                            "provider": provider.name,
+                            "tokens": token_count,
+                            "latency_ms": round(latency, 1),
+                        }
+                    )
+
                 logger.info(
                     "Streamed %d tokens from %s in %.0fms",
                     token_count,
@@ -296,19 +415,27 @@ class LLMRouter:
             except LLMAuthError as e:
                 self._disabled.add(provider.name)
                 self._record_error(provider.name, e)
+                if generation:
+                    generation.end(level="ERROR", status_message=str(e))
                 last_error = e
                 continue
 
             except (LLMRateLimitError, LLMError) as e:
                 self._record_error(provider.name, e)
+                if generation:
+                    generation.end(level="WARNING", status_message=str(e))
                 last_error = e
                 continue
 
             except Exception as e:
                 self._record_error(provider.name, e)
+                if generation:
+                    generation.end(level="ERROR", status_message=str(e))
                 last_error = e
                 continue
 
+        if trace:
+            trace.update(level="ERROR", status_message=f"All providers failed. Last: {last_error}")
         raise LLMError(
             f"All providers failed for streaming. Last error: {last_error}",
             provider="router",
