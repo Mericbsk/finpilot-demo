@@ -55,6 +55,7 @@ interface ScanResult {
   alignment_ratio: number;
   timeframe_aligned: boolean;
   momentum_confluence: boolean;
+  composite_score?: number;
 }
 
 interface DisplayStock {
@@ -107,7 +108,7 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     ticker: r.symbol,
     price: r.price,
     change: liveChange,
-    score: Math.round((score / 5) * 100), // normalize 0-5 → 0-100
+    score: r.composite_score ?? Math.round((score / 4) * 100), // use backend 0-100 score when available
     signal,
     regime: r.regime ? (r.trend_strength ? "Trend" : "Range") : "Volatile",
     sentiment:

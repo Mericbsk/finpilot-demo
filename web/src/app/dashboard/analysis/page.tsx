@@ -300,6 +300,7 @@ interface ScanResult {
   stop_loss_percent: number;
   sentiment: number;
   high_quality_signal: boolean;
+  composite_score?: number;
 }
 
 /** Merge real scan data into the mock analysis object */
@@ -307,7 +308,9 @@ function mergeWithScan(mock: ReturnType<typeof genAnalysis>, scan: ScanResult) {
   const price = scan.price || mock.price;
   // Normalize raw 0-5 scanner score to 0-100 (same formula as scanner/page.tsx and dashboard/page.tsx)
   const rawScore = Math.max(Number(scan.filter_score ?? 0), Number(scan.score ?? 0));
-  const score = rawScore > 5 ? rawScore : Math.round((rawScore / 5) * 100);
+  const score = scan.composite_score != null
+    ? Number(scan.composite_score)
+    : rawScore > 5 ? rawScore : Math.round((rawScore / 4) * 100);
   const rr = scan.risk_reward ?? mock.rr;
   const stop = scan.stop_loss ?? mock.stop;
   const tp1 = scan.take_profit ?? mock.tp1;

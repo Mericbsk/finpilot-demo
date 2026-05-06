@@ -161,7 +161,9 @@ export default function DashboardOverview() {
       const results: ScanResult[] = Object.entries(data).map(([ticker, d]: [string, unknown]) => {
         const r = d as Record<string, unknown>;
         const score = Math.max(Number(r.filter_score ?? 0), Number(r.score ?? 0));
-        const normalized = Math.round((score / 5) * 100);
+        const normalized = r.composite_score != null
+          ? Number(r.composite_score)
+          : Math.round((score / 4) * 100);
         const signal = normalized >= 70 ? "BUY" : normalized >= 45 ? "HOLD" : normalized >= 25 ? "CAUTION" : "SELL";
         return {
           ticker,

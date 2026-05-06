@@ -170,7 +170,9 @@ export default function WatchlistPage() {
         for (const [sym, d] of Object.entries(data)) {
           const r = d as Record<string, unknown>;
           const sc = Math.max(Number(r.filter_score ?? 0), Number(r.score ?? 0));
-          const normalized = Math.round((sc / 5) * 100);
+          const normalized = r.composite_score != null
+            ? Number(r.composite_score)
+            : Math.round((sc / 4) * 100);
           const signal = normalized >= 70 ? "BUY" : normalized >= 45 ? "HOLD" : normalized >= 25 ? "CAUTION" : "SELL";
           results[sym] = { score: normalized, signal };
         }

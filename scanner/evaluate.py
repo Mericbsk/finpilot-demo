@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 import pandas as pd
@@ -25,6 +24,7 @@ from .signals import (
     check_timeframe_alignment,
     check_trend_strength,
     check_volume_spike,
+    compute_recommendation_strength,
     safe_float,
 )
 
@@ -302,6 +302,20 @@ def evaluate_symbol(
             "kelly_fraction": kelly_fraction,
             "sentiment": sentiment,
             "onchain_metric": onchain_metric,
+            "composite_score": compute_recommendation_strength(
+                {
+                    "regime": regime,
+                    "direction": bool(direction),
+                    "score": int(score),
+                    "filter_score": int(filter_score),
+                    "alignment_ratio": float(alignment_ratio),
+                    "momentum_ratio": float(momentum_ratio),
+                    "volume_spike": bool(volume_spike),
+                    "price_momentum": bool(price_momentum),
+                    "trend_strength": bool(trend_strength),
+                    "is_premium_symbol": bool(is_premium_symbol),
+                }
+            ),
         }
     except Exception as e:
         logger.error("[%s] evaluation error: %s", symbol, e)
@@ -359,22 +373,7 @@ def evaluate_symbols_parallel(
                     pct = 50 + int((completed / total) * 50)
                     progress_callback(pct, 100)
                 except Exception:
-                    logger.debug("Progress callback failed", exc_info=True)
-    else:
-        completed = 0
-        with ThreadPoolExecutor(max_workers=8) as executor:
-            futures = [
-                executor.submit(evaluate_symbol, symbol, kelly_fraction, None) for symbol in symbols
-            ]
-            for future in futures:
-                result = future.result()
-                if result:
-                    results.append(result)
-                completed += 1
-                if progress_callback:
-                    try:
-                        progress_callback(completed, total)
-                    except Exception:
-                        logger.debug("Progress callback failed", exc_info=True)
+                    logger.debug("Progress callback error — ignored")
 
+    logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
     return results
