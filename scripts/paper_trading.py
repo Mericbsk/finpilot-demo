@@ -1,16 +1,41 @@
 """
 Paper Trading Engine - DRL vs Scanner Performance Tracking
 1 haftalık simülasyon ile gerçek test
+
+Slippage Tracker entegrasyonu (v2):
+  - Her işlemde gerçek fill vs sinyal fiyatı kaydedilir
+  - core/slippage_tracker.py'deki RealisticBacktestCosts modeli kullanılır
+  - Haftalık kalibrasyon raporu: engine.get_slippage_report()
 """
 
+import sys
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
-from drl.config import DEFAULT_CONFIG
-from drl.feature_pipeline import FeatureFrame, FeaturePipeline
+
+# SlippageTracker & RealisticBacktestCosts
+try:
+    _CORE = Path(__file__).parent.parent
+    if str(_CORE) not in sys.path:
+        sys.path.insert(0, str(_CORE))
+    from core.slippage_tracker import RealisticBacktestCosts, SlippageTracker
+
+    _TRACKER_AVAILABLE = True
+except ImportError:
+    _TRACKER_AVAILABLE = False
+
+try:
+    from drl.config import DEFAULT_CONFIG
+    from drl.feature_pipeline import FeatureFrame, FeaturePipeline
+    from stable_baselines3 import PPO
+
+    _DRL_AVAILABLE = True
+except ImportError:
+    _DRL_AVAILABLE = False
+
 from scanner import add_indicators, fetch
 from scanner.signals import analyze_price_momentum, check_volume_spike, safe_float
-from stable_baselines3 import PPO
 
 
 class PaperTradingEngine:
@@ -25,14 +50,25 @@ class PaperTradingEngine:
         self.trades: list[dict] = []
         self.daily_portfolio_value: list[dict] = []
 
+        # ── Slippage Tracker & Gerçekçi Maliyet Modeli ─────────────────────
+        if _TRACKER_AVAILABLE:
+            self.tracker = SlippageTracker()
+            self.costs = RealisticBacktestCosts.from_tracker(self.tracker)
+        else:
+            self.tracker = None
+            self.costs = None
+
         self.model = None
-        if strategy in ["drl", "hybrid"]:
+        if strategy in ["drl", "hybrid"] and _DRL_AVAILABLE:
             try:
                 self.model = PPO.load("models/ppo_balanced_20260217_171208.zip")
                 print(f"✅ DRL model yüklendi ({strategy} mode)")
             except Exception as e:
                 print(f"⚠️  DRL model yüklenemedi: {e}")
                 self.strategy = "scanner"
+        elif strategy in ["drl", "hybrid"] and not _DRL_AVAILABLE:
+            print("⚠️  DRL kütüphaneleri bulunamadı, scanner moduna geçildi.")
+            self.strategy = "scanner"
 
     def generate_signal(self, symbol: str, df: pd.DataFrame) -> dict:
         """Scanner ve/veya DRL sinyali üret"""
@@ -87,7 +123,7 @@ class PaperTradingEngine:
         drl_action = "HOLD"
         drl_confidence = 0.5
 
-        if self.model:
+        if self.model and _DRL_AVAILABLE:
             try:
                 drl_df = (
                     pd.DataFrame(
@@ -167,23 +203,48 @@ class PaperTradingEngine:
             "close": close,
         }
 
-    def execute_trade(self, symbol: str, action: str, price: float, date: datetime):
-        """Trade gerçekleştir"""
+    def execute_trade(
+        self,
+        symbol: str,
+        action: str,
+        price: float,
+        date: datetime,
+        avg_volume: float = 1_000_000,
+    ):
+        """
+        Trade gerçekleştir.
+
+        avg_volume: Sembolün günlük ortalama hacmi (Kyle lambda hesabı için).
+                    Varsayılan 1M — gerçek veri varsa geçirin.
+        """
 
         if action == "BUY" and symbol not in self.positions:
-            # Pozisyon aç
-            position_size = self.capital * 0.1  # Sermayenin %10'u
+            # ── Pozisyon büyüklüğü ─────────────────────────────────────────
+            position_size = self.capital * 0.1  # sermayenin %10'u
             if position_size < price:
-                return  # Yetersiz sermaye
+                return  # yetersiz sermaye
 
             shares = int(position_size / price)
-            cost = shares * price * 1.001  # 0.1% commission
+            if shares == 0:
+                return
+
+            # ── Gerçekçi maliyet: dinamik slippage + komisyon + gap riski ──
+            if self.costs:
+                entry = self.costs.entry_cost(price, shares, avg_volume)
+                fill_price = entry["fill_price"]
+                cost_extra = entry["total_cost_usd"]
+            else:
+                fill_price = price * 1.001  # eski flat model (fallback)
+                cost_extra = 0.0
+
+            cost = shares * fill_price + cost_extra
 
             if cost <= self.capital:
                 self.capital -= cost
                 self.positions[symbol] = {
                     "shares": shares,
-                    "entry_price": price,
+                    "entry_price": fill_price,
+                    "signal_price": price,
                     "entry_date": date,
                 }
 
@@ -193,21 +254,47 @@ class PaperTradingEngine:
                         "symbol": symbol,
                         "action": "BUY",
                         "shares": shares,
-                        "price": price,
+                        "signal_price": price,
+                        "fill_price": fill_price,
+                        "slippage_pct": (fill_price - price) / price * 100,
                         "cost": cost,
                     }
                 )
 
+                # ── Slippage kaydı ─────────────────────────────────────────
+                if self.tracker:
+                    self.tracker.record_fill(
+                        symbol=symbol,
+                        signal_price=price,
+                        fill_price=fill_price,
+                        direction="buy",
+                        shares=shares,
+                        avg_volume=avg_volume,
+                        source="paper",
+                    )
+
         elif action == "SELL" and symbol in self.positions:
-            # Pozisyon kapat
+            # ── Pozisyon kapat ─────────────────────────────────────────────
             position = self.positions[symbol]
             shares = position["shares"]
-            revenue = shares * price * 0.999  # 0.1% commission
 
+            # stop_hit: stop-loss ile mi kapatıyoruz? (basit tahmini)
+            entry_price = position["entry_price"]
+            is_stop = price < entry_price * 0.95  # %5'ten fazla düşmüşse stop sayılır
+
+            if self.costs:
+                ex = self.costs.exit_cost(price, shares, is_stop_hit=is_stop, avg_volume=avg_volume)
+                fill_price = ex["fill_price"]
+                cost_extra = ex["total_cost_usd"]
+            else:
+                fill_price = price * 0.999
+                cost_extra = 0.0
+
+            revenue = shares * fill_price - cost_extra
             self.capital += revenue
 
-            profit = revenue - (shares * position["entry_price"])
-            profit_pct = (price - position["entry_price"]) / position["entry_price"] * 100
+            profit = revenue - (shares * entry_price)
+            profit_pct = (fill_price - entry_price) / entry_price * 100
 
             self.trades.append(
                 {
@@ -215,15 +302,43 @@ class PaperTradingEngine:
                     "symbol": symbol,
                     "action": "SELL",
                     "shares": shares,
-                    "price": price,
+                    "signal_price": price,
+                    "fill_price": fill_price,
+                    "slippage_pct": (price - fill_price) / price * 100,
                     "revenue": revenue,
                     "profit": profit,
                     "profit_pct": profit_pct,
                     "hold_days": (date - position["entry_date"]).days,
+                    "is_stop": is_stop,
                 }
             )
 
+            # ── Slippage kaydı ─────────────────────────────────────────────
+            if self.tracker:
+                self.tracker.record_fill(
+                    symbol=symbol,
+                    signal_price=price,
+                    fill_price=fill_price,
+                    direction="sell",
+                    shares=shares,
+                    avg_volume=avg_volume,
+                    source="paper",
+                )
+
             del self.positions[symbol]
+
+    def get_slippage_report(self) -> str:
+        """Biriken slippage verisinin haftalık raporunu döner."""
+        if self.tracker:
+            return self.tracker.weekly_report()
+        return "SlippageTracker mevcut değil."
+
+    def recalibrate_costs(self):
+        """Paper trade verisi biriktikçe maliyet modelini güncelle."""
+        if self.tracker and _TRACKER_AVAILABLE:
+            self.costs = RealisticBacktestCosts.from_tracker(self.tracker)
+            rt = self.costs.round_trip_cost_pct()
+            print(f"🔄 Maliyet modeli güncellendi — gidiş-dönüş: {rt:.3f}%")
 
     def update_portfolio_value(self, date: datetime, prices: dict[str, float]):
         """Günlük portföy değeri güncelle"""
@@ -314,6 +429,9 @@ def run_paper_trading_day(
             current_price = float(df["Close"].iloc[-1])
             current_prices[symbol] = current_price
 
+            # Günlük ortalama hacim (son 20 gün)
+            avg_vol = float(df["Volume"].tail(20).mean()) if "Volume" in df.columns else 1_000_000
+
             # Her strateji için sinyal üret
             signals = {}
             for name, engine in engines.items():
@@ -322,7 +440,13 @@ def run_paper_trading_day(
 
                 # Trade execution
                 if signal["final_action"] in ["BUY", "SELL"]:
-                    engine.execute_trade(symbol, signal["final_action"], current_price, test_date)
+                    engine.execute_trade(
+                        symbol,
+                        signal["final_action"],
+                        current_price,
+                        test_date,
+                        avg_volume=avg_vol,
+                    )
 
             daily_signals[symbol] = signals
 

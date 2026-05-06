@@ -1,0 +1,51 @@
+{
+  "timestamp": "2026-05-06T15:59:24.057128",
+  "steps": {
+    "ab_backtest": {
+      "A": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 264,
+        "tn": 336,
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0,
+        "profit": -1320.0,
+        "signals": 0
+      },
+      "B": {
+        "tp": 14,
+        "fp": 24,
+        "fn": 250,
+        "tn": 312,
+        "precision": 0.3684,
+        "recall": 0.053,
+        "f1": 0.0927,
+        "profit": -1256.64,
+        "signals": 38
+      }
+    },
+    "slippage": {
+      "n_records": 0,
+      "buy_slip": {
+        "mean": 0.002,
+        "p75": 0.0035,
+        "p95": 0.006
+      },
+      "sell_slip": {
+        "mean": 0.0015,
+        "p75": 0.0025,
+        "p95": 0.0045
+      },
+      "kyle_lambda": 0.1,
+      "avg_gap_pct": 0.001,
+      "calibrated": false,
+      "as_of": "2026-05-06T15:59:24.079370"
+    }
+  },
+  "data_info": {
+    "rows": 600,
+    "date_range": "2025-09-01 \u2192 2027-12-17"
+  },
+  "errors": []
+}

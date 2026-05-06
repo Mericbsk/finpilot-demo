@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-05-06T15:58:15.217504",
+  "steps": {
+    "ab_backtest": {
+      "A": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 264,
+        "tn": 336,
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0,
+        "profit": -1320.0,
+        "signals": 0
+      },
+      "B": {
+        "tp": 14,
+        "fp": 24,
+        "fn": 250,
+        "tn": 312,
+        "precision": 0.3684,
+        "recall": 0.053,
+        "f1": 0.0927,
+        "profit": -1256.64,
+        "signals": 38
+      }
+    },
+    "wf_mc": {
+      "wf_summary": {
+        "A": {
+          "n_windows": 24,
+          "oos_total_profit": -1090.0,
+          "oos_mean_profit": -45.42,
+          "oos_std_profit": 9.57,
+          "oos_win_rate": 0.0,
+          "oos_sharpe": -75.374,
+          "deflated_sharpe": -64.035,
+          "is_total_profit": -3340.0,
+          "oos_is_consistency": 0.047,
+          "best_window_profit": -20.0,
+          "worst_window_profit": -60.0,
+          "pct_windows_profitable": 0.0
+        },
+        "B": {
+          "n_windows": 24,
+          "oos_total_profit": -1087.6,
+          "oos_mean_profit": -45.32,
+          "oos_std_profit": 20.97,
+          "oos_win_rate": 0.0,
+          "oos_sharpe": -34.305,
+          "deflated_sharpe": -29.144,
+          "is_total_profit": -3408.28,
+          "oos_is_consistency": 0.056,
+          "best_window_profit": -4.52,
+          "worst_window_profit": -90.0,
+          "pct_windows_profitable": 0.0
+        }
+      },
+      "mc_significance": {
+        "A": {
+          "p_value_return": 1.0,
+          "p_value_sharpe": 1.0,
+          "return_significant_5pct": false,
+          "sharpe_significant_5pct": false,
+          "pct_sims_above_real_return": 100.0,
+          "interpretation": "\u274c \u015eansa dayal\u0131: sonu\u00e7 rastgele da\u011f\u0131l\u0131mdan ay\u0131rt edilemiyor"
+        },
+        "B": {
+          "p_value_return": 1.0,
+          "p_value_sharpe": 0.1867,
+          "return_significant_5pct": false,
+          "sharpe_significant_5pct": false,
+          "pct_sims_above_real_return": 100.0,
+          "interpretation": "\u26a0\ufe0f  Zay\u0131f edge: \u015fans pay\u0131 y\u00fcksek"
+        }
+      }
+    },
+    "slippage": {
+      "error": "'NoneType' object has no attribute '__dict__'"
+    }
+  },
+  "data_info": {
+    "rows": 600,
+    "date_range": "2025-09-01 \u2192 2027-12-17"
+  },
+  "errors": []
+}

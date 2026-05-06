@@ -1,0 +1,520 @@
+{
+  "walk_forward": {
+    "metadata": {
+      "generated_at": "2026-05-05T18:17:04.798959",
+      "train_days": 90,
+      "test_days": 30,
+      "n_windows": 20,
+      "data_range": "2025-09-01 \u2192 2027-07-30",
+      "n_trials_dsr": 3456
+    },
+    "summary": {
+      "A": {
+        "n_windows": 20,
+        "oos_total_profit": -950.0,
+        "oos_mean_profit": -47.5,
+        "oos_std_profit": 10.19,
+        "oos_win_rate": 0.0,
+        "oos_sharpe": -74.029,
+        "deflated_sharpe": -61.829,
+        "is_total_profit": -2945.0,
+        "oos_is_consistency": -0.112,
+        "best_window_profit": -20.0,
+        "worst_window_profit": -65.0,
+        "pct_windows_profitable": 0.0
+      },
+      "B": {
+        "n_windows": 20,
+        "oos_total_profit": -736.88,
+        "oos_mean_profit": -36.84,
+        "oos_std_profit": 28.53,
+        "oos_win_rate": 15.0,
+        "oos_sharpe": -20.497,
+        "deflated_sharpe": -17.119,
+        "is_total_profit": -2018.96,
+        "oos_is_consistency": -0.36,
+        "best_window_profit": 40.72,
+        "worst_window_profit": -70.0,
+        "pct_windows_profitable": 15.0
+      }
+    },
+    "windows": [
+      {
+        "train_start": "2025-09-01T00:00:00",
+        "train_end": "2025-11-30T00:00:00",
+        "test_start": "2025-11-30T00:00:00",
+        "test_end": "2025-12-30T00:00:00",
+        "train_n": 65,
+        "test_n": 21,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -170.0,
+            "out_of_sample_profit": -55.0,
+            "oos_is_ratio": -0.3235
+          },
+          "B": {
+            "in_sample_profit": -18.8,
+            "out_of_sample_profit": -70.0,
+            "oos_is_ratio": -3.7234
+          }
+        }
+      },
+      {
+        "train_start": "2025-10-01T00:00:00",
+        "train_end": "2025-12-30T00:00:00",
+        "test_start": "2025-12-30T00:00:00",
+        "test_end": "2026-01-29T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -165.0,
+            "out_of_sample_profit": -40.0,
+            "oos_is_ratio": -0.2424
+          },
+          "B": {
+            "in_sample_profit": -59.04,
+            "out_of_sample_profit": -40.0,
+            "oos_is_ratio": -0.6775
+          }
+        }
+      },
+      {
+        "train_start": "2025-10-31T00:00:00",
+        "train_end": "2026-01-29T00:00:00",
+        "test_start": "2026-01-29T00:00:00",
+        "test_end": "2026-02-28T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -150.0,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -0.3333
+          },
+          "B": {
+            "in_sample_profit": -104.52,
+            "out_of_sample_profit": 10.48,
+            "oos_is_ratio": 0.1003
+          }
+        }
+      },
+      {
+        "train_start": "2025-11-30T00:00:00",
+        "train_end": "2026-02-28T00:00:00",
+        "test_start": "2026-02-28T00:00:00",
+        "test_end": "2026-03-30T00:00:00",
+        "train_n": 65,
+        "test_n": 20,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -145.0,
+            "out_of_sample_profit": -60.0,
+            "oos_is_ratio": -0.4138
+          },
+          "B": {
+            "in_sample_profit": -99.52,
+            "out_of_sample_profit": 0.48,
+            "oos_is_ratio": 0.0048
+          }
+        }
+      },
+      {
+        "train_start": "2025-12-30T00:00:00",
+        "train_end": "2026-03-30T00:00:00",
+        "test_start": "2026-03-30T00:00:00",
+        "test_end": "2026-04-29T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -150.0,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -0.3333
+          },
+          "B": {
+            "in_sample_profit": -29.04,
+            "out_of_sample_profit": -65.0,
+            "oos_is_ratio": -2.2383
+          }
+        }
+      },
+      {
+        "train_start": "2026-01-29T00:00:00",
+        "train_end": "2026-04-29T00:00:00",
+        "test_start": "2026-04-29T00:00:00",
+        "test_end": "2026-05-29T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -160.0,
+            "out_of_sample_profit": -45.0,
+            "oos_is_ratio": -0.2812
+          },
+          "B": {
+            "in_sample_profit": -54.04,
+            "out_of_sample_profit": -60.0,
+            "oos_is_ratio": -1.1103
+          }
+        }
+      },
+      {
+        "train_start": "2026-02-28T00:00:00",
+        "train_end": "2026-05-29T00:00:00",
+        "test_start": "2026-05-29T00:00:00",
+        "test_end": "2026-06-28T00:00:00",
+        "train_n": 64,
+        "test_n": 21,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -155.0,
+            "out_of_sample_profit": -45.0,
+            "oos_is_ratio": -0.2903
+          },
+          "B": {
+            "in_sample_profit": -124.52,
+            "out_of_sample_profit": -29.76,
+            "oos_is_ratio": -0.239
+          }
+        }
+      },
+      {
+        "train_start": "2026-03-30T00:00:00",
+        "train_end": "2026-06-28T00:00:00",
+        "test_start": "2026-06-28T00:00:00",
+        "test_end": "2026-07-28T00:00:00",
+        "train_n": 65,
+        "test_n": 21,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -140.0,
+            "out_of_sample_profit": -40.0,
+            "oos_is_ratio": -0.2857
+          },
+          "B": {
+            "in_sample_profit": -154.76,
+            "out_of_sample_profit": -55.0,
+            "oos_is_ratio": -0.3554
+          }
+        }
+      },
+      {
+        "train_start": "2026-04-29T00:00:00",
+        "train_end": "2026-07-28T00:00:00",
+        "test_start": "2026-07-28T00:00:00",
+        "test_end": "2026-08-27T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -130.0,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -0.3846
+          },
+          "B": {
+            "in_sample_profit": -144.76,
+            "out_of_sample_profit": 40.72,
+            "oos_is_ratio": 0.2813
+          }
+        }
+      },
+      {
+        "train_start": "2026-05-29T00:00:00",
+        "train_end": "2026-08-27T00:00:00",
+        "test_start": "2026-08-27T00:00:00",
+        "test_end": "2026-09-26T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -135.0,
+            "out_of_sample_profit": -20.0,
+            "oos_is_ratio": -0.1481
+          },
+          "B": {
+            "in_sample_profit": -44.04,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -1.1353
+          }
+        }
+      },
+      {
+        "train_start": "2026-06-28T00:00:00",
+        "train_end": "2026-09-26T00:00:00",
+        "test_start": "2026-09-26T00:00:00",
+        "test_end": "2026-10-26T00:00:00",
+        "train_n": 65,
+        "test_n": 20,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -110.0,
+            "out_of_sample_profit": -55.0,
+            "oos_is_ratio": -0.5
+          },
+          "B": {
+            "in_sample_profit": -64.28,
+            "out_of_sample_profit": -55.0,
+            "oos_is_ratio": -0.8556
+          }
+        }
+      },
+      {
+        "train_start": "2026-07-28T00:00:00",
+        "train_end": "2026-10-26T00:00:00",
+        "test_start": "2026-10-26T00:00:00",
+        "test_end": "2026-11-25T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -125.0,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -0.4
+          },
+          "B": {
+            "in_sample_profit": -64.28,
+            "out_of_sample_profit": -19.76,
+            "oos_is_ratio": -0.3074
+          }
+        }
+      },
+      {
+        "train_start": "2026-08-27T00:00:00",
+        "train_end": "2026-11-25T00:00:00",
+        "test_start": "2026-11-25T00:00:00",
+        "test_end": "2026-12-25T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -125.0,
+            "out_of_sample_profit": -55.0,
+            "oos_is_ratio": -0.44
+          },
+          "B": {
+            "in_sample_profit": -124.76,
+            "out_of_sample_profit": -70.0,
+            "oos_is_ratio": -0.5611
+          }
+        }
+      },
+      {
+        "train_start": "2026-09-26T00:00:00",
+        "train_end": "2026-12-25T00:00:00",
+        "test_start": "2026-12-25T00:00:00",
+        "test_end": "2027-01-24T00:00:00",
+        "train_n": 64,
+        "test_n": 21,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -160.0,
+            "out_of_sample_profit": -35.0,
+            "oos_is_ratio": -0.2188
+          },
+          "B": {
+            "in_sample_profit": -144.76,
+            "out_of_sample_profit": -35.0,
+            "oos_is_ratio": -0.2418
+          }
+        }
+      },
+      {
+        "train_start": "2026-10-26T00:00:00",
+        "train_end": "2027-01-24T00:00:00",
+        "test_start": "2027-01-24T00:00:00",
+        "test_end": "2027-02-23T00:00:00",
+        "train_n": 65,
+        "test_n": 21,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -140.0,
+            "out_of_sample_profit": -55.0,
+            "oos_is_ratio": -0.3929
+          },
+          "B": {
+            "in_sample_profit": -124.76,
+            "out_of_sample_profit": -39.76,
+            "oos_is_ratio": -0.3187
+          }
+        }
+      },
+      {
+        "train_start": "2026-11-25T00:00:00",
+        "train_end": "2027-02-23T00:00:00",
+        "test_start": "2027-02-23T00:00:00",
+        "test_end": "2027-03-25T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -145.0,
+            "out_of_sample_profit": -65.0,
+            "oos_is_ratio": -0.4483
+          },
+          "B": {
+            "in_sample_profit": -144.76,
+            "out_of_sample_profit": -49.76,
+            "oos_is_ratio": -0.3437
+          }
+        }
+      },
+      {
+        "train_start": "2026-12-25T00:00:00",
+        "train_end": "2027-03-25T00:00:00",
+        "test_start": "2027-03-25T00:00:00",
+        "test_end": "2027-04-24T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -155.0,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -0.3226
+          },
+          "B": {
+            "in_sample_profit": -124.52,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -0.4015
+          }
+        }
+      },
+      {
+        "train_start": "2027-01-24T00:00:00",
+        "train_end": "2027-04-24T00:00:00",
+        "test_start": "2027-04-24T00:00:00",
+        "test_end": "2027-05-24T00:00:00",
+        "train_n": 65,
+        "test_n": 20,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -170.0,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -0.2941
+          },
+          "B": {
+            "in_sample_profit": -139.52,
+            "out_of_sample_profit": -19.76,
+            "oos_is_ratio": -0.1416
+          }
+        }
+      },
+      {
+        "train_start": "2027-02-23T00:00:00",
+        "train_end": "2027-05-24T00:00:00",
+        "test_start": "2027-05-24T00:00:00",
+        "test_end": "2027-06-23T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -165.0,
+            "out_of_sample_profit": -50.0,
+            "oos_is_ratio": -0.303
+          },
+          "B": {
+            "in_sample_profit": -119.52,
+            "out_of_sample_profit": -65.0,
+            "oos_is_ratio": -0.5438
+          }
+        }
+      },
+      {
+        "train_start": "2027-03-25T00:00:00",
+        "train_end": "2027-06-23T00:00:00",
+        "test_start": "2027-06-23T00:00:00",
+        "test_end": "2027-07-23T00:00:00",
+        "train_n": 64,
+        "test_n": 22,
+        "strategies": {
+          "A": {
+            "in_sample_profit": -150.0,
+            "out_of_sample_profit": -30.0,
+            "oos_is_ratio": -0.2
+          },
+          "B": {
+            "in_sample_profit": -134.76,
+            "out_of_sample_profit": -14.76,
+            "oos_is_ratio": -0.1095
+          }
+        }
+      }
+    ]
+  },
+  "monte_carlo": {
+    "A": {
+      "metadata": {
+        "generated_at": "2026-05-05T18:17:05.053000",
+        "n_trades": 224,
+        "n_simulations": 500,
+        "initial_cap": 10000.0
+      },
+      "real_metrics": {
+        "total_return_pct": -11.3,
+        "sharpe": -110.432,
+        "max_drawdown_pct": -11.26,
+        "profit_factor": 0.0,
+        "total_pnl": -1130.0
+      },
+      "mc_distribution": {
+        "return_p5": -11.3,
+        "return_p25": -11.3,
+        "return_p50": -11.3,
+        "return_p75": -11.3,
+        "return_p95": -11.3,
+        "sharpe_p5": -125.232,
+        "sharpe_p50": -116.092,
+        "sharpe_p95": -107.628,
+        "dd_worst": -11.256,
+        "dd_median": -11.256,
+        "pf_p25": 0.0,
+        "pf_p75": 0.0
+      },
+      "significance": {
+        "p_value_return": 1.0,
+        "p_value_sharpe": 0.184,
+        "return_significant_5pct": false,
+        "sharpe_significant_5pct": false,
+        "pct_sims_above_real_return": 100.0,
+        "interpretation": "\u26a0\ufe0f  Zay\u0131f edge: \u015fans pay\u0131 y\u00fcksek"
+      }
+    },
+    "B": {
+      "metadata": {
+        "generated_at": "2026-05-05T18:17:05.266288",
+        "n_trades": 237,
+        "n_simulations": 500,
+        "initial_cap": 10000.0
+      },
+      "real_metrics": {
+        "total_return_pct": -7.81,
+        "sharpe": -6.164,
+        "max_drawdown_pct": -7.76,
+        "profit_factor": 0.368,
+        "total_pnl": -780.68
+      },
+      "mc_distribution": {
+        "return_p5": -7.807,
+        "return_p25": -7.807,
+        "return_p50": -7.807,
+        "return_p75": -7.807,
+        "return_p95": -7.807,
+        "sharpe_p5": -6.472,
+        "sharpe_p50": -6.103,
+        "sharpe_p95": -6.018,
+        "dd_worst": -8.367,
+        "dd_median": -7.905,
+        "pf_p25": 0.368,
+        "pf_p75": 0.368
+      },
+      "significance": {
+        "p_value_return": 1.0,
+        "p_value_sharpe": 0.832,
+        "return_significant_5pct": false,
+        "sharpe_significant_5pct": false,
+        "pct_sims_above_real_return": 100.0,
+        "interpretation": "\u274c \u015eansa dayal\u0131: sonu\u00e7 rastgele da\u011f\u0131l\u0131mdan ay\u0131rt edilemiyor"
+      }
+    }
+  }
+}

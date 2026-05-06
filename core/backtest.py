@@ -35,6 +35,24 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+# ── Gerçekçi maliyet modeli (opsiyonel — mevcut kullanımı bozmaz) ──────────
+try:
+    from core.slippage_tracker import RealisticBacktestCosts as _RBC
+
+    _REALISTIC_COSTS_AVAILABLE = True
+except ImportError:
+    try:
+        import sys
+        from pathlib import Path
+
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from core.slippage_tracker import RealisticBacktestCosts as _RBC
+
+        _REALISTIC_COSTS_AVAILABLE = True
+    except ImportError:
+        _REALISTIC_COSTS_AVAILABLE = False
+        _RBC = None
+
 
 # ============================================
 # 📊 Core Types
@@ -535,15 +553,28 @@ class BacktestResult:
 
 @dataclass
 class BacktestConfig:
-    """Backtest configuration."""
+    """
+    Backtest configuration.
+
+    Gerçekçi maliyet modeli için:
+        from core.slippage_tracker import RealisticBacktestCosts, SlippageTracker
+        tracker = SlippageTracker()
+        config  = BacktestConfig(realistic_costs=RealisticBacktestCosts.from_tracker(tracker))
+
+    realistic_costs set edildiğinde:
+      - slippage_rate ve commission_rate flat parametreleri devre dışı kalır
+      - Dinamik Kyle-lambda slippage + $1.50 komisyon + overnight gap modeli devreye girer
+    """
 
     initial_capital: float = 10000.0
-    commission_rate: float = 0.001  # 0.1%
-    slippage_rate: float = 0.0005  # 0.05%
+    commission_rate: float = 0.001  # 0.1% — realistic_costs set edilince kullanılmaz
+    slippage_rate: float = 0.0005  # 0.05% — realistic_costs set edilince kullanılmaz
     max_position_size: float = 0.25  # 25% of portfolio
     use_kelly: bool = False
     kelly_fraction: float = 0.25
     risk_per_trade: float = 0.02  # 2%
+    realistic_costs: Any | None = None  # RealisticBacktestCosts instance
+    avg_daily_volume: float = 1_000_000  # Kyle-lambda için; override edilebilir
 
 
 class Backtest:
@@ -632,13 +663,30 @@ class Backtest:
             position_value = min(position_value, kelly_size)
 
         shares = position_value / signal.price
-        commission = position_value * self.config.commission_rate
-        slippage = position_value * self.config.slippage_rate
+
+        # ── Maliyet hesabı: gerçekçi vs flat ──────────────────────────────
+        rc = self.config.realistic_costs
+        if rc is not None:
+            # Dinamik slippage + Kyle-lambda + komisyon + overnight gap
+            entry = rc.entry_cost(signal.price, int(shares), self.config.avg_daily_volume)
+            fill_price = entry["fill_price"]
+            slippage = entry["slippage_usd"]
+            commission = entry["commission_usd"] + entry["gap_usd"]
+            total_cost = int(shares) * fill_price + commission
+        else:
+            # Eski flat model (geriye dönük uyumluluk)
+            fill_price = signal.price * (1 + self.config.slippage_rate)
+            commission = position_value * self.config.commission_rate
+            slippage = position_value * self.config.slippage_rate
+            total_cost = position_value + commission + slippage
 
         # Check if enough cash
-        total_cost = position_value + commission + slippage
         if total_cost > self.portfolio.cash:
             return
+
+        # Partial fill (sadece realistic_costs modunda)
+        if rc is not None and rc.fill_rate < 1.0:
+            shares = shares * rc.fill_rate  # %92 fill varsayımı
 
         # Open trade
         self.trade_counter += 1
@@ -647,7 +695,7 @@ class Backtest:
             symbol=self.symbol,
             direction=TradeDirection.LONG,
             entry_date=signal.date,
-            entry_price=signal.price * (1 + self.config.slippage_rate),
+            entry_price=fill_price,
             shares=shares,
             stop_loss=signal.stop_loss,
             take_profit=signal.take_profit,
@@ -660,7 +708,10 @@ class Backtest:
         self.portfolio.cash -= total_cost
 
         self.strategy.on_trade_open(trade)
-        logger.debug(f"Opened: {trade.id} @ ${trade.entry_price:.2f}")
+        logger.debug(
+            f"Opened: {trade.id} @ ${fill_price:.2f} "
+            f"(signal={signal.price:.2f}, slip={slippage:.2f})"
+        )
 
     def _close_long(self, signal: Signal) -> None:
         """Close a long position."""
@@ -677,21 +728,41 @@ class Backtest:
         if open_trade is None:
             return
 
-        # Close trade
-        exit_price = signal.price * (1 - self.config.slippage_rate)
+        # ── Çıkış maliyeti: gerçekçi vs flat ─────────────────────────────
+        rc = self.config.realistic_costs
+        if rc is not None:
+            # stop-loss mu yoksa normal çıkış mı?
+            is_stop = open_trade.stop_loss is not None and signal.price <= open_trade.stop_loss
+            ex = rc.exit_cost(
+                signal.price,
+                int(open_trade.shares),
+                is_stop_hit=is_stop,
+                avg_volume=self.config.avg_daily_volume,
+            )
+            exit_price = ex["fill_price"]
+            commission = ex["commission_usd"]
+            slippage_x = ex["slippage_usd"]
+        else:
+            exit_price = signal.price * (1 - self.config.slippage_rate)
+            commission = open_trade.shares * exit_price * self.config.commission_rate
+            slippage_x = 0.0
+
         position_value = open_trade.shares * exit_price
-        commission = position_value * self.config.commission_rate
 
         open_trade.exit_date = signal.date
         open_trade.exit_price = exit_price
         open_trade.status = TradeStatus.CLOSED
         open_trade.commission += commission
+        open_trade.slippage += slippage_x
 
         self.portfolio.cash += position_value - commission
         del self.portfolio.positions[self.symbol]
 
         self.strategy.on_trade_close(open_trade)
-        logger.debug(f"Closed: {open_trade.id} @ ${exit_price:.2f}, P&L: ${open_trade.pnl:.2f}")
+        logger.debug(
+            f"Closed: {open_trade.id} @ ${exit_price:.2f} "
+            f"(signal={signal.price:.2f}), P&L: ${open_trade.pnl:.2f}"
+        )
 
     def _close_all_positions(self, row: pd.Series) -> None:
         """Close all remaining positions at market."""
@@ -808,4 +879,6 @@ __all__ = [
     "BacktestResult",
     # Utilities
     "compare_strategies",
+    # Realistic costs (available if slippage_tracker importable)
+    "_REALISTIC_COSTS_AVAILABLE",
 ]
