@@ -18,6 +18,7 @@ export const C = {
   green: "#30d158",
   red: "#ff453a",
   yellow: "#ffd60a",
+  purple: "#bf5af2",
 };
 
 /* ── Deterministic hash (Math.imul based) ─────────────────── */

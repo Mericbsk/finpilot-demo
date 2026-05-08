@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
 
 /* ─── Animation helpers ─── */
 const fadeUp = {
@@ -11,10 +10,6 @@ const fadeUp = {
     y: 0,
     transition: { delay: i * 0.12, duration: 0.7, ease: "easeOut" as const },
   }),
-};
-
-const stagger = {
-  visible: { transition: { staggerChildren: 0.08 } },
 };
 
 /* ─── Scan table mockup ─── */
@@ -104,45 +99,6 @@ function EnsembleVoting() {
   );
 }
 
-/* ─── Waitlist form ─── */
-function WaitlistForm() {
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (email.includes("@")) setSent(true);
-  }
-
-  if (sent) {
-    return (
-      <div className="rounded-xl border border-[var(--accent-green)]/20 bg-[var(--accent-green)]/5 px-6 py-5 text-center">
-        <p className="text-sm font-medium text-[var(--accent-green)]">You&apos;re on the list!</p>
-        <p className="mt-1 text-xs text-[var(--text-tertiary)]">We&apos;ll notify you when early access opens.</p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@example.com"
-        required
-        className="flex-1 rounded-lg border border-white/[0.1] bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent-cyan)]/50 transition"
-      />
-      <button
-        type="submit"
-        className="rounded-lg bg-[var(--accent-blue)] px-6 py-3 text-sm font-semibold text-white hover:brightness-110 transition whitespace-nowrap"
-      >
-        Join Waitlist
-      </button>
-    </form>
-  );
-}
-
 /* ═══════════════════════════════════════════════
    MAIN PAGE
    ═══════════════════════════════════════════════ */
@@ -186,16 +142,16 @@ export default function HeroGrid() {
 
           <div className="mt-10 flex items-center justify-center gap-4">
             <a
-              href="#features"
+              href="/demo"
               className="rounded-full bg-[var(--accent-blue)] px-7 py-3 text-sm font-semibold text-white hover:brightness-110 transition shadow-lg shadow-[var(--accent-blue)]/20"
             >
-              See How It Works
+              Try Demo →
             </a>
             <a
-              href="#waitlist"
+              href="#features"
               className="rounded-full border border-white/[0.12] px-7 py-3 text-sm font-medium text-[var(--text-secondary)] hover:text-white hover:border-white/[0.25] transition"
             >
-              Join Waitlist
+              See How It Works
             </a>
           </div>
         </motion.div>
@@ -212,7 +168,7 @@ export default function HeroGrid() {
             { num: "1,500+", label: "Symbols tracked" },
             { num: "12", label: "DRL models" },
             { num: "3", label: "Expert agents" },
-            { num: "77+", label: "Scans completed" },
+            { num: "68%", label: "Historical win rate" },
           ].map((s) => (
             <div key={s.label} className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-white">{s.num}</div>
@@ -509,9 +465,8 @@ export default function HeroGrid() {
           </div>
         </motion.div>
 
-        {/* ════════════════ WAITLIST CTA ════════════════ */}
+        {/* ════════════════ FINAL CTA ════════════════ */}
         <motion.div
-          id="waitlist"
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
@@ -523,10 +478,23 @@ export default function HeroGrid() {
             Ready to stop guessing?
           </h2>
           <p className="mt-4 text-base text-[var(--text-secondary)] max-w-md mx-auto">
-            No credit card. No commitment. Join the waitlist and be the first to try FinPilot when early access opens.
+            Try the live demo with real scanner data — no sign-up required.
           </p>
-          <div className="mt-8 max-w-md mx-auto">
-            <WaitlistForm />
+          <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
+            <a
+              href="/demo"
+              className="rounded-full bg-[var(--accent-blue)] px-8 py-3.5 text-sm font-semibold text-white hover:brightness-110 transition shadow-lg shadow-[var(--accent-blue)]/20"
+            >
+              Try Demo →
+            </a>
+            <a
+              href="http://localhost:8501"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-white/[0.12] px-8 py-3.5 text-sm font-medium text-[var(--text-secondary)] hover:text-white hover:border-white/[0.25] transition"
+            >
+              Open Dashboard
+            </a>
           </div>
           <p className="mt-8 text-[11px] text-[var(--text-tertiary)]">
             1,500+ symbols · 12 DRL models · 4 strategy modes · Telegram alerts · 3 languages

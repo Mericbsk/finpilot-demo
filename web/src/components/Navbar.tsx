@@ -14,12 +14,12 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-8 md:flex">
           <a href="#features" className="text-xs text-[var(--text-tertiary)] hover:text-white transition">Features</a>
-          <a href="#waitlist" className="text-xs text-[var(--text-tertiary)] hover:text-white transition">Waitlist</a>
+          <a href="/demo" className="text-xs text-[var(--text-tertiary)] hover:text-white transition">Demo</a>
           <a
-            href="#waitlist"
+            href="/demo"
             className="text-xs px-4 py-1.5 rounded-full bg-[var(--accent-blue)] text-white font-medium hover:brightness-110 transition"
           >
-            Get Early Access
+            Try Demo
           </a>
         </div>
 
@@ -40,7 +40,8 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden px-6 py-3 border-t border-white/[0.06] bg-black/95 backdrop-blur-xl space-y-2">
           <a href="#features" onClick={() => setOpen(false)} className="block text-sm text-[var(--text-tertiary)] hover:text-white">Features</a>
-          <a href="#waitlist" onClick={() => setOpen(false)} className="block text-sm text-[var(--accent-blue)] pt-1">Get Early Access →</a>
+          <a href="/demo" onClick={() => setOpen(false)} className="block text-sm text-[var(--text-tertiary)] hover:text-white">Demo</a>
+          <a href="/demo" onClick={() => setOpen(false)} className="block text-sm text-[var(--accent-blue)] pt-1">Try Demo →</a>
         </div>
       )}
     </nav>
