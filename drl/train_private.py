@@ -27,10 +27,10 @@ import argparse
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
-import numpy as np
+import pandas as pd
 
 _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if _PROJECT_ROOT not in sys.path:
@@ -84,9 +84,8 @@ _DEFAULT_BATCH = 256
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _fetch_data(symbol: str, period: str = "2y") -> "pd.DataFrame":
-    import pandas as pd
 
+def _fetch_data(symbol: str, period: str = "2y") -> pd.DataFrame:
     logger.info("Fetching %s (%s)...", symbol, period)
     df = yf.download(symbol, period=period, auto_adjust=True, progress=False)
     if df.empty:
@@ -137,6 +136,7 @@ class _EpsilonCallback:
 # ---------------------------------------------------------------------------
 # Main training function
 # ---------------------------------------------------------------------------
+
 
 def train_with_dp(
     symbol: str,
@@ -196,7 +196,9 @@ def train_with_dp(
         actual_noise = model.policy.optimizer.noise_multiplier
     except Exception as exc:
         # Fallback: use fixed noise_multiplier if epsilon calculation fails
-        logger.warning("make_private_with_epsilon failed (%s) — using fixed noise %.2f", exc, noise_multiplier)
+        logger.warning(
+            "make_private_with_epsilon failed (%s) — using fixed noise %.2f", exc, noise_multiplier
+        )
         model.policy, model.policy.optimizer, _ = privacy_engine.make_private(
             module=model.policy,
             optimizer=model.policy.optimizer,
@@ -208,7 +210,9 @@ def train_with_dp(
 
     logger.info(
         "DP-SGD enabled: noise_multiplier=%.4f, max_grad_norm=%.1f, delta=%.0e",
-        actual_noise, max_grad_norm, delta,
+        actual_noise,
+        max_grad_norm,
+        delta,
     )
 
     # 5. Callback for epsilon tracking
@@ -226,10 +230,15 @@ def train_with_dp(
     model.collect_rollouts = _patched_collect  # type: ignore[method-assign]
 
     # 6. Train
-    start = datetime.now(timezone.utc)
-    logger.info("Training %s for %d timesteps with DP (target ε=%.1f)...", symbol, total_timesteps, target_epsilon)
+    start = datetime.now(UTC)
+    logger.info(
+        "Training %s for %d timesteps with DP (target ε=%.1f)...",
+        symbol,
+        total_timesteps,
+        target_epsilon,
+    )
     model.learn(total_timesteps=total_timesteps)
-    end = datetime.now(timezone.utc)
+    end = datetime.now(UTC)
 
     # 7. Final privacy accounting
     epsilon_spent = privacy_engine.get_epsilon(delta)
@@ -273,15 +282,37 @@ def train_with_dp(
 # CLI entry point
 # ---------------------------------------------------------------------------
 
+
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Train PPO with Differential Privacy (Opacus)")
     p.add_argument("--symbol", default="AAPL", help="Ticker symbol (default: AAPL)")
-    p.add_argument("--timesteps", type=int, default=_DEFAULT_TIMESTEPS, help="Total training timesteps")
-    p.add_argument("--epsilon", type=float, default=_DEFAULT_EPSILON, help="Target privacy budget ε (default: 10.0)")
-    p.add_argument("--delta", type=float, default=_DEFAULT_DELTA, help="Privacy delta (default: 1e-5)")
-    p.add_argument("--noise", type=float, default=_DEFAULT_NOISE, help="Noise multiplier fallback (default: 1.1)")
-    p.add_argument("--grad-norm", type=float, default=_DEFAULT_GRAD_NORM, help="Max gradient norm (default: 1.0)")
-    p.add_argument("--batch-size", type=int, default=_DEFAULT_BATCH, help="Batch size (default: 256)")
+    p.add_argument(
+        "--timesteps", type=int, default=_DEFAULT_TIMESTEPS, help="Total training timesteps"
+    )
+    p.add_argument(
+        "--epsilon",
+        type=float,
+        default=_DEFAULT_EPSILON,
+        help="Target privacy budget ε (default: 10.0)",
+    )
+    p.add_argument(
+        "--delta", type=float, default=_DEFAULT_DELTA, help="Privacy delta (default: 1e-5)"
+    )
+    p.add_argument(
+        "--noise",
+        type=float,
+        default=_DEFAULT_NOISE,
+        help="Noise multiplier fallback (default: 1.1)",
+    )
+    p.add_argument(
+        "--grad-norm",
+        type=float,
+        default=_DEFAULT_GRAD_NORM,
+        help="Max gradient norm (default: 1.0)",
+    )
+    p.add_argument(
+        "--batch-size", type=int, default=_DEFAULT_BATCH, help="Batch size (default: 256)"
+    )
     return p.parse_args()
 
 
@@ -310,8 +341,11 @@ if __name__ == "__main__":
     print("=" * 60)
 
     if report["epsilon_spent"] > report["target_epsilon"]:
-        logger.warning("⚠️  Privacy budget exceeded! ε_spent=%.4f > ε_target=%.1f",
-                       report["epsilon_spent"], report["target_epsilon"])
+        logger.warning(
+            "⚠️  Privacy budget exceeded! ε_spent=%.4f > ε_target=%.1f",
+            report["epsilon_spent"],
+            report["target_epsilon"],
+        )
         sys.exit(1)
 
     print("✅ Training complete within privacy budget.")

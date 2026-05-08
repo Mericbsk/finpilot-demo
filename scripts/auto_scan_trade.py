@@ -27,6 +27,7 @@ Environment değişkenleri:
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import logging
 import os
@@ -34,6 +35,13 @@ import sys
 import time
 from datetime import date, datetime
 from pathlib import Path
+
+# Windows terminal: force UTF-8 so emoji/Turkish chars don't crash
+if sys.platform == "win32":
+    if hasattr(sys.stdout, "buffer"):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "buffer"):
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 # Ensure project root on path
 ROOT = Path(__file__).parent.parent
@@ -56,13 +64,13 @@ logger = logging.getLogger("auto_scan_trade")
 # ===========================================================================
 
 STRATEGY_B = {
-    "min_alignment_ratio": 0.67,   # eski: 0.75
-    "min_momentum_ratio":  0.40,   # eski: 0.60
-    "min_filter_score":    1,      # eski: 2
-    "min_signal_score":    2,      # eski: 3
-    "min_zscore":          0.0,    # eski: 1.5
-    "min_price_filter":    2.0,    # değişmedi
-    "min_risk_reward":     2.0,    # değişmedi
+    "min_alignment_ratio": 0.67,  # eski: 0.75
+    "min_momentum_ratio": 0.40,  # eski: 0.60
+    "min_filter_score": 1,  # eski: 2
+    "min_signal_score": 2,  # eski: 3
+    "min_zscore": 0.0,  # eski: 1.5
+    "min_price_filter": 2.0,  # değişmedi
+    "min_risk_reward": 2.0,  # değişmedi
 }
 
 
@@ -73,17 +81,17 @@ def apply_strategy_b(signals: list[dict]) -> list[dict]:
     """
     p = STRATEGY_B
     filtered = []
-    skipped  = 0
+    skipped = 0
 
     for s in signals:
         checks = [
-            float(s.get("alignment_ratio",   1.0)) >= p["min_alignment_ratio"],
-            float(s.get("momentum_ratio",     1.0)) >= p["min_momentum_ratio"],
-            float(s.get("filter_score",       99))  >= p["min_filter_score"],
-            float(s.get("signal_score",       99))  >= p["min_signal_score"],
-            float(s.get("zscore",             99))  >= p["min_zscore"],
-            float(s.get("price_filter",       99))  >= p["min_price_filter"],
-            float(s.get("risk_reward",         0))  >= p["min_risk_reward"],
+            float(s.get("alignment_ratio", 1.0)) >= p["min_alignment_ratio"],
+            float(s.get("momentum_ratio", 1.0)) >= p["min_momentum_ratio"],
+            float(s.get("filter_score", 99)) >= p["min_filter_score"],
+            float(s.get("signal_score", 99)) >= p["min_signal_score"],
+            float(s.get("zscore", 99)) >= p["min_zscore"],
+            float(s.get("price_filter", 99)) >= p["min_price_filter"],
+            float(s.get("risk_reward", 0)) >= p["min_risk_reward"],
         ]
         if all(checks):
             filtered.append(s)
@@ -98,8 +106,7 @@ def apply_strategy_b(signals: list[dict]) -> list[dict]:
             )
 
     logger.info(
-        f"Strateji B filtresi: {len(signals)} sinyal → {len(filtered)} geçti "
-        f"({skipped} elendi)"
+        f"Strateji B filtresi: {len(signals)} sinyal → {len(filtered)} geçti " f"({skipped} elendi)"
     )
     return filtered
 
@@ -108,7 +115,7 @@ def apply_strategy_b(signals: list[dict]) -> list[dict]:
 # ── BLOK 2: Sabah Gap Filtresi ──────────────────────────────────────────────
 # ===========================================================================
 
-MAX_GAP_PCT = 0.005   # %0.5 — sinyal fiyatından bu kadar uzaklaşırsa geç
+MAX_GAP_PCT = 0.005  # %0.5 — sinyal fiyatından bu kadar uzaklaşırsa geç
 
 
 def fetch_current_price(symbol: str) -> float | None:
@@ -116,8 +123,9 @@ def fetch_current_price(symbol: str) -> float | None:
     # Önce yfinance dene (yüklü olma ihtimali yüksek)
     try:
         import yfinance as yf
+
         ticker = yf.Ticker(symbol)
-        hist   = ticker.history(period="1d", interval="1m")
+        hist = ticker.history(period="1d", interval="1m")
         if not hist.empty:
             return float(hist["Close"].iloc[-1])
     except Exception:
@@ -127,11 +135,12 @@ def fetch_current_price(symbol: str) -> float | None:
     try:
         from alpaca.data.historical import StockHistoricalDataClient
         from alpaca.data.requests import StockLatestTradeRequest
+
         client = StockHistoricalDataClient(
             os.environ.get("ALPACA_API_KEY", ""),
             os.environ.get("ALPACA_SECRET_KEY", ""),
         )
-        req    = StockLatestTradeRequest(symbol_or_symbols=symbol)
+        req = StockLatestTradeRequest(symbol_or_symbols=symbol)
         trades = client.get_stock_latest_trade(req)
         return float(trades[symbol].price)
     except Exception:
@@ -145,7 +154,7 @@ def check_gap(signal: dict) -> tuple[bool, str]:
     Sinyal fiyatı ile güncel fiyat arasındaki gap'i kontrol et.
     Returns: (geçti_mi, açıklama)
     """
-    symbol       = signal.get("symbol", "?")
+    symbol = signal.get("symbol", "?")
     signal_price = float(signal.get("entry_price") or signal.get("price", 0))
 
     if signal_price <= 0:
@@ -178,6 +187,7 @@ def check_gap(signal: dict) -> tuple[bool, str]:
 # ── BLOK 3: Günlük Risk Limiti ──────────────────────────────────────────────
 # ===========================================================================
 
+
 class DailyRiskGuard:
     """
     Her gün sıfırlanan risk limitleri:
@@ -186,25 +196,40 @@ class DailyRiskGuard:
       - MAX_SECTOR_POSITIONS: tek sektörde maksimum pozisyon sayısı
     """
 
-    MAX_OPEN_POSITIONS   = 5
-    MAX_DAILY_LOSS_PCT   = 0.05   # %5
+    MAX_OPEN_POSITIONS = 5
+    MAX_DAILY_LOSS_PCT = 0.05  # %5
     MAX_SECTOR_POSITIONS = 3
 
     # Sektör eşleşme tablosu (genişletilebilir)
     SECTOR_MAP: dict[str, str] = {
-        "AAPL":"Tech","MSFT":"Tech","GOOGL":"Tech","META":"Tech",
-        "NVDA":"Semicon","AMD":"Semicon","INTC":"Semicon","QCOM":"Semicon",
-        "AMZN":"Consumer","TSLA":"Auto","F":"Auto","GM":"Auto",
-        "JPM":"Finance","GS":"Finance","BAC":"Finance","WFC":"Finance",
-        "JNJ":"Health","PFE":"Health","MRNA":"Health","ABBV":"Health",
+        "AAPL": "Tech",
+        "MSFT": "Tech",
+        "GOOGL": "Tech",
+        "META": "Tech",
+        "NVDA": "Semicon",
+        "AMD": "Semicon",
+        "INTC": "Semicon",
+        "QCOM": "Semicon",
+        "AMZN": "Consumer",
+        "TSLA": "Auto",
+        "F": "Auto",
+        "GM": "Auto",
+        "JPM": "Finance",
+        "GS": "Finance",
+        "BAC": "Finance",
+        "WFC": "Finance",
+        "JNJ": "Health",
+        "PFE": "Health",
+        "MRNA": "Health",
+        "ABBV": "Health",
     }
 
     def __init__(self, broker=None, dry_run: bool = False):
-        self.broker  = broker
+        self.broker = broker
         self.dry_run = dry_run
         self._log_file = Path("logs/auto_trade") / f"risk_{date.today()}.json"
         self._log_file.parent.mkdir(parents=True, exist_ok=True)
-        self._state  = self._load_state()
+        self._state = self._load_state()
 
     def _load_state(self) -> dict:
         if self._log_file.exists():
@@ -237,7 +262,7 @@ class DailyRiskGuard:
     def _get_daily_pnl_pct(self) -> float:
         """Günlük portföy değişimi (%)."""
         current = self._get_portfolio_value()
-        start   = self._state.get("start_portfolio")
+        start = self._state.get("start_portfolio")
         if start is None:
             self._state["start_portfolio"] = current
             self._save_state()
@@ -245,7 +270,7 @@ class DailyRiskGuard:
         return (current - start) / start
 
     def _sector_count(self, symbol: str) -> int:
-        sector  = self.SECTOR_MAP.get(symbol, "Other")
+        sector = self.SECTOR_MAP.get(symbol, "Other")
         sectors = self._state.get("sectors", {})
         return sectors.get(sector, 0)
 
@@ -257,7 +282,10 @@ class DailyRiskGuard:
         # 1. Açık pozisyon limiti
         open_count = self._get_open_count()
         if open_count >= self.MAX_OPEN_POSITIONS:
-            return False, f"Max pozisyon limiti ({self.MAX_OPEN_POSITIONS}) doldu — açık: {open_count}"
+            return (
+                False,
+                f"Max pozisyon limiti ({self.MAX_OPEN_POSITIONS}) doldu — açık: {open_count}",
+            )
 
         # 2. Günlük kayıp limiti
         pnl = self._get_daily_pnl_pct()
@@ -268,12 +296,11 @@ class DailyRiskGuard:
             )
 
         # 3. Sektör konsantrasyonu
-        sector       = self.SECTOR_MAP.get(symbol, "Other")
+        sector = self.SECTOR_MAP.get(symbol, "Other")
         sector_count = self._sector_count(symbol)
         if sector_count >= self.MAX_SECTOR_POSITIONS:
             return False, (
-                f"Sektör limiti ({sector}) doldu: "
-                f"{sector_count}/{self.MAX_SECTOR_POSITIONS}"
+                f"Sektör limiti ({sector}) doldu: " f"{sector_count}/{self.MAX_SECTOR_POSITIONS}"
             )
 
         return True, (
@@ -286,16 +313,16 @@ class DailyRiskGuard:
         orders = self._state.setdefault("orders_placed", [])
         orders.append({"symbol": symbol, "time": datetime.now().isoformat()})
 
-        sector   = self.SECTOR_MAP.get(symbol, "Other")
-        sectors  = self._state.setdefault("sectors", {})
+        sector = self.SECTOR_MAP.get(symbol, "Other")
+        sectors = self._state.setdefault("sectors", {})
         sectors[sector] = sectors.get(sector, 0) + 1
 
         self._save_state()
 
     def summary(self) -> str:
         open_count = self._get_open_count()
-        pnl        = self._get_daily_pnl_pct()
-        orders     = len(self._state.get("orders_placed", []))
+        pnl = self._get_daily_pnl_pct()
+        orders = len(self._state.get("orders_placed", []))
         return (
             f"Risk Guard özet: {open_count}/{self.MAX_OPEN_POSITIONS} açık pozisyon | "
             f"Günlük P&L: %{pnl*100:.2f} | "
@@ -541,16 +568,16 @@ def place_alpaca_orders(
     )
     logger.info(guard.summary())
 
-    orders       = []
+    orders = []
     gap_rejected = 0
     risk_blocked = 0
 
     for s in signals:
-        symbol      = s["symbol"]
+        symbol = s["symbol"]
         entry_price = float(s.get("entry_price") or s.get("price", 0))
-        stop_loss   = s.get("stop_loss")
+        stop_loss = s.get("stop_loss")
         take_profit = s.get("take_profit")
-        signal_id   = s.get("id")
+        signal_id = s.get("id")
 
         # ── 1. Günlük risk kontrolü ──────────────────────────────────────
         ok, reason = guard.can_trade(symbol)
@@ -576,13 +603,13 @@ def place_alpaca_orders(
         # ── 4. Emri gönder ───────────────────────────────────────────────
         if dry_run:
             fake_order = {
-                "order_id":    f"DRY-{symbol}-{datetime.now().strftime('%H%M%S')}",
-                "symbol":      symbol,
-                "qty":         qty,
+                "order_id": f"DRY-{symbol}-{datetime.now().strftime('%H%M%S')}",
+                "symbol": symbol,
+                "qty": qty,
                 "limit_price": round(entry_price * 1.005, 2),
-                "stop_loss":   stop_loss,
+                "stop_loss": stop_loss,
                 "take_profit": take_profit,
-                "status":      "dry_run",
+                "status": "dry_run",
             }
             orders.append(fake_order)
             logger.info(
@@ -664,9 +691,9 @@ def log_to_legacy_systems(signals: list[dict]) -> None:
 
 
 def run_full_pipeline(
-    presets:        list[str] | None = None,
-    place_orders:   bool = True,
-    dry_run:        bool = False,
+    presets: list[str] | None = None,
+    place_orders: bool = True,
+    dry_run: bool = False,
     skip_gap_check: bool = False,
 ) -> dict:
     """
@@ -679,8 +706,7 @@ def run_full_pipeline(
     today = date.today().isoformat()
 
     logger.info("=" * 60)
-    logger.info(f"🚀 AUTO SCAN & TRADE — {today}"
-                + (" [DRY RUN]" if dry_run else ""))
+    logger.info(f"🚀 AUTO SCAN & TRADE — {today}" + (" [DRY RUN]" if dry_run else ""))
     logger.info("=" * 60)
 
     # ── Adım 1: Tarama ──────────────────────────────────────────────────
@@ -699,10 +725,15 @@ def run_full_pipeline(
 
     if not buy_signals:
         logger.info("Strateji B filtresi sonrası sinyal kalmadı.")
-        _save_summary({
-            "date": today, "raw_signals": len(raw_signals),
-            "filtered_signals": 0, "orders": 0, "elapsed": 0,
-        })
+        _save_summary(
+            {
+                "date": today,
+                "raw_signals": len(raw_signals),
+                "filtered_signals": 0,
+                "orders": 0,
+                "elapsed": 0,
+            }
+        )
         return {"date": today, "raw_signals": len(raw_signals), "filtered_signals": 0, "orders": 0}
 
     # ── Adım 3: DB Kaydı ────────────────────────────────────────────────
@@ -723,14 +754,14 @@ def run_full_pipeline(
     elapsed = round(time.time() - start, 1)
 
     summary = {
-        "date":              today,
-        "raw_signals":       len(raw_signals),
-        "filtered_signals":  len(saved_signals),
-        "orders":            len(orders),
-        "elapsed":           elapsed,
-        "dry_run":           dry_run,
-        "symbols":           [s["symbol"] for s in saved_signals],
-        "strategy_params":   STRATEGY_B,
+        "date": today,
+        "raw_signals": len(raw_signals),
+        "filtered_signals": len(saved_signals),
+        "orders": len(orders),
+        "elapsed": elapsed,
+        "dry_run": dry_run,
+        "symbols": [s["symbol"] for s in saved_signals],
+        "strategy_params": STRATEGY_B,
     }
 
     logger.info("\n" + "=" * 60)
@@ -802,10 +833,10 @@ def start_scheduler(scan_time: str = "14:00", presets: list[str] | None = None) 
 
 
 def start_dual_scheduler(
-    scan_time:  str = "16:15",
+    scan_time: str = "16:15",
     trade_time: str = "09:35",
-    presets:    list[str] | None = None,
-    dry_run:    bool = False,
+    presets: list[str] | None = None,
+    dry_run: bool = False,
 ) -> None:
     """
     İki ayrı job çalıştır:
@@ -815,7 +846,7 @@ def start_dual_scheduler(
     from apscheduler.schedulers.blocking import BlockingScheduler
     from apscheduler.triggers.cron import CronTrigger
 
-    scan_h,  scan_m  = map(int, scan_time.split(":"))
+    scan_h, scan_m = map(int, scan_time.split(":"))
     trade_h, trade_m = map(int, trade_time.split(":"))
 
     scheduler = BlockingScheduler()
@@ -824,8 +855,7 @@ def start_dual_scheduler(
     # Kapanış fiyatlarıyla indikatörler (RSI/MACD/EMA) kesinleşmiş olur
     scheduler.add_job(
         run_full_pipeline,
-        CronTrigger(day_of_week="mon-fri", hour=scan_h, minute=scan_m,
-                    timezone="America/New_York"),
+        CronTrigger(day_of_week="mon-fri", hour=scan_h, minute=scan_m, timezone="America/New_York"),
         kwargs={"presets": presets, "place_orders": False, "dry_run": dry_run},
         id="daily_scan",
         name=f"Kapanış Taraması @ {scan_time} ET",
@@ -835,8 +865,9 @@ def start_dual_scheduler(
     # Job 2: Emir girme (sabah)
     scheduler.add_job(
         run_full_pipeline,
-        CronTrigger(day_of_week="mon-fri", hour=trade_h, minute=trade_m,
-                    timezone="America/New_York"),
+        CronTrigger(
+            day_of_week="mon-fri", hour=trade_h, minute=trade_m, timezone="America/New_York"
+        ),
         kwargs={"presets": presets, "place_orders": True, "dry_run": dry_run},
         id="daily_trade",
         name=f"Sabah Emirleri @ {trade_time} ET",
@@ -847,7 +878,7 @@ def start_dual_scheduler(
     logger.info(f"⏰ Çift zamanlı scheduler başlatıldı [{mode}]")
     logger.info(f"   📊 Tarama  : her hafta içi {scan_time} ET (borsa kapanışı sonrası)")
     logger.info(f"   📈 Emirler : her hafta içi {trade_time} ET (açılış + 5 dk)")
-    logger.info(f"   📅 Cuma sinyalleri Pazartesi sabahı işlem görür")
+    logger.info("   📅 Cuma sinyalleri Pazartesi sabahı işlem görür")
     logger.info("   Durdurmak için Ctrl+C basın")
 
     try:
@@ -872,27 +903,37 @@ def main():
       --schedule-scan 16:15 --schedule-trade 09:35     # Tam otomasyon (kapanış saati)
         """,
     )
-    parser.add_argument("--once",       action="store_true", help="Hemen bir kere çalıştır")
-    parser.add_argument("--scan-only",  action="store_true", help="Sadece tara, emir girme")
-    parser.add_argument("--no-trade",   action="store_true", help="--scan-only ile aynı")
-    parser.add_argument("--dry-run",    action="store_true", help="Simülasyon — gerçek emir YOK")
-    parser.add_argument("--skip-gap",   action="store_true", help="Gap filtresini atla (test için)")
+    parser.add_argument("--once", action="store_true", help="Hemen bir kere çalıştır")
+    parser.add_argument("--scan-only", action="store_true", help="Sadece tara, emir girme")
+    parser.add_argument("--no-trade", action="store_true", help="--scan-only ile aynı")
+    parser.add_argument("--dry-run", action="store_true", help="Simülasyon — gerçek emir YOK")
+    parser.add_argument("--skip-gap", action="store_true", help="Gap filtresini atla (test için)")
     parser.add_argument(
-        "--presets", nargs="+",
+        "--presets",
+        nargs="+",
         default=["tech_giants", "semiconductors", "cloud_saas"],
         help="Taranacak preset'ler",
     )
     parser.add_argument("--all", action="store_true", help="Tüm preset'lerdeki sembolleri tara")
 
     # Çift zamanlı scheduler
-    parser.add_argument("--schedule-scan",  type=str, default=None,
-                        help="Tarama saati HH:MM ET (varsayılan: 16:15 — borsa kapanışı sonrası)")
-    parser.add_argument("--schedule-trade", type=str, default="09:35",
-                        help="Emir girme saati HH:MM ET (varsayılan: 09:35 — açılış + 5 dk)")
+    parser.add_argument(
+        "--schedule-scan",
+        type=str,
+        default=None,
+        help="Tarama saati HH:MM ET (varsayılan: 16:15 — borsa kapanışı sonrası)",
+    )
+    parser.add_argument(
+        "--schedule-trade",
+        type=str,
+        default="09:35",
+        help="Emir girme saati HH:MM ET (varsayılan: 09:35 — açılış + 5 dk)",
+    )
 
     # Eski tek-zamanlı (geriye uyumluluk)
-    parser.add_argument("--schedule", type=str, default=None,
-                        help="(Eski) Tek seferlik zamanlama HH:MM")
+    parser.add_argument(
+        "--schedule", type=str, default=None, help="(Eski) Tek seferlik zamanlama HH:MM"
+    )
 
     args = parser.parse_args()
 

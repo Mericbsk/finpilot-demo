@@ -14,7 +14,7 @@ Mantık:
 
 import glob
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pandas as pd
 
@@ -24,7 +24,7 @@ import pandas as pd
 
 BORSA = "/sessions/kind-jolly-galileo/mnt/Borsa"
 SHORTLIST_DIR = f"{BORSA}/data/shortlists"
-HOLDING_DAYS = 60   # sinyal için maksimum bekleme süresi
+HOLDING_DAYS = 60  # sinyal için maksimum bekleme süresi
 
 
 def load_all_shortlists() -> pd.DataFrame:
@@ -46,8 +46,15 @@ def load_all_shortlists() -> pd.DataFrame:
     all_df["ts"] = pd.to_datetime(all_df["timestamp"], errors="coerce")
     all_df = all_df.dropna(subset=["ts", "symbol", "price", "stop_loss", "take_profit"])
     # Numerics
-    for col in ["price", "stop_loss", "take_profit", "score", "filter_score",
-                "alignment_ratio", "momentum_ratio"]:
+    for col in [
+        "price",
+        "stop_loss",
+        "take_profit",
+        "score",
+        "filter_score",
+        "alignment_ratio",
+        "momentum_ratio",
+    ]:
         if col in all_df.columns:
             all_df[col] = pd.to_numeric(all_df[col], errors="coerce")
     return all_df.sort_values("ts").reset_index(drop=True)
@@ -56,6 +63,7 @@ def load_all_shortlists() -> pd.DataFrame:
 # ─────────────────────────────────────────────
 # 2. SİNYAL TANIMLAMA
 # ─────────────────────────────────────────────
+
 
 def extract_signals(df: pd.DataFrame, mode: str = "all") -> pd.DataFrame:
     """
@@ -66,25 +74,25 @@ def extract_signals(df: pd.DataFrame, mode: str = "all") -> pd.DataFrame:
       'strategy_a'→ Strateji A (daha sıkı)
     """
     if mode == "entry_ok":
-        mask = df["entry_ok"] == True
+        mask = df["entry_ok"].astype(bool)
     elif mode == "strategy_b":
         mask = (
-            (df.get("alignment_ratio", 0) >= 0.67) &
-            (df.get("momentum_ratio", 0) >= 0.40) &
-            (df.get("filter_score", 0) >= 1) &
-            (df.get("score", 0) >= 2)
+            (df.get("alignment_ratio", 0) >= 0.67)
+            & (df.get("momentum_ratio", 0) >= 0.40)
+            & (df.get("filter_score", 0) >= 1)
+            & (df.get("score", 0) >= 2)
         )
     elif mode == "strategy_a":
         mask = (
-            (df.get("alignment_ratio", 0) >= 0.75) &
-            (df.get("momentum_ratio", 0) >= 0.60) &
-            (df.get("filter_score", 0) >= 2) &
-            (df.get("score", 0) >= 3)
+            (df.get("alignment_ratio", 0) >= 0.75)
+            & (df.get("momentum_ratio", 0) >= 0.60)
+            & (df.get("filter_score", 0) >= 2)
+            & (df.get("score", 0) >= 3)
         )
     else:
         # 'all': tüm entry_ok=True VEYA filter_score>=1
         if "entry_ok" in df.columns:
-            mask = (df["entry_ok"] == True) | (df.get("filter_score", 0) >= 1)
+            mask = df["entry_ok"].astype(bool) | (df.get("filter_score", 0) >= 1)
         else:
             mask = df.get("filter_score", 0) >= 1
 
@@ -99,6 +107,7 @@ def extract_signals(df: pd.DataFrame, mode: str = "all") -> pd.DataFrame:
 # ─────────────────────────────────────────────
 # 3. SONUÇLARI HESAPLA
 # ─────────────────────────────────────────────
+
 
 def determine_outcomes(signals: pd.DataFrame, all_df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -157,21 +166,23 @@ def determine_outcomes(signals: pd.DataFrame, all_df: pd.DataFrame) -> pd.DataFr
         else:
             pnl_pct = 0.0
 
-        records.append({
-            "symbol": sym,
-            "entry_ts": sig_ts,
-            "entry_price": entry_price,
-            "stop_loss": sl,
-            "take_profit": tp,
-            "outcome": outcome,
-            "exit_price": exit_price,
-            "pnl_pct": round(pnl_pct, 2),
-            "days_to_exit": days_to_exit,
-            "risk_reward": sig.get("risk_reward", None),
-            "filter_score": sig.get("filter_score", None),
-            "alignment_ratio": sig.get("alignment_ratio", None),
-            "momentum_ratio": sig.get("momentum_ratio", None),
-        })
+        records.append(
+            {
+                "symbol": sym,
+                "entry_ts": sig_ts,
+                "entry_price": entry_price,
+                "stop_loss": sl,
+                "take_profit": tp,
+                "outcome": outcome,
+                "exit_price": exit_price,
+                "pnl_pct": round(pnl_pct, 2),
+                "days_to_exit": days_to_exit,
+                "risk_reward": sig.get("risk_reward", None),
+                "filter_score": sig.get("filter_score", None),
+                "alignment_ratio": sig.get("alignment_ratio", None),
+                "momentum_ratio": sig.get("momentum_ratio", None),
+            }
+        )
 
     return pd.DataFrame(records)
 
@@ -179,6 +190,7 @@ def determine_outcomes(signals: pd.DataFrame, all_df: pd.DataFrame) -> pd.DataFr
 # ─────────────────────────────────────────────
 # 4. İSTATİSTİKLER
 # ─────────────────────────────────────────────
+
 
 def compute_stats(outcomes: pd.DataFrame, label: str) -> dict:
     resolved = outcomes[outcomes["outcome"].isin(["WIN", "LOSS", "EXPIRED"])]
@@ -234,7 +246,7 @@ def print_stats(s: dict):
     print(f"  ✅ Kazanan (TP hit) : {s['wins']:>6}")
     print(f"  ❌ Kaybeden (SL hit): {s['losses_strict']:>6}")
     print(f"  ⏰ Süresi dolan     : {s['expired']:>6}")
-    print(f"  ─────────────────────────────────")
+    print("  ─────────────────────────────────")
     print(f"  📊 Win Rate         : {s['win_rate_pct']:>5.1f}%")
     print(f"  📈 Ort. Kazanç      : {s['avg_gain_pct']:>+6.2f}%")
     print(f"  📉 Ort. Kayıp (SL)  : {s['avg_loss_strict_pct']:>+6.2f}%")
@@ -248,14 +260,19 @@ def print_stats(s: dict):
 # 5. ZAMAN SERİSİ ANALİZİ
 # ─────────────────────────────────────────────
 
+
 def monthly_performance(outcomes: pd.DataFrame) -> pd.DataFrame:
     resolved = outcomes[outcomes["outcome"].isin(["WIN", "LOSS", "EXPIRED"])].copy()
     resolved["month"] = resolved["entry_ts"].dt.to_period("M")
-    monthly = resolved.groupby("month").agg(
-        signals=("symbol", "count"),
-        wins=("outcome", lambda x: (x == "WIN").sum()),
-        avg_pnl=("pnl_pct", "mean"),
-    ).reset_index()
+    monthly = (
+        resolved.groupby("month")
+        .agg(
+            signals=("symbol", "count"),
+            wins=("outcome", lambda x: (x == "WIN").sum()),
+            avg_pnl=("pnl_pct", "mean"),
+        )
+        .reset_index()
+    )
     monthly["win_rate"] = (monthly["wins"] / monthly["signals"] * 100).round(1)
     monthly["avg_pnl"] = monthly["avg_pnl"].round(2)
     return monthly
@@ -265,13 +282,18 @@ def monthly_performance(outcomes: pd.DataFrame) -> pd.DataFrame:
 # 6. EN İYİ / EN KÖTÜ SEMBOLLER
 # ─────────────────────────────────────────────
 
+
 def top_bottom_symbols(outcomes: pd.DataFrame, n: int = 10):
     resolved = outcomes[outcomes["outcome"].isin(["WIN", "LOSS", "EXPIRED"])]
-    sym_stats = resolved.groupby("symbol").agg(
-        trades=("pnl_pct", "count"),
-        avg_pnl=("pnl_pct", "mean"),
-        wins=("outcome", lambda x: (x == "WIN").sum()),
-    ).reset_index()
+    sym_stats = (
+        resolved.groupby("symbol")
+        .agg(
+            trades=("pnl_pct", "count"),
+            avg_pnl=("pnl_pct", "mean"),
+            wins=("outcome", lambda x: (x == "WIN").sum()),
+        )
+        .reset_index()
+    )
     sym_stats["win_rate"] = (sym_stats["wins"] / sym_stats["trades"] * 100).round(1)
     sym_stats["avg_pnl"] = sym_stats["avg_pnl"].round(2)
     sym_stats = sym_stats[sym_stats["trades"] >= 2]  # en az 2 işlem
@@ -283,6 +305,7 @@ def top_bottom_symbols(outcomes: pd.DataFrame, n: int = 10):
 # ─────────────────────────────────────────────
 # 7. KAPSAMLI RAPOR
 # ─────────────────────────────────────────────
+
 
 def run_full_analysis():
     print("\n📊 FinPilot — Geçmiş Performans Analizi")
@@ -316,44 +339,54 @@ def run_full_analysis():
     print(f"\n\n{'='*75}")
     print("  STRATEJİ KARŞILAŞTIRMA TABLOSU")
     print(f"{'='*75}")
-    print(f"  {'Strateji':<25} {'Sinyal':>7} {'Win%':>7} {'Kazanç':>8} {'Kayıp':>8} {'BeklDeğ':>8} {'PF':>6}")
+    print(
+        f"  {'Strateji':<25} {'Sinyal':>7} {'Win%':>7} {'Kazanç':>8} {'Kayıp':>8} {'BeklDeğ':>8} {'PF':>6}"
+    )
     print(f"  {'-'*25} {'-'*7} {'-'*7} {'-'*8} {'-'*8} {'-'*8} {'-'*6}")
-    for label, mode in modes:
+    for _label, mode in modes:
         if mode not in results_by_mode:
             continue
         _, s = results_by_mode[mode]
-        print(f"  {s['label'][:25]:<25} {s['resolved']:>7} {s['win_rate_pct']:>6.1f}% "
-              f"{s['avg_gain_pct']:>+7.2f}% {s['avg_loss_strict_pct']:>+7.2f}% "
-              f"{s['expected_value_pct']:>+7.2f}% {s['profit_factor']:>6.2f}")
+        print(
+            f"  {s['label'][:25]:<25} {s['resolved']:>7} {s['win_rate_pct']:>6.1f}% "
+            f"{s['avg_gain_pct']:>+7.2f}% {s['avg_loss_strict_pct']:>+7.2f}% "
+            f"{s['expected_value_pct']:>+7.2f}% {s['profit_factor']:>6.2f}"
+        )
 
     # ── Aylık performans (Strateji B) ──
     if "strategy_b" in results_by_mode:
         b_outcomes, _ = results_by_mode["strategy_b"]
         monthly = monthly_performance(b_outcomes)
         if len(monthly) > 0:
-            print(f"\n\n📅 AYLIK PERFORMANS — Strateji B")
+            print("\n\n📅 AYLIK PERFORMANS — Strateji B")
             print(f"  {'Ay':<10} {'Sinyal':>7} {'Kazanan':>8} {'Win%':>7} {'Ort P&L':>9}")
             print(f"  {'-'*10} {'-'*7} {'-'*8} {'-'*7} {'-'*9}")
             for _, row in monthly.iterrows():
                 emoji = "✅" if row["avg_pnl"] > 0 else "❌"
-                print(f"  {str(row['month']):<10} {row['signals']:>7} {row['wins']:>8} "
-                      f"{row['win_rate']:>6.1f}% {row['avg_pnl']:>+8.2f}%  {emoji}")
+                print(
+                    f"  {str(row['month']):<10} {row['signals']:>7} {row['wins']:>8} "
+                    f"{row['win_rate']:>6.1f}% {row['avg_pnl']:>+8.2f}%  {emoji}"
+                )
 
     # ── En iyi / En kötü semboller (Strateji B) ──
     if "strategy_b" in results_by_mode:
         b_outcomes, _ = results_by_mode["strategy_b"]
         top10, bottom10 = top_bottom_symbols(b_outcomes, n=8)
-        print(f"\n\n🏆 EN İYİ 8 SEMBOL — Strateji B")
+        print("\n\n🏆 EN İYİ 8 SEMBOL — Strateji B")
         print(f"  {'Sembol':<8} {'İşlem':>6} {'Win%':>7} {'Ort P&L':>9}")
         print(f"  {'-'*8} {'-'*6} {'-'*7} {'-'*9}")
         for _, row in top10.iterrows():
-            print(f"  {row['symbol']:<8} {row['trades']:>6} {row['win_rate']:>6.1f}% {row['avg_pnl']:>+8.2f}%")
+            print(
+                f"  {row['symbol']:<8} {row['trades']:>6} {row['win_rate']:>6.1f}% {row['avg_pnl']:>+8.2f}%"
+            )
 
-        print(f"\n\n💀 EN KÖTÜ 8 SEMBOL — Strateji B")
+        print("\n\n💀 EN KÖTÜ 8 SEMBOL — Strateji B")
         print(f"  {'Sembol':<8} {'İşlem':>6} {'Win%':>7} {'Ort P&L':>9}")
         print(f"  {'-'*8} {'-'*6} {'-'*7} {'-'*9}")
         for _, row in bottom10.iterrows():
-            print(f"  {row['symbol']:<8} {row['trades']:>6} {row['win_rate']:>6.1f}% {row['avg_pnl']:>+8.2f}%")
+            print(
+                f"  {row['symbol']:<8} {row['trades']:>6} {row['win_rate']:>6.1f}% {row['avg_pnl']:>+8.2f}%"
+            )
 
     # ── Risk/Reward dağılımı ──
     if "strategy_b" in results_by_mode:
@@ -365,19 +398,22 @@ def run_full_analysis():
             resolved2 = resolved.copy()
             resolved2["rr_bin"] = pd.cut(
                 pd.to_numeric(resolved2["risk_reward"], errors="coerce"),
-                bins=rr_bins, labels=rr_labels
+                bins=rr_bins,
+                labels=rr_labels,
             )
             rr_stats = resolved2.groupby("rr_bin", observed=True).agg(
                 count=("pnl_pct", "count"),
                 win_rate=("outcome", lambda x: round((x == "WIN").mean() * 100, 1)),
                 avg_pnl=("pnl_pct", lambda x: round(x.mean(), 2)),
             )
-            print(f"\n\n⚖️  R/R ORANINA GÖRE PERFORMANS — Strateji B")
+            print("\n\n⚖️  R/R ORANINA GÖRE PERFORMANS — Strateji B")
             print(f"  {'R/R Aralığı':<10} {'Adet':>6} {'Win%':>7} {'Ort P&L':>9}")
             print(f"  {'-'*10} {'-'*6} {'-'*7} {'-'*9}")
             for rr_bin, row in rr_stats.iterrows():
                 if row["count"] > 0:
-                    print(f"  {str(rr_bin):<10} {int(row['count']):>6} {row['win_rate']:>6.1f}% {row['avg_pnl']:>+8.2f}%")
+                    print(
+                        f"  {str(rr_bin):<10} {int(row['count']):>6} {row['win_rate']:>6.1f}% {row['avg_pnl']:>+8.2f}%"
+                    )
 
     print(f"\n\n{'='*55}")
     print("  ✅ Analiz tamamlandı")

@@ -128,7 +128,9 @@ async def get_chart(
     loop = asyncio.get_running_loop()
     try:
         df = await asyncio.wait_for(
-            loop.run_in_executor(_executor, lambda: fetch_with_indicators(symbol.upper(), interval, days)),
+            loop.run_in_executor(
+                _executor, lambda: fetch_with_indicators(symbol.upper(), interval, days)
+            ),
             timeout=30,
         )
     except TimeoutError:
@@ -140,22 +142,28 @@ async def get_chart(
         raise HTTPException(status_code=404, detail=f"No data for {symbol}")
 
     df = df.reset_index()
-    time_col = next((c for c in df.columns if str(c).lower() in ("date", "datetime", "index")), df.columns[0])
+    time_col = next(
+        (c for c in df.columns if str(c).lower() in ("date", "datetime", "index")), df.columns[0]
+    )
 
     candles = []
     for _, row in df.iterrows():
         t = row[time_col]
         ts = int(pd.Timestamp(t).timestamp()) if not isinstance(t, (int, float)) else int(t)
-        candles.append({
-            "time": ts,
-            "open": round(float(row.get("Open", row.get("open", 0))), 4),
-            "high": round(float(row.get("High", row.get("high", 0))), 4),
-            "low": round(float(row.get("Low", row.get("low", 0))), 4),
-            "close": round(float(row.get("Close", row.get("close", 0))), 4),
-            "volume": int(row.get("Volume", row.get("volume", 0)) or 0),
-        })
+        candles.append(
+            {
+                "time": ts,
+                "open": round(float(row.get("Open", row.get("open", 0))), 4),
+                "high": round(float(row.get("High", row.get("high", 0))), 4),
+                "low": round(float(row.get("Low", row.get("low", 0))), 4),
+                "close": round(float(row.get("Close", row.get("close", 0))), 4),
+                "volume": int(row.get("Volume", row.get("volume", 0)) or 0),
+            }
+        )
 
-    sma50_col = next((c for c in df.columns if str(c).lower() in ("sma50", "sma_50", "sma 50")), None)
+    sma50_col = next(
+        (c for c in df.columns if str(c).lower() in ("sma50", "sma_50", "sma 50")), None
+    )
     sma50 = []
     if sma50_col:
         for _, row in df.iterrows():
