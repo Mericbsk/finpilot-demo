@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import math
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
@@ -16,15 +18,30 @@ router = APIRouter(tags=["scan"])
 logger = logging.getLogger(__name__)
 
 _SHORTLIST_DIR = Path("data/shortlists")
-_STALE_DAYS = 7  # warn if newest shortlist is older than this
-_SCAN_TIMEOUT_SECONDS = 300  # 5 minutes max per scan request
+_FEEDBACK_DIR = Path("data/feedback")
+_STALE_DAYS = 7
+_SCAN_TIMEOUT_SECONDS = 300
 
 _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="scan")
+
+
+def _clean_value(v: object) -> object:
+    """Replace NaN/Inf with None so JSON serialisation never fails."""
+    if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+        return None
+    return v
 
 
 class ScanRequest(BaseModel):
     symbols: list[str] = Field(..., max_length=300)
     kelly_fraction: float = Field(0.5, ge=0.0, le=1.0)
+
+
+class FeedbackRequest(BaseModel):
+    rating: int = Field(..., ge=1, le=5)
+    comment: str = Field("", max_length=500)
+    page: str = Field("demo", max_length=50)
+    ticker: str | None = Field(None, max_length=10)
 
 
 @router.post("/scan")
@@ -174,3 +191,75 @@ async def get_chart(
                 sma50.append({"time": ts, "value": round(float(v), 4)})
 
     return {"symbol": symbol.upper(), "interval": interval, "candles": candles, "sma50": sma50}
+
+
+@router.get("/scan/shortlist/latest")
+def get_shortlist_latest(limit: int = Query(30, ge=1, le=100)):
+    """Return the latest shortlist CSV as JSON, sorted by score desc.
+
+    Used by the public demo page to display real scan results without
+    requiring a full re-scan.
+    """
+    _SHORTLIST_DIR.mkdir(parents=True, exist_ok=True)
+    files = sorted(_SHORTLIST_DIR.glob("shortlist_*.csv"))
+    if not files:
+        return {"stocks": [], "source": None, "timestamp": None, "count": 0}
+
+    newest = files[-1]
+    try:
+        df = pd.read_csv(newest)
+
+        # Coerce boolean string columns
+        for col in (
+            "regime",
+            "direction",
+            "entry_ok",
+            "high_quality_signal",
+            "trend_strength",
+            "volume_spike",
+            "price_momentum",
+            "liquidity_ok",
+            "timeframe_aligned",
+            "momentum_confluence",
+        ):
+            if col in df.columns:
+                df[col] = df[col].map(lambda x: str(x).lower() in ("true", "1"))
+
+        # Sort by best available score column
+        for score_col in ("composite_score", "filter_score", "score"):
+            if score_col in df.columns:
+                df = df.sort_values(score_col, ascending=False)
+                break
+
+        df = df.head(limit)
+        stocks = [
+            {k: _clean_value(v) for k, v in row.items()} for row in df.to_dict(orient="records")
+        ]
+        mtime = datetime.fromtimestamp(newest.stat().st_mtime, tz=UTC)
+        return {
+            "stocks": stocks,
+            "source": newest.name,
+            "timestamp": mtime.isoformat(),
+            "count": len(stocks),
+        }
+    except Exception as exc:
+        logger.error("Failed to read shortlist: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Shortlist read error: {exc}") from exc
+
+
+@router.post("/feedback")
+def submit_feedback(req: FeedbackRequest):
+    """Append a demo feedback entry to data/feedback/feedback.jsonl."""
+    _FEEDBACK_DIR.mkdir(parents=True, exist_ok=True)
+    entry = {
+        "rating": req.rating,
+        "comment": req.comment,
+        "page": req.page,
+        "ticker": req.ticker,
+        "timestamp": datetime.now(tz=UTC).isoformat(),
+    }
+    feedback_path = _FEEDBACK_DIR / "feedback.jsonl"
+    with open(feedback_path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(entry) + "\n")
+    logger.info("Feedback saved: rating=%d page=%s", req.rating, req.page)
+    return {"status": "ok"}

@@ -24,6 +24,7 @@ import { C, companyNames } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
 import { getCurrencySymbol } from "@/lib/userSettings";
 import PriceChart from "@/components/PriceChart";
+import { ExplainPanel } from "@/components/ExplainPanel";
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface ScanResult {
@@ -302,6 +303,7 @@ export default function ScannerPage() {
     () => readCache()?.scanResults ?? {},
   );
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
+  const [explainOpen, setExplainOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sortCol, setSortCol] = useState<string>("score");
   const [sortAsc, setSortAsc] = useState(false);
@@ -1406,6 +1408,17 @@ export default function ScannerPage() {
                 </div>
               )}
 
+              <button
+                onClick={() => setExplainOpen(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold transition-opacity hover:opacity-80"
+                style={{
+                  background: `linear-gradient(to right, #bf5af2, #6e40c9)`,
+                  color: "#fff",
+                }}
+              >
+                <Brain size={16} /> Hızlı AI Analiz
+              </button>
+
               <Link
                 href={`/dashboard/analysis?symbol=${selected.ticker}`}
                 className="flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold"
@@ -1432,6 +1445,13 @@ export default function ScannerPage() {
           )}
         </div>
       </div>
+
+      {explainOpen && selectedTicker && (
+        <ExplainPanel
+          symbol={selectedTicker}
+          onClose={() => setExplainOpen(false)}
+        />
+      )}
     </div>
   );
 }

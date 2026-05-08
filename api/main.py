@@ -41,6 +41,7 @@ from api.routers import (
     llm,
     models,
     optuna,
+    prices,
     scan,
     trade,
     user,
@@ -141,6 +142,7 @@ app.include_router(inference.router, prefix="/api/v1")
 app.include_router(ensemble.router, prefix="/api/v1")
 app.include_router(optuna.router, prefix="/api/v1")
 app.include_router(scan.router, prefix="/api/v1")
+app.include_router(prices.router, prefix="/api/v1")
 app.include_router(trade.router, prefix="/api/v1")
 app.include_router(backtest.router, prefix="/api/v1")
 app.include_router(history.router, prefix="/api/v1")

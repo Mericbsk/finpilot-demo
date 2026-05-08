@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import logging
 import re
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from api.middleware.auth import require_auth
@@ -16,6 +19,8 @@ from core.cache import cached
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["llm"])
+
+_stream_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="llm_explain")
 
 # ---------------------------------------------------------------------------
 # Request / Response models
@@ -231,4 +236,83 @@ def analyze_symbol(req: AnalyzeRequest) -> AnalyzeResponse:
         model=data["model"],
         latency_ms=data["latency_ms"],
         tokens=data["tokens"],
+    )
+
+
+# ---------------------------------------------------------------------------
+# Streaming explain endpoint (SSE — no auth, no cache)
+# ---------------------------------------------------------------------------
+
+_SYMBOL_RE = re.compile(r"^[A-Z0-9.]{1,10}$")
+
+
+@router.get("/llm/explain/{symbol}")
+async def explain_symbol_stream(symbol: str, language: str = "tr") -> StreamingResponse:
+    """Stream a quick LLM research summary as Server-Sent Events.
+
+    Chunks arrive token-by-token.  Each event:
+      data: {"chunk": "...", "done": false}
+    Final event:
+      data: {"chunk": "", "done": true}
+    Error event:
+      data: {"error": "...", "done": true}
+    """
+    import json
+
+    if not _SYMBOL_RE.match(symbol):
+
+        async def _err():
+            yield f"data: {json.dumps({'error': 'invalid symbol', 'done': True})}\n\n"
+
+        return StreamingResponse(_err(), media_type="text/event-stream")
+
+    template = _PROMPTS.get(language, _PROMPTS["en"])
+    prompt = template.format(symbol=symbol, context_block="")
+
+    async def event_generator():
+        try:
+            from llm import get_router as _gr
+
+            llm_r = _gr()
+        except ImportError:
+            yield f"data: {json.dumps({'error': 'LLM unavailable', 'done': True})}\n\n"
+            return
+
+        if not llm_r.available_providers:
+            yield f"data: {json.dumps({'error': 'No LLM providers configured', 'done': True})}\n\n"
+            return
+
+        loop = asyncio.get_event_loop()
+        queue: asyncio.Queue[str | None] = asyncio.Queue(maxsize=200)
+
+        def _produce() -> None:
+            try:
+                for token in llm_r.stream(prompt, system=_SYSTEM, max_tokens=1500):
+                    asyncio.run_coroutine_threadsafe(queue.put(token), loop).result(timeout=10)
+            except Exception as exc:
+                asyncio.run_coroutine_threadsafe(queue.put(f"\x00ERR:{exc}"), loop).result(
+                    timeout=5
+                )
+            finally:
+                asyncio.run_coroutine_threadsafe(queue.put(None), loop)
+
+        _stream_pool.submit(_produce)
+
+        try:
+            while True:
+                token = await asyncio.wait_for(queue.get(), timeout=60)
+                if token is None:
+                    break
+                if token.startswith("\x00ERR:"):
+                    yield f"data: {json.dumps({'error': token[5:], 'done': True})}\n\n"
+                    return
+                yield f"data: {json.dumps({'chunk': token, 'done': False})}\n\n"
+            yield f"data: {json.dumps({'chunk': '', 'done': True})}\n\n"
+        except TimeoutError:
+            yield f"data: {json.dumps({'error': 'Stream timeout', 'done': True})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
