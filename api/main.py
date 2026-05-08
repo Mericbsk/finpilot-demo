@@ -31,6 +31,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
+from api.middleware.pii_filter import PIIFilterMiddleware
 from api.routers import (
     auth,
     backtest,
@@ -130,6 +131,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(PIIFilterMiddleware)
 
 # ---------------------------------------------------------------------------
 # Routers

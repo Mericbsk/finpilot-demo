@@ -28,6 +28,9 @@ anthropic==0.86.0
 tavily-python==0.7.22
 langfuse>=2.0.0
 
+# Portfolio Optimisation
+Riskfolio-Lib>=6.0
+
 # Core Infrastructure
 pydantic==2.12.5
 pydantic-settings==2.13.1

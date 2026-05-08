@@ -1,0 +1,30 @@
+{
+  "orders_placed": [
+    {
+      "symbol": "AAPL",
+      "time": "2026-05-06T16:29:30.766568"
+    },
+    {
+      "symbol": "MSFT",
+      "time": "2026-05-06T16:29:30.786407"
+    },
+    {
+      "symbol": "GOOGL",
+      "time": "2026-05-06T16:29:30.800153"
+    },
+    {
+      "symbol": "NVDA",
+      "time": "2026-05-06T16:29:30.813077"
+    },
+    {
+      "symbol": "TSLA",
+      "time": "2026-05-06T16:29:30.827150"
+    }
+  ],
+  "sectors": {
+    "Tech": 3,
+    "Semicon": 1,
+    "Auto": 1
+  },
+  "start_portfolio": 100000.0
+}

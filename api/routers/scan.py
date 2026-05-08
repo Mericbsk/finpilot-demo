@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["scan"])
@@ -111,3 +111,58 @@ def shortlist_status():
         "stale": stale,
         "warning": f"Shortlist is {age_days} days old — run a scan to refresh." if stale else None,
     }
+
+
+@router.get("/chart/{symbol}")
+async def get_chart(
+    symbol: str,
+    interval: str = Query("1d", pattern="^(15m|1h|4h|1d)$"),
+    days: int = Query(90, ge=7, le=400),
+):
+    """Return OHLCV candles + SMA-50 for a symbol, formatted for TradingView LW Charts."""
+    try:
+        from scanner.data_fetcher import fetch_with_indicators
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail="Scanner module unavailable") from exc
+
+    loop = asyncio.get_running_loop()
+    try:
+        df = await asyncio.wait_for(
+            loop.run_in_executor(_executor, lambda: fetch_with_indicators(symbol.upper(), interval, days)),
+            timeout=30,
+        )
+    except TimeoutError:
+        raise HTTPException(status_code=504, detail="Chart data fetch timed out") from None
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Chart fetch error: {exc}") from exc
+
+    if df is None or df.empty:
+        raise HTTPException(status_code=404, detail=f"No data for {symbol}")
+
+    df = df.reset_index()
+    time_col = next((c for c in df.columns if str(c).lower() in ("date", "datetime", "index")), df.columns[0])
+
+    candles = []
+    for _, row in df.iterrows():
+        t = row[time_col]
+        ts = int(pd.Timestamp(t).timestamp()) if not isinstance(t, (int, float)) else int(t)
+        candles.append({
+            "time": ts,
+            "open": round(float(row.get("Open", row.get("open", 0))), 4),
+            "high": round(float(row.get("High", row.get("high", 0))), 4),
+            "low": round(float(row.get("Low", row.get("low", 0))), 4),
+            "close": round(float(row.get("Close", row.get("close", 0))), 4),
+            "volume": int(row.get("Volume", row.get("volume", 0)) or 0),
+        })
+
+    sma50_col = next((c for c in df.columns if str(c).lower() in ("sma50", "sma_50", "sma 50")), None)
+    sma50 = []
+    if sma50_col:
+        for _, row in df.iterrows():
+            v = row[sma50_col]
+            if pd.notna(v):
+                t = row[time_col]
+                ts = int(pd.Timestamp(t).timestamp()) if not isinstance(t, (int, float)) else int(t)
+                sma50.append({"time": ts, "value": round(float(v), 4)})
+
+    return {"symbol": symbol.upper(), "interval": interval, "candles": candles, "sma50": sma50}

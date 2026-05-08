@@ -127,3 +127,34 @@ def cancel_order(order_id: str):
     if not ok:
         raise HTTPException(status_code=400, detail="Cancel failed")
     return {"status": "canceled", "order_id": order_id}
+
+
+# ---------------------------------------------------------------------------
+# Portfolio Optimisation
+# ---------------------------------------------------------------------------
+
+
+class OptimRequest(BaseModel):
+    symbols: list[str] = Field(..., min_length=2, description="Ticker list (≥2)")
+    method: str = Field("HRP", pattern=r"^(HRP|MV|CVaR)$")
+    period: str = Field("1y", description="yfinance period string")
+
+
+@router.post("/trade/portfolio-optimize")
+def portfolio_optimize(req: OptimRequest):
+    """Optimise portfolio weights using Riskfolio-Lib (HRP / MV / CVaR).
+
+    Returns weights dict and risk metrics.  Falls back to equal-weight when
+    Riskfolio-Lib is not installed so the endpoint is always available.
+    """
+    from drl.portfolio_optimizer import optimize  # noqa: PLC0415
+
+    symbols = [s.upper().strip() for s in req.symbols if s.strip()]
+    result = optimize(symbols, method=req.method, period=req.period)  # type: ignore[arg-type]
+    return {
+        "weights": result.weights,
+        "method": result.method,
+        "metrics": result.metrics,
+        "error": result.error,
+        "symbols": symbols,
+    }

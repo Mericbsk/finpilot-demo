@@ -115,6 +115,20 @@ security:
 	bandit -r scanner/ drl/ -ll -ii --skip B101
 	@echo "$(GREEN)✓ Security check completed$(NC)"
 
+security-scan: docker-check
+	@echo "$(BLUE)Running Trivy container vulnerability scan...$(NC)"
+	docker save borsa-api:latest -o /tmp/trivy-api-scan.tar 2>/dev/null || docker save borsa-api:latest > /tmp/trivy-api-scan.tar
+	docker run --rm -v /tmp:/tmp aquasec/trivy:latest image \
+	  --input /tmp/trivy-api-scan.tar \
+	  --severity CRITICAL,HIGH --ignore-unfixed
+	rm -f /tmp/trivy-api-scan.tar
+	@echo "$(GREEN)✓ Trivy scan completed$(NC)"
+
+pii-scan:
+	@echo "$(BLUE)Running Presidio PII detection test...$(NC)"
+	$(PYTHON) -c "from api.middleware.pii_filter import scrub; print(scrub('Test IBAN: TR33 0006 1005 1978 6457 8413 26 and email@test.com'))"
+	@echo "$(GREEN)✓ PII scan test completed$(NC)"
+
 # ============================================
 # 🧹 Cleanup
 # ============================================

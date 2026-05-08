@@ -1,0 +1,10 @@
+# FinPilot — Trivy CVE Exception List
+# Format: CVE-YYYY-XXXXX  # reason: why it's accepted
+#
+# Bu dosyaya yalnızca:
+# 1. Upstream fix'i henüz yayınlanmamış (unfixed) CVE'ler
+# 2. FinPilot ortamında istismar edilemeyeceği doğrulanmış CVE'ler
+# eklenebilir. Her ekleme için REASON yorumu zorunludur.
+#
+# Örnek:
+# CVE-2023-12345  # reason: only exploitable via X which we don't use

@@ -23,6 +23,8 @@ import { C, hashStr, seededRandom, genStock as genStockBase, companyNames, withL
 import { useStockPrices } from "@/lib/useStockPrices";
 import { getCurrencySymbol } from "@/lib/userSettings";
 import PriceChart from "@/components/PriceChart";
+import { toast } from "sonner";
+import StockChart from "@/components/dashboard/StockChart";
 
 /* ── Pools for generating realistic text ───────────────────── */
 const macdStates = ["Bullish Crossover", "Bearish Crossover", "Neutral", "Divergence", "Strong Bullish", "Weak Bearish"];
@@ -416,7 +418,12 @@ function AnalysisInner() {
         setScanLoading(false);
       })
       .catch(() => {
-        if (!cancelled) { setScanData(null); setScanError(true); setScanLoading(false); }
+        if (!cancelled) {
+          setScanData(null);
+          setScanError(true);
+          setScanLoading(false);
+          toast.warning("Scanner API unavailable — showing estimated data");
+        }
       });
     return () => { cancelled = true; };
   }, [selectedTicker]);
@@ -527,14 +534,6 @@ function AnalysisInner() {
           )}
         </div>
       </div>
-
-      {/* Data source indicator */}
-      {scanError && !scanData && (
-        <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs"
-          style={{ backgroundColor: "rgba(255,214,10,0.08)", border: "1px solid rgba(255,214,10,0.2)", color: C.yellow }}>
-          ⚠ Scanner API unavailable — showing estimated data. Technical indicators may not reflect real-time values.
-        </div>
-      )}
 
       {/* Stock header card */}
       <div className="rounded-2xl p-6" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
@@ -648,14 +647,14 @@ function AnalysisInner() {
               {/* Chart */}
               <div className="mb-6 rounded-xl p-4" style={{ backgroundColor: C.primary }}>
                 <div className="mb-2 flex items-center justify-between text-xs">
-                  <span style={{ color: C.text3 }}>30-Day Price Action</span>
+                  <span style={{ color: C.text3 }}>90-Day Price Action</span>
                   <span className="font-medium" style={{ color: data.change >= 0 ? C.green : C.red }}>
                     {data.change >= 0 ? "+" : ""}{data.change}%
                   </span>
                 </div>
-                <Sparkline data={data.sparkline} />
+                <StockChart symbol={selectedTicker} interval="1d" days={90} height={240} />
                 <div className="mt-2 flex justify-between text-xs" style={{ color: C.text3 }}>
-                  <span>30d ago</span>
+                  <span>90d ago</span>
                   <span>Today · {currency}{data.price}</span>
                 </div>
               </div>

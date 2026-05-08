@@ -12,6 +12,7 @@ import {
   AlertCircle,
   ExternalLink,
   XCircle,
+  Sliders,
 } from "lucide-react";
 import Link from "next/link";
 import { C, companyNames } from "@/lib/stockData";
@@ -59,6 +60,11 @@ export default function PortfolioPage() {
   const [error, setError] = useState<string | null>(null);
   const [brokerAvailable, setBrokerAvailable] = useState(false);
   const [currency, setCurrency] = useState("$");
+  const [optWeights, setOptWeights] = useState<Record<string, number> | null>(null);
+  const [optMetrics, setOptMetrics] = useState<Record<string, number> | null>(null);
+  const [optLoading, setOptLoading] = useState(false);
+  const [optError, setOptError] = useState<string | null>(null);
+  const [optMethod, setOptMethod] = useState<"HRP" | "MV" | "CVaR">("HRP");
 
   useEffect(() => {
     try {
@@ -116,6 +122,31 @@ export default function PortfolioPage() {
     } catch { /* ignore */ }
   }, [fetchData]);
 
+  /* ── Optimize portfolio ─────────────────────────── */
+  const optimizePortfolio = useCallback(async () => {
+    if (positions.length < 2) return;
+    setOptLoading(true);
+    setOptError(null);
+    setOptWeights(null);
+    setOptMetrics(null);
+    try {
+      const res = await fetch("/py-api/trade/portfolio-optimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbols: positions.map((p) => p.symbol), method: optMethod, period: "1y" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Optimization failed");
+      setOptWeights(data.weights || null);
+      setOptMetrics(data.metrics && Object.keys(data.metrics).length ? data.metrics : null);
+      if (data.error) setOptError(data.error);
+    } catch (e) {
+      setOptError(String(e));
+    } finally {
+      setOptLoading(false);
+    }
+  }, [positions, optMethod]);
+
   /* ── Computed ───────────────────────────────────── */
   const totalUnrealized = positions.reduce((s, p) => s + (p.unrealized_pl || 0), 0);
   const totalMarketValue = positions.reduce((s, p) => s + (p.market_value || 0), 0);
@@ -143,15 +174,40 @@ export default function PortfolioPage() {
             )}
           </p>
         </div>
-        <button
-          onClick={fetchData}
-          disabled={loading}
-          className="flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-medium"
-          style={{ border: `1px solid ${C.border}`, backgroundColor: C.card, color: C.text2 }}
-        >
-          {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          {positions.length >= 2 && (
+            <>
+              <select
+                value={optMethod}
+                onChange={(e) => setOptMethod(e.target.value as "HRP" | "MV" | "CVaR")}
+                className="rounded-xl px-2 py-2 text-xs font-medium"
+                style={{ border: `1px solid ${C.border}`, backgroundColor: C.card, color: C.text2 }}
+              >
+                <option value="HRP">HRP</option>
+                <option value="MV">Min-Variance</option>
+                <option value="CVaR">CVaR</option>
+              </select>
+              <button
+                onClick={optimizePortfolio}
+                disabled={optLoading}
+                className="flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-medium"
+                style={{ border: `1px solid ${C.border}`, backgroundColor: C.card, color: C.cyan }}
+              >
+                {optLoading ? <Loader2 size={14} className="animate-spin" /> : <Sliders size={14} />}
+                Optimize
+              </button>
+            </>
+          )}
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-medium"
+            style={{ border: `1px solid ${C.border}`, backgroundColor: C.card, color: C.text2 }}
+          >
+            {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Error */}
@@ -176,6 +232,56 @@ export default function PortfolioPage() {
               <div className="mt-1 text-lg font-semibold" style={{ color: item.color }}>{item.value}</div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Optimisation results */}
+      {(optWeights || optError) && (
+        <div className="rounded-xl p-4 space-y-3" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sliders size={14} style={{ color: C.cyan }} />
+              <span className="text-xs font-semibold" style={{ color: C.text1 }}>
+                {optMethod} Optimal Weights
+              </span>
+            </div>
+            <button onClick={() => { setOptWeights(null); setOptError(null); }} style={{ color: C.text3 }}>
+              <XCircle size={14} />
+            </button>
+          </div>
+          {optError && (
+            <p className="text-xs" style={{ color: C.red }}>{optError}</p>
+          )}
+          {optWeights && (
+            <div className="space-y-2">
+              {Object.entries(optWeights)
+                .sort(([, a], [, b]) => b - a)
+                .map(([sym, w]) => (
+                  <div key={sym} className="flex items-center gap-2">
+                    <span className="w-16 text-xs font-medium" style={{ color: C.text2 }}>{sym}</span>
+                    <div className="flex-1 rounded-full h-2 overflow-hidden" style={{ backgroundColor: C.primary }}>
+                      <div
+                        className="h-2 rounded-full"
+                        style={{ width: `${(w * 100).toFixed(1)}%`, backgroundColor: C.cyan }}
+                      />
+                    </div>
+                    <span className="w-12 text-right text-xs" style={{ color: C.text2 }}>
+                      {(w * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
+          {optMetrics && (
+            <div className="flex flex-wrap gap-4 pt-2 border-t" style={{ borderColor: C.border }}>
+              {Object.entries(optMetrics).map(([k, v]) => (
+                <div key={k}>
+                  <div className="text-[10px]" style={{ color: C.text3 }}>{k.replace(/_/g, " ")}</div>
+                  <div className="text-xs font-semibold" style={{ color: C.text1 }}>{(v as number).toFixed(4)}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

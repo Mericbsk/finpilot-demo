@@ -19,6 +19,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { C, companyNames } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
 import { getCurrencySymbol } from "@/lib/userSettings";
@@ -249,7 +250,6 @@ interface ScannerCache {
   scanResults: Record<string, ScanResult>;
   activePresetId: string | null;
   scanAllMode: boolean;
-  scanComplete: boolean;
   savedAt: number;
 }
 
@@ -307,6 +307,7 @@ export default function ScannerPage() {
   const [sortAsc, setSortAsc] = useState(false);
   const [scanAllMode, setScanAllMode] = useState<boolean>(() => readCache()?.scanAllMode ?? false);
   const abortRef = useRef(false);
+  const tableParentRef = useRef<HTMLDivElement>(null);
 
   /* Alpaca state */
   const [alpacaAccount, setAlpacaAccount] = useState<{
@@ -339,7 +340,6 @@ export default function ScannerPage() {
       scanResults: cached?.scanResults ?? {},
       activePresetId,
       scanAllMode,
-      scanComplete: cached?.scanComplete ?? false,
     });
   }, [activePresetId, scanAllMode]);
 
@@ -511,8 +511,6 @@ export default function ScannerPage() {
 
       abortRef.current = false;
       setIsScanning(true);
-      setScanComplete(false);
-      setScanError(null);
       setScanProgress(0);
       setScanTotal(symbols.length);
       setSelectedTicker(null);
@@ -529,33 +527,37 @@ export default function ScannerPage() {
             Object.assign(results, batchResult);
           } catch (batchErr) {
             console.warn("Batch scan failed:", batchErr);
-            // Skip failed batch, continue with others
           }
           scanned += batch.length;
           setScanProgress(scanned);
-          setScanResults({ ...results }); // Update UI progressively
+          setScanResults({ ...results });
         }
 
         setScanResults({ ...results });
-        setScanComplete(true);
-        writeCache({ scanResults: { ...results }, activePresetId, scanAllMode, scanComplete: true });
+        writeCache({ scanResults: { ...results }, activePresetId, scanAllMode });
 
         if (Object.keys(results).length === 0) {
-          // Verify API is actually up before blaming it
           try {
             const hc = await fetch("/py-api/health");
             if (hc.ok) {
-              // API is up but returned 0 results — likely all symbols filtered (delisted/no data)
-              setScanError("Sonuç bulunamadı. Seçili listedeki semboller için yeterli veri yok veya tümü delisted. Farklı bir preset deneyin.");
+              toast.warning("Sonuç bulunamadı — semboller delisted veya veri yetersiz. Farklı bir preset deneyin.");
             } else {
-              setScanError("Backend yanıt vermiyor (HTTP " + hc.status + "). Lütfen tekrar deneyin.");
+              toast.error(`Backend yanıt vermiyor (HTTP ${hc.status}). Lütfen tekrar deneyin.`);
             }
           } catch {
-            setScanError("Backend'e ulaşılamıyor. API çalışıyor mu? (http://localhost:8000)");
+            toast.error("Backend'e ulaşılamıyor. API çalışıyor mu?");
           }
+        } else {
+          const buyCount = Object.values(results).filter(
+            r => r.high_quality_signal || r.entry_ok
+          ).length;
+          const topScore = Math.max(...Object.values(results).map(r => r.composite_score ?? 0));
+          toast.success(
+            `Scan complete — ${Object.keys(results).length} stocks · ${buyCount} buy signals · Top ${topScore}/100`
+          );
         }
       } catch {
-        setScanError("Scan failed. Please try again.");
+        toast.error("Scan failed. Please try again.");
       } finally {
         setIsScanning(false);
       }
@@ -601,6 +603,13 @@ export default function ScannerPage() {
     () => new Set(presets.flatMap((p) => p.symbols)).size,
     [presets],
   );
+
+  const rowVirtualizer = useVirtualizer({
+    count: filtered.length,
+    getScrollElement: () => tableParentRef.current,
+    estimateSize: () => 44,
+    overscan: 5,
+  });
 
   if (loading) {
     return (
@@ -749,7 +758,6 @@ export default function ScannerPage() {
               setActivePresetId(p.id);
               setSelectedTicker(null);
               setSearchTerm("");
-              setScanComplete(false);
               setScanAllMode(false);
             }}
             className="shrink-0 rounded-xl px-3 py-2 text-xs font-medium transition-colors"
@@ -812,53 +820,6 @@ export default function ScannerPage() {
               }}
             />
           </div>
-        </div>
-      )}
-
-      {/* Scan error */}
-      {scanError && (
-        <div
-          className="rounded-xl px-4 py-3 text-xs"
-          style={{
-            backgroundColor: "rgba(255,69,58,0.1)",
-            border: "1px solid rgba(255,69,58,0.25)",
-            color: C.red,
-          }}
-        >
-          {scanError}
-        </div>
-      )}
-
-      {/* Scan complete banner */}
-      {scanComplete && !isScanning && (
-        <div
-          className="flex items-center justify-between rounded-xl px-4 py-3"
-          style={{
-            backgroundColor: "rgba(48,209,88,0.1)",
-            border: "1px solid rgba(48,209,88,0.25)",
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <Zap size={14} style={{ color: C.green }} />
-            <span
-              className="text-xs font-medium"
-              style={{ color: C.green }}
-            >
-              Scan complete — {Object.keys(scanResults).length} stocks
-              analyzed · {buyCount} buy signals · Top score{" "}
-              {filtered.length > 0
-                ? Math.max(...filtered.map((s) => s.score))
-                : 0}
-              /100
-            </span>
-          </div>
-          <button
-            onClick={() => setScanComplete(false)}
-            className="rounded-lg px-2 py-1 text-xs"
-            style={{ color: C.text3 }}
-          >
-            ✕
-          </button>
         </div>
       )}
 
@@ -946,7 +907,11 @@ export default function ScannerPage() {
             backgroundColor: C.card,
           }}
         >
-          <div className="overflow-x-auto" style={{ maxHeight: 520 }}>
+          <div
+            ref={tableParentRef}
+            className="overflow-x-auto"
+            style={{ maxHeight: 520, overflowY: "auto" }}
+          >
             <table className="w-full text-left">
               <thead
                 className="sticky top-0 z-10"
@@ -993,98 +958,7 @@ export default function ScannerPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((s) => (
-                  <tr
-                    key={s.ticker}
-                    onClick={() => setSelectedTicker(s.ticker)}
-                    className="cursor-pointer text-xs transition-colors"
-                    style={{
-                      borderBottom: `1px solid ${C.border}`,
-                      backgroundColor:
-                        selectedTicker === s.ticker
-                          ? "rgba(0,212,255,0.08)"
-                          : "transparent",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedTicker !== s.ticker)
-                        e.currentTarget.style.backgroundColor = C.cardHover;
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedTicker !== s.ticker)
-                        e.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                  >
-                    <td
-                      className="px-4 py-2.5 font-medium"
-                      style={{ color: C.text1 }}
-                    >
-                      {s.ticker}
-                      {s.fromAPI && (
-                        <span
-                          title="Scanned"
-                          style={{ color: C.green, marginLeft: 4 }}
-                        >
-                          ●
-                        </span>
-                      )}
-                    </td>
-                    <td
-                      className="px-4 py-2.5"
-                      style={{ color: C.text1 }}
-                    >
-                      {currency}{s.price.toFixed(2)}
-                    </td>
-                    <td
-                      className="px-4 py-2.5"
-                      style={{
-                        color: s.change >= 0 ? C.green : C.red,
-                      }}
-                    >
-                      {s.change >= 0 ? "+" : ""}
-                      {s.change.toFixed(2)}%
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <div className="flex items-center gap-1.5">
-                        <div
-                          className="h-1 w-8 rounded-full"
-                          style={{ backgroundColor: C.primary }}
-                        >
-                          <div
-                            className="h-1 rounded-full"
-                            style={{
-                              width: `${s.score}%`,
-                              backgroundColor:
-                                s.score >= 75
-                                  ? C.green
-                                  : s.score >= 50
-                                    ? C.cyan
-                                    : C.red,
-                            }}
-                          />
-                        </div>
-                        <span style={{ color: C.text2 }}>{s.score}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <SignalBadge signal={s.signal} />
-                    </td>
-                    <td
-                      className="px-4 py-2.5"
-                      style={{
-                        color: s.rr >= 2 ? C.green : C.text2,
-                      }}
-                    >
-                      {s.rr > 0 ? `${s.rr.toFixed(1)}x` : "—"}
-                    </td>
-                    <td
-                      className="px-4 py-2.5"
-                      style={{ color: C.text2 }}
-                    >
-                      {s.regime}
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
+                {filtered.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
@@ -1094,6 +968,123 @@ export default function ScannerPage() {
                       No stocks found
                     </td>
                   </tr>
+                ) : (
+                  <>
+                    {rowVirtualizer.getVirtualItems()[0]?.start > 0 && (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          style={{ height: rowVirtualizer.getVirtualItems()[0].start }}
+                        />
+                      </tr>
+                    )}
+                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                      const s = filtered[virtualRow.index];
+                      return (
+                        <tr
+                          key={s.ticker}
+                          onClick={() => setSelectedTicker(s.ticker)}
+                          className="cursor-pointer text-xs transition-colors"
+                          style={{
+                            borderBottom: `1px solid ${C.border}`,
+                            backgroundColor:
+                              selectedTicker === s.ticker
+                                ? "rgba(0,212,255,0.08)"
+                                : "transparent",
+                          }}
+                          onMouseEnter={(e) => {
+                            if (selectedTicker !== s.ticker)
+                              e.currentTarget.style.backgroundColor = C.cardHover;
+                          }}
+                          onMouseLeave={(e) => {
+                            if (selectedTicker !== s.ticker)
+                              e.currentTarget.style.backgroundColor = "transparent";
+                          }}
+                        >
+                          <td
+                            className="px-4 py-2.5 font-medium"
+                            style={{ color: C.text1 }}
+                          >
+                            {s.ticker}
+                            {s.fromAPI && (
+                              <span
+                                title="Scanned"
+                                style={{ color: C.green, marginLeft: 4 }}
+                              >
+                                ●
+                              </span>
+                            )}
+                          </td>
+                          <td
+                            className="px-4 py-2.5"
+                            style={{ color: C.text1 }}
+                          >
+                            {currency}{s.price.toFixed(2)}
+                          </td>
+                          <td
+                            className="px-4 py-2.5"
+                            style={{
+                              color: s.change >= 0 ? C.green : C.red,
+                            }}
+                          >
+                            {s.change >= 0 ? "+" : ""}
+                            {s.change.toFixed(2)}%
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <div className="flex items-center gap-1.5">
+                              <div
+                                className="h-1 w-8 rounded-full"
+                                style={{ backgroundColor: C.primary }}
+                              >
+                                <div
+                                  className="h-1 rounded-full"
+                                  style={{
+                                    width: `${s.score}%`,
+                                    backgroundColor:
+                                      s.score >= 75
+                                        ? C.green
+                                        : s.score >= 50
+                                          ? C.cyan
+                                          : C.red,
+                                  }}
+                                />
+                              </div>
+                              <span style={{ color: C.text2 }}>{s.score}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <SignalBadge signal={s.signal} />
+                          </td>
+                          <td
+                            className="px-4 py-2.5"
+                            style={{
+                              color: s.rr >= 2 ? C.green : C.text2,
+                            }}
+                          >
+                            {s.rr > 0 ? `${s.rr.toFixed(1)}x` : "—"}
+                          </td>
+                          <td
+                            className="px-4 py-2.5"
+                            style={{ color: C.text2 }}
+                          >
+                            {s.regime}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {(() => {
+                      const items = rowVirtualizer.getVirtualItems();
+                      const last = items[items.length - 1];
+                      const bottom = last
+                        ? rowVirtualizer.getTotalSize() - last.end
+                        : 0;
+                      return bottom > 0 ? (
+                        <tr>
+                          <td colSpan={7} style={{ height: bottom }} />
+                        </tr>
+                      ) : null;
+                    })()}
+                  </>
                 )}
               </tbody>
             </table>
@@ -1411,19 +1402,6 @@ export default function ScannerPage() {
                       )}
                       {orderPending ? "Sending..." : "Buy on Alpaca (Paper)"}
                     </button>
-                  )}
-                  {/* Order result feedback */}
-                  {orderResult && (
-                    <div
-                      className="mt-2 flex items-center gap-1.5 rounded-lg px-3 py-2 text-[11px]"
-                      style={{
-                        backgroundColor: orderResult.ok ? "rgba(48,209,88,0.08)" : "rgba(255,69,58,0.08)",
-                        color: orderResult.ok ? C.green : C.red,
-                      }}
-                    >
-                      {orderResult.ok ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
-                      {orderResult.msg}
-                    </div>
                   )}
                 </div>
               )}
