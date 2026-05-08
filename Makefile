@@ -3,7 +3,7 @@
 # Common development and deployment commands
 # ============================================
 
-.PHONY: help install install-dev test test-cov test-fast lint format format-check security clean clean-data run run-legacy scanner scanner-agg docker-check docker-require-env docker-build docker-build-legacy docker-up docker-up-legacy docker-down docker-logs docker-logs-legacy docker-full docker-smoke docker-clean pre-commit pre-run status docs docs-serve
+.PHONY: help install install-dev test test-cov test-fast lint format format-check security clean clean-data run run-legacy scanner scanner-agg docker-check docker-require-env docker-build docker-build-legacy docker-up docker-up-legacy docker-down docker-logs docker-logs-legacy docker-full docker-smoke docker-clean monitoring-up monitoring-down pre-commit pre-run status docs docs-serve
 
 # Default Python
 PYTHON := python3
@@ -47,6 +47,8 @@ help:
 	@echo "  make docker-logs         - View API and web logs"
 	@echo "  make docker-logs-legacy  - View legacy Streamlit logs"
 	@echo "  make docker-full         - Start API, web, scanner, telegram, cache"
+	@echo "  make monitoring-up       - Start Prometheus + Grafana (port 9090 / 3002)"
+	@echo "  make monitoring-down     - Stop Prometheus + Grafana"
 	@echo "  make docker-smoke        - Build, boot, probe ready/metrics, tear down"
 	@echo ""
 	@echo "$(GREEN)Documentation:$(NC)"
@@ -219,6 +221,16 @@ docker-full: docker-check docker-require-env
 	@echo "$(BLUE)Starting API, web, scanner, telegram, and cache services...$(NC)"
 	$(COMPOSE) --profile scanner --profile telegram --profile cache up -d api web scanner telegram_bot redis
 	@echo "$(GREEN)✓ Extended stack started$(NC)"
+
+monitoring-up: docker-check docker-require-env
+	@echo "$(BLUE)Starting Prometheus + Grafana monitoring stack...$(NC)"
+	$(COMPOSE) --profile monitoring up -d prometheus grafana
+	@echo "$(GREEN)✓ Prometheus → http://localhost:9090  Grafana → http://localhost:3002$(NC)"
+
+monitoring-down: docker-check
+	@echo "$(YELLOW)Stopping monitoring stack...$(NC)"
+	$(COMPOSE) --profile monitoring down prometheus grafana
+	@echo "$(GREEN)✓ Monitoring stack stopped$(NC)"
 
 docker-smoke: docker-check
 	@echo "$(BLUE)Running Docker smoke test for API + web...$(NC)"

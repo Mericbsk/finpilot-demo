@@ -200,8 +200,62 @@ services:
       timeout: 5s
       retries: 5
 
-# ============================================
-# 🌐 Networks
+  # ============================================
+  # 📈 Prometheus (monitoring profile)
+  # ============================================
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: finpilot_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.path=/prometheus"
+    networks:
+      - finpilot_network
+    profiles:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ============================================
+  # 📊 Grafana (monitoring profile)
+  # ============================================
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: finpilot_grafana
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-finpilot_grafana_2026}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3002
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+    networks:
+      - finpilot_network
+    depends_on:
+      - prometheus
+    profiles:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+
 # ============================================
 networks:
   finpilot_network:
@@ -216,4 +270,8 @@ volumes:
   redis_data:
     driver: local
   postgres_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
     driver: local

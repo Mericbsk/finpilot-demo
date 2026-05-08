@@ -4,6 +4,7 @@ import os
 import sys
 import time
 from contextlib import asynccontextmanager
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 # Ensure project root is on sys.path so we can import scanner, drl, core, etc.
@@ -58,12 +59,35 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _setup_log_rotation()
     Database().initialize()
     sentry_client.init(
         environment=os.getenv("SENTRY_ENVIRONMENT", os.getenv("ENVIRONMENT", "development")),
         release=os.getenv("SENTRY_RELEASE", "finpilot-api@1.0.0"),
     )
     yield
+
+
+def _setup_log_rotation() -> None:
+    """Attach a RotatingFileHandler (10 MB × 5 backups) to the root logger."""
+    import logging
+
+    log_dir = Path(_PROJECT_ROOT) / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "api.log"
+
+    handler = RotatingFileHandler(
+        log_path,
+        maxBytes=10 * 1024 * 1024,  # 10 MB
+        backupCount=5,
+        encoding="utf-8",
+    )
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
+    handler.setLevel(logging.INFO)
+
+    root = logging.getLogger()
+    if not any(isinstance(h, RotatingFileHandler) for h in root.handlers):
+        root.addHandler(handler)
 
 
 app = FastAPI(title="FinPilot API", version="1.0.0", lifespan=lifespan)
