@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-27 12:21 UTC",
-  "iteration": 7,
+  "iteration": 8,
   "active_reward_terms": {
     "pnl_weight": 10.0,
     "dd_weight": 0.3,
@@ -53,5 +53,5 @@
     "ppo_momentum_20260303_191357"
   ],
   "next_action": "Optuna ile 'dd_weight' optimize et (önerilen: 0.8, aralık: (0.5, 2.0))",
-  "last_run": "2026-05-04 15:31 UTC"
+  "last_run": "2026-05-11 12:51 UTC"
 }

@@ -23,9 +23,9 @@ import sys
 try:
     from datetime import UTC, datetime
 except ImportError:  # Python < 3.11
-    from datetime import datetime
+    from datetime import datetime, timezone
 
-    UTC = UTC
+    UTC = timezone.utc
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent

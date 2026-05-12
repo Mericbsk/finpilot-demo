@@ -1,0 +1,13 @@
+{
+  "date": "2026-05-11",
+  "scan_time": "2026-05-11T19:23:54",
+  "status": "ERROR",
+  "error": "yfinance module not available in scheduled-task sandbox; pip blocked by proxy and .venv Python symlinks are broken (built for Python 3.11, runtime has 3.10)",
+  "raw_signals": 0,
+  "strategy_b_passed": 0,
+  "symbols_passed": [],
+  "presets_scanned": ["tech_giants", "semiconductors", "cloud_saas"],
+  "symbols_attempted": 27,
+  "symbols_fetched": 0,
+  "note": "All yfinance fetches failed with ModuleNotFoundError. Re-run from full environment (not scheduled-task sandbox) for valid scan results."
+}

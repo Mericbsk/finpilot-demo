@@ -115,6 +115,43 @@ async def run_scan(req: ScanRequest):
         except Exception as exc:
             logger.warning("Could not save shortlist CSV: %s", exc)
 
+    # Auto-add BUY signals (entry_ok=True) to watchlist
+    if out:
+        try:
+            from routers.watchlist import _load, _save, _upsert
+
+            wl = _load()
+            added = 0
+            for sym, r in out.items():
+                if not r.get("entry_ok"):
+                    continue
+                direction = r.get("direction", False)
+                entry: dict = {
+                    "symbol": sym,
+                    "signal": "BUY" if direction else "SELL",
+                    "entry_price": float(r.get("price") or 0),
+                    "stop_loss": float(r.get("stop_loss") or 0),
+                    "take_profit": float(r.get("take_profit") or 0),
+                    "score": float(r.get("filter_score") or r.get("score") or 0),
+                    "regime": "Bull" if r.get("regime") else "Bear",
+                    "sentiment": "Bullish" if direction else "Bearish",
+                    "risk_reward": float(r.get("risk_reward") or 0),
+                    "reason": r.get("reason") or "",
+                    "explanation": r.get("explanation") or "",
+                    "added_at": datetime.now(tz=UTC).isoformat(),
+                    "current_price": 0.0,
+                    "change_pct": 0.0,
+                    "pnl_pct": 0.0,
+                    "status": "Pending",
+                }
+                wl = _upsert(wl, entry)
+                added += 1
+            if added:
+                _save(wl)
+                logger.info("Auto-watchlist: %d BUY signals saved", added)
+        except Exception as exc:
+            logger.warning("Auto-watchlist failed: %s", exc)
+
     return out
 
 
