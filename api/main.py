@@ -34,6 +34,7 @@ from slowapi.util import get_remote_address
 
 from api.middleware.pii_filter import PIIFilterMiddleware
 from api.routers import (
+    ai_explain,
     auth,
     backtest,
     ensemble,
@@ -176,6 +177,7 @@ app.include_router(user.router, prefix="/api/v1")
 app.include_router(llm.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(watchlist.router, prefix="/api/v1")
+app.include_router(ai_explain.router, prefix="/api/v1")
 app.include_router(market_data.router, prefix="/api/v1")
 
 

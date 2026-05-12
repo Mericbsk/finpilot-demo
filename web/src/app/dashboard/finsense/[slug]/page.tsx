@@ -71,6 +71,9 @@ export default function TermDetailPage() {
   const [lang, setLang] = useState<"tr" | "en">("tr");
   const [saved, setSaved] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [aiResult, setAiResult] = useState<{ simple_explanation: string; why_important: string; common_mistake: string } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   useEffect(() => {
     const s = JSON.parse(localStorage.getItem("finsense_saved") || "[]");
@@ -99,6 +102,34 @@ export default function TermDetailPage() {
 
   function navigateTo(relSlug: string) {
     router.push(`/dashboard/finsense/${relSlug}`);
+  }
+
+  async function handleAiExplain() {
+    if (aiLoading || !slug) return;
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001/api/v1";
+      const res = await fetch(`${API_URL}/ai/explain`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, lang }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { detail?: string }).detail ?? `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      setAiResult({
+        simple_explanation: data.simple_explanation,
+        why_important: data.why_important,
+        common_mistake: data.common_mistake,
+      });
+    } catch (e: unknown) {
+      setAiError(e instanceof Error ? e.message : "Bir hata oluştu.");
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   const isSaved = saved.includes(slug);
@@ -362,27 +393,68 @@ export default function TermDetailPage() {
         </div>
       )}
 
-      {/* AI Explain placeholder */}
-      <div style={{ borderRadius: 14, padding: 20, border: `1px dashed ${C.border}`, backgroundColor: "rgba(167,139,250,0.03)" }}>
+      {/* AI Explain */}
+      <div style={{ borderRadius: 14, padding: 20, border: `1px solid ${aiResult ? purple + "50" : C.border}`, backgroundColor: `${purple}05`, transition: "border-color 0.3s" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
           <Brain size={14} style={{ color: purple }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: purple, textTransform: "uppercase", letterSpacing: "0.05em" }}>AI Açıklayıcı</span>
         </div>
-        <p style={{ fontSize: 12, color: C.text3, marginBottom: 12 }}>
-          Bu kavramı farklı bir bakış açısıyla, daha sade dilde ya da örneklerle anlayın.
-        </p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {["Daha basit anlat", "5 yaşında anlat", "Örnek ver", "FinPilot'ta nasıl kullanılır?"].map((prompt) => (
+
+        {!aiResult && !aiLoading && (
+          <>
+            <p style={{ fontSize: 12, color: C.text2, marginBottom: 14 }}>
+              Bu kavramı AI ile daha sade dilde açıklayın.
+            </p>
             <button
-              key={prompt}
-              disabled
-              style={{ borderRadius: 8, border: `1px solid rgba(167,139,250,0.2)`, backgroundColor: "rgba(167,139,250,0.06)", padding: "6px 12px", fontSize: 11, color: purple, cursor: "not-allowed", opacity: 0.7 }}
+              onClick={handleAiExplain}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                background: `${purple}18`, border: `1px solid ${purple}40`,
+                color: purple, borderRadius: 8, padding: "8px 16px",
+                fontSize: 12, fontWeight: 600, cursor: "pointer",
+                transition: "background 0.15s",
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = `${purple}30`)}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = `${purple}18`)}
             >
-              {prompt}
+              <Brain size={13} />
+              AI ile Açıkla
             </button>
-          ))}
-        </div>
-        <p style={{ fontSize: 10, color: C.text3, marginTop: 8 }}>Yakında aktif olacak</p>
+          </>
+        )}
+
+        {aiLoading && (
+          <p style={{ fontSize: 13, color: C.text2, animation: "pulse 1s infinite" }}>
+            ✨ Açıklama üretiliyor…
+          </p>
+        )}
+
+        {aiError && (
+          <p style={{ fontSize: 12, color: C.red, marginTop: 8 }}>
+            ⚠️ {aiError}
+          </p>
+        )}
+
+        {aiResult && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 4 }}>
+            {[
+              { label: "💡 Sade Açıklama", text: aiResult.simple_explanation, color: C.cyan },
+              { label: "🎯 Neden Önemli?", text: aiResult.why_important, color: C.green },
+              { label: "⚠️ Sık Yapılan Hata", text: aiResult.common_mistake, color: C.yellow },
+            ].map(({ label, text, color }) => (
+              <div key={label} style={{ borderLeft: `3px solid ${color}`, paddingLeft: 12 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color, margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</p>
+                <p style={{ fontSize: 13, color: C.text1, margin: 0, lineHeight: 1.6 }}>{text}</p>
+              </div>
+            ))}
+            <button
+              onClick={() => { setAiResult(null); setAiError(null); }}
+              style={{ alignSelf: "flex-start", background: "none", border: "none", color: C.text3, fontSize: 11, cursor: "pointer", padding: 0 }}
+            >
+              Tekrar üret
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Bottom nav */}
