@@ -40,12 +40,14 @@ from api.routers import (
     history,
     inference,
     llm,
+    market_data,
     models,
     optuna,
     prices,
     scan,
     trade,
     user,
+    watchlist,
 )
 from auth.database import Database
 from core.monitoring import health_check, metrics, sentry_client
@@ -173,6 +175,8 @@ app.include_router(history.router, prefix="/api/v1")
 app.include_router(user.router, prefix="/api/v1")
 app.include_router(llm.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(watchlist.router, prefix="/api/v1")
+app.include_router(market_data.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health")

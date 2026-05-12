@@ -10,6 +10,105 @@ interface ExplainPanelProps {
   onClose: () => void;
 }
 
+/* ── Inline bold renderer: **text** → <strong> ─────────────── */
+function renderInline(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i} style={{ color: C.text1, fontWeight: 700 }}>
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      part
+    ),
+  );
+}
+
+/* ── Section-aware markdown renderer ───────────────────────── */
+function MarkdownContent({ text, done }: { text: string; done: boolean }) {
+  if (!text) {
+    return done ? (
+      <span style={{ color: C.text3 }}>Yanıt alınamadı.</span>
+    ) : (
+      <span className="animate-pulse text-purple-400">▌</span>
+    );
+  }
+
+  // Split by ## headings (lookahead keeps delimiter on next segment)
+  const sections = text.split(/(?=^## )/m);
+
+  return (
+    <div style={{ fontSize: 13, lineHeight: 1.75 }}>
+      {sections.map((section, idx) => {
+        const lines = section.split("\n");
+        const firstLine = lines[0].trim();
+        const isHeader = firstLine.startsWith("## ");
+        const header = isHeader ? firstLine.replace(/^## /, "") : null;
+        const bodyLines = isHeader ? lines.slice(1) : lines;
+
+        return (
+          <div key={idx} style={{ marginBottom: 18 }}>
+            {header && (
+              <div
+                style={{
+                  color: C.text1,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  marginBottom: 10,
+                  paddingBottom: 6,
+                  borderBottom: `1px solid rgba(255,255,255,0.08)`,
+                }}
+              >
+                {header}
+              </div>
+            )}
+            <div>
+              {bodyLines
+                .filter((l) => l.trim())
+                .map((line, li) => {
+                  const stripped = line.trim();
+                  if (stripped.startsWith("- ") || stripped.startsWith("* ")) {
+                    return (
+                      <div
+                        key={li}
+                        style={{ display: "flex", gap: 8, marginBottom: 5 }}
+                      >
+                        <span
+                          style={{
+                            color: C.cyan,
+                            flexShrink: 0,
+                            marginTop: 2,
+                          }}
+                        >
+                          •
+                        </span>
+                        <span style={{ color: C.text2 }}>
+                          {renderInline(stripped.slice(2))}
+                        </span>
+                      </div>
+                    );
+                  }
+                  if (stripped === "---" || stripped === "***") return null;
+                  return (
+                    <p
+                      key={li}
+                      style={{ color: C.text2, marginBottom: 6 }}
+                    >
+                      {renderInline(stripped)}
+                    </p>
+                  );
+                })}
+            </div>
+          </div>
+        );
+      })}
+      {!done && (
+        <span className="animate-pulse text-purple-400">▌</span>
+      )}
+    </div>
+  );
+}
+
 /**
  * Slide-over panel that streams an AI research summary for a symbol.
  * Opens an SSE connection to /py-api/llm/explain/{symbol}.
@@ -116,21 +215,12 @@ export function ExplainPanel({ symbol, language = "tr", onClose }: ExplainPanelP
         {/* Content */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto px-5 py-4 text-sm leading-relaxed"
-          style={{ color: C.text2 }}
+          className="flex-1 overflow-y-auto px-5 py-4"
         >
           {error ? (
-            <p className="text-red-400">{error}</p>
+            <p className="text-red-400 text-sm">{error}</p>
           ) : (
-            <div className="whitespace-pre-wrap font-mono text-xs">
-              {content}
-              {!done && (
-                <span className="animate-pulse text-purple-400">▌</span>
-              )}
-              {done && !content && !error && (
-                <span style={{ color: C.text3 }}>Yanıt alınamadı.</span>
-              )}
-            </div>
+            <MarkdownContent text={content} done={done} />
           )}
         </div>
 

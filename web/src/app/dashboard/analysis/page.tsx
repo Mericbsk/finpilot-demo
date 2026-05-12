@@ -25,6 +25,7 @@ import { getCurrencySymbol } from "@/lib/userSettings";
 import PriceChart from "@/components/PriceChart";
 import { toast } from "sonner";
 import StockChart from "@/components/dashboard/StockChart";
+import { ExplainPanel } from "@/components/ExplainPanel";
 
 /* ── Pools for generating realistic text ───────────────────── */
 const macdStates = ["Bullish Crossover", "Bearish Crossover", "Neutral", "Divergence", "Strong Bullish", "Weak Bearish"];
@@ -359,7 +360,18 @@ function AnalysisInner() {
   const [scanData, setScanData] = useState<ScanResult | null>(null);
   const [scanLoading, setScanLoading] = useState(false);
   const [scanError, setScanError] = useState(false);
+  const [explainOpen, setExplainOpen] = useState(false);
+  const [finpilotOpen, setFinpilotOpen] = useState(false);
   const [currency, setCurrency] = useState("$");
+
+  // Real news + fundamentals state
+  type NewsItem = { title: string; source: string; time: string; sentiment: string };
+  type FundaRow = { label: string; value: string; raw: number | null };
+  type FundaData = { name: string; sector: string; industry: string; summary: string; rows: FundaRow[] };
+  const [realNews, setRealNews] = useState<NewsItem[] | null>(null);
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [realFunda, setRealFunda] = useState<FundaData | null>(null);
+  const [fundaLoading, setFundaLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -451,7 +463,36 @@ function AnalysisInner() {
     setSelectedTicker(t);
     setSearchOpen(false);
     setSearchTerm("");
+    // reset real data so next tab open re-fetches
+    setRealNews(null);
+    setRealFunda(null);
   }, []);
+
+  /* Fetch real news when News tab is active */
+  useEffect(() => {
+    if (activeTab !== "News" || realNews !== null) return;
+    let cancelled = false;
+    setNewsLoading(true);
+    fetch(`/py-api/news/${selectedTicker}`)
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((d) => { if (!cancelled) setRealNews(d.items ?? []); })
+      .catch(() => { if (!cancelled) setRealNews([]); })
+      .finally(() => { if (!cancelled) setNewsLoading(false); });
+    return () => { cancelled = true; };
+  }, [activeTab, selectedTicker, realNews]);
+
+  /* Fetch real fundamentals when Fundamental tab is active */
+  useEffect(() => {
+    if (activeTab !== "Fundamental" || realFunda !== null) return;
+    let cancelled = false;
+    setFundaLoading(true);
+    fetch(`/py-api/fundamentals/${selectedTicker}`)
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((d) => { if (!cancelled) setRealFunda(d); })
+      .catch(() => { if (!cancelled) setRealFunda(null); })
+      .finally(() => { if (!cancelled) setFundaLoading(false); });
+    return () => { cancelled = true; };
+  }, [activeTab, selectedTicker, realFunda]);
 
   if (loading) {
     return (
@@ -571,6 +612,37 @@ function AnalysisInner() {
         </div>
       </div>
 
+      {/* Quick Take strip */}
+      <div
+        className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl px-4 py-3"
+        style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+      >
+        <span className="text-sm font-bold" style={{ color: data.signal === "BUY" ? C.green : data.signal === "SELL" ? C.red : C.yellow }}>
+          {data.signal === "BUY" ? "🟢" : data.signal === "SELL" ? "🔴" : "🟡"} {data.signal}
+        </span>
+        <div style={{ width: 1, height: 14, backgroundColor: C.border }} />
+        <span className="text-xs" style={{ color: C.text3 }}>Score <span className="font-semibold" style={{ color: C.text1 }}>{data.score}</span></span>
+        <div style={{ width: 1, height: 14, backgroundColor: C.border }} />
+        <span className="text-xs" style={{ color: C.text3 }}>R/R <span className="font-semibold" style={{ color: data.rr >= 2 ? C.green : C.text1 }}>{data.rr}x</span></span>
+        <div style={{ width: 1, height: 14, backgroundColor: C.border }} />
+        <span className="text-xs" style={{ color: C.text3 }}>Güven <span className="font-semibold" style={{ color: C.cyan }}>{data.confidence}%</span></span>
+        <div style={{ width: 1, height: 14, backgroundColor: C.border }} />
+        <span className="text-xs" style={{ color: C.text2 }}>
+          →&nbsp;
+          {scanData
+            ? scanData.entry_ok
+              ? "Giriş koşulları karşılandı"
+              : scanData.momentum_confluence
+              ? "Momentum yakınsıyor"
+              : "Koşullar oluşuyor"
+            : data.signal === "BUY"
+            ? "Potansiyel giriş noktası"
+            : data.signal === "SELL"
+            ? "Çıkış sinyali aktif"
+            : "İzleme modunda"}
+        </span>
+      </div>
+
       {/* Price Chart */}
       <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
         <div className="px-5 pt-4 pb-1 text-xs font-semibold" style={{ color: C.text2 }}>Price Chart</div>
@@ -597,21 +669,81 @@ function AnalysisInner() {
       {/* Tab content */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
+          {/* Scanner offline banner */}
+          {scanError && !scanData && (
+            <div
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm"
+              style={{ backgroundColor: "rgba(255,214,10,0.08)", border: `1px solid rgba(255,214,10,0.25)` }}
+            >
+              <AlertTriangle size={16} style={{ color: C.yellow, flexShrink: 0 }} />
+              <div>
+                <span className="font-semibold" style={{ color: C.yellow }}>Scanner API çevrimdışı</span>
+                <span className="ml-2" style={{ color: C.text3, fontSize: 12 }}>
+                  Gösterilen veriler tahmini değerlerdir — gerçek veriler için Python backend'i başlatın.
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* AI Analysis Tab */}
           {activeTab === "AI Analysis" && (
             <>
               <div className="rounded-2xl p-6" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
-                <div className="mb-3 flex items-center gap-2">
-                  <Brain size={18} style={{ color: C.cyan }} />
-                  <h3 className="text-sm font-semibold" style={{ color: C.text1 }}>AI Summary</h3>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Brain size={18} style={{ color: C.cyan }} />
+                    <h3 className="text-sm font-semibold" style={{ color: C.text1 }}>AI Summary</h3>
+                  </div>
+                  <button
+                    onClick={() => setExplainOpen(true)}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+                    style={{ backgroundColor: "rgba(0,212,255,0.1)", color: C.cyan, border: `1px solid rgba(0,212,255,0.25)` }}
+                  >
+                    <Brain size={12} />
+                    Hızlı AI Analiz
+                  </button>
                 </div>
                 <p className="text-sm leading-relaxed" style={{ color: C.text2 }}>{data.aiSummary}</p>
+                {/* So What? action box */}
+                <div
+                  className="mt-3 rounded-lg px-4 py-3"
+                  style={{
+                    backgroundColor: data.signal === "BUY"
+                      ? "rgba(48,209,88,0.06)"
+                      : data.signal === "SELL"
+                      ? "rgba(255,69,58,0.06)"
+                      : "rgba(255,214,10,0.06)",
+                    border: `1px solid ${data.signal === "BUY" ? "rgba(48,209,88,0.2)" : data.signal === "SELL" ? "rgba(255,69,58,0.2)" : "rgba(255,214,10,0.2)"}`,
+                  }}
+                >
+                  <span
+                    className="text-xs font-semibold"
+                    style={{ color: data.signal === "BUY" ? C.green : data.signal === "SELL" ? C.red : C.yellow }}
+                  >
+                    ✦ Ne yapmalı?
+                  </span>
+                  <p className="mt-1 text-xs leading-relaxed" style={{ color: C.text2 }}>
+                    {data.signal === "BUY" && data.confidence >= 55
+                      ? `${scanData?.entry_ok ? "Giriş koşulları karşılandı." : "Potansiyel giriş yaklaşıyor."} Stop ${currency}${data.stop} ile pozisyon açılabilir, hedef ${currency}${data.tp1}. R/R: ${data.rr}x.`
+                      : data.signal === "SELL"
+                      ? "Negatif sinyal aktif. Yeni uzun pozisyon açmaktan kaçının. Varsa mevcut pozisyonlarda riski azaltmayı değerlendirin."
+                      : "Onay bekleyin. Giriş için hacim desteği ve momentum uyumu oluşana dek beklemek mantıklıdır."}
+                  </p>
+                </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl p-5" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
                   <div className="mb-3 flex items-center gap-2">
                     <Lightbulb size={16} style={{ color: C.green }} />
                     <h3 className="text-sm font-semibold" style={{ color: C.text1 }}>Catalysts</h3>
+                    {!scanData && (
+                      <span
+                        className="rounded px-1.5 py-0.5 text-xs font-semibold"
+                        style={{ backgroundColor: "rgba(255,214,10,0.12)", color: C.yellow }}
+                      >
+                        ~ Tahmini
+                      </span>
+                    )}
                   </div>
                   <ul className="space-y-2">
                     {data.catalysts.map((c, i) => (
@@ -626,6 +758,14 @@ function AnalysisInner() {
                   <div className="mb-3 flex items-center gap-2">
                     <AlertTriangle size={16} style={{ color: C.red }} />
                     <h3 className="text-sm font-semibold" style={{ color: C.text1 }}>Risks</h3>
+                    {!scanData && (
+                      <span
+                        className="rounded px-1.5 py-0.5 text-xs font-semibold"
+                        style={{ backgroundColor: "rgba(255,214,10,0.12)", color: C.yellow }}
+                      >
+                        ~ Tahmini
+                      </span>
+                    )}
                   </div>
                   <ul className="space-y-2">
                     {data.risks.map((r, i) => (
@@ -637,6 +777,54 @@ function AnalysisInner() {
                   </ul>
                 </div>
               </div>
+              {/* What to Watch — auto-generated triggers from scan/mock data */}
+              {(() => {
+                const triggers: { icon: string; text: string; color: string }[] = [];
+                if (scanData) {
+                  if (!scanData.entry_ok && scanData.momentum_confluence)
+                    triggers.push({ icon: "⚡", text: "Momentum yakınsadı — giriş onayı için entry_ok bekleyin", color: C.yellow });
+                  if (scanData.volume_multiple < 1.2)
+                    triggers.push({ icon: "📉", text: `Düşük hacim (${scanData.volume_multiple.toFixed(1)}×) — güçlü hacim onayı bekleyin`, color: C.text2 });
+                  if (scanData.volume_multiple >= 2)
+                    triggers.push({ icon: "📈", text: `Yüksek hacim patlaması (${scanData.volume_multiple.toFixed(1)}×) — dikkat edin`, color: C.green });
+                  if (!scanData.timeframe_aligned)
+                    triggers.push({ icon: "⏱", text: "Çoklu zaman dilimi hizalaması henüz yok — günlük kapanışı bekleyin", color: C.yellow });
+                  if (scanData.ema_gap_pct < 0)
+                    triggers.push({ icon: "📌", text: `EMA gap negatif (${scanData.ema_gap_pct.toFixed(2)}%) — EMA üstüne çıkışı izleyin`, color: C.text2 });
+                  if (data.rr < 1.5)
+                    triggers.push({ icon: "⚠️", text: `Düşük R/R (${data.rr}x) — stop'u sıkın veya giriş bekleyin`, color: C.red });
+                } else {
+                  // mock-based triggers
+                  if (data.rsi > 65)
+                    triggers.push({ icon: "🔴", text: `RSI aşırı alım bölgesine yaklaşıyor (${data.rsi}) — dikkatli olun`, color: C.yellow });
+                  if (data.rsi < 35)
+                    triggers.push({ icon: "🟢", text: `RSI aşırı satım bölgesinde (${data.rsi}) — toparlanma ihtimali`, color: C.green });
+                  if (data.price < data.sma50)
+                    triggers.push({ icon: "📌", text: "Fiyat SMA50 altında — SMA50 üstüne geçişi izleyin", color: C.text2 });
+                  if (data.price > data.sma200 && data.price < data.sma50)
+                    triggers.push({ icon: "⚡", text: "Fiyat SMA200 üstünde ama SMA50 altında — kısa vadeli baskı var", color: C.yellow });
+                  if (data.rr >= 2)
+                    triggers.push({ icon: "✅", text: `R/R oranı uygun (${data.rr}x) — risk yönetimi pozitif`, color: C.green });
+                }
+                if (triggers.length === 0) return null;
+                return (
+                  <div className="rounded-2xl p-5" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
+                    <div className="mb-3 flex items-center gap-2">
+                      <Activity size={16} style={{ color: C.yellow }} />
+                      <h3 className="text-sm font-semibold" style={{ color: C.text1 }}>What to Watch</h3>
+                      {scanData && <span className="rounded px-1.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: "rgba(48,209,88,0.12)", color: C.green }}>● Gerçek</span>}
+                    </div>
+                    <ul className="space-y-2">
+                      {triggers.map((t, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs" style={{ color: t.color }}>
+                          <span style={{ flexShrink: 0 }}>{t.icon}</span>
+                          <span>{t.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })()}
             </>
           )}
 
@@ -658,22 +846,113 @@ function AnalysisInner() {
                   <span>Today · {currency}{data.price}</span>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                {[
-                  { label: "RSI (14)", value: data.rsi.toString(), color: data.rsi > 70 ? C.red : data.rsi < 30 ? C.green : C.text1 },
-                  { label: "MACD", value: data.macd, color: data.macd.includes("Bullish") ? C.green : data.macd.includes("Bearish") ? C.red : C.text1 },
-                  { label: "SMA 50", value: `${currency}${data.sma50}`, color: data.price > data.sma50 ? C.green : C.red },
-                  { label: "SMA 200", value: `${currency}${data.sma200}`, color: data.price > data.sma200 ? C.green : C.red },
-                  { label: "BB Upper", value: `${currency}${data.bb_upper}`, color: C.text1 },
-                  { label: "BB Lower", value: `${currency}${data.bb_lower}`, color: C.text1 },
-                  { label: "Risk/Reward", value: `${data.rr}x`, color: data.rr >= 2 ? C.green : C.text2 },
-                  { label: "Volume", value: data.volume, color: C.text1 },
-                ].map((ind) => (
-                  <div key={ind.label} className="flex justify-between rounded-lg px-3 py-2.5" style={{ backgroundColor: C.primary }}>
-                    <span style={{ color: C.text3 }}>{ind.label}</span>
-                    <span className="font-semibold" style={{ color: ind.color }}>{ind.value}</span>
+
+              {/* ── Real scanner data (when available) ─────────────────── */}
+              {scanData && (
+                <div className="mb-5">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: C.green, display: "inline-block" }} />
+                    <span className="text-xs font-semibold" style={{ color: C.green }}>Live Scanner Data</span>
                   </div>
-                ))}
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    {[
+                      {
+                        label: "Volume ×Avg",
+                        value: scanData.volume_multiple != null ? `${scanData.volume_multiple.toFixed(1)}×` : "—",
+                        color: scanData.volume_multiple > 1.5 ? C.green : C.text1,
+                      },
+                      {
+                        label: "EMA Gap",
+                        value: scanData.ema_gap_pct != null ? `${scanData.ema_gap_pct.toFixed(2)}%` : "—",
+                        color: scanData.ema_gap_pct > 0 ? C.green : C.red,
+                      },
+                      {
+                        label: "ATR",
+                        value: scanData.atr != null ? scanData.atr.toFixed(2) : "—",
+                        color: C.text1,
+                      },
+                      {
+                        label: "Alignment",
+                        value: scanData.alignment_ratio != null ? `${(scanData.alignment_ratio * 100).toFixed(0)}%` : "—",
+                        color: scanData.alignment_ratio > 0.6 ? C.green : C.text2,
+                      },
+                      {
+                        label: "Timeframe",
+                        value: scanData.timeframe_aligned ? "✓ Aligned" : "✗ Misaligned",
+                        color: scanData.timeframe_aligned ? C.green : C.red,
+                      },
+                      {
+                        label: "Momentum",
+                        value: scanData.momentum_bias
+                          ? scanData.momentum_bias.charAt(0).toUpperCase() + scanData.momentum_bias.slice(1)
+                          : "—",
+                        color:
+                          scanData.momentum_bias === "bullish"
+                            ? C.green
+                            : scanData.momentum_bias === "bearish"
+                            ? C.red
+                            : C.text2,
+                      },
+                      {
+                        label: "Confluence",
+                        value: scanData.momentum_confluence ? "✓ Yes" : "✗ No",
+                        color: scanData.momentum_confluence ? C.green : C.text2,
+                      },
+                      {
+                        label: "Risk/Reward",
+                        value: `${data.rr}x`,
+                        color: data.rr >= 2 ? C.green : C.text2,
+                      },
+                    ].map((ind) => (
+                      <div
+                        key={ind.label}
+                        className="flex justify-between rounded-lg px-3 py-2.5"
+                        style={{ backgroundColor: C.primary }}
+                      >
+                        <span style={{ color: C.text3 }}>{ind.label}</span>
+                        <span className="font-semibold" style={{ color: ind.color }}>{ind.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Classic TA indicators (estimated when no scan) ─────── */}
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  {!scanData && (
+                    <span
+                      className="rounded px-1.5 py-0.5 text-xs font-semibold"
+                      style={{ backgroundColor: "rgba(255,214,10,0.12)", color: C.yellow }}
+                    >
+                      ~ Tahmini
+                    </span>
+                  )}
+                  <span className="text-xs" style={{ color: C.text3 }}>
+                    {scanData ? "Classic Indicators (~ Tahmini)" : "Technical Indicators"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  {[
+                    { label: "RSI (14)", value: data.rsi.toString(), color: data.rsi > 70 ? C.red : data.rsi < 30 ? C.green : C.text1 },
+                    { label: "MACD", value: data.macd, color: data.macd.includes("Bullish") ? C.green : data.macd.includes("Bearish") ? C.red : C.text1 },
+                    { label: "SMA 50", value: `${currency}${data.sma50}`, color: data.price > data.sma50 ? C.green : C.red },
+                    { label: "SMA 200", value: `${currency}${data.sma200}`, color: data.price > data.sma200 ? C.green : C.red },
+                    { label: "BB Upper", value: `${currency}${data.bb_upper}`, color: C.text1 },
+                    { label: "BB Lower", value: `${currency}${data.bb_lower}`, color: C.text1 },
+                    { label: "Stop Loss", value: `${currency}${data.stop}`, color: C.red },
+                    { label: "Volume", value: data.volume, color: C.text1 },
+                  ].map((ind) => (
+                    <div
+                      key={ind.label}
+                      className="flex justify-between rounded-lg px-3 py-2.5"
+                      style={{ backgroundColor: C.primary, opacity: scanData ? 0.7 : 1 }}
+                    >
+                      <span style={{ color: C.text3 }}>{ind.label}</span>
+                      <span className="font-semibold" style={{ color: ind.color }}>{ind.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -681,27 +960,51 @@ function AnalysisInner() {
           {/* Fundamental Tab */}
           {activeTab === "Fundamental" && (
             <div className="rounded-2xl p-6" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
-              <h3 className="mb-4 text-sm font-semibold" style={{ color: C.text1 }}>Fundamental Data</h3>
+              <div className="mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-semibold" style={{ color: C.text1 }}>Fundamental Data</h3>
+                {fundaLoading && <Loader2 size={12} className="animate-spin" style={{ color: C.cyan }} />}
+                {!realFunda && !fundaLoading && (
+                  <span className="rounded px-1.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: "rgba(255,214,10,0.12)", color: C.yellow }}>~ Tahmini</span>
+                )}
+                {realFunda && (
+                  <span className="rounded px-1.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: "rgba(48,209,88,0.12)", color: C.green }}>● Gerçek</span>
+                )}
+              </div>
+              {/* Company header when real data available */}
+              {realFunda && (realFunda.sector !== "—" || realFunda.industry !== "—") && (
+                <div className="mb-4 rounded-xl px-4 py-3" style={{ backgroundColor: C.primary }}>
+                  <div className="text-xs font-semibold" style={{ color: C.text1 }}>{realFunda.name}</div>
+                  <div className="mt-0.5 text-xs" style={{ color: C.text3 }}>{realFunda.sector} · {realFunda.industry}</div>
+                  {realFunda.summary && (
+                    <div className="mt-2 text-xs leading-relaxed" style={{ color: C.text2 }}>{realFunda.summary}</div>
+                  )}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3 text-xs">
-                {[
-                  { label: "Market Cap", value: data.marketCap },
-                  { label: "P/E Ratio", value: data.pe.toString() },
-                  { label: "EPS", value: `${currency}${data.eps}` },
-                  { label: "Revenue Growth", value: `${data.revenueGrowth}%`, color: data.revenueGrowth >= 0 ? C.green : C.red },
-                  { label: "Debt/Equity", value: data.debtEquity.toString(), color: data.debtEquity > 1.5 ? C.red : C.text1 },
-                  { label: "Div Yield", value: `${data.divYield}%` },
-                  { label: "52W High", value: `${currency}${data.high52w}` },
-                  { label: "52W Low", value: `${currency}${data.low52w}` },
-                  { label: "Beta", value: data.beta.toString() },
-                  { label: "Float", value: data.floatStr },
-                  { label: "Volume", value: data.volume },
-                  { label: "Sentiment", value: data.sentiment },
-                ].map((f) => (
-                  <div key={f.label} className="flex justify-between rounded-lg px-3 py-2.5" style={{ backgroundColor: C.primary }}>
-                    <span style={{ color: C.text3 }}>{f.label}</span>
-                    <span className="font-semibold" style={{ color: f.color || C.text1 }}>{f.value}</span>
-                  </div>
-                ))}
+                {(realFunda ? realFunda.rows : [
+                  { label: "Market Cap", value: data.marketCap, raw: null },
+                  { label: "P/E Ratio", value: data.pe.toString(), raw: data.pe },
+                  { label: "EPS", value: `${currency}${data.eps}`, raw: data.eps },
+                  { label: "Revenue Growth", value: `${data.revenueGrowth}%`, raw: data.revenueGrowth },
+                  { label: "Debt/Equity", value: data.debtEquity.toString(), raw: data.debtEquity },
+                  { label: "Div Yield", value: `${data.divYield}%`, raw: data.divYield },
+                  { label: "52W High", value: `${currency}${data.high52w}`, raw: null },
+                  { label: "52W Low", value: `${currency}${data.low52w}`, raw: null },
+                  { label: "Beta", value: data.beta.toString(), raw: data.beta },
+                  { label: "Float", value: data.floatStr, raw: null },
+                  { label: "Volume", value: data.volume, raw: null },
+                  { label: "Sentiment", value: data.sentiment, raw: null },
+                ]).map((f) => {
+                  const isNeg = f.raw !== null && (f.label.includes("Growth") || f.label.includes("ROE") || f.label.includes("Margin")) && f.raw < 0;
+                  const isPos = f.raw !== null && (f.label.includes("Growth") || f.label.includes("ROE") || f.label.includes("Margin")) && f.raw > 0;
+                  const isHighDebt = f.label === "Debt/Equity" && f.raw !== null && f.raw > 1.5;
+                  return (
+                    <div key={f.label} className="flex justify-between rounded-lg px-3 py-2.5" style={{ backgroundColor: C.primary }}>
+                      <span style={{ color: C.text3 }}>{f.label}</span>
+                      <span className="font-semibold" style={{ color: isNeg || isHighDebt ? C.red : isPos ? C.green : C.text1 }}>{f.value}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -712,27 +1015,64 @@ function AnalysisInner() {
               <div className="mb-4 flex items-center gap-2">
                 <Newspaper size={16} style={{ color: C.cyan }} />
                 <h3 className="text-sm font-semibold" style={{ color: C.text1 }}>News & Sentiment</h3>
+                {newsLoading && <Loader2 size={12} className="animate-spin" style={{ color: C.cyan }} />}
+                {!newsLoading && realNews === null && (
+                  <span className="rounded px-1.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: "rgba(255,214,10,0.12)", color: C.yellow }}>~ Tahmini</span>
+                )}
+                {!newsLoading && realNews !== null && realNews.length > 0 && (
+                  <span className="rounded px-1.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: "rgba(48,209,88,0.12)", color: C.green }}>● Gerçek</span>
+                )}
               </div>
-              <div className="space-y-3">
-                {data.newsItems.map((n, i) => (
-                  <div key={i} className="rounded-xl p-4" style={{ backgroundColor: C.primary }}>
-                    <div className="mb-1 flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium" style={{ color: C.text1 }}>{n.title}</p>
-                      <span
-                        className="shrink-0 rounded-full px-2 py-0.5 font-medium"
-                        style={{
-                          fontSize: 10,
-                          color: n.sentiment === "Bullish" ? C.green : n.sentiment === "Bearish" ? C.red : C.text2,
-                          backgroundColor: n.sentiment === "Bullish" ? "rgba(48,209,88,0.1)" : n.sentiment === "Bearish" ? "rgba(255,69,58,0.1)" : "rgba(255,255,255,0.05)",
-                        }}
-                      >
-                        {n.sentiment}
-                      </span>
+              {/* Loading skeleton */}
+              {newsLoading && (
+                <div className="space-y-3">
+                  {[1,2,3].map((i) => (
+                    <div key={i} className="h-16 animate-pulse rounded-xl" style={{ backgroundColor: C.primary }} />
+                  ))}
+                </div>
+              )}
+              {/* Real news */}
+              {!newsLoading && realNews !== null && realNews.length > 0 && (
+                <div className="space-y-3">
+                  {realNews.map((n, i) => (
+                    <div key={i} className="rounded-xl p-4" style={{ backgroundColor: C.primary }}>
+                      <div className="mb-1 flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium leading-snug" style={{ color: C.text1 }}>{n.title}</p>
+                        <span
+                          className="shrink-0 rounded-full px-2 py-0.5 font-medium"
+                          style={{ fontSize: 10, color: n.sentiment === "Bullish" ? C.green : n.sentiment === "Bearish" ? C.red : C.text2, backgroundColor: n.sentiment === "Bullish" ? "rgba(48,209,88,0.1)" : n.sentiment === "Bearish" ? "rgba(255,69,58,0.1)" : "rgba(255,255,255,0.05)" }}
+                        >
+                          {n.sentiment}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2" style={{ fontSize: 10, color: C.text3 }}>
+                        {n.source && <span>{n.source}</span>}
+                        {n.source && <span>·</span>}
+                        <span>{n.time}</span>
+                      </div>
                     </div>
-                    <span style={{ fontSize: 10, color: C.text3 }}>{n.time}</span>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
+              {/* No real news → fall back to mock */}
+              {!newsLoading && (realNews === null || realNews.length === 0) && (
+                <div className="space-y-3">
+                  {data.newsItems.map((n, i) => (
+                    <div key={i} className="rounded-xl p-4" style={{ backgroundColor: C.primary }}>
+                      <div className="mb-1 flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium" style={{ color: C.text1 }}>{n.title}</p>
+                        <span
+                          className="shrink-0 rounded-full px-2 py-0.5 font-medium"
+                          style={{ fontSize: 10, color: n.sentiment === "Bullish" ? C.green : n.sentiment === "Bearish" ? C.red : C.text2, backgroundColor: n.sentiment === "Bullish" ? "rgba(48,209,88,0.1)" : n.sentiment === "Bearish" ? "rgba(255,69,58,0.1)" : "rgba(255,255,255,0.05)" }}
+                        >
+                          {n.sentiment}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 10, color: C.text3 }}>{n.time}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -768,38 +1108,73 @@ function AnalysisInner() {
                   </div>
                 ))}
               </div>
+              {/* Price bar: Stop → Entry → TP1 */}
+              {(() => {
+                const min = data.stop * 0.995;
+                const max = data.tp1 * 1.005;
+                const range = max - min;
+                if (range <= 0) return null;
+                const pct = (v: number) => Math.max(0, Math.min(100, ((v - min) / range) * 100));
+                return (
+                  <div className="px-1 pt-2 pb-1">
+                    <div style={{ position: "relative", height: 6, background: "rgba(255,255,255,0.07)", borderRadius: 3 }}>
+                      <div style={{ position: "absolute", left: `${pct(data.stop)}%`, width: `${pct(data.price) - pct(data.stop)}%`, height: "100%", background: `${C.red}50`, borderRadius: 3 }} />
+                      <div style={{ position: "absolute", left: `${pct(data.price)}%`, width: `${pct(data.tp1) - pct(data.price)}%`, height: "100%", background: `${C.green}50`, borderRadius: 3 }} />
+                      <div style={{ position: "absolute", left: `${pct(data.stop)}%`, top: -4, width: 2, height: 14, background: C.red, borderRadius: 1 }} />
+                      <div style={{ position: "absolute", left: `calc(${pct(data.price)}% - 5px)`, top: -3, width: 12, height: 12, borderRadius: "50%", background: C.cyan, border: "2px solid #0f1117", zIndex: 2 }} />
+                      <div style={{ position: "absolute", left: `${pct(data.tp1)}%`, top: -4, width: 2, height: 14, background: C.green, borderRadius: 1 }} />
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5, fontSize: 10, color: C.text3 }}>
+                      <span style={{ color: C.red }}>SL {currency}{data.stop}</span>
+                      <span style={{ color: C.cyan }}>▲ {currency}{data.price}</span>
+                      <span style={{ color: C.green }}>TP {currency}{data.tp1}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
           {/* FinPilot Edge */}
-          <div className="rounded-2xl p-5" style={{ border: `1px solid rgba(0,212,255,0.2)`, backgroundColor: "rgba(0,212,255,0.03)" }}>
-            <div className="mb-3 flex items-center gap-2">
-              <Activity size={16} style={{ color: C.cyan }} />
-              <h3 className="text-sm font-semibold" style={{ color: C.cyan }}>FinPilot Edge</h3>
-            </div>
-            <div className="space-y-3 text-xs">
-              <div>
-                <div className="mb-1" style={{ color: C.text3 }}>Model Used</div>
-                <div className="font-medium" style={{ color: C.text1 }}>{data.model}</div>
+          <div className="rounded-2xl" style={{ border: `1px solid rgba(0,212,255,0.2)`, backgroundColor: "rgba(0,212,255,0.03)" }}>
+            <button
+              onClick={() => setFinpilotOpen(!finpilotOpen)}
+              className="flex w-full items-center justify-between px-5 py-4"
+            >
+              <div className="flex items-center gap-2">
+                <Activity size={16} style={{ color: C.cyan }} />
+                <h3 className="text-sm font-semibold" style={{ color: C.cyan }}>FinPilot Edge</h3>
               </div>
-              <div>
-                <div className="mb-1" style={{ color: C.text3 }}>Confidence</div>
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 flex-1 rounded-full" style={{ backgroundColor: C.card }}>
-                    <div className="h-1.5 rounded-full" style={{ width: `${data.confidence}%`, backgroundColor: C.cyan }} />
+              <ChevronDown
+                size={14}
+                style={{ color: C.text3, transform: finpilotOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+              />
+            </button>
+            {finpilotOpen && (
+              <div className="space-y-3 px-5 pb-5 text-xs">
+                <div>
+                  <div className="mb-1" style={{ color: C.text3 }}>Model Used</div>
+                  <div className="font-medium" style={{ color: C.text1 }}>{data.model}</div>
+                </div>
+                <div>
+                  <div className="mb-1" style={{ color: C.text3 }}>Confidence</div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 flex-1 rounded-full" style={{ backgroundColor: C.card }}>
+                      <div className="h-1.5 rounded-full" style={{ width: `${data.confidence}%`, backgroundColor: C.cyan }} />
+                    </div>
+                    <span className="font-medium" style={{ color: C.cyan }}>{data.confidence}%</span>
                   </div>
-                  <span className="font-medium" style={{ color: C.cyan }}>{data.confidence}%</span>
+                </div>
+                <div>
+                  <div className="mb-1" style={{ color: C.text3 }}>Data Sources</div>
+                  <div className="flex flex-wrap gap-1">
+                    {["Price", "Volume", "RSI", "MACD", "Bollinger", "Sentiment"].map((s) => (
+                      <span key={s} className="rounded-md px-1.5 py-0.5" style={{ fontSize: 10, backgroundColor: C.card, color: C.text2 }}>{s}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className="mb-1" style={{ color: C.text3 }}>Data Sources</div>
-                <div className="flex flex-wrap gap-1">
-                  {["Price", "Volume", "RSI", "MACD", "Bollinger", "Sentiment"].map((s) => (
-                    <span key={s} className="rounded-md px-1.5 py-0.5" style={{ fontSize: 10, backgroundColor: C.card, color: C.text2 }}>{s}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Quick Stats */}
@@ -821,6 +1196,12 @@ function AnalysisInner() {
           </div>
         </div>
       </div>
+      {explainOpen && (
+        <ExplainPanel
+          symbol={selectedTicker}
+          onClose={() => setExplainOpen(false)}
+        />
+      )}
     </div>
   );
 }

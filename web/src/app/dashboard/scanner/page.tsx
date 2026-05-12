@@ -21,6 +21,7 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardList,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -373,6 +374,33 @@ export default function ScannerPage() {
       .catch(() => setAlpacaConnected(false));
   }, []);
 
+  /* Add one stock to persistent watchlist */
+  const addToWatchlist = useCallback(async (stock: DisplayStock) => {
+    try {
+      const res = await fetch("/py-api/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          symbol: stock.ticker,
+          signal: stock.signal,
+          entry_price: stock.price,
+          stop_loss: stock.stop,
+          take_profit: stock.tp1,
+          score: stock.score,
+          regime: stock.regime,
+          sentiment: stock.sentiment,
+          risk_reward: stock.rr,
+          reason: stock.reason,
+          explanation: stock.explanation,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`${stock.ticker} watchlist'e eklendi`, { description: `Giriş: $${stock.price.toFixed(2)} · Stop: $${stock.stop > 0 ? stock.stop.toFixed(2) : "—"}` });
+    } catch {
+      toast.error(`${stock.ticker} eklenemedi`);
+    }
+  }, []);
+
   /* Place order on Alpaca */
   const placeAlpacaOrder = useCallback(async (stock: DisplayStock) => {
     if (orderPending) return;
@@ -525,6 +553,37 @@ export default function ScannerPage() {
     }
     return list;
   }, [sorted, searchTerm, minScoreFilter, scanResults, scanAllMode]);
+
+  /* Add all scanned BUY/HQ signals to watchlist */
+  const addAllSignalsToWatchlist = useCallback(async () => {
+    const signals = filtered.filter((s) => s.fromAPI && (s.signal === "BUY" || s.highQuality));
+    if (signals.length === 0) { toast.warning("Eklenecek BUY sinyali yok"); return; }
+    try {
+      const res = await fetch("/py-api/watchlist/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: signals.map((s) => ({
+            symbol: s.ticker,
+            signal: s.signal,
+            entry_price: s.price,
+            stop_loss: s.stop,
+            take_profit: s.tp1,
+            score: s.score,
+            regime: s.regime,
+            sentiment: s.sentiment,
+            risk_reward: s.rr,
+            reason: s.reason,
+            explanation: s.explanation,
+          })),
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`${signals.length} sinyal watchlist'e eklendi`);
+    } catch {
+      toast.error("Toplu ekleme başarısız");
+    }
+  }, [filtered]);
 
   /* ── Scan function: calls real backend in batches ──────── */
   const runScan = useCallback(
@@ -740,9 +799,21 @@ export default function ScannerPage() {
           >
             <Download size={14} /> Export CSV
           </button>
+          {Object.keys(scanResults).length > 0 && (
+            <button
+              onClick={addAllSignalsToWatchlist}
+              className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold"
+              style={{
+                border: `1px solid ${C.cyan}`,
+                backgroundColor: "rgba(0,212,255,0.08)",
+                color: C.cyan,
+              }}
+            >
+              <Eye size={14} /> Sinyalleri Kaydet ({filtered.filter(s => s.fromAPI && (s.signal === "BUY" || s.highQuality)).length})
+            </button>
+          )}
           <button
-            onClick={scanAll}
-            disabled={isScanning}
+            onClick={scanAll}            disabled={isScanning}
             className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold"
             style={{
               border: `1px solid ${isScanning ? C.border : C.green}`,
@@ -1658,6 +1729,20 @@ export default function ScannerPage() {
               >
                 <Brain size={16} /> Hızlı AI Analiz
               </button>
+
+              {selected.fromAPI && (
+                <button
+                  onClick={() => addToWatchlist(selected)}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold"
+                  style={{
+                    background: "rgba(0,212,255,0.1)",
+                    border: `1px solid ${C.cyan}`,
+                    color: C.cyan,
+                  }}
+                >
+                  <Eye size={16} /> Watchlist&apos;e Ekle
+                </button>
+              )}
 
               <Link
                 href={`/dashboard/analysis?symbol=${selected.ticker}`}
