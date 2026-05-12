@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 _SHORTLIST_DIR = Path("data/shortlists")
 _FEEDBACK_DIR = Path("data/feedback")
+_REPORTS_DIR = Path("data/daily_reports")
 _STALE_DAYS = 7
 _SCAN_TIMEOUT_SECONDS = 300
 
@@ -84,11 +85,23 @@ async def run_scan(req: ScanRequest):
             status_code=500, detail=f"Scan error: {type(exc).__name__}: {exc}"
         ) from exc
 
-    # Convert list → dict keyed by symbol
+    # Convert list → dict keyed by symbol; enrich with human-readable reason/explanation
     out: dict = {}
+    try:
+        from scanner.signals import build_explanation, build_reason
+        _explain_available = True
+    except ImportError:
+        _explain_available = False
+
     for r in results:
         sym = r.get("symbol") or r.get("ticker")
         if sym:
+            if _explain_available:
+                r["explanation"] = build_explanation(r)
+                r["reason"] = build_reason(r)
+            else:
+                r["explanation"] = ""
+                r["reason"] = ""
             out[sym] = r
 
     # Persist shortlist CSV so legacy Streamlit panels stay current
@@ -263,3 +276,69 @@ def submit_feedback(req: FeedbackRequest):
         fh.write(json.dumps(entry) + "\n")
     logger.info("Feedback saved: rating=%d page=%s", req.rating, req.page)
     return {"status": "ok"}
+
+
+# ---------------------------------------------------------------------------
+# Daily Report Endpoints
+# ---------------------------------------------------------------------------
+
+
+class DailyReportRequest(BaseModel):
+    date: str = Field(..., description="YYYY-MM-DD")
+    universe_size: int = Field(0, ge=0)
+    scanned: int = Field(0, ge=0)
+    buy_signals: int = Field(0, ge=0)
+    top_signals: list[dict] = Field(default_factory=list)
+    paper_trades: list[dict] = Field(default_factory=list)
+    notes: str = Field("", max_length=2000)
+
+
+@router.post("/scan/daily-report")
+def save_daily_report(req: DailyReportRequest):
+    """Persist a daily scan report to data/daily_reports/YYYY-MM-DD.json."""
+    _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    report_path = _REPORTS_DIR / f"{req.date}.json"
+    payload = req.model_dump()
+    payload["saved_at"] = datetime.now(tz=UTC).isoformat()
+    with open(report_path, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2, default=str)
+    logger.info("Daily report saved: %s (%d signals)", req.date, req.buy_signals)
+    return {"status": "ok", "path": str(report_path)}
+
+
+@router.get("/scan/daily-reports")
+def list_daily_reports(limit: int = Query(30, ge=1, le=90)):
+    """Return metadata list of saved daily reports, newest first."""
+    _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    files = sorted(_REPORTS_DIR.glob("*.json"), reverse=True)[:limit]
+    out = []
+    for f in files:
+        try:
+            with open(f, encoding="utf-8") as fh:
+                data = json.load(fh)
+            out.append(
+                {
+                    "date": data.get("date", f.stem),
+                    "scanned": data.get("scanned", 0),
+                    "buy_signals": data.get("buy_signals", 0),
+                    "paper_trades": len(data.get("paper_trades", [])),
+                    "saved_at": data.get("saved_at"),
+                }
+            )
+        except Exception as exc:
+            logger.warning("Could not read report %s: %s", f.name, exc)
+    return {"reports": out, "count": len(out)}
+
+
+@router.get("/scan/daily-report/{date}")
+def get_daily_report(date: str):
+    """Return full daily report for a given YYYY-MM-DD date."""
+    _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    report_path = _REPORTS_DIR / f"{date}.json"
+    if not report_path.exists():
+        raise HTTPException(status_code=404, detail=f"No report for {date}")
+    try:
+        with open(report_path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc

@@ -17,6 +17,10 @@ import {
   ArrowUpDown,
   ShoppingCart,
   DollarSign,
+  FileText,
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -48,6 +52,8 @@ interface ScanResult {
   liquidity_ok: boolean;
   high_quality_signal: boolean;
   sentiment: number;
+  reason?: string;
+  explanation?: string;
   timestamp: string;
   atr: number;
   position_size: number;
@@ -84,6 +90,8 @@ interface DisplayStock {
   aligned: boolean;
   confluence: boolean;
   fromAPI: boolean;
+  reason: string;
+  explanation: string;
 }
 
 type Preset = {
@@ -135,6 +143,8 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     aligned: r.timeframe_aligned,
     confluence: r.momentum_confluence,
     fromAPI: true,
+    reason: r.reason ?? "",
+    explanation: r.explanation ?? "",
   };
 }
 
@@ -163,6 +173,8 @@ function mockToStock(ticker: string): DisplayStock {
     aligned: false,
     confluence: false,
     fromAPI: false,
+    reason: "",
+    explanation: "",
   };
 }
 
@@ -310,6 +322,14 @@ export default function ScannerPage() {
   const [scanAllMode, setScanAllMode] = useState<boolean>(() => readCache()?.scanAllMode ?? false);
   const abortRef = useRef(false);
   const tableParentRef = useRef<HTMLDivElement>(null);
+
+  /* Daily report + paper trading queue */
+  const [dailyReport, setDailyReport] = useState<{
+    date: string; scanned: number; buySignals: number; topSignals: DisplayStock[];
+  } | null>(null);
+  const [paperQueue, setPaperQueue] = useState<DisplayStock[]>([]);
+  const [reportSaved, setReportSaved] = useState(false);
+  const [showReportPanel, setShowReportPanel] = useState(false);
 
   /* Alpaca state */
   const [alpacaAccount, setAlpacaAccount] = useState<{
@@ -499,12 +519,12 @@ export default function ScannerPage() {
       const q = searchTerm.toLowerCase();
       list = list.filter((s) => s.ticker.toLowerCase().includes(q));
     }
-    // Apply risk appetite filter only after a scan has been run
-    if (minScoreFilter > 0 && Object.keys(scanResults).length > 0) {
+    // In scanAllMode show ALL results (ignore risk filter) so "Hepsini Tara" always shows output
+    if (!scanAllMode && minScoreFilter > 0 && Object.keys(scanResults).length > 0) {
       list = list.filter((s) => s.score >= minScoreFilter);
     }
     return list;
-  }, [sorted, searchTerm, minScoreFilter, scanResults]);
+  }, [sorted, searchTerm, minScoreFilter, scanResults, scanAllMode]);
 
   /* ── Scan function: calls real backend in batches ──────── */
   const runScan = useCallback(
@@ -557,6 +577,60 @@ export default function ScannerPage() {
           toast.success(
             `Scan complete — ${Object.keys(results).length} stocks · ${buyCount} buy signals · Top ${topScore}/100`
           );
+
+          // Build top signals list (BUY + highest composite score)
+          const allScanned = Object.values(results)
+            .map((r) => apiResultToStock(r, 0))
+            .sort((a, b) => b.score - a.score);
+          const topSignals = allScanned.filter((s) => s.entryOk || s.highQuality).slice(0, 10);
+
+          // Populate paper trading queue (high-quality signals with score ≥ 60)
+          const queueItems = allScanned.filter((s) => s.highQuality && s.score >= 60).slice(0, 20);
+          setPaperQueue(queueItems);
+
+          // Build and save daily report
+          const today = new Date().toISOString().slice(0, 10);
+          const report = {
+            date: today,
+            scanned: Object.keys(results).length,
+            buySignals: buyCount,
+            topSignals,
+          };
+          setDailyReport(report);
+          setReportSaved(false);
+          setShowReportPanel(true);
+
+          // Auto-save report to backend
+          fetch("/py-api/scan/daily-report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              date: today,
+              universe_size: symbols.length,
+              scanned: Object.keys(results).length,
+              buy_signals: buyCount,
+              top_signals: topSignals.slice(0, 10).map((s) => ({
+                ticker: s.ticker,
+                score: s.score,
+                signal: s.signal,
+                rr: s.rr,
+                stop: s.stop,
+                tp: s.tp1,
+                reason: s.reason,
+              })),
+              paper_trades: queueItems.slice(0, 10).map((s) => ({
+                ticker: s.ticker,
+                entry: s.price,
+                stop: s.stop,
+                tp: s.tp1,
+                score: s.score,
+                reason: s.reason,
+              })),
+              notes: `Scan ran at ${new Date().toLocaleTimeString()}. ${scanAllMode ? "Full universe" : "Preset: " + (activePresetId ?? "")}`,
+            }),
+          })
+            .then((r) => r.ok && setReportSaved(true))
+            .catch(() => {});
         }
       } catch {
         toast.error("Scan failed. Please try again.");
@@ -564,7 +638,7 @@ export default function ScannerPage() {
         setIsScanning(false);
       }
     },
-    [isScanning],
+    [isScanning, scanAllMode, activePresetId],
   );
 
   /* Scan preset */
@@ -899,6 +973,137 @@ export default function ScannerPage() {
         )}
       </div>
 
+      {/* Daily Report Panel */}
+      {dailyReport && (
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+        >
+          <button
+            className="flex w-full items-center justify-between px-5 py-3"
+            onClick={() => setShowReportPanel((v) => !v)}
+          >
+            <div className="flex items-center gap-2">
+              <FileText size={14} style={{ color: C.cyan }} />
+              <span className="text-xs font-semibold" style={{ color: C.text1 }}>
+                Daily Report — {dailyReport.date}
+              </span>
+              <span
+                className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                style={{ backgroundColor: "rgba(48,209,88,0.15)", color: C.green }}
+              >
+                {dailyReport.buySignals} BUY
+              </span>
+              {reportSaved && (
+                <span className="text-[10px]" style={{ color: C.text3 }}>● saved</span>
+              )}
+            </div>
+            {showReportPanel ? <ChevronUp size={14} style={{ color: C.text3 }} /> : <ChevronDown size={14} style={{ color: C.text3 }} />}
+          </button>
+
+          {showReportPanel && (
+            <div className="border-t px-5 pb-4 pt-3 space-y-3" style={{ borderColor: C.border }}>
+              {/* Summary row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Scanned", value: dailyReport.scanned, color: C.text1 },
+                  { label: "Buy Signals", value: dailyReport.buySignals, color: C.green },
+                  { label: "In Queue", value: paperQueue.length, color: C.cyan },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-xl px-3 py-2" style={{ backgroundColor: C.primary }}>
+                    <div className="text-[10px]" style={{ color: C.text3 }}>{m.label}</div>
+                    <div className="text-lg font-bold" style={{ color: m.color }}>{m.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Top signals table */}
+              {dailyReport.topSignals.length > 0 && (
+                <div>
+                  <div className="mb-2 text-[11px] font-semibold" style={{ color: C.text2 }}>
+                    Top Signals ({dailyReport.topSignals.length})
+                  </div>
+                  <div className="space-y-1">
+                    {dailyReport.topSignals.slice(0, 8).map((s) => (
+                      <div
+                        key={s.ticker}
+                        className="flex items-center justify-between rounded-lg px-3 py-2 text-xs cursor-pointer"
+                        style={{ backgroundColor: C.primary }}
+                        onClick={() => setSelectedTicker(s.ticker)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="font-bold w-12" style={{ color: C.text1 }}>{s.ticker}</span>
+                          <SignalBadge signal={s.signal} />
+                          <span style={{ color: C.text3 }}>{s.explanation || s.reason}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span style={{ color: s.rr >= 2 ? C.green : C.text2 }}>{s.rr > 0 ? `R/R ${s.rr.toFixed(1)}x` : ""}</span>
+                          <span className="font-bold" style={{ color: C.cyan }}>{s.score}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Paper Trading Queue */}
+      {paperQueue.length > 0 && (
+        <div
+          className="rounded-2xl p-5 space-y-3"
+          style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ClipboardList size={14} style={{ color: C.cyan }} />
+              <span className="text-xs font-semibold" style={{ color: C.text1 }}>
+                Paper Trading Queue
+              </span>
+              <span
+                className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                style={{ backgroundColor: "rgba(0,212,255,0.15)", color: C.cyan }}
+              >
+                {paperQueue.length} signals
+              </span>
+            </div>
+            <span className="text-[10px]" style={{ color: C.text3 }}>
+              High-quality signals ready to simulate
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+            {paperQueue.slice(0, 10).map((s) => (
+              <div
+                key={s.ticker}
+                className="flex items-center justify-between rounded-xl px-3 py-2.5 text-xs cursor-pointer"
+                style={{ border: `1px solid ${C.border}`, backgroundColor: C.primary }}
+                onClick={() => setSelectedTicker(s.ticker)}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-bold w-14" style={{ color: C.text1 }}>{s.ticker}</span>
+                  <SignalBadge signal={s.signal} />
+                </div>
+                <div className="flex items-center gap-3">
+                  <span style={{ color: C.text3 }}>SL ${s.stop > 0 ? s.stop.toFixed(2) : "—"}</span>
+                  <span style={{ color: C.green }}>TP ${s.tp1 > 0 ? s.tp1.toFixed(2) : "—"}</span>
+                  {alpacaConnected && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); placeAlpacaOrder(s); }}
+                      className="rounded px-2 py-0.5 text-[10px] font-semibold"
+                      style={{ backgroundColor: "rgba(48,209,88,0.2)", color: C.green }}
+                    >
+                      <ShoppingCart size={10} className="inline mr-0.5" />Buy
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Results table + Detail panel */}
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Table */}
@@ -967,7 +1172,24 @@ export default function ScannerPage() {
                       className="px-4 py-8 text-center text-sm"
                       style={{ color: C.text3 }}
                     >
-                      No stocks found
+                      {Object.keys(scanResults).length === 0 ? (
+                        "Taramaya başlamak için Run Scan veya Hepsini Tara'ya basın"
+                      ) : searchTerm ? (
+                        `"${searchTerm}" için sonuç bulunamadı`
+                      ) : minScoreFilter > 0 && !scanAllMode && stocks.filter((s) => s.fromAPI).length > 0 ? (
+                        <span>
+                          {stocks.filter((s) => s.fromAPI).length} sonuç risk filtresi tarafından gizlendi (≥{minScoreFilter}){" "}
+                          <button
+                            onClick={() => setMinScoreFilter(0)}
+                            className="ml-1 underline"
+                            style={{ color: C.cyan }}
+                          >
+                            Filtreyi temizle
+                          </button>
+                        </span>
+                      ) : (
+                        "Bu taramada uygun hisse bulunamadı"
+                      )}
                     </td>
                   </tr>
                 ) : (
@@ -1318,6 +1540,24 @@ export default function ScannerPage() {
                   </div>
                 )}
               </div>
+
+              {/* Signal reason / explanation */}
+              {selected.fromAPI && (selected.reason || selected.explanation) && (
+                <div
+                  className="rounded-xl px-3 py-2.5 text-xs"
+                  style={{ backgroundColor: C.primary, border: `1px solid ${C.border}` }}
+                >
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide" style={{ color: C.cyan }}>
+                    Signal Analysis
+                  </div>
+                  {selected.reason && (
+                    <p style={{ color: C.text1 }}>{selected.reason}</p>
+                  )}
+                  {selected.explanation && (
+                    <p className="mt-1" style={{ color: C.text3 }}>{selected.explanation}</p>
+                  )}
+                </div>
+              )}
 
               {/* Trade Plan */}
               {selected.fromAPI && selected.stop > 0 && (
