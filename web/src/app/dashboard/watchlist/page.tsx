@@ -305,7 +305,7 @@ function SinyalTakipTab() {
   const fetchList = useCallback(async (silent = false) => {
     if (!silent) setLoading(true); else setRefreshing(true);
     try {
-      const res = await fetch("/py-api/watchlist/today");
+      const res = await fetch("/py-api/watchlist");
       if (!res.ok) throw new Error();
       const data = await res.json();
       setItems(data.items ?? []);
@@ -373,7 +373,13 @@ function SinyalTakipTab() {
   const avgPnl   = items.length > 0 ? items.reduce((s, i) => s + i.pnl_pct, 0) / items.length : 0;
   const todayCount = grouped.get(today)?.length ?? 0;
 
-  if (loading) return <div style={{ textAlign: "center", padding: 60, color: C.text2 }}>Yükleniyor…</div>;
+  if (loading) return (
+    <div style={{ textAlign: "center", padding: 60, color: C.text2, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <RefreshCw size={28} style={{ animation: "spin 1s linear infinite", opacity: 0.5 }} />
+      <div style={{ fontSize: 14 }}>Canlı fiyatlar yükleniyor…</div>
+      <div style={{ fontSize: 11, color: C.text3 }}>Tüm günlerin sinyalleri getiriliyor (ilk yüklemede ~15s)</div>
+    </div>
+  );
 
   if (items.length === 0) return (
     <div style={{ textAlign: "center", padding: "60px 20px", color: C.text3, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
@@ -389,14 +395,14 @@ function SinyalTakipTab() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {/* Today summary bar */}
+      {/* Summary bar */}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         {[
-          { label: "BUGÜN",     value: todayCount,  color: C.cyan },
-          { label: "TOPLAM",    value: items.length, color: C.text1 },
-          { label: "ON TRACK",  value: onTrack,      color: C.green },
-          { label: "TP HIT",    value: tpHit,        color: "#ffd60a" },
-          { label: "STOP HIT",  value: stopHit,      color: C.red },
+          { label: "GÜN",       value: sortedDates.length, color: C.cyan },
+          { label: "BUGÜN",     value: todayCount,         color: C.text1 },
+          { label: "ON TRACK",  value: onTrack,            color: C.green },
+          { label: "TP HIT",    value: tpHit,              color: "#ffd60a" },
+          { label: "STOP HIT",  value: stopHit,            color: C.red },
           { label: "ORT. P&L",  value: `${avgPnl >= 0 ? "+" : ""}${avgPnl.toFixed(2)}%`, color: avgPnl >= 0 ? C.green : C.red },
         ].map((s) => (
           <div key={s.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 16px" }}>
@@ -441,6 +447,9 @@ function SinyalTakipTab() {
         const isToday = date === today;
         const collapsed = collapsedDates.has(date) && !isToday;
         const dateLabel = isToday ? "Bugün" : new Date(date + "T00:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+        const dateTp   = dateItems.filter((i) => i.status === "TP Hit").length;
+        const dateStop = dateItems.filter((i) => i.status === "Stop Hit").length;
+        const dateAvg  = dateItems.length > 0 ? dateItems.reduce((s, i) => s + (i.pnl_pct ?? 0), 0) / dateItems.length : 0;
 
         return (
           <div key={date} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
@@ -453,6 +462,11 @@ function SinyalTakipTab() {
               <span style={{ fontSize: 13, fontWeight: 700, color: isToday ? C.cyan : C.text1 }}>{dateLabel}</span>
               <span style={{ fontSize: 11, color: C.text3, marginLeft: 2 }}>— {dateItems.length} sinyal</span>
               {isToday && <span style={{ marginLeft: 4, padding: "2px 7px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(0,212,255,0.15)", color: C.cyan }}>BUGÜN</span>}
+              <span style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center" }}>
+                {dateTp > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: "#ffd60a" }}>✓ {dateTp} TP</span>}
+                {dateStop > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: C.red }}>✗ {dateStop} Stop</span>}
+                <span style={{ fontSize: 11, color: dateAvg >= 0 ? C.green : C.red, fontWeight: 600 }}>{dateAvg >= 0 ? "+" : ""}{dateAvg.toFixed(2)}% ort.</span>
+              </span>
             </div>
 
             {!collapsed && (
