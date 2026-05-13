@@ -22,6 +22,14 @@ import {
   BookmarkX,
   AlertTriangle,
   Activity,
+  Bookmark,
+  History,
+  ChevronDown,
+  ChevronRight,
+  SlidersHorizontal,
+  MessageSquare,
+  Tag,
+  Zap,
 } from "lucide-react";
 import { C, hashStr, seededRandom, genStock, companyNames, genSparkline, withLivePrice } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
@@ -31,7 +39,10 @@ import DemoBanner from "@/components/DemoBanner";
 /* ══════════════════════════════════════════════════════════════
    SINYAL TAKİP — types & helpers
 ══════════════════════════════════════════════════════════════ */
+type LifecycleStatus = "new" | "watching" | "active" | "resolved_win" | "resolved_loss" | "expired" | "cancelled";
+
 interface TrackedSignal {
+  id: string;
   symbol: string;
   signal: string;
   entry_price: number;
@@ -44,10 +55,197 @@ interface TrackedSignal {
   reason: string;
   explanation: string;
   added_at: string;
+  signal_date: string;
+  status_lifecycle: LifecycleStatus;
+  notes: string;
+  tags: string[];
+  source_model: string;
   current_price: number;
   change_pct: number;
   pnl_pct: number;
   status: "On Track" | "Stop Hit" | "TP Hit" | "Watching" | "Pending";
+}
+
+const LIFECYCLE_CONFIG: Record<LifecycleStatus, { label: string; color: string; bg: string; icon: React.ReactNode; pulse?: boolean }> = {
+  new:           { label: "Yeni",         color: "#0a84ff", bg: "rgba(10,132,255,0.15)",   icon: <Zap size={10} />, pulse: true },
+  watching:      { label: "İzleniyor",    color: C.cyan,    bg: "rgba(0,212,255,0.12)",    icon: <Eye size={10} /> },
+  active:        { label: "Aktif",        color: C.green,   bg: "rgba(48,209,88,0.15)",    icon: <CheckCircle2 size={10} /> },
+  resolved_win:  { label: "Başarılı ✓",  color: "#ffd60a", bg: "rgba(255,214,10,0.15)",   icon: <Target size={10} /> },
+  resolved_loss: { label: "Başarısız ✗", color: C.red,     bg: "rgba(255,69,58,0.15)",    icon: <XCircle size={10} /> },
+  expired:       { label: "Süresi Doldu",color: C.text3,   bg: "rgba(161,161,166,0.12)",  icon: <Clock size={10} /> },
+  cancelled:     { label: "İptal",        color: "#636366", bg: "rgba(99,99,102,0.15)",    icon: <X size={10} /> },
+};
+
+function LifecycleBadge({ status }: { status: LifecycleStatus }) {
+  const c = LIFECYCLE_CONFIG[status] ?? LIFECYCLE_CONFIG.watching;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700, background: c.bg, color: c.color, whiteSpace: "nowrap" }}>
+      {c.icon} {c.label}
+    </span>
+  );
+}
+
+/* Signal Detail Drawer */
+function SignalDrawer({ item, onClose, onLifecycleChange, onNoteChange, onDelete }: {
+  item: TrackedSignal;
+  onClose: () => void;
+  onLifecycleChange: (id: string, status: LifecycleStatus) => void;
+  onNoteChange: (id: string, notes: string, tags: string[]) => void;
+  onDelete: (symbol: string) => void;
+}) {
+  const [notes, setNotes] = useState(item.notes ?? "");
+  const [tagsInput, setTagsInput] = useState((item.tags ?? []).join(", "));
+  const [saving, setSaving] = useState(false);
+  const [savedOk, setSavedOk] = useState(false);
+
+  const saveNote = async () => {
+    setSaving(true);
+    const tags = tagsInput.split(",").map((t) => t.trim()).filter(Boolean);
+    try {
+      const res = await fetch(`/py-api/watchlist/${item.id}/note`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes, tags }),
+      });
+      if (res.ok) {
+        onNoteChange(item.id, notes, tags);
+        setSavedOk(true);
+        setTimeout(() => setSavedOk(false), 2000);
+      }
+    } catch { /* silent */ }
+    finally { setSaving(false); }
+  };
+
+  const changeLifecycle = async (newStatus: LifecycleStatus) => {
+    try {
+      const res = await fetch(`/py-api/watchlist/${item.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status_lifecycle: newStatus }),
+      });
+      if (res.ok) onLifecycleChange(item.id, newStatus);
+    } catch { /* silent */ }
+  };
+
+  const pnlColor = item.pnl_pct > 0 ? C.green : item.pnl_pct < 0 ? C.red : C.text3;
+
+  return (
+    <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: 380, background: "#1a1a1f", borderLeft: `1px solid ${C.border}`, zIndex: 200, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+      {/* Header */}
+      <div style={{ padding: "18px 20px 14px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: C.text1 }}>{item.symbol}</span>
+            <span style={{ padding: "2px 8px", borderRadius: 5, fontSize: 11, fontWeight: 700, background: item.signal === "BUY" ? "rgba(48,209,88,0.15)" : item.signal === "SELL" ? "rgba(255,69,58,0.15)" : "rgba(255,214,10,0.15)", color: item.signal === "BUY" ? C.green : item.signal === "SELL" ? C.red : "#ffd60a" }}>{item.signal}</span>
+          </div>
+          <div style={{ fontSize: 11, color: C.text3, marginTop: 2 }}>{companyNames[item.symbol] ?? ""}</div>
+        </div>
+        <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: C.text3, padding: 4 }}><X size={18} /></button>
+      </div>
+
+      <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 18, flex: 1 }}>
+        {/* Lifecycle */}
+        <div>
+          <div style={{ fontSize: 11, color: C.text3, marginBottom: 8, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Durum</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {(Object.keys(LIFECYCLE_CONFIG) as LifecycleStatus[]).map((s) => {
+              const c = LIFECYCLE_CONFIG[s];
+              const active = item.status_lifecycle === s;
+              return (
+                <button key={s} onClick={() => changeLifecycle(s)}
+                  style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: "pointer", border: active ? `1.5px solid ${c.color}` : `1px solid ${C.border}`, background: active ? c.bg : "transparent", color: active ? c.color : C.text3 }}>
+                  {c.icon} {c.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Price info */}
+        <div style={{ background: C.card, borderRadius: 12, padding: "14px 16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {[
+              { label: "Giriş", value: item.entry_price > 0 ? `$${item.entry_price.toFixed(2)}` : "—", color: "#ffd60a" },
+              { label: "Güncel", value: item.current_price > 0 ? `$${item.current_price.toFixed(2)}` : "—", color: C.cyan },
+              { label: "Stop", value: item.stop_loss > 0 ? `$${item.stop_loss.toFixed(2)}` : "—", color: C.red },
+              { label: "Hedef (TP)", value: item.take_profit > 0 ? `$${item.take_profit.toFixed(2)}` : "—", color: C.green },
+            ].map((r) => (
+              <div key={r.label}>
+                <div style={{ fontSize: 10, color: C.text3 }}>{r.label}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: r.color }}>{r.value}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 12, display: "flex", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 10, color: C.text3 }}>P&L</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: pnlColor }}>{item.pnl_pct >= 0 ? "+" : ""}{item.pnl_pct.toFixed(2)}%</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: C.text3 }}>Değişim</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: item.change_pct >= 0 ? C.green : C.red }}>{item.change_pct >= 0 ? "+" : ""}{item.change_pct.toFixed(2)}%</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: C.text3 }}>Skor</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: item.score >= 70 ? C.green : item.score >= 50 ? "#ffd60a" : C.text2 }}>{item.score > 0 ? Math.round(item.score) : "—"}</div>
+            </div>
+          </div>
+          {item.entry_price > 0 && item.stop_loss > 0 && item.take_profit > 0 && <PriceProgressBar item={item} />}
+        </div>
+
+        {/* Signal info */}
+        <div>
+          <div style={{ fontSize: 11, color: C.text3, marginBottom: 8, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Sinyal Detayı</div>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 8, fontSize: 12 }}>
+            <div><span style={{ color: C.text3 }}>Regime: </span><strong style={{ color: C.text1 }}>{item.regime || "—"}</strong></div>
+            <div><span style={{ color: C.text3 }}>Sentiment: </span><strong style={{ color: C.text1 }}>{item.sentiment || "—"}</strong></div>
+            <div><span style={{ color: C.text3 }}>R/R: </span><strong style={{ color: C.cyan }}>{item.risk_reward > 0 ? `1:${item.risk_reward.toFixed(1)}` : "—"}</strong></div>
+            <div><span style={{ color: C.text3 }}>Model: </span><strong style={{ color: C.text2 }}>{item.source_model || "—"}</strong></div>
+          </div>
+          {item.reason && <div style={{ fontSize: 12, color: C.text2, marginBottom: 6 }}><span style={{ color: C.text3 }}>Sebep: </span>{item.reason}</div>}
+          {item.explanation && <div style={{ fontSize: 12, color: C.text2, lineHeight: 1.6 }}><span style={{ color: C.text3 }}>Açıklama: </span>{item.explanation}</div>}
+        </div>
+
+        {/* Notes */}
+        <div>
+          <div style={{ fontSize: 11, color: C.text3, marginBottom: 8, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Notlar</div>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Bu sinyal hakkında notunuzu yazın…"
+            rows={4}
+            style={{ width: "100%", background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", fontSize: 12, color: C.text1, resize: "vertical", outline: "none", boxSizing: "border-box" }}
+          />
+          <div style={{ marginTop: 8 }}>
+            <div style={{ fontSize: 10, color: C.text3, marginBottom: 4 }}>Etiketler (virgülle ayırın)</div>
+            <input
+              type="text"
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              placeholder="breakout, high-vol, watchlist"
+              style={{ width: "100%", background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 12px", fontSize: 12, color: C.text1, outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
+          <button onClick={saveNote} disabled={saving}
+            style={{ marginTop: 10, width: "100%", padding: "9px", borderRadius: 10, border: "none", background: savedOk ? "rgba(48,209,88,0.2)" : C.cyan, color: savedOk ? C.green : "#000", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+            {savedOk ? "✓ Kaydedildi" : saving ? "Kaydediliyor…" : "Kaydet"}
+          </button>
+        </div>
+
+        {/* Metadata */}
+        <div style={{ fontSize: 11, color: C.text3, display: "flex", flexDirection: "column", gap: 4 }}>
+          <div>Eklenme: {new Date(item.added_at).toLocaleString("tr-TR")}</div>
+          <div>ID: <span style={{ fontFamily: "monospace", fontSize: 10 }}>{item.id}</span></div>
+        </div>
+
+        {/* Delete */}
+        <button onClick={() => { onDelete(item.symbol); onClose(); }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px", borderRadius: 10, border: "1px solid rgba(255,69,58,0.3)", background: "rgba(255,69,58,0.07)", color: C.red, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+          <Trash2 size={13} /> Sinyali Kaldır
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function StatusBadge({ status }: { status: TrackedSignal["status"] }) {
@@ -100,6 +298,9 @@ function SinyalTakipTab() {
   const [refreshing, setRefreshing] = useState(false);
   const [refreshedAt, setRefreshedAt] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [drawerItem, setDrawerItem] = useState<TrackedSignal | null>(null);
+  const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
+  const [lifecycleFilter, setLifecycleFilter] = useState<string>("ALL");
 
   const fetchList = useCallback(async (silent = false) => {
     if (!silent) setLoading(true); else setRefreshing(true);
@@ -132,10 +333,45 @@ function SinyalTakipTab() {
     setItems([]);
   };
 
+  const handleLifecycleChange = (id: string, status: LifecycleStatus) => {
+    setItems((prev) => prev.map((i) => i.id === id ? { ...i, status_lifecycle: status } : i));
+    setDrawerItem((prev) => prev && prev.id === id ? { ...prev, status_lifecycle: status } : prev);
+  };
+
+  const handleNoteChange = (id: string, notes: string, tags: string[]) => {
+    setItems((prev) => prev.map((i) => i.id === id ? { ...i, notes, tags } : i));
+    setDrawerItem((prev) => prev && prev.id === id ? { ...prev, notes, tags } : prev);
+  };
+
+  const toggleDate = (date: string) => {
+    setCollapsedDates((prev) => {
+      const s = new Set(prev);
+      if (s.has(date)) s.delete(date); else s.add(date);
+      return s;
+    });
+  };
+
+  // Filter by lifecycle
+  const filteredItems = items.filter((i) => {
+    if (lifecycleFilter === "ALL") return true;
+    return i.status_lifecycle === lifecycleFilter;
+  });
+
+  // Group by signal_date (today first)
+  const today = new Date().toISOString().slice(0, 10);
+  const grouped = new Map<string, TrackedSignal[]>();
+  for (const item of filteredItems) {
+    const date = item.signal_date ?? item.added_at?.slice(0, 10) ?? "—";
+    if (!grouped.has(date)) grouped.set(date, []);
+    grouped.get(date)!.push(item);
+  }
+  const sortedDates = Array.from(grouped.keys()).sort((a, b) => b.localeCompare(a));
+
   const onTrack  = items.filter((i) => i.status === "On Track").length;
   const tpHit    = items.filter((i) => i.status === "TP Hit").length;
   const stopHit  = items.filter((i) => i.status === "Stop Hit").length;
   const avgPnl   = items.length > 0 ? items.reduce((s, i) => s + i.pnl_pct, 0) / items.length : 0;
+  const todayCount = grouped.get(today)?.length ?? 0;
 
   if (loading) return <div style={{ textAlign: "center", padding: 60, color: C.text2 }}>Yükleniyor…</div>;
 
@@ -146,19 +382,20 @@ function SinyalTakipTab() {
       <p style={{ fontSize: 12 }}>
         <strong style={{ color: C.cyan }}>Scanner</strong> sayfasında tarama yaptıktan sonra
         satır başındaki <strong style={{ color: C.cyan }}>+</strong> ikonuna veya
-        <strong style={{ color: C.cyan }}> Watchlist'e Ekle</strong> butonuna basın.
+        <strong style={{ color: C.cyan }}> Watchlist&apos;e Ekle</strong> butonuna basın.
       </p>
     </div>
   );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {/* Stats + actions */}
+      {/* Today summary bar */}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         {[
+          { label: "BUGÜN",     value: todayCount,  color: C.cyan },
           { label: "TOPLAM",    value: items.length, color: C.text1 },
           { label: "ON TRACK",  value: onTrack,      color: C.green },
-          { label: "TP HIT",    value: tpHit,        color: C.yellow },
+          { label: "TP HIT",    value: tpHit,        color: "#ffd60a" },
           { label: "STOP HIT",  value: stopHit,      color: C.red },
           { label: "ORT. P&L",  value: `${avgPnl >= 0 ? "+" : ""}${avgPnl.toFixed(2)}%`, color: avgPnl >= 0 ? C.green : C.red },
         ].map((s) => (
@@ -178,74 +415,275 @@ function SinyalTakipTab() {
         </div>
       </div>
 
-      {/* Table */}
-      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr style={{ background: C.primary }}>
-                {["HİSSE", "SİNYAL", "DURUM", "GİRİŞ", "GÜNCEL", "P&L", "DEĞ%", "STOP", "TP", "SKOR", "EKLENDİ", ""].map((h) => (
-                  <th key={h} style={{ padding: "10px 12px", textAlign: "left", color: C.text3, fontSize: 11, fontWeight: 600, borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <>
-                  <tr
-                    key={item.symbol}
-                    style={{ borderBottom: `1px solid ${C.border}`, background: item.status === "Stop Hit" ? "rgba(255,69,58,0.04)" : item.status === "TP Hit" ? "rgba(255,214,10,0.04)" : "transparent", cursor: "pointer" }}
-                    onClick={() => setExpanded(expanded === item.symbol ? null : item.symbol)}
-                  >
-                    <td style={{ padding: "11px 12px" }}>
-                      <div style={{ fontWeight: 700 }}>{item.symbol}</div>
-                      <div style={{ fontSize: 10, color: C.text3 }}>{companyNames[item.symbol] ?? ""}</div>
-                    </td>
-                    <td style={{ padding: "11px 12px" }}>
-                      <span style={{ padding: "2px 8px", borderRadius: 5, fontSize: 11, fontWeight: 700, background: item.signal === "BUY" ? "rgba(48,209,88,0.15)" : item.signal === "SELL" ? "rgba(255,69,58,0.15)" : "rgba(255,214,10,0.15)", color: item.signal === "BUY" ? C.green : item.signal === "SELL" ? C.red : C.yellow }}>{item.signal}</span>
-                    </td>
-                    <td style={{ padding: "11px 12px" }}><StatusBadge status={item.status} /></td>
-                    <td style={{ padding: "11px 12px", fontWeight: 600 }}>{item.entry_price > 0 ? `$${item.entry_price.toFixed(2)}` : "—"}</td>
-                    <td style={{ padding: "11px 12px", fontWeight: 600 }}>{item.current_price > 0 ? `$${item.current_price.toFixed(2)}` : "—"}</td>
-                    <td style={{ padding: "11px 12px" }}>
-                      {item.pnl_pct !== 0 ? (
-                        <span style={{ color: item.pnl_pct > 0 ? C.green : C.red, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}>
-                          {item.pnl_pct > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                          {item.pnl_pct > 0 ? "+" : ""}{item.pnl_pct.toFixed(2)}%
-                        </span>
-                      ) : <span style={{ color: C.text3 }}>—</span>}
-                    </td>
-                    <td style={{ padding: "11px 12px", color: item.change_pct >= 0 ? C.green : C.red, fontWeight: 500 }}>{item.change_pct >= 0 ? "+" : ""}{item.change_pct.toFixed(2)}%</td>
-                    <td style={{ padding: "11px 12px", color: C.red, fontSize: 12 }}>{item.stop_loss > 0 ? `$${item.stop_loss.toFixed(2)}` : "—"}</td>
-                    <td style={{ padding: "11px 12px", color: C.green, fontSize: 12 }}>{item.take_profit > 0 ? `$${item.take_profit.toFixed(2)}` : "—"}</td>
-                    <td style={{ padding: "11px 12px", fontWeight: 700, color: item.score >= 70 ? C.green : item.score >= 50 ? C.yellow : C.text2 }}>{item.score > 0 ? Math.round(item.score) : "—"}</td>
-                    <td style={{ padding: "11px 12px", color: C.text3, fontSize: 11, whiteSpace: "nowrap" }}>{new Date(item.added_at).toLocaleString("tr-TR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
-                    <td style={{ padding: "11px 12px" }} onClick={(e) => e.stopPropagation()}>
-                      <button onClick={() => removeItem(item.symbol)} style={{ background: "none", border: "none", cursor: "pointer", color: C.red, padding: "4px 6px", borderRadius: 6, display: "flex", alignItems: "center" }}><Trash2 size={13} /></button>
-                    </td>
-                  </tr>
-                  {expanded === item.symbol && (
-                    <tr key={`${item.symbol}-exp`}>
-                      <td colSpan={12} style={{ padding: "0 12px 12px", background: C.cardHover }}>
-                        <div style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "12px 14px", fontSize: 12, color: C.text2, lineHeight: 1.6 }}>
-                          <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginBottom: 6 }}>
-                            <div><span style={{ color: C.text3 }}>Regime:</span> <strong style={{ color: C.text1 }}>{item.regime || "—"}</strong></div>
-                            <div><span style={{ color: C.text3 }}>Sentiment:</span> <strong style={{ color: C.text1 }}>{item.sentiment || "—"}</strong></div>
-                            <div><span style={{ color: C.text3 }}>R/R:</span> <strong style={{ color: C.cyan }}>{item.risk_reward > 0 ? `1:${item.risk_reward.toFixed(1)}` : "—"}</strong></div>
-                          </div>
-                          {item.reason && <div style={{ marginBottom: 4 }}><span style={{ color: C.text3 }}>Sebep: </span>{item.reason}</div>}
-                          {item.explanation && <div><span style={{ color: C.text3 }}>Açıklama: </span>{item.explanation}</div>}
-                          {item.entry_price > 0 && item.stop_loss > 0 && item.take_profit > 0 && <PriceProgressBar item={item} />}
-                        </div>
-                      </td>
+      {/* Lifecycle filter */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+        <SlidersHorizontal size={13} style={{ color: C.text3 }} />
+        {[
+          { key: "ALL", label: `Tümü (${items.length})` },
+          { key: "new", label: "Yeni" },
+          { key: "watching", label: "İzleniyor" },
+          { key: "active", label: "Aktif" },
+          { key: "resolved_win", label: "Başarılı" },
+          { key: "resolved_loss", label: "Başarısız" },
+          { key: "expired", label: "Süresi Doldu" },
+          { key: "cancelled", label: "İptal" },
+        ].map((f) => (
+          <button key={f.key} onClick={() => setLifecycleFilter(f.key)}
+            style={{ padding: "4px 11px", borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: "pointer", border: "none", background: lifecycleFilter === f.key ? C.cyan : "rgba(255,255,255,0.07)", color: lifecycleFilter === f.key ? "#000" : C.text2 }}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Date grouped list */}
+      {sortedDates.map((date) => {
+        const dateItems = grouped.get(date) ?? [];
+        const isToday = date === today;
+        const collapsed = collapsedDates.has(date) && !isToday;
+        const dateLabel = isToday ? "Bugün" : new Date(date + "T00:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+
+        return (
+          <div key={date} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+            {/* Date header */}
+            <div
+              onClick={() => toggleDate(date)}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 16px", borderBottom: collapsed ? "none" : `1px solid ${C.border}`, cursor: "pointer", background: isToday ? "rgba(0,212,255,0.04)" : "transparent" }}
+            >
+              {collapsed ? <ChevronRight size={14} style={{ color: C.text3 }} /> : <ChevronDown size={14} style={{ color: C.text3 }} />}
+              <span style={{ fontSize: 13, fontWeight: 700, color: isToday ? C.cyan : C.text1 }}>{dateLabel}</span>
+              <span style={{ fontSize: 11, color: C.text3, marginLeft: 2 }}>— {dateItems.length} sinyal</span>
+              {isToday && <span style={{ marginLeft: 4, padding: "2px 7px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(0,212,255,0.15)", color: C.cyan }}>BUGÜN</span>}
+            </div>
+
+            {!collapsed && (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ background: C.primary }}>
+                      {["HİSSE", "SİNYAL", "DURUM", "LİFECYCLE", "GİRİŞ", "GÜNCEL", "P&L", "DEĞ%", "STOP", "TP", "SKOR", "EKLENDİ", ""].map((h) => (
+                        <th key={h} style={{ padding: "10px 12px", textAlign: "left", color: C.text3, fontSize: 11, fontWeight: 600, borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
+                      ))}
                     </tr>
-                  )}
-                </>
-              ))}
-            </tbody>
-          </table>
+                  </thead>
+                  <tbody>
+                    {dateItems.map((item) => (
+                      <>
+                        <tr
+                          key={item.id ?? item.symbol}
+                          style={{ borderBottom: `1px solid ${C.border}`, background: item.status === "Stop Hit" ? "rgba(255,69,58,0.04)" : item.status === "TP Hit" ? "rgba(255,214,10,0.04)" : "transparent", cursor: "pointer" }}
+                          onClick={() => setExpanded(expanded === (item.id ?? item.symbol) ? null : (item.id ?? item.symbol))}
+                        >
+                          <td style={{ padding: "11px 12px" }}>
+                            <div style={{ fontWeight: 700 }}>{item.symbol}</div>
+                            <div style={{ fontSize: 10, color: C.text3 }}>{companyNames[item.symbol] ?? ""}</div>
+                          </td>
+                          <td style={{ padding: "11px 12px" }}>
+                            <span style={{ padding: "2px 8px", borderRadius: 5, fontSize: 11, fontWeight: 700, background: item.signal === "BUY" ? "rgba(48,209,88,0.15)" : item.signal === "SELL" ? "rgba(255,69,58,0.15)" : "rgba(255,214,10,0.15)", color: item.signal === "BUY" ? C.green : item.signal === "SELL" ? C.red : "#ffd60a" }}>{item.signal}</span>
+                          </td>
+                          <td style={{ padding: "11px 12px" }}><StatusBadge status={item.status} /></td>
+                          <td style={{ padding: "11px 12px" }}><LifecycleBadge status={item.status_lifecycle ?? "watching"} /></td>
+                          <td style={{ padding: "11px 12px", fontWeight: 600 }}>{item.entry_price > 0 ? `$${item.entry_price.toFixed(2)}` : "—"}</td>
+                          <td style={{ padding: "11px 12px", fontWeight: 600 }}>{item.current_price > 0 ? `$${item.current_price.toFixed(2)}` : "—"}</td>
+                          <td style={{ padding: "11px 12px" }}>
+                            {item.pnl_pct !== 0 ? (
+                              <span style={{ color: item.pnl_pct > 0 ? C.green : C.red, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                {item.pnl_pct > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                                {item.pnl_pct > 0 ? "+" : ""}{item.pnl_pct.toFixed(2)}%
+                              </span>
+                            ) : <span style={{ color: C.text3 }}>—</span>}
+                          </td>
+                          <td style={{ padding: "11px 12px", color: item.change_pct >= 0 ? C.green : C.red, fontWeight: 500 }}>{item.change_pct >= 0 ? "+" : ""}{item.change_pct.toFixed(2)}%</td>
+                          <td style={{ padding: "11px 12px", color: C.red, fontSize: 12 }}>{item.stop_loss > 0 ? `$${item.stop_loss.toFixed(2)}` : "—"}</td>
+                          <td style={{ padding: "11px 12px", color: C.green, fontSize: 12 }}>{item.take_profit > 0 ? `$${item.take_profit.toFixed(2)}` : "—"}</td>
+                          <td style={{ padding: "11px 12px", fontWeight: 700, color: item.score >= 70 ? C.green : item.score >= 50 ? "#ffd60a" : C.text2 }}>{item.score > 0 ? Math.round(item.score) : "—"}</td>
+                          <td style={{ padding: "11px 12px", color: C.text3, fontSize: 11, whiteSpace: "nowrap" }}>{new Date(item.added_at).toLocaleString("tr-TR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
+                          <td style={{ padding: "11px 12px" }} onClick={(e) => e.stopPropagation()}>
+                            <div style={{ display: "flex", gap: 4 }}>
+                              <button onClick={(e) => { e.stopPropagation(); setDrawerItem(item); }} style={{ background: "none", border: "none", cursor: "pointer", color: C.cyan, padding: "4px 6px", borderRadius: 6, display: "flex", alignItems: "center" }} title="Detay"><MessageSquare size={13} /></button>
+                              <button onClick={() => removeItem(item.symbol)} style={{ background: "none", border: "none", cursor: "pointer", color: C.red, padding: "4px 6px", borderRadius: 6, display: "flex", alignItems: "center" }}><Trash2 size={13} /></button>
+                            </div>
+                          </td>
+                        </tr>
+                        {expanded === (item.id ?? item.symbol) && (
+                          <tr key={`${item.id}-exp`}>
+                            <td colSpan={13} style={{ padding: "0 12px 12px", background: "#1c1c22" }}>
+                              <div style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "12px 14px", fontSize: 12, color: C.text2, lineHeight: 1.6 }}>
+                                <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginBottom: 6 }}>
+                                  <div><span style={{ color: C.text3 }}>Regime:</span> <strong style={{ color: C.text1 }}>{item.regime || "—"}</strong></div>
+                                  <div><span style={{ color: C.text3 }}>Sentiment:</span> <strong style={{ color: C.text1 }}>{item.sentiment || "—"}</strong></div>
+                                  <div><span style={{ color: C.text3 }}>R/R:</span> <strong style={{ color: C.cyan }}>{item.risk_reward > 0 ? `1:${item.risk_reward.toFixed(1)}` : "—"}</strong></div>
+                                  <div><span style={{ color: C.text3 }}>Model:</span> <strong style={{ color: C.text2 }}>{item.source_model || "—"}</strong></div>
+                                </div>
+                                {item.reason && <div style={{ marginBottom: 4 }}><span style={{ color: C.text3 }}>Sebep: </span>{item.reason}</div>}
+                                {item.explanation && <div style={{ marginBottom: 6 }}><span style={{ color: C.text3 }}>Açıklama: </span>{item.explanation}</div>}
+                                {item.notes && <div style={{ marginBottom: 4, color: C.cyan }}><MessageSquare size={11} style={{ display: "inline", marginRight: 4 }} />{item.notes}</div>}
+                                {item.tags && item.tags.length > 0 && (
+                                  <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                                    {item.tags.map((t) => <span key={t} style={{ padding: "2px 7px", borderRadius: 5, fontSize: 10, background: "rgba(255,255,255,0.06)", color: C.text2 }}>{t}</span>)}
+                                  </div>
+                                )}
+                                {item.entry_price > 0 && item.stop_loss > 0 && item.take_profit > 0 && <PriceProgressBar item={item} />}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Drawer overlay */}
+      {drawerItem && (
+        <>
+          <div onClick={() => setDrawerItem(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 199 }} />
+          <SignalDrawer
+            item={drawerItem}
+            onClose={() => setDrawerItem(null)}
+            onLifecycleChange={handleLifecycleChange}
+            onNoteChange={handleNoteChange}
+            onDelete={removeItem}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GEÇMİŞ TAB
+═══════════════════════════════════════════════════════════════ */
+interface ArchiveDateEntry {
+  date: string;
+  count: number;
+  source: "archive" | "live";
+}
+
+function GecmisTab() {
+  const [dates, setDates] = useState<ArchiveDateEntry[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [historyItems, setHistoryItems] = useState<TrackedSignal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [histLoading, setHistLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const LIMIT = 50;
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/py-api/watchlist/dates");
+        if (res.ok) {
+          const data = await res.json();
+          setDates(data.dates ?? []);
+          if (data.dates?.length) setSelectedDate(data.dates[0].date);
+        }
+      } catch { /* silent */ }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    setHistLoading(true);
+    setPage(1);
+    (async () => {
+      try {
+        const res = await fetch(`/py-api/watchlist/history?date=${selectedDate}&page=1&limit=${LIMIT}`);
+        if (res.ok) {
+          const data = await res.json();
+          setHistoryItems(data.items ?? []);
+        }
+      } catch { /* silent */ }
+      finally { setHistLoading(false); }
+    })();
+  }, [selectedDate]);
+
+  const goToDate = (dir: -1 | 1) => {
+    const idx = dates.findIndex((d) => d.date === selectedDate);
+    const next = idx + dir;
+    if (next >= 0 && next < dates.length) setSelectedDate(dates[next].date);
+  };
+
+  if (loading) return <div style={{ textAlign: "center", padding: 60, color: C.text2 }}>Yükleniyor…</div>;
+
+  if (dates.length === 0) return (
+    <div style={{ textAlign: "center", padding: "60px 20px", color: C.text3, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+      <History size={44} style={{ opacity: 0.4 }} />
+      <p style={{ fontSize: 15, color: C.text2 }}>Henüz arşiv kaydı yok</p>
+      <p style={{ fontSize: 12 }}>Sinyal takibi yaptıkça günlük kayıtlar burada görünecek.</p>
+    </div>
+  );
+
+  const selIdx = dates.findIndex((d) => d.date === selectedDate);
+  const selEntry = dates[selIdx];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Date selector */}
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 18px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <button onClick={() => goToDate(-1)} disabled={selIdx <= 0}
+            style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 10px", color: selIdx <= 0 ? C.text3 : C.text1, cursor: selIdx <= 0 ? "default" : "pointer", fontSize: 14 }}>←</button>
+          <select value={selectedDate ?? ""} onChange={(e) => setSelectedDate(e.target.value)}
+            style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 12px", fontSize: 13, color: C.text1, cursor: "pointer", outline: "none" }}>
+            {dates.map((d) => (
+              <option key={d.date} value={d.date}>{d.date} ({d.count} sinyal){d.source === "live" ? " — Bugün" : ""}</option>
+            ))}
+          </select>
+          <button onClick={() => goToDate(1)} disabled={selIdx >= dates.length - 1}
+            style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 10px", color: selIdx >= dates.length - 1 ? C.text3 : C.text1, cursor: selIdx >= dates.length - 1 ? "default" : "pointer", fontSize: 14 }}>→</button>
+          {selEntry && (
+            <span style={{ fontSize: 12, color: C.text3, marginLeft: 8 }}>
+              {selEntry.count} sinyal · {selEntry.source === "live" ? <span style={{ color: C.cyan }}>Canlı</span> : "Arşiv"}
+            </span>
+          )}
         </div>
       </div>
+
+      {/* History table */}
+      {histLoading ? (
+        <div style={{ textAlign: "center", padding: 40, color: C.text2 }}>Yükleniyor…</div>
+      ) : historyItems.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 40, color: C.text3 }}>Bu tarih için kayıt bulunamadı.</div>
+      ) : (
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: C.primary }}>
+                  {["HİSSE", "SİNYAL", "DURUM", "LİFECYCLE", "GİRİŞ", "GÜNCEL", "P&L", "STOP", "TP", "SKOR", "MODEL", "EKLENDİ"].map((h) => (
+                    <th key={h} style={{ padding: "10px 11px", textAlign: "left", color: C.text3, fontSize: 10, fontWeight: 600, borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {historyItems.map((item, idx) => (
+                  <tr key={item.id ?? idx} style={{ borderBottom: `1px solid ${C.border}` }}>
+                    <td style={{ padding: "10px 11px", fontWeight: 700 }}>{item.symbol}</td>
+                    <td style={{ padding: "10px 11px" }}>
+                      <span style={{ padding: "2px 7px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: item.signal === "BUY" ? "rgba(48,209,88,0.15)" : "rgba(255,69,58,0.15)", color: item.signal === "BUY" ? C.green : C.red }}>{item.signal}</span>
+                    </td>
+                    <td style={{ padding: "10px 11px" }}><StatusBadge status={item.status} /></td>
+                    <td style={{ padding: "10px 11px" }}><LifecycleBadge status={item.status_lifecycle ?? "watching"} /></td>
+                    <td style={{ padding: "10px 11px" }}>{item.entry_price > 0 ? `$${item.entry_price.toFixed(2)}` : "—"}</td>
+                    <td style={{ padding: "10px 11px" }}>{item.current_price > 0 ? `$${item.current_price.toFixed(2)}` : "—"}</td>
+                    <td style={{ padding: "10px 11px", color: item.pnl_pct > 0 ? C.green : item.pnl_pct < 0 ? C.red : C.text3, fontWeight: 600 }}>{item.pnl_pct !== 0 ? `${item.pnl_pct > 0 ? "+" : ""}${item.pnl_pct.toFixed(2)}%` : "—"}</td>
+                    <td style={{ padding: "10px 11px", color: C.red }}>{item.stop_loss > 0 ? `$${item.stop_loss.toFixed(2)}` : "—"}</td>
+                    <td style={{ padding: "10px 11px", color: C.green }}>{item.take_profit > 0 ? `$${item.take_profit.toFixed(2)}` : "—"}</td>
+                    <td style={{ padding: "10px 11px", fontWeight: 700, color: item.score >= 70 ? C.green : item.score >= 50 ? "#ffd60a" : C.text2 }}>{item.score > 0 ? Math.round(item.score) : "—"}</td>
+                    <td style={{ padding: "10px 11px", color: C.text3 }}>{item.source_model || "—"}</td>
+                    <td style={{ padding: "10px 11px", color: C.text3, whiteSpace: "nowrap" }}>{new Date(item.added_at).toLocaleString("tr-TR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -269,6 +707,16 @@ interface PerfSignal {
   exit_at: string | null;
 }
 
+interface SignalTypeBreakdown {
+  signal: string;
+  count: number;
+  tp_count: number;
+  stop_count: number;
+  open_count: number;
+  tp_rate: number;
+  avg_pnl: number;
+}
+
 interface PerfReport {
   days: number;
   total: number;
@@ -283,6 +731,7 @@ interface PerfReport {
   avg_pnl_tp: number;
   avg_pnl_stop: number;
   signals: PerfSignal[];
+  by_type: SignalTypeBreakdown[];
   evaluated_at: string;
 }
 
@@ -494,6 +943,39 @@ function PerformansRaporuTab() {
             </div>
           </div>
 
+          {/* ── Signal type breakdown ── */}
+          {report.by_type && report.by_type.length > 0 && (
+            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+              <div style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}` }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: C.text1 }}>Signal Type Performansı</span>
+              </div>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                <thead>
+                  <tr style={{ background: C.primary }}>
+                    {["TİP", "TOPLAM", "TP", "STOP", "AÇIK", "TP ORANI", "ORT. P&L"].map((h) => (
+                      <th key={h} style={{ padding: "10px 14px", textAlign: "left", color: C.text3, fontSize: 10, fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.by_type.map((row) => (
+                    <tr key={row.signal} style={{ borderBottom: `1px solid ${C.border}` }}>
+                      <td style={{ padding: "10px 14px" }}>
+                        <span style={{ padding: "2px 8px", borderRadius: 5, fontSize: 11, fontWeight: 700, background: row.signal === "BUY" ? "rgba(48,209,88,0.15)" : row.signal === "SELL" ? "rgba(255,69,58,0.15)" : "rgba(255,214,10,0.15)", color: row.signal === "BUY" ? C.green : row.signal === "SELL" ? C.red : "#ffd60a" }}>{row.signal}</span>
+                      </td>
+                      <td style={{ padding: "10px 14px", fontWeight: 600 }}>{row.count}</td>
+                      <td style={{ padding: "10px 14px", color: C.green }}>{row.tp_count}</td>
+                      <td style={{ padding: "10px 14px", color: C.red }}>{row.stop_count}</td>
+                      <td style={{ padding: "10px 14px", color: C.text2 }}>{row.open_count}</td>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, color: row.tp_rate >= 60 ? C.green : row.tp_rate >= 40 ? "#ffd60a" : C.red }}>{row.tp_rate.toFixed(1)}%</td>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, color: row.avg_pnl >= 0 ? C.green : C.red }}>{row.avg_pnl >= 0 ? "+" : ""}{row.avg_pnl.toFixed(2)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           {/* ── Sinyal tablosu ── */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
             {/* Filtre */}
@@ -655,7 +1137,7 @@ const defaultTickers = ["NVDA", "AAPL", "MSFT", "TSLA", "AMZN"];
 const popularStocks = ["GOOGL", "META", "AMD", "AVGO", "CRM", "PLTR", "COIN", "UBER"];
 const WATCHLIST_KEY = "finpilot_watchlist";
 export default function WatchlistPage() {
-  const [activeTab, setActiveTab] = useState<"hisselerim" | "sinyal-takip" | "performans-raporu">("hisselerim");
+  const [activeTab, setActiveTab] = useState<"hisselerim" | "sinyal-takip" | "gecmis" | "performans-raporu">("hisselerim");
   const [tickers, setTickers] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -808,9 +1290,10 @@ export default function WatchlistPage() {
       {/* ── Tabs ──────────────────────────────────────────── */}
       <div style={{ display: "flex", gap: 4, borderBottom: `1px solid ${C.border}`, paddingBottom: 0 }}>
         {([
-          { key: "hisselerim",      label: "★ Hisselerim",         icon: <Star size={14} /> },
-          { key: "sinyal-takip",   label: "⦿ Sinyal Takip",       icon: <Eye size={14} /> },
-          { key: "performans-raporu", label: "📊 Performans Raporu", icon: <BarChart3 size={14} /> },
+          { key: "hisselerim",         label: "★ Hisselerim",           icon: <Star size={14} /> },
+          { key: "sinyal-takip",      label: "📅 Sinyal Takip",          icon: <Eye size={14} /> },
+          { key: "gecmis",            label: "🗂 Geçmiş",               icon: <History size={14} /> },
+          { key: "performans-raporu", label: "📊 Performans",            icon: <BarChart3 size={14} /> },
         ] as const).map((tab) => (
           <button
             key={tab.key}
@@ -831,6 +1314,7 @@ export default function WatchlistPage() {
       </div>
 
       {activeTab === "sinyal-takip" && <SinyalTakipTab />}
+      {activeTab === "gecmis" && <GecmisTab />}
       {activeTab === "performans-raporu" && <PerformansRaporuTab />}
       {activeTab === "hisselerim" && (<>
       {/* ── Header ─────────────────────────────────────────── */}

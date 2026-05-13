@@ -60,6 +60,43 @@ from core.prometheus_exporter import get_metrics_output
 limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
 
+def _archive_yesterday_on_startup() -> None:
+    """Archive signals from the previous day on container start (idempotent)."""
+    import json
+    from datetime import UTC, datetime, timedelta
+    from pathlib import Path
+
+    watchlist_file = Path("data/watchlist.json")
+    archive_dir = Path("data/signal_archive")
+    yesterday = (datetime.now(UTC) - timedelta(days=1)).strftime("%Y-%m-%d")
+    archive_path = archive_dir / f"{yesterday}.json"
+
+    if archive_path.exists():
+        return  # Already archived
+
+    if not watchlist_file.exists():
+        return
+
+    try:
+        data = json.loads(watchlist_file.read_text(encoding="utf-8"))
+        items = data if isinstance(data, list) else []
+        yesterday_items = [i for i in items if i.get("signal_date", "")[:10] == yesterday]
+        if yesterday_items:
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            archive_path.write_text(
+                json.dumps(yesterday_items, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            import logging
+
+            logging.getLogger(__name__).info(
+                "Startup archive: %d signals saved for %s", len(yesterday_items), yesterday
+            )
+    except Exception as exc:
+        import logging
+
+        logging.getLogger(__name__).warning("Startup archive failed: %s", exc)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _setup_log_rotation()
@@ -68,6 +105,8 @@ async def lifespan(app: FastAPI):
         environment=os.getenv("SENTRY_ENVIRONMENT", os.getenv("ENVIRONMENT", "development")),
         release=os.getenv("SENTRY_RELEASE", "finpilot-api@1.0.0"),
     )
+    # Archive yesterday's signals on startup (idempotent — runs once per day)
+    _archive_yesterday_on_startup()
     yield
 
 
