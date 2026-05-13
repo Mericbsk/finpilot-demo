@@ -107,6 +107,10 @@ async def lifespan(app: FastAPI):
     )
     # Archive yesterday's signals on startup (idempotent — runs once per day)
     _archive_yesterday_on_startup()
+    # Start watchlist background price refresh
+    from api.routers.watchlist import start_price_refresh_task
+
+    await start_price_refresh_task()
     yield
 
 

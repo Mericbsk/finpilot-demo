@@ -18,6 +18,7 @@ DELETE /watchlist/clear           — remove all items
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import uuid
@@ -34,13 +35,15 @@ logger = logging.getLogger(__name__)
 
 _WATCHLIST_FILE = Path("data/watchlist.json")
 _ARCHIVE_DIR = Path("data/signal_archive")
-_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="watchlist")
+_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="watchlist")
 
-# ─── Price cache (TTL = 60 s) ─────────────────────────────────────────────────
+# ─── Price cache — background-refreshed, never blocks requests ────────────────
 _price_cache: dict[str, dict] = {}  # symbol → {price, change_pct}
 _price_cache_ts: float = 0.0  # unix timestamp of last full fetch
+_refresh_task: asyncio.Task | None = None  # background refresh coroutine
+_refresh_lock = asyncio.Lock()  # prevents concurrent refreshes
 
-_PRICE_CACHE_TTL = 60.0  # seconds
+_PRICE_CACHE_TTL = 90.0  # seconds between background refreshes
 
 # Lifecycle states
 LIFECYCLE_STATES = {
@@ -292,6 +295,49 @@ def _fetch_prices_sync(symbols: list[str]) -> dict[str, dict]:
     return {s: _price_cache.get(s, {"price": 0.0, "change_pct": 0.0}) for s in symbols}
 
 
+async def _background_refresh() -> None:
+    """Continuously refresh price cache every _PRICE_CACHE_TTL seconds."""
+
+    while True:
+        try:
+            await asyncio.sleep(_PRICE_CACHE_TTL)
+            items = _load()
+            symbols = list({i["symbol"] for i in items})
+            if not symbols:
+                continue
+            async with _refresh_lock:
+                loop = get_running_loop()
+                await loop.run_in_executor(_executor, lambda s=symbols: _fetch_prices_sync(s))
+                logger.info("Background price refresh done: %d symbols", len(symbols))
+        except asyncio.CancelledError:
+            break
+        except Exception as exc:
+            logger.warning("Background price refresh error: %s", exc)
+
+
+async def _ensure_cache(symbols: list[str]) -> None:
+    """Trigger a one-time refresh if cache is completely empty (first request)."""
+
+    global _price_cache, _price_cache_ts  # noqa: PLW0603
+
+    if _price_cache or not symbols:
+        return
+    # Cache empty — do a blocking initial fetch (only once)
+    async with _refresh_lock:
+        if _price_cache:  # double-check after acquiring lock
+            return
+        loop = get_running_loop()
+        await loop.run_in_executor(_executor, lambda s=symbols: _fetch_prices_sync(s))
+        logger.info("Initial price fetch done: %d symbols", len(symbols))
+
+
+async def start_price_refresh_task() -> None:
+    """Start the background price refresh loop. Called from app lifespan startup."""
+    global _refresh_task  # noqa: PLW0603
+    _refresh_task = asyncio.create_task(_background_refresh())
+    logger.info("Watchlist: background price refresh task started")
+
+
 def _compute_status(item: dict, current_price: float) -> str:
     """Determine signal status based on current price vs stop/TP."""
     signal = item.get("signal", "—")
@@ -364,14 +410,20 @@ def bulk_add_to_watchlist(req: WatchlistBulkRequest):
 
 @router.get("/watchlist")
 async def get_watchlist():
-    """Return all watchlist items enriched with live prices, status, and lifecycle."""
+    """Return all watchlist items enriched with live prices, status, and lifecycle.
+
+    Prices come from the in-memory cache (background-refreshed every 90 s).
+    On the very first cold-start request the cache is populated on-demand.
+    """
     items = _load()
     if not items:
         return {"items": [], "count": 0, "refreshed_at": datetime.now(UTC).isoformat()}
 
-    symbols = [i["symbol"] for i in items]
-    loop = get_running_loop()
-    prices = await loop.run_in_executor(_executor, lambda: _fetch_prices_sync(symbols))
+    symbols = list({i["symbol"] for i in items})
+    # Block only on first-ever request (cache empty); otherwise instant
+    await _ensure_cache(symbols)
+
+    prices = {s: _price_cache.get(s, {"price": 0.0, "change_pct": 0.0}) for s in symbols}
 
     enriched = []
     changed = False
@@ -436,8 +488,8 @@ async def get_today_signals():
         }
 
     symbols = [i["symbol"] for i in today_items]
-    loop = get_running_loop()
-    prices = await loop.run_in_executor(_executor, lambda: _fetch_prices_sync(symbols))
+    await _ensure_cache(symbols)
+    prices = {s: _price_cache.get(s, {"price": 0.0, "change_pct": 0.0}) for s in symbols}
 
     enriched = []
     for item in reversed(today_items):
