@@ -377,13 +377,22 @@ export default function FinSensePage() {
               </span>
             )}
           </div>
-          <button
-            onClick={() => setLang(lang === "tr" ? "en" : "tr")}
-            style={{ display: "flex", alignItems: "center", gap: 6, borderRadius: 8, border: `1px solid ${C.border}`, backgroundColor: C.card, padding: "6px 12px", fontSize: 11, fontWeight: 600, color: C.cyan, cursor: "pointer" }}
-          >
-            <Globe size={12} />
-            {lang === "tr" ? "TR 🇹🇷" : "EN 🇺🇸"}
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => router.push("/dashboard/finsense/saved")}
+              style={{ display: "flex", alignItems: "center", gap: 6, borderRadius: 8, border: `1px solid ${C.border}`, backgroundColor: C.card, padding: "6px 12px", fontSize: 11, fontWeight: 600, color: C.yellow, cursor: "pointer" }}
+            >
+              <Bookmark size={12} />
+              Kaydedilenler {saved.length > 0 && `(${saved.length})`}
+            </button>
+            <button
+              onClick={() => setLang(lang === "tr" ? "en" : "tr")}
+              style={{ display: "flex", alignItems: "center", gap: 6, borderRadius: 8, border: `1px solid ${C.border}`, backgroundColor: C.card, padding: "6px 12px", fontSize: 11, fontWeight: 600, color: C.cyan, cursor: "pointer" }}
+            >
+              <Globe size={12} />
+              {lang === "tr" ? "TR 🇹🇷" : "EN 🇺🇸"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -433,7 +442,7 @@ export default function FinSensePage() {
                 return (
                   <button
                     key={path.id}
-                    onClick={() => { setSelectedCategory(path.category); setActiveTab("Sözlük"); }}
+                    onClick={() => router.push(`/dashboard/finsense/paths/${path.id}`)}
                     style={{
                       borderRadius: 14, padding: "16px 18px",
                       border: `1px solid ${hoverCard === path.id ? path.color + "40" : C.border}`,
