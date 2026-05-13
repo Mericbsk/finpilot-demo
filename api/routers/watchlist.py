@@ -36,6 +36,12 @@ _WATCHLIST_FILE = Path("data/watchlist.json")
 _ARCHIVE_DIR = Path("data/signal_archive")
 _executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="watchlist")
 
+# ─── Price cache (TTL = 60 s) ─────────────────────────────────────────────────
+_price_cache: dict[str, dict] = {}  # symbol → {price, change_pct}
+_price_cache_ts: float = 0.0  # unix timestamp of last full fetch
+
+_PRICE_CACHE_TTL = 60.0  # seconds
+
 # Lifecycle states
 LIFECYCLE_STATES = {
     "new",
@@ -207,27 +213,83 @@ def _save_archive(date_str: str, items: list[dict]) -> None:
 
 
 def _fetch_prices_sync(symbols: list[str]) -> dict[str, dict]:
-    """Return {symbol: {price, change_pct}} for all symbols in one yfinance call."""
+    """Return {symbol: {price, change_pct}} for all symbols via yfinance download.
+
+    Results are cached for _PRICE_CACHE_TTL seconds to avoid re-fetching on
+    every hot-reload or repeated request.
+    """
+    import time
+
+    global _price_cache, _price_cache_ts  # noqa: PLW0603
+
     if not symbols:
         return {}
+
+    # Return cached prices if still fresh
+    now = time.monotonic()
+    missing = [s for s in symbols if s not in _price_cache]
+    if not missing and (now - _price_cache_ts) < _PRICE_CACHE_TTL:
+        return {s: _price_cache[s] for s in symbols}
+
+    # Which symbols to actually fetch (stale or new)
+    to_fetch = symbols if (now - _price_cache_ts) >= _PRICE_CACHE_TTL else missing
+    if not to_fetch:
+        return {s: _price_cache.get(s, {"price": 0.0, "change_pct": 0.0}) for s in symbols}
+
+    fallback_fetch = {s: {"price": 0.0, "change_pct": 0.0} for s in to_fetch}
     try:
         import yfinance as yf
 
-        tickers = yf.Tickers(" ".join(symbols))
-        out: dict[str, dict] = {}
-        for sym in symbols:
-            try:
-                info = tickers.tickers[sym].fast_info
-                price = float(info.last_price or 0)
-                prev = float(info.previous_close or price)
-                change = ((price - prev) / prev * 100) if prev else 0.0
-                out[sym] = {"price": round(price, 4), "change_pct": round(change, 2)}
-            except Exception:
-                out[sym] = {"price": 0.0, "change_pct": 0.0}
-        return out
+        df = yf.download(
+            to_fetch,
+            period="2d",
+            interval="1d",
+            auto_adjust=True,
+            progress=False,
+            timeout=15,
+        )
+        if df.empty:
+            _price_cache.update(fallback_fetch)
+        else:
+            # Multi-ticker: columns are MultiIndex (field, symbol); single-ticker: flat
+            if isinstance(df.columns, type(df.columns)) and hasattr(df.columns, "levels"):
+                close = df.get("Close", df)
+                for sym in to_fetch:
+                    try:
+                        series = close[sym].dropna()
+                        if len(series) < 1:
+                            _price_cache[sym] = {"price": 0.0, "change_pct": 0.0}
+                            continue
+                        price = float(series.iloc[-1])
+                        prev = float(series.iloc[-2]) if len(series) >= 2 else price
+                        change = ((price - prev) / prev * 100) if prev else 0.0
+                        _price_cache[sym] = {
+                            "price": round(price, 4),
+                            "change_pct": round(change, 2),
+                        }
+                    except Exception:
+                        _price_cache[sym] = {"price": 0.0, "change_pct": 0.0}
+            else:
+                # Single ticker
+                sym = to_fetch[0]
+                try:
+                    series = df["Close"].dropna()
+                    price = float(series.iloc[-1])
+                    prev = float(series.iloc[-2]) if len(series) >= 2 else price
+                    change = ((price - prev) / prev * 100) if prev else 0.0
+                    _price_cache[sym] = {"price": round(price, 4), "change_pct": round(change, 2)}
+                except Exception:
+                    _price_cache[sym] = {"price": 0.0, "change_pct": 0.0}
+            # Fill any still-missing
+            for s in to_fetch:
+                if s not in _price_cache:
+                    _price_cache[s] = {"price": 0.0, "change_pct": 0.0}
+        _price_cache_ts = now
     except Exception as exc:
         logger.warning("Price fetch failed: %s", exc)
-        return {s: {"price": 0.0, "change_pct": 0.0} for s in symbols}
+        _price_cache.update(fallback_fetch)
+
+    return {s: _price_cache.get(s, {"price": 0.0, "change_pct": 0.0}) for s in symbols}
 
 
 def _compute_status(item: dict, current_price: float) -> str:

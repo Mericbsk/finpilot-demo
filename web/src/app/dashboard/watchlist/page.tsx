@@ -305,7 +305,7 @@ function SinyalTakipTab() {
   const fetchList = useCallback(async (silent = false) => {
     if (!silent) setLoading(true); else setRefreshing(true);
     try {
-      const res = await fetch("/py-api/watchlist");
+      const res = await fetch("/py-api/watchlist/today");
       if (!res.ok) throw new Error();
       const data = await res.json();
       setItems(data.items ?? []);
