@@ -49,6 +49,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./models:/app/models:ro
+      - ./api:/app/api:ro
     networks:
       - finpilot_network
     healthcheck:

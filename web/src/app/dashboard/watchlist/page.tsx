@@ -20,6 +20,8 @@ import {
   XCircle,
   Clock,
   BookmarkX,
+  AlertTriangle,
+  Activity,
 } from "lucide-react";
 import { C, hashStr, seededRandom, genStock, companyNames, genSparkline, withLivePrice } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
@@ -248,8 +250,365 @@ function SinyalTakipTab() {
   );
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   PERFORMANS RAPORU TAB
+═══════════════════════════════════════════════════════════════ */
+interface PerfSignal {
+  symbol: string;
+  signal: string;
+  entry_price: number;
+  stop_loss: number;
+  take_profit: number;
+  score: number;
+  regime: string;
+  risk_reward: number;
+  added_at: string;
+  outcome: "TP_HIT" | "STOP_HIT" | "OPEN" | "NO_DATA" | "NO_DATE" | "ERROR";
+  pnl_pct: number;
+  exit_price: number;
+  exit_at: string | null;
+}
+
+interface PerfReport {
+  days: number;
+  total: number;
+  tp_hit: number;
+  stop_hit: number;
+  open: number;
+  other: number;
+  tp_rate: number;
+  stop_rate: number;
+  closed_rate: number;
+  avg_pnl: number;
+  avg_pnl_tp: number;
+  avg_pnl_stop: number;
+  signals: PerfSignal[];
+  evaluated_at: string;
+}
+
+const PERIOD_OPTIONS = [
+  { days: 1, label: "1 Günlük" },
+  { days: 2, label: "2 Günlük" },
+  { days: 5, label: "1 Haftalık" },
+  { days: 10, label: "2 Haftalık" },
+  { days: 21, label: "1 Aylık" },
+];
+
+function OutcomeBadge({ outcome }: { outcome: PerfSignal["outcome"] }) {
+  const cfg: Record<PerfSignal["outcome"], { label: string; color: string; bg: string; icon: React.ReactNode }> = {
+    TP_HIT:   { label: "TP Vurdu",   color: C.green,  bg: "rgba(48,209,88,0.15)",   icon: <Target size={11} /> },
+    STOP_HIT: { label: "Stop Vurdu", color: C.red,    bg: "rgba(255,69,58,0.15)",   icon: <XCircle size={11} /> },
+    OPEN:     { label: "Açık",       color: C.cyan,   bg: "rgba(0,212,255,0.12)",   icon: <Clock size={11} /> },
+    NO_DATA:  { label: "Veri Yok",   color: C.text3,  bg: "rgba(161,161,166,0.1)",  icon: <AlertTriangle size={11} /> },
+    NO_DATE:  { label: "Tarih Yok",  color: C.text3,  bg: "rgba(161,161,166,0.1)",  icon: <AlertTriangle size={11} /> },
+    ERROR:    { label: "Hata",       color: C.text3,  bg: "rgba(161,161,166,0.1)",  icon: <AlertTriangle size={11} /> },
+  };
+  const c = cfg[outcome] ?? cfg.ERROR;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: c.bg, color: c.color }}>
+      {c.icon} {c.label}
+    </span>
+  );
+}
+
+/* Donut chart — simple SVG */
+function DonutChart({ tp, stop, open, total }: { tp: number; stop: number; open: number; total: number }) {
+  if (total === 0) return null;
+  const r = 44, cx = 56, cy = 56, stroke = 14;
+  const circ = 2 * Math.PI * r;
+  const slices = [
+    { value: tp,   color: C.green,  label: "TP" },
+    { value: stop, color: C.red,    label: "Stop" },
+    { value: open, color: C.cyan,   label: "Açık" },
+    { value: total - tp - stop - open, color: C.text3, label: "Diğer" },
+  ].filter((s) => s.value > 0);
+  let offset = 0;
+  const paths = slices.map((s) => {
+    const pct = s.value / total;
+    const dash = pct * circ;
+    const gap = circ - dash;
+    const el = (
+      <circle
+        key={s.label}
+        cx={cx} cy={cy} r={r}
+        fill="none"
+        stroke={s.color}
+        strokeWidth={stroke}
+        strokeDasharray={`${dash} ${gap}`}
+        strokeDashoffset={-offset}
+        style={{ transform: "rotate(-90deg)", transformOrigin: `${cx}px ${cy}px` }}
+      />
+    );
+    offset += dash;
+    return el;
+  });
+  return (
+    <svg width={112} height={112}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+      {paths}
+      <text x={cx} y={cy - 5} textAnchor="middle" fill={C.text1} fontSize={18} fontWeight={700}>{total}</text>
+      <text x={cx} y={cy + 14} textAnchor="middle" fill={C.text3} fontSize={10}>sinyal</text>
+    </svg>
+  );
+}
+
+function PerformansRaporuTab() {
+  const [days, setDays] = useState(1);
+  const [report, setReport] = useState<PerfReport | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [outcomeFilter, setOutcomeFilter] = useState<string>("ALL");
+  const [sortBy, setSortBy] = useState<"pnl_pct" | "score" | "added_at">("added_at");
+  const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
+
+  const fetchReport = useCallback(async (d: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/py-api/watchlist/performance?days=${d}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: PerfReport = await res.json();
+      setReport(data);
+    } catch {
+      setError("Rapor yüklenemedi — API bağlantısı kontrol edin");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchReport(days); }, [days, fetchReport]);
+
+  const toggleSort = (col: typeof sortBy) => {
+    if (sortBy === col) setSortDir((d) => d === "desc" ? "asc" : "desc");
+    else { setSortBy(col); setSortDir("desc"); }
+  };
+
+  const signals = report?.signals ?? [];
+  const filtered = signals
+    .filter((s) => outcomeFilter === "ALL" || s.outcome === outcomeFilter)
+    .sort((a, b) => {
+      let diff = 0;
+      if (sortBy === "pnl_pct") diff = a.pnl_pct - b.pnl_pct;
+      else if (sortBy === "score") diff = a.score - b.score;
+      else diff = new Date(a.added_at).getTime() - new Date(b.added_at).getTime();
+      return sortDir === "desc" ? -diff : diff;
+    });
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+      {/* ── Dönem seçici ─── */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <span style={{ fontSize: 12, color: C.text3, marginRight: 4 }}>Hedef süresi:</span>
+        {PERIOD_OPTIONS.map((p) => (
+          <button
+            key={p.days}
+            onClick={() => { setDays(p.days); }}
+            style={{
+              padding: "7px 16px", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", border: "none",
+              background: days === p.days ? C.cyan : "rgba(255,255,255,0.07)",
+              color: days === p.days ? "#000" : C.text2,
+              transition: "background 0.15s",
+            }}
+          >
+            {p.label}
+          </button>
+        ))}
+        <button
+          onClick={() => fetchReport(days)}
+          disabled={loading}
+          style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, borderRadius: 10, border: `1px solid ${C.border}`, background: C.card, padding: "7px 14px", fontSize: 12, color: C.cyan, cursor: "pointer", fontWeight: 600 }}
+        >
+          <RefreshCw size={13} style={{ animation: loading ? "spin 1s linear infinite" : "none" }} />
+          {loading ? "Hesaplanıyor…" : "Yenile"}
+        </button>
+      </div>
+
+      {error && (
+        <div style={{ background: "rgba(255,69,58,0.1)", border: "1px solid rgba(255,69,58,0.3)", borderRadius: 12, padding: "14px 18px", color: C.red, fontSize: 13 }}>
+          {error}
+        </div>
+      )}
+
+      {loading && !report && (
+        <div style={{ textAlign: "center", padding: 60, color: C.text2, fontSize: 13 }}>
+          Fiyat geçmişi alınıyor… Bu işlem biraz sürebilir
+        </div>
+      )}
+
+      {report && !loading && report.total === 0 && (
+        <div style={{ textAlign: "center", padding: "60px 20px", color: C.text3, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+          <Activity size={44} style={{ opacity: 0.3 }} />
+          <p style={{ fontSize: 15, color: C.text2 }}>Henüz sinyal kaydı yok</p>
+          <p style={{ fontSize: 12 }}>Scanner&apos;da tarama yaptıktan sonra <strong style={{ color: C.cyan }}>Sinyalleri Kaydet</strong> butonuna basın</p>
+        </div>
+      )}
+
+      {report && report.total > 0 && (
+        <>
+          {/* ── Özet kartlar ── */}
+          <div style={{ display: "grid", gridTemplateColumns: "112px repeat(5, 1fr)", gap: 12, alignItems: "start" }}>
+            {/* Donut */}
+            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, display: "flex", justifyContent: "center" }}>
+              <DonutChart tp={report.tp_hit} stop={report.stop_hit} open={report.open} total={report.total} />
+            </div>
+
+            {/* TP Hit */}
+            <div style={{ background: "rgba(48,209,88,0.07)", border: "1px solid rgba(48,209,88,0.2)", borderRadius: 14, padding: "16px 20px" }}>
+              <div style={{ fontSize: 11, color: C.text3, marginBottom: 6 }}>TP Vurma Oranı</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.green }}>{report.tp_rate}%</div>
+              <div style={{ fontSize: 12, color: C.text2 }}>{report.tp_hit} sinyal</div>
+              <div style={{ fontSize: 11, color: C.text3, marginTop: 6 }}>Ort. Getiri: <span style={{ color: C.green }}>+{report.avg_pnl_tp.toFixed(2)}%</span></div>
+            </div>
+
+            {/* Stop Hit */}
+            <div style={{ background: "rgba(255,69,58,0.07)", border: "1px solid rgba(255,69,58,0.2)", borderRadius: 14, padding: "16px 20px" }}>
+              <div style={{ fontSize: 11, color: C.text3, marginBottom: 6 }}>Stop Vurma Oranı</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.red }}>{report.stop_rate}%</div>
+              <div style={{ fontSize: 12, color: C.text2 }}>{report.stop_hit} sinyal</div>
+              <div style={{ fontSize: 11, color: C.text3, marginTop: 6 }}>Ort. Kayıp: <span style={{ color: C.red }}>{report.avg_pnl_stop.toFixed(2)}%</span></div>
+            </div>
+
+            {/* Açık */}
+            <div style={{ background: "rgba(0,212,255,0.07)", border: "1px solid rgba(0,212,255,0.2)", borderRadius: 14, padding: "16px 20px" }}>
+              <div style={{ fontSize: 11, color: C.text3, marginBottom: 6 }}>Hâlâ Açık</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.cyan }}>{report.open}</div>
+              <div style={{ fontSize: 12, color: C.text2 }}>sinyal</div>
+              <div style={{ fontSize: 11, color: C.text3, marginTop: 6 }}>{days} günde kapanmadı</div>
+            </div>
+
+            {/* Ort PnL */}
+            <div style={{ background: report.avg_pnl >= 0 ? "rgba(48,209,88,0.07)" : "rgba(255,69,58,0.07)", border: `1px solid ${report.avg_pnl >= 0 ? "rgba(48,209,88,0.2)" : "rgba(255,69,58,0.2)"}`, borderRadius: 14, padding: "16px 20px" }}>
+              <div style={{ fontSize: 11, color: C.text3, marginBottom: 6 }}>Ortalama P&amp;L</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: report.avg_pnl >= 0 ? C.green : C.red }}>{report.avg_pnl >= 0 ? "+" : ""}{report.avg_pnl.toFixed(2)}%</div>
+              <div style={{ fontSize: 12, color: C.text2 }}>tüm sinyaller</div>
+              <div style={{ fontSize: 11, color: C.text3, marginTop: 6 }}>Toplam {report.total} sinyal</div>
+            </div>
+
+            {/* Karar Oranı */}
+            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 20px" }}>
+              <div style={{ fontSize: 11, color: C.text3, marginBottom: 6 }}>Karar Oranı</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.yellow }}>{report.closed_rate}%</div>
+              <div style={{ fontSize: 12, color: C.text2 }}>{report.tp_hit + report.stop_hit} karar verildi</div>
+              <div style={{ fontSize: 11, color: C.text3, marginTop: 6 }}>TP veya Stop vuruldu</div>
+            </div>
+          </div>
+
+          {/* ── Sinyal tablosu ── */}
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+            {/* Filtre */}
+            <div style={{ display: "flex", gap: 8, padding: "12px 16px", borderBottom: `1px solid ${C.border}`, flexWrap: "wrap", alignItems: "center" }}>
+              <span style={{ fontSize: 11, color: C.text3 }}>Filtre:</span>
+              {[
+                { key: "ALL",      label: `Tümü (${report.total})` },
+                { key: "TP_HIT",   label: `TP Vurdu (${report.tp_hit})` },
+                { key: "STOP_HIT", label: `Stop Vurdu (${report.stop_hit})` },
+                { key: "OPEN",     label: `Açık (${report.open})` },
+              ].map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setOutcomeFilter(f.key)}
+                  style={{
+                    padding: "4px 12px", borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: "pointer", border: "none",
+                    background: outcomeFilter === f.key ? C.cyan : "rgba(255,255,255,0.07)",
+                    color: outcomeFilter === f.key ? "#000" : C.text2,
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+              <span style={{ marginLeft: "auto", fontSize: 10, color: C.text3 }}>
+                {report.evaluated_at ? `Hesaplandı: ${new Date(report.evaluated_at).toLocaleString("tr-TR")}` : ""}
+              </span>
+            </div>
+
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: C.primary }}>
+                    {[
+                      { key: null,       label: "HİSSE" },
+                      { key: null,       label: "SİNYAL" },
+                      { key: null,       label: "SONUÇ" },
+                      { key: "added_at", label: "EKLENME" },
+                      { key: null,       label: "GİRİŞ" },
+                      { key: null,       label: "STOP" },
+                      { key: null,       label: "HEDEF" },
+                      { key: null,       label: "ÇIKIŞ FİYATI" },
+                      { key: null,       label: "ÇIKIŞ TARİHİ" },
+                      { key: "pnl_pct",  label: "P&L %" },
+                      { key: "score",    label: "SKOR" },
+                    ].map((col) => (
+                      <th
+                        key={col.label}
+                        onClick={() => col.key && toggleSort(col.key as typeof sortBy)}
+                        style={{
+                          padding: "10px 12px", textAlign: "left", color: sortBy === col.key ? C.cyan : C.text3,
+                          fontSize: 11, fontWeight: 600, borderBottom: `1px solid ${C.border}`,
+                          whiteSpace: "nowrap", cursor: col.key ? "pointer" : "default",
+                        }}
+                      >
+                        {col.label} {col.key === sortBy ? (sortDir === "desc" ? "↓" : "↑") : ""}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((s) => (
+                    <tr
+                      key={`${s.symbol}-${s.added_at}`}
+                      style={{
+                        borderBottom: `1px solid ${C.border}`,
+                        background:
+                          s.outcome === "TP_HIT" ? "rgba(48,209,88,0.04)" :
+                          s.outcome === "STOP_HIT" ? "rgba(255,69,58,0.04)" : "transparent",
+                      }}
+                    >
+                      <td style={{ padding: "10px 12px", fontWeight: 700 }}>{s.symbol}</td>
+                      <td style={{ padding: "10px 12px" }}>
+                        <span style={{ padding: "2px 8px", borderRadius: 5, fontSize: 11, fontWeight: 700, background: s.signal === "BUY" ? "rgba(48,209,88,0.15)" : s.signal === "SELL" ? "rgba(255,69,58,0.15)" : "rgba(255,214,10,0.15)", color: s.signal === "BUY" ? C.green : s.signal === "SELL" ? C.red : C.yellow }}>{s.signal}</span>
+                      </td>
+                      <td style={{ padding: "10px 12px" }}><OutcomeBadge outcome={s.outcome} /></td>
+                      <td style={{ padding: "10px 12px", color: C.text3, fontSize: 11, whiteSpace: "nowrap" }}>
+                        {new Date(s.added_at).toLocaleString("tr-TR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                      </td>
+                      <td style={{ padding: "10px 12px", fontWeight: 600 }}>{s.entry_price > 0 ? `$${s.entry_price.toFixed(2)}` : "—"}</td>
+                      <td style={{ padding: "10px 12px", color: C.red, fontSize: 12 }}>{s.stop_loss > 0 ? `$${s.stop_loss.toFixed(2)}` : "—"}</td>
+                      <td style={{ padding: "10px 12px", color: C.green, fontSize: 12 }}>{s.take_profit > 0 ? `$${s.take_profit.toFixed(2)}` : "—"}</td>
+                      <td style={{ padding: "10px 12px", fontWeight: 600, color: s.outcome === "TP_HIT" ? C.green : s.outcome === "STOP_HIT" ? C.red : C.text2 }}>
+                        {s.exit_price > 0 ? `$${s.exit_price.toFixed(2)}` : "—"}
+                      </td>
+                      <td style={{ padding: "10px 12px", color: C.text3, fontSize: 11 }}>
+                        {s.exit_at ?? (s.outcome === "OPEN" ? "Açık" : "—")}
+                      </td>
+                      <td style={{ padding: "10px 12px" }}>
+                        {s.pnl_pct !== 0 ? (
+                          <span style={{ color: s.pnl_pct > 0 ? C.green : C.red, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                            {s.pnl_pct > 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                            {s.pnl_pct > 0 ? "+" : ""}{s.pnl_pct.toFixed(2)}%
+                          </span>
+                        ) : <span style={{ color: C.text3 }}>—</span>}
+                      </td>
+                      <td style={{ padding: "10px 12px", fontWeight: 700, color: s.score >= 70 ? C.green : s.score >= 50 ? C.yellow : C.text2 }}>
+                        {s.score > 0 ? Math.round(s.score) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ── Mini sparkline (14 days) ──────────────────────────────── */
 function Sparkline({ ticker }: { ticker: string }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return <svg width="80" height="32" viewBox="0 0 80 32" style={{ display: "block" }} />;
   const pts = genSparkline(ticker, 14);
   const mn = Math.min(...pts);
   const mx = Math.max(...pts);
@@ -296,7 +655,7 @@ const defaultTickers = ["NVDA", "AAPL", "MSFT", "TSLA", "AMZN"];
 const popularStocks = ["GOOGL", "META", "AMD", "AVGO", "CRM", "PLTR", "COIN", "UBER"];
 const WATCHLIST_KEY = "finpilot_watchlist";
 export default function WatchlistPage() {
-  const [activeTab, setActiveTab] = useState<"hisselerim" | "sinyal-takip">("hisselerim");
+  const [activeTab, setActiveTab] = useState<"hisselerim" | "sinyal-takip" | "performans-raporu">("hisselerim");
   const [tickers, setTickers] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -449,8 +808,9 @@ export default function WatchlistPage() {
       {/* ── Tabs ──────────────────────────────────────────── */}
       <div style={{ display: "flex", gap: 4, borderBottom: `1px solid ${C.border}`, paddingBottom: 0 }}>
         {([
-          { key: "hisselerim",   label: "★ Hisselerim",    icon: <Star size={14} /> },
-          { key: "sinyal-takip", label: "⦿ Sinyal Takip",  icon: <Eye size={14} /> },
+          { key: "hisselerim",      label: "★ Hisselerim",         icon: <Star size={14} /> },
+          { key: "sinyal-takip",   label: "⦿ Sinyal Takip",       icon: <Eye size={14} /> },
+          { key: "performans-raporu", label: "📊 Performans Raporu", icon: <BarChart3 size={14} /> },
         ] as const).map((tab) => (
           <button
             key={tab.key}
@@ -471,6 +831,7 @@ export default function WatchlistPage() {
       </div>
 
       {activeTab === "sinyal-takip" && <SinyalTakipTab />}
+      {activeTab === "performans-raporu" && <PerformansRaporuTab />}
       {activeTab === "hisselerim" && (<>
       {/* ── Header ─────────────────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
