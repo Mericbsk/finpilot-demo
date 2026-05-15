@@ -1,8 +1,8 @@
 {
   "date": "2026-05-12",
-  "scan_time": "2026-05-12T14:53:39",
+  "scan_time": "2026-05-12T17:48:11",
   "status": "ERROR",
-  "error": "yfinance module not available in scheduled-task sandbox; pip install blocked by proxy (403 Forbidden); .venv Python symlinks broken (built for Python 3.11, runtime has 3.10)",
+  "error": "yfinance module not available in scheduled-task sandbox; pip install blocked by proxy (403 Forbidden)",
   "raw_signals": 0,
   "strategy_b_passed": 0,
   "symbols_passed": [],
@@ -13,7 +13,10 @@
   "gap_rejections": 0,
   "risk_blocks": 0,
   "alpaca_keys_present": true,
-  "dry_run_used": false,
-  "command_executed": "python scripts/auto_scan_trade.py --once --skip-gap",
-  "note": "Same failure mode as 2026-05-11. yfinance fetches all returned ModuleNotFoundError; scan completed with 0 results so no signals could be filtered or sent to Alpaca. No orders placed. Run from full environment (not scheduled-task sandbox) for valid scan results."
+  "dry_run_used": true,
+  "command_executed": "python scripts/auto_scan_trade.py --scan-only --dry-run",
+  "fallback_attempted": "--demo flag not recognized by script; argparse rejected unrecognized argument",
+  "runs_today": 2,
+  "previous_run": "2026-05-12T14:53:39 (same failure mode)",
+  "note": "Recurring failure (3 consecutive runs: 2026-05-11, 2026-05-12 14:53, 2026-05-12 17:48). yfinance fetches all returned ModuleNotFoundError for all 27 symbols across all timeframes (15m/1h/4h/1d); scanner produced 0 signals so Strateji B filter had nothing to evaluate. No orders would have been placed regardless of dry-run. Action needed: install yfinance in scheduled-task sandbox base image, or run the daily scan from the full local environment instead of the sandboxed scheduler."
 }

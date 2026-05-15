@@ -89,6 +89,7 @@ async def run_scan(req: ScanRequest):
     out: dict = {}
     try:
         from scanner.signals import build_explanation, build_reason
+
         _explain_available = True
     except ImportError:
         _explain_available = False

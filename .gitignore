@@ -75,6 +75,12 @@ reports/chat_recovery/
 data/combined_results_*.csv
 data/experiments_results_*.csv
 
+# Runtime-written data (watchlist, archives, reports, shortlists)
+data/watchlist.json
+data/signal_archive/
+data/daily_reports/
+data/shortlists/
+
 # Generated reports cache
 data/reports_cache/
 

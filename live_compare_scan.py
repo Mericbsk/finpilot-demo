@@ -15,6 +15,7 @@ KULLANIM:
     live_report_ALL.csv
     live_report_SUMMARY.txt
 """
+
 import sys
 import time
 from pathlib import Path
@@ -29,8 +30,14 @@ except ImportError as e:
 
 def load_scan(path: str) -> pd.DataFrame:
     df = pd.read_csv(path)
-    df = df.rename(columns={"Change%": "ChangePct", "R/R": "RR",
-                            "Entry OK": "EntryOK", "HQ Signal": "HQSignal"})
+    df = df.rename(
+        columns={
+            "Change%": "ChangePct",
+            "R/R": "RR",
+            "Entry OK": "EntryOK",
+            "HQ Signal": "HQSignal",
+        }
+    )
     df["ScanPrice"] = pd.to_numeric(df["Price"], errors="coerce")
     df["Score"] = pd.to_numeric(df["Score"], errors="coerce")
     df["Stop"] = pd.to_numeric(df["Stop"], errors="coerce")
@@ -43,7 +50,7 @@ def fetch_live_prices(symbols: list[str], batch_size: int = 50) -> dict[str, flo
     """Batch fetch via yfinance. Returns symbol -> last_price."""
     out: dict[str, float] = {}
     for i in range(0, len(symbols), batch_size):
-        batch = symbols[i:i + batch_size]
+        batch = symbols[i : i + batch_size]
         print(f"  Fetching {i + 1}-{i + len(batch)} / {len(symbols)} ...", flush=True)
         try:
             data = yf.download(
@@ -96,8 +103,19 @@ def build_report(df: pd.DataFrame, live: dict[str, float]) -> pd.DataFrame:
     df["UpsideToTPPct"] = (df["TP"] - df["LivePrice"]) / df["LivePrice"] * 100
     df["RiskToStopPct"] = (df["Stop"] - df["LivePrice"]) / df["LivePrice"] * 100
     df["State"] = df.apply(classify, axis=1)
-    cols = ["Symbol", "Score", "Signal", "ScanPrice", "LivePrice",
-            "DeltaPct", "Stop", "TP", "UpsideToTPPct", "RiskToStopPct", "State"]
+    cols = [
+        "Symbol",
+        "Score",
+        "Signal",
+        "ScanPrice",
+        "LivePrice",
+        "DeltaPct",
+        "Stop",
+        "TP",
+        "UpsideToTPPct",
+        "RiskToStopPct",
+        "State",
+    ]
     return df[cols].round(3)
 
 
@@ -138,7 +156,9 @@ def main():
 
     print(f"[1/3] Loading scan: {csv_path}")
     scan = load_scan(str(csv_path))
-    print(f"      Loaded {len(scan)} symbols, score range {scan['Score'].min()} - {scan['Score'].max()}")
+    print(
+        f"      Loaded {len(scan)} symbols, score range {scan['Score'].min()} - {scan['Score'].max()}"
+    )
 
     top10 = scan.head(10)
     top25 = scan.head(25)
@@ -152,7 +172,7 @@ def main():
     reports = {
         "TOP10": build_report(top10, live),
         "TOP25": build_report(top25, live),
-        "ALL":   build_report(allsymbols, live),
+        "ALL": build_report(allsymbols, live),
     }
     out_dir = csv_path.parent
     for label, df in reports.items():
@@ -160,13 +180,9 @@ def main():
         df.to_csv(path, index=False)
         print(f"      Wrote {path}")
 
-    summary = (
-        "FinPilot Live Comparison Report\n"
-        "================================\n"
-        + summarize(reports["TOP10"], "TOP 10")
-        + summarize(reports["TOP25"], "TOP 25")
-        + summarize(reports["ALL"], "ALL")
-    )
+    summary = "FinPilot Live Comparison Report\n" "================================\n" + summarize(
+        reports["TOP10"], "TOP 10"
+    ) + summarize(reports["TOP25"], "TOP 25") + summarize(reports["ALL"], "ALL")
     summary_path = out_dir / "live_report_SUMMARY.txt"
     summary_path.write_text(summary)
     print(f"      Wrote {summary_path}")
