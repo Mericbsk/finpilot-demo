@@ -241,13 +241,15 @@ class MomentumStrategy(Strategy):
             prev = df.iloc[i - 1]
             date = df.index[i] if isinstance(df.index[i], datetime) else datetime.now()
 
-            # Buy signal: RSI oversold + EMA crossover
+            # Buy signal: RSI oversold crossover (EMA bonus)
             if (
                 prev["rsi"] < self.params["rsi_oversold"]
                 and row["rsi"] > self.params["rsi_oversold"]
-                and row["ema_fast"] > row["ema_slow"]
             ):
-                strength = min(1.0, (self.params["rsi_oversold"] - prev["rsi"]) / 20 + 0.5)
+                ema_bonus = 0.1 if row["ema_fast"] > row["ema_slow"] else 0.0
+                strength = min(
+                    1.0, (self.params["rsi_oversold"] - prev["rsi"]) / 20 + 0.5 + ema_bonus
+                )
                 if strength >= self.params["min_strength"]:
                     signals.append(
                         Signal(
@@ -261,11 +263,10 @@ class MomentumStrategy(Strategy):
                         )
                     )
 
-            # Sell signal: RSI overbought + EMA crossover
+            # Sell signal: RSI overbought crossover
             elif (
                 prev["rsi"] > self.params["rsi_overbought"]
                 and row["rsi"] < self.params["rsi_overbought"]
-                and row["ema_fast"] < row["ema_slow"]
             ):
                 strength = min(1.0, (prev["rsi"] - self.params["rsi_overbought"]) / 20 + 0.5)
                 if strength >= self.params["min_strength"]:

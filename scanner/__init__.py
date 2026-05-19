@@ -22,6 +22,7 @@ from .evaluate import (
     evaluate_symbols_parallel,
 )
 from .indicators import add_indicators, atr, bbands, ema, macd_hist, rsi
+from .score_engine import compute_recommendation_score, compute_recommendation_strength
 from .signals import (
     analyze_price_momentum,
     build_explanation,
@@ -31,8 +32,6 @@ from .signals import (
     check_timeframe_alignment,
     check_trend_strength,
     check_volume_spike,
-    compute_recommendation_score,
-    compute_recommendation_strength,
     safe_float,
     signal_score_row,
 )

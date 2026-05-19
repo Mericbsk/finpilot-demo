@@ -17,6 +17,8 @@ import {
   ChevronRight,
   Brain,
   Wallet,
+  Network,
+  Building2,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -42,6 +44,8 @@ const navItems = [
   { href: "/dashboard/portfolio", icon: Wallet, label: "Portfolio" },
   { href: "/dashboard/backtest", icon: LineChart, label: "Backtest" },
   { href: "/dashboard/finsense", icon: GraduationCap, label: "FinSense" },
+  { href: "/dashboard/agent", icon: Network, label: "AI Agents" },
+  { href: "/dashboard/agent-hub", icon: Building2, label: "Agent Hub" },
   { href: "/dashboard/watchlist", icon: Star, label: "Watchlist" },
   { href: "/dashboard/history", icon: Clock, label: "History" },
 ];

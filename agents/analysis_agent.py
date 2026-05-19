@@ -51,7 +51,7 @@ class AnalysisAgent(BaseAgent):
             scan_data = context.scan_results.get(sym, {})
             prompt = _build_prompt(sym, scan_data)
             try:
-                response = router.generate(
+                response = router.generate_messages(
                     messages=[
                         LLMMessage(role=LLMRole.SYSTEM, content=_SYSTEM_PROMPT),
                         LLMMessage(role=LLMRole.USER, content=prompt),

@@ -16,6 +16,7 @@ COPY --from=builder /install /usr/local
 COPY api/ ./api/
 COPY agents/ ./agents/
 COPY core/ ./core/
+COPY llm/ ./llm/
 COPY scanner/ ./scanner/
 COPY auth/ ./auth/
 COPY drl/ ./drl/
