@@ -34,6 +34,7 @@ from slowapi.util import get_remote_address
 
 from api.middleware.pii_filter import PIIFilterMiddleware
 from api.routers import (
+    agent,
     ai_explain,
     auth,
     backtest,
@@ -207,6 +208,7 @@ app.add_middleware(PIIFilterMiddleware)
 # ---------------------------------------------------------------------------
 # Routers
 # ---------------------------------------------------------------------------
+app.include_router(agent.router, prefix="/api/v1")
 app.include_router(models.router, prefix="/api/v1")
 app.include_router(inference.router, prefix="/api/v1")
 app.include_router(ensemble.router, prefix="/api/v1")

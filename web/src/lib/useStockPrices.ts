@@ -21,7 +21,7 @@ async function fetchQuotes(symbols: string[]): Promise<QuoteMap> {
   for (let i = 0; i < symbols.length; i += 100) {
     const batch = symbols.slice(i, i + 100);
     try {
-      const resp = await fetch(`/api/quotes?symbols=${batch.join(",")}`);
+      const resp = await fetch(`/py-api/quotes?symbols=${batch.join(",")}`);
       if (!resp.ok) continue;
       const data: QuoteMap = await resp.json();
       for (const [sym, q] of Object.entries(data)) {

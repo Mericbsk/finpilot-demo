@@ -1751,6 +1751,17 @@ export default function ScannerPage() {
                   background: `linear-gradient(to right, ${C.cyan}, ${C.blue})`,
                   color: "#000",
                 }}
+                onClick={() => {
+                  const result = scanResults[selected.ticker];
+                  if (result) {
+                    try {
+                      sessionStorage.setItem(
+                        `finpilot_scan_${selected.ticker}`,
+                        JSON.stringify({ data: result, ts: Date.now() }),
+                      );
+                    } catch {}
+                  }
+                }}
               >
                 <Brain size={16} /> Full AI Analysis{" "}
                 <ArrowUpRight size={14} />

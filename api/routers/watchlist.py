@@ -9,6 +9,7 @@ GET    /watchlist/today           — return only today's signals
 GET    /watchlist/dates           — return dates that have archived signals + counts
 GET    /watchlist/history         — return archived signals for a specific date
 GET    /watchlist/performance     — signal performance report (TP/Stop hit rate)
+POST   /watchlist/evaluate-all    — run lifecycle evaluation on all active items now
 PATCH  /watchlist/{id}/status     — update lifecycle status manually
 PATCH  /watchlist/{id}/note       — update notes and tags
 POST   /watchlist/archive         — snapshot today's signals to archive (idempotent)
@@ -188,6 +189,50 @@ def _auto_lifecycle(item: dict, current_price: float) -> str:
             pass
 
     return current
+
+
+# Terminal states that trigger Telegram notifications
+_TERMINAL_STATES = {"resolved_win", "resolved_loss", "expired"}
+
+
+def _notify_lifecycle_change(item: dict, prev_state: str, new_state: str) -> None:
+    """Fire a Telegram alert when a signal moves into a terminal lifecycle state.
+
+    Swallows all exceptions so a notification failure never breaks the API response.
+    Only sends when actually transitioning into a terminal state (not when already in one).
+    """
+    if new_state not in _TERMINAL_STATES or prev_state == new_state:
+        return
+    try:
+        from telegram_alerts import TelegramNotifier
+
+        notifier = TelegramNotifier()
+        sym = item.get("symbol", "?")
+        signal = item.get("signal", "BUY")
+        entry = item.get("entry_price", 0.0)
+        tp = item.get("take_profit", 0.0)
+        sl = item.get("stop_loss", 0.0)
+        rr = item.get("risk_reward", 0.0)
+        pnl = item.get("pnl_pct", 0.0)
+
+        if new_state == "resolved_win":
+            emoji, heading = "✅", "HEDEF HIT — WIN"
+        elif new_state == "resolved_loss":
+            emoji, heading = "❌", "STOP HIT — LOSS"
+        else:
+            emoji, heading = "⏰", "SİNYAL SÜRESI DOLDU"
+
+        msg = (
+            f"{emoji} *{heading}*\n\n"
+            f"📈 *Sembol:* {sym} ({signal})\n"
+            f"💰 *Giriş:* ${entry:.4f}\n"
+            f"🎯 *TP:* ${tp:.4f}  |  🛑 *SL:* ${sl:.4f}\n"
+            f"📊 *R/R:* {rr:.1f}  |  💹 *PnL:* {pnl:+.2f}%\n"
+            f"⏱ _{datetime.now(UTC).strftime('%Y-%m-%d %H:%M')} UTC_"
+        )
+        notifier._send_message(msg)
+    except Exception as exc:
+        logger.debug("Telegram lifecycle notify failed: %s", exc)
 
 
 def _load_archive(date_str: str) -> list[dict]:
@@ -570,6 +615,121 @@ async def get_signal_history(
     }
 
 
+# ─── Lifecycle Auto-Evaluation ────────────────────────────────────────────────
+
+_EVALUATE_EXPIRY_DAYS = 30  # force-expire items older than this
+
+
+@router.post("/watchlist/evaluate-all", status_code=200)
+def evaluate_all_lifecycle():
+    """Evaluate lifecycle status for every active watchlist item using live prices.
+
+    - Fetches current price from yfinance for all non-terminal symbols.
+    - Runs ``_auto_lifecycle()`` for items in ``watching`` or ``active`` state.
+    - Force-expires items older than _EVALUATE_EXPIRY_DAYS days.
+    - Persists updated items if any states changed.
+
+    Returns a summary: evaluated count, changed count, per-state breakdown.
+    """
+    items = _load()
+    if not items:
+        return {
+            "evaluated": 0,
+            "changed": 0,
+            "transitions": [],
+            "refreshed_at": datetime.now(UTC).isoformat(),
+        }
+
+    # Only process non-terminal items
+    ACTIVE_STATES = {"new", "watching", "active"}
+    active_items = [i for i in items if i.get("status_lifecycle", "watching") in ACTIVE_STATES]
+
+    if not active_items:
+        return {
+            "evaluated": 0,
+            "changed": 0,
+            "transitions": [],
+            "refreshed_at": datetime.now(UTC).isoformat(),
+        }
+
+    # Fetch prices synchronously (batch)
+    symbols = list({i["symbol"] for i in active_items})
+    prices: dict[str, float] = {}
+    try:
+        import yfinance as yf
+
+        df = yf.download(symbols, period="2d", interval="1d", auto_adjust=True, progress=False)
+        close = df.get("Close") if hasattr(df, "get") else df["Close"]
+        if hasattr(close, "iloc"):
+            for sym in symbols:
+                try:
+                    col = close[sym] if sym in close.columns else close
+                    val = float(col.dropna().iloc[-1])
+                    prices[sym] = val
+                except Exception:
+                    prices[sym] = 0.0
+    except Exception as exc:
+        logger.warning("evaluate-all: price fetch failed — %s", exc)
+
+    transitions: list[dict] = []
+    changed_ids: set[str] = set()
+    now_utc = datetime.now(UTC)
+
+    for item in active_items:
+        sym = item["symbol"]
+        current_lc = item.get("status_lifecycle", "watching")
+        current_price = prices.get(sym, 0.0)
+
+        # Force-expire items beyond expiry window
+        added_raw = item.get("added_at", "")
+        if added_raw:
+            try:
+                age_days = (now_utc - datetime.fromisoformat(added_raw)).days
+                if age_days >= _EVALUATE_EXPIRY_DAYS and current_lc not in {"cancelled"}:
+                    new_lc = "expired"
+                    if new_lc != current_lc:
+                        item["status_lifecycle"] = new_lc
+                        changed_ids.add(item.get("id", ""))
+                        transitions.append(
+                            {
+                                "symbol": sym,
+                                "from": current_lc,
+                                "to": new_lc,
+                                "reason": f"age={age_days}d",
+                            }
+                        )
+                        _notify_lifecycle_change(item, current_lc, new_lc)
+                    continue
+            except Exception:
+                pass
+
+        # Standard lifecycle evaluation
+        new_lc = _auto_lifecycle(item, current_price)
+        if new_lc != current_lc:
+            item["status_lifecycle"] = new_lc
+            changed_ids.add(item.get("id", ""))
+            transitions.append(
+                {
+                    "symbol": sym,
+                    "from": current_lc,
+                    "to": new_lc,
+                    "reason": f"price={current_price:.2f}",
+                }
+            )
+            _notify_lifecycle_change(item, current_lc, new_lc)
+
+    if changed_ids:
+        _save(items)
+        logger.info("evaluate-all: %d items changed lifecycle", len(changed_ids))
+
+    return {
+        "evaluated": len(active_items),
+        "changed": len(changed_ids),
+        "transitions": transitions,
+        "refreshed_at": now_utc.isoformat(),
+    }
+
+
 @router.post("/watchlist/archive", status_code=200)
 def archive_today():
     """Snapshot today's signals to archive file (idempotent)."""
@@ -591,8 +751,13 @@ def update_lifecycle_status(item_id: str, req: LifecycleUpdateRequest):
     items = _load()
     for item in items:
         if item.get("id") == item_id:
+            prev_lc = item.get("status_lifecycle", "")
             item["status_lifecycle"] = req.status_lifecycle
             _save(items)
+
+            # Send Telegram alert on terminal state transitions
+            _notify_lifecycle_change(item, prev_lc, req.status_lifecycle)
+
             return {"ok": True, "id": item_id, "status_lifecycle": req.status_lifecycle}
     raise HTTPException(status_code=404, detail=f"Signal {item_id} not found")
 

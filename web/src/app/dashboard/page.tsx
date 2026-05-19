@@ -97,6 +97,9 @@ export default function DashboardOverview() {
   const [scanLoading, setScanLoading] = useState(false);
   const [drlModels, setDrlModels] = useState<DRLModelDisplay[]>([]);
   const [currency, setCurrency] = useState("$");
+  const [weeklyPerf, setWeeklyPerf] = useState<{
+    total: number; win: number; loss: number; open: number; avg_pnl: number; best_symbol: string | null; best_pnl: number;
+  } | null>(null);
 
   useEffect(() => {
     try {
@@ -141,6 +144,23 @@ export default function DashboardOverview() {
             }),
           );
         }
+      })
+      .catch(() => {});
+  }, []);
+
+  /* Load weekly performance summary */
+  useEffect(() => {
+    fetch("/py-api/watchlist/performance?days=7")
+      .then((r) => r.json())
+      .then((data) => {
+        const items: Record<string, unknown>[] = Array.isArray(data.signals) ? data.signals : Array.isArray(data.items) ? data.items : [];
+        const win = items.filter((i) => i.outcome === "TP_HIT").length;
+        const loss = items.filter((i) => i.outcome === "STOP_HIT").length;
+        const open = items.filter((i) => i.outcome === "OPEN").length;
+        const resolved = items.filter((i) => typeof i.pnl_pct === "number" && (i.outcome === "TP_HIT" || i.outcome === "STOP_HIT"));
+        const avg_pnl = resolved.length > 0 ? resolved.reduce((s, i) => s + (i.pnl_pct as number), 0) / resolved.length : 0;
+        const best = resolved.sort((a, b) => (b.pnl_pct as number) - (a.pnl_pct as number))[0];
+        setWeeklyPerf({ total: items.length, win, loss, open, avg_pnl, best_symbol: best ? String(best.symbol ?? "") : null, best_pnl: best ? (best.pnl_pct as number) : 0 });
       })
       .catch(() => {});
   }, []);
@@ -259,6 +279,33 @@ export default function DashboardOverview() {
           {scanLoading && <span className="ml-2"><Loader2 size={12} className="inline animate-spin" /> Scanning...</span>}
         </p>
       </div>
+
+      {/* Weekly Performance Stats Bar */}
+      {weeklyPerf && weeklyPerf.total > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 18px" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: C.text3, marginRight: 4 }}>BU HAFTA:</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>{weeklyPerf.win} Win</span>
+          <span style={{ fontSize: 11, color: C.text3 }}>/</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.red }}>{weeklyPerf.loss} Loss</span>
+          {weeklyPerf.open > 0 && <span style={{ fontSize: 11, color: C.text3 }}>{weeklyPerf.open} açık</span>}
+          <span style={{ fontSize: 11, color: C.border }}>|</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: weeklyPerf.avg_pnl >= 0 ? C.green : C.red }}>
+            Ort. {weeklyPerf.avg_pnl >= 0 ? "+" : ""}{weeklyPerf.avg_pnl.toFixed(2)}%
+          </span>
+          {weeklyPerf.best_symbol && (
+            <>
+              <span style={{ fontSize: 11, color: C.border }}>|</span>
+              <span style={{ fontSize: 11, color: C.text3 }}>En iyi:</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#ffd60a" }}>
+                {weeklyPerf.best_symbol} +{weeklyPerf.best_pnl.toFixed(2)}%
+              </span>
+            </>
+          )}
+          <a href="/dashboard/watchlist" style={{ marginLeft: "auto", fontSize: 11, color: C.cyan, textDecoration: "none" }}>
+            Tüm sinyaller →
+          </a>
+        </div>
+      )}
 
       {/* Market Pulse */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

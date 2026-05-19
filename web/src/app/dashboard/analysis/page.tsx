@@ -410,11 +410,26 @@ function AnalysisInner() {
       .catch(() => setLoading(false));
   }, [searchParams]);
 
-  /* Fetch real scan data from Python API */
+  /* Fetch real scan data from Python API — prefer sessionStorage cache from scanner */
   useEffect(() => {
     let cancelled = false;
     setScanLoading(true);
     setScanError(false);
+
+    // Check if scanner passed its result via sessionStorage (max 5 min old)
+    try {
+      const cached = sessionStorage.getItem(`finpilot_scan_${selectedTicker}`);
+      if (cached) {
+        const { data, ts } = JSON.parse(cached);
+        if (Date.now() - ts < 5 * 60 * 1000) {
+          setScanData(data);
+          setScanLoading(false);
+          return;
+        }
+        sessionStorage.removeItem(`finpilot_scan_${selectedTicker}`);
+      }
+    } catch {}
+
     fetch("/py-api/scan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

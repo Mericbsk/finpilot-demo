@@ -28,6 +28,9 @@ anthropic==0.86.0
 tavily-python==0.7.22
 langfuse>=2.0.0
 
+# Agent Orchestration — Sprint 6
+langgraph>=0.2.0
+
 # Portfolio Optimisation
 Riskfolio-Lib>=6.0
 

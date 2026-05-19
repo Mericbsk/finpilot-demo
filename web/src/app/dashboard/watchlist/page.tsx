@@ -292,6 +292,33 @@ function PriceProgressBar({ item }: { item: TrackedSignal }) {
   );
 }
 
+function useRelativeTime(isoStr: string | null) {
+  const [label, setLabel] = useState<string>("");
+  useEffect(() => {
+    if (!isoStr) { setLabel(""); return; }
+    const update = () => {
+      const diffSec = Math.floor((Date.now() - new Date(isoStr).getTime()) / 1000);
+      if (diffSec < 60) setLabel("az önce");
+      else if (diffSec < 3600) setLabel(`${Math.floor(diffSec / 60)}dk önce`);
+      else setLabel(`${Math.floor(diffSec / 3600)}sa önce`);
+    };
+    update();
+    const id = setInterval(update, 15_000);
+    return () => clearInterval(id);
+  }, [isoStr]);
+  return label;
+}
+
+function RefreshAgeLabel({ iso }: { iso: string }) {
+  const rel = useRelativeTime(iso);
+  return (
+    <span style={{ fontSize: 10, color: C.text3, display: "flex", alignItems: "center", gap: 4 }}>
+      <Activity size={10} />
+      Son güncelleme: {rel}
+    </span>
+  );
+}
+
 function SinyalTakipTab() {
   const [items, setItems] = useState<TrackedSignal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -410,8 +437,8 @@ function SinyalTakipTab() {
             <div style={{ fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</div>
           </div>
         ))}
-        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          {refreshedAt && <span style={{ fontSize: 10, color: C.text3, alignSelf: "center" }}>{new Date(refreshedAt).toLocaleTimeString("tr-TR")}</span>}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          {refreshedAt && <RefreshAgeLabel iso={refreshedAt} />}
           <button onClick={() => fetchList(true)} disabled={refreshing} style={{ display: "flex", alignItems: "center", gap: 5, borderRadius: 10, border: `1px solid ${C.border}`, background: C.card, padding: "6px 12px", fontSize: 12, color: C.cyan, cursor: "pointer", fontWeight: 600 }}>
             <RefreshCw size={13} style={{ animation: refreshing ? "spin 1s linear infinite" : "none" }} /> Yenile
           </button>
