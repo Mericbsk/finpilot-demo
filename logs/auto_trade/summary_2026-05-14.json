@@ -1,0 +1,43 @@
+{
+  "date": "2026-05-14",
+  "scan_time": "2026-05-14T13:09:12",
+  "status": "ERROR",
+  "error": "yfinance module not available in scheduled-task sandbox; pip install blocked by proxy (403 Forbidden); Alpaca REST API also unreachable from sandbox (paper-api.alpaca.markets 403 Forbidden via proxy tunnel)",
+  "raw_signals": 0,
+  "strategy_b_passed": 0,
+  "symbols_passed": [],
+  "presets_scanned": ["tech_giants", "semiconductors", "cloud_saas"],
+  "symbols_attempted": 27,
+  "symbols_fetched": 0,
+  "orders_placed": 0,
+  "gap_rejections": 0,
+  "risk_blocks": 0,
+  "alpaca_keys_present": true,
+  "alpaca_keys_source": ".env file (manually sourced; not in scheduled-task process env by default)",
+  "alpaca_api_reachable": false,
+  "alpaca_api_error": "paper-api.alpaca.markets unreachable from sandbox — Tunnel connection failed: 403 Forbidden (verified via direct urllib request with valid keys)",
+  "dry_run_used": true,
+  "command_executed": "python scripts/auto_scan_trade.py --once --dry-run (after `set -a; source .env; set +a`)",
+  "fallback_attempted": "pip install yfinance --break-system-packages blocked by proxy 403; no local yfinance wheel found in workspace",
+  "runs_today": 1,
+  "summary_autoproduced": false,
+  "summary_autoproduced_reason": "auto_scan_trade.py returns early at the '0 ham sinyal' branch without writing summary JSON",
+  "summary_authored_by": "claude-cowork (scheduled task: finpilot-morning-trade, 09:35 ET)",
+  "previous_runs_same_failure": [
+    "2026-05-08 (initial occurrence)",
+    "2026-05-11 19:23",
+    "2026-05-12 14:53",
+    "2026-05-12 17:48",
+    "2026-05-13 13:52",
+    "2026-05-13 19:48"
+  ],
+  "consecutive_failure_days": 6,
+  "slippage_tracker_updated": false,
+  "slippage_tracker_reason": "logs/slippage_tracker.json does not exist — no filled orders to date",
+  "user_action_required": [
+    "Install yfinance (and 3.10-compatible pandas/numpy) into the scheduled-task sandbox, or wire a Polygon/Alpaca-data fallback fetcher into scanner.data_fetcher",
+    "Allow .env auto-load in the scheduled-task shell, or move ALPACA_* into the platform secret store",
+    "Whitelist paper-api.alpaca.markets through the sandbox proxy (currently 403)",
+    "Optional: patch auto_scan_trade.py to write summary JSON even when 0 raw signals (so failures surface earlier in monitoring)"
+  ]
+}

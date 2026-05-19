@@ -18,13 +18,14 @@ from .data_fetcher import (
     fetch_multi_timeframe,
     prefetch_symbols_multi_timeframe,
 )
+from .risk_engine import calculate_risk_management
+from .score_engine import compute_recommendation_strength
 from .signals import (
     analyze_price_momentum,
     check_momentum_confluence,
     check_timeframe_alignment,
     check_trend_strength,
     check_volume_spike,
-    compute_recommendation_strength,
     safe_float,
 )
 
@@ -39,42 +40,6 @@ STRATEGY_PARAMS = {
     "Defansif": {"min_score": 2, "rsi_low": 25, "rsi_high": 75},
     "Momentum": {"min_score": 1, "rsi_low": 35, "rsi_high": 65},
 }
-
-
-def calculate_risk_management(price: float, atr_val: float, momentum_score: int) -> dict[str, Any]:
-    """ATR-based dynamic stop-loss & take-profit."""
-    if momentum_score >= 70:
-        stop_mult, tp1_mult, tp2_mult, tp3_mult = 1.5, 3.0, 5.0, 8.0
-        strategy_tag = "Sniper 🎯"
-    elif momentum_score < 50:
-        stop_mult, tp1_mult, tp2_mult, tp3_mult = 2.5, 4.5, 6.5, 0
-        strategy_tag = "Defansif 🛡️"
-    else:
-        stop_mult, tp1_mult, tp2_mult, tp3_mult = 2.0, 3.5, 5.5, 7.5
-        strategy_tag = "Normal 📈"
-
-    stop_loss = price - (atr_val * stop_mult)
-    tp1 = price + (atr_val * tp1_mult)
-    tp2 = price + (atr_val * tp2_mult)
-    tp3 = price + (atr_val * tp3_mult) if tp3_mult > 0 else 0
-    take_profit = tp2
-    position_size = 1000
-    risk_reward_ratio = (
-        (take_profit - price) / (price - stop_loss) if (price - stop_loss) != 0 else 0
-    )
-    stop_loss_percent = (price - stop_loss) / price * 100 if price != 0 else 0
-
-    return {
-        "stop_loss": round(stop_loss, 2),
-        "take_profit": round(take_profit, 2),
-        "tp1": round(tp1, 2),
-        "tp2": round(tp2, 2),
-        "tp3": round(tp3, 2) if tp3 > 0 else None,
-        "strategy_tag": strategy_tag,
-        "position_size": position_size,
-        "risk_reward_ratio": round(risk_reward_ratio, 2),
-        "stop_loss_percent": round(stop_loss_percent, 2),
-    }
 
 
 def evaluate_symbol(
@@ -374,6 +339,16 @@ def evaluate_symbols_parallel(
                     progress_callback(pct, 100)
                 except Exception:
                     logger.debug("Progress callback error — ignored")
+
+    else:
+        # Single symbol or prefetch disabled — evaluate directly without batch prefetch
+        for symbol in symbols:
+            try:
+                result = evaluate_symbol(symbol, kelly_fraction)
+                if result:
+                    results.append(result)
+            except Exception as e:
+                logger.warning("Evaluate error for %s: %s", symbol, e)
 
     logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
     return results

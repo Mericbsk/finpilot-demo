@@ -18,15 +18,73 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["inference"])
 
 _INFERENCE_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "inference.json"
+_CACHE_MAX_AGE_HOURS = 24
+
+
+def _check_drl_cache(cached: dict) -> dict[str, Any]:
+    """Validate DRL cache quality. Returns a metadata dict consumed by callers.
+
+    Checks performed:
+    - ``fresh``: cache timestamp is within _CACHE_MAX_AGE_HOURS
+    - ``real``: confidence values are not all identical (default/fallback guard)
+    - ``valid``: both conditions met — safe to use in scoring
+
+    Returns dict with keys: valid, fresh, real, age_hours, symbol_count, warning.
+    """
+    if not cached:
+        return {
+            "valid": False,
+            "fresh": False,
+            "real": False,
+            "age_hours": None,
+            "symbol_count": 0,
+            "warning": "Cache is empty",
+        }
+
+    # Age check — use first entry's timestamp
+    age_hours: float | None = None
+    fresh = False
+    try:
+        ts_str = next(iter(cached.values()), {}).get("timestamp", "")
+        if ts_str:
+            ts = datetime.fromisoformat(ts_str)
+            age_hours = (datetime.now(UTC) - ts).total_seconds() / 3600
+            fresh = age_hours < _CACHE_MAX_AGE_HOURS
+    except Exception:
+        fresh = False
+
+    # Identity check — if all confidences are the same value it's a fallback/default
+    confidences = [float(v.get("confidence", 0)) for v in cached.values() if v]
+    real = not (len(confidences) > 1 and len(set(confidences)) == 1)
+
+    valid = fresh and real
+    warning: str | None = None
+    if not fresh:
+        age_str = f"{age_hours:.1f}h" if age_hours is not None else "unknown"
+        warning = f"DRL cache is stale ({age_str} old). Re-run inference to update."
+    elif not real:
+        warning = (
+            "DRL cache contains uniform confidence values — model may not be loaded correctly."
+        )
+
+    return {
+        "valid": valid,
+        "fresh": fresh,
+        "real": real,
+        "age_hours": round(age_hours, 1) if age_hours is not None else None,
+        "symbol_count": len(cached),
+        "warning": warning,
+    }
 
 
 @router.get("/inference-cache")
 def get_inference_cache():
-    """Return the latest DRL inference results from data/inference.json."""
+    """Return the latest DRL inference results plus cache validity metadata."""
     if not _INFERENCE_PATH.exists():
-        return {}
+        return {"results": {}, "cache_status": _check_drl_cache({})}
     with open(_INFERENCE_PATH) as f:
-        return json.load(f)
+        cached = json.load(f)
+    return {"results": cached, "cache_status": _check_drl_cache(cached)}
 
 
 # ---------------------------------------------------------------------------

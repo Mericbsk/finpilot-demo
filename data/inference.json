@@ -1,42 +1,371 @@
 {
-  "HON": {
-    "ai_score": 11.68,
-    "signal": "SELL",
-    "confidence": 0.85,
-    "regime": "1",
-    "price": 243.88,
-    "timestamp": "2026-03-03T22:18:42.275017+00:00"
+  "AAPL": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 297.16,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
   },
-  "ADP": {
-    "ai_score": 4.0,
-    "signal": "SELL",
-    "confidence": 0.85,
-    "regime": "0",
-    "price": 216.26,
-    "timestamp": "2026-03-03T22:18:42.275017+00:00"
+  "MSFT": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 423.37,
+    "signal": "BUY",
+    "confidence": 0.5,
+    "ai_score": 50.0,
+    "regime": "TREND",
+    "source": "heuristic_v2"
   },
-  "CTAS": {
-    "ai_score": 7.0,
-    "signal": "SELL",
-    "confidence": 0.85,
-    "regime": "0",
-    "price": 201.57,
-    "timestamp": "2026-03-03T22:18:42.275017+00:00"
+  "GOOGL": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 388.57,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
   },
-  "CSX": {
-    "ai_score": 8.0,
-    "signal": "SELL",
-    "confidence": 0.85,
-    "regime": "1",
-    "price": 42.68,
-    "timestamp": "2026-03-03T22:18:42.275017+00:00"
+  "AMZN": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 256.92,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
   },
-  "TER": {
-    "ai_score": 8.68,
+  "NVDA": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 218.91,
+    "signal": "BUY",
+    "confidence": 0.5,
+    "ai_score": 50.0,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "META": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 605.81,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "TSLA": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 394.57,
+    "signal": "HOLD",
+    "confidence": 0.41,
+    "ai_score": 41.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "AMD": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 396.17,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "CRM": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 184.7,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "ADBE": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 262.26,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "INTC": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 103.61,
+    "signal": "BUY",
+    "confidence": 0.5,
+    "ai_score": 50.0,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "SPY": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 732.02,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "QQQ": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 696.11,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "IWM": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 270.93,
+    "signal": "HOLD",
+    "confidence": 0.41,
+    "ai_score": 41.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "JPM": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 299.86,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "V": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 333.57,
+    "signal": "BUY",
+    "confidence": 0.5,
+    "ai_score": 50.0,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "UNH": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 393.35,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "JNJ": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 229.87,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "PG": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 143.45,
     "signal": "SELL",
-    "confidence": 0.85,
-    "regime": "1",
-    "price": 304.23,
-    "timestamp": "2026-03-03T22:18:42.275017+00:00"
+    "confidence": 0.514,
+    "ai_score": 51.4,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "XOM": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 161.59,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "HD": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 301.11,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "BAC": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 51.02,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "PFE": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 25.84,
+    "signal": "SELL",
+    "confidence": 0.586,
+    "ai_score": 58.6,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "KO": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 82.52,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "TSM": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 386.75,
+    "signal": "HOLD",
+    "confidence": 0.41,
+    "ai_score": 41.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "NVO": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 44.44,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "XLE": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 60.83,
+    "signal": "BUY",
+    "confidence": 0.5,
+    "ai_score": 50.0,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "GLD": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 412.58,
+    "signal": "SELL",
+    "confidence": 0.586,
+    "ai_score": 58.6,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "SLV": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 66.94,
+    "signal": "HOLD",
+    "confidence": 0.41,
+    "ai_score": 41.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "TLT": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 82.91,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "VNQ": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 95.18,
+    "signal": "HOLD",
+    "confidence": 0.41,
+    "ai_score": 41.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "XLK": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 171.15,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "XLF": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 51.71,
+    "signal": "BUY",
+    "confidence": 0.5,
+    "ai_score": 50.0,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "XLV": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 147.67,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "XBI": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 126.6,
+    "signal": "HOLD",
+    "confidence": 0.41,
+    "ai_score": 41.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "SMH": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 531.11,
+    "signal": "BUY",
+    "confidence": 0.5,
+    "ai_score": 50.0,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "PLTR": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 134.49,
+    "signal": "SELL",
+    "confidence": 0.586,
+    "ai_score": 58.6,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "SOFI": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 15.06,
+    "signal": "SELL",
+    "confidence": 0.586,
+    "ai_score": 58.6,
+    "regime": "TREND",
+    "source": "heuristic_v2"
+  },
+  "COIN": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 189.22,
+    "signal": "HOLD",
+    "confidence": 0.41,
+    "ai_score": 41.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "ARKK": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 73.12,
+    "signal": "HOLD",
+    "confidence": 0.41,
+    "ai_score": 41.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
+  },
+  "RIOT": {
+    "timestamp": "2026-05-19T14:47:15.517754+00:00",
+    "price": 21.82,
+    "signal": "HOLD",
+    "confidence": 0.4,
+    "ai_score": 40.0,
+    "regime": "RANGE",
+    "source": "heuristic_v2"
   }
 }

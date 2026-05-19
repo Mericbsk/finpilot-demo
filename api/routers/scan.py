@@ -45,6 +45,150 @@ class FeedbackRequest(BaseModel):
     ticker: str | None = Field(None, max_length=10)
 
 
+# ---------------------------------------------------------------------------
+# SRP helpers (Sprint 5 T5)
+# ---------------------------------------------------------------------------
+
+
+def _load_drl_cache() -> tuple[dict, bool]:
+    """Load DRL inference cache from disk.
+
+    Returns:
+        (cache_dict, is_valid) — cache_dict is empty dict when unavailable.
+    """
+    try:
+        from routers.inference import _INFERENCE_PATH, _check_drl_cache
+
+        if _INFERENCE_PATH.exists():
+            cache = json.loads(_INFERENCE_PATH.read_text(encoding="utf-8"))
+            valid = _check_drl_cache(cache).get("valid", False)
+            return cache, valid
+    except Exception as exc:
+        logger.debug("DRL cache load skipped: %s", exc)
+    return {}, False
+
+
+def _enrich_results(
+    results: list[dict],
+    drl_cache: dict,
+    drl_valid: bool,
+) -> dict:
+    """Convert raw scanner list to symbol-keyed dict; add explanation, reason,
+    and unified FinPilot Score to each entry.
+
+    Args:
+        results:   Raw list from evaluate_symbols_parallel
+        drl_cache: Loaded DRL cache dict
+        drl_valid: Whether the DRL cache passed freshness checks
+
+    Returns:
+        Dict keyed by symbol with enriched scan entries.
+    """
+    try:
+        from scanner.signals import build_explanation, build_reason
+
+        _explain_ok = True
+    except ImportError:
+        _explain_ok = False
+
+    try:
+        from scanner.finpilot_score import compute_finpilot_score
+
+        _fps_ok = True
+    except ImportError:
+        _fps_ok = False
+
+    out: dict = {}
+    for r in results:
+        sym = r.get("symbol") or r.get("ticker")
+        if not sym:
+            continue
+
+        r["explanation"] = build_explanation(r) if _explain_ok else ""
+        r["reason"] = build_reason(r) if _explain_ok else ""
+
+        if _fps_ok:
+            scanner_signal = "BUY" if r.get("direction") else "SELL"
+            drl_entry = drl_cache.get(sym, {}) if drl_valid else {}
+            r["finpilot_score"] = compute_finpilot_score(
+                scanner_composite=int(r.get("composite_score") or 0),
+                scanner_signal=scanner_signal,
+                drl_signal=drl_entry.get("signal"),
+                drl_confidence=drl_entry.get("confidence"),
+            )
+
+        out[sym] = r
+    return out
+
+
+def _persist_shortlist(out: dict) -> None:
+    """Save scan results to a timestamped CSV for legacy Streamlit compatibility."""
+    if not out:
+        return
+    try:
+        _SHORTLIST_DIR.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now().strftime("%Y%m%d_%H%M")
+        csv_path = _SHORTLIST_DIR / f"shortlist_{ts}.csv"
+        pd.DataFrame(list(out.values())).to_csv(csv_path, index=False)
+        logger.info("Shortlist saved: %s (%d symbols)", csv_path, len(out))
+    except Exception as exc:
+        logger.warning("Could not save shortlist CSV: %s", exc)
+
+
+def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
+    """Auto-add BUY signals (entry_ok=True) to the watchlist."""
+    if not out:
+        return
+    try:
+        from routers.watchlist import _load, _save, _upsert
+
+        wl = _load()
+        added = 0
+        for sym, r in out.items():
+            if not r.get("entry_ok"):
+                continue
+            direction = r.get("direction", False)
+            scanner_signal = "BUY" if direction else "SELL"
+
+            drl_conflict = False
+            if drl_valid and sym in drl_cache:
+                drl_sig = drl_cache[sym].get("signal", "")
+                if drl_sig and drl_sig != scanner_signal and drl_sig != "HOLD":
+                    drl_conflict = True
+                    logger.info(
+                        "DRL conflict for %s: scanner=%s drl=%s", sym, scanner_signal, drl_sig
+                    )
+
+            entry: dict = {
+                "symbol": sym,
+                "signal": scanner_signal,
+                "entry_price": float(r.get("price") or 0),
+                "stop_loss": float(r.get("stop_loss") or 0),
+                "take_profit": float(r.get("take_profit") or 0),
+                "score": float(r.get("filter_score") or r.get("score") or 0),
+                "regime": "Bull" if r.get("regime") else "Bear",
+                "sentiment": "Bullish" if direction else "Bearish",
+                "risk_reward": float(r.get("risk_reward") or 0),
+                "reason": r.get("reason") or "",
+                "explanation": r.get("explanation") or "",
+                "added_at": datetime.now(tz=UTC).isoformat(),
+                "current_price": 0.0,
+                "change_pct": 0.0,
+                "pnl_pct": 0.0,
+                "status": "Pending",
+                "drl_conflict": drl_conflict,
+                "drl_signal": drl_cache.get(sym, {}).get("signal") if drl_valid else None,
+                "drl_confidence": drl_cache.get(sym, {}).get("confidence") if drl_valid else None,
+            }
+            wl = _upsert(wl, entry)
+            added += 1
+        if added:
+            _save(wl)
+            logger.info("Auto-watchlist: %d BUY signals saved", added)
+    except Exception as exc:
+        logger.warning("Auto-watchlist failed: %s", exc)
+
+
 @router.post("/scan")
 async def run_scan(req: ScanRequest):
     """Run the scanner's evaluate_symbols_parallel on the given symbols.
@@ -85,74 +229,10 @@ async def run_scan(req: ScanRequest):
             status_code=500, detail=f"Scan error: {type(exc).__name__}: {exc}"
         ) from exc
 
-    # Convert list → dict keyed by symbol; enrich with human-readable reason/explanation
-    out: dict = {}
-    try:
-        from scanner.signals import build_explanation, build_reason
-
-        _explain_available = True
-    except ImportError:
-        _explain_available = False
-
-    for r in results:
-        sym = r.get("symbol") or r.get("ticker")
-        if sym:
-            if _explain_available:
-                r["explanation"] = build_explanation(r)
-                r["reason"] = build_reason(r)
-            else:
-                r["explanation"] = ""
-                r["reason"] = ""
-            out[sym] = r
-
-    # Persist shortlist CSV so legacy Streamlit panels stay current
-    if out:
-        try:
-            _SHORTLIST_DIR.mkdir(parents=True, exist_ok=True)
-            ts = datetime.now().strftime("%Y%m%d_%H%M")
-            csv_path = _SHORTLIST_DIR / f"shortlist_{ts}.csv"
-            pd.DataFrame(list(out.values())).to_csv(csv_path, index=False)
-            logger.info("Shortlist saved: %s (%d symbols)", csv_path, len(out))
-        except Exception as exc:
-            logger.warning("Could not save shortlist CSV: %s", exc)
-
-    # Auto-add BUY signals (entry_ok=True) to watchlist
-    if out:
-        try:
-            from routers.watchlist import _load, _save, _upsert
-
-            wl = _load()
-            added = 0
-            for sym, r in out.items():
-                if not r.get("entry_ok"):
-                    continue
-                direction = r.get("direction", False)
-                entry: dict = {
-                    "symbol": sym,
-                    "signal": "BUY" if direction else "SELL",
-                    "entry_price": float(r.get("price") or 0),
-                    "stop_loss": float(r.get("stop_loss") or 0),
-                    "take_profit": float(r.get("take_profit") or 0),
-                    "score": float(r.get("filter_score") or r.get("score") or 0),
-                    "regime": "Bull" if r.get("regime") else "Bear",
-                    "sentiment": "Bullish" if direction else "Bearish",
-                    "risk_reward": float(r.get("risk_reward") or 0),
-                    "reason": r.get("reason") or "",
-                    "explanation": r.get("explanation") or "",
-                    "added_at": datetime.now(tz=UTC).isoformat(),
-                    "current_price": 0.0,
-                    "change_pct": 0.0,
-                    "pnl_pct": 0.0,
-                    "status": "Pending",
-                }
-                wl = _upsert(wl, entry)
-                added += 1
-            if added:
-                _save(wl)
-                logger.info("Auto-watchlist: %d BUY signals saved", added)
-        except Exception as exc:
-            logger.warning("Auto-watchlist failed: %s", exc)
-
+    drl_cache, drl_valid = _load_drl_cache()
+    out = _enrich_results(results, drl_cache, drl_valid)
+    _persist_shortlist(out)
+    _auto_add_watchlist(out, drl_cache, drl_valid)
     return out
 
 

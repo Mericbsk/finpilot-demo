@@ -464,13 +464,22 @@ class DRLInference:
 
         return None
 
-    def predict(self, symbol: str, df: pd.DataFrame | None = None) -> PredictionResult | None:
+    def predict(
+        self,
+        symbol: str,
+        df: pd.DataFrame | None = None,
+        prefetched_df: dict[str, pd.DataFrame] | None = None,
+    ) -> PredictionResult | None:
         """
         Generate a prediction for a single symbol.
 
         Args:
             symbol: Stock ticker symbol
-            df: Pre-computed feature DataFrame (optional)
+            df: Pre-computed feature DataFrame (optional, daily timeframe)
+            prefetched_df: Multi-timeframe dict from scanner prefetch
+                           (e.g. {"1d": df, "1h": df, ...}).  When provided
+                           the "1d" slice is used directly so yfinance is not
+                           called a second time.
 
         Returns:
             PredictionResult or None if prediction fails
@@ -479,7 +488,11 @@ class DRLInference:
             logger.warning("No model loaded. Call load_model() first.")
             return None
 
-        # Prepare features if not provided
+        # Prefer prefetched multi-timeframe dict (avoids double yfinance fetch)
+        if df is None and prefetched_df is not None:
+            df = prefetched_df.get("1d")
+
+        # Prepare features if still not provided
         if df is None:
             df = self._prepare_features(symbol)
             if df is None:
