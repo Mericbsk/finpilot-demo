@@ -162,10 +162,9 @@ def evaluate_symbol(
         momentum_confluence = bool(momentum_confluence)
         momentum_ratio = float(momentum_ratio or 0.0)
 
-        min_score_threshold = 2
+        min_score_threshold = 3
         core_signal = bool(regime and direction and (score >= min_score_threshold))
-        mtf_ok = alignment_ratio >= 0.66
-        entry_ok = bool(score == 3 or score == 2 and mtf_ok) if core_signal else False
+        entry_ok = bool(score == 3) if core_signal else False
 
         is_premium_symbol = symbol in ["SPY", "QQQ", "GOOGL", "NVDA", "AAPL", "MSFT"]
         # Downgrade to non-high-quality if we didn't have 200 days of history
