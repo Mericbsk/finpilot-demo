@@ -151,13 +151,23 @@ clean-data:
 # ============================================
 # 🚀 Running
 # ============================================
-run:
-	@echo "$(BLUE)Starting primary local stack...$(NC)"
-	bash start.sh
+up: docker-check
+	@echo "$(BLUE)Starting FinPilot stack via docker compose (cross-platform)...$(NC)"
+	docker compose up -d --build
+	@echo "$(GREEN)✓ Stack started. API: http://localhost:8000  Web: http://localhost:3000$(NC)"
+	@echo "$(YELLOW)Run 'make logs' to follow logs, 'make down' to stop.$(NC)"
 
-run-legacy:
-	@echo "$(BLUE)Starting legacy Streamlit dashboard...$(NC)"
-	streamlit run streamlit_app.py --server.port 8501
+down:
+	@echo "$(YELLOW)Stopping FinPilot stack...$(NC)"
+	docker compose down
+	@echo "$(GREEN)✓ Stack stopped$(NC)"
+
+logs:
+	docker compose logs -f --tail=200
+
+run:
+	@echo "$(BLUE)Starting primary local stack (Linux/macOS native)...$(NC)"
+	bash start.sh
 
 scanner:
 	@echo "$(BLUE)Running stock scanner...$(NC)"

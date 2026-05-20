@@ -46,7 +46,6 @@ const navItems = [
   { href: "/dashboard/backtest", icon: LineChart, label: "Backtest" },
   { href: "/dashboard/finsense", icon: GraduationCap, label: "FinSense" },
   { href: "/dashboard/agent", icon: Network, label: "AI Agents" },
-  { href: "/dashboard/agent-hub", icon: Building2, label: "Agent Hub" },
   { href: "/dashboard/advisory", icon: Users, label: "Advisory" },
   { href: "/dashboard/watchlist", icon: Star, label: "Watchlist" },
   { href: "/dashboard/history", icon: Clock, label: "History" },

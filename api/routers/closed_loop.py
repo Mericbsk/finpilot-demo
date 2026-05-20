@@ -84,3 +84,45 @@ def clear_degraded() -> dict[str, Any]:
     from core.quality_gate import clear_degraded as _clear
 
     return {"cleared": _clear()}
+
+
+@router.get("/uptime", dependencies=[Depends(optional_auth)])
+def loop_uptime() -> dict[str, Any]:
+    """Sprint 6 (s6-uptime-monitor): scheduler liveness probe.
+
+    Returns wall-clock seconds since the last completed scheduler tick. Used by
+    the autonomy uptime panel and Prometheus alerting.
+    """
+    import time
+
+    from core.scheduler import scheduler_status
+
+    status = scheduler_status()
+    last_run = status.get("last_run")
+    seconds_since_tick: float | None = None
+    if last_run:
+        try:
+            from datetime import datetime, timezone
+
+            ts = (
+                datetime.fromisoformat(last_run.replace("Z", "+00:00"))
+                if isinstance(last_run, str)
+                else last_run
+            )
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            seconds_since_tick = max(
+                0.0, (datetime.now(timezone.utc) - ts).total_seconds()
+            )
+        except Exception:
+            seconds_since_tick = None
+
+    healthy = seconds_since_tick is not None and seconds_since_tick < 900  # 15 min
+    return {
+        "running": status.get("running", False),
+        "last_run": last_run,
+        "cycle_count": status.get("cycle_count", 0),
+        "seconds_since_last_tick": seconds_since_tick,
+        "healthy": healthy,
+        "checked_at": time.time(),
+    }
