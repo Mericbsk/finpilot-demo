@@ -36,17 +36,24 @@ logger = logging.getLogger(__name__)
 _TTL = 3600  # seconds — 1 hour window matches default scheduler interval
 _mem_store: dict[str, tuple[float, Any]] = {}  # key → (expires_at, value)
 
+_redis: Any | None = None
 try:
     import redis as _redis_lib  # type: ignore[import-not-found]
 
-    _redis: _redis_lib.Redis | None = _redis_lib.Redis(
-        host="localhost", port=6379, decode_responses=True, socket_connect_timeout=1
-    )
+    from core.config import get_settings
+
+    _url = get_settings().redis_url
+    _redis = _redis_lib.Redis.from_url(_url, decode_responses=True, socket_connect_timeout=2)
     _redis.ping()
-    logger.info("agent_state: Redis backend active")
-except Exception:
+    logger.info("agent_state: Redis backend active (%s)", _url)
+except Exception as _exc:
     _redis = None
-    logger.info("agent_state: in-memory fallback active")
+    logger.warning(
+        "agent_state: Redis UNAVAILABLE (%s) — falling back to in-memory. "
+        "Data will be LOST on restart. Set REDIS_URL and start redis service "
+        "(see docker-compose.yml).",
+        _exc,
+    )
 
 
 def _key(agent: str, symbols: list[str]) -> str:

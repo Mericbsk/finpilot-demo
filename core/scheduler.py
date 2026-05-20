@@ -99,9 +99,37 @@ def run_cycle_once(
         from agents.market_intelligence import MarketIntelligenceAgent
         from agents.performance_monitor import PerformanceMonitorAgent
         from agents.research_agent import ResearchAgent
+        from agents.scanner_agent import ScannerAgent
 
         from core.agent_events import log_event
+        from core.agent_state import save_agent_result
         from core.kpi_tracker import record_signal, self_evaluate
+
+        # --- 0. Scanner — generate fresh technical signals for downstream agents ---
+        _t = time.perf_counter()
+        scan_data: dict[str, Any] = {}
+        try:
+            sc_ctx = AgentContext(symbols=symbols)
+            sc_result = ScannerAgent().run(sc_ctx, kelly_fraction=kelly_fraction)
+            _dur = (time.perf_counter() - _t) * 1000
+            scan_data = sc_result.data or {}
+            results["scan"] = scan_data
+            try:
+                save_agent_result("scan", symbols, scan_data)
+            except Exception as save_exc:
+                logger.warning("Scheduler: scan state save failed: %s", save_exc)
+            log_event(
+                "Scanner",
+                "evaluate_symbols",
+                "ok" if sc_result.success else "error",
+                _dur,
+                f"{len(scan_data)} sembol tarandı",
+                symbols,
+                "strategy",
+            )
+        except Exception as exc:
+            errors.append(f"scanner: {exc}")
+            logger.warning("Scheduler: scanner failed: %s", exc)
 
         # --- 1. Market Intelligence (regime detection) ---
         _t = time.perf_counter()
@@ -198,7 +226,12 @@ def run_cycle_once(
             strategy = "trend" if "bull" in str(regime_str).lower() else "momentum"
             bt_ctx = AgentContext(
                 symbols=symbols,
-                metadata={"regime": regime_str, "strategy_hint": strategy},
+                scan_results=scan_data or None,
+                metadata={
+                    "regime": regime_str,
+                    "strategy_hint": strategy,
+                    "scan_available": bool(scan_data),
+                },
             )
             bt_result = BacktestAgent().run(bt_ctx, strategy=strategy, initial_capital=10_000)
             _dur = (time.perf_counter() - _t) * 1000

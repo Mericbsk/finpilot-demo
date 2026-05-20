@@ -20,7 +20,7 @@ Usage::
     for msg in messages:
         print(msg["feedback_type"], msg["data"])
 
-Keys are capped at MAX_QUEUE=50 and expire after TTL_SECONDS=3600 (1 h).
+Keys are capped at MAX_QUEUE=50 and expire after TTL_SECONDS=86400 (24 h).
 Falls back to in-memory when Redis is unavailable.
 """
 
@@ -38,7 +38,7 @@ _redis_unavailable = False
 
 FEEDBACK_KEY_PREFIX = "finpilot:feedback:"
 MAX_QUEUE = 50
-TTL_SECONDS = 3600  # 1 hour
+TTL_SECONDS = 86400  # 24 hours — keep cross-agent feedback for a full day
 
 # In-memory fallback — keyed by agent name
 _mem_queues: dict[str, list[dict]] = {}
@@ -61,7 +61,11 @@ def _get_redis():
         _redis_client = client
         return _redis_client
     except Exception as exc:
-        logger.debug("Feedback: Redis unavailable (%s) — using in-memory", exc)
+        logger.warning(
+            "Feedback: Redis UNAVAILABLE (%s) — falling back to in-memory. "
+            "Cross-agent feedback will be LOST on restart. Set REDIS_URL and start redis.",
+            exc,
+        )
         _redis_unavailable = True
         return None
 

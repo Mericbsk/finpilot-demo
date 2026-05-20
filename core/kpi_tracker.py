@@ -84,7 +84,11 @@ def _get_redis():
         _redis_client = client
         return _redis_client
     except Exception as exc:
-        logger.debug("KPI tracker: Redis unavailable (%s) — using in-memory", exc)
+        logger.warning(
+            "KPI tracker: Redis UNAVAILABLE (%s) — falling back to in-memory. "
+            "KPIs will be LOST on restart. Set REDIS_URL and start redis service.",
+            exc,
+        )
         _redis_unavailable = True
         return None
 

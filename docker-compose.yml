@@ -46,12 +46,17 @@ services:
       - PYTHONUNBUFFERED=1
     env_file:
       - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./data:/app/data
       - ./models:/app/models:ro
       - ./api:/app/api:ro
     networks:
       - finpilot_network
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/ready')"]
       interval: 15s
@@ -154,7 +159,7 @@ services:
       - telegram  # Only run with: docker compose --profile telegram up -d api web telegram_bot
 
   # ============================================
-  # 🗄️ Redis Cache (Optional)
+  # 🗄️ Redis Cache (Required by API for KPI/state/feedback persistence)
   # ============================================
   redis:
     image: redis:7-alpine
@@ -167,8 +172,6 @@ services:
     networks:
       - finpilot_network
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    profiles:
-      - cache  # Only run with: docker compose --profile cache up -d api web redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

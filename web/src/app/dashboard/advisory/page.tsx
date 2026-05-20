@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Lightbulb,
 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
@@ -135,9 +136,8 @@ function AskDialog({
     setError("");
     setResponse(null);
     try {
-      const res = await fetch(`${API}/api/v1/advisory/${advisor.name}`, {
+      const res = await apiFetch(`/api/v1/advisory/${advisor.name}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: question.trim(), context_str: context.trim(), symbols: [] }),
       });
       if (!res.ok) {
@@ -307,7 +307,7 @@ export default function AdvisoryPage() {
 
   const fetchAdvisors = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/v1/advisory/`);
+      const res = await apiFetch(`/api/v1/advisory/`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setAdvisors(await res.json());
     } catch (e) {

@@ -12,8 +12,10 @@ import logging
 
 from agents.advisory import advisory_agent_for, list_advisory_keys
 from agents.base import AgentContext
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
+
+from api.middleware.auth import require_auth
 
 logger = logging.getLogger(__name__)
 
@@ -137,6 +139,7 @@ def get_advisor(name: str) -> AdvisorInfo:
     "/{name}",
     response_model=AdvisoryResponse,
     summary="Danışmana soru sor",
+    dependencies=[Depends(require_auth)],
 )
 def ask_advisor(name: str, body: AdvisoryRequest) -> AdvisoryResponse:
     """Belirtilen danışman agent'a LLM üzerinden soru sorar (JWT auth gerekli)."""
