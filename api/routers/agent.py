@@ -19,10 +19,13 @@ from __future__ import annotations
 import asyncio
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, model_validator
+
+from api.middleware.auth import require_auth
+from auth.tokens import TokenPayload
 
 router = APIRouter(tags=["agent"])
 
@@ -436,6 +439,17 @@ async def run_agent(req: AgentRunRequest):
         "management",
     )
 
+    # Persist CEO results to shared state so Scheduler pipeline can consume them
+    try:
+        from core.agent_state import save_agent_result as _save
+
+        if final_state.get("scan_results"):
+            _save("scan", req.symbols, final_state["scan_results"])
+        if final_state.get("analysis_results"):
+            _save("analyze", req.symbols, final_state["analysis_results"])
+    except Exception:
+        pass  # shared state is best-effort
+
     return AgentRunResponse(
         task=final_state.get("task", req.task),
         symbols_requested=len(req.symbols),
@@ -525,6 +539,7 @@ def agent_scheduler_status():
 def agent_scheduler_start(
     symbols: list[str],
     interval_minutes: int = 60,
+    _auth: Annotated[TokenPayload, Depends(require_auth)] = ...,
 ):
     """Start the background scheduler with the given symbols and interval."""
     try:
@@ -537,7 +552,9 @@ def agent_scheduler_start(
 
 
 @router.post("/agent/scheduler/stop")
-def agent_scheduler_stop():
+def agent_scheduler_stop(
+    _auth: Annotated[TokenPayload, Depends(require_auth)] = ...,
+):
     """Stop the background scheduler."""
     try:
         from core.scheduler import stop_scheduler
@@ -583,6 +600,7 @@ def agent_emit_feedback(
     to_agent: str,
     feedback_type: str,
     data: dict[str, Any] | None = None,
+    _auth: Annotated[TokenPayload, Depends(require_auth)] = ...,
 ):
     """Emit a feedback message from one agent to another."""
     try:
@@ -615,6 +633,7 @@ def agent_get_feedback(agent_name: str, limit: int = 10, peek: bool = False):
 async def run_agent_cycle(
     symbols: list[str],
     run_optimizer: bool = False,
+    _auth: Annotated[TokenPayload, Depends(require_auth)] = ...,
 ):
     """Run one full agent cycle (market_intel → research → backtest → monitor) synchronously."""
     loop = asyncio.get_running_loop()

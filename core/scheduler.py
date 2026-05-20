@@ -125,14 +125,25 @@ def run_cycle_once(
             errors.append(f"data_quality: {exc}")
             logger.warning("Scheduler: data_quality failed: %s", exc)
 
-        # --- 2. Research — enriched with regime context (feedback from step 1) ---
+        # --- 2. Research — enriched with regime context + CEO scan results ---
         _t = time.perf_counter()
         try:
+            # Load latest CEO scan results from shared state (best-effort)
+            _ceo_scan: dict[str, Any] = {}
+            try:
+                from core.agent_state import get_latest_scan
+
+                _ceo_scan = get_latest_scan(symbols) or {}
+            except Exception:
+                pass
+
             rs_ctx = AgentContext(
                 symbols=symbols,
+                scan_results=_ceo_scan or None,
                 metadata={
                     "market_regime": mi_data.get("regime"),
                     "market_summary": mi_data.get("market_summary", ""),
+                    "ceo_scan_available": bool(_ceo_scan),
                 },
             )
             rs_result = ResearchAgent().run(rs_ctx)
