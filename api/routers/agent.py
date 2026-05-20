@@ -21,7 +21,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field, model_validator
 
 from api.middleware.auth import require_auth
@@ -590,6 +590,26 @@ def agent_self_eval():
         if not scores:
             return {"score": None, "message": "Henüz cycle çalıştırılmadı"}
         return scores[0]
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/agent/eval/latest")
+def agent_eval_latest(symbols: list[str] = Query(default=["THYAO.IS", "KCHOL.IS"])):
+    """Return the latest autonomous eval harness report saved in shared state."""
+    try:
+        from core.agent_state import get_agent_result
+        from core.scheduler import scheduler_status
+
+        report = get_agent_result("eval", symbols)
+        status = scheduler_status()
+        if report is None:
+            return {
+                "available": False,
+                "eval_last_run": status.get("eval_last_run"),
+                "message": "Henüz eval çalıştırılmadı",
+            }
+        return {"available": True, "eval_last_run": status.get("eval_last_run"), "report": report}
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 

@@ -35,6 +35,34 @@ _scheduler_instance: Any = None  # APScheduler instance
 _cycle_count = 0
 _last_run: str | None = None
 _last_status: str = "idle"
+_eval_last_run: str | None = None
+
+
+def _run_eval_job(symbols: list[str]) -> None:
+    """Run offline eval harness and save report to shared agent state."""
+    import asyncio
+
+    try:
+        from tests.eval.eval_harness import run_eval
+
+        report = asyncio.run(run_eval(symbols))
+
+        try:
+            from core.agent_state import save_agent_result
+
+            save_agent_result("eval", symbols, report)
+        except Exception as save_exc:
+            logger.warning("Eval: state save failed: %s", save_exc)
+
+        global _eval_last_run
+
+        _eval_last_run = datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M UTC")
+        grade = "ok" if report.get("overall_pass") else "warn"
+        logger.info(
+            "Eval job completed — overall_pass=%s grade=%s", report.get("overall_pass"), grade
+        )
+    except Exception as exc:
+        logger.warning("Eval job failed: %s", exc)
 
 
 # ---------------------------------------------------------------------------
@@ -441,6 +469,17 @@ def start_scheduler(
             id="finpilot_main_cycle",
             name="FinPilot Main Agent Cycle",
         )
+
+        # Autonomous eval job — always runs hourly regardless of main cycle interval
+        def _eval_job_wrapper() -> None:
+            _run_eval_job(symbols)
+
+        _scheduler_instance.add_job(
+            _eval_job_wrapper,
+            trigger=IntervalTrigger(hours=1),
+            id="finpilot_eval_job",
+            name="FinPilot Autonomous Eval",
+        )
         _scheduler_instance.start()
         logger.info(
             "Scheduler başlatıldı — %d dakikada bir, semboller: %s",
@@ -473,4 +512,5 @@ def scheduler_status() -> dict[str, Any]:
         "cycle_count": _cycle_count,
         "last_run": _last_run,
         "last_status": _last_status,
+        "eval_last_run": _eval_last_run,
     }

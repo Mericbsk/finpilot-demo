@@ -282,6 +282,53 @@ function StrategyCycle({ events }: { events: AgentEvent[] }) {
   );
 }
 
+/* ─── Score Sparkline ────────────────────────────────────────── */
+function ScoreSparkline({ scores }: { scores: CycleScore[] }) {
+  if (scores.length < 2) return null;
+  const data = [...scores].reverse(); // chronological order
+  const W = 260, H = 40, PAD = 4;
+  const minV = Math.min(...data.map(d => d.score));
+  const maxV = Math.max(...data.map(d => d.score));
+  const range = Math.max(maxV - minV, 10);
+  const xStep = (W - PAD * 2) / (data.length - 1);
+
+  const points = data.map((d, i) => {
+    const x = PAD + i * xStep;
+    const y = PAD + (1 - (d.score - minV) / range) * (H - PAD * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+
+  const last = data[data.length - 1];
+  const lx = PAD + (data.length - 1) * xStep;
+  const ly = PAD + (1 - (last.score - minV) / range) * (H - PAD * 2);
+  const dotColor = GRADE_COLOR[last.grade] || "#00d4ff";
+
+  return (
+    <div style={{ marginTop: 4 }}>
+      <div style={{ fontSize: 10, color: C.text3, marginBottom: 4 }}>
+        Skor Trendi (son {data.length} cycle)
+      </div>
+      <svg width={W} height={H} style={{ display: "block", overflow: "visible" }}>
+        <defs>
+          <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#00d4ff" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#00d4ff" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {/* Fill area */}
+        <polygon
+          points={`${PAD},${H} ${points} ${PAD + (data.length - 1) * xStep},${H}`}
+          fill="url(#sparkGrad)"
+        />
+        {/* Line */}
+        <polyline points={points} fill="none" stroke="#00d4ff" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        {/* Last point dot */}
+        <circle cx={lx} cy={ly} r={3} fill={dotColor} />
+      </svg>
+    </div>
+  );
+}
+
 /* ─── KPI Panel ──────────────────────────────────────────────── */
 function KpiPanel({ kpis, cycleScores }: { kpis: KpiData | null; cycleScores: CycleScore[] }) {
   if (!kpis) return (
@@ -307,6 +354,11 @@ function KpiPanel({ kpis, cycleScores }: { kpis: KpiData | null; cycleScores: Cy
             <div style={{ fontSize: 10, color: C.text3 }}>Son Cycle Değerlendirmesi</div>
           </div>
         </div>
+      )}
+
+      {/* Score trend sparkline */}
+      {cycleScores.length >= 2 && (
+        <ScoreSparkline scores={cycleScores} />
       )}
 
       {/* KPI metrics */}
@@ -694,7 +746,8 @@ export default function AgentHubPage() {
             </p>
             {[
               { label: "Görev Çalıştır",   href: "/dashboard/agent",    color: "#00d4ff" },
-              { label: "Scanner",          href: "/dashboard/scanner",  color: "#bf5af2" },
+              { label: "Advisory Panel",   href: "/dashboard/advisory", color: "#bf5af2" },
+              { label: "Scanner",          href: "/dashboard/scanner",  color: "#6e6e73" },
               { label: "AI Analysis",      href: "/dashboard/analysis", color: "#0a84ff" },
               { label: "Backtest",         href: "/dashboard/backtest", color: "#30d158" },
             ].map(({ label, href, color }) => (
