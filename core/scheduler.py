@@ -159,37 +159,88 @@ def run_cycle_once(
         from agents.market_intelligence import MarketIntelligenceAgent
         from agents.performance_monitor import PerformanceMonitorAgent
         from agents.research_agent import ResearchAgent
-        from agents.scanner_agent import ScannerAgent
 
         from core.agent_events import log_event
         from core.agent_state import save_agent_result
         from core.kpi_tracker import record_signal, self_evaluate
 
-        # --- 0. Scanner — generate fresh technical signals for downstream agents ---
+        # --- 0. CEO graph (step-0 orchestrator) ---
+        # Sprint 6 (s6-orchestrator-merge): scheduler now drives the scanner via
+        # the CEO LangGraph workflow instead of calling ScannerAgent directly.
+        # This eliminates the two-orchestrator problem and gives every cycle a
+        # single, observable entry point.
         _t = time.perf_counter()
         scan_data: dict[str, Any] = {}
+        ceo_state: dict[str, Any] = {}
         try:
-            sc_ctx = AgentContext(symbols=symbols)
-            sc_result = ScannerAgent().run(sc_ctx, kelly_fraction=kelly_fraction)
+            from agents.ceo import get_graph
+
+            ceo_state = (
+                get_graph().invoke(
+                    {
+                        "task": "scan",
+                        "symbols": symbols,
+                        "kelly_fraction": kelly_fraction,
+                    }
+                )
+                or {}
+            )
+            scan_data = ceo_state.get("scan_results", {}) or {}
+            ceo_errors = ceo_state.get("errors", []) or []
+            errors.extend(ceo_errors)
+
             _dur = (time.perf_counter() - _t) * 1000
-            scan_data = sc_result.data or {}
             results["scan"] = scan_data
+            results["ceo"] = {
+                "task": "scan",
+                "top_symbols": ceo_state.get("top_symbols", []),
+                "errors": ceo_errors,
+            }
             try:
                 save_agent_result("scan", symbols, scan_data)
             except Exception as save_exc:
                 logger.warning("Scheduler: scan state save failed: %s", save_exc)
             log_event(
-                "Scanner",
-                "evaluate_symbols",
-                "ok" if sc_result.success else "error",
+                "CEO",
+                "graph_scan",
+                "ok" if not ceo_errors else "warn",
                 _dur,
-                f"{len(scan_data)} sembol tarandı",
+                f"{len(scan_data)} sembol tarandı (top={len(ceo_state.get('top_symbols', []))})",
                 symbols,
                 "strategy",
             )
+        except ImportError:
+            # Fallback: langgraph not installed → call ScannerAgent directly.
+            logger.warning(
+                "Scheduler: langgraph unavailable, falling back to direct ScannerAgent",
+            )
+            try:
+                from agents.scanner_agent import ScannerAgent
+
+                sc_ctx = AgentContext(symbols=symbols)
+                sc_result = ScannerAgent().run(sc_ctx, kelly_fraction=kelly_fraction)
+                _dur = (time.perf_counter() - _t) * 1000
+                scan_data = sc_result.data or {}
+                results["scan"] = scan_data
+                try:
+                    save_agent_result("scan", symbols, scan_data)
+                except Exception as save_exc:
+                    logger.warning("Scheduler: scan state save failed: %s", save_exc)
+                log_event(
+                    "Scanner",
+                    "evaluate_symbols",
+                    "ok" if sc_result.success else "error",
+                    _dur,
+                    f"{len(scan_data)} sembol tarandı (fallback)",
+                    symbols,
+                    "strategy",
+                )
+            except Exception as exc:
+                errors.append(f"scanner_fallback: {exc}")
+                logger.warning("Scheduler: scanner fallback failed: %s", exc)
         except Exception as exc:
-            errors.append(f"scanner: {exc}")
-            logger.warning("Scheduler: scanner failed: %s", exc)
+            errors.append(f"ceo_graph: {exc}")
+            logger.warning("Scheduler: CEO graph failed: %s", exc)
 
         # --- 1. Market Intelligence (regime detection) ---
         _t = time.perf_counter()
