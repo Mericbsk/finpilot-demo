@@ -20,6 +20,7 @@ import {
   Network,
   Building2,
   Users,
+  ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -47,6 +48,7 @@ const navItems = [
   { href: "/dashboard/finsense", icon: GraduationCap, label: "FinSense" },
   { href: "/dashboard/agent", icon: Network, label: "AI Agents" },
   { href: "/dashboard/advisory", icon: Users, label: "Advisory" },
+  { href: "/dashboard/autonomy", icon: ShieldCheck, label: "Autonomy" },
   { href: "/dashboard/watchlist", icon: Star, label: "Watchlist" },
   { href: "/dashboard/history", icon: Clock, label: "History" },
 ];

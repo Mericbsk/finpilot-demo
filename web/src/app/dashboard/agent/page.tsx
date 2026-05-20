@@ -86,7 +86,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 /* ── Main Component ────────────────────────────────────────── */
 export default function AgentPage() {
   const [task, setTask] = useState<Task>("scan");
-  const [symbolsInput, setSymbolsInput] = useState("THYAO.IS, KCHOL.IS");
+  const [symbolsInput, setSymbolsInput] = useState("AAPL, MSFT");
   const [kellyFraction, setKellyFraction] = useState(0.5);
   const [advisoryKey, setAdvisoryKey] = useState("cto");
   const [advisoryQuestion, setAdvisoryQuestion] = useState("");
