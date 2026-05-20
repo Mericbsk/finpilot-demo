@@ -32,6 +32,26 @@ class BacktestAgent(BaseAgent):
 
         t0 = time.perf_counter()
 
+        # Check for performance feedback from previous cycle
+        try:
+            from agents.feedback import get_feedback
+
+            feedback_messages = get_feedback("backtest", limit=5)
+            for msg in feedback_messages:
+                if msg.get("feedback_type") == "low_win_rate":
+                    # Override strategy hint based on feedback recommendation
+                    if "strategy" not in kwargs:
+                        kwargs = dict(kwargs)
+                        kwargs["strategy"] = msg["data"].get("recommendation_strategy", "trend")
+                        logger.info(
+                            "Backtest: applying feedback strategy override → %s (win_rate was %.1f%%)",
+                            kwargs["strategy"],
+                            msg["data"].get("win_rate", 0),
+                        )
+                    break
+        except Exception:
+            pass  # feedback is best-effort
+
         strategy_key: str = str(kwargs.get("strategy", "momentum"))
         initial_capital: float = float(kwargs.get("initial_capital", 10_000))
 

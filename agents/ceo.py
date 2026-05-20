@@ -152,11 +152,11 @@ def _node_alert(state: FinPilotState) -> dict:
 
 
 def _route_after_scan(state: FinPilotState) -> str:
-    """After scan, branch to 'analyze' (full task) or directly to 'risk'."""
+    """After scan, branch based on task type."""
     task = state.get("task", "scan")
-    if task == "full" and state.get("top_symbols"):
-        return "analyze"
-    if task == "analyze":
+    if task == "scan":
+        return "__end__"
+    if task in ("full", "analyze"):
         return "analyze"
     return "risk"
 
@@ -164,7 +164,7 @@ def _route_after_scan(state: FinPilotState) -> str:
 def _route_after_risk(state: FinPilotState) -> str:
     """After risk: send alerts only for 'full' task."""
     task = state.get("task", "scan")
-    if task in ("full",):
+    if task == "full":
         return "alert"
     return "__end__"
 
@@ -200,7 +200,7 @@ def build_graph() -> Any:
     g.add_conditional_edges(
         "scan",
         _route_after_scan,
-        {"analyze": "analyze", "risk": "risk"},
+        {"analyze": "analyze", "risk": "risk", "__end__": END},
     )
     g.add_edge("analyze", "risk")
 

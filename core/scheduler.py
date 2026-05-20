@@ -97,6 +97,34 @@ def run_cycle_once(
             errors.append(f"market_intel: {exc}")
             logger.warning("Scheduler: market_intel failed: %s", exc)
 
+        # --- 1b. Data Quality Gate — validate symbols before pipeline ---
+        _t = time.perf_counter()
+        try:
+            from agents.data_quality import DataQualityAgent
+
+            dq_ctx = AgentContext(symbols=symbols)
+            dq_result = DataQualityAgent().run(dq_ctx)
+            _dur = (time.perf_counter() - _t) * 1000
+            dq_data = dq_result.data or {}
+            results["data_quality"] = dq_data
+            if not dq_data.get("passed", True):
+                logger.warning(
+                    "Scheduler: data quality gate issues: %s",
+                    dq_data.get("issues", []),
+                )
+            log_event(
+                "Data Quality",
+                "schema_check",
+                "ok" if dq_result.success else "error",
+                _dur,
+                f"quality_score={dq_data.get('quality_score', '?')} passed={dq_data.get('passed', '?')}",
+                symbols,
+                "quality",
+            )
+        except Exception as exc:
+            errors.append(f"data_quality: {exc}")
+            logger.warning("Scheduler: data_quality failed: %s", exc)
+
         # --- 2. Research — enriched with regime context (feedback from step 1) ---
         _t = time.perf_counter()
         try:
@@ -324,6 +352,19 @@ def run_cycle_once(
         errors.append(f"self_eval: {exc}")
         logger.warning("Scheduler: self_eval failed: %s", exc)
         _last_status = "ok"
+
+    try:
+        from core.tracing import record_cycle_trace
+
+        record_cycle_trace(
+            _cycle_count,
+            "cycle_complete",
+            _last_status,
+            (datetime.now(tz=UTC) - t_start).total_seconds() * 1000,
+            f"errors={len(errors)} steps={len(results)}",
+        )
+    except Exception:
+        pass  # tracing is best-effort
 
     results["errors"] = errors
     results["cycle_number"] = _cycle_count
