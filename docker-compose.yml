@@ -44,10 +44,11 @@ services:
     environment:
       - TZ=Europe/Istanbul
       - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+      # DATABASE_URL example for PostgreSQL (uncomment after S2-1 auth refactor):
+      # - DATABASE_URL=postgresql://finpilot:${POSTGRES_PASSWORD:-finpilot_dev_2026}@postgres:5432/finpilot
     env_file:
       - .env
-    environment:
-      - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./data:/app/data
       - ./models:/app/models:ro
@@ -197,7 +198,7 @@ services:
     networks:
       - finpilot_network
     profiles:
-      - db  # Only run with: docker compose --profile db up -d postgres
+      - db  # Optional: omit profile to run by default; use --profile db to opt-in legacy mode
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U finpilot -d finpilot"]
       interval: 10s

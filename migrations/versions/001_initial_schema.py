@@ -19,7 +19,20 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.execute("""
+    bind = op.get_bind()
+    is_pg = bind.dialect.name == "postgresql"
+
+    # Dialect-specific column types
+    pk_int = "INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY" if is_pg else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    bool_default_true = "BOOLEAN DEFAULT TRUE" if is_pg else "INTEGER DEFAULT 1"
+    bool_default_false = "BOOLEAN DEFAULT FALSE" if is_pg else "INTEGER DEFAULT 0"
+    bool_zero = "BOOLEAN DEFAULT FALSE" if is_pg else "INTEGER DEFAULT 0"
+    ts_default_now = "TIMESTAMPTZ NOT NULL DEFAULT NOW()" if is_pg else "TEXT NOT NULL DEFAULT (datetime('now'))"
+    ts_optional = "TIMESTAMPTZ" if is_pg else "TEXT"
+    ts_required = "TIMESTAMPTZ NOT NULL" if is_pg else "TEXT NOT NULL"
+    real_t = "DOUBLE PRECISION" if is_pg else "REAL"
+
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
             email TEXT UNIQUE NOT NULL,
@@ -29,17 +42,17 @@ def upgrade() -> None:
             display_name TEXT,
             avatar_url TEXT,
             role TEXT DEFAULT 'user',
-            is_active INTEGER DEFAULT 1,
-            is_verified INTEGER DEFAULT 0,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            last_login TEXT,
+            is_active {bool_default_true},
+            is_verified {bool_default_false},
+            created_at {ts_required},
+            updated_at {ts_required},
+            last_login {ts_optional},
             failed_login_attempts INTEGER DEFAULT 0,
-            locked_until TEXT
+            locked_until {ts_optional}
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS sessions (
             id TEXT PRIMARY KEY,
             user_id TEXT NOT NULL,
@@ -48,184 +61,184 @@ def upgrade() -> None:
             device_info TEXT,
             ip_address TEXT,
             user_agent TEXT,
-            created_at TEXT NOT NULL,
-            expires_at TEXT NOT NULL,
-            last_activity TEXT NOT NULL,
-            is_active INTEGER DEFAULT 1,
+            created_at {ts_required},
+            expires_at {ts_required},
+            last_activity {ts_required},
+            is_active {bool_default_true},
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS portfolios (
             id TEXT PRIMARY KEY,
             user_id TEXT UNIQUE NOT NULL,
-            cash REAL DEFAULT 0,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
+            cash {real_t} DEFAULT 0,
+            created_at {ts_required},
+            updated_at {ts_required},
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS positions (
             id TEXT PRIMARY KEY,
             portfolio_id TEXT NOT NULL,
             symbol TEXT NOT NULL,
-            shares REAL NOT NULL,
-            avg_price REAL NOT NULL,
-            opened_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
+            shares {real_t} NOT NULL,
+            avg_price {real_t} NOT NULL,
+            opened_at {ts_required},
+            updated_at {ts_required},
             FOREIGN KEY (portfolio_id) REFERENCES portfolios(id),
             UNIQUE(portfolio_id, symbol)
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS trades (
             id TEXT PRIMARY KEY,
             portfolio_id TEXT NOT NULL,
             symbol TEXT NOT NULL,
             side TEXT NOT NULL,
-            shares REAL NOT NULL,
-            price REAL NOT NULL,
-            total REAL NOT NULL,
-            commission REAL DEFAULT 0,
-            executed_at TEXT NOT NULL,
+            shares {real_t} NOT NULL,
+            price {real_t} NOT NULL,
+            total {real_t} NOT NULL,
+            commission {real_t} DEFAULT 0,
+            executed_at {ts_required},
             notes TEXT,
             FOREIGN KEY (portfolio_id) REFERENCES portfolios(id)
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS watchlists (
             id TEXT PRIMARY KEY,
             user_id TEXT NOT NULL,
             name TEXT NOT NULL,
             symbols TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
+            created_at {ts_required},
+            updated_at {ts_required},
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS user_settings (
             user_id TEXT PRIMARY KEY,
             settings_json TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
+            updated_at {ts_required},
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS quiz_scores (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id {pk_int},
             user_id TEXT NOT NULL,
             score INTEGER NOT NULL,
             total INTEGER NOT NULL,
             category TEXT,
-            played_at TEXT NOT NULL,
+            played_at {ts_required},
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS signals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
+            id {pk_int},
+            timestamp {ts_required},
             symbol TEXT NOT NULL,
-            price REAL,
-            stop_loss REAL,
-            take_profit REAL,
-            score REAL,
-            strength REAL,
+            price {real_t},
+            stop_loss {real_t},
+            take_profit {real_t},
+            score {real_t},
+            strength {real_t},
             regime TEXT,
             sentiment TEXT,
             onchain TEXT,
-            entry_ok INTEGER DEFAULT 0,
+            entry_ok {bool_zero},
             summary TEXT,
             reason TEXT,
             status TEXT DEFAULT 'open',
-            outcome_price REAL,
-            outcome_date TEXT,
-            outcome_pct REAL,
-            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            outcome_price {real_t},
+            outcome_date {ts_optional},
+            outcome_pct {real_t},
+            created_at {ts_default_now}
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS scan_results (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id {pk_int},
             scan_id TEXT NOT NULL,
-            scan_timestamp TEXT NOT NULL,
+            scan_timestamp {ts_required},
             symbol TEXT NOT NULL,
-            price REAL,
-            stop_loss REAL,
-            take_profit REAL,
-            score REAL,
-            strength REAL,
+            price {real_t},
+            stop_loss {real_t},
+            take_profit {real_t},
+            score {real_t},
+            strength {real_t},
             regime TEXT,
             sentiment TEXT,
-            entry_ok INTEGER DEFAULT 0,
+            entry_ok {bool_zero},
             summary TEXT,
             source_file TEXT,
-            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            created_at {ts_default_now}
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS buy_signals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id {pk_int},
             date TEXT NOT NULL,
             symbol TEXT NOT NULL,
-            entry_price REAL NOT NULL,
-            stop_loss REAL,
-            take_profit REAL,
-            risk_reward REAL,
-            score REAL,
-            strength REAL,
+            entry_price {real_t} NOT NULL,
+            stop_loss {real_t},
+            take_profit {real_t},
+            risk_reward {real_t},
+            score {real_t},
+            strength {real_t},
             regime TEXT,
-            sentiment REAL,
-            position_size REAL,
-            kelly_fraction REAL,
+            sentiment {real_t},
+            position_size {real_t},
+            kelly_fraction {real_t},
             reason TEXT,
             scan_source TEXT,
             status TEXT DEFAULT 'active',
-            exit_price REAL,
-            exit_date TEXT,
-            pnl_pct REAL,
-            pnl_dollar REAL,
+            exit_price {real_t},
+            exit_date {ts_optional},
+            pnl_pct {real_t},
+            pnl_dollar {real_t},
             alpaca_order_id TEXT,
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            created_at {ts_default_now},
             UNIQUE(date, symbol)
         )
     """)
 
-    op.execute("""
+    op.execute(f"""
         CREATE TABLE IF NOT EXISTS alpaca_orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id {pk_int},
             order_id TEXT UNIQUE NOT NULL,
             buy_signal_id INTEGER,
             symbol TEXT NOT NULL,
             side TEXT NOT NULL,
-            qty REAL NOT NULL,
+            qty {real_t} NOT NULL,
             order_type TEXT DEFAULT 'limit',
-            limit_price REAL,
-            stop_price REAL,
+            limit_price {real_t},
+            stop_price {real_t},
             time_in_force TEXT DEFAULT 'day',
             status TEXT DEFAULT 'new',
-            filled_price REAL,
-            filled_qty REAL,
-            filled_at TEXT,
-            submitted_at TEXT NOT NULL,
+            filled_price {real_t},
+            filled_qty {real_t},
+            filled_at {ts_optional},
+            submitted_at {ts_required},
             raw_response TEXT,
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            created_at {ts_default_now},
             FOREIGN KEY (buy_signal_id) REFERENCES buy_signals(id)
         )
     """)
 
-    # Indexes
+    # Indexes (dialect-agnostic)
     op.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
     op.execute("CREATE INDEX IF NOT EXISTS idx_positions_portfolio ON positions(portfolio_id)")
     op.execute("CREATE INDEX IF NOT EXISTS idx_trades_portfolio ON trades(portfolio_id)")

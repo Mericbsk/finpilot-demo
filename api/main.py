@@ -99,10 +99,47 @@ def _archive_yesterday_on_startup() -> None:
         logging.getLogger(__name__).warning("Startup archive failed: %s", exc)
 
 
+def _register_health_checks() -> None:
+    """Register liveness/readiness checks (DB + Redis)."""
+    from core.monitoring import HealthCheckResult, HealthStatus
+
+    @health_check.register("database")
+    def _check_db() -> HealthCheckResult:
+        try:
+            db = Database()
+            with db.connection() as conn:
+                conn.execute("SELECT 1")
+            return HealthCheckResult(name="database", status=HealthStatus.HEALTHY)
+        except Exception as exc:  # noqa: BLE001
+            return HealthCheckResult(
+                name="database", status=HealthStatus.UNHEALTHY, message=str(exc)
+            )
+
+    @health_check.register("redis")
+    def _check_redis() -> HealthCheckResult:
+        try:
+            from core import agent_state
+
+            client = getattr(agent_state, "_redis", None)
+            if client is None:
+                return HealthCheckResult(
+                    name="redis",
+                    status=HealthStatus.DEGRADED,
+                    message="Redis unavailable; using in-memory fallback",
+                )
+            client.ping()
+            return HealthCheckResult(name="redis", status=HealthStatus.HEALTHY)
+        except Exception as exc:  # noqa: BLE001
+            return HealthCheckResult(
+                name="redis", status=HealthStatus.DEGRADED, message=str(exc)
+            )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _setup_log_rotation()
     Database().initialize()
+    _register_health_checks()
     sentry_client.init(
         environment=os.getenv("SENTRY_ENVIRONMENT", os.getenv("ENVIRONMENT", "development")),
         release=os.getenv("SENTRY_RELEASE", "finpilot-api@1.0.0"),
@@ -233,8 +270,28 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api/v1/live")
+def liveness():
+    """K8s liveness probe — process is alive (no dependency checks)."""
+    return {"status": "alive"}
+
+
 @app.get("/api/v1/ready")
 def ready():
+    """K8s readiness probe — dependencies (DB, Redis) reachable."""
+    result = health_check.run()
+    status_code = 200 if result.get("status") != "unhealthy" else 503
+    return JSONResponse(content=result, status_code=status_code)
+
+
+# Top-level aliases for K8s probes (/live, /ready) — common convention
+@app.get("/live")
+def liveness_root():
+    return {"status": "alive"}
+
+
+@app.get("/ready")
+def ready_root():
     result = health_check.run()
     status_code = 200 if result.get("status") != "unhealthy" else 503
     return JSONResponse(content=result, status_code=status_code)

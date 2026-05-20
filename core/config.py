@@ -295,6 +295,14 @@ class Settings(BaseSettings):
     TELEGRAM_CHAT_ID: str = ""
 
     # ==========================================================================
+    # INFRASTRUCTURE (top-level for easy env override)
+    # ==========================================================================
+
+    REDIS_URL: str = "redis://localhost:6379/0"
+    SENTRY_DSN: str = ""
+    DATABASE_URL: str = ""
+
+    # ==========================================================================
     # NESTED CONFIGURATIONS
     # ==========================================================================
 
@@ -339,6 +347,11 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         return self.ENVIRONMENT == "development"
 
+    @property
+    def redis_url(self) -> str:
+        """Top-level redis URL (REDIS_URL env > cache.redis_url default)."""
+        return self.REDIS_URL or self.cache.redis_url
+
     # ==========================================================================
     # VALIDATORS
     # ==========================================================================
@@ -357,6 +370,36 @@ class Settings(BaseSettings):
             self.telegram.enabled = True
         if self.TELEGRAM_CHAT_ID:
             self.telegram.chat_id = self.TELEGRAM_CHAT_ID
+        # Sync top-level REDIS_URL into nested cache config
+        if self.REDIS_URL:
+            self.cache.redis_url = self.REDIS_URL
+        return self
+
+    @model_validator(mode="after")
+    def validate_production_env(self) -> "Settings":
+        """In production, enforce strict env requirements (S2-6).
+
+        - SECRET_KEY must not be the default placeholder
+        - SENTRY_DSN must be set (so errors are captured)
+        - REDIS_URL must point to a non-localhost host
+        Skipped during pytest runs (PYTEST_CURRENT_TEST set).
+        """
+        import os as _os
+
+        if not self.is_production:
+            return self
+        if _os.getenv("PYTEST_CURRENT_TEST"):
+            return self
+
+        errors: list[str] = []
+        if self.auth.secret_key == "finpilot-secret-key-change-in-production":
+            errors.append("AUTH__SECRET_KEY must be overridden in production")
+        if not self.SENTRY_DSN:
+            errors.append("SENTRY_DSN must be set in production")
+        if "localhost" in self.redis_url or "127.0.0.1" in self.redis_url:
+            errors.append("REDIS_URL must not point to localhost in production")
+        if errors:
+            raise ValueError("Production env validation failed: " + "; ".join(errors))
         return self
 
     # ==========================================================================

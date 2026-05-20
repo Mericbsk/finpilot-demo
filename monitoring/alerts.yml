@@ -1,0 +1,104 @@
+groups:
+  - name: finpilot_core
+    interval: 1m
+    rules:
+      - alert: APIDown
+        expr: up{job="finpilot_api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "FinPilot API is down"
+          description: "{{ $labels.instance }} has been unreachable for 2 minutes."
+          runbook: "docs/runbooks/api-health.md"
+
+      - alert: APIReadinessDegraded
+        expr: probe_success{job="finpilot_api_ready"} == 0
+        for: 5m
+        labels:
+          severity: high
+          team: platform
+        annotations:
+          summary: "FinPilot /ready probe failing"
+          description: "Readiness probe failed for 5 minutes — at least one dependency is unhealthy."
+          runbook: "docs/runbooks/api-health.md"
+
+      - alert: SchedulerNoRecentRun
+        expr: time() - finpilot_scheduler_last_run_timestamp_seconds > 7200
+        for: 10m
+        labels:
+          severity: high
+          team: platform
+        annotations:
+          summary: "Scheduler has not run in over 2 hours"
+          description: "Last successful scheduler eval was {{ $value | humanizeDuration }} ago."
+          runbook: "docs/runbooks/scheduler.md"
+
+      - alert: RedisDown
+        expr: finpilot_redis_up == 0
+        for: 5m
+        labels:
+          severity: high
+          team: platform
+        annotations:
+          summary: "Redis is unreachable from API"
+          description: "agent_state has fallen back to in-memory storage. KPI/feedback history at risk on restart."
+          runbook: "docs/runbooks/redis.md"
+
+  - name: finpilot_strategy
+    interval: 5m
+    rules:
+      - alert: WinRateDegraded
+        expr: finpilot_win_rate_7d < 0.45
+        for: 30m
+        labels:
+          severity: medium
+          team: strategy
+        annotations:
+          summary: "7-day win-rate dropped below 0.45"
+          description: "Current win-rate: {{ $value | humanizePercentage }}."
+          runbook: "docs/runbooks/win-rate.md"
+
+      - alert: LLMHighErrorRate
+        expr: |
+          sum(rate(finpilot_llm_request_errors_total[5m]))
+          /
+          sum(rate(finpilot_llm_request_total[5m])) > 0.2
+        for: 10m
+        labels:
+          severity: medium
+          team: advisory
+        annotations:
+          summary: "LLM error rate above 20%"
+          description: "{{ $value | humanizePercentage }} of LLM requests failing in the last 5 minutes."
+          runbook: "docs/runbooks/llm.md"
+
+  - name: finpilot_api_latency
+    interval: 1m
+    rules:
+      - alert: APIHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(finpilot_api_latency_seconds_bucket[5m])) by (le, endpoint)
+          ) > 2.0
+        for: 10m
+        labels:
+          severity: medium
+          team: platform
+        annotations:
+          summary: "API p95 latency > 2s on {{ $labels.endpoint }}"
+          description: "p95 = {{ $value }}s — investigate slow endpoint."
+
+      - alert: APIHighErrorRate
+        expr: |
+          sum(rate(finpilot_api_requests_total{status_code=~"5.."}[5m]))
+          /
+          sum(rate(finpilot_api_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: high
+          team: platform
+        annotations:
+          summary: "API 5xx error rate above 5%"
+          description: "{{ $value | humanizePercentage }} of requests returning 5xx."
