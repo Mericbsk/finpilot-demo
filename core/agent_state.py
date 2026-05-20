@@ -13,8 +13,8 @@ Usage::
     from core.agent_state import save_agent_result, get_agent_result, get_latest_scan
 
     # In CEO graph / agent run endpoint:
-    save_agent_result("scan", symbols=["THYAO.IS"], data=scan_results)
-    save_agent_result("analyze", symbols=["THYAO.IS"], data=analyze_results)
+    save_agent_result("scan", symbols=["AAPL"], data=scan_results)
+    save_agent_result("analyze", symbols=["AAPL"], data=analyze_results)
 
     # In Scheduler pipeline (research step):
     latest = get_latest_scan(symbols)  # dict or None

@@ -14,11 +14,11 @@ Kullanım:
     from core.scheduler import get_scheduler, start_scheduler, stop_scheduler
 
     scheduler = get_scheduler()
-    start_scheduler(symbols=["THYAO.IS", "KCHOL.IS"], interval_minutes=60)
+    start_scheduler(symbols=["AAPL", "MSFT", "NVDA"], interval_minutes=60)
 
     # Ya da tek seferlik çalıştırmak için:
     from core.scheduler import run_cycle_once
-    run_cycle_once(symbols=["THYAO.IS"])
+    run_cycle_once(symbols=["AAPL"])
 """
 
 from __future__ import annotations

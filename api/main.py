@@ -160,7 +160,7 @@ async def lifespan(app: FastAPI):
 
             symbols_env = os.getenv(
                 "FINPILOT_SCHEDULER_SYMBOLS",
-                "THYAO.IS,KCHOL.IS,EREGL.IS,GARAN.IS,SISE.IS",
+                "AAPL,MSFT,NVDA,GOOGL,META,AMZN,TSLA,AMD",
             )
             symbols = [s.strip() for s in symbols_env.split(",") if s.strip()]
             interval = int(os.getenv("FINPILOT_SCHEDULER_INTERVAL_MIN", "60"))
