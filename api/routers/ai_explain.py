@@ -98,11 +98,11 @@ def _parse_llm_response(text: str) -> tuple[str, str, str]:
     for line in text.splitlines():
         line = line.strip()
         if line.startswith("SIMPLE:"):
-            simple = line[len("SIMPLE:"):].strip()
+            simple = line[len("SIMPLE:") :].strip()
         elif line.startswith("IMPORTANT:"):
-            why = line[len("IMPORTANT:"):].strip()
+            why = line[len("IMPORTANT:") :].strip()
         elif line.startswith("MISTAKE:"):
-            mistake = line[len("MISTAKE:"):].strip()
+            mistake = line[len("MISTAKE:") :].strip()
     return simple, why, mistake
 
 

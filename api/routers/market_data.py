@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 # News
 # ---------------------------------------------------------------------------
 
+
 @router.get("/news/{symbol}")
 async def get_news(symbol: str):
     """Return the latest news items for a ticker via yfinance."""
@@ -32,11 +33,14 @@ async def get_news(symbol: str):
             content = n.get("content", {})
             # yfinance ≥0.2.x wraps everything in content{}
             title = content.get("title") or n.get("title", "")
-            provider = (content.get("provider", {}) or {}).get("displayName") or n.get("publisher", "")
+            provider = (content.get("provider", {}) or {}).get("displayName") or n.get(
+                "publisher", ""
+            )
             pub_ts = content.get("pubDate") or n.get("providerPublishTime")
             # Normalise timestamp → human string
             if isinstance(pub_ts, (int, float)):
                 from datetime import datetime
+
                 dt = datetime.fromtimestamp(pub_ts, tz=UTC)
                 time_str = dt.strftime("%b %d, %H:%M")
             elif isinstance(pub_ts, str):
@@ -45,19 +49,51 @@ async def get_news(symbol: str):
                 time_str = "—"
             # Rough sentiment from title keywords
             title_l = title.lower()
-            if any(w in title_l for w in ["beat", "surge", "rally", "upgrade", "buy", "profit", "gain", "rise", "soar", "record", "strong"]):
+            if any(
+                w in title_l
+                for w in [
+                    "beat",
+                    "surge",
+                    "rally",
+                    "upgrade",
+                    "buy",
+                    "profit",
+                    "gain",
+                    "rise",
+                    "soar",
+                    "record",
+                    "strong",
+                ]
+            ):
                 sentiment = "Bullish"
-            elif any(w in title_l for w in ["miss", "drop", "fall", "downgrade", "sell", "loss", "decline", "warn", "cut", "concern", "risk"]):
+            elif any(
+                w in title_l
+                for w in [
+                    "miss",
+                    "drop",
+                    "fall",
+                    "downgrade",
+                    "sell",
+                    "loss",
+                    "decline",
+                    "warn",
+                    "cut",
+                    "concern",
+                    "risk",
+                ]
+            ):
                 sentiment = "Bearish"
             else:
                 sentiment = "Neutral"
             if title:
-                items.append({
-                    "title": title,
-                    "source": provider,
-                    "time": time_str,
-                    "sentiment": sentiment,
-                })
+                items.append(
+                    {
+                        "title": title,
+                        "source": provider,
+                        "time": time_str,
+                        "sentiment": sentiment,
+                    }
+                )
         return {"symbol": sym, "items": items, "count": len(items)}
     except Exception as exc:
         logger.warning("news fetch failed for %s: %s", sym, exc)
@@ -69,26 +105,26 @@ async def get_news(symbol: str):
 # ---------------------------------------------------------------------------
 
 _FUNDAMENTAL_KEYS = [
-    ("marketCap",          "Market Cap",        "cap"),
-    ("trailingPE",         "P/E (TTM)",          "number"),
-    ("forwardPE",          "P/E (Fwd)",          "number"),
-    ("trailingEps",        "EPS (TTM)",          "currency"),
-    ("revenueGrowth",      "Revenue Growth",     "pct"),
-    ("earningsGrowth",     "Earnings Growth",    "pct"),
-    ("debtToEquity",       "Debt/Equity",        "number"),
-    ("dividendYield",      "Div Yield",          "pct"),
-    ("fiftyTwoWeekHigh",   "52W High",           "currency"),
-    ("fiftyTwoWeekLow",    "52W Low",            "currency"),
-    ("beta",               "Beta",               "number"),
-    ("floatShares",        "Float",              "shares"),
-    ("averageVolume",      "Avg Volume",         "volume"),
-    ("returnOnEquity",     "ROE",                "pct"),
-    ("grossMargins",       "Gross Margin",       "pct"),
-    ("operatingMargins",   "Op Margin",          "pct"),
-    ("currentRatio",       "Current Ratio",      "number"),
-    ("priceToBook",        "P/B Ratio",          "number"),
-    ("enterpriseToEbitda", "EV/EBITDA",          "number"),
-    ("shortRatio",         "Short Ratio",        "number"),
+    ("marketCap", "Market Cap", "cap"),
+    ("trailingPE", "P/E (TTM)", "number"),
+    ("forwardPE", "P/E (Fwd)", "number"),
+    ("trailingEps", "EPS (TTM)", "currency"),
+    ("revenueGrowth", "Revenue Growth", "pct"),
+    ("earningsGrowth", "Earnings Growth", "pct"),
+    ("debtToEquity", "Debt/Equity", "number"),
+    ("dividendYield", "Div Yield", "pct"),
+    ("fiftyTwoWeekHigh", "52W High", "currency"),
+    ("fiftyTwoWeekLow", "52W Low", "currency"),
+    ("beta", "Beta", "number"),
+    ("floatShares", "Float", "shares"),
+    ("averageVolume", "Avg Volume", "volume"),
+    ("returnOnEquity", "ROE", "pct"),
+    ("grossMargins", "Gross Margin", "pct"),
+    ("operatingMargins", "Op Margin", "pct"),
+    ("currentRatio", "Current Ratio", "number"),
+    ("priceToBook", "P/B Ratio", "number"),
+    ("enterpriseToEbitda", "EV/EBITDA", "number"),
+    ("shortRatio", "Short Ratio", "number"),
 ]
 
 
@@ -137,11 +173,13 @@ async def get_fundamentals(symbol: str):
         rows = []
         for key, label, fmt in _FUNDAMENTAL_KEYS:
             raw = info.get(key)
-            rows.append({
-                "label": label,
-                "value": _fmt(raw, fmt),
-                "raw": raw,
-            })
+            rows.append(
+                {
+                    "label": label,
+                    "value": _fmt(raw, fmt),
+                    "raw": raw,
+                }
+            )
         return {
             "symbol": sym,
             "name": info.get("longName") or info.get("shortName") or sym,

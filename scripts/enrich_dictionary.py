@@ -1,8 +1,10 @@
 """Sprint 2: Add simple_explanation, why_important, common_mistake to 50 key terms."""
-import json, pathlib, sys
+
+import json
+import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SRC  = ROOT / "web" / "public" / "dictionary.json"
+SRC = ROOT / "web" / "public" / "dictionary.json"
 
 ENRICHMENTS = {
     # ── TEKNIK ANALİZ ──────────────────────────────────────────────────────────
