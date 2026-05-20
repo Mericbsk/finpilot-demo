@@ -165,6 +165,10 @@ down:
 logs:
 	docker compose logs -f --tail=200
 
+smoke:
+	@echo "$(BLUE)Running startup smoke test...$(NC)"
+	$(PYTHON) scripts/smoke_test.py
+
 run:
 	@echo "$(BLUE)Starting primary local stack (Linux/macOS native)...$(NC)"
 	bash start.sh
