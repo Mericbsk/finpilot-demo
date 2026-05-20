@@ -10,6 +10,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Lightbulb,
+  History,
+  Trash2,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
@@ -59,6 +61,13 @@ interface AdvisoryResponse {
   provider: string;
   latency_ms: number;
   success: boolean;
+  history_used?: number;
+}
+
+interface HistoryMessage {
+  role: string;
+  content: string;
+  ts: number;
 }
 
 /* ─── Advisor Card ──────────────────────────────────────────────── */
@@ -129,6 +138,36 @@ function AskDialog({
   const [response, setResponse] = useState<AdvisoryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [history, setHistory] = useState<HistoryMessage[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const fetchHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const res = await apiFetch(`/api/v1/advisory/${advisor.name}/history?limit=10`);
+      if (res.ok) {
+        const data = await res.json();
+        setHistory(data.messages || []);
+      }
+    } catch {
+      /* silent */
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [advisor.name]);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  const clearHistoryServer = async () => {
+    try {
+      await apiFetch(`/api/v1/advisory/${advisor.name}/history`, { method: "DELETE" });
+      setHistory([]);
+    } catch {
+      /* silent */
+    }
+  };
 
   const submit = async () => {
     if (!question.trim()) return;
@@ -146,6 +185,8 @@ function AskDialog({
       }
       const data: AdvisoryResponse = await res.json();
       setResponse(data);
+      setQuestion("");
+      fetchHistory();
     } catch (e) {
       setError(String(e));
     } finally {
@@ -276,6 +317,80 @@ function AskDialog({
           <div style={{ display: "flex", alignItems: "flex-start", gap: 8, background: "rgba(255,69,58,0.1)", border: "1px solid rgba(255,69,58,0.3)", borderRadius: 8, padding: "10px 12px", marginBottom: 16 }}>
             <AlertCircle size={14} color="#ff453a" style={{ flexShrink: 0, marginTop: 1 }} />
             <span style={{ fontSize: 12, color: "#ff453a" }}>{error}</span>
+          </div>
+        )}
+
+        {/* History block (sliding window) */}
+        {(history.length > 0 || historyLoading) && (
+          <div
+            style={{
+              background: "#0e0e18",
+              border: `1px solid ${C.border}`,
+              borderRadius: 10,
+              padding: 12,
+              marginBottom: 16,
+              maxHeight: 240,
+              overflowY: "auto",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 8,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <History size={12} color={C.text3} />
+                <span style={{ fontSize: 11, color: C.text3, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Geçmiş ({history.length})
+                </span>
+              </div>
+              {history.length > 0 && (
+                <button
+                  onClick={clearHistoryServer}
+                  title="Geçmişi sil"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: C.text3,
+                    padding: 2,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Trash2 size={12} />
+                </button>
+              )}
+            </div>
+            {historyLoading && (
+              <div style={{ fontSize: 11, color: C.text3 }}>Yükleniyor…</div>
+            )}
+            {history.map((m, i) => {
+              const isUser = m.role === "user";
+              return (
+                <div
+                  key={i}
+                  style={{
+                    fontSize: 12,
+                    color: isUser ? C.text1 : C.text2,
+                    background: isUser ? "rgba(255,255,255,0.03)" : "transparent",
+                    padding: "6px 10px",
+                    borderLeft: `2px solid ${isUser ? color + "55" : "transparent"}`,
+                    marginBottom: 4,
+                    whiteSpace: "pre-wrap",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <span style={{ fontSize: 10, color: C.text3, marginRight: 6 }}>
+                    {isUser ? "Sen" : advisor.role}:
+                  </span>
+                  {m.content}
+                </div>
+              );
+            })}
           </div>
         )}
 

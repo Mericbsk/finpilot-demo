@@ -136,7 +136,7 @@ def run_cycle_once(
         mi_data: dict[str, Any] = {}
         try:
             mi_ctx = AgentContext(symbols=symbols)
-            mi_result = MarketIntelligenceAgent().run(mi_ctx, lookback_days=30, use_llm=False)
+            mi_result = MarketIntelligenceAgent().run(mi_ctx, lookback_days=30, use_llm=True)
             _dur = (time.perf_counter() - _t) * 1000
             mi_data = mi_result.data or {}
             results["market_intel"] = mi_data
@@ -342,6 +342,36 @@ def run_cycle_once(
                             "cycle": _cycle_count + 1,
                         },
                     )
+                    # S3-5: Telegram critical alert on drawdown
+                    try:
+                        from telegram_alerts import TelegramNotifier
+
+                        status_str = pm_data.get("portfolio_status")
+                        emoji = "🛑" if status_str == "STOP" else "⚠️"
+                        worst_sym = ""
+                        try:
+                            sym_map = pm_data.get("symbols", {})
+                            if isinstance(sym_map, dict) and sym_map:
+                                worst = min(
+                                    sym_map.items(),
+                                    key=lambda kv: kv[1].get("drawdown_pct", 0)
+                                    if isinstance(kv[1], dict)
+                                    else 0,
+                                )
+                                worst_sym = (
+                                    f"\nEn kötü: {worst[0]} "
+                                    f"DD={worst[1].get('drawdown_pct', '?')}%"
+                                )
+                        except Exception:  # noqa: BLE001, S110
+                            pass
+                        msg = (
+                            f"{emoji} *PORTFÖY {status_str}* — Cycle #{_cycle_count + 1}"
+                            f"{worst_sym}"
+                            f"\nWin rate: {win_rate:.1f}% | Resolved: {kpis.get('resolved_signals', 0)}"
+                        )
+                        TelegramNotifier()._send_message(msg)
+                    except Exception as tex:  # noqa: BLE001
+                        logger.warning("Scheduler: telegram drawdown alert failed: %s", tex)
             except Exception:
                 pass  # feedback is best-effort
         except Exception as exc:
@@ -391,6 +421,47 @@ def run_cycle_once(
                 symbols,
                 "ops",
             )
+
+            # S3-3: Telegram alert for symbols with entry_ok=True
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                from core.agent_state import mark_alert_sent, was_alert_sent
+
+                entries = [
+                    (sym, sig)
+                    for sym, sig in scan_for_report.items()
+                    if sig.get("entry_ok") and not was_alert_sent(sym, _cycle_count + 1)
+                ]
+                if entries:
+                    notifier = TelegramNotifier()
+                    for sym, sig in entries[:10]:  # cap to 10 per cycle
+                        try:
+                            price = float(sig.get("price", 0) or 0)
+                            sl = float(sig.get("stop_loss", 0) or 0)
+                            tp = float(sig.get("take_profit", 0) or 0)
+                            sl_pct = abs((price - sl) / price * 100) if price else 0.0
+                            signal_data = {
+                                "symbol": sym,
+                                "price": round(price, 4),
+                                "stop_loss": round(sl, 4),
+                                "stop_loss_percent": sl_pct,
+                                "take_profit": round(tp, 4),
+                                "risk_reward": float(sig.get("risk_reward", 0) or 0),
+                                "position_size": 0,
+                                "score": int(round(float(sig.get("finpilot_score", 0) or 0))),
+                                "filter_score": 3,
+                                "is_premium_symbol": False,
+                                "timestamp": t_start.strftime("%Y-%m-%d %H:%M UTC"),
+                            }
+                            notifier.send_signal_alert(signal_data)
+                            mark_alert_sent(sym, _cycle_count + 1)
+                        except Exception as ie:  # noqa: BLE001
+                            logger.warning(
+                                "Scheduler: telegram entry_ok send failed for %s: %s", sym, ie
+                            )
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Scheduler: telegram entry_ok hook failed: %s", exc)
         except Exception as exc:
             errors.append(f"report: {exc}")
             logger.warning("Scheduler: report failed: %s", exc)
@@ -437,6 +508,95 @@ def run_cycle_once(
         )
     except Exception:
         pass  # tracing is best-effort
+
+    # --- 8. Advisory post-step (Sprint 3 — S3-2/S3-6) ---
+    # Every N cycles, feed scan + KPI summary to competitive_intel + cto advisors
+    # for an autonomous strategic review. Results are persisted to advisory_memory
+    # under user_id="scheduler" so the UI / future runs can read them.
+    try:
+        _advisory_every_n = 10  # ~10 cycles ≈ weekly at hourly interval
+        if _cycle_count > 0 and _cycle_count % _advisory_every_n == 0:
+            from agents.advisory import advisory_agent_for
+
+            from core.advisory_memory import append_message
+
+            top_signals: list[str] = []
+            try:
+                for sym, sig in (scan_data or {}).items():  # noqa: F821 (defined above)
+                    if isinstance(sig, dict) and sig.get("entry_ok"):
+                        top_signals.append(
+                            f"{sym}: skor={sig.get('finpilot_score', '?')} "
+                            f"R/R={sig.get('risk_reward', '?')}"
+                        )
+            except Exception:  # noqa: BLE001, S110
+                pass
+            top_block = "\n".join(top_signals[:10]) if top_signals else "Aktif sinyal yok."
+            kpi_block = ""
+            try:
+                from core.kpi_tracker import get_kpis
+
+                _k = get_kpis()
+                kpi_block = (
+                    f"Win rate: {_k.get('win_rate', 0):.1f}% | "
+                    f"Resolved: {_k.get('resolved_signals', 0)} | "
+                    f"Open: {_k.get('open_signals', 0)}"
+                )
+            except Exception:  # noqa: BLE001, S110
+                pass
+
+            review_question = (
+                f"Cycle #{_cycle_count} otomatik strateji incelemesi. "
+                "Mevcut sinyaller ve KPI'lar göz önüne alındığında en kritik "
+                "gelişme nedir ve önerin nedir? (Kısa, 3 madde)"
+            )
+            review_context = (
+                f"Top sinyaller:\n{top_block}\n\n"
+                f"KPI özeti: {kpi_block or '?'}\n"
+                f"Market regime: {mi_data.get('regime', '?')}"
+            )
+            review_results: dict[str, Any] = {}
+            for advisor_key in ("competitive_intel", "cto"):
+                try:
+                    agent = advisory_agent_for(advisor_key)
+                    a_ctx = AgentContext(symbols=symbols)
+                    a_res = agent.run(
+                        a_ctx,
+                        question=review_question,
+                        context_str=review_context,
+                    )
+                    if a_res.success:
+                        advice = (a_res.data or {}).get("advice", "")
+                        review_results[advisor_key] = advice
+                        append_message(advisor_key, "scheduler", "user", review_question)
+                        append_message(
+                            advisor_key,
+                            "scheduler",
+                            "assistant",
+                            advice,
+                            extra={"cycle": _cycle_count, "auto": True},
+                        )
+                except Exception as ae:  # noqa: BLE001
+                    logger.warning(
+                        "Scheduler: advisory review failed for %s: %s", advisor_key, ae
+                    )
+            if review_results:
+                results["advisory_review"] = review_results
+                try:
+                    save_agent_result("advisory_review", symbols, review_results)
+                except Exception:  # noqa: BLE001, S110
+                    pass
+                log_event(
+                    "Advisory",
+                    "auto_review",
+                    "ok",
+                    0.0,
+                    f"Cycle #{_cycle_count} — {len(review_results)} danışman incelemesi",
+                    symbols,
+                    "management",
+                )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Scheduler: advisory post-step failed: %s", exc)
+        errors.append(f"advisory_post: {exc}")
 
     results["errors"] = errors
     results["cycle_number"] = _cycle_count

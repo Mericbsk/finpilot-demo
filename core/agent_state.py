@@ -136,3 +136,38 @@ def get_latest_scan(symbols: list[str]) -> dict[str, Any] | None:
 def get_latest_analysis(symbols: list[str]) -> dict[str, Any] | None:
     """Return the most recent CEO analysis results for *symbols* (or None)."""
     return get_agent_result("analyze", symbols)
+
+
+# ---------------------------------------------------------------------------
+# Alert dedupe (Sprint 3 — S3-3)
+# ---------------------------------------------------------------------------
+
+_ALERT_TTL = 4 * 3600  # 4 hours
+
+
+def _alert_key(symbol: str, cycle: int) -> str:
+    return f"finpilot:alert_sent:{symbol}:{cycle}"
+
+
+def was_alert_sent(symbol: str, cycle: int) -> bool:
+    """Return True if a Telegram alert has already been sent for (symbol,cycle)."""
+    key = _alert_key(symbol, cycle)
+    try:
+        if _redis is not None:
+            return bool(_redis.exists(key))
+        return _mem_get(key) is not None
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("agent_state: was_alert_sent check failed: %s", exc)
+        return False
+
+
+def mark_alert_sent(symbol: str, cycle: int) -> None:
+    """Record that a Telegram alert has been sent for (symbol,cycle)."""
+    key = _alert_key(symbol, cycle)
+    try:
+        if _redis is not None:
+            _redis.setex(key, _ALERT_TTL, "1")
+        else:
+            _mem_store[key] = (time.time() + _ALERT_TTL, "1")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("agent_state: mark_alert_sent failed: %s", exc)

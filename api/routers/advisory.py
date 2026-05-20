@@ -12,10 +12,17 @@ import logging
 
 from agents.advisory import advisory_agent_for, list_advisory_keys
 from agents.base import AgentContext
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
 from api.middleware.auth import require_auth
+from auth.tokens import TokenPayload
+from core.advisory_memory import (
+    append_message,
+    clear_history,
+    format_history_as_context,
+    get_history,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +105,19 @@ class AdvisoryResponse(BaseModel):
     provider: str
     latency_ms: float
     success: bool
+    history_used: int = 0
+
+
+class HistoryMessage(BaseModel):
+    role: str
+    content: str
+    ts: float
+
+
+class HistoryResponse(BaseModel):
+    advisor: str
+    user_id: str
+    messages: list[HistoryMessage]
 
 
 # ---------------------------------------------------------------------------
@@ -139,36 +159,112 @@ def get_advisor(name: str) -> AdvisorInfo:
     "/{name}",
     response_model=AdvisoryResponse,
     summary="Danışmana soru sor",
-    dependencies=[Depends(require_auth)],
 )
-def ask_advisor(name: str, body: AdvisoryRequest) -> AdvisoryResponse:
-    """Belirtilen danışman agent'a LLM üzerinden soru sorar (JWT auth gerekli)."""
+def ask_advisor(
+    name: str,
+    body: AdvisoryRequest,
+    user: TokenPayload = Depends(require_auth),
+) -> AdvisoryResponse:
+    """Belirtilen danışman agent'a LLM üzerinden soru sorar (JWT auth gerekli).
+
+    Sliding-window memory: son 10 mesaj (user+assistant) Redis'te tutulur ve
+    agent çağrısının context'ine enjekte edilir.
+    """
+    advisor_key = name.lower()
     try:
-        agent = advisory_agent_for(name)
+        agent = advisory_agent_for(advisor_key)
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         ) from exc
 
-    ctx = AgentContext(symbols=body.symbols or [])
+    user_id = user.user_id
+    history = get_history(advisor_key, user_id, limit=10, chronological=True)
+    history_block = format_history_as_context(history)
+    enriched_context = (
+        f"{history_block}\n\n{body.context_str}".strip() if history_block else body.context_str
+    )
 
-    result = agent.run(ctx, question=body.question, context_str=body.context_str)
+    ctx = AgentContext(symbols=body.symbols or [])
+    result = agent.run(ctx, question=body.question, context_str=enriched_context)
 
     if not result.success:
-        logger.error("Advisory agent '%s' failed: %s", name, result.error)
+        logger.error("Advisory agent '%s' failed: %s", advisor_key, result.error)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Danışman yanıt üretemedi: {result.error}",
         )
 
     data = result.data or {}
+    advice = data.get("advice", "")
+
+    # Persist exchange to sliding-window memory (best-effort)
+    try:
+        append_message(advisor_key, user_id, "user", body.question)
+        append_message(
+            advisor_key,
+            user_id,
+            "assistant",
+            advice,
+            extra={"provider": data.get("provider", "unknown")},
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Advisory: memory append failed for %s/%s: %s", advisor_key, user_id, exc)
+
     return AdvisoryResponse(
-        advisor=name.lower(),
+        advisor=advisor_key,
         role=data.get("role", name),
         question=data.get("question", body.question),
-        advice=data.get("advice", ""),
+        advice=advice,
         provider=data.get("provider", "unknown"),
         latency_ms=data.get("latency_ms", 0.0),
         success=True,
+        history_used=len(history),
     )
+
+
+@router.get(
+    "/{name}/history",
+    response_model=HistoryResponse,
+    summary="Danışmanla geçmiş konuşmayı getir",
+)
+def get_advisor_history(
+    name: str,
+    limit: int = 10,
+    user: TokenPayload = Depends(require_auth),
+) -> HistoryResponse:
+    """Aktif kullanıcının (advisor,user) sliding-window mesaj geçmişini döner."""
+    advisor_key = name.lower()
+    if advisor_key not in list_advisory_keys():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Danışman '{name}' bulunamadı.",
+        )
+    history = get_history(advisor_key, user.user_id, limit=max(1, min(limit, 50)))
+    return HistoryResponse(
+        advisor=advisor_key,
+        user_id=user.user_id,
+        messages=[HistoryMessage(**m) for m in history],
+    )
+
+
+@router.delete(
+    "/{name}/history",
+    summary="Danışman konuşma geçmişini sil",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+)
+def delete_advisor_history(
+    name: str,
+    user: TokenPayload = Depends(require_auth),
+) -> Response:
+    """Aktif kullanıcının (advisor,user) konuşma geçmişini siler."""
+    advisor_key = name.lower()
+    if advisor_key not in list_advisory_keys():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Danışman '{name}' bulunamadı.",
+        )
+    clear_history(advisor_key, user.user_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
