@@ -5,6 +5,24 @@ import pandas as pd
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _isolate_llm_state():
+    """Ensure LLM cache and rate-limiter state is per-test (Sprint 4 isolation)."""
+    try:
+        from core.cache import cache_manager
+
+        cache_manager.clear()
+    except Exception:
+        pass
+    try:
+        from core.rate_limiter import reset_buckets
+
+        reset_buckets()
+    except Exception:
+        pass
+    yield
+
+
 @pytest.fixture
 def sample_ohlcv():
     """Generate a realistic OHLCV DataFrame for testing."""

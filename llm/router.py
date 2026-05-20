@@ -34,6 +34,30 @@ from llm.base import (
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
+# Sprint 4 — response cache + per-provider rate limiting
+# ---------------------------------------------------------------------------
+
+_LLM_CACHE_NS = "llm_response"
+_LLM_CACHE_TTL = int(os.environ.get("LLM_CACHE_TTL_SECONDS", "3600"))
+# Bucket defaults: ~5 RPS, burst 10. Override via env per provider:
+#   LLM_RATE_GROQ=10, LLM_BURST_GROQ=20
+_LLM_DEFAULT_RATE = float(os.environ.get("LLM_RATE_DEFAULT", "5"))
+_LLM_DEFAULT_BURST = float(os.environ.get("LLM_BURST_DEFAULT", "10"))
+
+
+def _llm_cache_key(messages: list[LLMMessage], temperature: float, max_tokens: int, model: str | None) -> str:
+    from core.cache import make_cache_key
+
+    serialised = [(m.role.value if hasattr(m.role, "value") else str(m.role), m.content) for m in messages]
+    return make_cache_key("llm", model or "", (temperature, max_tokens, serialised), {})
+
+
+def _provider_rate_limit(provider_name: str) -> tuple[float, float]:
+    rate = float(os.environ.get(f"LLM_RATE_{provider_name.upper()}", _LLM_DEFAULT_RATE))
+    burst = float(os.environ.get(f"LLM_BURST_{provider_name.upper()}", _LLM_DEFAULT_BURST))
+    return rate, burst
+
+# ---------------------------------------------------------------------------
 # Langfuse — optional LLM observability
 # ---------------------------------------------------------------------------
 
@@ -213,6 +237,35 @@ class LLMRouter:
                 provider="router",
             )
 
+        # ----- S4-2: response cache check (only for deterministic prompts) -----
+        cache_enabled = (
+            kwargs.pop("use_cache", True)
+            and temperature < 0.7
+            and not kwargs.get("stream", False)
+        )
+        cache_key = None
+        if cache_enabled:
+            try:
+                from core.cache import cache_manager
+
+                cache_key = _llm_cache_key(
+                    messages, temperature, max_tokens, kwargs.get("model")
+                )
+                cached = cache_manager.get(cache_key)
+                if cached is not None and isinstance(cached, dict):
+                    logger.info("LLM cache HIT (%s)", cache_key[:12])
+                    return LLMResponse(
+                        content=cached.get("content", ""),
+                        provider=cached.get("provider", "cache"),
+                        model=cached.get("model", ""),
+                        usage=cached.get("usage", {}),
+                        latency_ms=0.0,
+                        raw=None,
+                    )
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("llm cache lookup failed: %s", exc)
+                cache_key = None
+
         lf = _get_langfuse()
         trace = (
             lf.trace(
@@ -238,6 +291,25 @@ class LLMRouter:
                 else None
             )
             try:
+                # ----- S4-4: per-provider token-bucket rate limit -----
+                try:
+                    from core.rate_limiter import get_bucket
+
+                    rate, burst = _provider_rate_limit(provider.name)
+                    bucket = get_bucket(f"llm:{provider.name}", rate=rate, capacity=burst)
+                    if not bucket.wait(timeout=30.0):
+                        logger.warning(
+                            "rate limit timeout for %s (>30s) — failing over", provider.name
+                        )
+                        last_error = LLMRateLimitError(
+                            "local rate limit timeout", provider=provider.name
+                        )
+                        if generation:
+                            generation.end(level="WARNING", status_message="rate-limit-local")
+                        continue
+                except Exception as exc:  # noqa: BLE001
+                    logger.debug("rate limiter unavailable: %s", exc)
+
                 t0 = time.perf_counter()
                 response = provider.generate(
                     messages,
@@ -248,6 +320,24 @@ class LLMRouter:
                 latency = (time.perf_counter() - t0) * 1000
                 response.latency_ms = latency
                 self._record_success(provider.name, latency)
+
+                # ----- S4-2: write-through to response cache -----
+                if cache_enabled and cache_key is not None:
+                    try:
+                        from core.cache import cache_manager
+
+                        cache_manager.set(
+                            cache_key,
+                            {
+                                "content": response.content,
+                                "provider": response.provider,
+                                "model": response.model,
+                                "usage": getattr(response, "usage", {}) or {},
+                            },
+                            ttl=_LLM_CACHE_TTL,
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        logger.debug("llm cache write failed: %s", exc)
 
                 if generation:
                     generation.end(

@@ -25,6 +25,11 @@ except ImportError:
     st = None  # type: ignore
     HAS_STREAMLIT = False
 
+try:
+    import yfinance as yf
+except ImportError:  # pragma: no cover
+    yf = None  # type: ignore
+
 from .config import SETTINGS
 from .indicators import add_indicators
 
@@ -52,30 +57,71 @@ def _get_cache_key(symbol: str, interval: str, days: int) -> str:
 
 def _cache_data(ttl_seconds: int = CACHE_TTL_SECONDS):
     """
-    Decorator that uses Streamlit cache when available,
-    falls back to simple TTL-based memory cache otherwise.
+    Decorator providing layered caching:
+
+    1. Streamlit ``cache_data`` if available (UI process only).
+    2. Process-shared Redis cache via ``core.cache.cache_manager`` when Redis
+       is configured — DataFrames serialized via to_dict / from_records to
+       stay JSON-safe (Sprint 4 S4-1).
+    3. Per-process in-memory TTL cache as last resort.
     """
 
     def decorator(func):
+        # Attempt to use shared CacheManager (covers both Redis L2 and
+        # in-process LRU L1, with safe DataFrame serialization).
+        cache_manager = None
+        try:
+            from core.cache import cache_manager as _cm
+
+            cache_manager = _cm
+        except Exception:  # noqa: BLE001
+            cache_manager = None
+
         if HAS_STREAMLIT and st is not None:
-            # Use Streamlit's native caching
             return st.cache_data(ttl=ttl_seconds, show_spinner=False)(func)
-        else:
-            # Simple memory cache with TTL for non-Streamlit usage
-            def wrapper(*args, **kwargs):
-                key = f"{func.__name__}_{str(args)}_{str(kwargs)}"
-                now = datetime.now().timestamp()
 
-                if key in _memory_cache:
-                    cached_time, cached_result = _memory_cache[key]
-                    if now - cached_time < ttl_seconds:
-                        return cached_result
+        def wrapper(*args, **kwargs):
+            key = f"finpilot:ohlcv:{func.__name__}:{args}:{sorted(kwargs.items())}"
+            now = datetime.now().timestamp()
 
-                result = func(*args, **kwargs)
-                _memory_cache[key] = (now, result)
-                return result
+            entry = _memory_cache.get(key)
+            if entry is not None:
+                cached_time, cached_result = entry
+                if now - cached_time < ttl_seconds:
+                    return cached_result
 
-            return wrapper
+            shared_payload = None
+            if cache_manager is not None:
+                try:
+                    shared_payload = cache_manager.get(key)
+                except Exception:  # noqa: BLE001
+                    shared_payload = None
+            if isinstance(shared_payload, dict) and "records" in shared_payload:
+                try:
+                    df = pd.DataFrame(shared_payload["records"])
+                    if "index" in shared_payload and shared_payload["index"]:
+                        df.index = pd.to_datetime(shared_payload["index"])
+                    _memory_cache[key] = (now, df)
+                    return df
+                except Exception:  # noqa: BLE001
+                    pass
+
+            result = func(*args, **kwargs)
+            _memory_cache[key] = (now, result)
+
+            if cache_manager is not None and isinstance(result, pd.DataFrame) and not result.empty:
+                try:
+                    payload = {
+                        "records": result.reset_index(drop=False).to_dict(orient="records"),
+                        "index": [str(ix) for ix in result.index.tolist()],
+                    }
+                    cache_manager.set(key, payload, ttl=ttl_seconds)
+                except Exception:  # noqa: BLE001
+                    pass
+
+            return result
+
+        return wrapper
 
     return decorator
 
@@ -99,9 +145,19 @@ def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
     period_map = {"15m": f"{days}d", "1h": f"{days}d", "4h": f"{days}d", "1d": f"{days}d"}
     yf_period = period_map.get(interval, f"{days}d")
 
+    # S4-4: yfinance rate limit (default 4 req/s, burst 8). Non-fatal: if
+    # bucket times out we proceed anyway — the existing retry path will
+    # absorb 429s.
     try:
-        import yfinance as yf
+        from core.rate_limiter import get_bucket
 
+        rate = float(os.environ.get("YFINANCE_RATE", "4"))
+        burst = float(os.environ.get("YFINANCE_BURST", "8"))
+        get_bucket("yfinance", rate=rate, capacity=burst).wait(timeout=5.0)
+    except Exception:  # noqa: BLE001
+        pass
+
+    try:
         tkr = yf.Ticker(symbol)
 
         # Pre-validate: yfinance raises NoneType errors for delisted/invalid tickers
@@ -478,8 +534,6 @@ def _fetch_market_index(index_symbol: str) -> pd.DataFrame:
         DataFrame with index OHLCV data
     """
     try:
-        import yfinance as yf
-
         result = yf.download(index_symbol, period="1y", interval="1d", progress=False)
         if result is None or result.empty:
             logger.warning("Market index verisi alınamadı: %s", index_symbol)
