@@ -1,0 +1,178 @@
+"""FinPilot Weekly Report — Sprint 5 (S5-7).
+
+Generates a Markdown report aggregating KPIs, paper portfolio P&L, and
+calibration status for the most recent 7 days. Written to
+``reports/weekly_<YYYY-MM-DD>.md``.
+
+Invocable as:
+    python -m scripts.weekly_report
+or imported and called as ``generate_weekly_report()``.
+"""
+
+from __future__ import annotations
+
+import logging
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+REPORT_DIR = Path("reports")
+
+
+def _fmt_pct(v: float | None) -> str:
+    if v is None:
+        return "n/a"
+    return f"{v:+.2f}%"
+
+
+def _build_markdown(
+    kpis: dict[str, Any],
+    portfolio: dict[str, Any],
+    recent_signals: list[dict[str, Any]],
+    equity_curve: list[dict[str, Any]],
+    calibration: dict[str, Any] | None,
+    quality_gate: dict[str, Any],
+) -> str:
+    now = datetime.now(tz=UTC)
+    week_ago_ms = int((now - timedelta(days=7)).timestamp() * 1000)
+    week_signals = [s for s in recent_signals if s.get("ts", 0) >= week_ago_ms]
+    week_resolved = [s for s in week_signals if s.get("outcome") is not None]
+    week_wins = [s for s in week_resolved if s.get("outcome") == "win"]
+    week_winrate = (
+        round(len(week_wins) / len(week_resolved) * 100, 2) if week_resolved else None
+    )
+
+    week_pnl = sum(
+        p.get("pnl", 0) for p in equity_curve if p.get("ts", 0) >= week_ago_ms
+    )
+
+    lines: list[str] = []
+    lines.append(f"# FinPilot Weekly Report — {now.strftime('%Y-%m-%d')}\n")
+    lines.append(f"_Generated at {now.strftime('%Y-%m-%d %H:%M UTC')}_\n")
+
+    # Quality gate banner
+    if quality_gate.get("degraded"):
+        lines.append("> ⚠️ **System is currently DEGRADED**")
+        lines.append(f"> Reason: {quality_gate.get('reason', 'unknown')}\n")
+    else:
+        lines.append("> ✅ System status: nominal\n")
+
+    # Headline KPIs
+    lines.append("## Headline KPIs (last 7 days)\n")
+    lines.append("| Metric | Week | All-time |")
+    lines.append("|--------|------|----------|")
+    lines.append(
+        f"| Win rate | {_fmt_pct(week_winrate)} | "
+        f"{_fmt_pct(kpis.get('win_rate'))} |"
+    )
+    lines.append(
+        f"| Resolved signals | {len(week_resolved)} | {kpis.get('resolved_signals', 0)} |"
+    )
+    lines.append(
+        f"| Total signals | {len(week_signals)} | {kpis.get('total_signals', 0)} |"
+    )
+    lines.append(
+        f"| Profit factor | n/a | {kpis.get('profit_factor', 'n/a')} |"
+    )
+    lines.append("")
+
+    # Paper portfolio
+    lines.append("## Paper Portfolio\n")
+    lines.append("| Metric | Value |")
+    lines.append("|--------|-------|")
+    lines.append(f"| Equity | ${portfolio.get('equity', 0):,.2f} |")
+    lines.append(
+        f"| Total return | {_fmt_pct(portfolio.get('total_return_pct'))} |"
+    )
+    lines.append(f"| Week P&L | ${week_pnl:+,.2f} |")
+    lines.append(f"| Open positions | {portfolio.get('open_positions', 0)} |")
+    lines.append(f"| Closed trades | {portfolio.get('closed_count', 0)} |")
+    lines.append(f"| Win rate (paper) | {portfolio.get('win_rate', 0):.2f}% |")
+    pf = portfolio.get("profit_factor")
+    lines.append(f"| Profit factor (paper) | {pf if pf is not None else 'n/a'} |")
+    lines.append("")
+
+    # Calibration
+    lines.append("## Score Calibration\n")
+    if calibration:
+        lines.append(
+            f"_Fitted at {datetime.fromtimestamp(calibration['fitted_at'], tz=UTC).strftime('%Y-%m-%d %H:%M UTC')} "
+            f"from {calibration['n_samples']} resolved signals_\n"
+        )
+        lines.append("| Score band | n | Raw win rate | Calibrated P(win) |")
+        lines.append("|------------|---|--------------|-------------------|")
+        for band in calibration.get("bands", []):
+            lines.append(
+                f"| [{band['lo']:.1f}, {band['hi']:.1f}) | {band['n']} | "
+                f"{band['raw_p']:.3f} | {band['p']:.3f} |"
+            )
+    else:
+        lines.append("_No calibration model fitted yet._")
+    lines.append("")
+
+    # Top recent winners / losers
+    if week_resolved:
+        sorted_pnl = sorted(
+            week_resolved, key=lambda s: s.get("profit_pct", 0) or 0, reverse=True
+        )
+        lines.append("## Best & Worst Trades (week)\n")
+        lines.append("**Top 5 winners:**")
+        for s in sorted_pnl[:5]:
+            lines.append(
+                f"- {s['symbol']} ({s['direction']}) "
+                f"+{s.get('profit_pct', 0):.2f}% — score={s.get('score', '?')}"
+            )
+        lines.append("\n**Top 5 losers:**")
+        for s in sorted_pnl[-5:][::-1]:
+            lines.append(
+                f"- {s['symbol']} ({s['direction']}) "
+                f"{s.get('profit_pct', 0):+.2f}% — score={s.get('score', '?')}"
+            )
+        lines.append("")
+
+    lines.append("---")
+    lines.append(
+        "_This report is auto-generated by `scripts/weekly_report.py`. "
+        "Run `python -m scripts.weekly_report` to regenerate manually._"
+    )
+    return "\n".join(lines)
+
+
+def generate_weekly_report(write: bool = True) -> tuple[str, Path | None]:
+    """Generate the weekly Markdown report. Returns (markdown_text, path_or_None)."""
+    from core.calibration import get_calibration_model
+    from core.kpi_tracker import get_kpis, get_recent_signals
+    from core.paper_portfolio import (
+        get_equity_curve,
+    )
+    from core.paper_portfolio import (
+        get_summary as get_portfolio_summary,
+    )
+    from core.quality_gate import get_status as get_quality_status
+
+    kpis = get_kpis()
+    portfolio = get_portfolio_summary()
+    signals = get_recent_signals(limit=500)
+    equity = get_equity_curve(limit=500)
+    calibration = get_calibration_model()
+    gate = get_quality_status()
+
+    md = _build_markdown(kpis, portfolio, signals, equity, calibration, gate)
+
+    if not write:
+        return md, None
+
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    path = REPORT_DIR / f"weekly_{datetime.now(tz=UTC).strftime('%Y-%m-%d')}.md"
+    path.write_text(md, encoding="utf-8")
+    logger.info("Weekly report written: %s", path)
+    return md, path
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    _, p = generate_weekly_report()
+    if p:
+        print(f"Report written to {p}")

@@ -1,0 +1,86 @@
+"""Sprint 5 (S5-5/S5-3): Closed-loop status endpoints.
+
+Exposes:
+  GET  /api/v1/loop/status         — quality gate + scheduler status
+  GET  /api/v1/loop/portfolio      — paper portfolio summary + equity curve
+  GET  /api/v1/loop/portfolio/open — currently open paper positions
+  GET  /api/v1/loop/portfolio/closed — recent closed trades
+  GET  /api/v1/loop/calibration    — fitted score→P(win) model
+  POST /api/v1/loop/reconcile      — manually trigger outcome reconciliation
+  POST /api/v1/loop/calibrate      — manually refit calibration
+  POST /api/v1/loop/clear-degraded — clear the quality gate flag
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from fastapi import APIRouter, Depends
+
+from api.middleware.auth import optional_auth, require_admin
+
+router = APIRouter(prefix="/loop", tags=["closed_loop"])
+
+
+@router.get("/status", dependencies=[Depends(optional_auth)])
+def loop_status() -> dict[str, Any]:
+    from core.quality_gate import get_status
+    from core.scheduler import scheduler_status
+
+    return {
+        "quality_gate": get_status(),
+        "scheduler": scheduler_status(),
+    }
+
+
+@router.get("/portfolio", dependencies=[Depends(optional_auth)])
+def portfolio_summary() -> dict[str, Any]:
+    from core.paper_portfolio import get_equity_curve, get_summary
+
+    return {
+        "summary": get_summary(),
+        "equity_curve": get_equity_curve(limit=200),
+    }
+
+
+@router.get("/portfolio/open", dependencies=[Depends(optional_auth)])
+def portfolio_open() -> dict[str, Any]:
+    from core.paper_portfolio import get_open_positions
+
+    return {"positions": get_open_positions()}
+
+
+@router.get("/portfolio/closed", dependencies=[Depends(optional_auth)])
+def portfolio_closed(limit: int = 50) -> dict[str, Any]:
+    from core.paper_portfolio import get_closed_history
+
+    return {"trades": get_closed_history(limit=limit)}
+
+
+@router.get("/calibration", dependencies=[Depends(optional_auth)])
+def calibration_model() -> dict[str, Any]:
+    from core.calibration import get_calibration_model
+
+    model = get_calibration_model()
+    return {"model": model, "fitted": model is not None}
+
+
+@router.post("/reconcile", dependencies=[Depends(require_admin)])
+def trigger_reconcile() -> dict[str, Any]:
+    from core.outcome_reconciler import reconcile_open_signals
+
+    return reconcile_open_signals()
+
+
+@router.post("/calibrate", dependencies=[Depends(require_admin)])
+def trigger_calibrate() -> dict[str, Any]:
+    from core.calibration import refit_calibration
+
+    return refit_calibration()
+
+
+@router.post("/clear-degraded", dependencies=[Depends(require_admin)])
+def clear_degraded() -> dict[str, Any]:
+    from core.quality_gate import clear_degraded as _clear
+
+    return {"cleared": _clear()}

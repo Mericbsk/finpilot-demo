@@ -61,8 +61,68 @@ def _run_eval_job(symbols: list[str]) -> None:
         logger.info(
             "Eval job completed — overall_pass=%s grade=%s", report.get("overall_pass"), grade
         )
+
+        # Sprint 5 (S5-3): Quality gate — degrade on eval failure
+        try:
+            from core.quality_gate import clear_degraded, set_degraded
+
+            if not report.get("overall_pass"):
+                metrics = report.get("metrics", {}) or {}
+                failing = [k for k, v in metrics.items() if isinstance(v, dict) and not v.get("pass")]
+                set_degraded(
+                    reason=f"eval failed: {','.join(failing) or 'unknown'}",
+                    eval_report=report,
+                )
+            else:
+                clear_degraded()
+        except Exception as gate_exc:
+            logger.warning("Quality gate update failed: %s", gate_exc)
     except Exception as exc:
         logger.warning("Eval job failed: %s", exc)
+
+
+def _run_reconcile_job() -> None:
+    """Sprint 5 (S5-1): Walk open signals, fetch T+N closes, record outcomes."""
+    try:
+        from core.outcome_reconciler import reconcile_open_signals
+
+        summary = reconcile_open_signals()
+        logger.info(
+            "Reconcile job: reconciled=%d skipped_age=%d skipped_data=%d errors=%d",
+            summary["reconciled"],
+            summary["skipped_age"],
+            summary["skipped_data"],
+            len(summary["errors"]),
+        )
+    except Exception as exc:
+        logger.warning("Reconcile job failed: %s", exc)
+
+
+def _run_calibration_job() -> None:
+    """Sprint 5 (S5-4): Refit score→P(win) mapping from resolved signals."""
+    try:
+        from core.calibration import refit_calibration
+
+        model = refit_calibration()
+        logger.info(
+            "Calibration refit: n=%d global_p=%.3f",
+            model.get("n_samples", 0),
+            model.get("global_win_rate", 0.0),
+        )
+    except Exception as exc:
+        logger.warning("Calibration job failed: %s", exc)
+
+
+def _run_weekly_report_job() -> None:
+    """Sprint 5 (S5-7): Generate public weekly Markdown KPI report."""
+    try:
+        from scripts.weekly_report import generate_weekly_report
+
+        _, path = generate_weekly_report()
+        if path:
+            logger.info("Weekly report generated: %s", path)
+    except Exception as exc:
+        logger.warning("Weekly report job failed: %s", exc)
 
 
 # ---------------------------------------------------------------------------
@@ -247,17 +307,37 @@ def run_cycle_once(
                 "strategy",
             )
             # Record signals from backtest into KPI tracker
+            # Sprint 5 (S5-5): also open a paper-portfolio position so we get real P&L
             for sym, bt_sym in bt_data.items():
                 if isinstance(bt_sym, dict):
                     direction = "BUY" if bt_sym.get("total_return", 0) > 0 else "SELL"
+                    entry_price = float(bt_sym.get("final_value", 0) or 0)
+                    score_val = float(bt_sym.get("win_rate", 0) or 0)
                     record_signal(
                         symbol=sym,
                         direction=direction,
-                        price=bt_sym.get("final_value", 0),
-                        score=bt_sym.get("win_rate", 0),
+                        price=entry_price,
+                        score=score_val,
                         rr=bt_sym.get("max_return", 0) / abs(bt_sym.get("max_drawdown", 1) or 1),
                         cycle=_cycle_count + 1,
                     )
+                    if entry_price > 0:
+                        try:
+                            import time as _t_paper
+
+                            from core.paper_portfolio import open_position
+
+                            sig_id = f"{sym}_{_cycle_count + 1}_{int(_t_paper.time())}"
+                            open_position(
+                                signal_id=sig_id,
+                                symbol=sym,
+                                direction=direction,
+                                entry_price=entry_price,
+                                score=score_val,
+                                cycle=_cycle_count + 1,
+                            )
+                        except Exception as paper_exc:
+                            logger.debug("paper open failed for %s: %s", sym, paper_exc)
         except Exception as exc:
             errors.append(f"backtest: {exc}")
             logger.warning("Scheduler: backtest failed: %s", exc)
@@ -428,11 +508,23 @@ def run_cycle_once(
 
                 from core.agent_state import mark_alert_sent, was_alert_sent
 
-                entries = [
-                    (sym, sig)
-                    for sym, sig in scan_for_report.items()
-                    if sig.get("entry_ok") and not was_alert_sent(sym, _cycle_count + 1)
-                ]
+                # Sprint 5 (S5-3): suppress alerts when system is degraded
+                try:
+                    from core.quality_gate import is_degraded as _is_degraded
+
+                    _gate_degraded = _is_degraded()
+                except Exception:  # noqa: BLE001
+                    _gate_degraded = False
+
+                entries = (
+                    []
+                    if _gate_degraded
+                    else [
+                        (sym, sig)
+                        for sym, sig in scan_for_report.items()
+                        if sig.get("entry_ok") and not was_alert_sent(sym, _cycle_count + 1)
+                    ]
+                )
                 if entries:
                     notifier = TelegramNotifier()
                     for sym, sig in entries[:10]:  # cap to 10 per cycle
@@ -673,6 +765,27 @@ def start_scheduler(
             id="finpilot_eval_job",
             name="FinPilot Autonomous Eval",
         )
+
+        # Sprint 5 — closed-loop jobs
+        _scheduler_instance.add_job(
+            _run_reconcile_job,
+            trigger=IntervalTrigger(hours=6),
+            id="finpilot_reconcile_job",
+            name="FinPilot Outcome Reconciler",
+        )
+        _scheduler_instance.add_job(
+            _run_calibration_job,
+            trigger=IntervalTrigger(hours=24),
+            id="finpilot_calibration_job",
+            name="FinPilot Score Calibration",
+        )
+        _scheduler_instance.add_job(
+            _run_weekly_report_job,
+            trigger=IntervalTrigger(days=7),
+            id="finpilot_weekly_report_job",
+            name="FinPilot Weekly Report",
+        )
+
         _scheduler_instance.start()
         logger.info(
             "Scheduler başlatıldı — %d dakikada bir, semboller: %s",

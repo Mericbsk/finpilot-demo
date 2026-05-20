@@ -45,6 +45,21 @@ class AlertAgent(BaseAgent):
             logger.debug("AlertAgent: Telegram not configured — skipping silently")
             return AgentResult(agent=self.name, success=True, data=[], duration_ms=0.0)
 
+        # Sprint 5 (S5-3): Suppress BUY alerts when quality gate is degraded
+        try:
+            from core.quality_gate import is_degraded
+
+            if is_degraded():
+                logger.warning("AlertAgent: quality gate DEGRADED — suppressing alerts")
+                return AgentResult(
+                    agent=self.name,
+                    success=True,
+                    data=[],
+                    duration_ms=(time.perf_counter() - t0) * 1000,
+                )
+        except Exception:  # noqa: BLE001
+            pass
+
         import requests
 
         sent: list[str] = []

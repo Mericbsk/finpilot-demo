@@ -1,5 +1,6 @@
 """FinPilot API — FastAPI backend bridging Python ML models to Next.js frontend."""
 
+import logging as _logging
 import os
 import sys
 import time
@@ -39,6 +40,7 @@ from api.routers import (
     ai_explain,
     auth,
     backtest,
+    closed_loop,
     ensemble,
     history,
     inference,
@@ -150,6 +152,28 @@ async def lifespan(app: FastAPI):
     from api.routers.watchlist import start_price_refresh_task
 
     await start_price_refresh_task()
+
+    # Sprint 5 (S5-2): single bootstrap — start the autonomous scheduler from lifespan
+    if os.getenv("FINPILOT_AUTOSTART_SCHEDULER", "1") == "1":
+        try:
+            from core.scheduler import start_scheduler
+
+            symbols_env = os.getenv(
+                "FINPILOT_SCHEDULER_SYMBOLS",
+                "THYAO.IS,KCHOL.IS,EREGL.IS,GARAN.IS,SISE.IS",
+            )
+            symbols = [s.strip() for s in symbols_env.split(",") if s.strip()]
+            interval = int(os.getenv("FINPILOT_SCHEDULER_INTERVAL_MIN", "60"))
+            started = start_scheduler(symbols=symbols, interval_minutes=interval)
+            _logging.getLogger(__name__).info(
+                "Scheduler autostart: started=%s symbols=%s interval=%dm",
+                started,
+                symbols,
+                interval,
+            )
+        except Exception as exc:  # noqa: BLE001
+            _logging.getLogger(__name__).warning("Scheduler autostart failed: %s", exc)
+
     yield
 
 
@@ -263,6 +287,7 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(watchlist.router, prefix="/api/v1")
 app.include_router(ai_explain.router, prefix="/api/v1")
 app.include_router(market_data.router, prefix="/api/v1")
+app.include_router(closed_loop.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health")
