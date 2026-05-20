@@ -213,6 +213,37 @@ def run_cycle_once(
                 symbols,
                 "quality",
             )
+            # Emit feedback to backtest when KPIs are poor (cross-agent feedback loop)
+            try:
+                from agents.feedback import emit_feedback
+
+                from core.kpi_tracker import get_kpis
+
+                kpis = get_kpis()
+                win_rate = kpis.get("win_rate", 0.0)
+                if win_rate < 50 and kpis.get("resolved_signals", 0) > 0:
+                    emit_feedback(
+                        from_agent="performance_monitor",
+                        to_agent="backtest",
+                        feedback_type="low_win_rate",
+                        data={
+                            "win_rate": win_rate,
+                            "recommendation": "switch to trend strategy",
+                            "cycle": _cycle_count + 1,
+                        },
+                    )
+                if pm_data.get("portfolio_status") in ("STOP", "WARN"):
+                    emit_feedback(
+                        from_agent="performance_monitor",
+                        to_agent="ceo",
+                        feedback_type="drawdown_alert",
+                        data={
+                            "portfolio_status": pm_data.get("portfolio_status"),
+                            "cycle": _cycle_count + 1,
+                        },
+                    )
+            except Exception:
+                pass  # feedback is best-effort
         except Exception as exc:
             errors.append(f"monitor: {exc}")
             logger.warning("Scheduler: monitor failed: %s", exc)

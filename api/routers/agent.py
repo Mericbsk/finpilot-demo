@@ -577,6 +577,40 @@ def agent_self_eval():
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+@router.post("/agent/feedback")
+def agent_emit_feedback(
+    from_agent: str,
+    to_agent: str,
+    feedback_type: str,
+    data: dict[str, Any] | None = None,
+):
+    """Emit a feedback message from one agent to another."""
+    try:
+        from agents.feedback import emit_feedback
+
+        emit_feedback(
+            from_agent=from_agent,
+            to_agent=to_agent,
+            feedback_type=feedback_type,
+            data=data or {},
+        )
+        return {"ok": True, "from": from_agent, "to": to_agent, "feedback_type": feedback_type}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/agent/feedback/{agent_name}")
+def agent_get_feedback(agent_name: str, limit: int = 10, peek: bool = False):
+    """Return pending feedback messages for the given agent (consumed unless peek=True)."""
+    try:
+        from agents.feedback import get_feedback, peek_feedback
+
+        messages = peek_feedback(agent_name, limit) if peek else get_feedback(agent_name, limit)
+        return {"agent": agent_name, "messages": messages, "count": len(messages)}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 @router.post("/agent/cycle")
 async def run_agent_cycle(
     symbols: list[str],
