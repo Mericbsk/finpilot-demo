@@ -99,15 +99,17 @@ def _run_reconcile_job() -> None:
 
 
 def _run_calibration_job() -> None:
-    """Sprint 5 (S5-4): Refit score→P(win) mapping from resolved signals."""
+    """Sprint 5 (S5-4) + Faz 3: refit with quality gate + audit log."""
     try:
-        from core.calibration import refit_calibration
+        from core.calibration import refit_with_gate
 
-        model = refit_calibration()
+        result = refit_with_gate()
+        model = result.get("model") or {}
         logger.info(
-            "Calibration refit: n=%d global_p=%.3f",
+            "Calibration gate: promoted=%s reason=%s n=%d",
+            result.get("promoted"),
+            result.get("reason"),
             model.get("n_samples", 0),
-            model.get("global_win_rate", 0.0),
         )
     except Exception as exc:
         logger.warning("Calibration job failed: %s", exc)

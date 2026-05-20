@@ -202,3 +202,133 @@ def calibrated_probability(score: float) -> float:
 def get_calibration_model() -> dict[str, Any] | None:
     """Return the current fitted calibration model (None if not fitted)."""
     return _load_model()
+
+
+def _probability_for(model: dict[str, Any], score: float) -> float:
+    for band in model.get("bands", []):
+        if band["lo"] <= score < band["hi"]:
+            return float(band["p"])
+    bands = model.get("bands") or []
+    return float(bands[-1]["p"]) if bands else 0.5
+
+
+def _brier(model: dict[str, Any], samples: list[tuple[float, bool]]) -> float:
+    if not samples:
+        return 0.25
+    s = 0.0
+    for score, won in samples:
+        p = _probability_for(model, float(score))
+        s += (p - (1.0 if won else 0.0)) ** 2
+    return s / len(samples)
+
+
+def refit_with_gate(
+    *,
+    min_samples_to_promote: int = 20,
+    brier_tolerance: float = 0.02,
+) -> dict[str, Any]:
+    """Faz 3: refit calibration but rollback to prior model if quality drops.
+
+    Decision policy:
+      - First-ever fit (no prior): always promote.
+      - Candidate has < ``min_samples_to_promote`` resolved samples: rollback
+        to prior to avoid promoting a noisy estimate.
+      - Candidate Brier on outcome-tagged samples is worse than prior by more
+        than ``brier_tolerance``: rollback.
+      - Otherwise: promote.
+
+    Every decision is recorded via core.audit_log.
+    """
+    from core import audit_log
+
+    prior = _load_model()
+
+    candidate = refit_calibration()
+
+    samples: list[tuple[float, bool]] = []
+    try:
+        from core.kpi_tracker import _load_all_signals  # type: ignore
+
+        sigs = _load_all_signals()
+        samples = [
+            (float(s.get("score", 0)), s.get("outcome") == "win")
+            for s in sigs
+            if s.get("outcome") is not None
+        ]
+    except Exception as exc:
+        logger.debug("calibration_gate: kpi load failed: %s", exc)
+
+    n = candidate.get("n_samples", 0)
+
+    if prior is None:
+        audit_log.record(
+            actor="calibration_gate",
+            action="calibration.refit",
+            decision="promoted_first",
+            payload={"n_samples": n},
+        )
+        return {"promoted": True, "reason": "no_prior", "model": candidate}
+
+    if n < min_samples_to_promote:
+        _persist_model(prior)
+        global _mem_model
+        _mem_model = prior
+        audit_log.record(
+            actor="calibration_gate",
+            action="calibration.refit",
+            decision="rolled_back",
+            payload={
+                "reason": "insufficient_samples",
+                "n_samples": n,
+                "min_required": min_samples_to_promote,
+            },
+        )
+        return {
+            "promoted": False,
+            "reason": "insufficient_samples",
+            "n_samples": n,
+            "model": prior,
+        }
+
+    new_brier = _brier(candidate, samples)
+    old_brier = _brier(prior, samples)
+    if new_brier > old_brier + brier_tolerance:
+        _persist_model(prior)
+        _mem_model = prior
+        audit_log.record(
+            actor="calibration_gate",
+            action="calibration.refit",
+            decision="rolled_back",
+            payload={
+                "reason": "degraded_brier",
+                "new_brier": round(new_brier, 4),
+                "old_brier": round(old_brier, 4),
+                "tolerance": brier_tolerance,
+            },
+        )
+        return {
+            "promoted": False,
+            "reason": "degraded_brier",
+            "new_brier": new_brier,
+            "old_brier": old_brier,
+            "model": prior,
+        }
+
+    audit_log.record(
+        actor="calibration_gate",
+        action="calibration.refit",
+        decision="promoted",
+        payload={
+            "n_samples": n,
+            "new_brier": round(new_brier, 4),
+            "old_brier": round(old_brier, 4),
+        },
+    )
+    return {
+        "promoted": True,
+        "reason": "ok",
+        "n_samples": n,
+        "new_brier": new_brier,
+        "old_brier": old_brier,
+        "model": candidate,
+    }

@@ -86,9 +86,55 @@ def trigger_reconcile() -> dict[str, Any]:
 
 @router.post("/calibrate", dependencies=[Depends(require_admin)])
 def trigger_calibrate() -> dict[str, Any]:
-    from core.calibration import refit_calibration
+    from core.calibration import refit_with_gate
 
-    return refit_calibration()
+    return refit_with_gate()
+
+
+@router.get("/pending", dependencies=[Depends(optional_auth)])
+def list_pending_actions(include_decided: bool = False) -> dict[str, Any]:
+    from core import pending_actions
+
+    return {"actions": pending_actions.list_pending(include_decided=include_decided)}
+
+
+@router.post("/approve/{pid}", dependencies=[Depends(require_admin)])
+def approve_pending(pid: str) -> dict[str, Any]:
+    from core import pending_actions
+
+    try:
+        return pending_actions.approve(pid, decided_by="admin")
+    except KeyError as exc:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/reject/{pid}", dependencies=[Depends(require_admin)])
+def reject_pending(pid: str, reason: str = "") -> dict[str, Any]:
+    from core import pending_actions
+
+    try:
+        return pending_actions.reject(pid, decided_by="admin", reason=reason)
+    except KeyError as exc:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/audit", dependencies=[Depends(optional_auth)])
+def autonomy_audit(limit: int = 50) -> dict[str, Any]:
+    from core import audit_log
+
+    return {"entries": audit_log.recent(limit=limit)}
 
 
 @router.post("/clear-degraded", dependencies=[Depends(require_admin)])
