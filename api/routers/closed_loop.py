@@ -24,12 +24,24 @@ router = APIRouter(prefix="/loop", tags=["closed_loop"])
 
 @router.get("/status", dependencies=[Depends(optional_auth)])
 def loop_status() -> dict[str, Any]:
+    import os
+
     from core.quality_gate import get_status
     from core.scheduler import scheduler_status
+
+    try:
+        pwin_threshold = float(os.getenv("FINPILOT_PWIN_THRESHOLD", "0.55"))
+    except ValueError:
+        pwin_threshold = 0.55
+    drl_gate_enabled = os.getenv("FINPILOT_DRL_GATE", "0") == "1"
 
     return {
         "quality_gate": get_status(),
         "scheduler": scheduler_status(),
+        "decision_gate": {
+            "pwin_threshold": pwin_threshold,
+            "drl_gate_enabled": drl_gate_enabled,
+        },
     }
 
 

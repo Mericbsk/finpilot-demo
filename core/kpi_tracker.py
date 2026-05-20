@@ -107,14 +107,28 @@ def record_signal(
     cycle: int = 0,
     stop_loss: float = 0.0,
     take_profit: float = 0.0,
+    p_win: float | None = None,
 ) -> None:
-    """Record a new trading signal. Outcome can be updated later via record_outcome()."""
+    """Record a new trading signal. Outcome can be updated later via record_outcome().
+
+    If ``p_win`` is None, it is computed lazily via the calibration model
+    (defaults to 0.5 if no model has been fitted yet). This is the closed-loop
+    bridge between calibration and the signal store.
+    """
+    if p_win is None:
+        try:
+            from core.calibration import calibrated_probability
+
+            p_win = calibrated_probability(float(score))
+        except Exception:
+            p_win = 0.5
     signal: dict[str, Any] = {
         "id": f"{symbol}_{cycle}_{int(time.time())}",
         "symbol": symbol,
         "direction": direction,
         "price": round(price, 4),
         "score": round(score, 2),
+        "p_win": round(float(p_win), 4),
         "rr": round(rr, 2),
         "stop_loss": round(stop_loss, 4),
         "take_profit": round(take_profit, 4),

@@ -359,11 +359,28 @@ def run_cycle_once(
             )
             # Record signals from backtest into KPI tracker
             # Sprint 5 (S5-5): also open a paper-portfolio position so we get real P&L
+            # Phase 2 (faz2-decision-gate):
+            #   * compute calibrated p_win once and pass to record_signal + open_position
+            #   * gate open_position on p_win >= FINPILOT_PWIN_THRESHOLD
+            #   * optional DRL veto behind FINPILOT_DRL_GATE=1
+            import os as _os
+
+            try:
+                _pwin_threshold = float(_os.getenv("FINPILOT_PWIN_THRESHOLD", "0.55"))
+            except ValueError:
+                _pwin_threshold = 0.55
+            _drl_gate_on = _os.getenv("FINPILOT_DRL_GATE", "0") == "1"
+            try:
+                from core.calibration import calibrated_probability as _calibrated_probability
+            except Exception:  # noqa: BLE001
+                _calibrated_probability = lambda s: 0.5  # noqa: E731
+
             for sym, bt_sym in bt_data.items():
                 if isinstance(bt_sym, dict):
                     direction = "BUY" if bt_sym.get("total_return", 0) > 0 else "SELL"
                     entry_price = float(bt_sym.get("final_value", 0) or 0)
                     score_val = float(bt_sym.get("win_rate", 0) or 0)
+                    p_win = float(_calibrated_probability(score_val))
                     record_signal(
                         symbol=sym,
                         direction=direction,
@@ -371,24 +388,54 @@ def run_cycle_once(
                         score=score_val,
                         rr=bt_sym.get("max_return", 0) / abs(bt_sym.get("max_drawdown", 1) or 1),
                         cycle=_cycle_count + 1,
+                        p_win=p_win,
                     )
-                    if entry_price > 0:
+                    if entry_price <= 0:
+                        continue
+                    if direction != "BUY":
+                        continue
+                    if p_win < _pwin_threshold:
+                        logger.info(
+                            "Decision gate: skip paper trade %s (p_win=%.3f < %.3f)",
+                            sym,
+                            p_win,
+                            _pwin_threshold,
+                        )
+                        continue
+                    if _drl_gate_on:
                         try:
-                            import time as _t_paper
+                            from drl.ensemble_router import get_ensemble_router
 
-                            from core.paper_portfolio import open_position
-
-                            sig_id = f"{sym}_{_cycle_count + 1}_{int(_t_paper.time())}"
-                            open_position(
-                                signal_id=sig_id,
-                                symbol=sym,
-                                direction=direction,
-                                entry_price=entry_price,
-                                score=score_val,
-                                cycle=_cycle_count + 1,
+                            router = get_ensemble_router()
+                            drl_pred = router.predict({"symbol": sym, "score": score_val})
+                            drl_action = (
+                                getattr(drl_pred, "action", None)
+                                or (drl_pred.get("action") if isinstance(drl_pred, dict) else None)
                             )
-                        except Exception as paper_exc:
-                            logger.debug("paper open failed for %s: %s", sym, paper_exc)
+                            if drl_action and str(drl_action).upper() not in ("BUY", "LONG", "1"):
+                                logger.info(
+                                    "DRL gate: veto %s (action=%s)", sym, drl_action
+                                )
+                                continue
+                        except Exception as drl_exc:  # noqa: BLE001
+                            logger.debug("DRL gate bypass for %s: %s", sym, drl_exc)
+                    try:
+                        import time as _t_paper
+
+                        from core.paper_portfolio import open_position
+
+                        sig_id = f"{sym}_{_cycle_count + 1}_{int(_t_paper.time())}"
+                        open_position(
+                            signal_id=sig_id,
+                            symbol=sym,
+                            direction=direction,
+                            entry_price=entry_price,
+                            score=score_val,
+                            cycle=_cycle_count + 1,
+                            p_win=p_win,
+                        )
+                    except Exception as paper_exc:
+                        logger.debug("paper open failed for %s: %s", sym, paper_exc)
         except Exception as exc:
             errors.append(f"backtest: {exc}")
             logger.warning("Scheduler: backtest failed: %s", exc)

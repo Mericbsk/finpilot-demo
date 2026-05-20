@@ -75,8 +75,14 @@ def open_position(
     entry_price: float,
     score: float = 0.0,
     cycle: int = 0,
+    p_win: float | None = None,
 ) -> dict[str, Any]:
-    """Open a paper position. Idempotent on signal_id."""
+    """Open a paper position. Idempotent on signal_id.
+
+    ``p_win`` is the calibrated win probability for the originating signal.
+    Stored on the position so dashboards and analytics can show realised vs
+    expected outcome per probability band.
+    """
     if entry_price <= 0:
         raise ValueError("entry_price must be positive")
     qty = UNIT_NOTIONAL / entry_price
@@ -87,6 +93,7 @@ def open_position(
         "entry_price": round(float(entry_price), 6),
         "qty": round(qty, 6),
         "score": round(float(score), 2),
+        "p_win": round(float(p_win), 4) if p_win is not None else None,
         "cycle": int(cycle),
         "opened_at": _now_ms(),
         "status": "open",
