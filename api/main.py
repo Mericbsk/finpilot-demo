@@ -25,6 +25,7 @@ if _env_path.exists():
                 if _key and _key not in os.environ:
                     os.environ[_key] = _val
 
+from auth.database import Database
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,7 +55,6 @@ from api.routers import (
     user,
     watchlist,
 )
-from auth.database import Database
 from core.monitoring import health_check, metrics, sentry_client
 from core.prometheus_exporter import get_metrics_output
 
@@ -132,9 +132,7 @@ def _register_health_checks() -> None:
             client.ping()
             return HealthCheckResult(name="redis", status=HealthStatus.HEALTHY)
         except Exception as exc:  # noqa: BLE001
-            return HealthCheckResult(
-                name="redis", status=HealthStatus.DEGRADED, message=str(exc)
-            )
+            return HealthCheckResult(name="redis", status=HealthStatus.DEGRADED, message=str(exc))
 
 
 @asynccontextmanager
@@ -142,10 +140,24 @@ async def lifespan(app: FastAPI):
     _setup_log_rotation()
     Database().initialize()
     _register_health_checks()
+
+    # ── Sentry init + DSN warning ──────────────────────────────
+    if not os.getenv("SENTRY_DSN"):
+        _logging.getLogger(__name__).warning(
+            "SENTRY_DSN not set — error tracking disabled. "
+            "Set SENTRY_DSN in .env to enable Sentry."
+        )
     sentry_client.init(
         environment=os.getenv("SENTRY_ENVIRONMENT", os.getenv("ENVIRONMENT", "development")),
         release=os.getenv("SENTRY_RELEASE", "finpilot-api@1.0.0"),
     )
+
+    # ── Service registry bootstrap ─────────────────────────────
+    from core.services import registry as _svc_registry
+
+    # Register core services (health probed during healthcheck polling)
+    _svc_registry.register("sentry", healthy=bool(os.getenv("SENTRY_DSN")))
+
     # Archive yesterday's signals on startup (idempotent — runs once per day)
     _archive_yesterday_on_startup()
     # Start watchlist background price refresh
@@ -165,6 +177,11 @@ async def lifespan(app: FastAPI):
             symbols = [s.strip() for s in symbols_env.split(",") if s.strip()]
             interval = int(os.getenv("FINPILOT_SCHEDULER_INTERVAL_MIN", "60"))
             started = start_scheduler(symbols=symbols, interval_minutes=interval)
+            _svc_registry.register(
+                "scheduler",
+                healthy=started,
+                meta={"symbols": len(symbols), "interval_min": interval},
+            )
             _logging.getLogger(__name__).info(
                 "Scheduler autostart: started=%s symbols=%s interval=%dm",
                 started,
@@ -172,6 +189,7 @@ async def lifespan(app: FastAPI):
                 interval,
             )
         except Exception as exc:  # noqa: BLE001
+            _svc_registry.register("scheduler", healthy=False, meta={"error": str(exc)})
             _logging.getLogger(__name__).warning("Scheduler autostart failed: %s", exc)
 
     yield
@@ -307,6 +325,16 @@ def ready():
     result = health_check.run()
     status_code = 200 if result.get("status") != "unhealthy" else 503
     return JSONResponse(content=result, status_code=status_code)
+
+
+@app.get("/api/v1/services")
+def services_endpoint():
+    """Service registry — shows health of all registered FinPilot services."""
+    from core.services import registry as _svc_registry
+
+    summary = _svc_registry.health_summary()
+    all_healthy = all(summary.values()) if summary else True
+    return {"status": "ok" if all_healthy else "degraded", "services": summary}
 
 
 # Top-level aliases for K8s probes (/live, /ready) — common convention
