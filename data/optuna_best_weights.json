@@ -1,0 +1,15 @@
+{
+  "weights": {
+    "w_rsi": 0.1,
+    "w_macd": 0.1,
+    "w_volume": 0.1,
+    "w_trend": 0.1,
+    "w_momentum": 0.1,
+    "w_volatility": 0.1,
+    "w_support": 0.1,
+    "w_sector_rs": 0.1,
+    "w_earnings_safety": 0.1,
+    "w_pattern": 0.1
+  },
+  "saved_at": "2026-05-21 08:31 UTC"
+}

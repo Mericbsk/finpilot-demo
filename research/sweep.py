@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import logging
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +37,29 @@ WEIGHT_KEYS = [
 ]
 
 OPTUNA_RESULTS_PATH = Path("optuna_conservative_results.json")
+_SWEEP_RESULTS_PATH = Path("data/optuna_best_weights.json")
+
+
+def save_best_weights(weights: dict[str, float]) -> None:
+    """Persist best weights to data/optuna_best_weights.json."""
+    _SWEEP_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "weights": weights,
+        "saved_at": datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M UTC"),
+    }
+    _SWEEP_RESULTS_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    logger.info("sweep: best weights saved to %s", _SWEEP_RESULTS_PATH)
+
+
+def load_last_weights() -> dict[str, float] | None:
+    """Load the most recently saved best weights, or None."""
+    if not _SWEEP_RESULTS_PATH.exists():
+        return None
+    try:
+        return json.loads(_SWEEP_RESULTS_PATH.read_text(encoding="utf-8")).get("weights")
+    except Exception as exc:
+        logger.warning("sweep: could not load weights: %s", exc)
+        return None
 
 
 def _load_seed_trials() -> list[dict[str, float]]:

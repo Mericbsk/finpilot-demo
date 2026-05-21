@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -158,7 +159,36 @@ class WalkForwardCV:
         }
 
 
+_WF_RESULTS_PATH = Path("data/walkforward_results.json")
+
+
+def save_results(summary: dict[str, Any]) -> None:
+    """Persist walk-forward summary to data/walkforward_results.json."""
+    _WF_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    from datetime import UTC, datetime
+
+    summary["saved_at"] = datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M UTC")
+    _WF_RESULTS_PATH.write_text(
+        __import__("json").dumps(summary, indent=2, default=str),
+        encoding="utf-8",
+    )
+    logger.info("walkforward: results saved to %s", _WF_RESULTS_PATH)
+
+
+def load_last_results() -> dict[str, Any] | None:
+    """Load the most recently saved walk-forward results, or None."""
+    if not _WF_RESULTS_PATH.exists():
+        return None
+    try:
+        return __import__("json").loads(_WF_RESULTS_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        logger.warning("walkforward: could not load results: %s", exc)
+        return None
+
+
 def run_default_wf() -> dict[str, Any]:
-    """Run walk-forward with default parameters and return summary."""
+    """Run walk-forward with default parameters, save and return summary."""
     cv = WalkForwardCV()
-    return cv.summary()
+    summary = cv.summary()
+    save_results(summary)
+    return summary

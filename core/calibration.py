@@ -19,11 +19,17 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+# Configurable Brier regression threshold (default 0.02 = 2pp degradation triggers rollback)
+_BRIER_REGRESSION_THRESHOLD = float(
+    os.getenv("FINPILOT_BRIER_REGRESSION_THRESHOLD", "0.02")
+)
 
 _REDIS_KEY = "finpilot:calibration:v0"
 _DISK_PATH = Path("data") / "calibration.json"
@@ -311,7 +317,7 @@ def get_calibration_stats() -> dict[str, Any]:
 def refit_with_gate(
     *,
     min_samples_to_promote: int = 20,
-    brier_tolerance: float = 0.02,
+    brier_tolerance: float | None = None,
 ) -> dict[str, Any]:
     """Faz 3: refit calibration but rollback to prior model if quality drops.
 
@@ -326,6 +332,9 @@ def refit_with_gate(
     Every decision is recorded via core.audit_log.
     """
     from core import audit_log
+
+    # Resolve effective tolerance: caller override > env var
+    effective_tolerance = brier_tolerance if brier_tolerance is not None else _BRIER_REGRESSION_THRESHOLD
 
     prior = _load_model()
 
@@ -378,7 +387,7 @@ def refit_with_gate(
 
     new_brier = _brier(candidate, samples)
     old_brier = _brier(prior, samples)
-    if new_brier > old_brier + brier_tolerance:
+    if new_brier > old_brier + effective_tolerance:
         _persist_model(prior)
         _mem_model = prior
         audit_log.record(
@@ -389,7 +398,7 @@ def refit_with_gate(
                 "reason": "degraded_brier",
                 "new_brier": round(new_brier, 4),
                 "old_brier": round(old_brier, 4),
-                "tolerance": brier_tolerance,
+                "tolerance": effective_tolerance,
             },
         )
         # Auto-disable: quality gate triggered by Brier regression
@@ -397,7 +406,7 @@ def refit_with_gate(
             from core.quality_gate import set_degraded
 
             set_degraded(
-                reason=f"calibration_brier_regression: {new_brier:.4f} > {old_brier:.4f} + {brier_tolerance}",
+                reason=f"calibration_brier_regression: {new_brier:.4f} > {old_brier:.4f} + {effective_tolerance}",
                 eval_report={
                     "overall_pass": False,
                     "metrics": {"new_brier": new_brier, "old_brier": old_brier},

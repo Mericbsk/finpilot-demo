@@ -160,6 +160,33 @@ def _run_weekly_report_job() -> None:
         logger.warning("Weekly report job failed: %s", exc)
 
 
+def _run_research_pipeline_job() -> None:
+    """Sprint 12: Weekly research pipeline — walk-forward + Optuna sweep + champion/challenger."""
+    try:
+        from research.pipeline import run_research_pipeline
+
+        result = run_research_pipeline()
+        promoted = (result.get("registry") or {}).get("promoted", False)
+        wf_brier = (result.get("walkforward") or {}).get("avg_brier", float("nan"))
+        logger.info(
+            "Research pipeline done — avg_brier=%.4f promoted=%s",
+            wf_brier,
+            promoted,
+        )
+        if promoted:
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                TelegramNotifier()._send_message(
+                    f"🔬 *Araştırma Boru Hattı* — Yeni şampiyon belirlendi!\n"
+                    f"Brier: {wf_brier:.4f} | Promote: ✅"
+                )
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception as exc:
+        logger.warning("Research pipeline job failed: %s", exc)
+
+
 # ---------------------------------------------------------------------------
 # Core cycle logic
 # ---------------------------------------------------------------------------
@@ -922,6 +949,13 @@ def start_scheduler(
             trigger=IntervalTrigger(days=7),
             id="finpilot_weekly_report_job",
             name="FinPilot Weekly Report",
+        )
+        # Sprint 12 — Research pipeline: every Sunday at 02:00 UTC
+        _scheduler_instance.add_job(
+            _make_watchdog_job("research_pipeline", _run_research_pipeline_job),
+            trigger=CronTrigger(day_of_week="sun", hour=2, minute=0, timezone="UTC"),
+            id="finpilot_research_pipeline_job",
+            name="FinPilot Research Pipeline (WF + Sweep + Champion)",
         )
 
         _scheduler_instance.start()
