@@ -27,6 +27,8 @@ logger = logging.getLogger(__name__)
 
 _REDIS_KEY = "finpilot:calibration:v0"
 _DISK_PATH = Path("data") / "calibration.json"
+_BRIER_HISTORY_PATH = Path("data") / "calibration_brier_history.json"
+_MAX_BRIER_HISTORY = 90  # keep 90 daily entries
 
 # Score bands — recommendation score range is ~0..18.3 (see scanner.score_engine)
 # We use a slightly wider upper bound and uniform bins.
@@ -107,9 +109,7 @@ def refit_calibration(
 
     bands = bands or _DEFAULT_BANDS
     total = len(samples)
-    global_rate = (
-        sum(1 for _, w in samples if w) / total if total > 0 else 0.5
-    )
+    global_rate = sum(1 for _, w in samples if w) / total if total > 0 else 0.5
 
     raw_band_rates: list[float] = []
     band_counts: list[int] = []
@@ -130,7 +130,9 @@ def refit_calibration(
         "global_win_rate": round(global_rate, 4),
         "bands": [
             {"lo": lo, "hi": hi, "n": n, "raw_p": round(rp, 4), "p": p}
-            for (lo, hi), n, rp, p in zip(bands, band_counts, raw_band_rates, monotonic_rates, strict=True)
+            for (lo, hi), n, rp, p in zip(
+                bands, band_counts, raw_band_rates, monotonic_rates, strict=True
+            )
         ],
     }
 
@@ -222,6 +224,90 @@ def _brier(model: dict[str, Any], samples: list[tuple[float, bool]]) -> float:
     return s / len(samples)
 
 
+def _ece(model: dict[str, Any]) -> float:
+    """Expected Calibration Error: weighted mean absolute deviation per band."""
+    bands = model.get("bands", [])
+    total = model.get("n_samples", 0)
+    if total == 0:
+        return 0.0
+    ece = 0.0
+    for band in bands:
+        n = band.get("n", 0)
+        if n == 0:
+            continue
+        observed = band.get("raw_p", band["p"])
+        predicted = band["p"]
+        ece += (n / total) * abs(observed - predicted)
+    return round(ece, 4)
+
+
+def _append_brier_history(brier: float) -> None:
+    """Append a timestamped Brier score to the rolling history file."""
+    try:
+        history: list[dict[str, Any]] = []
+        if _BRIER_HISTORY_PATH.exists():
+            history = json.loads(_BRIER_HISTORY_PATH.read_text(encoding="utf-8"))
+        history.append({"ts": int(time.time()), "brier": round(brier, 4)})
+        if len(history) > _MAX_BRIER_HISTORY:
+            history = history[-_MAX_BRIER_HISTORY:]
+        _BRIER_HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _BRIER_HISTORY_PATH.write_text(json.dumps(history, indent=2), encoding="utf-8")
+    except Exception as exc:
+        logger.debug("calibration: brier history persist failed: %s", exc)
+
+
+def get_brier_history() -> list[dict[str, Any]]:
+    """Return stored Brier history entries [{ts, brier}, ...]."""
+    try:
+        if _BRIER_HISTORY_PATH.exists():
+            return json.loads(_BRIER_HISTORY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return []
+
+
+def get_calibration_stats() -> dict[str, Any]:
+    """Return calibration quality metrics for the dashboard."""
+    from core.kpi_tracker import compute_decile_lift
+
+    model = _load_model()
+    decile_data = compute_decile_lift()
+
+    samples: list[tuple[float, bool]] = []
+    try:
+        from core.kpi_tracker import _load_all_signals  # type: ignore
+
+        sigs = _load_all_signals()
+        samples = [
+            (float(s.get("score", 0)), s.get("outcome") == "win")
+            for s in sigs
+            if s.get("outcome") is not None
+        ]
+    except Exception:
+        pass
+
+    current_brier: float | None = None
+    current_ece: float | None = None
+    bands_detail: list[dict[str, Any]] = []
+
+    if model is not None:
+        current_brier = round(_brier(model, samples), 4) if samples else None
+        current_ece = _ece(model)
+        bands_detail = model.get("bands", [])
+
+    history = get_brier_history()
+
+    return {
+        "fitted": model is not None,
+        "n_samples": len(samples),
+        "brier": current_brier,
+        "ece": current_ece,
+        "bands": bands_detail,
+        "decile_lift": decile_data,
+        "brier_history": history,
+    }
+
+
 def refit_with_gate(
     *,
     min_samples_to_promote: int = 20,
@@ -306,6 +392,19 @@ def refit_with_gate(
                 "tolerance": brier_tolerance,
             },
         )
+        # Auto-disable: quality gate triggered by Brier regression
+        try:
+            from core.quality_gate import set_degraded
+
+            set_degraded(
+                reason=f"calibration_brier_regression: {new_brier:.4f} > {old_brier:.4f} + {brier_tolerance}",
+                eval_report={
+                    "overall_pass": False,
+                    "metrics": {"new_brier": new_brier, "old_brier": old_brier},
+                },
+            )
+        except Exception as _qg_exc:
+            logger.debug("calibration_gate: quality_gate notify failed: %s", _qg_exc)
         return {
             "promoted": False,
             "reason": "degraded_brier",
@@ -324,6 +423,7 @@ def refit_with_gate(
             "old_brier": round(old_brier, 4),
         },
     )
+    _append_brier_history(new_brier)
     return {
         "promoted": True,
         "reason": "ok",

@@ -1,28 +1,44 @@
-# Sprint 10 — Gap Report (Partial — research skeleton complete)
-_Tarih: 2026-05-21_
+# Sprint 10 Gap Report
 
-## Tamamlanan
+## Completed
 
-- [x] **research/ klasörü iskelet** — 3 modül oluşturuldu ve doğrulandı
-  - `research/__init__.py` — modül tanımı
-  - `research/walkforward.py` — WalkForwardCV: 12-fold, 24m train / 6m val, Brier+win_rate per fold
-  - `research/sweep.py` — Optuna multi-objective sweep (Brier+PF), `optuna_conservative_results.json` seed desteği
-  - `research/registry.py` — Champion/challenger SQLite registry; `auto_promote_best()` ile otomatik promosyon
-  - Doğrulama: tüm import'lar ve fonksiyonlar çalışıyor ✓
+### 1. Slippage + Fee Model (`core/paper_portfolio.py`)
+- SLIPPAGE_BPS=5.0, COMMISSION_BPS=5.0 (10 bps round-trip)
+- close_position() applies cost model; trade records include gross_pnl_pct, pnl_pct (net), cost_bps
 
-## Sprint 10'da Kalan (Sıradaki)
+### 2. Auto-Disable on Brier Regression (`core/calibration.py`)
+- refit_with_gate() calls quality_gate.set_degraded() when new_brier > old_brier + 0.02
+- Added _ece(), _append_brier_history(), get_brier_history(), get_calibration_stats()
+- Brier history stored in data/calibration_brier_history.json (max 90 entries)
 
-- [ ] **Live P&L tile** — dashboard ana ekranına equity curve tile
-- [ ] **Slippage + fee modeli** — paper portfolio'ya bağlanacak
-- [ ] **/dashboard/calibration sayfası** — Brier + ECE + decile lift tile
-- [ ] **Auto-disable** — quality breach durumunda strateji devre dışı bırakma
+### 3. /calibration/stats Endpoint (`api/routers/closed_loop.py`)
+- Returns {fitted, n_samples, brier, ece, bands, decile_lift, brier_history}
 
-## Metrik Kontrolleri
+### 4. Live P&L Tile (`web/src/app/dashboard/page.tsx`)
+- Fetches from /py-api/loop/portfolio
+- Shows equity, win rate, profit factor, open positions
 
-| Modül | Özellik | Durum |
-|-------|---------|-------|
-| research/walkforward.py | 12-fold WF | ✅ |
-| research/sweep.py | Optuna multi-obj | ✅ |
-| research/registry.py | SQLite champion/challenger | ✅ |
-| registry auto_promote | Challenger → Champion | ✅ |
-| Seed trial loading | optuna_conservative_results.json | ✅ (graceful fallback) |
+### 5. Calibration Quality Page (`web/src/app/dashboard/calibration/page.tsx`)
+- Quality gate banner, KPI row (Brier/ECE/Top Lift/Win Rate)
+- Brier trend bars, Score Band calibration bars, Decile Lift chart
+- Sidebar link added with Gauge icon
+
+### 6. Research Skeleton
+- research/walkforward.py, research/sweep.py, research/registry.py (committed 868bbef)
+
+### 7. Decile Lift (core/kpi_tracker.py)
+- compute_decile_lift() added in Sprint 9
+
+## Gaps / Not Done This Sprint
+
+| Item | Status | Next Sprint |
+|------|--------|-------------|
+| Walk-forward actual 12-fold run | skeleton only | S11+ |
+| Optuna 200-trial sweep execution | skeleton only | S11+ |
+| Champion/challenger DB population | SQLite table defined, no data | S11+ |
+| T+5/T+20 reconciler in prod | code complete, monitoring | ongoing |
+
+## Next Sprint (S11) — Integration
+- `finpilot up` single command (docker + scheduler + telegram)
+- core/services.py service registry
+- Subscription gate skeleton (Stripe test mode)

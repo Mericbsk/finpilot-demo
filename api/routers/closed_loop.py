@@ -13,6 +13,7 @@ Exposes:
 
 from __future__ import annotations
 
+from datetime import UTC
 from typing import Any
 
 from fastapi import APIRouter, Depends
@@ -75,6 +76,14 @@ def calibration_model() -> dict[str, Any]:
 
     model = get_calibration_model()
     return {"model": model, "fitted": model is not None}
+
+
+@router.get("/calibration/stats", dependencies=[Depends(optional_auth)])
+def calibration_stats() -> dict[str, Any]:
+    """Return Brier, ECE, decile lift, band detail and history for the dashboard."""
+    from core.calibration import get_calibration_stats
+
+    return get_calibration_stats()
 
 
 @router.post("/reconcile", dependencies=[Depends(require_admin)])
@@ -160,7 +169,7 @@ def loop_uptime() -> dict[str, Any]:
     seconds_since_tick: float | None = None
     if last_run:
         try:
-            from datetime import datetime, timezone
+            from datetime import datetime
 
             ts = (
                 datetime.fromisoformat(last_run.replace("Z", "+00:00"))
@@ -168,10 +177,8 @@ def loop_uptime() -> dict[str, Any]:
                 else last_run
             )
             if ts.tzinfo is None:
-                ts = ts.replace(tzinfo=timezone.utc)
-            seconds_since_tick = max(
-                0.0, (datetime.now(timezone.utc) - ts).total_seconds()
-            )
+                ts = ts.replace(tzinfo=UTC)
+            seconds_since_tick = max(0.0, (datetime.now(UTC) - ts).total_seconds())
         except Exception:
             seconds_since_tick = None
 
