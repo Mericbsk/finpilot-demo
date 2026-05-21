@@ -1,6 +1,6 @@
 # Sprint 12 Gap Report — Quality Metrics
 
-**Date:** 2025-05-19  
+**Date:** 2025-05-19
 **Status:** ✅ DONE
 
 ## Completed

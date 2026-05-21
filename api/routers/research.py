@@ -40,7 +40,7 @@ def research_status() -> dict[str, Any]:
         from research.sweep import load_last_weights
 
         out["best_weights"] = load_last_weights()
-    except Exception as exc:
+    except Exception:
         out["best_weights"] = None
 
     return out

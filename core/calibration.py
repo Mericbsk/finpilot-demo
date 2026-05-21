@@ -27,9 +27,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # Configurable Brier regression threshold (default 0.02 = 2pp degradation triggers rollback)
-_BRIER_REGRESSION_THRESHOLD = float(
-    os.getenv("FINPILOT_BRIER_REGRESSION_THRESHOLD", "0.02")
-)
+_BRIER_REGRESSION_THRESHOLD = float(os.getenv("FINPILOT_BRIER_REGRESSION_THRESHOLD", "0.02"))
 
 _REDIS_KEY = "finpilot:calibration:v0"
 _DISK_PATH = Path("data") / "calibration.json"
@@ -334,7 +332,9 @@ def refit_with_gate(
     from core import audit_log
 
     # Resolve effective tolerance: caller override > env var
-    effective_tolerance = brier_tolerance if brier_tolerance is not None else _BRIER_REGRESSION_THRESHOLD
+    effective_tolerance = (
+        brier_tolerance if brier_tolerance is not None else _BRIER_REGRESSION_THRESHOLD
+    )
 
     prior = _load_model()
 
