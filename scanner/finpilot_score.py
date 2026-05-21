@@ -1,15 +1,15 @@
-"""Unified FinPilot Score — Sprint 5 T4
-
-Combines scanner composite score with DRL agent confidence into a single
-0-100 score that rewards agreement and penalises conflict.
+"""Unified FinPilot Score — Sprint 8 (DRL weight zeroed until live DRL connected)
 
 Formula
 -------
-    base  = 0.6 × (scanner_composite / 100) + 0.4 × drl_confidence
+    base  = _W_SCANNER × (scanner_composite / 100)
+            + _W_DRL × drl_confidence (inactive while _W_DRL == 0.0)
     score = base × (1 + α × agreement)
 
 where:
     α = 0.3  (agreement weight)
+    _W_DRL = 0.0  → DRL weight disabled until a real-time DRL is wired in
+    _W_SCANNER = 1.0 - _W_DRL
 
     agreement:
       +1.0  → scanner & DRL both agree (same signal)
@@ -20,6 +20,8 @@ where:
 from __future__ import annotations
 
 _ALPHA = 0.3  # agreement weight
+_W_DRL = 0.0  # DRL weight — set to 0 until live DRL is connected; was 0.4
+_W_SCANNER = 1.0 - _W_DRL  # scanner weight (currently 1.0)
 
 
 def compute_finpilot_score(
@@ -42,10 +44,10 @@ def compute_finpilot_score(
     sc = float(scanner_composite) / 100.0
     dc = float(drl_confidence) if drl_confidence is not None else 0.5
 
-    base = 0.6 * sc + 0.4 * dc
+    base = _W_SCANNER * sc + _W_DRL * dc
 
-    # Determine agreement
-    if drl_signal is None or drl_signal == "HOLD" or drl_confidence is None:
+    # Agreement multiplier only applies when DRL is active
+    if _W_DRL == 0.0 or drl_signal is None or drl_signal == "HOLD" or drl_confidence is None:
         agreement = 0.0
     elif drl_signal == scanner_signal:
         agreement = 1.0

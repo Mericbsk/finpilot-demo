@@ -37,6 +37,40 @@ _last_run: str | None = None
 _last_status: str = "idle"
 _eval_last_run: str | None = None
 
+# Sprint 8 — Job timeout budget (seconds). Any job exceeding this is killed & alerted.
+_JOB_TIMEOUT_SECONDS = 600  # 10 minutes
+
+
+def _make_watchdog_job(job_name: str, fn: Any, timeout_s: int = _JOB_TIMEOUT_SECONDS) -> Any:
+    """Wrap a scheduler job with a timeout watchdog.
+
+    If the job takes longer than *timeout_s*, the background thread is abandoned
+    and a Telegram alert is sent so the hang doesn't block the APScheduler thread pool.
+    """
+    import concurrent.futures
+
+    def _wrapped() -> None:
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(fn)
+        try:
+            future.result(timeout=timeout_s)
+        except concurrent.futures.TimeoutError:
+            msg = f"⚠️ FinPilot watchdog: job *{job_name}* hung > {timeout_s}s — abandoned"
+            logger.error("Watchdog: %s", msg)
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                TelegramNotifier()._send_message(msg)
+            except Exception:  # noqa: BLE001
+                pass
+        except Exception as exc:
+            logger.warning("Watchdog: job %s failed: %s", job_name, exc)
+        finally:
+            executor.shutdown(wait=False)
+
+    _wrapped.__name__ = f"watchdog_{job_name}"
+    return _wrapped
+
 
 def _run_eval_job(symbols: list[str]) -> None:
     """Run offline eval harness and save report to shared agent state."""
@@ -68,7 +102,9 @@ def _run_eval_job(symbols: list[str]) -> None:
 
             if not report.get("overall_pass"):
                 metrics = report.get("metrics", {}) or {}
-                failing = [k for k, v in metrics.items() if isinstance(v, dict) and not v.get("pass")]
+                failing = [
+                    k for k, v in metrics.items() if isinstance(v, dict) and not v.get("pass")
+                ]
                 set_degraded(
                     reason=f"eval failed: {','.join(failing) or 'unknown'}",
                     eval_report=report,
@@ -82,17 +118,14 @@ def _run_eval_job(symbols: list[str]) -> None:
 
 
 def _run_reconcile_job() -> None:
-    """Sprint 5 (S5-1): Walk open signals, fetch T+N closes, record outcomes."""
+    """Sprint 9: Multi-horizon reconciliation — T+1 (KPIs), T+5, T+20 (extended data)."""
     try:
-        from core.outcome_reconciler import reconcile_open_signals
+        from core.outcome_reconciler import reconcile_all_horizons
 
-        summary = reconcile_open_signals()
+        summary = reconcile_all_horizons()
         logger.info(
-            "Reconcile job: reconciled=%d skipped_age=%d skipped_data=%d errors=%d",
-            summary["reconciled"],
-            summary["skipped_age"],
-            summary["skipped_data"],
-            len(summary["errors"]),
+            "Reconcile job (all horizons): total_reconciled=%d",
+            summary.get("total_reconciled", 0),
         )
     except Exception as exc:
         logger.warning("Reconcile job failed: %s", exc)
@@ -382,20 +415,27 @@ def run_cycle_once(
                     direction = "BUY" if bt_sym.get("total_return", 0) > 0 else "SELL"
                     entry_price = float(bt_sym.get("final_value", 0) or 0)
                     score_val = float(bt_sym.get("win_rate", 0) or 0)
+
+                    # R/R fix (Sprint 8): guard against zero/negative denominator;
+                    # max_return is reward side, max_drawdown is risk side (may be negative).
+                    _max_ret = float(bt_sym.get("max_return", 0) or 0)
+                    _max_dd = abs(float(bt_sym.get("max_drawdown", 0) or 0))
+                    _rr = round(_max_ret / _max_dd, 3) if _max_dd > 0 else 0.0
+
+                    # Gate: skip zero-price or SELL signals before recording
+                    if entry_price <= 0 or direction != "BUY":
+                        continue
+
                     p_win = float(_calibrated_probability(score_val))
                     record_signal(
                         symbol=sym,
                         direction=direction,
                         price=entry_price,
                         score=score_val,
-                        rr=bt_sym.get("max_return", 0) / abs(bt_sym.get("max_drawdown", 1) or 1),
+                        rr=_rr,
                         cycle=_cycle_count + 1,
                         p_win=p_win,
                     )
-                    if entry_price <= 0:
-                        continue
-                    if direction != "BUY":
-                        continue
                     if p_win < _pwin_threshold:
                         logger.info(
                             "Decision gate: skip paper trade %s (p_win=%.3f < %.3f)",
@@ -410,14 +450,11 @@ def run_cycle_once(
 
                             router = get_ensemble_router()
                             drl_pred = router.predict({"symbol": sym, "score": score_val})
-                            drl_action = (
-                                getattr(drl_pred, "action", None)
-                                or (drl_pred.get("action") if isinstance(drl_pred, dict) else None)
+                            drl_action = getattr(drl_pred, "action", None) or (
+                                drl_pred.get("action") if isinstance(drl_pred, dict) else None
                             )
                             if drl_action and str(drl_action).upper() not in ("BUY", "LONG", "1"):
-                                logger.info(
-                                    "DRL gate: veto %s (action=%s)", sym, drl_action
-                                )
+                                logger.info("DRL gate: veto %s (action=%s)", sym, drl_action)
                                 continue
                         except Exception as drl_exc:  # noqa: BLE001
                             logger.debug("DRL gate bypass for %s: %s", sym, drl_exc)
@@ -768,9 +805,7 @@ def run_cycle_once(
                             extra={"cycle": _cycle_count, "auto": True},
                         )
                 except Exception as ae:  # noqa: BLE001
-                    logger.warning(
-                        "Scheduler: advisory review failed for %s: %s", advisor_key, ae
-                    )
+                    logger.warning("Scheduler: advisory review failed for %s: %s", advisor_key, ae)
             if review_results:
                 results["advisory_review"] = review_results
                 try:
@@ -860,27 +895,30 @@ def start_scheduler(
             _run_eval_job(symbols)
 
         _scheduler_instance.add_job(
-            _eval_job_wrapper,
+            _make_watchdog_job("eval", _eval_job_wrapper),
             trigger=IntervalTrigger(hours=1),
             id="finpilot_eval_job",
             name="FinPilot Autonomous Eval",
         )
 
-        # Sprint 5 — closed-loop jobs
+        # Sprint 5 — closed-loop jobs; Sprint 8: wrapped with watchdog
+        from apscheduler.triggers.cron import CronTrigger
+
         _scheduler_instance.add_job(
-            _run_reconcile_job,
+            _make_watchdog_job("reconcile", _run_reconcile_job),
             trigger=IntervalTrigger(hours=6),
             id="finpilot_reconcile_job",
             name="FinPilot Outcome Reconciler",
         )
+        # Calibration runs daily at 23:30 UTC (after NASDAQ close)
         _scheduler_instance.add_job(
-            _run_calibration_job,
-            trigger=IntervalTrigger(hours=24),
+            _make_watchdog_job("calibration", _run_calibration_job),
+            trigger=CronTrigger(hour=23, minute=30, timezone="UTC"),
             id="finpilot_calibration_job",
             name="FinPilot Score Calibration",
         )
         _scheduler_instance.add_job(
-            _run_weekly_report_job,
+            _make_watchdog_job("weekly_report", _run_weekly_report_job),
             trigger=IntervalTrigger(days=7),
             id="finpilot_weekly_report_job",
             name="FinPilot Weekly Report",
