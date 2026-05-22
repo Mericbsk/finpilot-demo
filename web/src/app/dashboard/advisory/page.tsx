@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 const C = {
   bg: "#08080e",

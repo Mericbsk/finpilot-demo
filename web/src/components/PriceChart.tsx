@@ -33,8 +33,7 @@ interface PriceChartProps {
   height?: number;
 }
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001/api/v1";
+const API_BASE = "/py-api";
 
 export default function PriceChart({ symbol, height = 260 }: PriceChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);

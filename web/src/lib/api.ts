@@ -1,7 +1,8 @@
 /**
  * Centralized FinPilot API client.
  *
- * - Reads base URL from NEXT_PUBLIC_API_URL (default: http://localhost:8001).
+ * - Reads base URL from NEXT_PUBLIC_API_URL. When not set (Docker), /api/v1/* paths
+ *   are automatically rewritten to /py-api/* for Next.js runtime proxy routing.
  * - Reads JWT from localStorage key "finpilot_token" (browser only).
  * - Injects `Authorization: Bearer <token>` header automatically when present.
  * - Exposes helpers for token persistence used by the auth flow.
@@ -12,7 +13,7 @@
  */
 
 export const API_BASE: string =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+  process.env.NEXT_PUBLIC_API_URL || "";
 
 const TOKEN_KEY = "finpilot_token";
 
@@ -48,6 +49,10 @@ export function clearAuthToken(): void {
  */
 function resolveUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
+  // When API_BASE is empty (Docker, no NEXT_PUBLIC_API_URL set) rewrite
+  // /api/v1/<rest> → /py-api/<rest> so the Next.js runtime proxy handles it.
+  if (!API_BASE && path.startsWith("/api/v1/"))
+    return `/py-api/${path.slice(8)}`;
   if (path.startsWith("/")) return `${API_BASE}${path}`;
   return `${API_BASE}/${path}`;
 }

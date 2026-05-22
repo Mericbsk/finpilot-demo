@@ -257,7 +257,7 @@ export default function DRLPage() {
             onClick={() => setTab(t.id)}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-medium transition-all"
             style={{
-              backgroundColor: tab === t.id ? C.primary : "transparent",
+              backgroundColor: tab === t.id ? C.cardHover : "transparent",
               color: tab === t.id ? C.cyan : C.text3,
             }}
           >
@@ -325,7 +325,7 @@ export default function DRLPage() {
                   {/* Tags */}
                   <div className="mb-3 flex flex-wrap gap-1">
                     {m.tags.map((tag) => (
-                      <span key={tag} className="rounded px-1.5 py-0.5 text-[9px]" style={{ backgroundColor: C.primary, color: C.text3 }}>
+                      <span key={tag} className="rounded px-1.5 py-0.5 text-[9px]" style={{ backgroundColor: C.card, color: C.text3 }}>
                         {tag}
                       </span>
                     ))}
@@ -440,7 +440,7 @@ export default function DRLPage() {
                           {((data?.confidence ?? 0) * 100).toFixed(1)}%
                         </td>
                         <td className="px-3 py-3">
-                          <span className="rounded px-2 py-0.5 text-[10px]" style={{ backgroundColor: C.primary, color: C.text3 }}>
+                          <span className="rounded px-2 py-0.5 text-[10px]" style={{ backgroundColor: C.card, color: C.text3 }}>
                             {data?.regime ?? "—"}
                           </span>
                         </td>
@@ -491,7 +491,7 @@ export default function DRLPage() {
           {ensembleResult ? (
             <div className="rounded-2xl p-5" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
               <h3 className="mb-3 text-sm font-semibold" style={{ color: C.text1 }}>Ensemble Results</h3>
-              <pre className="overflow-x-auto rounded-xl p-4 text-xs" style={{ backgroundColor: C.primary, color: C.text2 }}>
+              <pre className="overflow-x-auto rounded-xl p-4 text-xs" style={{ backgroundColor: C.card, color: C.text2 }}>
                 {JSON.stringify(ensembleResult, null, 2)}
               </pre>
             </div>

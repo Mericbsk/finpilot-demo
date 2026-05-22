@@ -81,7 +81,7 @@ const TASKS: { id: Task; label: string; desc: string; icon: React.ElementType }[
   { id: "advisory",     label: "Danışman",        desc: "15 LLM uzman görüşü",               icon: MessageSquare },
 ];
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+const API = "/py-api";
 
 /* ── Main Component ────────────────────────────────────────── */
 export default function AgentPage() {
@@ -122,7 +122,7 @@ export default function AgentPage() {
     setResult(null);
 
     try {
-      const res = await fetch(`${API}/api/v1/agent/run`, {
+      const res = await fetch(`${API}/agent/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

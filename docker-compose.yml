@@ -51,7 +51,7 @@ services:
       - .env
     volumes:
       - ./data:/app/data
-      - ./models:/app/models:ro
+      - ./models:/app/models
       - ./api:/app/api:ro
     networks:
       - finpilot_network

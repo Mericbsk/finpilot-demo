@@ -109,8 +109,7 @@ export default function TermDetailPage() {
     setAiLoading(true);
     setAiError(null);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001/api/v1";
-      const res = await fetch(`${API_URL}/ai/explain`, {
+      const res = await fetch(`/py-api/ai/explain`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug, lang }),
