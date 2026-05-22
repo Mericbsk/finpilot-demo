@@ -65,3 +65,32 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_functions = "test_*"
 addopts = "-v --tb=short"
+
+# ─────────────────────────────────────────────────────────────────────
+# Sprint 16 (S16-08): [project] block + optional extras.
+#
+# Note: production installs still use requirements*.txt files (referenced
+# by Dockerfile, docker-compose.yml, CI). This block is additive — it
+# enables `pip install -e .[observability]` / `[etl]` / etc. for dev,
+# without changing existing pipeline behavior. See DEPENDENCIES.md for
+# the requirements file mapping.
+# ─────────────────────────────────────────────────────────────────────
+[project]
+name = "finpilot"
+version = "0.16.0"
+description = "AI-powered stock scanning and analysis with closed-loop calibration"
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "MIT" }
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[project.optional-dependencies]
+observability = []  # see requirements-observability.txt
+etl = []            # see requirements-etl.txt
+rl = []             # see requirements-rl.txt
+altdata = []        # see requirements-altdata.txt
+demo = []           # see requirements-demo.txt
+full = []           # union of the above; install via DEPENDENCIES.md profile
