@@ -49,7 +49,6 @@ ignore = [
 "core/prometheus_exporter.py" = ["S104"]
 "core/audit.py" = ["S105"]
 "drl/observability.py" = ["S104"]
-"telegram_test.py" = ["S105"]
 
 [tool.ruff.format]
 quote-style = "double"

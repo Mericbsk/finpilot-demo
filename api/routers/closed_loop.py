@@ -146,6 +146,110 @@ def autonomy_audit(limit: int = 50) -> dict[str, Any]:
     return {"entries": audit_log.recent(limit=limit)}
 
 
+@router.get("/champion/edge", dependencies=[Depends(optional_auth)])
+def champion_edge() -> dict[str, Any]:
+    """Sprint 16 (S16-04): Live champion edge visibility.
+
+    Returns the current champion model metadata + the last 30 days rolling
+    Brier score and paper portfolio PnL — the single most important
+    "is the self-improving loop actually improving?" signal.
+    """
+    import time
+    from datetime import datetime, timedelta
+
+    from core.kpi_tracker import _load_all_signals, get_kpis
+
+    champion: dict[str, Any] | None = None
+    try:
+        from research.registry import get_champion as _get_champ
+
+        champion = _get_champ()
+    except Exception:
+        champion = None
+
+    # 30d rolling Brier from resolved signals.
+    cutoff_ts = (datetime.utcnow() - timedelta(days=30)).timestamp()
+    signals = _load_all_signals()
+    recent_resolved: list[dict] = []
+    for s in signals:
+        try:
+            ts_raw = s.get("timestamp") or s.get("ts")
+            if isinstance(ts_raw, str):
+                ts = datetime.fromisoformat(ts_raw.replace("Z", "+00:00")).timestamp()
+            elif isinstance(ts_raw, (int, float)):
+                ts = float(ts_raw)
+            else:
+                continue
+            if ts < cutoff_ts:
+                continue
+            if s.get("outcome") in ("win", "loss"):
+                recent_resolved.append(s)
+        except Exception:
+            continue
+
+    brier_30d: float | None = None
+    if recent_resolved:
+        # Score is on 0–100; calibrated probability is on 0–1.
+        # Prefer p_win_calib if present; else normalize score/100.
+        sq_err = []
+        for s in recent_resolved:
+            p = s.get("p_win_calib")
+            if p is None:
+                raw = s.get("score", 0) or 0
+                p = max(0.0, min(1.0, float(raw) / 100.0))
+            else:
+                p = float(p)
+            y = 1.0 if s["outcome"] == "win" else 0.0
+            sq_err.append((p - y) ** 2)
+        if sq_err:
+            brier_30d = round(sum(sq_err) / len(sq_err), 4)
+
+    # Paper portfolio PnL (uses entire history; safe degradation).
+    paper_pnl_total: float | None = None
+    paper_pnl_30d: float | None = None
+    try:
+        from core.paper_portfolio import get_closed_history, get_summary
+
+        summary = get_summary()
+        paper_pnl_total = float(summary.get("total_pnl_pct", 0.0))
+        history = get_closed_history(limit=500)
+        recent_pnls = []
+        for h in history:
+            try:
+                ts_raw = h.get("closed_at") or h.get("exit_time") or h.get("ts")
+                if isinstance(ts_raw, str):
+                    ts = datetime.fromisoformat(ts_raw.replace("Z", "+00:00")).timestamp()
+                else:
+                    ts = float(ts_raw or 0)
+                if ts >= cutoff_ts:
+                    recent_pnls.append(float(h.get("pnl_pct", 0.0)))
+            except Exception:
+                continue
+        if recent_pnls:
+            paper_pnl_30d = round(sum(recent_pnls), 2)
+    except Exception:
+        pass
+
+    kpis = get_kpis()
+
+    return {
+        "champion": champion,
+        "edge": {
+            "brier_30d": brier_30d,
+            "resolved_signals_30d": len(recent_resolved),
+            "paper_pnl_30d_pct": paper_pnl_30d,
+            "paper_pnl_total_pct": paper_pnl_total,
+        },
+        "lifetime_kpis": {
+            "win_rate": kpis.get("win_rate"),
+            "profit_factor": kpis.get("profit_factor"),
+            "total_signals": kpis.get("total_signals"),
+            "resolved_signals": kpis.get("resolved_signals"),
+        },
+        "checked_at": time.time(),
+    }
+
+
 @router.post("/clear-degraded", dependencies=[Depends(require_admin)])
 def clear_degraded() -> dict[str, Any]:
     from core.quality_gate import clear_degraded as _clear
