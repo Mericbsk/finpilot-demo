@@ -371,30 +371,22 @@ async def run_agent(req: AgentRunRequest):
                 errors=errors,
             )
 
-    try:
-        from agents.ceo import get_graph
-    except ImportError as exc:
-        raise HTTPException(status_code=503, detail=f"Agent system unavailable: {exc}") from exc
-
-    initial_state: dict[str, Any] = {
-        "task": req.task,
-        "symbols": req.symbols,
-        "kelly_fraction": req.kelly_fraction,
-        "scan_results": {},
-        "analysis_results": {},
-        "risk_results": {},
-        "alerts_sent": [],
-        "errors": [],
-        "top_symbols": [],
-    }
-
     import time as _time
 
     _t0 = _time.perf_counter()
     loop = asyncio.get_running_loop()
     try:
+        from core.pipeline import run_cycle
+
         final_state: dict[str, Any] = await asyncio.wait_for(
-            loop.run_in_executor(_executor, lambda: get_graph().invoke(initial_state)),
+            loop.run_in_executor(
+                _executor,
+                lambda: run_cycle(
+                    req.symbols,
+                    task=req.task,
+                    kelly_fraction=req.kelly_fraction,
+                ),
+            ),
             timeout=_AGENT_TIMEOUT_SECONDS,
         )
     except TimeoutError:
