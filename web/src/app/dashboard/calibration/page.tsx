@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Activity, BarChart3, TrendingUp, Gauge, RefreshCw, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { C } from "@/lib/stockData";
+import { ConfidenceCard } from "@/components/dashboard/ConfidenceCard";
 
 interface BandDetail {
   lo: number;
@@ -235,6 +236,23 @@ export default function CalibrationPage() {
           sub={`${stats?.decile_lift?.n_resolved ?? 0} resolved`}
           color={overallWR >= 0.55 ? C.green : overallWR >= 0.45 ? C.yellow : overallWR > 0 ? C.red : C.text3}
         />
+      </div>
+
+      {/* Confidence Card — Brier-derived reliability summary */}
+      <div className="flex flex-wrap gap-4">
+        <ConfidenceCard
+          brier={brier}
+          ece={ece}
+          resolvedSignals={stats?.decile_lift?.n_resolved}
+          label="Model Reliability"
+        />
+        {champion?.edge?.brier_30d != null && (
+          <ConfidenceCard
+            brier={champion.edge.brier_30d}
+            resolvedSignals={champion.edge.resolved_signals_30d}
+            label="Champion (30d)"
+          />
+        )}
       </div>
 
       {/* Brier History Trend */}

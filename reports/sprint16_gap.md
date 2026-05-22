@@ -154,7 +154,20 @@ Büyük refactor. Mevcut sistem çalışıyor; bir paket içinde tüm agent wrap
 
 **Bu turun teslimi:** 14 done + 1 deferred (S16-15 → Sprint 17).
 
-**Sonraki adım:** Sprint 17 odağı: S16-15 LangGraph → pipeline refactor + S1 (Redis required, Auth, Scanner↔Scheduler bridge) görevlerine geçiş.
+---
+
+## Sprint 17 — Carry-over Kapatma (Quality & Persistence)
+
+Sprint 16 açıklarından taşınan 4 item Sprint 17'de tamamlandı:
+
+| Task ID | Açıklama | Commit | Durum |
+|---|---|---|---|
+| S17-01 | Auto-approve persistence (Açık 1) | `b017fd7` | ✅ Done |
+| S17-02 | Test coverage %40+ (Açık 9) | `2a30471` | ✅ Done — %50 |
+| S17-03 | LangGraph → `core/pipeline.run_cycle()` (S16-15) | `77b05b1` | ✅ Done |
+| S17-04 | Üretim analytics sayaçları + `/analytics/summary` | `8e00d97` | ✅ Done |
+
+**Sprint 16 açıklarının tümü kapatıldı.**
 
 ---
 
