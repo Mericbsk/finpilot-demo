@@ -193,6 +193,59 @@ def record_outcome(
     _recompute_kpis()
 
 
+def mark_signal_auto_approved(symbol: str, cycle: int, p_win: float) -> bool:
+    """Persist auto-approve decision back to Redis / in-memory store.
+
+    Called by the auto-approve scheduler job after deciding p_win >= threshold.
+    Without this call the approval flag lives only in a transient dict copy and
+    is lost when the process restarts or the next _load_all_signals() call runs.
+
+    Returns True if the signal was found and updated, False otherwise.
+    """
+    updated = False
+    r = _get_redis()
+    if r is not None:
+        try:
+            raw = r.lrange(SIGNALS_KEY, 0, MAX_SIGNALS - 1)
+            new_list = []
+            for item in raw:
+                sig = json.loads(item)
+                if (
+                    sig["symbol"] == symbol
+                    and sig["cycle"] == cycle
+                    and not sig.get("auto_approved")
+                ):
+                    sig["auto_approved"] = True
+                    sig["auto_approve_p_win"] = round(float(p_win), 4)
+                    updated = True
+                new_list.append(json.dumps(sig))
+            if updated:
+                pipe = r.pipeline()
+                pipe.delete(SIGNALS_KEY)
+                for item in new_list:
+                    pipe.rpush(SIGNALS_KEY, item)
+                pipe.execute()
+        except Exception as exc:
+            logger.debug("KPI mark_signal_auto_approved Redis error: %s", exc)
+    else:
+        for sig in _mem_signals:
+            if (
+                sig["symbol"] == symbol
+                and sig["cycle"] == cycle
+                and not sig.get("auto_approved")
+            ):
+                sig["auto_approved"] = True
+                sig["auto_approve_p_win"] = round(float(p_win), 4)
+                updated = True
+                break
+
+    if updated:
+        logger.debug("mark_signal_auto_approved: %s cycle=%d p_win=%.4f persisted", symbol, cycle, p_win)
+    else:
+        logger.debug("mark_signal_auto_approved: %s cycle=%d — signal not found or already approved", symbol, cycle)
+    return updated
+
+
 def _recompute_kpis() -> dict[str, Any]:
     """Rebuild the KPI summary from all resolved signals."""
     global _mem_kpis

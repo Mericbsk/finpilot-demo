@@ -317,11 +317,12 @@ def _run_auto_approve_job(symbols: list[str]) -> None:
                 continue
             p_win = calibrated_probability(float(score))
             if p_win >= 0.65:
-                # Mark as auto-approved (outcome will be reconciled by T+1 job)
+                # Persist auto-approve decision to Redis / in-memory store
                 try:
-                    sig["auto_approved"] = True
-                    sig["auto_approve_p_win"] = round(p_win, 4)
-                    approved += 1
+                    from core.kpi_tracker import mark_signal_auto_approved
+
+                    if mark_signal_auto_approved(sig["symbol"], sig["cycle"], p_win):
+                        approved += 1
                 except Exception:
                     pass
 
