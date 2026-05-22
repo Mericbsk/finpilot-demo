@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
  * that affect direct browser or Node.js fetch calls.
  */
 
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8000";
+const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8001";
 
 export async function GET(req: NextRequest) {
   const symbolsParam = req.nextUrl.searchParams.get("symbols") ?? "";
