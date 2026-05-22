@@ -32,7 +32,9 @@ _BRIER_REGRESSION_THRESHOLD = float(os.getenv("FINPILOT_BRIER_REGRESSION_THRESHO
 _REDIS_KEY = "finpilot:calibration:v0"
 _DISK_PATH = Path("data") / "calibration.json"
 _BRIER_HISTORY_PATH = Path("data") / "calibration_brier_history.json"
+_ROLLBACK_STRIKES_PATH = Path("data") / "calibration_rollback_strikes.json"
 _MAX_BRIER_HISTORY = 90  # keep 90 daily entries
+_MAX_ROLLBACK_STRIKES = 2  # auto-rollback champion after N consecutive gate failures
 
 # Score bands — recommendation score range is ~0..18.3 (see scanner.score_engine)
 # We use a slightly wider upper bound and uniform bins.
@@ -260,6 +262,40 @@ def _append_brier_history(brier: float) -> None:
         logger.debug("calibration: brier history persist failed: %s", exc)
 
 
+def _get_rollback_strikes() -> int:
+    """Return current consecutive rollback strike count."""
+    try:
+        if _ROLLBACK_STRIKES_PATH.exists():
+            data = json.loads(_ROLLBACK_STRIKES_PATH.read_text(encoding="utf-8"))
+            return int(data.get("strikes", 0))
+    except Exception:
+        pass
+    return 0
+
+
+def _increment_rollback_strikes() -> int:
+    """Increment consecutive rollback counter. Returns new count."""
+    strikes = _get_rollback_strikes() + 1
+    try:
+        _ROLLBACK_STRIKES_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _ROLLBACK_STRIKES_PATH.write_text(
+            json.dumps({"strikes": strikes, "ts": int(time.time())}), encoding="utf-8"
+        )
+    except Exception as exc:
+        logger.debug("calibration: rollback strikes persist failed: %s", exc)
+    return strikes
+
+
+def _reset_rollback_strikes() -> None:
+    """Reset rollback strike counter after a successful promotion."""
+    try:
+        _ROLLBACK_STRIKES_PATH.write_text(
+            json.dumps({"strikes": 0, "ts": int(time.time())}), encoding="utf-8"
+        )
+    except Exception as exc:
+        logger.debug("calibration: rollback strikes reset failed: %s", exc)
+
+
 def get_brier_history() -> list[dict[str, Any]]:
     """Return stored Brier history entries [{ts, brier}, ...]."""
     try:
@@ -388,6 +424,7 @@ def refit_with_gate(
     new_brier = _brier(candidate, samples)
     old_brier = _brier(prior, samples)
     if new_brier > old_brier + effective_tolerance:
+        strikes = _increment_rollback_strikes()
         _persist_model(prior)
         _mem_model = prior
         audit_log.record(
@@ -399,8 +436,31 @@ def refit_with_gate(
                 "new_brier": round(new_brier, 4),
                 "old_brier": round(old_brier, 4),
                 "tolerance": effective_tolerance,
+                "consecutive_rollbacks": strikes,
             },
         )
+        if strikes >= _MAX_ROLLBACK_STRIKES:
+            logger.warning(
+                "calibration: %d consecutive rollbacks — triggering auto-rollback to registry champion",
+                strikes,
+            )
+            try:
+                from research.registry import ModelRegistry
+
+                reg = ModelRegistry()
+                champion = reg.get_champion()
+                if champion and champion.get("weights"):
+                    from scanner.finpilot_score import load_weights, set_weights  # type: ignore
+
+                    set_weights(champion["weights"])
+                    logger.info(
+                        "calibration: restored weights from registry champion id=%d",
+                        champion["id"],
+                    )
+            except Exception as _exc:
+                logger.warning("calibration: registry champion restore failed: %s", _exc)
+            _reset_rollback_strikes()
+
         # Auto-disable: quality gate triggered by Brier regression
         try:
             from core.quality_gate import set_degraded
@@ -419,6 +479,7 @@ def refit_with_gate(
             "reason": "degraded_brier",
             "new_brier": new_brier,
             "old_brier": old_brier,
+            "consecutive_rollbacks": strikes,
             "model": prior,
         }
 
@@ -433,6 +494,7 @@ def refit_with_gate(
         },
     )
     _append_brier_history(new_brier)
+    _reset_rollback_strikes()
     return {
         "promoted": True,
         "reason": "ok",

@@ -87,13 +87,21 @@ def list_registry(limit: int = 20) -> dict[str, Any]:
 
 
 @router.post("/registry/promote-best")
-def promote_best(min_improvement: float = 0.01) -> dict[str, Any]:
-    """Manually trigger auto-promote: promote best challenger if it beats champion."""
+def promote_best(
+    min_improvement: float = 0.01,
+    min_win_rate: float = 0.50,
+    max_strikes: int = 2,
+) -> dict[str, Any]:
+    """Manually trigger auto-promote gate (2-condition: Brier + win rate)."""
     try:
         from research.registry import ModelRegistry
 
         reg = ModelRegistry()
-        promoted = reg.auto_promote_best(min_brier_improvement=min_improvement)
+        promoted = reg.auto_promote_best(
+            min_brier_improvement=min_improvement,
+            min_win_rate=min_win_rate,
+            max_strikes_before_retire=max_strikes,
+        )
         champion = reg.get_champion()
         return {"promoted": promoted, "champion": champion}
     except Exception as exc:

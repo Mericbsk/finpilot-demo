@@ -22,6 +22,7 @@ import {
   Users,
   ShieldCheck,
   Gauge,
+  Swords,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -51,6 +52,7 @@ const navItems = [
   { href: "/dashboard/advisory", icon: Users, label: "Advisory" },
   { href: "/dashboard/autonomy", icon: ShieldCheck, label: "Autonomy" },
   { href: "/dashboard/calibration", icon: Gauge, label: "Calibration" },
+  { href: "/dashboard/strategies", icon: Swords, label: "Strategies" },
   { href: "/dashboard/watchlist", icon: Star, label: "Watchlist" },
   { href: "/dashboard/history", icon: Clock, label: "History" },
 ];

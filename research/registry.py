@@ -27,17 +27,35 @@ DB_PATH = Path("data/model_registry.db")
 
 _CREATE_SQL = """
 CREATE TABLE IF NOT EXISTS model_registry (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT NOT NULL,
-    weights     TEXT NOT NULL,         -- JSON dict
-    brier_score REAL,
-    win_rate    REAL,
-    profit_factor REAL,
-    n_samples   INTEGER,
-    status      TEXT DEFAULT 'challenger',  -- 'champion' | 'challenger' | 'retired'
-    promoted_at TEXT,
-    created_at  TEXT NOT NULL
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    name            TEXT NOT NULL,
+    weights         TEXT NOT NULL,
+    brier_score     REAL,
+    win_rate        REAL,
+    profit_factor   REAL,
+    n_samples       INTEGER,
+    status          TEXT DEFAULT 'challenger',
+    promoted_at     TEXT,
+    created_at      TEXT NOT NULL,
+    strike_count    INTEGER DEFAULT 0,
+    promotion_notes TEXT
 );
+"""
+
+_ADD_STRIKE_SQL = """
+UPDATE model_registry SET strike_count = COALESCE(strike_count, 0) + 1 WHERE id = ?;
+"""
+
+_RESET_STRIKE_SQL = """
+UPDATE model_registry SET strike_count = 0 WHERE id = ?;
+"""
+
+_MIGRATE_SQL = """
+ALTER TABLE model_registry ADD COLUMN strike_count INTEGER DEFAULT 0;
+"""
+
+_MIGRATE_NOTES_SQL = """
+ALTER TABLE model_registry ADD COLUMN promotion_notes TEXT;
 """
 
 _INSERT_SQL = """
@@ -70,6 +88,12 @@ class ModelRegistry:
     def _init_db(self) -> None:
         with self._conn() as conn:
             conn.execute(_CREATE_SQL)
+            # Migrate existing DBs that predate strike_count / promotion_notes columns
+            for migration in (_MIGRATE_SQL, _MIGRATE_NOTES_SQL):
+                try:
+                    conn.execute(migration)
+                except Exception:
+                    pass  # column already exists
             conn.commit()
 
     def register_candidate(
@@ -161,8 +185,42 @@ class ModelRegistry:
             for r in rows
         ]
 
-    def auto_promote_best(self, min_brier_improvement: float = 0.01) -> bool:
-        """Promote best challenger if it beats the current champion by margin.
+    def add_strike(self, row_id: int) -> int:
+        """Increment the strike counter for a model. Returns the new count."""
+        with self._conn() as conn:
+            conn.execute(_ADD_STRIKE_SQL, (row_id,))
+            conn.commit()
+            cur = conn.execute(
+                "SELECT strike_count FROM model_registry WHERE id = ?", (row_id,)
+            )
+            row = cur.fetchone()
+        new_count = row[0] if row else 1
+        logger.info("registry: strike id=%d count=%d", row_id, new_count)
+        return new_count
+
+    def reset_strikes(self, row_id: int) -> None:
+        """Reset strike counter for a model (after successful evaluation)."""
+        with self._conn() as conn:
+            conn.execute(_RESET_STRIKE_SQL, (row_id,))
+            conn.commit()
+        logger.info("registry: strikes reset id=%d", row_id)
+
+    def auto_promote_best(
+        self,
+        min_brier_improvement: float = 0.01,
+        min_win_rate: float = 0.50,
+        max_strikes_before_retire: int = 2,
+    ) -> bool:
+        """Promotion gate: 2-condition check (Brier + win rate).
+
+        A challenger is promoted only when **both** conditions pass:
+          1. Its Brier score beats the current champion by at least
+             ``min_brier_improvement``.
+          2. Its win rate is at least ``min_win_rate``.
+
+        If the best challenger fails the gate, its strike counter is
+        incremented.  After ``max_strikes_before_retire`` consecutive
+        failures the challenger is retired (removed from consideration).
 
         Returns True if a new champion was promoted.
         """
@@ -175,12 +233,61 @@ class ModelRegistry:
         if best["brier_score"] is None:
             return False
 
-        if champion is None or (
+        # --- Condition 1: Brier improvement ---
+        brier_ok = champion is None or (
             champion["brier_score"] is None
             or best["brier_score"] < champion["brier_score"] - min_brier_improvement
-        ):
+        )
+
+        # --- Condition 2: minimum win rate ---
+        win_rate_ok = (best.get("win_rate") or 0.0) >= min_win_rate
+
+        notes: dict[str, Any] = {
+            "brier_ok": brier_ok,
+            "win_rate_ok": win_rate_ok,
+            "challenger_brier": best["brier_score"],
+            "challenger_win_rate": best.get("win_rate"),
+            "champion_brier": (champion or {}).get("brier_score"),
+            "min_brier_improvement": min_brier_improvement,
+            "min_win_rate": min_win_rate,
+        }
+
+        if brier_ok and win_rate_ok:
+            # Persist gate notes then promote
+            with self._conn() as conn:
+                conn.execute(
+                    "UPDATE model_registry SET promotion_notes = ? WHERE id = ?",
+                    (json.dumps(notes), best["id"]),
+                )
+                conn.commit()
             self.promote(best["id"])
+            logger.info(
+                "registry: auto-promoted id=%d (brier=%.4f, win_rate=%.4f)",
+                best["id"],
+                best["brier_score"],
+                best.get("win_rate", 0),
+            )
             return True
+
+        # Gate failed — add strike
+        strikes = self.add_strike(best["id"])
+        notes["strike_count"] = strikes
+        logger.info(
+            "registry: gate failed id=%d strikes=%d (brier_ok=%s win_rate_ok=%s)",
+            best["id"], strikes, brier_ok, win_rate_ok,
+        )
+
+        if strikes >= max_strikes_before_retire:
+            with self._conn() as conn:
+                conn.execute(
+                    "UPDATE model_registry SET status = 'retired', promotion_notes = ? WHERE id = ?",
+                    (json.dumps({**notes, "retired_reason": "max_strikes"}), best["id"]),
+                )
+                conn.commit()
+            logger.warning(
+                "registry: retired challenger id=%d after %d strikes", best["id"], strikes
+            )
+
         return False
 
 
@@ -203,5 +310,14 @@ def get_champion() -> dict[str, Any] | None:
     return _get_registry().get_champion()
 
 
-def auto_promote_best(**kwargs: Any) -> bool:
-    return _get_registry().auto_promote_best(**kwargs)
+def auto_promote_best(
+    min_brier_improvement: float = 0.01,
+    min_win_rate: float = 0.50,
+    max_strikes_before_retire: int = 2,
+    **kwargs: Any,
+) -> bool:
+    return _get_registry().auto_promote_best(
+        min_brier_improvement=min_brier_improvement,
+        min_win_rate=min_win_rate,
+        max_strikes_before_retire=max_strikes_before_retire,
+    )
