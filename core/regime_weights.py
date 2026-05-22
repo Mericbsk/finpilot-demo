@@ -21,12 +21,23 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import threading
 import time
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
+def is_enabled() -> bool:
+    """Sprint 16 (S16-09): regime-weighted scoring feature flag.
+
+    Disabled by default. Set ``FINPILOT_ENABLE_REGIME_WEIGHTS=1`` to enable.
+    Until per-regime edge is demonstrated, scoring falls back to global
+    champion weights. See ``docs/feature_flags.md``.
+    """
+    return os.getenv("FINPILOT_ENABLE_REGIME_WEIGHTS", "0").lower() in ("1", "true", "yes", "on")
 
 _REGIME_WEIGHTS_PATH = Path("data/regime_weights.json")
 _REGIME_SPY_CACHE: dict[str, Any] = {}

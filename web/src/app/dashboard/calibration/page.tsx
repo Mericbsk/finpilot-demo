@@ -72,13 +72,15 @@ export default function CalibrationPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [qualityGate, setQualityGate] = useState<{ degraded: boolean; reason: string | null } | null>(null);
+  const [champion, setChampion] = useState<any>(null);
 
   const load = async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
     try {
-      const [statsRes, gateRes] = await Promise.all([
+      const [statsRes, gateRes, edgeRes] = await Promise.all([
         fetch("/py-api/loop/calibration/stats"),
         fetch("/py-api/loop/status"),
+        fetch("/py-api/loop/champion/edge"),
       ]);
       if (statsRes.ok) {
         const data = await statsRes.json() as CalibrationStats;
@@ -87,6 +89,10 @@ export default function CalibrationPage() {
       if (gateRes.ok) {
         const gateData = await gateRes.json();
         setQualityGate(gateData.quality_gate ?? null);
+      }
+      if (edgeRes.ok) {
+        const edgeData = await edgeRes.json();
+        setChampion(edgeData);
       }
     } finally {
       setLoading(false);
@@ -155,6 +161,52 @@ export default function CalibrationPage() {
             Manage →
           </Link>
         </div>
+      )}
+
+      {/* Sprint 16 (S16-06): Champion Edge Tile — live self-improving loop visibility */}
+      {champion && (
+        <HoverCard className="rounded-xl p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <div className="text-xs uppercase tracking-wide" style={{ color: C.text3 }}>Champion Edge (30d)</div>
+              <div className="text-sm font-semibold" style={{ color: C.text1 }}>
+                {champion.champion?.name ?? "no champion promoted yet"}
+                {champion.champion?.promoted_at && (
+                  <span className="ml-2 text-xs font-normal" style={{ color: C.text3 }}>
+                    · since {champion.champion.promoted_at}
+                  </span>
+                )}
+              </div>
+            </div>
+            <Link href="/dashboard/autonomy" className="text-xs" style={{ color: C.cyan }}>Audit →</Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <MetricCard
+              label="Brier (30d)"
+              value={champion.edge?.brier_30d != null ? champion.edge.brier_30d.toFixed(4) : "—"}
+              sub={`${champion.edge?.resolved_signals_30d ?? 0} resolved`}
+              color={champion.edge?.brier_30d == null ? C.text3 : champion.edge.brier_30d < 0.2 ? C.green : champion.edge.brier_30d < 0.25 ? C.yellow : C.red}
+            />
+            <MetricCard
+              label="Paper PnL (30d)"
+              value={champion.edge?.paper_pnl_30d_pct != null ? `${champion.edge.paper_pnl_30d_pct >= 0 ? "+" : ""}${champion.edge.paper_pnl_30d_pct.toFixed(2)}%` : "—"}
+              sub="closed trades"
+              color={champion.edge?.paper_pnl_30d_pct == null ? C.text3 : champion.edge.paper_pnl_30d_pct >= 0 ? C.green : C.red}
+            />
+            <MetricCard
+              label="Paper PnL (all)"
+              value={champion.edge?.paper_pnl_total_pct != null ? `${champion.edge.paper_pnl_total_pct >= 0 ? "+" : ""}${champion.edge.paper_pnl_total_pct.toFixed(2)}%` : "—"}
+              sub="lifetime"
+              color={champion.edge?.paper_pnl_total_pct == null ? C.text3 : champion.edge.paper_pnl_total_pct >= 0 ? C.green : C.red}
+            />
+            <MetricCard
+              label="Win Rate (life)"
+              value={champion.lifetime_kpis?.win_rate != null ? `${champion.lifetime_kpis.win_rate.toFixed(1)}%` : "—"}
+              sub={`PF ${champion.lifetime_kpis?.profit_factor ?? "—"}`}
+              color={champion.lifetime_kpis?.win_rate == null ? C.text3 : champion.lifetime_kpis.win_rate >= 55 ? C.green : champion.lifetime_kpis.win_rate >= 50 ? C.yellow : C.red}
+            />
+          </div>
+        </HoverCard>
       )}
 
       {/* KPI Summary Row */}

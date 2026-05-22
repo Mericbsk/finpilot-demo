@@ -24,6 +24,16 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+
+def is_enabled() -> bool:
+    """Sprint 16 (S16-09): LGBM ranker feature flag.
+
+    Disabled by default. Set ``FINPILOT_ENABLE_LGBM_RANKER=1`` to enable.
+    Until a live edge is demonstrated, the ranker stays opt-in.
+    See ``docs/feature_flags.md``.
+    """
+    return os.getenv("FINPILOT_ENABLE_LGBM_RANKER", "0").lower() in ("1", "true", "yes", "on")
+
 _WF_RESULTS_PATH = Path("data/lgbm_ranker_wf.json")
 _MODEL_PATH = Path("data/lgbm_ranker.pkl")
 
