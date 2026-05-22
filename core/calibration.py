@@ -503,3 +503,83 @@ def refit_with_gate(
         "old_brier": old_brier,
         "model": candidate,
     }
+
+
+def detect_drift(
+    reference_window: int = 200,
+    recent_window: int = 50,
+    p_value_threshold: float = 0.05,
+) -> dict[str, Any]:
+    """KS-test drift detection on score distribution.
+
+    Compares the most recent ``recent_window`` signal scores against the
+    prior ``reference_window`` scores. If the KS p-value drops below
+    ``p_value_threshold`` the score distribution has shifted (drift).
+
+    Returns::
+
+        {
+            "drift_detected": bool,
+            "ks_statistic": float | None,
+            "p_value": float | None,
+            "n_reference": int,
+            "n_recent": int,
+            "reason": str,
+        }
+    """
+    result: dict[str, Any] = {
+        "drift_detected": False,
+        "ks_statistic": None,
+        "p_value": None,
+        "n_reference": 0,
+        "n_recent": 0,
+        "reason": "ok",
+    }
+
+    try:
+        from core.kpi_tracker import _load_all_signals  # type: ignore
+
+        sigs = _load_all_signals()
+    except Exception as exc:
+        result["reason"] = f"load_failed: {exc}"
+        return result
+
+    scores = [float(s.get("score", 0)) for s in sigs if s.get("score") is not None]
+    total = len(scores)
+    if total < reference_window + recent_window:
+        result["reason"] = f"insufficient_data: {total} < {reference_window + recent_window}"
+        return result
+
+    reference = scores[-(reference_window + recent_window) : -recent_window]
+    recent = scores[-recent_window:]
+    result["n_reference"] = len(reference)
+    result["n_recent"] = len(recent)
+
+    try:
+        from scipy import stats  # type: ignore
+
+        ks_stat, p_value = stats.ks_2samp(reference, recent)
+        result["ks_statistic"] = round(float(ks_stat), 4)
+        result["p_value"] = round(float(p_value), 4)
+
+        if p_value < p_value_threshold:
+            result["drift_detected"] = True
+            result["reason"] = (
+                f"ks_drift: stat={ks_stat:.4f} p={p_value:.4f} < {p_value_threshold}"
+            )
+            logger.warning(
+                "calibration: score distribution drift detected — KS=%.4f p=%.4f",
+                ks_stat,
+                p_value,
+            )
+            # Trigger a calibration refit when drift is detected
+            try:
+                refit_with_gate()
+                logger.info("calibration: refit triggered by drift detection")
+            except Exception as refit_exc:
+                logger.warning("calibration: drift-triggered refit failed: %s", refit_exc)
+    except ImportError:
+        result["reason"] = "scipy_unavailable"
+        logger.debug("calibration: scipy not installed — skipping KS-test drift detection")
+
+    return result

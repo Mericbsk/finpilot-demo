@@ -10,18 +10,48 @@ where:
     α = 0.3  (agreement weight)
     _W_DRL = 0.0  → DRL weight disabled until a real-time DRL is wired in
     _W_SCANNER = 1.0 - _W_DRL
-
-    agreement:
-      +1.0  → scanner & DRL both agree (same signal)
-       0.0  → DRL is HOLD, or DRL cache is stale / unavailable
-      -0.5  → scanner & DRL conflict (e.g. scanner BUY, DRL SELL)
 """
 
 from __future__ import annotations
 
+import threading
+from typing import Any
+
 _ALPHA = 0.3  # agreement weight
 _W_DRL = 0.0  # DRL weight — set to 0 until live DRL is connected; was 0.4
 _W_SCANNER = 1.0 - _W_DRL  # scanner weight (currently 1.0)
+
+# Named weights for the multi-factor ranker (loaded from registry champion on startup)
+_weights: dict[str, float] = {}
+_weights_lock = threading.Lock()
+
+
+def get_weights() -> dict[str, float]:
+    """Return a copy of the current named weight dict."""
+    with _weights_lock:
+        return dict(_weights)
+
+
+def set_weights(new_weights: dict[str, float]) -> None:
+    """Hot-reload named weights (called by calibration rollback / registry promote)."""
+    with _weights_lock:
+        _weights.clear()
+        _weights.update(new_weights)
+
+
+def load_weights() -> dict[str, float]:
+    """Load champion weights from the model registry and apply them in-process."""
+    try:
+        from research.registry import ModelRegistry
+
+        reg = ModelRegistry()
+        champion = reg.get_champion()
+        if champion and champion.get("weights"):
+            set_weights(champion["weights"])
+            return dict(champion["weights"])
+    except Exception:
+        pass
+    return {}
 
 
 def compute_finpilot_score(

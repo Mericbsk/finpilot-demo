@@ -187,6 +187,138 @@ def _run_research_pipeline_job() -> None:
         logger.warning("Research pipeline job failed: %s", exc)
 
 
+def _run_drift_job() -> None:
+    """Sprint 14: KS-test drift detection — triggers calibration refit on shift."""
+    try:
+        from core.calibration import detect_drift
+
+        result = detect_drift()
+        logger.info(
+            "Drift detection: drift=%s ks=%.4f p=%.4f",
+            result["drift_detected"],
+            result.get("ks_statistic") or 0,
+            result.get("p_value") or 1,
+        )
+        if result["drift_detected"]:
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                TelegramNotifier()._send_message(
+                    f"⚠️ *Drift Uyarısı* — Skor dağılımı kaydı!\n"
+                    f"KS={result.get('ks_statistic'):.4f}  p={result.get('p_value'):.4f}\n"
+                    f"Kalibrasyon yeniden başlatılıyor..."
+                )
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception as exc:
+        logger.warning("Drift detection job failed: %s", exc)
+
+
+def _run_ceo_report_job() -> None:
+    """Sprint 14: CEO self-evaluation — haftalık Telegram raporu."""
+    try:
+        from core.calibration import get_calibration_stats, get_brier_history
+        from core.kpi_tracker import get_kpis
+        from research.registry import ModelRegistry
+
+        kpis = get_kpis()
+        stats = get_calibration_stats()
+        history = get_brier_history()
+        reg = ModelRegistry()
+        champion = reg.get_champion()
+        challengers = reg.get_challengers(limit=3)
+
+        # Brier trend (7d vs 30d)
+        now_ts = __import__("time").time()
+        h7 = [e["brier"] for e in history if now_ts - e["ts"] < 7 * 86400]
+        h30 = [e["brier"] for e in history if now_ts - e["ts"] < 30 * 86400]
+        brier_7d = round(sum(h7) / len(h7), 4) if h7 else None
+        brier_30d = round(sum(h30) / len(h30), 4) if h30 else None
+
+        champion_name = (champion or {}).get("name", "—")
+        champion_brier = (champion or {}).get("brier_score")
+        champion_wr = (champion or {}).get("win_rate")
+
+        # Decile lift
+        decile = stats.get("decile_lift", {})
+        top_lift = decile.get("top_decile_lift")
+        overall_wr = decile.get("overall_win_rate")
+
+        lines = [
+            "📊 *CEO Haftalık Rapor*",
+            "",
+            f"*Kalibrasyon*",
+            f"  Brier (7g): {brier_7d:.4f}" if brier_7d else "  Brier (7g): —",
+            f"  Brier (30g): {brier_30d:.4f}" if brier_30d else "  Brier (30g): —",
+            f"  ECE: {stats.get('ece') or '—'}",
+            "",
+            f"*Model Kaydı*",
+            f"  Şampiyon: {champion_name}",
+            f"  Şampiyon Brier: {champion_brier:.4f}" if champion_brier else "  Şampiyon Brier: —",
+            f"  Şampiyon WR: {champion_wr:.1%}" if champion_wr else "  Şampiyon WR: —",
+            f"  Challenger sayısı: {len(challengers)}",
+            "",
+            f"*KPI Özeti*",
+            f"  Win Rate: {kpis.get('win_rate', 0):.1%}",
+            f"  Profit Factor: {kpis.get('profit_factor', 0):.2f}",
+            f"  Toplam Sinyal: {kpis.get('total_signals', 0)}",
+            f"  Top Decile Lift: {top_lift:.2f}" if top_lift else "  Top Decile Lift: —",
+            f"  Genel WR: {overall_wr:.1%}" if overall_wr else "  Genel WR: —",
+        ]
+        msg = "\n".join(lines)
+
+        from telegram_alerts import TelegramNotifier
+
+        TelegramNotifier()._send_message(msg)
+        logger.info("CEO report sent to Telegram")
+    except Exception as exc:
+        logger.warning("CEO report job failed: %s", exc)
+
+
+def _run_auto_approve_job(symbols: list[str]) -> None:
+    """Sprint 14: Auto-approve pending signals when p_win > 0.65 and env is normal."""
+    try:
+        from core.calibration import calibrated_probability
+        from core.kpi_tracker import _load_all_signals, update_signal_outcome  # type: ignore
+        from core.quality_gate import is_degraded
+
+        if is_degraded():
+            logger.info("auto_approve: system degraded — skipping auto-approve")
+            return
+
+        sigs = _load_all_signals()
+        approved = 0
+        for sig in sigs:
+            if sig.get("outcome") is not None:
+                continue  # already resolved
+            score = sig.get("score") or sig.get("finpilot_score")
+            if score is None:
+                continue
+            p_win = calibrated_probability(float(score))
+            if p_win >= 0.65:
+                # Mark as auto-approved (outcome will be reconciled by T+1 job)
+                try:
+                    sig["auto_approved"] = True
+                    sig["auto_approve_p_win"] = round(p_win, 4)
+                    approved += 1
+                except Exception:
+                    pass
+
+        logger.info("auto_approve: approved %d signals with p_win >= 0.65", approved)
+        if approved > 0:
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                TelegramNotifier()._send_message(
+                    f"✅ *Auto-Approve* — {approved} sinyal otomatik onaylandı\n"
+                    f"p_win ≥ 0.65 eşiği, sistem normal"
+                )
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception as exc:
+        logger.warning("Auto-approve job failed: %s", exc)
+
+
 # ---------------------------------------------------------------------------
 # Core cycle logic
 # ---------------------------------------------------------------------------
@@ -956,6 +1088,33 @@ def start_scheduler(
             trigger=CronTrigger(day_of_week="sun", hour=2, minute=0, timezone="UTC"),
             id="finpilot_research_pipeline_job",
             name="FinPilot Research Pipeline (WF + Sweep + Champion)",
+        )
+
+        # Sprint 14 — Drift detection: every 6 hours
+        _scheduler_instance.add_job(
+            _make_watchdog_job("drift", _run_drift_job),
+            trigger=IntervalTrigger(hours=6),
+            id="finpilot_drift_job",
+            name="FinPilot Drift Detection (KS-test)",
+        )
+
+        # Sprint 14 — CEO report: every Sunday at 08:00 UTC
+        _scheduler_instance.add_job(
+            _make_watchdog_job("ceo_report", _run_ceo_report_job),
+            trigger=CronTrigger(day_of_week="sun", hour=8, minute=0, timezone="UTC"),
+            id="finpilot_ceo_report_job",
+            name="FinPilot CEO Weekly Report",
+        )
+
+        # Sprint 14 — Auto-approve: runs every 30 minutes (best-effort, safe)
+        def _auto_approve_wrapper() -> None:
+            _run_auto_approve_job(symbols)
+
+        _scheduler_instance.add_job(
+            _make_watchdog_job("auto_approve", _auto_approve_wrapper),
+            trigger=IntervalTrigger(minutes=30),
+            id="finpilot_auto_approve_job",
+            name="FinPilot Auto-Approve (p_win >= 0.65)",
         )
 
         _scheduler_instance.start()
