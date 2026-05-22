@@ -391,12 +391,22 @@ def refit_with_gate(
 
     n = candidate.get("n_samples", 0)
 
+    # Sprint 16 (S16-07): compute ECE before/after for audit telemetry.
+    try:
+        ece_after = _ece(candidate)
+    except Exception:
+        ece_after = None
+    try:
+        ece_before = _ece(prior) if prior else None
+    except Exception:
+        ece_before = None
+
     if prior is None:
         audit_log.record(
             actor="calibration_gate",
             action="calibration.refit",
             decision="promoted_first",
-            payload={"n_samples": n},
+            payload={"n_samples": n, "ece_after": ece_after},
         )
         return {"promoted": True, "reason": "no_prior", "model": candidate}
 
@@ -433,8 +443,10 @@ def refit_with_gate(
             decision="rolled_back",
             payload={
                 "reason": "degraded_brier",
-                "new_brier": round(new_brier, 4),
-                "old_brier": round(old_brier, 4),
+                "brier_before": round(old_brier, 4),
+                "brier_after": round(new_brier, 4),
+                "ece_before": ece_before,
+                "ece_after": ece_after,
                 "tolerance": effective_tolerance,
                 "consecutive_rollbacks": strikes,
             },
@@ -489,8 +501,10 @@ def refit_with_gate(
         decision="promoted",
         payload={
             "n_samples": n,
-            "new_brier": round(new_brier, 4),
-            "old_brier": round(old_brier, 4),
+            "brier_before": round(old_brier, 4),
+            "brier_after": round(new_brier, 4),
+            "ece_before": ece_before,
+            "ece_after": ece_after,
         },
     )
     _append_brier_history(new_brier)
