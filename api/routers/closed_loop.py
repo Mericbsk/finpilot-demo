@@ -157,7 +157,10 @@ def champion_edge() -> dict[str, Any]:
     import time
     from datetime import datetime, timedelta
 
+    from core.analytics import increment_event
     from core.kpi_tracker import _load_all_signals, get_kpis
+
+    increment_event("champion_edge_query")
 
     champion: dict[str, Any] | None = None
     try:

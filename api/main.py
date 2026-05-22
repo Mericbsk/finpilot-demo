@@ -39,6 +39,7 @@ from api.routers import (
     advisory,
     agent,
     ai_explain,
+    analytics,
     auth,
     backtest,
     closed_loop,
@@ -260,6 +261,16 @@ async def instrument_requests(request: Request, call_next):
     endpoint = getattr(route, "path", raw_endpoint)
     metrics.api_requests.inc(endpoint=endpoint, status_code=str(response.status_code))
     metrics.api_latency.observe(time.perf_counter() - start, endpoint=endpoint)
+
+    # Track page views for known frontend paths (fire-and-forget, never raises)
+    try:
+        _FRONTEND_PREFIXES = ("/dashboard", "/agent", "/scanner", "/research", "/portfolio")
+        if raw_endpoint.startswith(_FRONTEND_PREFIXES) and response.status_code < 400:
+            from core.analytics import increment_page_view
+            increment_page_view(raw_endpoint)
+    except Exception:
+        pass
+
     return response
 
 
@@ -291,6 +302,7 @@ app.add_middleware(PIIFilterMiddleware)
 # ---------------------------------------------------------------------------
 app.include_router(agent.router, prefix="/api/v1")
 app.include_router(advisory.router, prefix="/api/v1")
+app.include_router(analytics.router, prefix="/api/v1")
 app.include_router(models.router, prefix="/api/v1")
 app.include_router(inference.router, prefix="/api/v1")
 app.include_router(ensemble.router, prefix="/api/v1")

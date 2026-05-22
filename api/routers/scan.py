@@ -233,6 +233,11 @@ async def run_scan(req: ScanRequest):
     out = _enrich_results(results, drl_cache, drl_valid)
     _persist_shortlist(out)
     _auto_add_watchlist(out, drl_cache, drl_valid)
+    try:
+        from core.analytics import increment_event
+        increment_event("scan_run")
+    except Exception:
+        pass
     return out
 
 
