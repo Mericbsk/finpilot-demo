@@ -21,11 +21,12 @@ import {
   GitBranch,
   MessageSquare,
   ShieldAlert,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
 /* ── Types ─────────────────────────────────────────────────── */
-type Task = "scan" | "analyze" | "risk" | "full" | "research" | "backtest" | "report"
+type Task = "scan" | "analyze" | "risk" | "full" | "auto" | "research" | "backtest" | "report"
          | "market_intel" | "optimize" | "monitor" | "combo" | "advisory";
 
 interface AgentRunResponse {
@@ -36,6 +37,21 @@ interface AgentRunResponse {
   risk_results: Record<string, any>;
   research_results: Record<string, any>;
   backtest_results: Record<string, any>;
+  synthesized_picks: Array<{
+    symbol: string;
+    composite_confidence: number;
+    scan_score: number;
+    llm_confidence: number;
+    backtest_win_rate: number;
+    signal: string;
+    entry_ok: boolean;
+    price: number | null;
+    stop_loss: number | null;
+    take_profit: number | null;
+    risk_reward: number | null;
+    news_count: number;
+    has_llm_report: boolean;
+  }>;
   market_intel: Record<string, any>;
   optimizer_results: Record<string, any>;
   monitor_results: Record<string, any>;
@@ -67,6 +83,7 @@ const C = {
 };
 
 const TASKS: { id: Task; label: string; desc: string; icon: React.ElementType }[] = [
+  { id: "auto",         label: "🚀 Otomatik",      desc: "Tüm aşamalar: Scan → Araştır → Analiz → Risk → Backtest → Sentez", icon: Sparkles   },
   { id: "scan",         label: "Tarama",         desc: "Teknik sinyal analizi",                icon: Zap         },
   { id: "full",         label: "Tam Pipeline",    desc: "Scan + LLM + Risk + Alert",           icon: Network     },
   { id: "analyze",      label: "LLM Analiz",      desc: "Yapay zeka analizi",                  icon: Search      },
@@ -159,6 +176,7 @@ export default function AgentPage() {
   const riskCount     = result ? Object.keys(result.risk_results).length : 0;
   const researchCount = result ? Object.keys(result.research_results).length : 0;
   const backtestCount = result ? Object.keys(result.backtest_results).length : 0;
+  const synthesizedCount = result?.synthesized_picks?.length ?? 0;
   const marketIntelSymbols = result?.market_intel?.symbols ? Object.keys(result.market_intel.symbols) : [];
   const optimizerSymbols   = result ? Object.keys(result.optimizer_results) : [];
   const monitorSymbols     = result?.monitor_results?.symbols ? Object.keys(result.monitor_results.symbols) : [];
@@ -180,7 +198,7 @@ export default function AgentPage() {
           </h1>
         </div>
         <p style={{ color: C.text2, fontSize: 14 }}>
-          LangGraph çok-ajanlı iş akışı — tarama, analiz, risk, haber ve backtest
+          Çok-ajanlı pipeline — tarama, analiz, risk, haber ve backtest
         </p>
       </div>
 
@@ -354,7 +372,17 @@ export default function AgentPage() {
       {/* Results */}
       {result && (
         <div className="flex flex-col gap-4">
-          {/* Scan results */}
+          {/* Synthesized Picks (Auto mode) */}
+          {synthesizedCount > 0 && (
+            <ResultSection
+              title={`🚀 Sentezlenmiş Tahminler (${synthesizedCount} sembol)`}
+              icon={<Sparkles size={15} style={{ color: C.yellow }} />}
+              expanded={expandedSections.synthesized ?? true}
+              onToggle={() => toggleSection("synthesized")}
+            >
+              <SynthesizedTable data={result.synthesized_picks} />
+            </ResultSection>
+          )}
           {scanCount > 0 && (
             <ResultSection
               title={`Tarama Sonuçları (${scanCount})`}
@@ -562,6 +590,66 @@ function ResultSection({
           <div className="pt-4">{children}</div>
         </div>
       )}
+    </div>
+  );
+}
+
+function SynthesizedTable({ data }: { data: Array<{
+  symbol: string; composite_confidence: number; scan_score: number;
+  llm_confidence: number; backtest_win_rate: number; signal: string;
+  entry_ok: boolean; price: number | null; stop_loss: number | null;
+  take_profit: number | null; risk_reward: number | null;
+  news_count: number; has_llm_report: boolean;
+}> }) {
+  const signalColor = (s: string) =>
+    s === "BUY" ? C.green : s === "SELL" ? C.red : s === "CAUTION" ? C.yellow : C.cyan;
+  return (
+    <div className="overflow-auto">
+      <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
+        <thead>
+          <tr style={{ color: C.text3 }}>
+            {["Sembol","Güven %","Scan","LLM","Backtest WR","Sinyal","Entry","Fiyat","Stop","TP","R/R","Haber","Rapor"].map((h) => (
+              <th key={h} className="text-left pb-2 pr-3 font-medium">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((p) => (
+            <tr key={p.symbol} style={{ borderTop: `1px solid ${C.border}` }}>
+              <td className="py-2 pr-3 font-mono font-bold" style={{ color: C.cyan }}>{p.symbol}</td>
+              <td className="py-2 pr-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="relative h-2 w-16 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                    <div
+                      className="absolute left-0 top-0 h-full rounded-full"
+                      style={{
+                        width: `${p.composite_confidence}%`,
+                        background: p.composite_confidence >= 70 ? C.green : p.composite_confidence >= 50 ? C.cyan : C.yellow,
+                      }}
+                    />
+                  </div>
+                  <span style={{ color: p.composite_confidence >= 70 ? C.green : p.composite_confidence >= 50 ? C.cyan : C.yellow, fontWeight: 700 }}>
+                    {p.composite_confidence}
+                  </span>
+                </div>
+              </td>
+              <td className="py-2 pr-3">{p.scan_score}</td>
+              <td className="py-2 pr-3">{p.llm_confidence}</td>
+              <td className="py-2 pr-3">{p.backtest_win_rate > 0 ? `${p.backtest_win_rate}%` : "—"}</td>
+              <td className="py-2 pr-3">
+                <span style={{ color: signalColor(p.signal), fontWeight: 700 }}>{p.signal}</span>
+              </td>
+              <td className="py-2 pr-3">{p.entry_ok ? "✅" : "❌"}</td>
+              <td className="py-2 pr-3">{p.price != null ? Number(p.price).toFixed(2) : "—"}</td>
+              <td className="py-2 pr-3" style={{ color: C.red }}>{p.stop_loss != null ? Number(p.stop_loss).toFixed(2) : "—"}</td>
+              <td className="py-2 pr-3" style={{ color: C.green }}>{p.take_profit != null ? Number(p.take_profit).toFixed(2) : "—"}</td>
+              <td className="py-2 pr-3">{p.risk_reward != null ? Number(p.risk_reward).toFixed(1) : "—"}</td>
+              <td className="py-2 pr-3">{p.news_count > 0 ? `📰 ${p.news_count}` : "—"}</td>
+              <td className="py-2 pr-3">{p.has_llm_report ? "✅" : "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

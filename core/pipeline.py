@@ -60,6 +60,7 @@ def run_cycle(
         "scan_results": {},
         "top_symbols": [],
         "analysis_results": {},
+        "research_results": {},
         "risk_results": {},
         "alerts_sent": [],
         "errors": [],
@@ -98,20 +99,30 @@ def run_cycle(
     # ── Step 2: Analysis (task in ["analyze", "full"]) ──────────────────────
     if task in ("analyze", "full"):
         try:
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+
             from agents.analysis_agent import AnalysisAgent
 
-            for sym in state["top_symbols"]:
+            def _analyze_sym(sym: str) -> tuple[str, Any]:
                 ctx = AgentContext(
                     symbols=[sym],
                     scan_results={sym: state["scan_results"].get(sym, {})},
                 )
                 r = AnalysisAgent().run(ctx)
                 if r.success:
-                    state["analysis_results"][sym] = r.data.get(sym, r.data)
-                else:
-                    state["errors"].append(f"analyze/{sym}: {r.error}")
+                    return sym, r.data.get(sym, r.data)
+                state["errors"].append(f"analyze/{sym}: {r.error}")
+                return sym, None
+
+            with ThreadPoolExecutor(max_workers=5, thread_name_prefix="analysis") as pool:
+                futures = {pool.submit(_analyze_sym, sym): sym for sym in state["top_symbols"]}
+                for fut in as_completed(futures):
+                    sym, result = fut.result()
+                    if result is not None:
+                        state["analysis_results"][sym] = result
+
             logger.info(
-                "pipeline: analysis — %d symbols",
+                "pipeline: analysis — %d symbols (parallel)",
                 len(state["analysis_results"]),
             )
         except Exception as exc:
@@ -120,6 +131,23 @@ def run_cycle(
 
     if task == "analyze":
         return state
+
+    # ── Step 2b: Research (full only — parallel with top symbols) ────────────
+    if task == "full":
+        try:
+            from agents.research_agent import ResearchAgent
+
+            ctx = AgentContext(symbols=state["top_symbols"] or symbols)
+            r = ResearchAgent().run(ctx)
+            if r.success:
+                state["research_results"] = r.data or {}
+                logger.info("pipeline: research — %d symbols", len(state["research_results"]))
+            else:
+                state["errors"].append(f"research: {r.error}")
+                logger.warning("pipeline: research failed (non-fatal): %s", r.error)
+        except Exception as exc:
+            state["errors"].append(f"research: {exc}")
+            logger.exception("pipeline: research exception (non-fatal)")
 
     # ── Step 3: Risk ─────────────────────────────────────────────────────────
     try:
