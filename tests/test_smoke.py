@@ -10,23 +10,30 @@ Verifies three critical axis:
 from __future__ import annotations
 
 import time
-from unittest.mock import MagicMock, patch
-
+from unittest.mock import patch
 
 # ---------------------------------------------------------------------------
 # 1. Redis unavailable — KPI tracker stays functional
 # ---------------------------------------------------------------------------
 
+
 class TestRedisUnavailable:
     def setup_method(self):
         import core.kpi_tracker as kt
+
         kt._redis_client = None
         kt._redis_unavailable = True
         kt._mem_signals.clear()
         kt._mem_kpis = {
-            "win_rate": 0.0, "profit_factor": 0.0, "avg_rr": 0.0,
-            "total_signals": 0, "total_wins": 0, "total_losses": 0,
-            "total_profit_pct": 0.0, "total_loss_pct": 0.0, "last_updated": None,
+            "win_rate": 0.0,
+            "profit_factor": 0.0,
+            "avg_rr": 0.0,
+            "total_signals": 0,
+            "total_wins": 0,
+            "total_losses": 0,
+            "total_profit_pct": 0.0,
+            "total_loss_pct": 0.0,
+            "last_updated": None,
         }
 
     def test_record_and_get_kpis_without_redis(self):
@@ -69,6 +76,7 @@ class TestRedisUnavailable:
 # 2. Auth middleware — require_auth dependency
 # ---------------------------------------------------------------------------
 
+
 class TestAuthMiddleware:
     def _make_token(self) -> str:
         from auth.core import AuthConfig
@@ -88,20 +96,21 @@ class TestAuthMiddleware:
         return handler.encode(payload)
 
     def test_require_auth_raises_without_token(self):
-        from fastapi import HTTPException
         from api.middleware.auth import require_auth
+        from fastapi import HTTPException
 
         class _NoCreds:
             credentials = None
 
         import pytest
+
         with pytest.raises(HTTPException) as exc_info:
             require_auth(None)
         assert exc_info.value.status_code == 401
 
     def test_require_auth_passes_with_valid_token(self):
-        from fastapi.security import HTTPAuthorizationCredentials
         from api.middleware.auth import require_auth
+        from fastapi.security import HTTPAuthorizationCredentials
 
         token = self._make_token()
         creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
@@ -113,6 +122,7 @@ class TestAuthMiddleware:
 # ---------------------------------------------------------------------------
 # 3. Pipeline run_cycle — mocked ScannerAgent
 # ---------------------------------------------------------------------------
+
 
 class TestPipelineRunCycle:
     def _make_scan_result(self):

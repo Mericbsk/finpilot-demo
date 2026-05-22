@@ -9,14 +9,14 @@ import math
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
-
-import pandas as pd
-from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
 from typing import Annotated
 
-from api.middleware.auth import require_auth
+import pandas as pd
 from auth.tokens import TokenPayload
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
+
+from api.middleware.auth import require_auth
 
 router = APIRouter(tags=["scan"])
 logger = logging.getLogger(__name__)
@@ -242,6 +242,7 @@ async def run_scan(
     _auto_add_watchlist(out, drl_cache, drl_valid)
     try:
         from core.analytics import increment_event
+
         increment_event("scan_run")
     except Exception:
         pass
