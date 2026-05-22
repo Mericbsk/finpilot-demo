@@ -143,6 +143,25 @@ async def lifespan(app: FastAPI):
     Database().initialize()
     _register_health_checks()
 
+    # ── Watchlist DB table + one-time JSON migration ─────────────────
+    try:
+        from pathlib import Path as _Path
+
+        from api.services import watchlist_db as _wdb
+
+        _wdb.ensure_table()
+        migrated = _wdb.migrate_from_json(_Path("data/watchlist.json"))
+        if migrated:
+            import logging as _logging
+
+            _logging.getLogger(__name__).info(
+                "watchlist_db: migrated %d signals from JSON on startup", migrated
+            )
+    except Exception as _exc:
+        import logging as _logging
+
+        _logging.getLogger(__name__).warning("watchlist_db init failed: %s", _exc)
+
     # ── Sentry init + DSN warning ──────────────────────────────
     if not os.getenv("SENTRY_DSN"):
         _logging.getLogger(__name__).warning(
@@ -234,7 +253,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
-    import logging as _logging
 
     _logging.getLogger(__name__).exception(
         "Unhandled exception on %s %s", request.method, request.url.path
@@ -267,6 +285,7 @@ async def instrument_requests(request: Request, call_next):
         _FRONTEND_PREFIXES = ("/dashboard", "/agent", "/scanner", "/research", "/portfolio")
         if raw_endpoint.startswith(_FRONTEND_PREFIXES) and response.status_code < 400:
             from core.analytics import increment_page_view
+
             increment_page_view(raw_endpoint)
     except Exception:
         pass
