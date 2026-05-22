@@ -140,21 +140,21 @@ Büyük refactor. Mevcut sistem çalışıyor; bir paket içinde tüm agent wrap
 | S16-02 | Audit report commit | ✅ Done | P0 |
 | S16-03 | Auto-approve gap dokümantasyonu | ✅ Done (bu rapor) | P0 |
 | S16-04 | Champion edge API | ✅ Done | P0 |
-| S16-05 | Requirements inventory | ✅ Already documented (DEPENDENCIES.md) | P1 |
-| S16-06 | Champion edge dashboard tile | ⏭ Açık 3 | P1 |
-| S16-07 | Calibration refit audit log (ece_before/after) | ⏭ Açık 2 | P0 |
-| S16-08 | requirements → pyproject extras | ⏭ Açık 4 | P2 |
-| S16-09 | Feature flags (drl/lgbm/regime_weights) | ⏭ Açık 5 | P1 |
-| S16-10 | Dashboard 17 → 5 | ⏭ Açık 6 | P2 |
-| S16-11 | 3 → 1 LLM provider | ⏭ Açık 7 | P2 |
-| S16-12 | Scheduler 9 → 4 | ⏭ Açık 8 | P1 |
-| S16-13 | Coverage CI badge | ⏭ Açık 9 | P2 |
-| S16-14 | Look-ahead audit script | ⏭ Açık 10 | P0 |
+| S16-05 | Requirements inventory | ✅ Done (DEPENDENCIES.md) | P1 |
+| S16-06 | Champion edge dashboard tile | ✅ Done (calibration/page.tsx) | P1 |
+| S16-07 | Calibration refit audit log (ece_before/after) | ✅ Done (core/calibration.py) | P0 |
+| S16-08 | requirements → pyproject extras | ✅ Done (pyproject.toml `[project]` + extras) | P2 |
+| S16-09 | Feature flags (drl/lgbm/regime_weights) | ✅ Done (docs/feature_flags.md + `is_enabled()`) | P1 |
+| S16-10 | Dashboard 15 → 5 (env-gated) | ✅ Done (Sidebar: `NEXT_PUBLIC_FINPILOT_FULL_NAV`) | P2 |
+| S16-11 | 3 → 1 LLM provider (env-gated) | ✅ Done (router: `FINPILOT_LLM_SINGLE_PROVIDER`) | P2 |
+| S16-12 | Scheduler 9 → 4 | ✅ Done (4 buckets + `FINPILOT_SCHEDULER_LEGACY_JOBS=1` rollback) | P1 |
+| S16-13 | Coverage CI badge | ✅ Done (README codecov badge; ci.yml already uploads) | P2 |
+| S16-14 | Look-ahead audit script | ✅ Done (scripts/audit_lookahead.py) | P0 |
 | S16-15 | LangGraph → pipeline refactor | ⏭ Sprint 17'ye ertelendi | P1 |
 
-**Bu turun teslimi:** 5 done + 1 already-done + 10 ⏭ açık (sıralı olarak P0 → P1 → P2 uygulanacak).
+**Bu turun teslimi:** 14 done + 1 deferred (S16-15 → Sprint 17).
 
-**Sonraki adım:** S16-07 (calibration audit log) + S16-14 (look-ahead script) — ikisi de P0 ve edge görünürlüğüyle doğrudan ilgili.
+**Sonraki adım:** Sprint 17 odağı: S16-15 LangGraph → pipeline refactor + S1 (Redis required, Auth, Scanner↔Scheduler bridge) görevlerine geçiş.
 
 ---
 

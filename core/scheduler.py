@@ -24,6 +24,7 @@ Kullanım:
 from __future__ import annotations
 
 import logging
+import os
 import threading
 from datetime import UTC, datetime
 from typing import Any
@@ -70,6 +71,26 @@ def _make_watchdog_job(job_name: str, fn: Any, timeout_s: int = _JOB_TIMEOUT_SEC
 
     _wrapped.__name__ = f"watchdog_{job_name}"
     return _wrapped
+
+
+def _compose_jobs(group_name: str, *sub_jobs: Any) -> Any:
+    """Sprint 16 (S16-12) — Run multiple sub-jobs sequentially in a single APScheduler tick.
+
+    Each sub-job is isolated by try/except so one failure does not block the others.
+    Sub-jobs should already be wrapped with _make_watchdog_job (so each has its own
+    timeout budget) before being passed here.
+    """
+
+    def _composite() -> None:
+        for sub in sub_jobs:
+            sub_name = getattr(sub, "__name__", "anon")
+            try:
+                sub()
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Composite job %s: sub %s failed: %s", group_name, sub_name, exc)
+
+    _composite.__name__ = f"composite_{group_name}"
+    return _composite
 
 
 def _run_eval_job(symbols: list[str]) -> None:
@@ -1042,6 +1063,18 @@ def start_scheduler(
                 symbols=symbols, kelly_fraction=kelly_fraction, run_optimizer=run_optimizer
             )
 
+        # ------------------------------------------------------------------
+        # Sprint 16 (S16-12) — Consolidate 9 jobs into 4 cadence buckets.
+        # Set FINPILOT_SCHEDULER_LEGACY_JOBS=1 to restore the previous 9-job
+        # layout (kept available for emergency rollback).
+        # ------------------------------------------------------------------
+        _legacy_jobs = os.getenv("FINPILOT_SCHEDULER_LEGACY_JOBS", "0").lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+
+        # Bucket 1: main agent cycle (configurable interval, default = arg)
         _scheduler_instance.add_job(
             _scheduled_job,
             trigger=IntervalTrigger(minutes=interval_minutes),
@@ -1049,73 +1082,112 @@ def start_scheduler(
             name="FinPilot Main Agent Cycle",
         )
 
-        # Autonomous eval job — always runs hourly regardless of main cycle interval
+        # Autonomous eval job wrapper (used in bucket 2)
         def _eval_job_wrapper() -> None:
             _run_eval_job(symbols)
 
-        _scheduler_instance.add_job(
-            _make_watchdog_job("eval", _eval_job_wrapper),
-            trigger=IntervalTrigger(hours=1),
-            id="finpilot_eval_job",
-            name="FinPilot Autonomous Eval",
-        )
-
-        # Sprint 5 — closed-loop jobs; Sprint 8: wrapped with watchdog
-        from apscheduler.triggers.cron import CronTrigger
-
-        _scheduler_instance.add_job(
-            _make_watchdog_job("reconcile", _run_reconcile_job),
-            trigger=IntervalTrigger(hours=6),
-            id="finpilot_reconcile_job",
-            name="FinPilot Outcome Reconciler",
-        )
-        # Calibration runs daily at 23:30 UTC (after NASDAQ close)
-        _scheduler_instance.add_job(
-            _make_watchdog_job("calibration", _run_calibration_job),
-            trigger=CronTrigger(hour=23, minute=30, timezone="UTC"),
-            id="finpilot_calibration_job",
-            name="FinPilot Score Calibration",
-        )
-        _scheduler_instance.add_job(
-            _make_watchdog_job("weekly_report", _run_weekly_report_job),
-            trigger=IntervalTrigger(days=7),
-            id="finpilot_weekly_report_job",
-            name="FinPilot Weekly Report",
-        )
-        # Sprint 12 — Research pipeline: every Sunday at 02:00 UTC
-        _scheduler_instance.add_job(
-            _make_watchdog_job("research_pipeline", _run_research_pipeline_job),
-            trigger=CronTrigger(day_of_week="sun", hour=2, minute=0, timezone="UTC"),
-            id="finpilot_research_pipeline_job",
-            name="FinPilot Research Pipeline (WF + Sweep + Champion)",
-        )
-
-        # Sprint 14 — Drift detection: every 6 hours
-        _scheduler_instance.add_job(
-            _make_watchdog_job("drift", _run_drift_job),
-            trigger=IntervalTrigger(hours=6),
-            id="finpilot_drift_job",
-            name="FinPilot Drift Detection (KS-test)",
-        )
-
-        # Sprint 14 — CEO report: every Sunday at 08:00 UTC
-        _scheduler_instance.add_job(
-            _make_watchdog_job("ceo_report", _run_ceo_report_job),
-            trigger=CronTrigger(day_of_week="sun", hour=8, minute=0, timezone="UTC"),
-            id="finpilot_ceo_report_job",
-            name="FinPilot CEO Weekly Report",
-        )
-
-        # Sprint 14 — Auto-approve: runs every 30 minutes (best-effort, safe)
+        # Auto-approve wrapper (used in bucket 2)
         def _auto_approve_wrapper() -> None:
             _run_auto_approve_job(symbols)
 
-        _scheduler_instance.add_job(
-            _make_watchdog_job("auto_approve", _auto_approve_wrapper),
-            trigger=IntervalTrigger(minutes=30),
-            id="finpilot_auto_approve_job",
-            name="FinPilot Auto-Approve (p_win >= 0.65)",
-        )
+        from apscheduler.triggers.cron import CronTrigger
+
+        if _legacy_jobs:
+            # Legacy 9-job layout — kept for emergency rollback only.
+            _scheduler_instance.add_job(
+                _make_watchdog_job("eval", _eval_job_wrapper),
+                trigger=IntervalTrigger(hours=1),
+                id="finpilot_eval_job",
+                name="FinPilot Autonomous Eval",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("reconcile", _run_reconcile_job),
+                trigger=IntervalTrigger(hours=6),
+                id="finpilot_reconcile_job",
+                name="FinPilot Outcome Reconciler",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("calibration", _run_calibration_job),
+                trigger=CronTrigger(hour=23, minute=30, timezone="UTC"),
+                id="finpilot_calibration_job",
+                name="FinPilot Score Calibration",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("weekly_report", _run_weekly_report_job),
+                trigger=IntervalTrigger(days=7),
+                id="finpilot_weekly_report_job",
+                name="FinPilot Weekly Report",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("research_pipeline", _run_research_pipeline_job),
+                trigger=CronTrigger(day_of_week="sun", hour=2, minute=0, timezone="UTC"),
+                id="finpilot_research_pipeline_job",
+                name="FinPilot Research Pipeline (WF + Sweep + Champion)",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("drift", _run_drift_job),
+                trigger=IntervalTrigger(hours=6),
+                id="finpilot_drift_job",
+                name="FinPilot Drift Detection (KS-test)",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("ceo_report", _run_ceo_report_job),
+                trigger=CronTrigger(day_of_week="sun", hour=8, minute=0, timezone="UTC"),
+                id="finpilot_ceo_report_job",
+                name="FinPilot CEO Weekly Report",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("auto_approve", _auto_approve_wrapper),
+                trigger=IntervalTrigger(minutes=30),
+                id="finpilot_auto_approve_job",
+                name="FinPilot Auto-Approve (p_win >= 0.65)",
+            )
+        else:
+            # Bucket 2: hourly ops — eval + auto-approve.
+            # Note: auto_approve drops from 30min → 60min; jobs are idempotent
+            # and gated by p_win >= 0.65, so the slower cadence only delays
+            # approvals by up to ~30 min.
+            _scheduler_instance.add_job(
+                _compose_jobs(
+                    "hourly_ops",
+                    _make_watchdog_job("eval", _eval_job_wrapper),
+                    _make_watchdog_job("auto_approve", _auto_approve_wrapper),
+                ),
+                trigger=IntervalTrigger(hours=1),
+                id="finpilot_hourly_ops",
+                name="FinPilot Hourly Ops (eval + auto-approve)",
+            )
+
+            # Bucket 3: every-6-hours ops — reconcile + drift detection.
+            _scheduler_instance.add_job(
+                _compose_jobs(
+                    "six_hourly_ops",
+                    _make_watchdog_job("reconcile", _run_reconcile_job),
+                    _make_watchdog_job("drift", _run_drift_job),
+                ),
+                trigger=IntervalTrigger(hours=6),
+                id="finpilot_six_hourly_ops",
+                name="FinPilot 6h Ops (reconcile + drift)",
+            )
+
+            # Bucket 4: daily ops — calibration daily at 23:30 UTC; on Sundays
+            # also run weekly_report + research_pipeline + ceo_report.
+            def _daily_ops_wrapper() -> None:
+                _make_watchdog_job("calibration", _run_calibration_job)()
+                # Sunday-only sub-jobs
+                if datetime.now(tz=UTC).weekday() == 6:  # 6 == Sunday
+                    _make_watchdog_job("weekly_report", _run_weekly_report_job)()
+                    _make_watchdog_job(
+                        "research_pipeline", _run_research_pipeline_job
+                    )()
+                    _make_watchdog_job("ceo_report", _run_ceo_report_job)()
+
+            _scheduler_instance.add_job(
+                _daily_ops_wrapper,
+                trigger=CronTrigger(hour=23, minute=30, timezone="UTC"),
+                id="finpilot_daily_ops",
+                name="FinPilot Daily Ops (calibration + weekly Sun: report/research/ceo)",
+            )
 
         _scheduler_instance.start()
         logger.info(
