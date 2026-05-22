@@ -11,8 +11,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+from typing import Annotated
+
+from api.middleware.auth import require_auth
+from auth.tokens import TokenPayload
 
 router = APIRouter(tags=["scan"])
 logger = logging.getLogger(__name__)
@@ -190,7 +194,10 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
 
 
 @router.post("/scan")
-async def run_scan(req: ScanRequest):
+async def run_scan(
+    req: ScanRequest,
+    _auth: Annotated[TokenPayload, Depends(require_auth)],
+):
     """Run the scanner's evaluate_symbols_parallel on the given symbols.
 
     Runs in a thread pool with a 5-minute timeout to prevent hanging.
