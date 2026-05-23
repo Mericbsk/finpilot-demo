@@ -25,10 +25,13 @@ HOLD_DAYS = 1  # T+1: primary horizon for KPI tracking
 MIN_AGE_HOURS = 24  # never reconcile a signal younger than this
 
 # Horizon config: (horizon_label, hold_days, min_age_hours)
+# T+1 drives primary KPIs; T+3 / T+5 / T+10 are stored in the
+# outcomes_horizon SQLite table (task 26) for decay analysis.
 HORIZONS: list[tuple[str, int, int]] = [
     ("t1", 1, 24),
+    ("t3", 3, 3 * 24),
     ("t5", 5, 5 * 24),
-    ("t20", 20, 20 * 24),
+    ("t10", 10, 10 * 24),
 ]
 
 
@@ -277,6 +280,17 @@ def reconcile_horizon(
 
             profit_pct = _compute_profit_pct(direction, entry_price, exit_price)
             updated = _record_horizon_outcome(r, sig["id"], horizon_key, profit_pct)
+            # Also persist to the relational outcomes_horizon table (task 26)
+            try:
+                from core.horizon_outcomes_db import record_horizon_outcome
+
+                record_horizon_outcome(
+                    signal_id=str(sig.get("id", "")),
+                    horizon_days=int(hold_days),
+                    pct=float(profit_pct),
+                )
+            except Exception as db_exc:
+                logger.debug("outcomes_horizon persist failed: %s", db_exc)
             if updated:
                 summary["reconciled"] += 1
         except Exception as exc:
