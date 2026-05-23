@@ -90,3 +90,24 @@ def compute_finpilot_score(
 
     raw = base * (1.0 + _ALPHA * agreement)
     return min(100, max(0, int(round(raw * 100))))
+
+
+# ---------------------------------------------------------------------------
+# Re-export the composite recommendation scoring API so callers can rely on
+# scanner.finpilot_score as the single public scoring surface.
+# ---------------------------------------------------------------------------
+from scanner.score_engine import (  # noqa: E402, F401
+    MAX_RECO_SCORE,
+    compute_recommendation_score,
+    compute_recommendation_strength,
+)
+
+__all__ = [
+    "compute_finpilot_score",
+    "compute_recommendation_score",
+    "compute_recommendation_strength",
+    "MAX_RECO_SCORE",
+    "get_weights",
+    "set_weights",
+    "load_weights",
+]
