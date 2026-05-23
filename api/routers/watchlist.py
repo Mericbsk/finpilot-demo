@@ -95,6 +95,21 @@ class NoteUpdateRequest(BaseModel):
 # ─── Storage helpers ─────────────────────────────────────────────────────────
 
 
+def _load_archive() -> list[dict]:
+    """Load resolved signals from signal_archive/ (geçmiş sinyaller)."""
+    if not _ARCHIVE_DIR.exists():
+        return []
+    items = []
+    for archive_file in sorted(_ARCHIVE_DIR.glob("*.json"), reverse=True):
+        try:
+            data = json.loads(archive_file.read_text(encoding="utf-8"))
+            if isinstance(data, list):
+                items.extend(data)
+        except Exception:
+            pass
+    return items
+
+
 def _migrate_item(item: dict) -> dict:
     """Ensure all new fields are present on items that predate the schema update."""
     if "id" not in item or not item["id"]:
@@ -455,12 +470,14 @@ def bulk_add_to_watchlist(req: WatchlistBulkRequest):
 
 @router.get("/watchlist")
 async def get_watchlist():
-    """Return all watchlist items enriched with live prices, status, and lifecycle.
+    """Return all watchlist items (live + archive) enriched with prices and lifecycle."""
+    # Load live signals
+    live_items = wdb.load_active()
+    # Load archive (resolved signals from past dates)
+    archive_items = _load_archive()
+    # Combine: live first (newest), then archive (older)
+    items = live_items + archive_items
 
-    Prices come from the in-memory cache (background-refreshed every 90 s).
-    On the very first cold-start request the cache is populated on-demand.
-    """
-    items = wdb.load_active()
     if not items:
         return {"items": [], "count": 0, "refreshed_at": datetime.now(UTC).isoformat()}
 
