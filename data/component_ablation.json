@@ -1,0 +1,82 @@
+{
+  "n_records": 439,
+  "top_decile_n": 43,
+  "baseline": {
+    "top_decile_hit_rate": 0.279,
+    "overall_hit_rate": 0.401,
+    "expectancy_pct": -1.305
+  },
+  "ablations": [
+    {
+      "component": "score",
+      "weight": 1.0,
+      "top_decile_hit_rate": 0.302,
+      "delta_top_hr_vs_base": 0.023,
+      "overall_hit_rate": 0.401,
+      "delta_overall_hr": 0.0,
+      "expectancy_pct": -1.305,
+      "delta_expectancy": 0.0
+    },
+    {
+      "component": "risk_reward",
+      "weight": 2.0,
+      "top_decile_hit_rate": 0.302,
+      "delta_top_hr_vs_base": 0.023,
+      "overall_hit_rate": 0.401,
+      "delta_overall_hr": 0.0,
+      "expectancy_pct": -1.305,
+      "delta_expectancy": 0.0
+    },
+    {
+      "component": "align_z",
+      "weight": 0.1,
+      "top_decile_hit_rate": 0.279,
+      "delta_top_hr_vs_base": 0.0,
+      "overall_hit_rate": 0.401,
+      "delta_overall_hr": 0.0,
+      "expectancy_pct": -1.305,
+      "delta_expectancy": 0.0
+    },
+    {
+      "component": "filter_ratio",
+      "weight": 10.0,
+      "top_decile_hit_rate": 0.279,
+      "delta_top_hr_vs_base": 0.0,
+      "overall_hit_rate": 0.401,
+      "delta_overall_hr": 0.0,
+      "expectancy_pct": -1.305,
+      "delta_expectancy": 0.0
+    },
+    {
+      "component": "align_m",
+      "weight": 0.1,
+      "top_decile_hit_rate": 0.256,
+      "delta_top_hr_vs_base": -0.023,
+      "overall_hit_rate": 0.401,
+      "delta_overall_hr": 0.0,
+      "expectancy_pct": -1.305,
+      "delta_expectancy": 0.0
+    },
+    {
+      "component": "sentiment",
+      "weight": 3.0,
+      "top_decile_hit_rate": 0.256,
+      "delta_top_hr_vs_base": -0.023,
+      "overall_hit_rate": 0.401,
+      "delta_overall_hr": 0.0,
+      "expectancy_pct": -1.305,
+      "delta_expectancy": 0.0
+    },
+    {
+      "component": "regime_trend",
+      "weight": 5.0,
+      "top_decile_hit_rate": 0.233,
+      "delta_top_hr_vs_base": -0.046,
+      "overall_hit_rate": 0.401,
+      "delta_overall_hr": 0.0,
+      "expectancy_pct": -1.305,
+      "delta_expectancy": 0.0
+    }
+  ],
+  "note": "delta_top_hr_vs_base > 0 means removing the component IMPROVED top-decile hit rate (i.e. the component is harmful)."
+}
