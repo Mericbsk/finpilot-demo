@@ -49,7 +49,7 @@ _DEFAULT_DROP_THRESHOLD = 30.0
 
 # Redis key — canlı score floor
 _SCORE_FLOOR_KEY = "finpilot:alpha_score_floor"
-_SCORE_FLOOR_TTL = 86400 * 7   # 7 gün
+_SCORE_FLOOR_TTL = 86400 * 7  # 7 gün
 _mem_score_floor: int | None = None
 
 
@@ -61,6 +61,7 @@ def set_score_floor(value: int) -> None:
     _mem_score_floor = int(value)
     try:
         from core.kpi_tracker import _get_redis
+
         r = _get_redis()
         if r is not None:
             r.set(_SCORE_FLOOR_KEY, str(value), ex=_SCORE_FLOOR_TTL)
@@ -76,6 +77,7 @@ def get_score_floor() -> int | None:
         return _mem_score_floor
     try:
         from core.kpi_tracker import _get_redis
+
         r = _get_redis()
         if r is not None:
             raw = r.get(_SCORE_FLOOR_KEY)
@@ -89,7 +91,7 @@ def get_score_floor() -> int | None:
 
 # Score bucket edges — her aralık [low, high)
 _SCORE_BUCKETS: list[tuple[int, int]] = [
-    (0,  40),
+    (0, 40),
     (40, 50),
     (50, 60),
     (60, 70),
@@ -118,21 +120,20 @@ def _calc_score_buckets(resolved_signals: list[dict]) -> dict[str, Any]:
     buckets: dict[str, dict[str, Any]] = {}
     for low, high in _SCORE_BUCKETS:
         label = _bucket_label(low, high)
-        in_bucket = [
-            s for s in resolved_signals
-            if low <= (s.get("score") or 0) < high
-        ]
+        in_bucket = [s for s in resolved_signals if low <= (s.get("score") or 0) < high]
         wins = [s for s in in_bucket if s.get("outcome") == "win"]
         losses = [s for s in in_bucket if s.get("outcome") == "loss"]
         if not in_bucket:
             continue
         win_rate = round(len(wins) / len(in_bucket) * 100, 1)
-        avg_profit = round(
-            sum(s.get("profit_pct") or 0.0 for s in wins) / len(wins), 2
-        ) if wins else 0.0
-        avg_loss = round(
-            sum(abs(s.get("profit_pct") or 0.0) for s in losses) / len(losses), 2
-        ) if losses else 0.0
+        avg_profit = (
+            round(sum(s.get("profit_pct") or 0.0 for s in wins) / len(wins), 2) if wins else 0.0
+        )
+        avg_loss = (
+            round(sum(abs(s.get("profit_pct") or 0.0) for s in losses) / len(losses), 2)
+            if losses
+            else 0.0
+        )
         buckets[label] = {
             "score_range": [low, min(high - 1, 100)],
             "total": len(in_bucket),
@@ -144,7 +145,12 @@ def _calc_score_buckets(resolved_signals: list[dict]) -> dict[str, Any]:
         }
 
     if not buckets:
-        return {"buckets": {}, "best_bucket": None, "best_win_rate": None, "recommended_min_score": None}
+        return {
+            "buckets": {},
+            "best_bucket": None,
+            "best_win_rate": None,
+            "recommended_min_score": None,
+        }
 
     # En yüksek win rate'li aralık (en az 3 sinyal şartıyla)
     qualifying = {k: v for k, v in buckets.items() if v["total"] >= 3}
@@ -252,9 +258,7 @@ class AlphaTrackerAgent(BaseAgent):
             # Profit factor
             total_profit = sum(s.get("profit_pct", 0.0) or 0.0 for s in wins)
             total_loss = abs(sum(s.get("profit_pct", 0.0) or 0.0 for s in losses))
-            profit_factor = (
-                round(total_profit / total_loss, 2) if total_loss > 0 else 999.0
-            )
+            profit_factor = round(total_profit / total_loss, 2) if total_loss > 0 else 999.0
 
             # Avg R:R
             rr_values = [s["rr"] for s in resolved if s.get("rr", 0) > 0]
@@ -280,9 +284,7 @@ class AlphaTrackerAgent(BaseAgent):
             elif status == "STRONG":
                 outperformers.append(sym)
 
-        fleet_win_rate = (
-            round(sum(all_win_rates) / len(all_win_rates), 1) if all_win_rates else 0.0
-        )
+        fleet_win_rate = round(sum(all_win_rates) / len(all_win_rates), 1) if all_win_rates else 0.0
 
         # Score bucket analizi — tüm çözümlenmiş sinyaller üzerinden
         all_resolved = [s for s in all_signals if s.get("outcome") is not None]

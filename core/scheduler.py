@@ -68,7 +68,9 @@ def _run_eval_job(symbols: list[str]) -> None:
 
             if not report.get("overall_pass"):
                 metrics = report.get("metrics", {}) or {}
-                failing = [k for k, v in metrics.items() if isinstance(v, dict) and not v.get("pass")]
+                failing = [
+                    k for k, v in metrics.items() if isinstance(v, dict) and not v.get("pass")
+                ]
                 set_degraded(
                     reason=f"eval failed: {','.join(failing) or 'unknown'}",
                     eval_report=report,
@@ -412,14 +414,11 @@ def run_cycle_once(
 
                             router = get_ensemble_router()
                             drl_pred = router.predict({"symbol": sym, "score": score_val})
-                            drl_action = (
-                                getattr(drl_pred, "action", None)
-                                or (drl_pred.get("action") if isinstance(drl_pred, dict) else None)
+                            drl_action = getattr(drl_pred, "action", None) or (
+                                drl_pred.get("action") if isinstance(drl_pred, dict) else None
                             )
                             if drl_action and str(drl_action).upper() not in ("BUY", "LONG", "1"):
-                                logger.info(
-                                    "DRL gate: veto %s (action=%s)", sym, drl_action
-                                )
+                                logger.info("DRL gate: veto %s (action=%s)", sym, drl_action)
                                 continue
                         except Exception as drl_exc:  # noqa: BLE001
                             logger.debug("DRL gate bypass for %s: %s", sym, drl_exc)
@@ -770,9 +769,7 @@ def run_cycle_once(
                             extra={"cycle": _cycle_count, "auto": True},
                         )
                 except Exception as ae:  # noqa: BLE001
-                    logger.warning(
-                        "Scheduler: advisory review failed for %s: %s", advisor_key, ae
-                    )
+                    logger.warning("Scheduler: advisory review failed for %s: %s", advisor_key, ae)
             if review_results:
                 results["advisory_review"] = review_results
                 try:

@@ -21,11 +21,11 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from typing import Annotated, Any
 
+from auth.tokens import TokenPayload
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field, model_validator
 
 from api.middleware.auth import require_auth
-from auth.tokens import TokenPayload
 
 router = APIRouter(tags=["agent"])
 

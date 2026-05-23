@@ -151,6 +151,7 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
         score_floor: int | None = None
         try:
             from agents.alpha_tracker import get_score_floor
+
             score_floor = get_score_floor()
         except Exception:
             pass
@@ -171,7 +172,9 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
                     flagged_low_score += 1
                     logger.debug(
                         "Score uyarısı: %s composite_score=%.1f < floor=%d",
-                        sym, composite, score_floor,
+                        sym,
+                        composite,
+                        score_floor,
                     )
 
             direction = r.get("direction", False)
@@ -215,7 +218,8 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
             _save(wl)
             logger.info(
                 "Auto-watchlist: %d BUY signals saved (%d low-score flagged)",
-                added, flagged_low_score,
+                added,
+                flagged_low_score,
             )
     except Exception as exc:
         logger.warning("Auto-watchlist failed: %s", exc)
