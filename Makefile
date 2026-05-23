@@ -3,7 +3,7 @@
 # Common development and deployment commands
 # ============================================
 
-.PHONY: help install install-dev test test-cov test-fast lint format format-check security clean clean-data run run-legacy scanner scanner-agg docker-check docker-require-env docker-build docker-build-legacy docker-up docker-up-legacy docker-down docker-logs docker-logs-legacy docker-full docker-smoke docker-clean monitoring-up monitoring-down pre-commit pre-run status docs docs-serve
+.PHONY: help install install-dev test test-cov test-fast lint format format-check security clean clean-data run run-legacy scanner scanner-agg docker-check docker-require-env docker-build docker-build-legacy docker-up docker-up-legacy docker-down docker-logs docker-logs-legacy docker-full docker-smoke docker-clean monitoring-up monitoring-down pre-commit pre-run status docs docs-serve commit
 
 # Default Python
 PYTHON := python3
@@ -264,6 +264,17 @@ pre-commit:
 	pip install pre-commit
 	pre-commit install
 	@echo "$(GREEN)✓ Pre-commit hooks installed$(NC)"
+
+# ============================================
+# 💾 Safe commit (auto-retry on hook auto-fixes)
+# Usage: make commit MSG="feat: my change"
+# ============================================
+commit:
+	@if [ -z "$(MSG)" ]; then \
+		echo "$(RED)ERROR: MSG required. Usage: make commit MSG=\"feat: my change\"$(NC)"; \
+		exit 2; \
+	fi
+	@bash scripts/safe_commit.sh "$(MSG)"
 
 pre-run:
 	@echo "$(BLUE)Running pre-commit on all files...$(NC)"
