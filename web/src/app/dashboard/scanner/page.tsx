@@ -30,6 +30,7 @@ import { useStockPrices } from "@/lib/useStockPrices";
 import { getCurrencySymbol } from "@/lib/userSettings";
 import PriceChart from "@/components/PriceChart";
 import { ExplainPanel } from "@/components/ExplainPanel";
+import { ConfidenceBadge } from "@/components/dashboard/ConfidenceCard";
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface ScanResult {
@@ -342,6 +343,7 @@ export default function ScannerPage() {
   /* Load min score threshold + currency from user settings */
   const [minScoreFilter, setMinScoreFilter] = useState(0);
   const [currency, setCurrency] = useState("$");
+  const [systemBrier, setSystemBrier] = useState<number | null>(null);
   useEffect(() => {
     try {
       const stored = localStorage.getItem("finpilot_settings");
@@ -353,6 +355,14 @@ export default function ScannerPage() {
         setCurrency(getCurrencySymbol(s.market || "US"));
       }
     } catch {}
+  }, []);
+
+  /* Fetch system calibration brier for confidence badge */
+  useEffect(() => {
+    fetch("/py-api/loop/calibration/stats")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.brier != null) setSystemBrier(d.brier); })
+      .catch(() => {});
   }, []);
 
   /* Persist preset/mode changes to sessionStorage */
@@ -766,7 +776,9 @@ export default function ScannerPage() {
           <h1 className="text-xl font-semibold" style={{ color: C.text1 }}>
             AI Scanner
           </h1>
-          <p className="text-sm" style={{ color: C.text3 }}>
+          <div className="flex items-center gap-2 mt-0.5">
+            {systemBrier != null && <ConfidenceBadge brier={systemBrier} />}
+            <p className="text-sm" style={{ color: C.text3 }}>
             {presets.length} preset · {totalUniqueSymbols.toLocaleString()}{" "}
             stocks
             {scannedCount > 0 && (
@@ -785,7 +797,8 @@ export default function ScannerPage() {
                 {" "}· Alpaca: not connected
               </span>
             )}
-          </p>
+            </p>
+          </div>
         </div>
         <div className="flex gap-2">
           <button

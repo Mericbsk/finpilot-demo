@@ -223,6 +223,32 @@ def evaluate_symbol(
         if entry_ok and not CURRENT_MARKET_STATUS["safe"]:
             entry_ok = False
 
+        # Sprint 15: Earnings blackout filter
+        earnings_blackout = False
+        earnings_prox = 0.0
+        try:
+            from scanner.earnings_blackout import earnings_proximity, is_earnings_blackout  # noqa: PLC0415
+
+            earnings_blackout = is_earnings_blackout(symbol, days_before=2, days_after=1)
+            earnings_prox = earnings_proximity(symbol)
+            if earnings_blackout and entry_ok:
+                entry_ok = False
+                logger.info("[%s] earnings blackout — signal suppressed", symbol)
+        except Exception:
+            pass
+
+        # Sprint 15: Sector RS + vol regime alpha features
+        sector_rs = 0.0
+        vol_regime_val = 1
+        try:
+            from scanner.features import get_alpha_features  # noqa: PLC0415
+
+            alpha = get_alpha_features(symbol)
+            sector_rs = alpha.get("sector_rs", 0.0)
+            vol_regime_val = alpha.get("vol_regime", 1)
+        except Exception:
+            pass
+
         return {
             "symbol": symbol,
             "price": round(safe_float(last_price), 4),
@@ -266,6 +292,10 @@ def evaluate_symbol(
             "kelly_fraction": kelly_fraction,
             "sentiment": sentiment,
             "onchain_metric": onchain_metric,
+            "earnings_blackout": bool(earnings_blackout),
+            "earnings_proximity": round(earnings_prox, 4),
+            "sector_rs": round(sector_rs, 4),
+            "vol_regime": vol_regime_val,
             "composite_score": compute_recommendation_strength(
                 {
                     "regime": regime,

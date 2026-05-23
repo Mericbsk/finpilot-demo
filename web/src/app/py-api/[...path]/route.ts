@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-const API_HOST = process.env.API_HOST ?? "http://localhost:8000";
+const API_HOST = process.env.API_HOST ?? "http://localhost:8001";
 
 async function proxy(req: NextRequest, params: { path: string[] }): Promise<NextResponse> {
   const rest = params.path.join("/");

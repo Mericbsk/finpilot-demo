@@ -193,6 +193,59 @@ def record_outcome(
     _recompute_kpis()
 
 
+def mark_signal_auto_approved(symbol: str, cycle: int, p_win: float) -> bool:
+    """Persist auto-approve decision back to Redis / in-memory store.
+
+    Called by the auto-approve scheduler job after deciding p_win >= threshold.
+    Without this call the approval flag lives only in a transient dict copy and
+    is lost when the process restarts or the next _load_all_signals() call runs.
+
+    Returns True if the signal was found and updated, False otherwise.
+    """
+    updated = False
+    r = _get_redis()
+    if r is not None:
+        try:
+            raw = r.lrange(SIGNALS_KEY, 0, MAX_SIGNALS - 1)
+            new_list = []
+            for item in raw:
+                sig = json.loads(item)
+                if (
+                    sig["symbol"] == symbol
+                    and sig["cycle"] == cycle
+                    and not sig.get("auto_approved")
+                ):
+                    sig["auto_approved"] = True
+                    sig["auto_approve_p_win"] = round(float(p_win), 4)
+                    updated = True
+                new_list.append(json.dumps(sig))
+            if updated:
+                pipe = r.pipeline()
+                pipe.delete(SIGNALS_KEY)
+                for item in new_list:
+                    pipe.rpush(SIGNALS_KEY, item)
+                pipe.execute()
+        except Exception as exc:
+            logger.debug("KPI mark_signal_auto_approved Redis error: %s", exc)
+    else:
+        for sig in _mem_signals:
+            if (
+                sig["symbol"] == symbol
+                and sig["cycle"] == cycle
+                and not sig.get("auto_approved")
+            ):
+                sig["auto_approved"] = True
+                sig["auto_approve_p_win"] = round(float(p_win), 4)
+                updated = True
+                break
+
+    if updated:
+        logger.debug("mark_signal_auto_approved: %s cycle=%d p_win=%.4f persisted", symbol, cycle, p_win)
+    else:
+        logger.debug("mark_signal_auto_approved: %s cycle=%d — signal not found or already approved", symbol, cycle)
+    return updated
+
+
 def _recompute_kpis() -> dict[str, Any]:
     """Rebuild the KPI summary from all resolved signals."""
     global _mem_kpis
@@ -388,3 +441,98 @@ def get_cycle_scores(n: int = 10) -> list[dict]:
         except Exception:
             pass
     return _mem_cycle_scores[:n]
+
+
+# ---------------------------------------------------------------------------
+# Decile lift
+# ---------------------------------------------------------------------------
+
+
+def compute_decile_lift(n_deciles: int = 10) -> dict[str, Any]:
+    """Compute win-rate decile lift across resolved signals sorted by score.
+
+    Divides resolved signals into ``n_deciles`` equal buckets (sorted by score,
+    high-to-low) and computes the win rate per bucket. The *lift* for each decile
+    is ``decile_win_rate / overall_win_rate``.  The top-decile lift is the headline
+    signal quality metric: a value >1.5 means the top-score signals win 50 % more
+    often than average.
+
+    Returns a dict with::
+
+        {
+            "overall_win_rate": float,          # 0-1 fraction
+            "n_resolved": int,
+            "n_deciles": int,
+            "deciles": [
+                {
+                    "decile": int,              # 1 = highest score
+                    "n": int,
+                    "score_range": [min, max],
+                    "win_rate": float,          # 0-1
+                    "lift": float               # win_rate / overall_win_rate
+                },
+                ...
+            ],
+            "top_decile_lift": float,
+            "bottom_decile_lift": float,
+        }
+
+    If fewer than ``n_deciles`` resolved signals exist, all available signals are
+    treated as a single bucket (lift=1.0).
+    """
+    signals = _load_all_signals()
+    resolved = [s for s in signals if s.get("outcome") in ("win", "loss")]
+
+    if not resolved:
+        return {
+            "overall_win_rate": 0.0,
+            "n_resolved": 0,
+            "n_deciles": n_deciles,
+            "deciles": [],
+            "top_decile_lift": 1.0,
+            "bottom_decile_lift": 1.0,
+        }
+
+    wins_total = sum(1 for s in resolved if s["outcome"] == "win")
+    overall_wr = wins_total / len(resolved)
+
+    # Sort descending by score
+    sorted_sigs = sorted(resolved, key=lambda s: s.get("score", 0.0), reverse=True)
+
+    n = len(sorted_sigs)
+    # Use min(n_deciles, n) to avoid empty buckets
+    actual_deciles = min(n_deciles, n)
+    bucket_size = n / actual_deciles
+
+    decile_rows: list[dict] = []
+    for d in range(actual_deciles):
+        start = int(round(d * bucket_size))
+        end = int(round((d + 1) * bucket_size))
+        bucket = sorted_sigs[start:end]
+        if not bucket:
+            continue
+        bucket_wins = sum(1 for s in bucket if s["outcome"] == "win")
+        bucket_wr = bucket_wins / len(bucket)
+        scores = [s.get("score", 0.0) for s in bucket]
+        lift = (bucket_wr / overall_wr) if overall_wr > 0 else 1.0
+        decile_rows.append(
+            {
+                "decile": d + 1,
+                "n": len(bucket),
+                "score_range": [round(min(scores), 2), round(max(scores), 2)],
+                "win_rate": round(bucket_wr, 4),
+                "lift": round(lift, 4),
+            }
+        )
+
+    top_lift = decile_rows[0]["lift"] if decile_rows else 1.0
+    bottom_lift = decile_rows[-1]["lift"] if decile_rows else 1.0
+
+    return {
+        "overall_win_rate": round(overall_wr, 4),
+        "n_resolved": len(resolved),
+        "n_deciles": actual_deciles,
+        "deciles": decile_rows,
+        "top_decile_lift": round(top_lift, 4),
+        "bottom_decile_lift": round(bottom_lift, 4),
+    }

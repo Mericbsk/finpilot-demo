@@ -561,11 +561,25 @@ class LLMRouter:
 
 _router_instance: LLMRouter | None = None
 
+# Sprint 16 (S16-11): single-provider mode. When FINPILOT_LLM_SINGLE_PROVIDER is set
+# (e.g. "claude" or "groq" or "gemini") the router loads only that provider and the
+# Groq → Claude → Gemini failover chain is disabled. Falls back to multi-provider
+# when unset, "all", or "0".
+_SINGLE_PROVIDER = os.environ.get("FINPILOT_LLM_SINGLE_PROVIDER", "claude").strip().lower()
+
+
+def _should_load(provider_name: str) -> bool:
+    if _SINGLE_PROVIDER in ("", "all", "0", "false", "off"):
+        return True
+    return provider_name == _SINGLE_PROVIDER
+
 
 def get_router() -> LLMRouter:
     """Get (or create) the global LLM router with all configured providers.
 
-    Provider priority: Groq → Claude → Gemini
+    Default (Sprint 16): single-provider mode pinned to Claude via
+    ``FINPILOT_LLM_SINGLE_PROVIDER=claude``. Set to "all" to restore the
+    Groq → Claude → Gemini failover chain.
     """
     global _router_instance
     if _router_instance is not None:
@@ -573,27 +587,32 @@ def get_router() -> LLMRouter:
 
     router = LLMRouter()
 
-    # Add providers in priority order
-    try:
-        from llm.groq_provider import GroqProvider
+    if _should_load("groq"):
+        try:
+            from llm.groq_provider import GroqProvider
 
-        router.add_provider(GroqProvider())
-    except Exception as e:
-        logger.debug("Could not init Groq provider: %s", e)
+            router.add_provider(GroqProvider())
+        except Exception as e:
+            logger.debug("Could not init Groq provider: %s", e)
 
-    try:
-        from llm.claude_provider import ClaudeProvider
+    if _should_load("claude"):
+        try:
+            from llm.claude_provider import ClaudeProvider
 
-        router.add_provider(ClaudeProvider())
-    except Exception as e:
-        logger.debug("Could not init Claude provider: %s", e)
+            router.add_provider(ClaudeProvider())
+        except Exception as e:
+            logger.debug("Could not init Claude provider: %s", e)
 
-    try:
-        from llm.gemini_provider import GeminiProvider
+    if _should_load("gemini"):
+        try:
+            from llm.gemini_provider import GeminiProvider
 
-        router.add_provider(GeminiProvider())
-    except Exception as e:
-        logger.debug("Could not init Gemini provider: %s", e)
+            router.add_provider(GeminiProvider())
+        except Exception as e:
+            logger.debug("Could not init Gemini provider: %s", e)
+
+    if _SINGLE_PROVIDER not in ("", "all", "0", "false", "off"):
+        logger.info("LLM router: single-provider mode = %s", _SINGLE_PROVIDER)
 
     _router_instance = router
     return router

@@ -17,6 +17,8 @@ import {
   GraduationCap,
   Loader2,
   AlertCircle,
+  DollarSign,
+  Gauge,
 } from "lucide-react";
 import Link from "next/link";
 import { C, companyNames } from "@/lib/stockData";
@@ -100,6 +102,9 @@ export default function DashboardOverview() {
   const [weeklyPerf, setWeeklyPerf] = useState<{
     total: number; win: number; loss: number; open: number; avg_pnl: number; best_symbol: string | null; best_pnl: number;
   } | null>(null);
+  const [portfolio, setPortfolio] = useState<{
+    equity: number; total_return_pct: number; win_rate: number; profit_factor: number | null; closed_count: number; open_positions: number;
+  } | null>(null);
 
   useEffect(() => {
     try {
@@ -161,6 +166,26 @@ export default function DashboardOverview() {
         const avg_pnl = resolved.length > 0 ? resolved.reduce((s, i) => s + (i.pnl_pct as number), 0) / resolved.length : 0;
         const best = resolved.sort((a, b) => (b.pnl_pct as number) - (a.pnl_pct as number))[0];
         setWeeklyPerf({ total: items.length, win, loss, open, avg_pnl, best_symbol: best ? String(best.symbol ?? "") : null, best_pnl: best ? (best.pnl_pct as number) : 0 });
+      })
+      .catch(() => {});
+  }, []);
+
+  /* Load paper portfolio P&L */
+  useEffect(() => {
+    fetch("/py-api/loop/portfolio")
+      .then((r) => r.json())
+      .then((data) => {
+        const s = data.summary as Record<string, unknown>;
+        if (s && typeof s.equity === "number") {
+          setPortfolio({
+            equity: s.equity as number,
+            total_return_pct: (s.total_return_pct as number) ?? 0,
+            win_rate: (s.win_rate as number) ?? 0,
+            profit_factor: s.profit_factor != null ? (s.profit_factor as number) : null,
+            closed_count: (s.closed_count as number) ?? 0,
+            open_positions: (s.open_positions as number) ?? 0,
+          });
+        }
       })
       .catch(() => {});
   }, []);
@@ -304,6 +329,54 @@ export default function DashboardOverview() {
           <a href="/dashboard/watchlist" style={{ marginLeft: "auto", fontSize: 11, color: C.cyan, textDecoration: "none" }}>
             Tüm sinyaller →
           </a>
+        </div>
+      )}
+
+      {/* Live P&L Tile */}
+      {portfolio && (
+        <div className="rounded-2xl p-4" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <DollarSign size={15} style={{ color: C.cyan }} />
+              <span className="text-sm font-semibold" style={{ color: C.text1 }}>Paper Portfolio</span>
+            </div>
+            <Link href="/dashboard/portfolio" className="text-xs hover:underline" style={{ color: C.cyan }}>
+              Details →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {/* Equity */}
+            <div className="rounded-xl p-3" style={{ backgroundColor: "#0a0a12" }}>
+              <div className="text-xs mb-1" style={{ color: C.text3 }}>Equity</div>
+              <div className="text-base font-bold" style={{ color: C.text1 }}>${portfolio.equity.toFixed(0)}</div>
+              <div className="flex items-center gap-1 mt-0.5 text-xs" style={{ color: portfolio.total_return_pct >= 0 ? C.green : C.red }}>
+                {portfolio.total_return_pct >= 0 ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+                {portfolio.total_return_pct >= 0 ? "+" : ""}{portfolio.total_return_pct.toFixed(2)}%
+              </div>
+            </div>
+            {/* Win Rate */}
+            <div className="rounded-xl p-3" style={{ backgroundColor: "#0a0a12" }}>
+              <div className="text-xs mb-1" style={{ color: C.text3 }}>Win Rate</div>
+              <div className="text-base font-bold" style={{ color: portfolio.win_rate >= 55 ? C.green : portfolio.win_rate >= 45 ? C.yellow : C.red }}>
+                {portfolio.win_rate.toFixed(1)}%
+              </div>
+              <div className="text-xs mt-0.5" style={{ color: C.text3 }}>{portfolio.closed_count} trades</div>
+            </div>
+            {/* Profit Factor */}
+            <div className="rounded-xl p-3" style={{ backgroundColor: "#0a0a12" }}>
+              <div className="text-xs mb-1" style={{ color: C.text3 }}>Profit Factor</div>
+              <div className="text-base font-bold" style={{ color: portfolio.profit_factor != null && portfolio.profit_factor >= 1.5 ? C.green : portfolio.profit_factor != null && portfolio.profit_factor >= 1.0 ? C.yellow : C.red }}>
+                {portfolio.profit_factor != null ? portfolio.profit_factor.toFixed(2) : "—"}
+              </div>
+              <div className="text-xs mt-0.5" style={{ color: C.text3 }}>gross P/L ratio</div>
+            </div>
+            {/* Open Positions */}
+            <div className="rounded-xl p-3" style={{ backgroundColor: "#0a0a12" }}>
+              <div className="text-xs mb-1" style={{ color: C.text3 }}>Open</div>
+              <div className="text-base font-bold" style={{ color: C.cyan }}>{portfolio.open_positions}</div>
+              <div className="text-xs mt-0.5" style={{ color: C.text3 }}>positions</div>
+            </div>
+          </div>
         </div>
       )}
 

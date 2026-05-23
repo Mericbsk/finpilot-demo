@@ -24,6 +24,7 @@ Kullanım:
 from __future__ import annotations
 
 import logging
+import os
 import threading
 from datetime import UTC, datetime
 from typing import Any
@@ -36,6 +37,60 @@ _cycle_count = 0
 _last_run: str | None = None
 _last_status: str = "idle"
 _eval_last_run: str | None = None
+
+# Sprint 8 — Job timeout budget (seconds). Any job exceeding this is killed & alerted.
+_JOB_TIMEOUT_SECONDS = 600  # 10 minutes
+
+
+def _make_watchdog_job(job_name: str, fn: Any, timeout_s: int = _JOB_TIMEOUT_SECONDS) -> Any:
+    """Wrap a scheduler job with a timeout watchdog.
+
+    If the job takes longer than *timeout_s*, the background thread is abandoned
+    and a Telegram alert is sent so the hang doesn't block the APScheduler thread pool.
+    """
+    import concurrent.futures
+
+    def _wrapped() -> None:
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(fn)
+        try:
+            future.result(timeout=timeout_s)
+        except concurrent.futures.TimeoutError:
+            msg = f"⚠️ FinPilot watchdog: job *{job_name}* hung > {timeout_s}s — abandoned"
+            logger.error("Watchdog: %s", msg)
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                TelegramNotifier()._send_message(msg)
+            except Exception:  # noqa: BLE001
+                pass
+        except Exception as exc:
+            logger.warning("Watchdog: job %s failed: %s", job_name, exc)
+        finally:
+            executor.shutdown(wait=False)
+
+    _wrapped.__name__ = f"watchdog_{job_name}"
+    return _wrapped
+
+
+def _compose_jobs(group_name: str, *sub_jobs: Any) -> Any:
+    """Sprint 16 (S16-12) — Run multiple sub-jobs sequentially in a single APScheduler tick.
+
+    Each sub-job is isolated by try/except so one failure does not block the others.
+    Sub-jobs should already be wrapped with _make_watchdog_job (so each has its own
+    timeout budget) before being passed here.
+    """
+
+    def _composite() -> None:
+        for sub in sub_jobs:
+            sub_name = getattr(sub, "__name__", "anon")
+            try:
+                sub()
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Composite job %s: sub %s failed: %s", group_name, sub_name, exc)
+
+    _composite.__name__ = f"composite_{group_name}"
+    return _composite
 
 
 def _run_eval_job(symbols: list[str]) -> None:
@@ -84,17 +139,14 @@ def _run_eval_job(symbols: list[str]) -> None:
 
 
 def _run_reconcile_job() -> None:
-    """Sprint 5 (S5-1): Walk open signals, fetch T+N closes, record outcomes."""
+    """Sprint 9: Multi-horizon reconciliation — T+1 (KPIs), T+5, T+20 (extended data)."""
     try:
-        from core.outcome_reconciler import reconcile_open_signals
+        from core.outcome_reconciler import reconcile_all_horizons
 
-        summary = reconcile_open_signals()
+        summary = reconcile_all_horizons()
         logger.info(
-            "Reconcile job: reconciled=%d skipped_age=%d skipped_data=%d errors=%d",
-            summary["reconciled"],
-            summary["skipped_age"],
-            summary["skipped_data"],
-            len(summary["errors"]),
+            "Reconcile job (all horizons): total_reconciled=%d",
+            summary.get("total_reconciled", 0),
         )
     except Exception as exc:
         logger.warning("Reconcile job failed: %s", exc)
@@ -127,6 +179,167 @@ def _run_weekly_report_job() -> None:
             logger.info("Weekly report generated: %s", path)
     except Exception as exc:
         logger.warning("Weekly report job failed: %s", exc)
+
+
+def _run_research_pipeline_job() -> None:
+    """Sprint 12: Weekly research pipeline — walk-forward + Optuna sweep + champion/challenger."""
+    try:
+        from research.pipeline import run_research_pipeline
+
+        result = run_research_pipeline()
+        promoted = (result.get("registry") or {}).get("promoted", False)
+        wf_brier = (result.get("walkforward") or {}).get("avg_brier", float("nan"))
+        logger.info(
+            "Research pipeline done — avg_brier=%.4f promoted=%s",
+            wf_brier,
+            promoted,
+        )
+        if promoted:
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                TelegramNotifier()._send_message(
+                    f"🔬 *Araştırma Boru Hattı* — Yeni şampiyon belirlendi!\n"
+                    f"Brier: {wf_brier:.4f} | Promote: ✅"
+                )
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception as exc:
+        logger.warning("Research pipeline job failed: %s", exc)
+
+
+def _run_drift_job() -> None:
+    """Sprint 14: KS-test drift detection — triggers calibration refit on shift."""
+    try:
+        from core.calibration import detect_drift
+
+        result = detect_drift()
+        logger.info(
+            "Drift detection: drift=%s ks=%.4f p=%.4f",
+            result["drift_detected"],
+            result.get("ks_statistic") or 0,
+            result.get("p_value") or 1,
+        )
+        if result["drift_detected"]:
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                TelegramNotifier()._send_message(
+                    f"⚠️ *Drift Uyarısı* — Skor dağılımı kaydı!\n"
+                    f"KS={result.get('ks_statistic'):.4f}  p={result.get('p_value'):.4f}\n"
+                    f"Kalibrasyon yeniden başlatılıyor..."
+                )
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception as exc:
+        logger.warning("Drift detection job failed: %s", exc)
+
+
+def _run_ceo_report_job() -> None:
+    """Sprint 14: CEO self-evaluation — haftalık Telegram raporu."""
+    try:
+        from research.registry import ModelRegistry
+
+        from core.calibration import get_brier_history, get_calibration_stats
+        from core.kpi_tracker import get_kpis
+
+        kpis = get_kpis()
+        stats = get_calibration_stats()
+        history = get_brier_history()
+        reg = ModelRegistry()
+        champion = reg.get_champion()
+        challengers = reg.get_challengers(limit=3)
+
+        # Brier trend (7d vs 30d)
+        now_ts = __import__("time").time()
+        h7 = [e["brier"] for e in history if now_ts - e["ts"] < 7 * 86400]
+        h30 = [e["brier"] for e in history if now_ts - e["ts"] < 30 * 86400]
+        brier_7d = round(sum(h7) / len(h7), 4) if h7 else None
+        brier_30d = round(sum(h30) / len(h30), 4) if h30 else None
+
+        champion_name = (champion or {}).get("name", "—")
+        champion_brier = (champion or {}).get("brier_score")
+        champion_wr = (champion or {}).get("win_rate")
+
+        # Decile lift
+        decile = stats.get("decile_lift", {})
+        top_lift = decile.get("top_decile_lift")
+        overall_wr = decile.get("overall_win_rate")
+
+        lines = [
+            "📊 *CEO Haftalık Rapor*",
+            "",
+            "*Kalibrasyon*",
+            f"  Brier (7g): {brier_7d:.4f}" if brier_7d else "  Brier (7g): —",
+            f"  Brier (30g): {brier_30d:.4f}" if brier_30d else "  Brier (30g): —",
+            f"  ECE: {stats.get('ece') or '—'}",
+            "",
+            "*Model Kaydı*",
+            f"  Şampiyon: {champion_name}",
+            f"  Şampiyon Brier: {champion_brier:.4f}" if champion_brier else "  Şampiyon Brier: —",
+            f"  Şampiyon WR: {champion_wr:.1%}" if champion_wr else "  Şampiyon WR: —",
+            f"  Challenger sayısı: {len(challengers)}",
+            "",
+            "*KPI Özeti*",
+            f"  Win Rate: {kpis.get('win_rate', 0):.1%}",
+            f"  Profit Factor: {kpis.get('profit_factor', 0):.2f}",
+            f"  Toplam Sinyal: {kpis.get('total_signals', 0)}",
+            f"  Top Decile Lift: {top_lift:.2f}" if top_lift else "  Top Decile Lift: —",
+            f"  Genel WR: {overall_wr:.1%}" if overall_wr else "  Genel WR: —",
+        ]
+        msg = "\n".join(lines)
+
+        from telegram_alerts import TelegramNotifier
+
+        TelegramNotifier()._send_message(msg)
+        logger.info("CEO report sent to Telegram")
+    except Exception as exc:
+        logger.warning("CEO report job failed: %s", exc)
+
+
+def _run_auto_approve_job(symbols: list[str]) -> None:
+    """Sprint 14: Auto-approve pending signals when p_win > 0.65 and env is normal."""
+    try:
+        from core.calibration import calibrated_probability
+        from core.kpi_tracker import _load_all_signals  # type: ignore
+        from core.quality_gate import is_degraded
+
+        if is_degraded():
+            logger.info("auto_approve: system degraded — skipping auto-approve")
+            return
+
+        sigs = _load_all_signals()
+        approved = 0
+        for sig in sigs:
+            if sig.get("outcome") is not None:
+                continue  # already resolved
+            score = sig.get("score") or sig.get("finpilot_score")
+            if score is None:
+                continue
+            p_win = calibrated_probability(float(score))
+            if p_win >= 0.65:
+                # Persist auto-approve decision to Redis / in-memory store
+                try:
+                    from core.kpi_tracker import mark_signal_auto_approved
+
+                    if mark_signal_auto_approved(sig["symbol"], sig["cycle"], p_win):
+                        approved += 1
+                except Exception:
+                    pass
+
+        logger.info("auto_approve: approved %d signals with p_win >= 0.65", approved)
+        if approved > 0:
+            try:
+                from telegram_alerts import TelegramNotifier
+
+                TelegramNotifier()._send_message(
+                    f"✅ *Auto-Approve* — {approved} sinyal otomatik onaylandı\n"
+                    f"p_win ≥ 0.65 eşiği, sistem normal"
+                )
+            except Exception:  # noqa: BLE001
+                pass
+    except Exception as exc:
+        logger.warning("Auto-approve job failed: %s", exc)
 
 
 # ---------------------------------------------------------------------------
@@ -168,26 +381,19 @@ def run_cycle_once(
         from core.agent_state import save_agent_result
         from core.kpi_tracker import record_signal, self_evaluate
 
-        # --- 0. CEO graph (step-0 orchestrator) ---
-        # Sprint 6 (s6-orchestrator-merge): scheduler now drives the scanner via
-        # the CEO LangGraph workflow instead of calling ScannerAgent directly.
-        # This eliminates the two-orchestrator problem and gives every cycle a
-        # single, observable entry point.
+        # --- 0. CEO pipeline (step-0 orchestrator) ---
+        # S17-03: replaced LangGraph get_graph().invoke() with core.pipeline.run_cycle()
+        # — no LangGraph dependency, no ImportError fallback needed.
         _t = time.perf_counter()
         scan_data: dict[str, Any] = {}
         ceo_state: dict[str, Any] = {}
         try:
-            from agents.ceo import get_graph
+            from core.pipeline import run_cycle
 
-            ceo_state = (
-                get_graph().invoke(
-                    {
-                        "task": "scan",
-                        "symbols": symbols,
-                        "kelly_fraction": kelly_fraction,
-                    }
-                )
-                or {}
+            ceo_state = run_cycle(
+                symbols=symbols,
+                task="scan",
+                kelly_fraction=kelly_fraction,
             )
             scan_data = ceo_state.get("scan_results", {}) or {}
             ceo_errors = ceo_state.get("errors", []) or []
@@ -206,45 +412,16 @@ def run_cycle_once(
                 logger.warning("Scheduler: scan state save failed: %s", save_exc)
             log_event(
                 "CEO",
-                "graph_scan",
+                "pipeline_scan",
                 "ok" if not ceo_errors else "warn",
                 _dur,
                 f"{len(scan_data)} sembol tarandı (top={len(ceo_state.get('top_symbols', []))})",
                 symbols,
                 "strategy",
             )
-        except ImportError:
-            # Fallback: langgraph not installed → call ScannerAgent directly.
-            logger.warning(
-                "Scheduler: langgraph unavailable, falling back to direct ScannerAgent",
-            )
-            try:
-                from agents.scanner_agent import ScannerAgent
-
-                sc_ctx = AgentContext(symbols=symbols)
-                sc_result = ScannerAgent().run(sc_ctx, kelly_fraction=kelly_fraction)
-                _dur = (time.perf_counter() - _t) * 1000
-                scan_data = sc_result.data or {}
-                results["scan"] = scan_data
-                try:
-                    save_agent_result("scan", symbols, scan_data)
-                except Exception as save_exc:
-                    logger.warning("Scheduler: scan state save failed: %s", save_exc)
-                log_event(
-                    "Scanner",
-                    "evaluate_symbols",
-                    "ok" if sc_result.success else "error",
-                    _dur,
-                    f"{len(scan_data)} sembol tarandı (fallback)",
-                    symbols,
-                    "strategy",
-                )
-            except Exception as exc:
-                errors.append(f"scanner_fallback: {exc}")
-                logger.warning("Scheduler: scanner fallback failed: %s", exc)
         except Exception as exc:
-            errors.append(f"ceo_graph: {exc}")
-            logger.warning("Scheduler: CEO graph failed: %s", exc)
+            errors.append(f"pipeline: {exc}")
+            logger.warning("Scheduler: pipeline failed: %s", exc)
 
         # --- 1. Market Intelligence (regime detection) ---
         _t = time.perf_counter()
@@ -384,6 +561,17 @@ def run_cycle_once(
                     direction = "BUY" if bt_sym.get("total_return", 0) > 0 else "SELL"
                     entry_price = float(bt_sym.get("final_value", 0) or 0)
                     score_val = float(bt_sym.get("win_rate", 0) or 0)
+
+                    # R/R fix (Sprint 8): guard against zero/negative denominator;
+                    # max_return is reward side, max_drawdown is risk side (may be negative).
+                    _max_ret = float(bt_sym.get("max_return", 0) or 0)
+                    _max_dd = abs(float(bt_sym.get("max_drawdown", 0) or 0))
+                    _rr = round(_max_ret / _max_dd, 3) if _max_dd > 0 else 0.0
+
+                    # Gate: skip zero-price or SELL signals before recording
+                    if entry_price <= 0 or direction != "BUY":
+                        continue
+
                     p_win = float(_calibrated_probability(score_val))
                     # score_val backtest win_rate'i (0-1); kpi_tracker'a
                     # 0-100 ölçeğinde kaydediyoruz → alpha_tracker bucket'larıyla uyumlu
@@ -392,14 +580,10 @@ def run_cycle_once(
                         direction=direction,
                         price=entry_price,
                         score=round(score_val * 100, 1),
-                        rr=bt_sym.get("max_return", 0) / abs(bt_sym.get("max_drawdown", 1) or 1),
+                        rr=_rr,
                         cycle=_cycle_count + 1,
                         p_win=p_win,
                     )
-                    if entry_price <= 0:
-                        continue
-                    if direction != "BUY":
-                        continue
                     if p_win < _pwin_threshold:
                         logger.info(
                             "Decision gate: skip paper trade %s (p_win=%.3f < %.3f)",
@@ -847,6 +1031,18 @@ def start_scheduler(
                 symbols=symbols, kelly_fraction=kelly_fraction, run_optimizer=run_optimizer
             )
 
+        # ------------------------------------------------------------------
+        # Sprint 16 (S16-12) — Consolidate 9 jobs into 4 cadence buckets.
+        # Set FINPILOT_SCHEDULER_LEGACY_JOBS=1 to restore the previous 9-job
+        # layout (kept available for emergency rollback).
+        # ------------------------------------------------------------------
+        _legacy_jobs = os.getenv("FINPILOT_SCHEDULER_LEGACY_JOBS", "0").lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+
+        # Bucket 1: main agent cycle (configurable interval, default = arg)
         _scheduler_instance.add_job(
             _scheduled_job,
             trigger=IntervalTrigger(minutes=interval_minutes),
@@ -854,36 +1050,110 @@ def start_scheduler(
             name="FinPilot Main Agent Cycle",
         )
 
-        # Autonomous eval job — always runs hourly regardless of main cycle interval
+        # Autonomous eval job wrapper (used in bucket 2)
         def _eval_job_wrapper() -> None:
             _run_eval_job(symbols)
 
-        _scheduler_instance.add_job(
-            _eval_job_wrapper,
-            trigger=IntervalTrigger(hours=1),
-            id="finpilot_eval_job",
-            name="FinPilot Autonomous Eval",
-        )
+        # Auto-approve wrapper (used in bucket 2)
+        def _auto_approve_wrapper() -> None:
+            _run_auto_approve_job(symbols)
 
-        # Sprint 5 — closed-loop jobs
-        _scheduler_instance.add_job(
-            _run_reconcile_job,
-            trigger=IntervalTrigger(hours=6),
-            id="finpilot_reconcile_job",
-            name="FinPilot Outcome Reconciler",
-        )
-        _scheduler_instance.add_job(
-            _run_calibration_job,
-            trigger=IntervalTrigger(hours=24),
-            id="finpilot_calibration_job",
-            name="FinPilot Score Calibration",
-        )
-        _scheduler_instance.add_job(
-            _run_weekly_report_job,
-            trigger=IntervalTrigger(days=7),
-            id="finpilot_weekly_report_job",
-            name="FinPilot Weekly Report",
-        )
+        from apscheduler.triggers.cron import CronTrigger
+
+        if _legacy_jobs:
+            # Legacy 9-job layout — kept for emergency rollback only.
+            _scheduler_instance.add_job(
+                _make_watchdog_job("eval", _eval_job_wrapper),
+                trigger=IntervalTrigger(hours=1),
+                id="finpilot_eval_job",
+                name="FinPilot Autonomous Eval",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("reconcile", _run_reconcile_job),
+                trigger=IntervalTrigger(hours=6),
+                id="finpilot_reconcile_job",
+                name="FinPilot Outcome Reconciler",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("calibration", _run_calibration_job),
+                trigger=CronTrigger(hour=23, minute=30, timezone="UTC"),
+                id="finpilot_calibration_job",
+                name="FinPilot Score Calibration",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("weekly_report", _run_weekly_report_job),
+                trigger=IntervalTrigger(days=7),
+                id="finpilot_weekly_report_job",
+                name="FinPilot Weekly Report",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("research_pipeline", _run_research_pipeline_job),
+                trigger=CronTrigger(day_of_week="sun", hour=2, minute=0, timezone="UTC"),
+                id="finpilot_research_pipeline_job",
+                name="FinPilot Research Pipeline (WF + Sweep + Champion)",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("drift", _run_drift_job),
+                trigger=IntervalTrigger(hours=6),
+                id="finpilot_drift_job",
+                name="FinPilot Drift Detection (KS-test)",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("ceo_report", _run_ceo_report_job),
+                trigger=CronTrigger(day_of_week="sun", hour=8, minute=0, timezone="UTC"),
+                id="finpilot_ceo_report_job",
+                name="FinPilot CEO Weekly Report",
+            )
+            _scheduler_instance.add_job(
+                _make_watchdog_job("auto_approve", _auto_approve_wrapper),
+                trigger=IntervalTrigger(minutes=30),
+                id="finpilot_auto_approve_job",
+                name="FinPilot Auto-Approve (p_win >= 0.65)",
+            )
+        else:
+            # Bucket 2: hourly ops — eval + auto-approve.
+            # Note: auto_approve drops from 30min → 60min; jobs are idempotent
+            # and gated by p_win >= 0.65, so the slower cadence only delays
+            # approvals by up to ~30 min.
+            _scheduler_instance.add_job(
+                _compose_jobs(
+                    "hourly_ops",
+                    _make_watchdog_job("eval", _eval_job_wrapper),
+                    _make_watchdog_job("auto_approve", _auto_approve_wrapper),
+                ),
+                trigger=IntervalTrigger(hours=1),
+                id="finpilot_hourly_ops",
+                name="FinPilot Hourly Ops (eval + auto-approve)",
+            )
+
+            # Bucket 3: every-6-hours ops — reconcile + drift detection.
+            _scheduler_instance.add_job(
+                _compose_jobs(
+                    "six_hourly_ops",
+                    _make_watchdog_job("reconcile", _run_reconcile_job),
+                    _make_watchdog_job("drift", _run_drift_job),
+                ),
+                trigger=IntervalTrigger(hours=6),
+                id="finpilot_six_hourly_ops",
+                name="FinPilot 6h Ops (reconcile + drift)",
+            )
+
+            # Bucket 4: daily ops — calibration daily at 23:30 UTC; on Sundays
+            # also run weekly_report + research_pipeline + ceo_report.
+            def _daily_ops_wrapper() -> None:
+                _make_watchdog_job("calibration", _run_calibration_job)()
+                # Sunday-only sub-jobs
+                if datetime.now(tz=UTC).weekday() == 6:  # 6 == Sunday
+                    _make_watchdog_job("weekly_report", _run_weekly_report_job)()
+                    _make_watchdog_job("research_pipeline", _run_research_pipeline_job)()
+                    _make_watchdog_job("ceo_report", _run_ceo_report_job)()
+
+            _scheduler_instance.add_job(
+                _daily_ops_wrapper,
+                trigger=CronTrigger(hour=23, minute=30, timezone="UTC"),
+                id="finpilot_daily_ops",
+                name="FinPilot Daily Ops (calibration + weekly Sun: report/research/ceo)",
+            )
 
         _scheduler_instance.start()
         logger.info(

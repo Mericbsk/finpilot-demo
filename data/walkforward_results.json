@@ -1,0 +1,6 @@
+{
+  "status": "ok",
+  "avg_brier": 0.21,
+  "n_folds_valid": 3,
+  "saved_at": "2026-05-21 08:31 UTC"
+}

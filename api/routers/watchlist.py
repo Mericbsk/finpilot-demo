@@ -30,6 +30,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
+import api.services.watchlist_db as wdb
 from core.config import DATA_DIR, SIGNAL_ARCHIVE_DIR
 
 router = APIRouter(tags=["watchlist"])
@@ -347,7 +348,7 @@ async def _background_refresh() -> None:
     while True:
         try:
             await asyncio.sleep(_PRICE_CACHE_TTL)
-            items = _load()
+            items = wdb.load_active()
             symbols = list({i["symbol"] for i in items})
             if not symbols:
                 continue
@@ -427,9 +428,8 @@ def add_to_watchlist(req: WatchlistAddRequest):
     entry["signal_date"] = datetime.now(UTC).strftime("%Y-%m-%d")
     entry["status_lifecycle"] = "new"
 
-    items = _load()
-    items = _upsert(items, entry)
-    _save(items)
+    wdb.upsert_signal(entry)
+    items = wdb.load_active()
     logger.info("Watchlist add: %s (%s)", entry["symbol"], entry["signal"])
     return {"ok": True, "symbol": entry["symbol"], "id": entry["id"], "count": len(items)}
 
@@ -437,7 +437,6 @@ def add_to_watchlist(req: WatchlistAddRequest):
 @router.post("/watchlist/bulk", status_code=201)
 def bulk_add_to_watchlist(req: WatchlistBulkRequest):
     """Add or update multiple symbols in one call."""
-    items = _load()
     added = 0
     now = datetime.now(UTC)
     for item_req in req.items:
@@ -447,9 +446,9 @@ def bulk_add_to_watchlist(req: WatchlistBulkRequest):
         entry["id"] = f"sig_{uuid.uuid4().hex[:12]}"
         entry["signal_date"] = now.strftime("%Y-%m-%d")
         entry["status_lifecycle"] = "new"
-        items = _upsert(items, entry)
+        wdb.upsert_signal(entry)
         added += 1
-    _save(items)
+    items = wdb.load_active()
     logger.info("Watchlist bulk add: %d symbols", added)
     return {"ok": True, "added": added, "count": len(items)}
 
@@ -461,7 +460,7 @@ async def get_watchlist():
     Prices come from the in-memory cache (background-refreshed every 90 s).
     On the very first cold-start request the cache is populated on-demand.
     """
-    items = _load()
+    items = wdb.load_active()
     if not items:
         return {"items": [], "count": 0, "refreshed_at": datetime.now(UTC).isoformat()}
 
@@ -472,7 +471,7 @@ async def get_watchlist():
     prices = {s: _price_cache.get(s, {"price": 0.0, "change_pct": 0.0}) for s in symbols}
 
     enriched = []
-    changed = False
+    lifecycle_changes: list[tuple[str, str]] = []
     for item in reversed(items):  # newest first
         sym = item["symbol"]
         p = prices.get(sym, {"price": 0.0, "change_pct": 0.0})
@@ -483,7 +482,7 @@ async def get_watchlist():
         new_lifecycle = _auto_lifecycle(item, current_price)
         if new_lifecycle != item.get("status_lifecycle"):
             item["status_lifecycle"] = new_lifecycle
-            changed = True
+            lifecycle_changes.append((item["id"], new_lifecycle))
 
         enriched.append(
             {
@@ -495,21 +494,9 @@ async def get_watchlist():
             }
         )
 
-    # Persist any auto-lifecycle changes
-    if changed:
-        # rebuild items list preserving original order with updated lifecycle
-        updated_map = {e["id"]: e for e in enriched}
-        updated_items = [
-            {
-                k: v
-                for k, v in updated_map.get(i["id"], i).items()
-                if k not in ("current_price", "change_pct", "pnl_pct", "status")
-            }
-            if i["id"] in updated_map
-            else i
-            for i in reversed(items)  # restore original order
-        ]
-        _save(list(reversed(updated_items)))
+    # Persist any auto-lifecycle changes via targeted updates
+    for item_id, new_lc in lifecycle_changes:
+        wdb.update_field(item_id, status_lifecycle=new_lc)
 
     return {
         "items": enriched,
@@ -522,7 +509,7 @@ async def get_watchlist():
 async def get_today_signals():
     """Return only signals added today (UTC date)."""
     today = datetime.now(UTC).strftime("%Y-%m-%d")
-    items = _load()
+    items = wdb.load_active()
     today_items = [i for i in items if i.get("signal_date", "") == today]
 
     if not today_items:
@@ -579,7 +566,7 @@ def get_signal_dates():
     today = datetime.now(UTC).strftime("%Y-%m-%d")
     today_in_archive = any(d["date"] == today for d in dates)
     if not today_in_archive:
-        items = _load()
+        items = wdb.load_active()
         today_count = sum(1 for i in items if i.get("signal_date", "") == today)
         if today_count > 0:
             dates.insert(0, {"date": today, "count": today_count, "live": True})
@@ -597,7 +584,7 @@ async def get_signal_history(
 
     if date == today:
         # Serve from live watchlist for today
-        items = _load()
+        items = wdb.load_active()
         day_items = [i for i in items if i.get("signal_date", "") == today]
     else:
         day_items = _load_archive(date)
@@ -632,7 +619,7 @@ def evaluate_all_lifecycle():
 
     Returns a summary: evaluated count, changed count, per-state breakdown.
     """
-    items = _load()
+    items = wdb.load_active()
     if not items:
         return {
             "evaluated": 0,
@@ -720,7 +707,11 @@ def evaluate_all_lifecycle():
             _notify_lifecycle_change(item, current_lc, new_lc)
 
     if changed_ids:
-        _save(items)
+        for changed_item in active_items:
+            if changed_item.get("id", "") in changed_ids:
+                wdb.update_field(
+                    changed_item["id"], status_lifecycle=changed_item["status_lifecycle"]
+                )
         logger.info("evaluate-all: %d items changed lifecycle", len(changed_ids))
 
     return {
@@ -735,7 +726,7 @@ def evaluate_all_lifecycle():
 def archive_today():
     """Snapshot today's signals to archive file (idempotent)."""
     today = datetime.now(UTC).strftime("%Y-%m-%d")
-    items = _load()
+    items = wdb.load_active()
     today_items = [i for i in items if i.get("signal_date", "") == today]
     _save_archive(today, today_items)
     logger.info("Archived %d signals for %s", len(today_items), today)
@@ -749,12 +740,12 @@ def update_lifecycle_status(item_id: str, req: LifecycleUpdateRequest):
         raise HTTPException(
             status_code=422, detail=f"Invalid status. Must be one of: {sorted(LIFECYCLE_STATES)}"
         )
-    items = _load()
+    items = wdb.load_active()
     for item in items:
         if item.get("id") == item_id:
             prev_lc = item.get("status_lifecycle", "")
+            wdb.update_field(item_id, status_lifecycle=req.status_lifecycle)
             item["status_lifecycle"] = req.status_lifecycle
-            _save(items)
 
             # Send Telegram alert on terminal state transitions
             _notify_lifecycle_change(item, prev_lc, req.status_lifecycle)
@@ -766,12 +757,10 @@ def update_lifecycle_status(item_id: str, req: LifecycleUpdateRequest):
 @router.patch("/watchlist/{item_id}/note")
 def update_note(item_id: str, req: NoteUpdateRequest):
     """Update notes and tags for a signal by ID."""
-    items = _load()
+    items = wdb.load_active()
     for item in items:
         if item.get("id") == item_id:
-            item["notes"] = req.notes
-            item["tags"] = req.tags
-            _save(items)
+            wdb.update_field(item_id, notes=req.notes, tags=req.tags)
             return {"ok": True, "id": item_id}
     raise HTTPException(status_code=404, detail=f"Signal {item_id} not found")
 
@@ -779,7 +768,7 @@ def update_note(item_id: str, req: NoteUpdateRequest):
 @router.delete("/watchlist/clear")
 def clear_watchlist():
     """Remove all watchlist entries."""
-    _save([])
+    wdb.clear_active()
     logger.info("Watchlist cleared")
     return {"ok": True, "count": 0}
 
@@ -788,12 +777,10 @@ def clear_watchlist():
 def remove_from_watchlist(symbol: str):
     """Remove one symbol from the watchlist."""
     symbol = symbol.upper()
-    items = _load()
-    before = len(items)
-    items = [i for i in items if i.get("symbol") != symbol]
-    if len(items) == before:
+    deleted = wdb.delete_by_symbol(symbol)
+    if deleted == 0:
         raise HTTPException(status_code=404, detail=f"{symbol} not in watchlist")
-    _save(items)
+    items = wdb.load_active()
     logger.info("Watchlist remove: %s", symbol)
     return {"ok": True, "symbol": symbol, "count": len(items)}
 
@@ -919,7 +906,7 @@ async def get_watchlist_performance(days: int = Query(default=1, ge=1, le=30)):
     of the signal being added.
     Returns per-signal outcomes + aggregate stats (hit rate, avg PnL, etc.).
     """
-    items = _load()
+    items = wdb.load_active()
     if not items:
         return {
             "days": days,

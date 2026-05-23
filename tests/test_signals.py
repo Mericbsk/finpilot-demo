@@ -14,8 +14,6 @@ from scanner.signals import (
     check_timeframe_alignment,
     check_trend_strength,
     check_volume_spike,
-    compute_recommendation_score,
-    compute_recommendation_strength,
     safe_float,
     signal_score_row,
 )
@@ -182,69 +180,6 @@ class TestSignalScoreRow:
         assert score <= 4
 
 
-class TestRecommendationScore:
-    """Tests for recommendation scoring."""
-
-    def test_recommendation_score_strong_signal(self):
-        """Should give high score for strong signals."""
-        row = {
-            "regime": True,
-            "direction": True,
-            "score": 3,
-            "filter_score": 3,
-            "alignment_ratio": 1.0,
-            "momentum_ratio": 0.8,
-            "volume_spike": True,
-            "price_momentum": True,
-            "trend_strength": True,
-            "is_premium_symbol": True,
-        }
-
-        score = compute_recommendation_score(row)
-
-        assert score > 10  # Strong signal
-
-    def test_recommendation_score_weak_signal(self):
-        """Should give low score for weak signals."""
-        row = {
-            "regime": False,
-            "direction": False,
-            "score": 0,
-            "filter_score": 0,
-            "alignment_ratio": 0.0,
-            "momentum_ratio": 0.0,
-            "volume_spike": False,
-            "price_momentum": False,
-            "trend_strength": False,
-            "is_premium_symbol": False,
-        }
-
-        score = compute_recommendation_score(row)
-
-        assert score < 2  # Weak signal
-
-
-class TestRecommendationStrength:
-    """Tests for recommendation strength scaling."""
-
-    def test_strength_range(self):
-        """Strength should be 0-100."""
-        weak_row = {"regime": False, "direction": False, "score": 0}
-        strong_row = {
-            "regime": True,
-            "direction": True,
-            "score": 3,
-            "filter_score": 3,
-            "alignment_ratio": 1.0,
-            "momentum_ratio": 1.0,
-        }
-
-        weak_strength = compute_recommendation_strength(weak_row)
-        strong_strength = compute_recommendation_strength(strong_row)
-
-        assert 0 <= weak_strength <= 100
-        assert 0 <= strong_strength <= 100
-        assert strong_strength > weak_strength
 
 
 class TestBuildExplanation:

@@ -107,7 +107,18 @@ export function readStoredSession(): StoredAuthSession | null {
   try {
     const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) return null;
-    return normalizeSession(JSON.parse(raw));
+    const parsed = JSON.parse(raw) as Record<string, unknown> | null;
+    if (!parsed || typeof parsed !== "object") return null;
+    // Accept both stored camelCase (StoredAuthSession) and raw API snake_case payloads.
+    if (typeof parsed.accessToken === "string" && typeof parsed.refreshToken === "string") {
+      return {
+        accessToken: parsed.accessToken,
+        refreshToken: parsed.refreshToken,
+        expiresAt: typeof parsed.expiresAt === "string" ? parsed.expiresAt : null,
+        user: normalizeUser(parsed.user),
+      };
+    }
+    return normalizeSession(parsed);
   } catch {
     return null;
   }

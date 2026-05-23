@@ -34,6 +34,10 @@ INITIAL_EQUITY = 10_000.0
 UNIT_NOTIONAL = 1_000.0  # per-trade dollar sizing
 MAX_HISTORY = 500
 
+# Transaction cost model: 5 bps slippage + 5 bps commission per side = 10 bps round-trip
+SLIPPAGE_BPS: float = 5.0  # one-way market impact estimate
+COMMISSION_BPS: float = 5.0  # broker commission per side
+
 _redis_client = None
 _redis_unavailable = False
 
@@ -140,14 +144,27 @@ def close_position(signal_id: str, exit_price: float) -> dict[str, Any] | None:
     qty = float(pos["qty"])
     entry = float(pos["entry_price"])
     sign = 1.0 if direction == "BUY" else -1.0
-    pnl = sign * (float(exit_price) - entry) * qty
-    pct = sign * (float(exit_price) - entry) / entry * 100.0
+
+    # Apply transaction costs: slippage + commission on both entry and exit
+    cost_factor = (SLIPPAGE_BPS + COMMISSION_BPS) / 10_000.0
+    entry_cost = entry * cost_factor
+    exit_cost = float(exit_price) * cost_factor
+    adjusted_entry = entry + entry_cost if direction == "BUY" else entry - entry_cost
+    adjusted_exit = (
+        float(exit_price) - exit_cost if direction == "BUY" else float(exit_price) + exit_cost
+    )
+
+    pnl = sign * (adjusted_exit - adjusted_entry) * qty
+    pct = sign * (adjusted_exit - adjusted_entry) / entry * 100.0
+    gross_pct = sign * (float(exit_price) - entry) / entry * 100.0
 
     closed = {
         **pos,
         "exit_price": round(float(exit_price), 6),
         "pnl": round(pnl, 4),
         "pnl_pct": round(pct, 4),
+        "gross_pnl_pct": round(gross_pct, 4),
+        "cost_bps": round((cost_factor * 2) * 10_000, 1),
         "closed_at": _now_ms(),
         "status": "closed",
     }
@@ -236,9 +253,7 @@ def get_summary() -> dict[str, Any]:
     return {
         "equity": _last_equity(),
         "initial_equity": INITIAL_EQUITY,
-        "total_return_pct": round(
-            (_last_equity() - INITIAL_EQUITY) / INITIAL_EQUITY * 100.0, 3
-        ),
+        "total_return_pct": round((_last_equity() - INITIAL_EQUITY) / INITIAL_EQUITY * 100.0, 3),
         "open_positions": len(get_open_positions()),
         "closed_count": len(closed),
         "win_count": len(wins),

@@ -39,6 +39,7 @@ from api.routers import (
     advisory,
     agent,
     ai_explain,
+    analytics,
     auth,
     backtest,
     closed_loop,
@@ -50,6 +51,7 @@ from api.routers import (
     models,
     optuna,
     prices,
+    research,
     scan,
     trade,
     user,
@@ -141,10 +143,39 @@ async def lifespan(app: FastAPI):
     _setup_log_rotation()
     Database().initialize()
     _register_health_checks()
+
+    # ── Watchlist DB table + one-time JSON migration ─────────────────
+    try:
+        from pathlib import Path as _Path
+
+        from api.services import watchlist_db as _wdb
+
+        _wdb.ensure_table()
+        migrated = _wdb.migrate_from_json(_Path("data/watchlist.json"))
+        if migrated:
+            _logging.getLogger(__name__).info(
+                "watchlist_db: migrated %d signals from JSON on startup", migrated
+            )
+    except Exception as _exc:
+        _logging.getLogger(__name__).warning("watchlist_db init failed: %s", _exc)
+
+    # ── Sentry init + DSN warning ──────────────────────────────
+    if not os.getenv("SENTRY_DSN"):
+        _logging.getLogger(__name__).warning(
+            "SENTRY_DSN not set — error tracking disabled. "
+            "Set SENTRY_DSN in .env to enable Sentry."
+        )
     sentry_client.init(
         environment=os.getenv("SENTRY_ENVIRONMENT", os.getenv("ENVIRONMENT", "development")),
         release=os.getenv("SENTRY_RELEASE", "finpilot-api@1.0.0"),
     )
+
+    # ── Service registry bootstrap ─────────────────────────────
+    from core.services import registry as _svc_registry
+
+    # Register core services (health probed during healthcheck polling)
+    _svc_registry.register("sentry", healthy=bool(os.getenv("SENTRY_DSN")))
+
     # Archive yesterday's signals on startup (idempotent — runs once per day)
     _archive_yesterday_on_startup()
     # Start watchlist background price refresh
@@ -164,6 +195,11 @@ async def lifespan(app: FastAPI):
             symbols = [s.strip() for s in symbols_env.split(",") if s.strip()]
             interval = int(os.getenv("FINPILOT_SCHEDULER_INTERVAL_MIN", "60"))
             started = start_scheduler(symbols=symbols, interval_minutes=interval)
+            _svc_registry.register(
+                "scheduler",
+                healthy=started,
+                meta={"symbols": len(symbols), "interval_min": interval},
+            )
             _logging.getLogger(__name__).info(
                 "Scheduler autostart: started=%s symbols=%s interval=%dm",
                 started,
@@ -171,6 +207,7 @@ async def lifespan(app: FastAPI):
                 interval,
             )
         except Exception as exc:  # noqa: BLE001
+            _svc_registry.register("scheduler", healthy=False, meta={"error": str(exc)})
             _logging.getLogger(__name__).warning("Scheduler autostart failed: %s", exc)
 
     yield
@@ -213,8 +250,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
-    import logging as _logging
-
     _logging.getLogger(__name__).exception(
         "Unhandled exception on %s %s", request.method, request.url.path
     )
@@ -240,6 +275,17 @@ async def instrument_requests(request: Request, call_next):
     endpoint = getattr(route, "path", raw_endpoint)
     metrics.api_requests.inc(endpoint=endpoint, status_code=str(response.status_code))
     metrics.api_latency.observe(time.perf_counter() - start, endpoint=endpoint)
+
+    # Track page views for known frontend paths (fire-and-forget, never raises)
+    try:
+        _FRONTEND_PREFIXES = ("/dashboard", "/agent", "/scanner", "/research", "/portfolio")
+        if raw_endpoint.startswith(_FRONTEND_PREFIXES) and response.status_code < 400:
+            from core.analytics import increment_page_view
+
+            increment_page_view(raw_endpoint)
+    except Exception:
+        pass
+
     return response
 
 
@@ -271,6 +317,7 @@ app.add_middleware(PIIFilterMiddleware)
 # ---------------------------------------------------------------------------
 app.include_router(agent.router, prefix="/api/v1")
 app.include_router(advisory.router, prefix="/api/v1")
+app.include_router(analytics.router, prefix="/api/v1")
 app.include_router(models.router, prefix="/api/v1")
 app.include_router(inference.router, prefix="/api/v1")
 app.include_router(ensemble.router, prefix="/api/v1")
@@ -287,6 +334,7 @@ app.include_router(watchlist.router, prefix="/api/v1")
 app.include_router(ai_explain.router, prefix="/api/v1")
 app.include_router(market_data.router, prefix="/api/v1")
 app.include_router(closed_loop.router, prefix="/api/v1")
+app.include_router(research.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health")
@@ -306,6 +354,16 @@ def ready():
     result = health_check.run()
     status_code = 200 if result.get("status") != "unhealthy" else 503
     return JSONResponse(content=result, status_code=status_code)
+
+
+@app.get("/api/v1/services")
+def services_endpoint():
+    """Service registry — shows health of all registered FinPilot services."""
+    from core.services import registry as _svc_registry
+
+    summary = _svc_registry.health_summary()
+    all_healthy = all(summary.values()) if summary else True
+    return {"status": "ok" if all_healthy else "degraded", "services": summary}
 
 
 # Top-level aliases for K8s probes (/live, /ready) — common convention

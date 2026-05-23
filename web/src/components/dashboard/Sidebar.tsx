@@ -21,6 +21,8 @@ import {
   Building2,
   Users,
   ShieldCheck,
+  Gauge,
+  Swords,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -37,10 +39,18 @@ const C = {
   cyanBg: "rgba(0,212,255,0.12)",
 };
 
-const navItems = [
+// Sprint 16 (S16-10): Pruned nav to 5 core pages by default.
+// All routes remain accessible via direct URL; set NEXT_PUBLIC_FINPILOT_FULL_NAV=1
+// to restore the full 15-page sidebar.
+const coreNavItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Overview" },
   { href: "/dashboard/scanner", icon: ScanSearch, label: "Scanner" },
   { href: "/dashboard/analysis", icon: BrainCircuit, label: "AI Analysis" },
+  { href: "/dashboard/calibration", icon: Gauge, label: "Calibration" },
+  { href: "/dashboard/watchlist", icon: Star, label: "Watchlist" },
+];
+
+const extendedNavItems = [
   { href: "/dashboard/ai-lab", icon: FlaskConical, label: "AI Lab" },
   { href: "/dashboard/drl", icon: Brain, label: "DRL Agents" },
   { href: "/dashboard/portfolio", icon: Wallet, label: "Portfolio" },
@@ -49,9 +59,12 @@ const navItems = [
   { href: "/dashboard/agent", icon: Network, label: "AI Agents" },
   { href: "/dashboard/advisory", icon: Users, label: "Advisory" },
   { href: "/dashboard/autonomy", icon: ShieldCheck, label: "Autonomy" },
-  { href: "/dashboard/watchlist", icon: Star, label: "Watchlist" },
+  { href: "/dashboard/strategies", icon: Swords, label: "Strategies" },
   { href: "/dashboard/history", icon: Clock, label: "History" },
 ];
+
+const fullNav = (process.env.NEXT_PUBLIC_FINPILOT_FULL_NAV ?? "0") === "1";
+const navItems = fullNav ? [...coreNavItems, ...extendedNavItems] : coreNavItems;
 
 const bottomItems = [
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },

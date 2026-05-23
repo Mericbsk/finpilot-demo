@@ -19,14 +19,22 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Configurable Brier regression threshold (default 0.02 = 2pp degradation triggers rollback)
+_BRIER_REGRESSION_THRESHOLD = float(os.getenv("FINPILOT_BRIER_REGRESSION_THRESHOLD", "0.02"))
+
 _REDIS_KEY = "finpilot:calibration:v0"
 _DISK_PATH = Path("data") / "calibration.json"
+_BRIER_HISTORY_PATH = Path("data") / "calibration_brier_history.json"
+_ROLLBACK_STRIKES_PATH = Path("data") / "calibration_rollback_strikes.json"
+_MAX_BRIER_HISTORY = 90  # keep 90 daily entries
+_MAX_ROLLBACK_STRIKES = 2  # auto-rollback champion after N consecutive gate failures
 
 # Score bands — recommendation score range is ~0..18.3 (see scanner.score_engine)
 # We use a slightly wider upper bound and uniform bins.
@@ -107,9 +115,7 @@ def refit_calibration(
 
     bands = bands or _DEFAULT_BANDS
     total = len(samples)
-    global_rate = (
-        sum(1 for _, w in samples if w) / total if total > 0 else 0.5
-    )
+    global_rate = sum(1 for _, w in samples if w) / total if total > 0 else 0.5
 
     raw_band_rates: list[float] = []
     band_counts: list[int] = []
@@ -130,7 +136,9 @@ def refit_calibration(
         "global_win_rate": round(global_rate, 4),
         "bands": [
             {"lo": lo, "hi": hi, "n": n, "raw_p": round(rp, 4), "p": p}
-            for (lo, hi), n, rp, p in zip(bands, band_counts, raw_band_rates, monotonic_rates, strict=True)
+            for (lo, hi), n, rp, p in zip(
+                bands, band_counts, raw_band_rates, monotonic_rates, strict=True
+            )
         ],
     }
 
@@ -222,10 +230,128 @@ def _brier(model: dict[str, Any], samples: list[tuple[float, bool]]) -> float:
     return s / len(samples)
 
 
+def _ece(model: dict[str, Any]) -> float:
+    """Expected Calibration Error: weighted mean absolute deviation per band."""
+    bands = model.get("bands", [])
+    total = model.get("n_samples", 0)
+    if total == 0:
+        return 0.0
+    ece = 0.0
+    for band in bands:
+        n = band.get("n", 0)
+        if n == 0:
+            continue
+        observed = band.get("raw_p", band["p"])
+        predicted = band["p"]
+        ece += (n / total) * abs(observed - predicted)
+    return round(ece, 4)
+
+
+def _append_brier_history(brier: float) -> None:
+    """Append a timestamped Brier score to the rolling history file."""
+    try:
+        history: list[dict[str, Any]] = []
+        if _BRIER_HISTORY_PATH.exists():
+            history = json.loads(_BRIER_HISTORY_PATH.read_text(encoding="utf-8"))
+        history.append({"ts": int(time.time()), "brier": round(brier, 4)})
+        if len(history) > _MAX_BRIER_HISTORY:
+            history = history[-_MAX_BRIER_HISTORY:]
+        _BRIER_HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _BRIER_HISTORY_PATH.write_text(json.dumps(history, indent=2), encoding="utf-8")
+    except Exception as exc:
+        logger.debug("calibration: brier history persist failed: %s", exc)
+
+
+def _get_rollback_strikes() -> int:
+    """Return current consecutive rollback strike count."""
+    try:
+        if _ROLLBACK_STRIKES_PATH.exists():
+            data = json.loads(_ROLLBACK_STRIKES_PATH.read_text(encoding="utf-8"))
+            return int(data.get("strikes", 0))
+    except Exception:
+        pass
+    return 0
+
+
+def _increment_rollback_strikes() -> int:
+    """Increment consecutive rollback counter. Returns new count."""
+    strikes = _get_rollback_strikes() + 1
+    try:
+        _ROLLBACK_STRIKES_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _ROLLBACK_STRIKES_PATH.write_text(
+            json.dumps({"strikes": strikes, "ts": int(time.time())}), encoding="utf-8"
+        )
+    except Exception as exc:
+        logger.debug("calibration: rollback strikes persist failed: %s", exc)
+    return strikes
+
+
+def _reset_rollback_strikes() -> None:
+    """Reset rollback strike counter after a successful promotion."""
+    try:
+        _ROLLBACK_STRIKES_PATH.write_text(
+            json.dumps({"strikes": 0, "ts": int(time.time())}), encoding="utf-8"
+        )
+    except Exception as exc:
+        logger.debug("calibration: rollback strikes reset failed: %s", exc)
+
+
+def get_brier_history() -> list[dict[str, Any]]:
+    """Return stored Brier history entries [{ts, brier}, ...]."""
+    try:
+        if _BRIER_HISTORY_PATH.exists():
+            return json.loads(_BRIER_HISTORY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return []
+
+
+def get_calibration_stats() -> dict[str, Any]:
+    """Return calibration quality metrics for the dashboard."""
+    from core.kpi_tracker import compute_decile_lift
+
+    model = _load_model()
+    decile_data = compute_decile_lift()
+
+    samples: list[tuple[float, bool]] = []
+    try:
+        from core.kpi_tracker import _load_all_signals  # type: ignore
+
+        sigs = _load_all_signals()
+        samples = [
+            (float(s.get("score", 0)), s.get("outcome") == "win")
+            for s in sigs
+            if s.get("outcome") is not None
+        ]
+    except Exception:
+        pass
+
+    current_brier: float | None = None
+    current_ece: float | None = None
+    bands_detail: list[dict[str, Any]] = []
+
+    if model is not None:
+        current_brier = round(_brier(model, samples), 4) if samples else None
+        current_ece = _ece(model)
+        bands_detail = model.get("bands", [])
+
+    history = get_brier_history()
+
+    return {
+        "fitted": model is not None,
+        "n_samples": len(samples),
+        "brier": current_brier,
+        "ece": current_ece,
+        "bands": bands_detail,
+        "decile_lift": decile_data,
+        "brier_history": history,
+    }
+
+
 def refit_with_gate(
     *,
     min_samples_to_promote: int = 20,
-    brier_tolerance: float = 0.02,
+    brier_tolerance: float | None = None,
 ) -> dict[str, Any]:
     """Faz 3: refit calibration but rollback to prior model if quality drops.
 
@@ -240,6 +366,11 @@ def refit_with_gate(
     Every decision is recorded via core.audit_log.
     """
     from core import audit_log
+
+    # Resolve effective tolerance: caller override > env var
+    effective_tolerance = (
+        brier_tolerance if brier_tolerance is not None else _BRIER_REGRESSION_THRESHOLD
+    )
 
     prior = _load_model()
 
@@ -260,12 +391,22 @@ def refit_with_gate(
 
     n = candidate.get("n_samples", 0)
 
+    # Sprint 16 (S16-07): compute ECE before/after for audit telemetry.
+    try:
+        ece_after = _ece(candidate)
+    except Exception:
+        ece_after = None
+    try:
+        ece_before = _ece(prior) if prior else None
+    except Exception:
+        ece_before = None
+
     if prior is None:
         audit_log.record(
             actor="calibration_gate",
             action="calibration.refit",
             decision="promoted_first",
-            payload={"n_samples": n},
+            payload={"n_samples": n, "ece_after": ece_after},
         )
         return {"promoted": True, "reason": "no_prior", "model": candidate}
 
@@ -292,7 +433,8 @@ def refit_with_gate(
 
     new_brier = _brier(candidate, samples)
     old_brier = _brier(prior, samples)
-    if new_brier > old_brier + brier_tolerance:
+    if new_brier > old_brier + effective_tolerance:
+        strikes = _increment_rollback_strikes()
         _persist_model(prior)
         _mem_model = prior
         audit_log.record(
@@ -301,16 +443,55 @@ def refit_with_gate(
             decision="rolled_back",
             payload={
                 "reason": "degraded_brier",
-                "new_brier": round(new_brier, 4),
-                "old_brier": round(old_brier, 4),
-                "tolerance": brier_tolerance,
+                "brier_before": round(old_brier, 4),
+                "brier_after": round(new_brier, 4),
+                "ece_before": ece_before,
+                "ece_after": ece_after,
+                "tolerance": effective_tolerance,
+                "consecutive_rollbacks": strikes,
             },
         )
+        if strikes >= _MAX_ROLLBACK_STRIKES:
+            logger.warning(
+                "calibration: %d consecutive rollbacks — triggering auto-rollback to registry champion",
+                strikes,
+            )
+            try:
+                from research.registry import ModelRegistry
+
+                reg = ModelRegistry()
+                champion = reg.get_champion()
+                if champion and champion.get("weights"):
+                    from scanner.finpilot_score import load_weights, set_weights  # type: ignore
+
+                    set_weights(champion["weights"])
+                    logger.info(
+                        "calibration: restored weights from registry champion id=%d",
+                        champion["id"],
+                    )
+            except Exception as _exc:
+                logger.warning("calibration: registry champion restore failed: %s", _exc)
+            _reset_rollback_strikes()
+
+        # Auto-disable: quality gate triggered by Brier regression
+        try:
+            from core.quality_gate import set_degraded
+
+            set_degraded(
+                reason=f"calibration_brier_regression: {new_brier:.4f} > {old_brier:.4f} + {effective_tolerance}",
+                eval_report={
+                    "overall_pass": False,
+                    "metrics": {"new_brier": new_brier, "old_brier": old_brier},
+                },
+            )
+        except Exception as _qg_exc:
+            logger.debug("calibration_gate: quality_gate notify failed: %s", _qg_exc)
         return {
             "promoted": False,
             "reason": "degraded_brier",
             "new_brier": new_brier,
             "old_brier": old_brier,
+            "consecutive_rollbacks": strikes,
             "model": prior,
         }
 
@@ -320,10 +501,14 @@ def refit_with_gate(
         decision="promoted",
         payload={
             "n_samples": n,
-            "new_brier": round(new_brier, 4),
-            "old_brier": round(old_brier, 4),
+            "brier_before": round(old_brier, 4),
+            "brier_after": round(new_brier, 4),
+            "ece_before": ece_before,
+            "ece_after": ece_after,
         },
     )
+    _append_brier_history(new_brier)
+    _reset_rollback_strikes()
     return {
         "promoted": True,
         "reason": "ok",
@@ -332,3 +517,83 @@ def refit_with_gate(
         "old_brier": old_brier,
         "model": candidate,
     }
+
+
+def detect_drift(
+    reference_window: int = 200,
+    recent_window: int = 50,
+    p_value_threshold: float = 0.05,
+) -> dict[str, Any]:
+    """KS-test drift detection on score distribution.
+
+    Compares the most recent ``recent_window`` signal scores against the
+    prior ``reference_window`` scores. If the KS p-value drops below
+    ``p_value_threshold`` the score distribution has shifted (drift).
+
+    Returns::
+
+        {
+            "drift_detected": bool,
+            "ks_statistic": float | None,
+            "p_value": float | None,
+            "n_reference": int,
+            "n_recent": int,
+            "reason": str,
+        }
+    """
+    result: dict[str, Any] = {
+        "drift_detected": False,
+        "ks_statistic": None,
+        "p_value": None,
+        "n_reference": 0,
+        "n_recent": 0,
+        "reason": "ok",
+    }
+
+    try:
+        from core.kpi_tracker import _load_all_signals  # type: ignore
+
+        sigs = _load_all_signals()
+    except Exception as exc:
+        result["reason"] = f"load_failed: {exc}"
+        return result
+
+    scores = [float(s.get("score", 0)) for s in sigs if s.get("score") is not None]
+    total = len(scores)
+    if total < reference_window + recent_window:
+        result["reason"] = f"insufficient_data: {total} < {reference_window + recent_window}"
+        return result
+
+    reference = scores[-(reference_window + recent_window) : -recent_window]
+    recent = scores[-recent_window:]
+    result["n_reference"] = len(reference)
+    result["n_recent"] = len(recent)
+
+    try:
+        from scipy import stats  # type: ignore
+
+        ks_stat, p_value = stats.ks_2samp(reference, recent)
+        result["ks_statistic"] = round(float(ks_stat), 4)
+        result["p_value"] = round(float(p_value), 4)
+
+        if p_value < p_value_threshold:
+            result["drift_detected"] = True
+            result["reason"] = (
+                f"ks_drift: stat={ks_stat:.4f} p={p_value:.4f} < {p_value_threshold}"
+            )
+            logger.warning(
+                "calibration: score distribution drift detected — KS=%.4f p=%.4f",
+                ks_stat,
+                p_value,
+            )
+            # Trigger a calibration refit when drift is detected
+            try:
+                refit_with_gate()
+                logger.info("calibration: refit triggered by drift detection")
+            except Exception as refit_exc:
+                logger.warning("calibration: drift-triggered refit failed: %s", refit_exc)
+    except ImportError:
+        result["reason"] = "scipy_unavailable"
+        logger.debug("calibration: scipy not installed — skipping KS-test drift detection")
+
+    return result

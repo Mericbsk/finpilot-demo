@@ -9,10 +9,14 @@ import math
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
-from fastapi import APIRouter, HTTPException, Query
+from auth.tokens import TokenPayload
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+
+from api.middleware.auth import require_auth
 
 router = APIRouter(tags=["scan"])
 logger = logging.getLogger(__name__)
@@ -226,7 +230,10 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
 
 
 @router.post("/scan")
-async def run_scan(req: ScanRequest):
+async def run_scan(
+    req: ScanRequest,
+    _auth: Annotated[TokenPayload, Depends(require_auth)],
+):
     """Run the scanner's evaluate_symbols_parallel on the given symbols.
 
     Runs in a thread pool with a 5-minute timeout to prevent hanging.
@@ -269,6 +276,12 @@ async def run_scan(req: ScanRequest):
     out = _enrich_results(results, drl_cache, drl_valid)
     _persist_shortlist(out)
     _auto_add_watchlist(out, drl_cache, drl_valid)
+    try:
+        from core.analytics import increment_event
+
+        increment_event("scan_run")
+    except Exception:
+        pass
     return out
 
 

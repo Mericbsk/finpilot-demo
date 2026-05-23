@@ -233,7 +233,7 @@ docker-logs-legacy: docker-check
 
 docker-full: docker-check docker-require-env
 	@echo "$(BLUE)Starting API, web, scanner, telegram, and cache services...$(NC)"
-	$(COMPOSE) --profile scanner --profile telegram --profile cache up -d api web scanner telegram_bot redis
+	$(COMPOSE) --profile scanner --profile telegram up -d api web scanner telegram_bot redis
 	@echo "$(GREEN)✓ Extended stack started$(NC)"
 
 monitoring-up: docker-check docker-require-env

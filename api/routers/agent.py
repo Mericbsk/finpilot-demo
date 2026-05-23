@@ -57,11 +57,11 @@ class AgentRunRequest(BaseModel):
     task: str = Field(
         "scan",
         description=(
-            "Workflow task: 'scan' | 'analyze' | 'risk' | 'full' | "
+            "Workflow task: 'scan' | 'analyze' | 'risk' | 'full' | 'auto' | "
             "'research' | 'backtest' | 'report' | "
             "'market_intel' | 'optimize' | 'monitor' | 'combo' | 'advisory'"
         ),
-        pattern=r"^(scan|analyze|risk|full|research|backtest|report|market_intel|optimize|monitor|combo|advisory)$",
+        pattern=r"^(scan|analyze|risk|full|auto|research|backtest|report|market_intel|optimize|monitor|combo|advisory)$",
     )
     question: str | None = Field(None, description="Danışman sorusu (task='advisory' için)")
     advisory_key: str | None = Field(None, description="Danışman anahtar adı (cto|cpo|cmo|...)")
@@ -84,6 +84,7 @@ class AgentRunResponse(BaseModel):
     risk_results: dict[str, Any] = {}
     research_results: dict[str, Any] = {}
     backtest_results: dict[str, Any] = {}
+    synthesized_picks: list[dict[str, Any]] = []
     market_intel: dict[str, Any] = {}
     optimizer_results: dict[str, Any] = {}
     monitor_results: dict[str, Any] = {}
@@ -371,30 +372,72 @@ async def run_agent(req: AgentRunRequest):
                 errors=errors,
             )
 
-    try:
-        from agents.ceo import get_graph
-    except ImportError as exc:
-        raise HTTPException(status_code=503, detail=f"Agent system unavailable: {exc}") from exc
-
-    initial_state: dict[str, Any] = {
-        "task": req.task,
-        "symbols": req.symbols,
-        "kelly_fraction": req.kelly_fraction,
-        "scan_results": {},
-        "analysis_results": {},
-        "risk_results": {},
-        "alerts_sent": [],
-        "errors": [],
-        "top_symbols": [],
-    }
-
     import time as _time
 
     _t0 = _time.perf_counter()
+
+    # ── Auto-pipeline (all phases, synthesized result) ────────────────────────
+    if req.task == "auto":
+        loop = asyncio.get_running_loop()
+        try:
+            from core.auto_pipeline import run_auto_pipeline
+
+            final_state = await asyncio.wait_for(
+                loop.run_in_executor(
+                    _executor,
+                    lambda: run_auto_pipeline(
+                        req.symbols,
+                        kelly_fraction=req.kelly_fraction,
+                    ),
+                ),
+                timeout=_AGENT_TIMEOUT_SECONDS,
+            )
+        except TimeoutError:
+            raise HTTPException(
+                status_code=504,
+                detail=f"Auto-pipeline timed out after {_AGENT_TIMEOUT_SECONDS}s",
+            ) from None
+        except Exception as exc:
+            logger.exception("Auto-pipeline error: %s", exc)
+            raise HTTPException(status_code=500, detail=f"Auto-pipeline error: {exc}") from exc
+
+        _dur = (_time.perf_counter() - _t0) * 1000
+        log_event(
+            "CEO",
+            "auto",
+            "ok",
+            _dur,
+            f"{len(final_state.get('synthesized_picks', []))} picks synthesized",
+            req.symbols,
+            "management",
+        )
+        return AgentRunResponse(
+            task="auto",
+            symbols_requested=len(req.symbols),
+            scan_results=final_state.get("scan_results", {}),
+            analysis_results=final_state.get("analysis_results", {}),
+            research_results=final_state.get("research_results", {}),
+            risk_results=final_state.get("risk_results", {}),
+            backtest_results=final_state.get("backtest_results", {}),
+            synthesized_picks=final_state.get("synthesized_picks", []),
+            alerts_sent=final_state.get("alerts_sent", []),
+            top_symbols=final_state.get("top_symbols", []),
+            errors=final_state.get("errors", []),
+        )
+
     loop = asyncio.get_running_loop()
     try:
+        from core.pipeline import run_cycle
+
         final_state: dict[str, Any] = await asyncio.wait_for(
-            loop.run_in_executor(_executor, lambda: get_graph().invoke(initial_state)),
+            loop.run_in_executor(
+                _executor,
+                lambda: run_cycle(
+                    req.symbols,
+                    task=req.task,
+                    kelly_fraction=req.kelly_fraction,
+                ),
+            ),
             timeout=_AGENT_TIMEOUT_SECONDS,
         )
     except TimeoutError:
@@ -458,6 +501,7 @@ async def run_agent(req: AgentRunRequest):
         risk_results=final_state.get("risk_results", {}),
         research_results=final_state.get("research_results", {}),
         backtest_results=final_state.get("backtest_results", {}),
+        synthesized_picks=final_state.get("synthesized_picks", []),
         report=final_state.get("report", ""),
         alerts_sent=final_state.get("alerts_sent", []),
         top_symbols=final_state.get("top_symbols", []),

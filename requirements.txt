@@ -57,6 +57,7 @@ sqlalchemy==2.0.36
 alembic==1.14.0
 psycopg2-binary==2.9.10
 asyncpg==0.30.0
+aiosqlite>=0.20.0
 
 # Export - Faz 2
 openpyxl==3.1.5
@@ -84,3 +85,8 @@ pre-commit==4.2.0
 presidio-analyzer==2.2.362
 presidio-anonymizer==2.2.362
 opacus==1.6.0
+
+# ML Research — Sprint 15 (drift detection, hyperopt, ranker)
+scipy>=1.13.0
+optuna>=3.6.0
+lightgbm>=4.3.0
