@@ -86,3 +86,4 @@ data/reports_cache/
 
 # Claude settings
 .claude/
+data/finpilot.db
