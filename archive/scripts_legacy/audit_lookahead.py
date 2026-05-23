@@ -47,7 +47,7 @@ def _load_signals() -> list[dict]:
 
 def _load_calibration():
     try:
-        from core.calibration import get_calibration_model, _probability_for  # type: ignore
+        from core.calibration import _probability_for, get_calibration_model  # type: ignore
     except Exception as exc:
         print(f"WARN: calibration import failed: {exc}", file=sys.stderr)
         return None, None

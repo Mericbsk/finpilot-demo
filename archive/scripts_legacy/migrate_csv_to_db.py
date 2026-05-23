@@ -92,7 +92,6 @@ def migrate_signal_log(force: bool = False) -> int:
 def migrate_shortlists(force: bool = False) -> int:
     """Import all shortlist CSVs into the scan_results table."""
     import pandas as pd
-
     from auth.database import ScanResultRepository, get_database
 
     db = get_database()
