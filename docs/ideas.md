@@ -11,6 +11,11 @@
 - **S2-T4**: Hızlı AI Analiz butonu
 - **S2-T5**: FinPilot Edge accordion
 
+## Faz 1'den Ertelendi (Faz 2 başında değerlendir)
+
+- **Step 7 — Pydantic response schema + TS codegen**: API↔frontend tip sözleşmesi. Riskli, geniş; Faz 2'de FE ölçümleriyle birlikte ele al.
+- **Step 10 — Tek `fp` entry point**: `start.sh`, `finpilot.bat`, `fp` farklı bağlamlara hizmet ediyor (devcontainer/dev/docker). Birleştirme riskli, mevcut yapı çalışıyor. Faz 2'de doc ile netleştir, gerekirse birleştir.
+
 ## Faz 3 İçin — DRL Kararı
 
 - Gerçek DRL serving (vLLM / KAITO / basit FastAPI inference)
