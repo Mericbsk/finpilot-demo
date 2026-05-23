@@ -1,0 +1,103 @@
+{
+  "n_signals": 1125,
+  "n_resolved": 0,
+  "components": [
+    "score",
+    "align_z",
+    "align_m",
+    "filter_ratio",
+    "regime_trend",
+    "sentiment",
+    "risk_reward"
+  ],
+  "matrix": {
+    "score": {
+      "score": 1.0,
+      "align_z": 0.84,
+      "align_m": 0.744,
+      "filter_ratio": 0.721,
+      "regime_trend": 0.572,
+      "sentiment": 0.333,
+      "risk_reward": 0.254
+    },
+    "align_z": {
+      "score": 0.84,
+      "align_z": 1.0,
+      "align_m": 0.876,
+      "filter_ratio": 0.636,
+      "regime_trend": 0.543,
+      "sentiment": 0.278,
+      "risk_reward": 0.256
+    },
+    "align_m": {
+      "score": 0.744,
+      "align_z": 0.876,
+      "align_m": 1.0,
+      "filter_ratio": 0.513,
+      "regime_trend": 0.479,
+      "sentiment": 0.187,
+      "risk_reward": 0.161
+    },
+    "filter_ratio": {
+      "score": 0.721,
+      "align_z": 0.636,
+      "align_m": 0.513,
+      "filter_ratio": 1.0,
+      "regime_trend": 0.662,
+      "sentiment": 0.52,
+      "risk_reward": 0.136
+    },
+    "regime_trend": {
+      "score": 0.572,
+      "align_z": 0.543,
+      "align_m": 0.479,
+      "filter_ratio": 0.662,
+      "regime_trend": 1.0,
+      "sentiment": 0.078,
+      "risk_reward": 0.215
+    },
+    "sentiment": {
+      "score": 0.333,
+      "align_z": 0.278,
+      "align_m": 0.187,
+      "filter_ratio": 0.52,
+      "regime_trend": 0.078,
+      "sentiment": 1.0,
+      "risk_reward": 0.172
+    },
+    "risk_reward": {
+      "score": 0.254,
+      "align_z": 0.256,
+      "align_m": 0.161,
+      "filter_ratio": 0.136,
+      "regime_trend": 0.215,
+      "sentiment": 0.172,
+      "risk_reward": 1.0
+    }
+  },
+  "high_correlation_pairs": [
+    {
+      "a": "score",
+      "b": "align_z",
+      "r": 0.84
+    },
+    {
+      "a": "score",
+      "b": "align_m",
+      "r": 0.744
+    },
+    {
+      "a": "score",
+      "b": "filter_ratio",
+      "r": 0.721
+    },
+    {
+      "a": "align_z",
+      "b": "align_m",
+      "r": 0.876
+    }
+  ],
+  "correlation_with_outcome_pct": {},
+  "threshold": 0.7,
+  "note": "Pairs with |r| > 0.7 are redundant \u2014 one can likely be dropped. correlation_with_outcome_pct shows how well each component predicts the T+5 forward return."
+}
