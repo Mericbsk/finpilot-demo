@@ -15,6 +15,7 @@ Author: FinPilot Team
 Version: 1.0.0
 """
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
@@ -27,13 +28,18 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # =============================================================================
 
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-MODELS_DIR = PROJECT_ROOT / "models"
-LOGS_DIR = DATA_DIR / "logs"
-CACHE_DIR = PROJECT_ROOT / ".cache"
+
+# Data dir override: FINPILOT_DATA_DIR env var routes ALL data writes to a single
+# location regardless of CWD/worktree. Prevents split-brain across git worktrees.
+DATA_DIR = Path(os.getenv("FINPILOT_DATA_DIR", str(PROJECT_ROOT / "data"))).resolve()
+MODELS_DIR = Path(os.getenv("FINPILOT_MODELS_DIR", str(PROJECT_ROOT / "models"))).resolve()
+LOGS_DIR = Path(os.getenv("FINPILOT_LOGS_DIR", str(DATA_DIR / "logs"))).resolve()
+CACHE_DIR = Path(os.getenv("FINPILOT_CACHE_DIR", str(PROJECT_ROOT / ".cache"))).resolve()
+DB_PATH = Path(os.getenv("FINPILOT_DB_PATH", str(DATA_DIR / "finpilot.db"))).resolve()
+SIGNAL_ARCHIVE_DIR = DATA_DIR / "signal_archive"
 
 # Ensure directories exist
-for dir_path in [DATA_DIR, MODELS_DIR, LOGS_DIR, CACHE_DIR]:
+for dir_path in [DATA_DIR, MODELS_DIR, LOGS_DIR, CACHE_DIR, SIGNAL_ARCHIVE_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
 
@@ -212,8 +218,8 @@ class MonitoringConfig(BaseModel):
 class DatabaseConfig(BaseModel):
     """Database konfigürasyonu."""
 
-    # SQLite (Default)
-    sqlite_path: str = str(DATA_DIR / "finpilot.db")
+    # SQLite (Default) — honors FINPILOT_DB_PATH env var
+    sqlite_path: str = str(DB_PATH)
 
     # PostgreSQL (Optional)
     postgres_enabled: bool = False
@@ -392,7 +398,8 @@ class Settings(BaseSettings):
             return self
 
         errors: list[str] = []
-        if self.auth.secret_key == "finpilot-secret-key-change-in-production":
+        _default_secret = "finpilot-secret-key-change-in-production"  # pragma: allowlist secret
+        if self.auth.secret_key == _default_secret:
             errors.append("AUTH__SECRET_KEY must be overridden in production")
         if not self.SENTRY_DSN:
             errors.append("SENTRY_DSN must be set in production")

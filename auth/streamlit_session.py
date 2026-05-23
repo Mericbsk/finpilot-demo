@@ -68,7 +68,7 @@ class StreamlitSessionManager:
         "auth_error",
     ]
 
-    def __init__(self, db_path: str = "data/finpilot.db", config: AuthConfig | None = None):
+    def __init__(self, db_path: str | None = None, config: AuthConfig | None = None):
         """
         Initialize session manager.
 
@@ -499,7 +499,7 @@ _session_manager: StreamlitSessionManager | None = None
 
 
 @st.cache_resource
-def get_session_manager(db_path: str = "data/finpilot.db") -> StreamlitSessionManager:
+def get_session_manager(db_path: str | None = None) -> StreamlitSessionManager:
     """Get or create session manager singleton (cached across reruns)."""
     return StreamlitSessionManager(db_path)
 

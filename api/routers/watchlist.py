@@ -26,16 +26,17 @@ import uuid
 from asyncio import get_running_loop
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from core.config import DATA_DIR, SIGNAL_ARCHIVE_DIR
+
 router = APIRouter(tags=["watchlist"])
 logger = logging.getLogger(__name__)
 
-_WATCHLIST_FILE = Path("data/watchlist.json")
-_ARCHIVE_DIR = Path("data/signal_archive")
+_WATCHLIST_FILE = DATA_DIR / "watchlist.json"
+_ARCHIVE_DIR = SIGNAL_ARCHIVE_DIR
 _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="watchlist")
 
 # ─── Price cache — background-refreshed, never blocks requests ────────────────

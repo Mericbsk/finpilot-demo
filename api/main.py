@@ -25,6 +25,7 @@ if _env_path.exists():
                 if _key and _key not in os.environ:
                     os.environ[_key] = _val
 
+from auth.database import Database
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,7 +55,6 @@ from api.routers import (
     user,
     watchlist,
 )
-from auth.database import Database
 from core.monitoring import health_check, metrics, sentry_client
 from core.prometheus_exporter import get_metrics_output
 
@@ -68,10 +68,11 @@ def _archive_yesterday_on_startup() -> None:
     """Archive signals from the previous day on container start (idempotent)."""
     import json
     from datetime import UTC, datetime, timedelta
-    from pathlib import Path
 
-    watchlist_file = Path("data/watchlist.json")
-    archive_dir = Path("data/signal_archive")
+    from core.config import DATA_DIR, SIGNAL_ARCHIVE_DIR
+
+    watchlist_file = DATA_DIR / "watchlist.json"
+    archive_dir = SIGNAL_ARCHIVE_DIR
     yesterday = (datetime.now(UTC) - timedelta(days=1)).strftime("%Y-%m-%d")
     archive_path = archive_dir / f"{yesterday}.json"
 
@@ -132,9 +133,7 @@ def _register_health_checks() -> None:
             client.ping()
             return HealthCheckResult(name="redis", status=HealthStatus.HEALTHY)
         except Exception as exc:  # noqa: BLE001
-            return HealthCheckResult(
-                name="redis", status=HealthStatus.DEGRADED, message=str(exc)
-            )
+            return HealthCheckResult(name="redis", status=HealthStatus.DEGRADED, message=str(exc))
 
 
 @asynccontextmanager

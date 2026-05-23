@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import sqlite3
 from abc import ABC, abstractmethod
 from collections.abc import Generator
@@ -46,7 +45,11 @@ class Database:
     """
 
     def __init__(self, db_path: str | None = None):
-        self.db_path = db_path or os.getenv("FINPILOT_DB_PATH", "data/finpilot.db")
+        if db_path is None:
+            from core.config import DB_PATH
+
+            db_path = str(DB_PATH)
+        self.db_path = db_path
         self._ensure_directory()
 
     def _ensure_directory(self) -> None:
@@ -1383,7 +1386,7 @@ class AlpacaOrderRepository:
 _default_db: Database | None = None
 
 
-def get_database(db_path: str = "data/finpilot.db") -> Database:
+def get_database(db_path: str | None = None) -> Database:
     """Get or create default database."""
     global _default_db
     if _default_db is None:

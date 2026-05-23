@@ -59,7 +59,11 @@ class DatabaseBackend(ABC):
 class SQLiteBackend(DatabaseBackend):
     """SQLite backend — existing behaviour, zero config."""
 
-    def __init__(self, db_path: str = "data/finpilot.db"):
+    def __init__(self, db_path: str | None = None):
+        if db_path is None:
+            from core.config import DB_PATH
+
+            db_path = str(DB_PATH)
         self.db_path = db_path
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
@@ -163,11 +167,12 @@ def get_backend() -> DatabaseBackend:
         logger.info("Database backend: PostgreSQL")
     else:
         # Default: SQLite
-        db_path = (
-            database_url.replace("sqlite:///", "")
-            if database_url.startswith("sqlite:")
-            else "data/finpilot.db"
-        )
+        if database_url.startswith("sqlite:"):
+            db_path = database_url.replace("sqlite:///", "")
+        else:
+            from core.config import DB_PATH
+
+            db_path = str(DB_PATH)
         _backend_instance = SQLiteBackend(db_path=db_path)
         logger.info(f"Database backend: SQLite ({db_path})")
 
