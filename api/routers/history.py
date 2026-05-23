@@ -4,13 +4,33 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timedelta
-from pathlib import Path
 
 from fastapi import APIRouter, Query
 
+from core.config import DATA_DIR, SIGNAL_ARCHIVE_DIR
+
 router = APIRouter(tags=["history"])
 
-_INFERENCE_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "inference.json"
+_INFERENCE_PATH = DATA_DIR / "inference.json"
+
+
+def _load_archive_signals(days: int) -> list[dict]:
+    """Load signals from signal_archive/*.json for the last `days` days."""
+    if not SIGNAL_ARCHIVE_DIR.exists():
+        return []
+    cutoff = datetime.now().date() - timedelta(days=days)
+    items: list[dict] = []
+    for f in sorted(SIGNAL_ARCHIVE_DIR.glob("*.json"), reverse=True):
+        try:
+            date_str = f.stem  # e.g. "2026-05-19"
+            if datetime.strptime(date_str, "%Y-%m-%d").date() < cutoff:
+                continue
+            data = json.loads(f.read_text(encoding="utf-8"))
+            if isinstance(data, list):
+                items.extend(data)
+        except Exception:
+            pass
+    return items
 
 
 def _load_inference() -> dict:
@@ -21,8 +41,8 @@ def _load_inference() -> dict:
 
 
 @router.get("/history/signals")
-def get_signal_history(days: int = Query(14, ge=1, le=90)):
-    """Return recent signals from the DB. Falls back to inference cache if DB is empty."""
+def get_signal_history(days: int = Query(14, ge=1, le=365)):
+    """Return recent signals: DB → archive files → inference cache fallback."""
     from auth.database import Database, SignalRepository
 
     db = Database()
@@ -31,6 +51,11 @@ def get_signal_history(days: int = Query(14, ge=1, le=90)):
 
     if signals:
         return {"source": "database", "count": len(signals), "signals": signals}
+
+    # Try signal_archive/*.json files
+    archive = _load_archive_signals(days)
+    if archive:
+        return {"source": "archive", "count": len(archive), "signals": archive}
 
     # Fallback: return inference cache as "latest" signals
     cache = _load_inference()

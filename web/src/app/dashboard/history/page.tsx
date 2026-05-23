@@ -156,7 +156,7 @@ export default function HistoryPage() {
   }, []);
 
   useEffect(() => {
-    fetch("/py-api/history/signals?days=14")
+    fetch("/py-api/history/signals?days=90")
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((result) => {
         if (result.signals?.length > 0) {
