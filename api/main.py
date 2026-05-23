@@ -51,6 +51,7 @@ from api.routers import (
     models,
     optuna,
     prices,
+    profitcore,
     research,
     scan,
     trade,
@@ -335,6 +336,7 @@ app.include_router(ai_explain.router, prefix="/api/v1")
 app.include_router(market_data.router, prefix="/api/v1")
 app.include_router(closed_loop.router, prefix="/api/v1")
 app.include_router(research.router, prefix="/api/v1")
+app.include_router(profitcore.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health")
