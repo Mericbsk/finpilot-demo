@@ -65,6 +65,11 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_functions = "test_*"
 addopts = "-v --tb=short"
+markers = [
+    "unit: fast unit tests (default)",
+    "integration: cross-module tests, may touch DB/Redis/FS",
+    "slow: tests > 1s — skipped by default in pre-commit / fast loops",
+]
 
 # ─────────────────────────────────────────────────────────────────────
 # Sprint 16 (S16-08): [project] block + optional extras.

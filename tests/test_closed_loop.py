@@ -11,6 +11,8 @@ from unittest.mock import patch
 
 import pytest
 
+pytestmark = pytest.mark.slow
+
 
 # ---------------------------------------------------------------------------
 # Isolation: every test gets fresh module state
@@ -194,9 +196,7 @@ def test_reconciler_skips_young_signals(monkeypatch):
         "outcome": None,
         "ts": int(time.time() * 1000),  # just now
     }
-    monkeypatch.setattr(
-        "core.kpi_tracker._load_all_signals", lambda: [fake_signal]
-    )
+    monkeypatch.setattr("core.kpi_tracker._load_all_signals", lambda: [fake_signal])
     summary = outcome_reconciler.reconcile_open_signals(min_age_hours=24)
     assert summary["reconciled"] == 0
     assert summary["skipped_age"] == 1
@@ -218,9 +218,7 @@ def test_reconciler_records_outcome_when_close_available(monkeypatch):
     monkeypatch.setattr("core.kpi_tracker._load_all_signals", lambda: [fake_signal])
 
     # Mock yfinance close lookup to a win
-    monkeypatch.setattr(
-        outcome_reconciler, "_fetch_close_after", lambda *a, **kw: 110.0
-    )
+    monkeypatch.setattr(outcome_reconciler, "_fetch_close_after", lambda *a, **kw: 110.0)
 
     recorded: list[tuple] = []
 
@@ -247,9 +245,7 @@ def test_reconciler_handles_no_close_data(monkeypatch):
         "ts": int((time.time() - 10 * 86400) * 1000),
     }
     monkeypatch.setattr("core.kpi_tracker._load_all_signals", lambda: [fake_signal])
-    monkeypatch.setattr(
-        outcome_reconciler, "_fetch_close_after", lambda *a, **kw: None
-    )
+    monkeypatch.setattr(outcome_reconciler, "_fetch_close_after", lambda *a, **kw: None)
 
     summary = outcome_reconciler.reconcile_open_signals()
     assert summary["reconciled"] == 0
@@ -269,9 +265,7 @@ def test_alert_agent_suppressed_when_degraded(monkeypatch):
     monkeypatch.setenv("TELEGRAM_CHAT_ID", "fake")
     set_degraded("test")
 
-    ctx = AgentContext(
-        symbols=["AAPL"], scan_results={"AAPL": {"entry_ok": True, "price": 100}}
-    )
+    ctx = AgentContext(symbols=["AAPL"], scan_results={"AAPL": {"entry_ok": True, "price": 100}})
     with patch("requests.post") as mock_post:
         result = AlertAgent().run(ctx)
     assert result.success

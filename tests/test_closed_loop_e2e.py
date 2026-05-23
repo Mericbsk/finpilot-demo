@@ -8,11 +8,14 @@ Exercises the closed loop end-to-end without yfinance/redis dependencies:
 
 Also verifies the decision gate honors FINPILOT_PWIN_THRESHOLD.
 """
+
 from __future__ import annotations
 
 import importlib
 
 import pytest
+
+pytestmark = pytest.mark.slow
 
 
 @pytest.fixture(autouse=True)
@@ -98,7 +101,9 @@ def test_decision_gate_respects_threshold(monkeypatch):
 
     record_signal(symbol="MSFT", direction="BUY", price=200.0, score=score, cycle=1, p_win=p_win)
 
-    threshold = float(monkeypatch.getenv("FINPILOT_PWIN_THRESHOLD") if hasattr(monkeypatch, "getenv") else 0.6)
+    threshold = float(
+        monkeypatch.getenv("FINPILOT_PWIN_THRESHOLD") if hasattr(monkeypatch, "getenv") else 0.6
+    )
     # mimic scheduler decision gate
     if p_win >= threshold:
         open_position(

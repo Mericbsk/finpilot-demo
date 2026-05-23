@@ -8,6 +8,8 @@ with mocked data fetching.
 import numpy as np
 import pandas as pd
 import pytest
+
+pytestmark = pytest.mark.slow
 from scanner.evaluate import (
     STRATEGY_PARAMS,
     calculate_risk_management,

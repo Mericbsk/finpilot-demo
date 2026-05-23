@@ -9,6 +9,8 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
+
+pytestmark = pytest.mark.slow
 from scanner.data_fetcher import (
     get_market_regime_status,
     load_symbols,

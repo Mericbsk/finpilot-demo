@@ -78,6 +78,7 @@ mkdocs-material==9.6.12
 # Testing (dev)
 pytest==9.0.2
 pytest-cov==7.1.0
+pytest-xdist==3.6.1
 httpx==0.28.1
 pre-commit==4.2.0
 
