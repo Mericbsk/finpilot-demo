@@ -1,0 +1,7 @@
+{
+  "current_model_id": "ppo_momentum_20260306_001305",
+  "path": "models/ppo_momentum_20260306_001305",
+  "best_model_zip": "models/best/best_model.zip",
+  "promoted_from": "models/registry.json (most recent active strategy model on disk as of 2026-05-23)",
+  "note": "Update this file via scripts/refresh_inference.py or promotion workflow."
+}
