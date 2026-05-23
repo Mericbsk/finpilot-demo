@@ -20,6 +20,38 @@ router = APIRouter(tags=["inference"])
 _INFERENCE_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "inference.json"
 _CACHE_MAX_AGE_HOURS = 24
 
+# Memory cache: (data, status, mtime_ns). Invalidated when file mtime changes.
+_mem_cache: tuple[dict, dict[str, Any], int] | None = None
+
+
+def _load_cached_inference() -> tuple[dict, dict[str, Any]]:
+    """Load inference.json with mtime-based memory cache.
+
+    Returns:
+        (data, status) — data is symbol-keyed dict; status from _check_drl_cache.
+        Both are empty/invalid when file missing or unreadable.
+    """
+    global _mem_cache
+    if not _INFERENCE_PATH.exists():
+        return {}, _check_drl_cache({})
+    try:
+        mtime = _INFERENCE_PATH.stat().st_mtime_ns
+    except OSError:
+        return {}, _check_drl_cache({})
+
+    if _mem_cache is not None and _mem_cache[2] == mtime:
+        return _mem_cache[0], _mem_cache[1]
+
+    try:
+        data = json.loads(_INFERENCE_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        logger.warning("inference.json read failed: %s", exc)
+        return {}, _check_drl_cache({})
+
+    status = _check_drl_cache(data)
+    _mem_cache = (data, status, mtime)
+    return data, status
+
 
 def _check_drl_cache(cached: dict) -> dict[str, Any]:
     """Validate DRL cache quality. Returns a metadata dict consumed by callers.
@@ -80,11 +112,8 @@ def _check_drl_cache(cached: dict) -> dict[str, Any]:
 @router.get("/inference-cache")
 def get_inference_cache():
     """Return the latest DRL inference results plus cache validity metadata."""
-    if not _INFERENCE_PATH.exists():
-        return {"results": {}, "cache_status": _check_drl_cache({})}
-    with open(_INFERENCE_PATH) as f:
-        cached = json.load(f)
-    return {"results": cached, "cache_status": _check_drl_cache(cached)}
+    data, status = _load_cached_inference()
+    return {"results": data, "cache_status": status}
 
 
 # ---------------------------------------------------------------------------

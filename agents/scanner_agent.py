@@ -7,7 +7,6 @@ Output : AgentResult.data = dict[symbol, scan_row]
 
 from __future__ import annotations
 
-import json
 import logging
 
 from agents.base import AgentContext, AgentResult, BaseAgent
@@ -85,14 +84,12 @@ class ScannerAgent(BaseAgent):
 
 
 def _load_drl_cache() -> tuple[dict, bool]:
-    """Load DRL inference cache, same logic as scan.py helper."""
+    """Load DRL inference cache (memory-cached via mtime)."""
     try:
-        from routers.inference import _INFERENCE_PATH, _check_drl_cache
+        from routers.inference import _load_cached_inference
 
-        if _INFERENCE_PATH.exists():
-            cache = json.loads(_INFERENCE_PATH.read_text(encoding="utf-8"))
-            valid = _check_drl_cache(cache).get("valid", False)
-            return cache, valid
+        cache, status = _load_cached_inference()
+        return cache, bool(status.get("valid", False))
     except Exception as exc:
         logger.debug("ScannerAgent: DRL cache load skipped: %s", exc)
     return {}, False

@@ -55,18 +55,16 @@ class FeedbackRequest(BaseModel):
 
 
 def _load_drl_cache() -> tuple[dict, bool]:
-    """Load DRL inference cache from disk.
+    """Load DRL inference cache from disk (memory-cached via mtime).
 
     Returns:
         (cache_dict, is_valid) — cache_dict is empty dict when unavailable.
     """
     try:
-        from routers.inference import _INFERENCE_PATH, _check_drl_cache
+        from routers.inference import _load_cached_inference
 
-        if _INFERENCE_PATH.exists():
-            cache = json.loads(_INFERENCE_PATH.read_text(encoding="utf-8"))
-            valid = _check_drl_cache(cache).get("valid", False)
-            return cache, valid
+        cache, status = _load_cached_inference()
+        return cache, bool(status.get("valid", False))
     except Exception as exc:
         logger.debug("DRL cache load skipped: %s", exc)
     return {}, False
