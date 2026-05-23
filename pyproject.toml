@@ -122,3 +122,6 @@ demo = [
 full = [
     "finpilot[observability,etl,rl,altdata,demo]",
 ]
+
+[project.scripts]
+fp = "cli.fp:main"
