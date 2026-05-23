@@ -1,965 +1,562 @@
-# FinPilot — Kapsamlı Proje Denetim Raporu
+# FinPilot — Uçtan Uca Repo Denetimi
 
-**Tarih:** 20 Mart 2026
-**Denetçi:** GitHub Copilot (Claude Opus 4.6)
-**Kapsam:** Tüm bileşenler — Frontend, Backend, ML/DRL, Altyapı, Güvenlik, Testler
-**Yöntem:** Statik kod analizi, bağımlılık denetimi, çalışma zamanı doğrulaması, mimari değerlendirme
+**Tarih:** 2026-05-23
+**Denetçi:** Claude Opus 4.7
+**Kapsam:** Tüm repo — frontend, backend, ML/DRL, altyapı, testler, scriptler, döküman
+**Yöntem:** Statik analiz + import tarama + LOC sayımı + canlı audit çıktısı + paralel ajan keşfi
+**Önceki rapor:** `docs/audits/2026-04-16/` (bu rapor onu supersede eder)
 
 ---
 
 ## İçindekiler
 
-1. [Proje Tarihçesi ve Genel Özet](#1-proje-tarihçesi-ve-genel-özet)
-2. [Bileşen Envanteri](#2-bileşen-envanteri)
-3. [Bileşen Bazlı Detaylı İnceleme](#3-bileşen-bazlı-detaylı-inceleme)
-   - 3.1 [Next.js Frontend](#31-nextjs-frontend)
-   - 3.2 [FastAPI Backend](#32-fastapi-backend)
-   - 3.3 [DRL / ML Motoru](#33-drl--ml-motoru)
-   - 3.4 [Scanner Modülü](#34-scanner-modülü)
-   - 3.5 [Auth Sistemi](#35-auth-sistemi)
-   - 3.6 [Core Altyapı](#36-core-altyapı)
-   - 3.7 [Streamlit (Legacy)](#37-streamlit-legacy)
-   - 3.8 [LLM Entegrasyonu](#38-llm-entegrasyonu)
-   - 3.9 [Telegram Bot](#39-telegram-bot)
-   - 3.10 [Veri Katmanı](#310-veri-katmanı)
-   - 3.11 [Docker & Deployment](#311-docker--deployment)
-   - 3.12 [Test Altyapısı](#312-test-altyapısı)
-4. [Entegrasyon ve Veri Akışı](#4-entegrasyon-ve-veri-akışı)
-5. [Go / No-Go Kararı](#5-go--no-go-kararı)
-6. [2 Haftalık Onarım Planı](#6-2-haftalık-onarım-planı)
-7. [Test Senaryoları ve Kontrol Listeleri](#7-test-senaryoları-ve-kontrol-listeleri)
-8. [Yönetici Özeti (Executive Summary)](#8-yönetici-özeti)
+1. Yönetici Özeti
+2. Tam Dosya Sistemi Haritası
+3. Klasör ve Dosya Bazlı Analiz
+4. Çalışan / Çalışmayan / Gereksiz Tablosu
+5. Modül Bağlantı Haritası
+6. Tekrar ve Redundancy Bulguları
+7. Darboğaz ve Yavaşlık Analizi
+8. Ürün Değeri Sınıflandırması
+9. Optimizasyon Tablosu
+10. Sadeleştirme Kararları
+11. Otonomi Olgunluk Değerlendirmesi
+12. Doğru Sorular Çerçevesi
+13. Hedef Repo Yapısı
+14. Execution Roadmap
+15. Son Karar
 
 ---
 
-## 1. Proje Tarihçesi ve Genel Özet
+## 1) YÖNETİCİ ÖZETİ
 
-### 1.1 Proje Kimliği
+**Genel durum:** Repo çok katmanlı ve büyük (1.6 GB toplam, ~21K LOC çekirdek `core/`, 20 router, 19 agent, 54 script, 70 test, 3 farklı frontend katmanı). Profit Core'un audit'i 2026-05-23'te **NO EDGE / ters skor (decile_lift=0.728, p=0.995)** verdi — yani ürün, feature'lardan değil **ölçüm + sadeleştirme**den yararlanacak durumda.
 
-| Alan | Değer |
-|------|-------|
-| **Proje Adı** | FinPilot — AI-Powered Stock Analysis Platform |
-| **Başlangıç** | Q4 2025 (Streamlit MVP) |
-| **Mevcut Sürüm** | Sprint 21+ (Next.js 16 + FastAPI geçişi) |
-| **Diller** | Python 3.11, TypeScript 5, React 19 |
-| **Hedef Kullanıcı** | Bireysel yatırımcılar (US equities) |
-| **Lisans** | Özel / Kapalı kaynak |
+**En kritik bulgular:**
+1. Skor pipeline'ı 3 katlı (`signals.signal_score_row` → `score_engine.compute_recommendation_score` → `finpilot_score.compute_finpilot_score`). `score_engine.py` ve `risk_engine.py` üretimde **hiç çağrılmıyor**.
+2. 3 farklı frontend birlikte yaşıyor (`web/` Next.js — gerçek ürün; `views/` sadece `.pyc` — ölü; `public_website/` Ocak'tan beri kıpırdamamış — marketing fosili).
+3. `web/` 1.6 GB — node_modules 918 MB.
+4. DRL katmanı 8 hafta+ donmuş. `models/best/best_model.zip` Şubat 26'dan beri güncellenmemiş, 17 PPO klasörü çürüyor.
+5. 20 router'dan 13'ü test'siz (agent, advisory, scan, trade dahil).
+6. 32 script ölü (Şubat–Mart, Makefile'da yok).
+7. Audit raporu duplikasyonu: `data/profitcore_audit.json`, `docs/audits/2026-04-16/`, `reports/audit_2026.md`, bu dosya — hangisi otoriter belli değil.
+8. `core/`'da 9 orphan modül (621 LOC `exceptions.py`, 682 LOC `i18n.py`, 788 LOC `social.py`, 824 LOC `websocket_feeds.py` — kimse import etmiyor) → ~5K LOC ölü kütle.
 
-### 1.2 Kilometre Taşları
-
-| Tarih | Olay |
-|-------|------|
-| 2025-Q4 | Streamlit MVP — Scanner + DRL ilk prototip |
-| 2026-02 | DRL Model Registry — 19 eğitilmiş PPO modeli |
-| 2026-02 | Optuna hiperparametre optimizasyonu (4 ajan × 30 deneme) |
-| 2026-03 | HMM Rejim Tespiti + Ensemble Router (Exp3 meta-learner) |
-| 2026-03 | Auth sistemi (JWT + bcrypt + SQLite) |
-| 2026-03/15 | Next.js 16.1.6 frontend — Apple tarzı dashboard |
-| 2026-03/18 | Yahoo Finance canlı fiyat entegrasyonu (1,542 sembol) |
-| 2026-03/19 | FastAPI API katmanı — AI Lab gerçek veriye bağlandı |
-| 2026-03/20 | **Bu denetim raporu** |
-
-### 1.3 Kod İstatistikleri
-
-| Metrik | Değer |
-|--------|-------|
-| **Python dosyaları** | ~134 (.py) |
-| **TypeScript/TSX dosyaları** | ~27 |
-| **Toplam test dosyası** | 23 (Python) + 0 (Frontend) |
-| **Toplam test sayısı** | 266 collected (8 dosyada import hatası) |
-| **Eğitilmiş model** | 20 dizin (models/) |
-| **Bağımlılık (Python)** | ~30 paket (requirements.txt) |
-| **Bağımlılık (Node)** | 7 prod + 9 dev (package.json) |
+**Doğru sadeleştirme yönü:** Önce ölç → orphan modülleri arşivle → 3 skor fonksiyonunu 1'e indir → 3 frontend'i 1'e indir → DRL'yi dondur → docs/site/ tek kaynak yap.
 
 ---
 
-## 2. Bileşen Envanteri
+## 2) TAM DOSYA SİSTEMİ HARİTASI
 
-### 2.1 Master Tablo
-
-| # | Bileşen | Dizin | Dosya Sayısı | Durum | Veri Kaynağı | Test |
-|---|---------|-------|-------------|-------|-------------|------|
-| 1 | Next.js Frontend | `web/` | 27 .tsx + 3 .ts | ✅ Çalışıyor | Hibrit (Mock+Live) | ❌ 0 test |
-| 2 | FastAPI API | `api/` | 6 .py | ✅ Çalışıyor | Gerçek (Python backend) | ❌ 0 test |
-| 3 | DRL/ML Motoru | `drl/` | 24 .py | ✅ Çalışıyor | Eğitilmiş modeller | ⚠️ 3 test dosyası |
-| 4 | Scanner | `scanner/` | 6 .py | ✅ Çalışıyor | Yahoo Finance | ✅ 4 test dosyası |
-| 5 | Auth Sistemi | `auth/` | 9 .py | ✅ Çalışıyor | SQLite DB | ⚠️ 1 test (import hatası) |
-| 6 | Core Altyapı | `core/` | 15 .py | ✅ Çalışıyor | Config/Cache | ⚠️ 4 test (2 import hatası) |
-| 7 | Streamlit (Legacy) | `views/` | 16+24 .py | ✅ Çalışıyor | Full-stack | ✅ 2 test dosyası |
-| 8 | LLM Entegrasyonu | `llm/` | 5 .py | ✅ Çalışıyor | Groq/Gemini/Claude | ✅ 1 test dosyası |
-| 9 | Telegram Bot | root | 4 .py | ⚠️ Config gerekli | Telegram API | ❌ 0 test |
-| 10 | Veri Katmanı | `data/` | 14+ dosya | ✅ Mevcut | SQLite + JSON | ⚠️ 2 test dosyası |
-| 11 | Docker/Deploy | root | 3 dosya | ⚠️ Sadece Streamlit | Docker | ❌ 0 test |
-| 12 | Scripts | `scripts/` | 35 .py | ⚠️ Bakım gerekli | Çeşitli | ❌ 0 test |
-| 13 | Monitoring | `monitoring/` | Grafana config | ⚠️ Yapılandırılmamış | Prometheus | ✅ 1 test dosyası |
-
-### 2.2 Frontend Sayfa Durumu
-
-| Sayfa | Satır | Veri Kaynağı | Kalite |
-|-------|-------|-------------|--------|
-| Dashboard Overview | ~300 | Mock + Yahoo Live | ⚠️ Hibrit |
-| Scanner | ~450 | Mock + Yahoo Live | ⚠️ Hibrit |
-| AI Analysis | ~600 | Tamamen Mock | ❌ Demo |
-| AI Lab | ~950 | **Gerçek API** (fallback: Mock) | ✅ Gerçek |
-| Backtest | ~500 | Tamamen Mock | ❌ Demo |
-| Watchlist | ~350 | Mock + Yahoo Live | ⚠️ Hibrit |
-| History | ~250 | Tamamen Mock | ❌ Demo |
-| FinSense | ~500 | JSON dosyası | ✅ Statik |
-| Settings | ~200 | Local state (kaybolur) | ❌ Kalıcı değil |
-| Profile | ~250 | Tamamen Mock | ❌ Demo |
-
-### 2.3 Eğitilmiş Model Envanteri
-
-| Model ID | Algoritma | Timestep | Specialist | Sharpe |
-|----------|-----------|----------|-----------|--------|
-| ppo_trend_20260225 | PPO | 500K | Trend | ~0.04 |
-| ppo_volatile_20260225 | PPO | 500K | Volatile | ~0.03 |
-| ppo_range_20260226 | PPO | 500K | Range | ~0.05 |
-| ppo_momentum_20260302 | PPO | 500K | Momentum | ~0.04 |
-| ppo_meanrev_20260302 | PPO | 500K | Mean Rev | ~0.03 |
-| ppo_breakout_20260302 | PPO | 500K | Breakout | ~0.04 |
-| ppo_scalper_20260302 | PPO | 500K | Scalper | ~0.02 |
-| rppo_swing_20260302 | RecurrentPPO | 500K | LSTM Swing | ~0.05 |
-| ppo_conservative_20260302 | PPO | 500K | Conservative | ~0.07 |
-| ppo_aggressive_20260302 | PPO | 500K | Aggressive | ~0.03 |
-| ppo_momentum_20260303 | PPO | 3M | Momentum v2 | ~0.05 |
-| ppo_trend_20260304 | PPO | 1.5M | Trend v2 | ~0.04 |
-
-> **Kritik Bulgu:** Tüm modellerin Sharpe oranları < 0.10. En iyi performans: conservative agent (Sharpe 0.0702). Bu, modellerin **üretimde kullanıma hazır olmadığını** gösterir.
+| Yol | Tür | Amaç | Kritik? | Aktif? | Not |
+|---|---|---|---|---|---|
+| `core/` (35 dosya, ~13K LOC, 1.6M) | Çekirdek | Skor, KPI, kalibrasyon, scheduler | ✓ | Kısmen | 9 dosya orphan |
+| `scanner/` (11 dosya, ~2.7K LOC) | Sinyal | Tarama + skor | ✓ | Evet | 3 paralel skor fn |
+| `drl/` (35 dosya, ~10K LOC, 1.4M) | RL | Specialist ensemble | ⚠ | Dondu | 8+ hafta dokunulmadı |
+| `api/` (29 dosya, 612K) | FastAPI | 20 router | ✓ | Evet | 13 router test'siz |
+| `agents/` (19 dosya, 360K) | LLM agent | Advisory, CEO, research | ✓ | Evet | Tümü çağrılıyor |
+| `web/` (1.6 GB) | Next.js 16 | Gerçek ürün UI | ✓ | Evet | node_modules 918M |
+| `views/` (1.3M) | Streamlit | Sadece .pyc | ✗ | Ölü | Source silinmiş |
+| `public_website/` (104K) | Statik HTML | Marketing | ⚠ | Dormant | Ocak'tan beri sabit |
+| `tests/` (70 dosya, 4.2M) | Pytest | 664 test, 4 known fail | ✓ | Evet | Coverage düşük |
+| `scripts/` (54 dosya, 952K) | CLI util | Audit, train, paper | ⚠ | %30 aktif | 32 ölü |
+| `docs/` (1.3M, 35 MD) | Markdown | Roadmap, ADR, runbook | ⚠ | Kısmen | Tekrarlı dosyalar |
+| `site/` (7.6M) | mkdocs build | Statik doc | ⚠ | 18g eski | Build artifact |
+| `models/` (25M, 18 PPO) | RL weights | Eğitilmiş model | ⚠ | Stale | `best/` Şubat'tan sabit |
+| `logs/` (2.8M) | Run logları | tensorboard, paper, eval | ⚠ | Kısmen | tensorboard Şubat |
+| `data/` (17M) | Sinyal/ticker | signal_archive, db, tickers | ✓ | Evet | 51 JSON, db 308K |
+| `reports/` (12M) | Backtest çıktısı | Markdown rapor | ⚠ | Kısmen | Eski |
+| `monitoring/` (35K) | Grafana | Dashboard JSON | ⚠ | Belirsiz | Çalışıyor mu? |
+| `migrations/` (49K) | Alembic | DB versiyon | ✓ | Evet | 5 dosya |
+| `auth/` (524K) | JWT | Login, RBAC | ✓ | Evet | Tests var |
+| `llm/` (184K) | LLM client | OpenAI/Ollama wrap | ✓ | Evet | |
+| `broker/` (52K) | Order/exec | Tek dosya | ⚠ | Stub | İskelet |
+| `research/` (90K) | Notebook/exp | Ad-hoc | ⚠ | Manuel | |
+| `grant_documents/` (4.2M) | PDF/HTML | NVIDIA pitch, AWS fund | ⚠ | İş kritik | Yanlış yerde |
+| Root `telegram_*.py` (3 dosya) | Bildirim | TG bot/alert | ⚠ | Bilinmiyor | Test yok |
+| `output.log`, `.docker_build.log` | Log | Generated | ✗ | Sil | Repo'ya commit olmamalı |
+| `site/` | Build | mkdocs çıktısı | ✗ | Sil | gitignore |
 
 ---
 
-## 3. Bileşen Bazlı Detaylı İnceleme
+## 3) KLASÖR VE DOSYA BAZLI ANALİZ
+
+| Bileşen | Amaç | Kullanım | Risk | Karar |
+|---|---|---|---|---|
+| `core/scheduler.py` (1191) | APScheduler döngüsü | 4h önce dokunuldu | Yüksek — tek nokta | SIMPLIFY (paket) |
+| `core/monitoring.py` (1212) | Health + watchdog | Aktif | Şişti | SIMPLIFY (paket) |
+| `core/calibration.py` (599) | Isotonic kalibre | api/closed_loop | Düşük | KEEP |
+| `core/cache.py` (828) | Redis + LRU + Streamlit | Streamlit kalmadı | Orta | SIMPLIFY (streamlit sil) |
+| `core/exceptions.py` (621) | Custom exc | **0 import** | — | ARCHIVE |
+| `core/i18n.py` (682) | Çeviri | **0 import** | — | ARCHIVE |
+| `core/social.py` (788) | Sosyal sentiment | **0 import** | — | ARCHIVE |
+| `core/plugins.py` (719) | Plugin sistemi | **0 import** | — | ARCHIVE |
+| `core/websocket_feeds.py` (824) | Live feed | Monitor-only | — | FREEZE |
+| `core/session_state.py` | Streamlit session | Streamlit ölü | — | REMOVE |
+| `core/logging.py` | Log config | Orphan | — | MERGE (config'e) |
+| `core/validation.py` | Validate util | Orphan | — | ARCHIVE |
+| `core/tracing.py` | OTel | Orphan | — | FREEZE |
+| `scanner/score_engine.py` (60) | Reco score | Üretimde çağrılmıyor | — | MERGE → finpilot_score |
+| `scanner/risk_engine.py` (61) | Risk yönetimi | Çağrılmıyor | — | MERGE → evaluate |
+| `scanner/features.py` (124) | Volatility/RS | Pipeline'da yok | — | WIRE veya REMOVE |
+| `scanner/earnings_blackout.py` (116) | Earnings block | Çağrılmıyor | — | REMOVE |
+| `scanner/finpilot_score.py` | Ana skor | api/scan ✓ | Yüksek | KEEP — Ana yer |
+| `drl/inference.py` (707) | DRL inference | 4d önce, ama _W_DRL=0 | — | FREEZE (bağlı değil) |
+| `drl/backtest_engine.py` (1038) | Vektörel BT | 8w stale | — | FREEZE |
+| `drl/ensemble_router.py` (808) | Specialist router | 8w stale | — | FREEZE |
+| `drl/specialists.py` (713) | Specialist policies | 8w stale | — | FREEZE |
+| `drl/report_generator.py` (754) | DRL rapor | 3mo stale | — | ARCHIVE |
+| `views/` (sadece pyc) | Streamlit UI | Source yok | — | REMOVE |
+| `scripts/*.bak` | Bozuk yedek | — | — | REMOVE |
+| `scripts/drl_autopilot_patched.py` | "patched" duplicate | — | — | MERGE orijinaline |
+| `output.log`, `.docker_build.log` | Log dosyaları | — | — | REMOVE + gitignore |
+| `models/best/best_model.zip` | "Best" model | Şubat'tan sabit | Yüksek (yanıltıcı) | Pointer ekle |
+| `models/ppo_*` (17 klasör) | Eski training | Hiçbiri "best" değil | Disk | PRUNE — 3 en yeni hariç |
 
 ---
 
-### 3.1 Next.js Frontend
+## 4) ÇALIŞAN / ÇALIŞMAYAN / GEREKSİZ TABLOSU
 
-**Teknik Tanım:** Apple tarzı karanlık tema dashboard. Next.js 16.1.6, React 19, Turbopack, Tailwind CSS v4. Port 3000.
-
-**Çalışma Durumu:** ✅ Çalışıyor (localhost:3000)
-
-#### Fonksiyon Listesi
-
-| Fonksiyon | Dosya | Açıklama |
-|-----------|-------|----------|
-| `genStock()` | stockData.ts | Deterministik mock hisse verisi üretici |
-| `genStockExtended()` | stockData.ts | Genişletilmiş mock veri (RSI, rejim, RR) |
-| `withLivePrice()` | stockData.ts | Yahoo fiyatını mock veriye birleştirir |
-| `hashStr()` | stockData.ts | Deterministik hash (Math.imul) |
-| `seededRandom()` | stockData.ts | Tekrarlanabilir rastgele sayı |
-| `useStockPrices()` | useStockPrices.ts | Yahoo Finance canlı fiyat hook'u |
-| `/api/quotes` | route.ts | Yahoo Finance proxy (batch ≤20, 30s cache) |
-| `/py-api/*` proxy | next.config.ts | FastAPI'ye yönlendirme |
-
-#### Kontrol Listesi
-
-| Kriter | Durum | Not |
-|--------|-------|-----|
-| TypeScript strict mode | ✅ | tsconfig.json: `"strict": true` |
-| ESLint yapılandırması | ✅ | eslint-config-next |
-| Test altyapısı | ❌ | Jest/Vitest yok |
-| Error boundary | ❌ | Global error handler yok |
-| Loading skeleton | ⚠️ | Sadece spinner, skeleton yok |
-| Erişilebilirlik (a11y) | ❌ | aria-label eksik |
-| SEO meta tags | ⚠️ | Sadece landing page'de |
-| Form validasyonu | ❌ | Input doğrulama yok |
-| State persistence | ❌ | Settings/Profile kaybolur |
-| Responsive tasarım | ⚠️ | Sabit sidebar (220px) — mobil uyum yok |
-
-#### Bulgular
-
-1. **KRİTİK — Sıfır test:** Frontend'de hiçbir test dosyası yok. Regresyon riski çok yüksek.
-2. **KRİTİK — Mock veri baskınlığı:** 10 sayfadan sadece 1'i (AI Lab) gerçek API'ye bağlı. 4 sayfa tamamen mock.
-3. **YÜKSEK — Settings kalıcı değil:** Kullanıcı ayarları sayfa yenilenmesinde kaybolur (localStorage bile yok).
-4. **YÜKSEK — Hata gösterimi yok:** Tüm fetch hataları `catch` ile sessizce yutulur. Kullanıcı sorundan habersiz.
-5. **ORTA — Simüle ilerleme çubukları:** Scanner ve Backtest'teki progress bar'lar sahte (gerçek hesaplama yok).
-6. **ORTA — Tailwind CSS v4 uyumluluk:** CSS değişkenleri `:root`'ta tanımlı ama Tailwind v4 bunları override ediyor. Tüm stiller inline `C` sabitleriyle.
-7. **DÜŞÜK — Tek chart kütüphanesi yok:** Tüm grafikler custom SVG. Bakım maliyeti yüksek.
-
-#### Güvenlik
-
-| Risk | Seviye | Açıklama |
-|------|--------|----------|
-| API anahtarları `.env.local`'da | ⚠️ ORTA | Alpaca API key + secret dosyada. Git'e eklenmemiş (.gitignore) ama dev container'da görünür |
-| XSS koruması | ✅ | React otomatik escape. `dangerouslySetInnerHTML` kullanılmamış |
-| CORS | ✅ | Sadece same-origin requests (Next.js API route proxy) |
-| Rate limiting | ❌ | Yahoo Finance proxy'de rate limit yok |
-
-#### Performans
-
-| Metrik | Değer | Not |
-|--------|-------|-----|
-| İlk derleme | 42s | Turbopack — ilk sayfa yüklemesi yavaş |
-| Sayfa geçişi | <100ms | Client-side routing |
-| Yahoo API cache | 30s | In-memory, her 30s'de yenilenir |
-| Batch boyutu | 20 max | Yahoo API limiti |
-| Client batch | 100 max | URL uzunluk limiti |
-
-#### Puanlama
-
-| Kriter | Puan (1-10) | Açıklama |
-|--------|-------------|----------|
-| Kod kalitesi | 7 | TypeScript strict, tutarlı stil, inline stiller dağınık |
-| Test kapsamı | 1 | Sıfır test |
-| Güvenlik | 6 | React XSS koruması var, rate limit yok |
-| Performans | 7 | Turbopack hızlı, cache iyi, ilk yükleme yavaş |
-| UX / Tasarım | 8 | Apple tarzı, tutarlı dark theme, animasyonlar |
-| Bakım kolaylığı | 5 | Mock veri her yere dağılmış, tek stockData.ts iyi ama |
-| Üretim hazırlığı | 3 | Mock veri, test yok, persistence yok |
-| **ORTALAMA** | **5.3** | |
-
-#### Düzeltme Önerileri
-
-1. Vitest + React Testing Library kurulumu — en az sayfa başına 1 test
-2. Error boundary (global + sayfa bazlı)
-3. Settings/Watchlist için localStorage persistence
-4. Loading skeleton'lar (Loader2 yerine)
-5. `/api/quotes` rate limiting (IP başına 60 req/dk)
-6. Mock → Real geçiş planı (Analysis, Backtest, History, Profile)
-
-#### Tekrarlama Notu
-> **Frontend Tekrarlama:** `cd web && npx vitest` çalışmalı. Her sayfa için en az: (a) render testi, (b) API hata durumu testi, (c) loading state testi yazılmalı. Mock veriden kurtulmak için `/py-api/` endpoint'leri genişletilmeli.
+| Bileşen | Durum | Kanıt | Etki | Karar |
+|---|---|---|---|---|
+| `web/` Next.js | Çalışıyor | `/py-api/` proxy aktif, 24 page | Yüksek | KEEP |
+| `views/` Streamlit | Ölü | Sadece `__pycache__` | — | REMOVE |
+| `public_website/` | Dormant | Last touch 2025-01-27 | Düşük | MOVE ayrı repo |
+| `api/main.py` + 20 router | Çalışıyor | Tüm router import ediliyor | Yüksek | KEEP |
+| `scanner/finpilot_score` | Çalışıyor (ters!) | Audit: decile_lift=0.728 | Yüksek | KEEP + FIX |
+| `scanner/score_engine` | Kopuk | Çağrılmıyor | — | MERGE |
+| `scanner/risk_engine` | Kopuk | Hiç çağrılmıyor | — | MERGE/REMOVE |
+| `scanner/features` | Kopuk | Pipeline'da yok | — | WIRE veya REMOVE |
+| `scanner/earnings_blackout` | Kopuk | — | — | REMOVE |
+| `core/{exceptions, i18n, social, plugins, validation, tracing, session_state}` | Orphan | 0 import | — | ARCHIVE (~5K LOC) |
+| `core/websocket_feeds` | Yarı | Sadece monitor | — | FREEZE |
+| `core/calibration` | Çalışıyor | closed_loop kullanır | Yüksek | KEEP |
+| `core/kpi_tracker` | Çalışıyor | Outcome storage | Yüksek | KEEP |
+| `core/outcome_reconciler` | Çalışıyor | Multi-horizon t1/t5/t20 | Yüksek | KEEP |
+| `core/scheduler` | Çalışıyor | 4h önce edit | Yüksek | SIMPLIFY |
+| `drl/inference` | Bağlı değil | _W_DRL=0 | Düşük | FREEZE |
+| `drl/{backtest,specialists,ensemble}` | Donmuş | 8w stale | — | FREEZE |
+| `agents/*` (16 agent) | Çalışıyor | api/agent.py orchestrator | Yüksek | KEEP |
+| `scripts/profitcore_audit` | Çalışıyor | Bugün üretildi | Yüksek | KEEP + COMMIT |
+| `scripts/{smoke,docker_smoke,safe_commit}` | Çalışıyor | Makefile | Yüksek | KEEP |
+| `scripts/*.bak` | Bozuk | — | — | REMOVE |
+| `scripts/drl_autopilot_patched` | Duplicate | — | — | MERGE |
+| Scripts 32 stale | Ölü | Şub-Mar, Makefile'da yok | — | ARCHIVE |
+| `tests/` 664 test | Kısmen | 4 known fail (PRE_EXISTING) | Yüksek | KEEP |
+| `models/best/best_model.zip` | Eski | Şubat sabit | Yüksek (yanıltıcı) | REPLACE veya pointer |
+| `models/ppo_*` 17 klasör | Stale | Şubat-Mart | Disk | PRUNE → 3 |
+| `logs/tensorboard/PPO_*` | Stale | Şubat | — | ARCHIVE |
+| `monitoring/grafana` | Belirsiz | Çalışıyor mu? | Orta | DOĞRULA |
+| `output.log`, `.docker_build.log`, `.coverage` | Çöp | Generated | — | REMOVE + gitignore |
+| `broker/` | Stub | İskelet | Düşük | KEEP (planlı) |
+| `telegram_*.py` (root) | Bilinmiyor | Test yok | Orta | DOĞRULA → `core/notifier/` |
 
 ---
 
-### 3.2 FastAPI Backend
+## 5) MODÜL BAĞLANTI HARİTASI
 
-**Teknik Tanım:** Python FastAPI uygulaması. 5 router, CORS middleware, uvicorn. Port 8000. Bu oturumda sıfırdan oluşturuldu.
-
-**Çalışma Durumu:** ✅ Çalışıyor (localhost:8000)
-
-#### Fonksiyon Listesi
-
-| Endpoint | Metod | Router | Açıklama |
-|----------|-------|--------|----------|
-| `/api/v1/health` | GET | main.py | Sağlık kontrolü |
-| `/api/v1/models` | GET | models.py | 19 model listesi (ModelRegistry) |
-| `/api/v1/models/{id}` | GET | models.py | Tek model detayı |
-| `/api/v1/inference-cache` | GET | inference.py | 5 cache'li sinyal |
-| `/api/v1/ensemble` | POST | ensemble.py | Ensemble tahmin |
-| `/api/v1/optuna/agents` | GET | optuna.py | 4 ajan listesi |
-| `/api/v1/optuna/results` | GET | optuna.py | Ajan bazlı Optuna sonuçları |
-| `/api/v1/scan` | POST | scan.py | Paralel sembol tarama |
-
-#### Kontrol Listesi
-
-| Kriter | Durum | Not |
-|--------|-------|-----|
-| CORS yapılandırması | ✅ | `allow_origins=["*"]` — üretim için daraltılmalı |
-| Kimlik doğrulama | ❌ | Auth middleware yok |
-| Rate limiting | ❌ | Yok |
-| Input validasyonu | ⚠️ | Pydantic modeller kısmi |
-| Error handling | ⚠️ | Temel try/except, özel hata yanıtları yok |
-| Logging | ⚠️ | Python logging, structlog değil |
-| API versiyonlama | ✅ | `/api/v1/` prefix |
-| OpenAPI docs | ✅ | FastAPI otomatik (`/docs`) |
-| Testler | ❌ | Hiç test yok |
-| Health check | ✅ | `/api/v1/health` → `{"status":"ok"}` |
-
-#### Bulgular
-
-1. **KRİTİK — Auth yok:** Tüm endpoint'ler herkese açık. Üretimde kesinlikle JWT middleware gerekli.
-2. **KRİTİK — CORS `*`:** Tüm origin'lere izin verilmiş. Üretimde whitelist gerekli.
-3. **YÜKSEK — Rate limit yok:** DDoS'a açık.
-4. **ORTA — Hata yanıtları standart değil:** HTTP error response'ları tutarsız.
-5. **DÜŞÜK — Yeni oluşturulmuş:** Bu oturumda (19 Mart 2026) sıfırdan yazıldı. Olgunlaşmamış.
-
-#### Güvenlik
-
-| Risk | Seviye | Açıklama |
-|------|--------|----------|
-| Kimlik doğrulama yok | 🔴 KRİTİK | Tüm veriler herkese açık |
-| CORS `*` | 🔴 KRİTİK | Cross-origin saldırılara açık |
-| SQL injection | ✅ GÜVENLİ | Doğrudan SQL yok, JSON dosyaları |
-| Path traversal | ✅ GÜVENLİ | Dosya yolları sabit kodlu |
-| SSRF | ✅ GÜVENLİ | Dış URL kabul etmiyor |
-
-#### Puanlama
-
-| Kriter | Puan (1-10) | Açıklama |
-|--------|-------------|----------|
-| Kod kalitesi | 7 | Temiz, modüler, FastAPI best practices |
-| Test kapsamı | 1 | Sıfır test |
-| Güvenlik | 2 | Auth yok, CORS açık |
-| Performans | 7 | uvicorn async, JSON cache okuma hızlı |
-| API tasarımı | 8 | RESTful, versiyonlu, OpenAPI otomatik |
-| Bakım kolaylığı | 8 | Router bazlı, her dosya tek sorumluluk |
-| Üretim hazırlığı | 2 | Auth, rate limit, CORS düzeltilmeli |
-| **ORTALAMA** | **5.0** | |
-
-#### Düzeltme Önerileri
-
-1. JWT middleware eklenmesi (auth/tokens.py zaten mevcut)
-2. CORS whitelist: `["http://localhost:3000", "https://finpilot.app"]`
-3. `slowapi` ile rate limiting
-4. Pydantic response modelleri (tüm endpoint'ler)
-5. `pytest` + `httpx.AsyncClient` ile API testleri
-6. structlog entegrasyonu
-
-#### Tekrarlama Notu
-> **FastAPI Tekrarlama:** `uvicorn api.main:app --reload` ile başlat. `curl localhost:8000/api/v1/health` → `{"status":"ok"}` dönmeli. `/docs` adresinde Swagger UI erişilebilir olmalı. Her endpoint için `pytest` testi: başarı + hata + auth reddi.
-
----
-
-### 3.3 DRL / ML Motoru
-
-**Teknik Tanım:** Stable-Baselines3 tabanlı PPO/RecurrentPPO ajanları. 24 kaynak dosyası, 20 eğitilmiş model dizini, Optuna hiperparametre arama, HMM rejim tespiti, Exp3 meta-learner ensemble.
-
-**Çalışma Durumu:** ✅ Modeller eğitilmiş, inference çalışıyor
-
-#### Fonksiyon Listesi
-
-| Fonksiyon / Sınıf | Dosya | Açıklama |
-|-------------------|-------|----------|
-| `ModelRegistry` | model_registry.py | Model kayıt, yükleme, versiyon yönetimi |
-| `DRLInference` | inference.py | Tekli/batch tahmin |
-| `EnsembleRouter` | ensemble_router.py | Rejim-ağırlıklı çoklu ajan yönlendirme |
-| `LearnableEnsembleWeights` | ensemble_router.py | Exp3-style online meta-learner |
-| `MarketEnv` | market_env.py | Gymnasium ortamı (24 feature) |
-| `DRLTrainer` | trainer.py | PPO/A2C/SAC eğitim pipeline'ı |
-| `OptunaSearch` | optuna_search.py | Hiperparametre optimizasyonu |
-| `RegimeDetector` | (scripts/) | HMM tabanlı piyasa rejim tespiti |
-
-#### Kontrol Listesi
-
-| Kriter | Durum | Not |
-|--------|-------|-----|
-| Model versiyonlama | ✅ | registry.json ile metadata |
-| Reproducibility | ⚠️ | Seed ayarları var ama tam deterministik değil |
-| Feature pipeline | ✅ | 24 feature (EMA, RSI, MACD, BB, ATR, rejim, sentiment) |
-| Backtesting | ✅ | core/backtest.py (walk-forward) |
-| Model performansı | ❌ | Tüm Sharpe < 0.10 |
-| MLflow tracking | ⚠️ | Yapılandırılmış ama aktif değil |
-| A/B testing | ❌ | Yok |
-| Model monitoring | ❌ | Canlı performans takibi yok |
-| Data leakage kontrolü | ⚠️ | Walk-forward var ama doğrulama eksik |
-
-#### Bulgular
-
-1. **KRİTİK — Düşük Sharpe oranları:** Tüm modeller < 0.10 Sharpe. Bu, rastgele stratejiden zar zor ayrışan performans demektir. Üretimde para kaybı riski.
-2. **YÜKSEK — Tüm modeller `is_active: false`:** registry.json'da hiçbir model aktif olarak işaretlenmemiş. Üretim deploy'u yapılmamış.
-3. **YÜKSEK — Yetersiz eğitim süresi:** Çoğu model 500K timestep. Finansal RL için 5-10M+ önerilir.
-4. **ORTA — Ensemble performansı doğrulanmamış:** LearnableEnsembleWeights teorik olarak iyi ama üretim backtesti yok.
-5. **ORTA — Feature engineering sınırlı:** 24 feature yeterli başlangıç ama alternatif veri (sentiment, on-chain) henüz mock.
-
-#### Güvenlik
-
-| Risk | Seviye | Açıklama |
-|------|--------|----------|
-| Model poisoning | ⚠️ DÜŞÜK | Modeller yerel, dışarıdan yükleme yok |
-| Pickle deserialization | ⚠️ ORTA | SB3 modeller pickle ile yükleniyor |
-| Data integrity | ✅ | Hash doğrulama registry'de |
-
-#### Puanlama
-
-| Kriter | Puan (1-10) | Açıklama |
-|--------|-------------|----------|
-| Mimari tasarım | 9 | Ensemble + meta-learner + rejim tespiti mükemmel |
-| Kod kalitesi | 8 | İyi dokümantasyon, type hints, modüler yapı |
-| Model performansı | 2 | Sharpe < 0.10, üretim için yetersiz |
-| Test kapsamı | 4 | 3 test dosyası mevcut ama sınırlı |
-| MLOps olgunluğu | 3 | Registry var ama MLflow, monitoring eksik |
-| Eğitim pipeline | 7 | Optuna, WFO, multi-specialist — kapsamlı |
-| Üretim hazırlığı | 2 | Modeller yetersiz performansta |
-| **ORTALAMA** | **5.0** | |
-
-#### Düzeltme Önerileri
-
-1. Model eğitim süresini 5M+ timestep'e çıkar
-2. Daha zengin feature set (order flow, cross-asset correlation)
-3. Realistic transaction costs ve slippage ekle
-4. Walk-forward doğrulamayı raporla
-5. MLflow tracking'i aktifleştir
-6. Ensemble A/B test framework'ü
-
-#### Tekrarlama Notu
-> **DRL Tekrarlama:** `python3 scripts/train_specialist.py --agent trend --timesteps 5000000` ile uzun eğitim. `python3 -c "from drl.model_registry import get_registry; r=get_registry(); print(len(r.list_models()))"` → 19+ model dönmeli. Sharpe > 0.5 hedefi koyulmalı.
-
----
-
-### 3.4 Scanner Modülü
-
-**Teknik Tanım:** Yahoo Finance üzerinden teknik analiz tabanlı hisse tarama. RSI, MACD, Bollinger Bands, EMA, hacim analizi. Paralel çalıştırma desteği.
-
-**Çalışma Durumu:** ✅ Çalışıyor
-
-#### Fonksiyon Listesi
-
-| Fonksiyon | Dosya | Açıklama |
-|-----------|-------|----------|
-| `evaluate_symbol()` | evaluate.py | Tekli sembol değerlendirme |
-| `evaluate_symbols_parallel()` | evaluate.py | Paralel toplu tarama |
-| `calculate_indicators()` | indicators.py | Teknik gösterge hesaplama |
-| `generate_signals()` | signals.py | Alım/satım sinyal üretimi |
-| `fetch_data()` | data_fetcher.py | Yahoo Finance veri çekme |
-| `ScannerConfig` | config.py | Tarama parametreleri |
-
-#### Kontrol Listesi
-
-| Kriter | Durum | Not |
-|--------|-------|-----|
-| Batch tarama | ✅ | evaluate_symbols_parallel() |
-| Rate limiting | ✅ | Yahoo API uyumlu |
-| Hata toleransı | ✅ | Tek sembol hatası diğerlerini etkilemez |
-| Cache | ✅ | 30s in-memory + disk cache |
-| Deterministik sonuçlar | ✅ | Aynı veri → aynı sinyal |
-| 500+ sembol desteği | ✅ | Test edildi (309/309 başarılı) |
-
-#### Bulgular
-
-1. **OLUMLU — İyi test kapsamı:** 4 test dosyası (indicators, signals, evaluate, data_fetcher).
-2. **OLUMLU — Batch düzeltmesi yapıldı:** Yahoo 20-sembol limiti → 10'lu batch'ler.
-3. **ORTA — Sinyal kalitesi doğrulanmamış:** Geriye dönük test sonuçları raporlanmamış.
-
-#### Puanlama
-
-| Kriter | Puan (1-10) | Açıklama |
-|--------|-------------|----------|
-| Kod kalitesi | 8 | Modüler, hata toleransı iyi |
-| Test kapsamı | 7 | 4 test dosyası, temel senaryolar |
-| Güvenlik | 7 | Harici API çağrıları timeout'lu |
-| Performans | 8 | Paralel, cache'li, batch optimize |
-| Üretim hazırlığı | 6 | Sinyal kalitesi doğrulanmalı |
-| **ORTALAMA** | **7.2** | |
-
-#### Tekrarlama Notu
-> **Scanner Tekrarlama:** `python3 -c "from scanner.evaluate import evaluate_symbols_parallel; r=evaluate_symbols_parallel(['AAPL','MSFT','NVDA']); print(len(r))"` → 3 dönmeli. Tüm sinyaller (BUY/SELL/HOLD/CAUTION) dengeli dağılmalı.
-
----
-
-### 3.5 Auth Sistemi
-
-**Teknik Tanım:** JWT tabanlı kimlik doğrulama. bcrypt şifreleme, SQLite veritabanı, oturum yönetimi, rol tabanlı erişim.
-
-**Çalışma Durumu:** ✅ Çalışıyor (Streamlit entegrasyonu)
-
-#### Fonksiyon Listesi
-
-| Sınıf / Fonksiyon | Dosya | Açıklama |
-|-------------------|-------|----------|
-| `JWTHandler` | tokens.py | JWT encode/decode (HS256) |
-| `TokenPayload` | tokens.py | JWT payload dataclass |
-| `AuthConfig` | core.py | Yapılandırma (24h access, 30d refresh) |
-| `UserManager` | users.py | Kullanıcı CRUD |
-| `SessionManager` | sessions.py | Oturum yönetimi |
-| `PortfolioManager` | portfolio.py | Portföy yönetimi |
-| `DatabaseManager` | database.py | SQLite bağlantı yönetimi |
-
-#### Kontrol Listesi
-
-| Kriter | Durum | Not |
-|--------|-------|-----|
-| Şifre hash'leme | ✅ | bcrypt (12 round) |
-| JWT imzalama | ✅ | HS256, PyJWT |
-| Token yenileme | ✅ | Refresh token (30 gün) |
-| Brute force koruması | ✅ | Max 5 deneme, 15 dk kilitleme |
-| Secret key yönetimi | ✅ | `FINPILOT_SECRET_KEY` env var (fail-fast) |
-| SQL injection | ✅ | Parameterized queries |
-| HTTPS zorunluluğu | ❌ | HTTP üzerinden çalışıyor |
-| RBAC | ⚠️ | Rol alanı var ama uygulanmamış |
-| FastAPI entegrasyonu | ❌ | Auth middleware FastAPI'ye eklenmemiş |
-
-#### Bulgular
-
-1. **KRİTİK — FastAPI'ye bağlanmamış:** Auth sistemi var ama yeni FastAPI API katmanında kullanılmıyor.
-2. **YÜKSEK — HTTPS yok:** Token'lar HTTP üzerinden açık metin.
-3. **ORTA — Test import hatası:** test_auth.py koleksiyon hatası veriyor.
-
-#### Puanlama
-
-| Kriter | Puan (1-10) | Açıklama |
-|--------|-------------|----------|
-| Kod kalitesi | 8 | İyi yapılandırılmış, güvenli default'lar |
-| Kriptografi | 8 | bcrypt + JWT (industry standard) |
-| Entegrasyon | 3 | Sadece Streamlit'e bağlı, FastAPI'de yok |
-| Test kapsamı | 3 | 1 test dosyası (import hatası) |
-| Üretim hazırlığı | 4 | HTTPS + FastAPI middleware gerekli |
-| **ORTALAMA** | **5.2** | |
-
-#### Tekrarlama Notu
-> **Auth Tekrarlama:** `python3 -c "from auth.tokens import JWTHandler; h=JWTHandler('test-key'); t=h.encode({'sub':'u1','exp':9999999999,'iat':0,'jti':'j1','type':'access','role':'user'}); print(h.decode(t))"` → payload dönmeli. FastAPI middleware `Depends(get_current_user)` pattern'ı uygulanmalı.
-
----
-
-### 3.6 Core Altyapı
-
-**Teknik Tanım:** Projenin çekirdek modülleri — yapılandırma, cache, logging, monitoring, validasyon, i18n, plugin sistemi, WebSocket, Prometheus.
-
-**Çalışma Durumu:** ✅ Çalışıyor
-
-#### Fonksiyon Listesi (Seçili)
-
-| Modül | Dosya | Açıklama |
-|-------|-------|----------|
-| `FinPilotConfig` | config.py (461 satır) | Nested config (Scanner, DRL, Auth, Telegram, Cache, Monitoring, DB, API) |
-| `CacheManager` | cache.py | L1 (memory) + L2 (Redis) cache |
-| `setup_logging()` | logging.py | structlog yapılandırması |
-| `PrometheusExporter` | prometheus_exporter.py | Metrik dışa aktarma |
-| `PluginManager` | plugins.py | Plugin yükleme sistemi |
-| `validate_*` | validation.py | Input doğrulama fonksiyonları |
-| `I18N` | i18n.py | Çoklu dil desteği (TR/EN) |
-| `WebSocketFeed` | websocket_feeds.py | Gerçek zamanlı veri akışı |
-
-#### Bulgular
-
-1. **OLUMLU — Kapsamlı yapılandırma:** 461 satırlık config.py, nested Pydantic modeller, preset'ler.
-2. **OLUMLU — Plugin mimarisi:** Genişletilebilir yapı.
-3. **ORTA — WebSocket aktif değil:** Kod mevcut ama bağlanmamış.
-4. **ORTA — 2/4 test dosyasında import hatası:** test_validation.py ve test_websocket_feeds.py koleksiyon hatası.
-
-#### Puanlama
-
-| Kriter | Puan (1-10) | Açıklama |
-|--------|-------------|----------|
-| Mimari | 9 | Çok katmanlı, genişletilebilir |
-| Kod kalitesi | 8 | Pydantic, type hints, dokümantasyon |
-| Test kapsamı | 5 | 4 test dosyası (2 hatalı) |
-| Üretim hazırlığı | 6 | Cache ve monitoring yapılandırılmalı |
-| **ORTALAMA** | **7.0** | |
-
-#### Tekrarlama Notu
-> **Core Tekrarlama:** `python3 -c "from core.config import FinPilotConfig; c=FinPilotConfig(); print(c.to_dict().keys())"` → tüm config anahtarları. test_core.py ve test_validation.py düzeltilmeli.
-
----
-
-### 3.7 Streamlit (Legacy)
-
-**Teknik Tanım:** Orijinal frontend. 16 view dosyası + 24 bileşen. Port 8501. Docker Compose'da ana servis.
-
-**Çalışma Durumu:** ✅ Çalışıyor (ancak Next.js ile paralel kullanımda)
-
-#### Bulgular
-
-1. **KARAR GEREKLİ — İkili frontend:** Streamlit ve Next.js aynı anda mevcut. Hangisi birincil?
-2. **OLUMLU — Tam özellikli:** Tüm Python backend fonksiyonlarına doğrudan erişim.
-3. **ORTA — Bakım yükü:** İki frontend'i senkron tutmak zor.
-
-#### Puanlama
-
-| Kriter | Puan (1-10) |
-|--------|-------------|
-| İşlevsellik | 8 |
-| Kod kalitesi | 6 |
-| UX / Tasarım | 5 |
-| Üretim hazırlığı | 7 |
-| **ORTALAMA** | **6.5** |
-
-#### Tekrarlama Notu
-> **Streamlit Tekrarlama:** `streamlit run streamlit_app.py --server.port 8501` ile başlat. Tüm sekmeler yüklenmeli. Next.js'e geçiş tamamlanana kadar aktif tutulmalı.
-
----
-
-### 3.8 LLM Entegrasyonu
-
-**Teknik Tanım:** Çoklu LLM desteği — Groq, Google Gemini, Anthropic Claude. Router ile sağlayıcı seçimi.
-
-**Çalışma Durumu:** ✅ Çalışıyor (API key'ler yapılandırılmış)
-
-#### Bulgular
-
-1. **OLUMLU — Çoklu sağlayıcı:** Tek sağlayıcıya bağımlılık yok.
-2. **YÜKSEK — API key'ler `.env`'de açık metin:** Groq, Telegram, Alpaca key'leri.
-3. **ORTA — Fallback mekanizması:** Bir sağlayıcı başarısız olunca diğerine geçiş.
-
-#### Puanlama
-
-| Kriter | Puan (1-10) |
-|--------|-------------|
-| Mimari | 8 |
-| Güvenlik | 4 (açık key'ler) |
-| Test | 6 (1 test dosyası) |
-| **ORTALAMA** | **6.0** |
-
----
-
-### 3.9 Telegram Bot
-
-**Teknik Tanım:** Sinyal bildirimleri ve bot komutları. telegram_bot_runner.py, telegram_alerts.py, telegram_config.py, telegram_test.py.
-
-**Çalışma Durumu:** ⚠️ Yapılandırılmış ama aktif çalışmıyor
-
-#### Bulgular
-
-1. **DÜŞÜK — Test yok:** Bot komutları test edilmemiş.
-2. **OLUMLU — Docker Compose'da servis olarak tanımlanmış.**
-
-#### Puanlama: **5.0 / 10**
-
----
-
-### 3.10 Veri Katmanı
-
-**Teknik Tanım:** SQLite (finpilot.db), JSON dosyaları (inference, optuna sonuçları, watchlist, presets), log dosyaları.
-
-**Çalışma Durumu:** ✅ Çalışıyor
-
-#### Dosya Envanteri
-
-| Dosya | Boyut | İçerik |
-|-------|-------|--------|
-| `data/finpilot.db` | SQLite | users, sessions, portfolios, positions, trades, watchlists, user_settings |
-| `data/inference.json` | 24 satır | 5 DRL sinyal cache (HON, ADP, CTAS, CSX, TER) |
-| `data/optuna_*_results.json` | 4 dosya | Her birinde 30 deneme (conservative, momentum, range, swing) |
-| `data/dictionary.json` | — | Finansal terimler sözlüğü (TR/EN) |
-| `web/public/stock_presets.json` | — | 1,542 benzersiz sembol, ~40 preset |
-| `models/registry.json` | 2000+ satır | 11+ model metadata |
-
-#### Bulgular
-
-1. **ORTA — SQLite üretim için uygun değil:** Yüksek eşzamanlılıkta kilitleme sorunu.
-2. **OLUMLU — JSON dosyaları iyi yapılandırılmış.**
-3. **DÜŞÜK — Inference cache eski:** Son güncelleme 2026-03-03 (17 gün önce).
-
-#### Puanlama: **6.5 / 10**
-
----
-
-### 3.11 Docker & Deployment
-
-**Teknik Tanım:** Multi-stage Dockerfile (python:3.11-slim), docker-compose.yml (5 servis: finpilot, scanner, telegram_bot, redis, postgres).
-
-**Çalışma Durumu:** ⚠️ Sadece Streamlit için yapılandırılmış
-
-#### Bulgular
-
-1. **KRİTİK — Next.js Docker'da yok:** Dockerfile sadece Streamlit'i paketliyor.
-2. **KRİTİK — FastAPI Docker'da yok:** Yeni API katmanı Docker Compose'a eklenmemiş.
-3. **OLUMLU — Multi-stage build:** Küçük production image, non-root user.
-4. **OLUMLU — Health check:** Streamlit sağlık kontrolü 30s'de bir.
-
-#### Puanlama
-
-| Kriter | Puan (1-10) |
-|--------|-------------|
-| Dockerfile kalitesi | 8 |
-| Docker Compose kapsamı | 4 (eksik servisler) |
-| CI/CD | 1 (yok) |
-| **ORTALAMA** | **4.3** |
-
-#### Tekrarlama Notu
-> **Docker Tekrarlama:** `docker-compose up -d finpilot` → Streamlit 8501'de çalışmalı. Next.js + FastAPI için ayrı Dockerfile'lar ve compose servisleri eklenmeli.
-
----
-
-### 3.12 Test Altyapısı
-
-**Teknik Tanım:** pytest (23 dosya, 266 collected test). pyproject.toml'da yapılandırılmış.
-
-**Çalışma Durumu:** ⚠️ 8 dosyada import hatası
-
-#### Test Dosyası Durumu
-
-| Dosya | Durum | Kapsam |
-|-------|-------|--------|
-| test_alignment_helpers.py | ✅ | DRL hizalama |
-| test_auth.py | ❌ Import hatası | Auth sistemi |
-| test_backtest.py | ❌ Import hatası | Backtest motoru |
-| test_broker.py | ✅ | Broker abstraction |
-| test_core.py | ✅ | Core fonksiyonlar |
-| test_data_fetcher.py | ✅ | Veri çekme |
-| test_db_backend.py | ✅ | Veritabanı |
-| test_db_repos.py | ❌ Import hatası | DB repositories |
-| test_drl_integration.py | ✅ | DRL entegrasyon |
-| test_evaluate.py | ✅ | Scanner değerlendirme |
-| test_explainability.py | ✅ | Model açıklanabilirlik |
-| test_feature_generators.py | ✅ | Feature engineering |
-| test_indicators.py | ✅ | Teknik göstergeler |
-| test_llm.py | ✅ | LLM entegrasyonu |
-| test_plugins.py | ❌ Import hatası | Plugin sistemi |
-| test_prometheus.py | ❌ Import hatası | Prometheus |
-| test_sentry.py | ✅ | Sentry entegrasyonu |
-| test_signals.py | ✅ | Sinyal üretimi |
-| test_social.py | ❌ Import hatası | Sosyal özellikler |
-| test_validation.py | ❌ Import hatası | Validasyon |
-| test_views_integration.py | ✅ | View entegrasyonu |
-| test_views_smoke.py | ✅ | View smoke testleri |
-| test_websocket_feeds.py | ❌ Import hatası | WebSocket |
-
-**Özet:** 15/23 dosya çalışıyor (266 test), 8/23 dosyada import hatası.
-
-#### Puanlama
-
-| Kriter | Puan (1-10) | Açıklama |
-|--------|-------------|----------|
-| Backend test kapsamı | 6 | 266 test, temel senaryolar |
-| Frontend test kapsamı | 0 | Hiç test yok |
-| Test altyapısı | 7 | pytest, pyproject.toml yapılandırılmış |
-| Test güvenilirliği | 4 | 8 dosyada import hatası |
-| CI/CD entegrasyonu | 0 | Yok |
-| **ORTALAMA** | **3.4** | |
-
-#### Tekrarlama Notu
-> **Test Tekrarlama:** `cd /workspaces/Borsa && python3 -m pytest -v --tb=short 2>&1 | tail -20`. 266+ test pass etmeli. Import hatası olan 8 dosya düzeltilmeli. Frontend: `cd web && npx vitest` çalıştırılmalı (önce Vitest kurulmalı).
-
----
-
-## 4. Entegrasyon ve Veri Akışı
-
-### 4.1 Mimari Diyagramı
-
+**Üretim veri akışı:**
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    KULLANICI                              │
-└──────────┬────────────────────────────┬──────────────────┘
-           │                            │
-    ┌──────▼──────┐              ┌──────▼──────┐
-    │  Next.js    │              │  Streamlit  │
-    │  Port 3000  │              │  Port 8501  │
-    │  (Yeni UI)  │              │  (Legacy)   │
-    └──────┬──────┘              └──────┬──────┘
-           │                            │
-     ┌─────▼─────┐                      │
-     │ /api/quotes│ ← Yahoo Finance     │
-     │ (proxy)    │   (batch ≤20)       │
-     └─────┬─────┘                      │
-           │                            │
-     ┌─────▼──────────┐                 │
-     │  /py-api/*     │                 │
-     │  (Next.js      │                 │
-     │   rewrite)     │                 │
-     └─────┬──────────┘                 │
-           │                            │
-    ┌──────▼──────────────────────┐     │
-    │      FastAPI (Port 8000)    │     │
-    │  ┌─────────────────────┐   │     │
-    │  │ /models    → Registry│   │     │
-    │  │ /inference → JSON    │   │     │
-    │  │ /ensemble  → Router  │◄──┼─────┘
-    │  │ /optuna    → Results │   │  (doğrudan import)
-    │  │ /scan      → Scanner │   │
-    │  └─────────────────────┘   │
-    └──────┬──────────────────────┘
-           │
-    ┌──────▼──────────────────────┐
-    │      Python Backend         │
-    │  ┌────────┐ ┌──────────┐   │
-    │  │ DRL/ML │ │ Scanner  │   │
-    │  │ 20     │ │ Yahoo    │   │
-    │  │ model  │ │ Finance  │   │
-    │  └───┬────┘ └────┬─────┘   │
-    │      │           │          │
-    │  ┌───▼───────────▼─────┐   │
-    │  │   SQLite + JSON     │   │
-    │  │   data/finpilot.db  │   │
-    │  │   data/*.json       │   │
-    │  │   models/registry   │   │
-    │  └─────────────────────┘   │
-    └─────────────────────────────┘
+data/tickers + yfinance
+   → scanner.data_fetcher.fetch()           [sync I/O, Redis+LRU cache]
+   → scanner.indicators.add_indicators()
+   → scanner.signals.evaluate_symbols_parallel()
+        ├→ signals.signal_score_row()        (skor-1: gözlem)
+        ├→ finpilot_score.compute_finpilot_score()  (skor-2: ANA, _W_DRL=0)
+        │     └→ score_engine.compute_recommendation_score()  (skor-3: reco)
+        ├→ scanner.evaluate.evaluate_symbol()
+        └→ core.kpi_tracker.record_signal()
+   → data/signal_archive/*.json
+   → core.outcome_reconciler  [HORIZONS: t1, t5, t20]
+   → core.kpi_tracker.update_outcome()
+   → core.calibration (isotonic)
+   → api/routers/* → web/py-api/* (Next.js proxy)
 ```
 
-### 4.2 Veri Akış Tablosu
-
-| Kaynak | Hedef | Protokol | Veri | Gecikme |
-|--------|-------|----------|------|---------|
-| Yahoo Finance | Next.js /api/quotes | HTTPS (Spark API) | Fiyat, değişim, hacim | ~500ms |
-| Next.js | Kullanıcı | HTTP/SSR | Dashboard HTML + JSON | <100ms |
-| Next.js /py-api/* | FastAPI | HTTP proxy | Model/Inference/Optuna | <50ms |
-| FastAPI | ModelRegistry | Dosya I/O | registry.json | <5ms |
-| FastAPI | DRL Inference | Python import | inference.json | <5ms |
-| FastAPI | Optuna Results | Dosya I/O | optuna_*_results.json | <5ms |
-| FastAPI | Scanner | Python import | Yahoo Finance → evaluate | 2-10s |
-| Streamlit | Python Backend | Doğrudan import | Tüm modüller | <10ms |
-| Telegram Bot | Telegram API | HTTPS | Sinyal bildirimleri | ~1s |
-
-### 4.3 Entegrasyon Sorunları
-
-| # | Sorun | Etki | Öncelik |
-|---|-------|------|---------|
-| 1 | Next.js → FastAPI auth yok | Tüm veriler herkese açık | 🔴 KRİTİK |
-| 2 | Streamlit + Next.js paralel | Bakım yükü, tutarsızlık riski | 🟡 YÜKSEK |
-| 3 | 7/10 Next.js sayfası mock veri | Kullanıcı gerçek veri görmüyor | 🟡 YÜKSEK |
-| 4 | FastAPI Docker'da yok | Deployment gap | 🟡 YÜKSEK |
-| 5 | Inference cache 17 gün eski | Eski sinyaller gösteriliyor | 🟠 ORTA |
-| 6 | SQLite → PostgreSQL geçişi yapılmamış | Ölçeklenebilirlik sorunu | 🟠 ORTA |
-| 7 | MLflow aktif değil | Model takibi yok | 🔵 DÜŞÜK |
-
----
-
-## 5. Go / No-Go Kararı
-
-### 5.1 Üretim Hazırlık Matrisi
-
-| Kategori | Ağırlık | Puan (1-10) | Ağırlıklı |
-|----------|---------|-------------|-----------|
-| Güvenlik | 25% | 3 | 0.75 |
-| Test Kapsamı | 20% | 3 | 0.60 |
-| Performans | 15% | 7 | 1.05 |
-| Veri Kalitesi | 15% | 4 | 0.60 |
-| UX / Tasarım | 10% | 8 | 0.80 |
-| Altyapı / DevOps | 10% | 4 | 0.40 |
-| Dokümantasyon | 5% | 6 | 0.30 |
-| **TOPLAM** | **100%** | | **4.50 / 10** |
-
-### 5.2 Karar
-
-## ❌ NO-GO — Üretim İçin Hazır Değil
-
-### Engeller (Mutlaka Çözülmeli):
-
-| # | Engel | Risk | Çözüm Süresi |
-|---|-------|------|-------------|
-| 1 | **FastAPI auth yok** | Veri sızıntısı | 2-3 gün |
-| 2 | **CORS `*` açık** | XSS/CSRF saldırısı | 1 saat |
-| 3 | **Frontend 0 test** | Regresyon | 3-5 gün |
-| 4 | **DRL Sharpe < 0.10** | Kullanıcı para kaybı | 2-4 hafta |
-| 5 | **Settings kalıcı değil** | Kötü UX | 1-2 gün |
-| 6 | **8 test dosyasında hata** | CI/CD bloker | 1-2 gün |
-| 7 | **Docker'da Next.js/FastAPI yok** | Deploy edilemez | 2-3 gün |
-| 8 | **HTTPS zorunluluğu yok** | Token ele geçirme | 1 gün |
-
-### Demo/Beta İçin Kabul Edilebilir:
-
-Mevcut durum **kapalı beta** veya **demo** amaçlı kullanılabilir — şartlar:
-- Mock veri açıkça "Demo Data" olarak etiketlenmeli
-- DRL sinyalleri "Experimental — Not Financial Advice" uyarısı
-- Bilinen kişilerle sınırlı erişim (auth olmasa da)
-
----
-
-## 6. 2 Haftalık Onarım Planı
-
-### Hafta 1: Güvenlik ve Temel Altyapı
-
-| Gün | Görev | Dosya | Çıktı |
-|-----|-------|-------|-------|
-| P.tesi | CORS whitelist düzeltmesi | api/main.py | `allow_origins=["http://localhost:3000"]` |
-| P.tesi | FastAPI JWT middleware | api/middleware/auth.py (yeni) | `Depends(get_current_user)` |
-| Salı | Rate limiting (slowapi) | api/main.py | IP başına 60 req/dk |
-| Salı | 8 test import hatasını düzelt | tests/test_*.py (8 dosya) | 266+ test yeşil |
-| Çarşamba | Frontend Vitest kurulumu | web/vitest.config.ts | `npx vitest` çalışır |
-| Çarşamba | 5 kritik sayfa için render testi | web/src/__tests__/ | 10+ frontend test |
-| Perşembe | Settings localStorage persistence | dashboard/settings/page.tsx | Sayfa yenilenmede ayarlar korunur |
-| Perşembe | Watchlist localStorage persistence | dashboard/watchlist/page.tsx | Watchlist korunur |
-| Cuma | Error boundary (global) | web/src/app/error.tsx | Hata sayfası |
-| Cuma | Loading skeleton bileşenleri | web/src/components/ | 3 skeleton bileşen |
-
-### Hafta 2: Veri Kalitesi ve Deployment
-
-| Gün | Görev | Dosya | Çıktı |
-|-----|-------|-------|-------|
-| P.tesi | Analysis sayfasını /py-api/scan'e bağla | dashboard/analysis/page.tsx | Gerçek teknik analiz |
-| P.tesi | Backtest sayfasını Python backend'e bağla | api/routers/backtest.py (yeni) | Gerçek backtest sonuçları |
-| Salı | History sayfasını DB'den oku | api/routers/history.py (yeni) | 14 gün gerçek sinyal geçmişi |
-| Salı | Profile/Settings DB persistence | api/routers/user.py (yeni) | Kullanıcı verileri kalıcı |
-| Çarşamba | Next.js Dockerfile | web/Dockerfile (yeni) | Multi-stage build |
-| Çarşamba | FastAPI Dockerfile | api/Dockerfile (yeni) | Multi-stage build |
-| Perşembe | Docker Compose güncelleme | docker-compose.yml | 5 servis (finpilot, web, api, redis, postgres) |
-| Perşembe | CI/CD pipeline (GitHub Actions) | .github/workflows/ci.yml | Lint + Test + Build |
-| Cuma | Inference cache otomatik yenileme | scripts/refresh_inference.py | Cron job (her 4 saatte) |
-| Cuma | Demo/Beta etiketleri | Tüm mock sayfalar | "Demo Data" uyarısı |
-
----
-
-## 7. Test Senaryoları ve Kontrol Listeleri
-
-### 7.1 FastAPI API Testleri
-
-```bash
-# Sağlık kontrolü
-curl http://localhost:8000/api/v1/health
-# Beklenen: {"status":"ok"}
-
-# Model listesi
-curl http://localhost:8000/api/v1/models
-# Beklenen: 19 model, her birinde model_id, name, metrics
-
-# Tekli model
-curl http://localhost:8000/api/v1/models/ppo_conservative_20260302_214206
-# Beklenen: Tek model detayı
-
-# Inference cache
-curl http://localhost:8000/api/v1/inference-cache
-# Beklenen: 5 sinyal (HON, ADP, CTAS, CSX, TER)
-
-# Optuna ajanları
-curl http://localhost:8000/api/v1/optuna/agents
-# Beklenen: ["conservative","momentum","range","swing"]
-
-# Optuna sonuçları
-curl 'http://localhost:8000/api/v1/optuna/results?agent=conservative'
-# Beklenen: 30 trial, best_value mevcut
+**Kontrol akışı:**
+```
+core.scheduler (APScheduler)
+   ├→ agents/scanner_agent
+   ├→ agents/market_intelligence
+   ├→ agents/backtest_agent
+   ├→ agents/performance_monitor
+   ├→ agents/data_quality
+   ├→ agents/strategy_optimizer
+   ├→ agents/report_agent
+   └→ agents/advisory
 ```
 
-### 7.2 Frontend Sayfa Kontrol Listesi
+**Kopuk noktalar:**
+1. `drl/inference.py` → `scanner/finpilot_score.py` (**_W_DRL=0, fiilen kopuk**)
+2. `scanner/{features, risk_engine, earnings_blackout}` → **kimse import etmiyor**
+3. `scanner/score_engine.py` → runtime'da çağrılmıyor (`finpilot_score` ayrı formül)
+4. `core/websocket_feeds.py` → sadece monitor referansı, üretim dışı
+5. `views/` → sadece pyc, source yok
+6. `telegram_*.py` (root) → scheduler/api'den import izi doğrulanmadı
+7. `models/best/best_model.zip` → kim yükler, ne zaman güncellenir belli değil
+8. AlphaTracker `weighted_score` → dashboard arasındaki bağlantı eksik (plan item 5)
 
-| Sayfa | Test | Beklenen |
-|-------|------|----------|
-| / | Landing page yükleniyor | Hero, Features, Pricing bölümleri |
-| /dashboard | Overview yükleniyor | Market Pulse (4 kart), Top Opportunities |
-| /dashboard/scanner | Preset seçimi çalışıyor | 1,542 sembol, scanning animasyonu |
-| /dashboard/ai-lab | API bağlantı badge'i | "Python API Connected" veya "Offline" |
-| /dashboard/ai-lab | DRL Models sekmesi | 19 model kartı (gerçek metrikler) |
-| /dashboard/ai-lab | Optuna sekmesi | Agent seçici, 30 trial bar chart |
-| /dashboard/watchlist | Sembol ekleme | NVDA eklendi, fiyat 30s'de güncellenir |
-| /dashboard/analysis | Ticker arama | Search dropdown çalışır |
-| /dashboard/finsense | Dictionary yükleniyor | Finansal terimler görünür |
-| /dashboard/settings | Ayar kaydetme | Toast mesajı görünür |
+---
 
-### 7.3 Backend Test Komutu
+## 6) TEKRAR VE REDUNDANCY BULGULARI
 
-```bash
-# Tüm testleri çalıştır
-cd /workspaces/Borsa
-python3 -m pytest -v --tb=short
+| Tekrar alanı | Sorun | Öneri |
+|---|---|---|
+| 3 skor fonksiyonu | Otorite belirsiz, audit ters çıktı | Tek fn: `finpilot_score`. Diğerleri merge/remove. |
+| 3 frontend | Tek ürün, 3 fosil | `web/` = ürün. `views/` REMOVE. `public_website/` → marketing repo. |
+| 2 evolution timeline | Aynı doküman | `_OLD.md` sil. |
+| 2 professional analysis | Versiyon karmaşası | Tek dosya + git history. |
+| 2 project analysis | Aynı sunum | Tek dosya. |
+| 4 audit artifact | Otoriter belirsiz | `docs/audits/YYYY-MM-DD/` standardı. Bu dosya tek otoriter. |
+| 2 drl_autopilot | "patched" merge edilmemiş | Merge + sil. |
+| 2 regime detector | İsim benzer, kapsam farklı | Net naming: `market_regime` vs `volatility_regime`. |
+| Çoklu launcher | bat, sh, fp, Makefile | Tek Makefile + `fp` wrapper. |
+| `site/` + `docs/` | Build artifact commit'lenmiş | `site/` → gitignore, CI'da üret. |
+| `reports/` + `data/daily_reports/` | İki rapor dizini | Tek: `data/daily_reports/` runtime, `reports/` arşiv. |
 
-# Beklenen: 266+ test passed, 0 failed
-# Not: 8 dosyada collection error mevcut (düzeltilecek)
+---
 
-# Sadece çalışan testler
-python3 -m pytest tests/test_core.py tests/test_indicators.py tests/test_signals.py tests/test_evaluate.py -v
+## 7) DARBOĞAZ VE YAVAŞLIK ANALİZİ
+
+| Alan | Neden yavaş | Etki | Çözüm |
+|---|---|---|---|
+| `scanner/data_fetcher.py` (733) | `yf.download()` blocking, ThreadPool var ama fetch'te kullanılmıyor | Tarama süresi | Fetch'i ThreadPool'a al |
+| `core/cache.py` (828) | Redis + LRU + Streamlit 3 katmanlı | Cache miss debug zor | Streamlit kolunu sil |
+| `core/scheduler.py` (1191) | 8+ agent job tek dosyada | Bakım zor | `core/jobs/*.py` modülleri |
+| `core/monitoring.py` (1212) | Health + watchdog + prom export birlikte | Şişme | `monitoring/` paketi |
+| Skor pipeline | 3 fonksiyon ardışık | Mikro yavaşlık + okuma yükü | 1 fonksiyon |
+| `web/` build | 918 MB node_modules | Docker image şişer | Multi-stage + standalone |
+| Test | 664 test, seri | CI süresi | pytest-xdist + markers |
+| `data/signal_archive/*.json` (51 dosya) | Her gün JSON + audit okur | Disk + parse | SQLite tek tablo |
+| `models/` 25M, 17 PPO | Çoğu eski | Disk | 3 en yeni, gerisi archive |
+| `core/audit.py` + `audit_log.py` + `data/logs/audit/` + `docs/audits/` | 4 yerde audit | Karışıklık | Tek pipeline |
+
+---
+
+## 8) ÜRÜN DEĞERİ SINIFLANDIRMASI
+
+| Bileşen | Ürün değeri | Bakım yükü | Karar |
+|---|---|---|---|
+| `scanner/` + `core/kpi_tracker` + `calibration` + `outcome_reconciler` | **Core product** | Orta | KEEP — sadeleştir |
+| `web/dashboard` | **Core product** | Orta | KEEP |
+| `api/routers/{scan, watchlist, history, closed_loop, advisory, agent}` | **Core product** | Düşük | KEEP |
+| `agents/{alpha_tracker, advisory, scanner_agent, performance_monitor}` | Important support | Orta | KEEP |
+| `core/scheduler` | Important support | Yüksek (1191 LOC) | SIMPLIFY |
+| `auth/` + JWT | Important support | Düşük | KEEP |
+| `core/monitoring` + `prometheus_exporter` | Important support | Orta | SIMPLIFY |
+| `drl/` katmanı | **Premature complexity** (_W_DRL=0) | Yüksek (10K LOC) | FREEZE → `experimental/drl/` |
+| `core/{social, i18n, plugins, exceptions, validation, tracing, session_state}` | **Yok** | Yüksek (~5K LOC orphan) | ARCHIVE |
+| `views/` Streamlit | Yok (ölü) | — | REMOVE |
+| `public_website/` marketing | Pazarlama | Düşük | MOVE |
+| `grant_documents/` (NVIDIA, AWS) | İş kritik | Düşük | KEEP → `business/` |
+| `docs/` tekrarlı pitch | Düşük (tekrar) | Düşük | MERGE |
+| `models/` 17 PPO | Düşük (kullanılmıyor) | Disk | PRUNE → 3 |
+| `scripts/` 32 stale | Yok | Orta | ARCHIVE |
+| `site/` mkdocs build | Düşük (CI üretir) | — | REMOVE + gitignore |
+| `broker/` stub | Nice-to-have | Düşük | KEEP |
+| `telegram_*.py` (root) | Bilinmiyor | Belirsiz | DOĞRULA → `core/notifier/` |
+
+---
+
+## 9) OPTİMİZASYON TABLOSU
+
+| Bileşen | Optimize alan | Beklenen fayda | Ölçüm | Efor | Öncelik |
+|---|---|---|---|---|---|
+| `scanner/finpilot_score` | Component ablasyonu | Decile lift 0.728 → ≥1.3 | `profitcore_audit.py` | 1g | P0 |
+| Skor pipeline | 3→1 fonksiyon | Okunabilirlik | LOC -120 | 2s | P0 |
+| `views/` REMOVE | Ölü kod | Repo temizliği | klasör boyutu | 5dk | P0 |
+| Root çöpü REMOVE | output.log, .docker_build.log | Repo kirlilik | dosya sayısı | 5dk | P0 |
+| `core/` orphan arşiv | ~5K LOC | Bakım yükü | LOC | 30dk | P1 |
+| `drl/` → `experimental/` | Sahiplik netleşmesi | Konsept netliği | klasör | 1s | P1 |
+| `models/` prune | -20M disk | Disk + Docker | du -sh | 30dk | P1 |
+| Duplicate docs merge | Karışıklık | Okunabilirlik | dosya sayısı | 1s | P1 |
+| `site/` gitignore | Build artifact | Repo boyutu | git size | 1s | P1 |
+| `core/scheduler` paketi | 1191→400 main | Bakım | LOC | 1g | P2 |
+| `core/monitoring` paketi | 1212→400 main | Bakım | LOC | 1g | P2 |
+| `core/cache` streamlit sil | LOC -200 | Bakım | LOC | 1s | P2 |
+| `data_fetcher` ThreadPool | Tarama süresi -%40 | Benchmark | süre | 1g | P2 |
+| `signal_archive` JSON→SQLite | I/O + audit hızı | Audit run | süre | 3s | P2 |
+| Test pytest-xdist | CI -%60 | CI süresi | dakika | 1s | P2 |
+| Web multi-stage Docker | 1.6G → ~300M | Docker build | image boyutu | 4s | P2 |
+| `models/best/` pointer | Yanlış model riski | Güvenilirlik | dosya | 2s | P2 |
+| Audit cron + Grafana | L3 olgunluk | Otomasyon | dashboard | 1g | P2 |
+| AlphaTracker → dashboard | Plan item 5 | Özellik tamamlama | UI | 2s | P2 |
+| Component ablation script | Hangi feature kötü | Edge bulma | decile lift | 1g | P1 |
+
+---
+
+## 10) SADELEŞTİRME KARARLARI
+
+| Karar | Bileşen | Gerekçe |
+|---|---|---|
+| KEEP | `scanner/finpilot_score`, `core/{kpi_tracker, calibration, outcome_reconciler, scheduler, config, database}`, `api/routers/*`, `agents/*`, `web/`, `tests/`, `auth/` | Core product zinciri |
+| SIMPLIFY | `core/scheduler` (modülerleş), `core/monitoring` (paketle), `core/cache` (streamlit sil) | Şişti, bakım zor |
+| MERGE | `score_engine`+`risk_engine`+`features` → `finpilot_score`/`evaluate`; duplicate docs | Duplikasyon |
+| FREEZE | `drl/` → `experimental/drl/`; `core/websocket_feeds`; `models/ppo_*` (3 hariç) | Şu an kullanılmıyor |
+| ARCHIVE | `core/{exceptions, i18n, social, plugins, validation, tracing, session_state}`; 32 stale script; `logs/tensorboard`; eski docs | Orphan / çürük |
+| REMOVE | `views/`, `output.log`, `.docker_build.log`, `scripts/*.bak`, `scanner/earnings_blackout`, `site/`; `public_website/` → ayrı repo | Ölü / yük |
+
+---
+
+## 11) OTONOMİ OLGUNLUK DEĞERLENDİRMESİ
+
+| Seviye | Tanım | Durumuz | Eksik |
+|---|---|---|---|
+| 0 | Manuel, dağınık | — | — |
+| 1 | Temel otomasyon (scheduler var) | ✓ geçildi | — |
+| **2** | **Modüler ama kopuk** | **← BURDAYIZ** | DRL kopuk, 3 skor fn, orphan modüller, audit kapalı döngü değil |
+| 3 | Ölçülen + kontrollü | Hedef | Decile lift sürekli ölçüm, calibration cron, ablation, regression gate |
+| 4 | Kontrollü self-improving | Sonraki | Online feedback → weight güncelleme, regime-aware, drift detection |
+| 5 | Denetimli düşük-müdahale | İlerisi | Self-tuning + insan onayı + rollback |
+
+**L3'e geçmek için:**
+1. `profitcore_audit` haftalık cron + Grafana panel
+2. Component ablation tablosu
+3. Score regression gate (lift <1.2 → deploy blok)
+4. Calibration auto-retrain (MAE>0.10)
+5. Feature distribution drift (PSI)
+
+---
+
+## 12) DOĞRU SORULAR ÇERÇEVESİ
+
+### scanner/
+**Tanı:** Hangi component decile inversiyonunu sürüklüyor? `signal_score_row` ile `finpilot_score` aynı sıralamayı üretiyor mu? `risk_engine` neden bağlı değil?
+**Optimize:** `data_fetcher` ThreadPool kazanımı ne? Indicator hesaplama cacheable mi?
+**Evrim:** Regime-aware scoring, self-calibrating eşik, feature importance feedback loop.
+
+### core/
+**Tanı:** Orphan modüllerin geçmişi neden var? `scheduler` watchdog gerçek timeout'ta job kill ediyor mu? `calibration` MAE'si şu an ne?
+**Optimize:** `monitoring.py` 1212 LOC parçalama; `cache.py` streamlit kolu.
+**Evrim:** `plugins.py` gerçekten lazım mı yoksa premature?
+
+### drl/
+**Tanı:** `inference.py` 4d önce fresh — neden, `_W_DRL=0` iken? `models/best` kim güncellemeli? Specialist ensemble bir signal'a ne ekliyor?
+**Optimize:** Şu an kullanılmıyor → önce edge kanıtla.
+**Evrim:** DRL'i geri açmadan önce skor edge'i kanıtlanmalı.
+
+### api/
+**Tanı:** 13 router niçin test'siz? `/loop/*` endpoint'leri outcome güncelliyor mu? `agent` router hata toleransı?
+**Optimize:** Auth middleware tek dependency'ye çek.
+**Evrim:** OpenAPI versiyonlama, rate limiting per-user.
+
+### agents/
+**Tanı:** `alpha_tracker.weighted_score` nereye yazılıyor? `ceo.py` API'ye gerek var mı? `feedback.py` feedback nereye depoluyor?
+**Optimize:** Agent'ların ortak LLM client pool'u.
+**Evrim:** Agent karar tracing (her advisory → kanıt zinciri).
+
+### web/
+**Tanı:** `/py-api/` proxy'de ölü endpoint var mı? Dashboard `agent-hub` 16 agent'ı görüyor mu? 918M'dan kaç paket üründe?
+**Optimize:** Multi-stage Dockerfile, standalone output.
+**Evrim:** Real-time WebSocket, PWA offline.
+
+### scripts/
+**Tanı:** Son 30 günde hangi script'ler çalıştı? Kim tetikliyor (cron yok)?
+**Optimize:** `fp` CLI altında subcommand; 32 stale arşivle.
+**Evrim:** Script'ler → API endpoint (audit, retrain).
+
+### tests/
+**Tanı:** 4 known fail neden çözülmedi? Coverage gerçek %?
+**Optimize:** pytest-xdist, marker-based selection.
+**Evrim:** Property-based testing skor fn için, snapshot test'ler.
+
+### data/
+**Tanı:** `signal_archive` 51 JSON — neden DB'ye yazılmıyor? `daily_reports/` vs `reports/` farkı?
+**Optimize:** JSON → SQLite.
+**Evrim:** S3/blob soğuk arşiv.
+
+### docs/
+**Tanı:** 35 MD'den kaç tanesi son 60 günde güncellendi?
+**Optimize:** Tekrarlı pitch → tek `business/` klasör.
+**Evrim:** ADR disiplini — sadece `docs/adr/` yeni karar.
+
+---
+
+## 13) HEDEF REPO YAPISI
+
+```
+finpilot/
+├── core/                    # 13K → 8K LOC (orphan'lar arşivlendi)
+│   ├── kpi_tracker.py
+│   ├── calibration.py
+│   ├── outcome_reconciler.py
+│   ├── config.py
+│   ├── database.py
+│   ├── cache.py             # streamlit kolu silindi
+│   ├── monitoring/          # eski monitoring.py paketlendi
+│   │   ├── health.py
+│   │   ├── watchdog.py
+│   │   └── prometheus.py
+│   ├── scheduler/           # eski scheduler.py paketlendi
+│   │   ├── runtime.py
+│   │   └── jobs/
+│   └── notifier/            # telegram_*.py buraya
+├── scanner/                 # 11 → 6 dosya
+│   ├── data_fetcher.py
+│   ├── indicators.py
+│   ├── signals.py
+│   ├── evaluate.py
+│   ├── finpilot_score.py    # TEK skor fonksiyonu
+│   └── config.py
+├── agents/
+├── api/
+├── auth/
+├── llm/
+├── broker/
+├── web/                     # node_modules gitignore
+├── data/
+│   ├── signal_archive.db    # JSON yerine SQLite
+│   ├── tickers/
+│   ├── daily_reports/
+│   └── audit/
+├── tests/
+├── scripts/                 # 54 → 12 (Makefile'dan çağrılanlar)
+│   ├── profitcore_audit.py
+│   ├── component_ablation.py
+│   ├── smoke_test.py
+│   ├── daily_inference.py
+│   ├── paper_trading.py
+│   ├── weekly_report.py
+│   └── docker_smoke.sh
+├── docs/
+│   ├── adr/
+│   ├── runbooks/
+│   ├── audits/YYYY-MM-DD/   # tek standart
+│   ├── architecture.md
+│   └── api/
+├── experimental/            # FREEZE alanı
+│   ├── drl/                 # eski drl/
+│   ├── websocket_feeds.py
+│   └── plugins.py
+├── archive/                 # checkout edilebilir ama aktif değil
+│   ├── core_legacy/
+│   ├── scripts_legacy/
+│   └── docs_legacy/
+├── business/                # eski grant_documents/
+│   ├── pitch/
+│   └── grants/
+├── monitoring/
+├── migrations/
+├── models/
+│   ├── best/                # pointer mekanizması
+│   └── current/
+├── pyproject.toml
+├── Makefile
+├── docker-compose.yml
+├── Dockerfile
+├── README.md
+└── fp                       # tek CLI launcher
 ```
 
-### 7.4 Deployment Kontrol Listesi
+---
 
-| # | Kontrol | Durum |
-|---|---------|-------|
-| 1 | FastAPI başlatıldı (port 8000) | `curl localhost:8000/api/v1/health` → ok |
-| 2 | Next.js başlatıldı (port 3000) | `curl -s -o /dev/null -w "%{http_code}" localhost:3000` → 200 |
-| 3 | Proxy çalışıyor | `curl localhost:3000/py-api/models` → 19 model |
-| 4 | Yahoo Finance erişilebilir | `curl localhost:3000/api/quotes?symbols=AAPL` → fiyat |
-| 5 | SQLite DB mevcut | `ls data/finpilot.db` → dosya var |
-| 6 | Model dosyaları mevcut | `ls models/` → 20+ dizin |
-| 7 | Ortam değişkenleri | `.env` ve `web/.env.local` mevcut |
+## 14) EXECUTION ROADMAP
+
+### Bugün
+1. Audit commit: `scripts/profitcore_audit.py` + `data/profitcore_audit.json` + `scanner/score_engine.py`
+2. `views/` sil
+3. Root çöpü: `output.log`, `.docker_build.log`, `scripts/*.bak`
+4. Duplicate docs merge: `EVOLUTION_TIMELINE_OLD.md` sil, `PROFESSIONAL_ANALYSIS_*` birleştir
+5. `models/ppo_*` prune: 3 en yeni hariç `archive/models_legacy/`
+
+### Bu hafta
+6. Component ablation script (`scripts/component_ablation.py`)
+7. `core/` orphan arşivle: `exceptions, i18n, social, plugins, validation, tracing, session_state`
+8. `scanner/{score_engine, risk_engine, earnings_blackout}` sil veya merge
+9. 3 skor fonksiyonu → 1 (`finpilot_score` kazanır)
+10. Agent / advisory / scan / trade router için happy-path test
+11. AlphaTracker `weighted_score` → dashboard (plan item 5)
+12. `drl/` → `experimental/drl/`
+13. `site/` gitignore + remove from git
+14. `data/signal_archive/*.json` → SQLite migration
+15. `telegram_*.py` → `core/notifier/` taşı + doğrula
+
+### Bu ay
+16. `core/scheduler.py` → `core/scheduler/` paketi
+17. `core/monitoring.py` → `core/monitoring/` paketi
+18. `core/cache.py` streamlit kolu kaldır
+19. `scripts/` 54 → 12
+20. `models/best/` pointer mekanizması
+21. Calibration retrain cron (haftalık, MAE>0.10)
+22. `profitcore_audit` Grafana panel
+23. `/api/v1/profitcore/metrics` endpoint
+24. Component correlation matrix
+25. Risk engine portfolio DD gate
+26. `outcomes_horizon` SQLite tablo (T+3/T+5/T+10)
+27. `public_website/` ayrı repo
+28. `fp` CLI subcommand'lar (`fp scan`, `fp audit`, `fp paper`)
+29. pytest-xdist + markers
+30. Web Docker multi-stage
+
+### 90 gün (L3 olgunluk)
+31. Decile lift sürekli ölçüm + regression gate (lift <1.2 → deploy blok)
+32. Score v2: ablation sonucuna göre yeniden ağırlıklandırılmış formül
+33. DRL geri açma kararı: edge kanıtlanırsa `_W_DRL` tekrar test
+34. Calibration drift dashboard + auto-retrain
+35. Feature store sadeleştirmesi
+36. Self-improving loop: outcome → calibration → weight feedback → audit → score (haftalık döngü)
+37. Test coverage hedefi: %70
+38. Repo size hedefi: <500 MB
+39. Pitch dokümantasyonu konsolide: `business/` tek otoriter
+40. ADR disiplini: yeni karar = yeni ADR dosyası
 
 ---
 
-## 8. Yönetici Özeti
+## 15) SON KARAR
 
-### FinPilot Durumu — Tek Bakışta
+### En kritik 20 bulgu
+1. Skor **ters çalışıyor** (decile_lift=0.728, p=0.995)
+2. 3 skor fonksiyonu, otorite yok
+3. DRL pipeline kopuk (`_W_DRL=0`)
+4. `core/`'da ~5K LOC orphan
+5. `views/` sadece pyc — ölü
+6. `web/` 1.6 GB (node_modules 918M)
+7. `models/best/` Şubat'tan sabit — yanıltıcı
+8. 32 script ölü
+9. 13 router test'siz (scan, advisory, agent, trade)
+10. `site/` build artifact commit'lenmiş
+11. Duplicate audit raporları 4 yerde
+12. Duplicate pitch/timeline dosyaları
+13. `scheduler.py` 1191 LOC tek dosya
+14. `monitoring.py` 1212 LOC tek dosya
+15. `data_fetcher.py` blocking yfinance
+16. `signal_archive/` JSON-only, 51 ayrı dosya
+17. `output.log`, `.docker_build.log` commit'te
+18. `public_website/` yanlış repo'da
+19. Audit cron'da yok (manuel)
+20. Component ablation yok
 
-| | |
-|---|---|
-| **Proje Olgunluğu** | Erken Beta / Prototip (Sprint 21+) |
-| **Toplam Puan** | **4.50 / 10** |
-| **Üretim Kararı** | ❌ NO-GO (7+ kritik engel) |
-| **Demo/Beta Kararı** | ✅ GO (uyarılarla) |
-| **Tahmini Onarım** | 2 hafta (temel), 4-6 hafta (kapsamlı) |
+### En gereksiz 20 yük
+`views/`, `output.log`, `.docker_build.log`, `scripts/*.bak`, `scanner/earnings_blackout.py`, `core/exceptions.py`, `core/i18n.py`, `core/social.py`, `core/plugins.py`, `core/validation.py`, `core/tracing.py`, `core/session_state.py`, `docs/FINPILOT_EVOLUTION_TIMELINE_OLD.md`, duplicate professional analysis, duplicate project analysis, `site/` (build artifact), `logs/tensorboard/PPO_*` (Şubat), `models/ppo_*` (14 stale), `scripts/drl_autopilot_patched.py`, `core/cache` streamlit kolu
 
-### Güçlü Yönler
+### En değerli 20 korunması gereken
+`scanner/finpilot_score.py`, `core/kpi_tracker.py`, `core/calibration.py`, `core/outcome_reconciler.py`, `core/scheduler.py`, `core/database.py`, `api/main.py`, `api/routers/scan.py`, `api/routers/watchlist.py`, `api/routers/history.py`, `api/routers/closed_loop.py`, `api/routers/advisory.py`, `api/routers/agent.py`, `agents/alpha_tracker.py`, `agents/advisory.py`, `agents/scanner_agent.py`, `web/src/app/dashboard/`, `tests/test_score_contract.py`, `scripts/profitcore_audit.py`, `docs/adr/`
 
-1. **Mimari tasarım mükemmel:** Modüler yapı, plugin sistemi, ensemble meta-learner, çoklu LLM desteği
-2. **UI/UX yüksek kalite:** Apple tarzı dark theme, tutarlı tasarım dili, 1,542 sembol desteği
-3. **Kapsamlı backend:** 134 Python dosyası, 19 eğitilmiş model, 4 Optuna ajan, HMM rejim tespiti
-4. **Yahoo Finance entegrasyonu çalışıyor:** 309/309 sembol batch testi başarılı
-5. **FastAPI API katmanı çalışıyor:** 5 endpoint, gerçek veri, proxy doğrulanmış
+### En hızlı etki yaratacak 20 iyileştirme
+1. `views/` REMOVE
+2. Root çöpü REMOVE
+3. Duplicate doc MERGE
+4. `models/` PRUNE
+5. `core/` orphan ARCHIVE
+6. Skor 3→1
+7. `site/` gitignore
+8. `scripts/*.bak` REMOVE
+9. `drl/` → `experimental/`
+10. `signal_archive` JSON→SQLite
+11. `data_fetcher` ThreadPool fetch
+12. `cache.py` streamlit kolu sil
+13. Component ablation script
+14. Audit cron + Grafana panel
+15. 13 router için test
+16. AlphaTracker → dashboard
+17. `scheduler` modülerleş
+18. Web multi-stage Docker
+19. `models/best/` pointer
+20. `fp` tek CLI
 
-### Kritik Zayıflıklar
+### Doğru sadeleştirme yaklaşımı (3 prensip)
+1. **Önce ölç, sonra sil.** Silmeden önce import çağrılarını gör. Orphan kanıtlandıysa `archive/` altına taşı.
+2. **Bir kopya bulunca otoriteyi seç, diğerlerini sil.** Skor → `finpilot_score`, Frontend → `web/`, Audit → `docs/audits/YYYY-MM-DD/`.
+3. **Şu an kullanılmayan ama yarın lazım olabilecek → `experimental/`.** DRL bunun en net örneği.
 
-1. **Güvenlik:** Auth yok (FastAPI), CORS açık, HTTPS yok, API key'ler `.env`'de
-2. **Test:** Frontend 0 test, backend 8/23 test dosyasında import hatası
-3. **Veri kalitesi:** 7/10 frontend sayfası mock veri, DRL Sharpe < 0.10
-4. **DevOps:** CI/CD yok, Docker sadece Streamlit, Next.js/FastAPI dağıtımı yok
-5. **Kalıcılık:** Settings, watchlist, profile sayfa yenilenmesinde kaybolur
-
-### Acil Eylem Önerileri (İlk 3 Gün)
-
-1. **CORS `*` → whitelist** (1 saat)
-2. **FastAPI JWT middleware** (2-3 gün)
-3. **8 test import hatasını düzelt** (1-2 gün)
-4. **Frontend Vitest kurulumu + 5 temel test** (1-2 gün)
-5. **localStorage persistence (Settings + Watchlist)** (1 gün)
-
----
-
-*Bu rapor 20 Mart 2026 tarihinde statik kod analizi, çalışma zamanı doğrulaması ve mimari değerlendirme yöntemleriyle hazırlanmıştır. Tüm puanlamalar mevcut kod tabanının anlık durumunu yansıtır.*
+**L3 olgunluğa tek geçit:** Decile lift sürekli ölçüm + regression gate + ablation-driven simplification. Yeni feature eklemeden önce mevcut feature'ların kanıtlanması zorunlu.

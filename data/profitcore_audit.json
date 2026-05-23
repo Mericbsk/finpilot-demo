@@ -1,0 +1,118 @@
+{
+  "ran_at": "2026-05-23T13:47:45",
+  "params": {
+    "days": 30,
+    "horizon": 5,
+    "resolve": true
+  },
+  "data": {
+    "live_signals": 0,
+    "archive_signals": 946,
+    "usable_rows": 402,
+    "skipped_no_score": 0,
+    "skipped_no_outcome": 544
+  },
+  "overall": {
+    "n": 402,
+    "hit_rate": 0.368,
+    "expectancy_pct": -1.746,
+    "median_pct": -1.74,
+    "profit_factor": 0.591,
+    "stdev_pct": 9.753
+  },
+  "deciles": [
+    {
+      "decile": 10,
+      "score_min": 73.0,
+      "score_max": 89.0,
+      "n": 41,
+      "win_rate": 0.268,
+      "avg_pct": -4.993,
+      "median_pct": -5.261
+    },
+    {
+      "decile": 9,
+      "score_min": 69.0,
+      "score_max": 73.0,
+      "n": 40,
+      "win_rate": 0.3,
+      "avg_pct": -4.834,
+      "median_pct": -4.558
+    },
+    {
+      "decile": 8,
+      "score_min": 64.0,
+      "score_max": 69.0,
+      "n": 40,
+      "win_rate": 0.375,
+      "avg_pct": -1.575,
+      "median_pct": -2.276
+    },
+    {
+      "decile": 7,
+      "score_min": 62.0,
+      "score_max": 64.0,
+      "n": 40,
+      "win_rate": 0.35,
+      "avg_pct": -1.681,
+      "median_pct": -2.195
+    },
+    {
+      "decile": 6,
+      "score_min": 60.0,
+      "score_max": 62.0,
+      "n": 40,
+      "win_rate": 0.35,
+      "avg_pct": -4.935,
+      "median_pct": -5.583
+    },
+    {
+      "decile": 5,
+      "score_min": 60.0,
+      "score_max": 60.0,
+      "n": 41,
+      "win_rate": 0.341,
+      "avg_pct": -1.783,
+      "median_pct": -1.418
+    },
+    {
+      "decile": 4,
+      "score_min": 56.0,
+      "score_max": 60.0,
+      "n": 40,
+      "win_rate": 0.225,
+      "avg_pct": -3.878,
+      "median_pct": -2.849
+    },
+    {
+      "decile": 3,
+      "score_min": 51.0,
+      "score_max": 56.0,
+      "n": 40,
+      "win_rate": 0.525,
+      "avg_pct": -0.265,
+      "median_pct": 0.181
+    },
+    {
+      "decile": 2,
+      "score_min": 47.0,
+      "score_max": 51.0,
+      "n": 40,
+      "win_rate": 0.25,
+      "avg_pct": -0.677,
+      "median_pct": -1.562
+    },
+    {
+      "decile": 1,
+      "score_min": 0.0,
+      "score_max": 47.0,
+      "n": 40,
+      "win_rate": 0.7,
+      "avg_pct": 7.241,
+      "median_pct": 3.764
+    }
+  ],
+  "decile_lift": 0.728,
+  "permutation_p": 0.995,
+  "verdict": "NO EDGE DETECTED \u2014 hit_rate=0.368, decile_lift=0.728<1.3 FAIL, perm_p=0.995>=0.05 FAIL, profit_factor=0.591<1.2 FAIL"
+}

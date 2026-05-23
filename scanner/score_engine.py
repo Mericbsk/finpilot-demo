@@ -11,8 +11,10 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Theoretical maximum composite score (all signals + premium bonus)
-MAX_RECO_SCORE: float = 18.3
+# Theoretical maximum composite score after premium-bonus removal
+# (profitcore_audit 2026-05-23 showed inverted decile lift; removing subjective
+# components is the first step in the simplification plan.)
+MAX_RECO_SCORE: float = 18.0
 
 
 def compute_recommendation_score(row: dict[str, Any]) -> float:
@@ -22,7 +24,7 @@ def compute_recommendation_score(row: dict[str, Any]) -> float:
         row: Dictionary with signal data
 
     Returns:
-        Recommendation score (0 to ~18.3)
+        Recommendation score (0 to ~18.0)
     """
     score = 0.0
     score += 2.0 if bool(row.get("regime", False)) else 0.0
@@ -34,7 +36,6 @@ def compute_recommendation_score(row: dict[str, Any]) -> float:
     score += 0.5 if bool(row.get("volume_spike", False)) else 0.0
     score += 0.5 if bool(row.get("price_momentum", False)) else 0.0
     score += 0.5 if bool(row.get("trend_strength", False)) else 0.0
-    score += 0.3 if bool(row.get("is_premium_symbol", False)) else 0.0
     return round(score, 3)
 
 
