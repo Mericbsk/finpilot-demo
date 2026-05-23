@@ -136,17 +136,44 @@ def _persist_shortlist(out: dict) -> None:
 
 
 def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
-    """Auto-add BUY signals (entry_ok=True) to the watchlist."""
+    """Auto-add BUY signals (entry_ok=True) to the watchlist.
+
+    Alpha Tracker tarafından hesaplanan ``score_floor`` varsa, composite_score
+    bu eşiğin altındaki sinyaller watchlist'e yine eklenir — ancak
+    ``score_warning=True`` flag'i ile işaretlenir. Hard block yok.
+    """
     if not out:
         return
     try:
         from routers.watchlist import _load, _save, _upsert
 
+        # Alpha Tracker'dan gelen dinamik score floor (sadece flag için)
+        score_floor: int | None = None
+        try:
+            from agents.alpha_tracker import get_score_floor
+            score_floor = get_score_floor()
+        except Exception:
+            pass
+
         wl = _load()
         added = 0
+        flagged_low_score = 0
         for sym, r in out.items():
             if not r.get("entry_ok"):
                 continue
+
+            # Score floor kontrolü — atlamıyoruz, sadece flag ekliyoruz
+            score_warning = False
+            if score_floor is not None:
+                composite = float(r.get("composite_score") or 0)
+                if composite < score_floor:
+                    score_warning = True
+                    flagged_low_score += 1
+                    logger.debug(
+                        "Score uyarısı: %s composite_score=%.1f < floor=%d",
+                        sym, composite, score_floor,
+                    )
+
             direction = r.get("direction", False)
             scanner_signal = "BUY" if direction else "SELL"
 
@@ -179,12 +206,17 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
                 "drl_conflict": drl_conflict,
                 "drl_signal": drl_cache.get(sym, {}).get("signal") if drl_valid else None,
                 "drl_confidence": drl_cache.get(sym, {}).get("confidence") if drl_valid else None,
+                "score_warning": score_warning,
+                "score_floor": score_floor,
             }
             wl = _upsert(wl, entry)
             added += 1
         if added:
             _save(wl)
-            logger.info("Auto-watchlist: %d BUY signals saved", added)
+            logger.info(
+                "Auto-watchlist: %d BUY signals saved (%d low-score flagged)",
+                added, flagged_low_score,
+            )
     except Exception as exc:
         logger.warning("Auto-watchlist failed: %s", exc)
 

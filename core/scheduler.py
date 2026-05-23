@@ -383,11 +383,13 @@ def run_cycle_once(
                     entry_price = float(bt_sym.get("final_value", 0) or 0)
                     score_val = float(bt_sym.get("win_rate", 0) or 0)
                     p_win = float(_calibrated_probability(score_val))
+                    # score_val backtest win_rate'i (0-1); kpi_tracker'a
+                    # 0-100 ölçeğinde kaydediyoruz → alpha_tracker bucket'larıyla uyumlu
                     record_signal(
                         symbol=sym,
                         direction=direction,
                         price=entry_price,
-                        score=score_val,
+                        score=round(score_val * 100, 1),
                         rr=bt_sym.get("max_return", 0) / abs(bt_sym.get("max_drawdown", 1) or 1),
                         cycle=_cycle_count + 1,
                         p_win=p_win,

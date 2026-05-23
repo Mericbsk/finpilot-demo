@@ -39,18 +39,23 @@ def compute_finpilot_score(
     Returns:
         Unified FinPilot Score 0-100
     """
+    # DRL mevcut değilse composite_score'u olduğu gibi döndür.
+    # Sahte/stale DRL confidence (varsayılan 0.5) skoru bozmasın.
+    if drl_signal is None or drl_confidence is None:
+        return min(100, max(0, int(round(float(scanner_composite)))))
+
     sc = float(scanner_composite) / 100.0
-    dc = float(drl_confidence) if drl_confidence is not None else 0.5
+    dc = float(drl_confidence)
 
     base = 0.6 * sc + 0.4 * dc
 
-    # Determine agreement
-    if drl_signal is None or drl_signal == "HOLD" or drl_confidence is None:
+    # Anlaşma çarpanı
+    if drl_signal == "HOLD":
         agreement = 0.0
     elif drl_signal == scanner_signal:
         agreement = 1.0
     else:
-        agreement = -0.5  # conflict penalty
+        agreement = -0.5  # çelişki cezası
 
     raw = base * (1.0 + _ALPHA * agreement)
     return min(100, max(0, int(round(raw * 100))))

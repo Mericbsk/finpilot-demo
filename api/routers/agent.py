@@ -580,6 +580,32 @@ def agent_kpis():
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+@router.get("/agent/alpha-tracker")
+def agent_alpha_tracker(
+    rolling_window: int = Query(default=10, ge=3, le=50),
+    warn_threshold: float = Query(default=40.0, ge=0, le=100),
+    drop_threshold: float = Query(default=30.0, ge=0, le=100),
+):
+    """Return per-symbol rolling win rate, profit factor and scanner threshold recommendations."""
+    try:
+        from agents.alpha_tracker import AlphaTrackerAgent
+        from agents.base import AgentContext
+
+        result = AlphaTrackerAgent().run(
+            AgentContext(),
+            rolling_window=rolling_window,
+            warn_threshold=warn_threshold,
+            drop_threshold=drop_threshold,
+        )
+        if not result.success:
+            raise HTTPException(status_code=500, detail=result.error)
+        return result.data
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 @router.get("/agent/self-eval")
 def agent_self_eval():
     """Return the most recent self-evaluation score and recommendations."""
