@@ -7,7 +7,64 @@ touching the main evaluation pipeline.
 
 from __future__ import annotations
 
+import json
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
+
+# Portfolio drawdown gate state file (resets daily)
+_DD_STATE_PATH = Path(__file__).resolve().parents[1] / "data" / "portfolio_dd_state.json"
+
+
+def daily_dd_breached(threshold: float = 0.03) -> bool:
+    """Return True if today's realised portfolio drawdown >= threshold (fraction).
+
+    Reads data/portfolio_dd_state.json:
+        { "date": "YYYY-MM-DD", "start_equity": float, "current_equity": float }
+
+    A missing/stale/malformed file is treated as "not breached" (fail-open so
+    the scanner keeps running when state isn't initialised). Stale = date older
+    than today (UTC); the file is logically reset on the first read of a new day.
+    """
+    try:
+        if not _DD_STATE_PATH.exists():
+            return False
+        data = json.loads(_DD_STATE_PATH.read_text(encoding="utf-8"))
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
+        if str(data.get("date")) != today:
+            return False  # stale: new day, no DD yet
+        start = float(data.get("start_equity", 0) or 0)
+        current = float(data.get("current_equity", 0) or 0)
+        if start <= 0:
+            return False
+        dd = (start - current) / start
+        return dd >= float(threshold)
+    except Exception:
+        return False
+
+
+def record_equity_snapshot(equity: float) -> None:
+    """Update the daily DD state file. Initialises start_equity on first call of the day."""
+    try:
+        _DD_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
+        state: dict[str, Any] = {}
+        if _DD_STATE_PATH.exists():
+            try:
+                state = json.loads(_DD_STATE_PATH.read_text(encoding="utf-8"))
+            except Exception:
+                state = {}
+        if state.get("date") != today:
+            state = {"date": today, "start_equity": float(equity)}
+        state["current_equity"] = float(equity)
+        state["updated_at"] = datetime.now(UTC).isoformat()
+        _DD_STATE_PATH.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
+# Suppress unused-import warnings if timedelta gets pruned by ruff later
+_ = timedelta
 
 
 def calculate_risk_management(price: float, atr_val: float, momentum_score: int) -> dict[str, Any]:

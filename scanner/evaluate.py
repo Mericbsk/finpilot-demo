@@ -18,7 +18,7 @@ from .data_fetcher import (
     fetch_multi_timeframe,
     prefetch_symbols_multi_timeframe,
 )
-from .risk_engine import calculate_risk_management
+from .risk_engine import calculate_risk_management, daily_dd_breached
 from .score_engine import compute_recommendation_strength
 from .signals import (
     analyze_price_momentum,
@@ -48,6 +48,10 @@ def evaluate_symbol(
     prefetched_data: dict[str, pd.DataFrame] | None = None,
 ) -> dict[str, Any] | None:
     """Comprehensive single-symbol evaluation with multi-timeframe analysis."""
+    # Daily portfolio drawdown gate (task 25): refuse to emit new signals once
+    # today's realised loss exceeds the configured threshold (default 3%).
+    if daily_dd_breached(threshold=0.03):
+        return None
     try:
         if prefetched_data is not None:
             df_15m = prefetched_data.get("15m", pd.DataFrame())
@@ -227,7 +231,10 @@ def evaluate_symbol(
         earnings_blackout = False
         earnings_prox = 0.0
         try:
-            from scanner.earnings_blackout import earnings_proximity, is_earnings_blackout  # noqa: PLC0415
+            from scanner.earnings_blackout import (  # noqa: PLC0415
+                earnings_proximity,
+                is_earnings_blackout,
+            )
 
             earnings_blackout = is_earnings_blackout(symbol, days_before=2, days_after=1)
             earnings_prox = earnings_proximity(symbol)
