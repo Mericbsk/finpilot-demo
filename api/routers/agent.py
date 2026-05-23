@@ -643,7 +643,15 @@ def agent_alpha_tracker(
         )
         if not result.success:
             raise HTTPException(status_code=500, detail=result.error)
-        return result.data
+        # Augment per-symbol records with `weighted_score` = win_rate × log(1+pf)
+        import math as _math
+
+        data = result.data or {}
+        for _row in (data.get("symbols") or {}).values():
+            wr = float(_row.get("win_rate", 0) or 0)
+            pf = float(_row.get("profit_factor", 0) or 0)
+            _row["weighted_score"] = round(wr * _math.log1p(max(0.0, pf)), 2)
+        return data
     except HTTPException:
         raise
     except Exception as exc:

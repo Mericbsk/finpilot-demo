@@ -105,6 +105,7 @@ export default function DashboardOverview() {
   const [portfolio, setPortfolio] = useState<{
     equity: number; total_return_pct: number; win_rate: number; profit_factor: number | null; closed_count: number; open_positions: number;
   } | null>(null);
+  const [alphaTop, setAlphaTop] = useState<Array<{ symbol: string; weighted_score: number; win_rate: number; profit_factor: number }>>([]);
 
   useEffect(() => {
     try {
@@ -186,6 +187,27 @@ export default function DashboardOverview() {
             open_positions: (s.open_positions as number) ?? 0,
           });
         }
+      })
+      .catch(() => {});
+  }, []);
+
+  /* Load AlphaTracker top symbols by weighted_score */
+  useEffect(() => {
+    fetch("/py-api/agent/alpha-tracker")
+      .then((r) => r.json())
+      .then((data) => {
+        const syms = (data?.symbols ?? {}) as Record<string, { weighted_score?: number; win_rate?: number; profit_factor?: number }>;
+        const rows = Object.entries(syms)
+          .map(([symbol, v]) => ({
+            symbol,
+            weighted_score: Number(v.weighted_score ?? 0),
+            win_rate: Number(v.win_rate ?? 0),
+            profit_factor: Number(v.profit_factor ?? 0),
+          }))
+          .filter((r) => r.weighted_score > 0)
+          .sort((a, b) => b.weighted_score - a.weighted_score)
+          .slice(0, 5);
+        setAlphaTop(rows);
       })
       .catch(() => {});
   }, []);
@@ -530,6 +552,29 @@ export default function DashboardOverview() {
           </Link>
         </div>
       </div>
+
+      {/* AlphaTracker weighted_score leaders */}
+      {alphaTop.length > 0 && (
+        <div className="rounded-2xl p-5" style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold" style={{ color: C.text1 }}>
+              Alpha Leaders
+              <span className="ml-2 font-normal" style={{ color: C.text3, fontSize: 11 }}>weighted_score = win_rate × log(1+pf)</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            {alphaTop.map((r) => (
+              <div key={r.symbol} className="rounded-xl p-3" style={{ backgroundColor: C.primary }}>
+                <div className="text-sm font-semibold" style={{ color: C.text1 }}>{r.symbol}</div>
+                <div className="text-lg font-bold" style={{ color: C.green }}>{r.weighted_score.toFixed(2)}</div>
+                <div style={{ fontSize: 10, color: C.text3 }}>
+                  WR {r.win_rate}% · PF {r.profit_factor}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
