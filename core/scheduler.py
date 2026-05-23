@@ -169,6 +169,22 @@ def _run_calibration_job() -> None:
         logger.warning("Calibration job failed: %s", exc)
 
 
+def _run_weekly_calibration_retrain_job() -> None:
+    """Weekly full calibration retrain (Mondays 02:00 UTC) — heavier than
+    daily refit; rebuilds model from full window without the gate check."""
+    try:
+        from core.calibration import refit_calibration
+
+        model = refit_calibration()
+        logger.info(
+            "Weekly calibration retrain: n=%s method=%s",
+            (model or {}).get("n_samples"),
+            (model or {}).get("method"),
+        )
+    except Exception as exc:
+        logger.warning("Weekly calibration retrain failed: %s", exc)
+
+
 def _run_weekly_report_job() -> None:
     """Sprint 5 (S5-7): Generate public weekly Markdown KPI report."""
     try:
@@ -1154,6 +1170,14 @@ def start_scheduler(
                 id="finpilot_daily_ops",
                 name="FinPilot Daily Ops (calibration + weekly Sun: report/research/ceo)",
             )
+
+        # Always-on: weekly full calibration retrain, Mondays 02:00 UTC.
+        _scheduler_instance.add_job(
+            _make_watchdog_job("weekly_calibration_retrain", _run_weekly_calibration_retrain_job),
+            trigger=CronTrigger(day_of_week="mon", hour=2, minute=0, timezone="UTC"),
+            id="finpilot_weekly_calibration_retrain",
+            name="FinPilot Weekly Calibration Retrain (Mon 02:00 UTC)",
+        )
 
         _scheduler_instance.start()
         logger.info(
