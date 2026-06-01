@@ -64,10 +64,16 @@ interface DayData {
 }
 
 function convertAPISignals(signals: Record<string, unknown>[]): DayData[] {
-  // Group signals by date
+  // Group signals by date — archive payload uses signal_date / added_at; live DB uses timestamp
   const byDate = new Map<string, typeof signals>();
   for (const s of signals) {
-    const ts = String((s as Record<string, unknown>).timestamp || "").split("T")[0];
+    const raw =
+      (s as Record<string, unknown>).signal_date ||
+      (s as Record<string, unknown>).added_at ||
+      (s as Record<string, unknown>).timestamp ||
+      (s as Record<string, unknown>).ts ||
+      "";
+    const ts = String(raw).split("T")[0];
     if (!ts) continue;
     if (!byDate.has(ts)) byDate.set(ts, []);
     byDate.get(ts)!.push(s);
@@ -76,16 +82,29 @@ function convertAPISignals(signals: Record<string, unknown>[]): DayData[] {
   for (const [date, sigs] of byDate) {
     const d = new Date(date);
     const stocks = sigs.map((s: Record<string, unknown>) => {
-      const score = Number(s.score || s.ai_score || 50);
-      const signal = String(s.signal || (score >= 75 ? "BUY" : score >= 55 ? "HOLD" : "CAUTION"));
+      const score = Number(s.score || s.finpilot_score || s.ai_score || 50);
+      const rawSignal = String(s.signal || "").toUpperCase();
+      const signal =
+        rawSignal === "BUY" || rawSignal === "TRUE"
+          ? "BUY"
+          : rawSignal === "SELL" || rawSignal === "FALSE"
+            ? "SELL"
+            : rawSignal === "WATCH" || rawSignal === "HOLD"
+              ? "HOLD"
+              : score >= 75
+                ? "BUY"
+                : score >= 55
+                  ? "HOLD"
+                  : "CAUTION";
+      const status = String(s.status_lifecycle || s.resolved_status || s.status || "");
       return {
         ticker: String(s.symbol || ""),
         score,
         signal,
-        price: Number(s.price || 0),
+        price: Number(s.entry_price || s.price || 0),
         change: 0,
-        tp1Hit: s.status === "tp_hit",
-        slHit: s.status === "sl_hit",
+        tp1Hit: status === "tp_hit" || status === "closed_win",
+        slHit: status === "sl_hit" || status === "closed_loss",
         confidence: Number(s.confidence || 0) * 100 || 70,
       };
     });
@@ -98,7 +117,7 @@ function convertAPISignals(signals: Record<string, unknown>[]): DayData[] {
       stocks,
     });
   }
-  return days.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14);
+  return days.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 90);
 }
 
 const history = Array.from({ length: 14 }, (_, i) => makeDay(i));
@@ -156,7 +175,7 @@ export default function HistoryPage() {
   }, []);
 
   useEffect(() => {
-    fetch("/py-api/history/signals?days=90")
+    fetch("/py-api/history/signals?days=365")
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((result) => {
         if (result.signals?.length > 0) {
@@ -198,7 +217,7 @@ export default function HistoryPage() {
           <h1 className="text-xl font-semibold text-[var(--text-primary)]">Signal History</h1>
         </div>
         <p className="text-sm text-[var(--text-tertiary)]">
-          Daily signal timeline — last 14 days
+          Daily signal timeline — last {history.length} day{history.length !== 1 ? "s" : ""}
           {apiSource && (
             <span style={{ color: "var(--accent-green)", marginLeft: 8, fontSize: 11 }}>● {apiSource === "database" ? "DB" : "Cache"}</span>
           )}
