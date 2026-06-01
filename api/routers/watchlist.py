@@ -252,7 +252,7 @@ def _notify_lifecycle_change(item: dict, prev_state: str, new_state: str) -> Non
         logger.debug("Telegram lifecycle notify failed: %s", exc)
 
 
-def _load_archive(date_str: str) -> list[dict]:
+def _load_archive_for_date(date_str: str) -> list[dict]:
     """Load signals for a specific date from archive."""
     path = _ARCHIVE_DIR / f"{date_str}.json"
     if not path.exists():
@@ -378,19 +378,25 @@ async def _background_refresh() -> None:
 
 
 async def _ensure_cache(symbols: list[str]) -> None:
-    """Trigger a one-time refresh if cache is completely empty (first request)."""
+    """Schedule a background refresh if cache is empty. Never blocks the request."""
 
-    global _price_cache, _price_cache_ts  # noqa: PLW0603
+    global _price_cache  # noqa: PLW0603
 
     if _price_cache or not symbols:
         return
-    # Cache empty — do a blocking initial fetch (only once)
-    async with _refresh_lock:
-        if _price_cache:  # double-check after acquiring lock
-            return
-        loop = get_running_loop()
-        await loop.run_in_executor(_executor, lambda s=symbols: _fetch_prices_sync(s))
-        logger.info("Initial price fetch done: %d symbols", len(symbols))
+    if _refresh_lock.locked():
+        return
+
+    # Fire-and-forget background fetch so first request returns instantly
+    async def _kick() -> None:
+        async with _refresh_lock:
+            if _price_cache:
+                return
+            loop = get_running_loop()
+            await loop.run_in_executor(_executor, lambda s=symbols: _fetch_prices_sync(s))
+            logger.info("Initial price fetch done: %d symbols", len(symbols))
+
+    asyncio.create_task(_kick())
 
 
 async def start_price_refresh_task() -> None:
@@ -470,13 +476,12 @@ def bulk_add_to_watchlist(req: WatchlistBulkRequest):
 
 @router.get("/watchlist")
 async def get_watchlist():
-    """Return all watchlist items (live + archive) enriched with prices and lifecycle."""
-    # Load live signals
-    live_items = wdb.load_active()
-    # Load archive (resolved signals from past dates)
-    archive_items = _load_archive()
-    # Combine: live first (newest), then archive (older)
-    items = live_items + archive_items
+    """Return active (user-curated) watchlist items enriched with prices and lifecycle.
+
+    Historical archive is exposed separately via /watchlist/dates + /watchlist/history
+    to avoid pulling thousands of symbols into a single response.
+    """
+    items = wdb.load_active()
 
     if not items:
         return {"items": [], "count": 0, "refreshed_at": datetime.now(UTC).isoformat()}
@@ -604,7 +609,7 @@ async def get_signal_history(
         items = wdb.load_active()
         day_items = [i for i in items if i.get("signal_date", "") == today]
     else:
-        day_items = _load_archive(date)
+        day_items = _load_archive_for_date(date)
 
     total = len(day_items)
     start = (page - 1) * limit
