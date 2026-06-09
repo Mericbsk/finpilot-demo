@@ -379,7 +379,18 @@ function SinyalTakipTab() {
       const res = await fetch(`/py-api/watchlist/history?date=${date}&limit=200`);
       if (res.ok) {
         const d = await res.json();
-        setArchiveItemsCache((prev) => new Map(prev).set(date, d.items ?? []));
+        // Normalize: archive items may be missing live fields (pnl_pct, change_pct, etc.)
+        const normalized = (d.items ?? []).map((item: TrackedSignal) => ({
+          ...item,
+          pnl_pct: item.pnl_pct ?? 0,
+          change_pct: item.change_pct ?? 0,
+          current_price: item.current_price ?? 0,
+          status: item.status ?? "—",
+          notes: item.notes ?? "",
+          tags: item.tags ?? [],
+          status_lifecycle: (item.status_lifecycle ?? "open") as LifecycleStatus,
+        }));
+        setArchiveItemsCache((prev) => new Map(prev).set(date, normalized));
       }
     } catch { /* silent */ }
     finally { setLoadingArchiveDate(null); }
