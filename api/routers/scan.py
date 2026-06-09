@@ -312,18 +312,13 @@ def shortlist_status():
 async def get_chart(
     symbol: str,
     interval: str = Query("1d", pattern="^(15m|1h|4h|1d)$"),
-    days: int = Query(90, ge=1, le=400),
+    days: int = Query(90, ge=7, le=400),
 ):
     """Return OHLCV candles + SMA-50 for a symbol, formatted for TradingView LW Charts."""
     try:
         from scanner.data_fetcher import fetch_with_indicators
     except ImportError as exc:
         raise HTTPException(status_code=503, detail="Scanner module unavailable") from exc
-
-    # yfinance per-interval history limits — caller may request days=90 for all
-    # intervals; cap it here so 15m/1h don't 404.
-    _INTERVAL_MAX_DAYS = {"15m": 59, "1h": 729, "4h": 729, "1d": 400}
-    days = min(days, _INTERVAL_MAX_DAYS.get(interval, 400))
 
     loop = asyncio.get_running_loop()
     try:
