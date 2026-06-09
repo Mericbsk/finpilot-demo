@@ -347,10 +347,21 @@ function SinyalTakipTab() {
   }, []);
 
   // Fetch the full archive date list once on mount (lightweight — only dates+counts)
+  // All archive dates start collapsed so we don't render 50 empty tables on load
   useEffect(() => {
     fetch("/py-api/watchlist/dates")
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (data) setArchiveDates(data.dates ?? []); })
+      .then((data) => {
+        if (data) {
+          const dates: { date: string; count: number }[] = data.dates ?? [];
+          setArchiveDates(dates);
+          setCollapsedDates((prev) => {
+            const s = new Set(prev);
+            for (const d of dates) s.add(d.date);
+            return s;
+          });
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -398,12 +409,15 @@ function SinyalTakipTab() {
   };
 
   const toggleDate = (date: string, isArchiveOnly: boolean) => {
+    // Capture current collapsed state BEFORE updating so we know the direction of toggle
+    const isCurrentlyCollapsed = collapsedDates.has(date);
     setCollapsedDates((prev) => {
       const s = new Set(prev);
-      if (s.has(date)) { s.delete(date); }
-      else { s.add(date); if (isArchiveOnly) loadArchiveDate(date); }
+      if (s.has(date)) s.delete(date); else s.add(date);
       return s;
     });
+    // Only load when the user is EXPANDING (was collapsed → now open)
+    if (isArchiveOnly && isCurrentlyCollapsed) loadArchiveDate(date);
   };
 
   // Filter by lifecycle
