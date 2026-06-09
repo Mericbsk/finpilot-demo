@@ -86,7 +86,7 @@ class ScannerAgent(BaseAgent):
 def _load_drl_cache() -> tuple[dict, bool]:
     """Load DRL inference cache (memory-cached via mtime)."""
     try:
-        from routers.inference import _load_cached_inference
+        from api.routers.inference import _load_cached_inference
 
         cache, status = _load_cached_inference()
         return cache, bool(status.get("valid", False))

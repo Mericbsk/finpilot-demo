@@ -39,6 +39,16 @@ class ActionType(Enum):
         else:
             return cls.HOLD
 
+    @classmethod
+    def from_discrete(cls, action: int) -> ActionType:
+        """Convert discrete action index to ActionType."""
+        if action == 1:
+            return cls.BUY
+        elif action == 2:
+            return cls.SELL
+        else:
+            return cls.HOLD
+
 
 # Sprint 26: 7-bin quantization — standalone to avoid Enum attribute issues
 _ACTION_BINS = [-0.75, -0.50, -0.25, 0.0, 0.25, 0.50, 0.75]
@@ -55,16 +65,6 @@ def quantize_action(action: float) -> float:
     bins = np.array(_ACTION_BINS)
     idx = int(np.argmin(np.abs(bins - action)))
     return float(bins[idx])
-
-    @classmethod
-    def from_discrete(cls, action: int) -> ActionType:
-        """Convert discrete action index to ActionType."""
-        if action == 1:
-            return cls.BUY
-        elif action == 2:
-            return cls.SELL
-        else:
-            return cls.HOLD
 
 
 @dataclass

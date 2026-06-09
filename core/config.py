@@ -139,7 +139,7 @@ class AuthConfig(BaseModel):
     """Authentication modülü konfigürasyonu."""
 
     # JWT Settings
-    secret_key: str = Field(default="finpilot-secret-key-change-in-production")
+    secret_key: str | None = Field(default=None)
     algorithm: str = "HS256"
     access_token_expire_minutes: int = Field(default=30, ge=1)
     refresh_token_expire_days: int = Field(default=7, ge=1)
@@ -307,6 +307,8 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     SENTRY_DSN: str = ""
     DATABASE_URL: str = ""
+    # Accepted as alias for AUTH__SECRET_KEY (used by auth/core.py)
+    FINPILOT_SECRET_KEY: str | None = None
 
     # ==========================================================================
     # NESTED CONFIGURATIONS
@@ -379,13 +381,33 @@ class Settings(BaseSettings):
         # Sync top-level REDIS_URL into nested cache config
         if self.REDIS_URL:
             self.cache.redis_url = self.REDIS_URL
+        # Accept FINPILOT_SECRET_KEY as alias for AUTH__SECRET_KEY
+        if self.auth.secret_key is None and self.FINPILOT_SECRET_KEY:
+            self.auth.secret_key = self.FINPILOT_SECRET_KEY
+        return self
+
+    @model_validator(mode="after")
+    def validate_secret_key(self) -> "Settings":
+        """Reject None secret_key in all non-test environments.
+
+        Set AUTH__SECRET_KEY (or FINPILOT_SECRET_KEY) in your .env to fix.
+        Skipped during pytest runs (PYTEST_CURRENT_TEST set).
+        """
+        import os as _os
+
+        if _os.getenv("PYTEST_CURRENT_TEST"):
+            return self
+        if self.auth.secret_key is None:
+            raise ValueError(
+                "AUTH__SECRET_KEY is not set. "
+                "Add AUTH__SECRET_KEY=<random-secret> to your .env file and restart."
+            )
         return self
 
     @model_validator(mode="after")
     def validate_production_env(self) -> "Settings":
         """In production, enforce strict env requirements (S2-6).
 
-        - SECRET_KEY must not be the default placeholder
         - SENTRY_DSN must be set (so errors are captured)
         - REDIS_URL must point to a non-localhost host
         Skipped during pytest runs (PYTEST_CURRENT_TEST set).
@@ -398,9 +420,6 @@ class Settings(BaseSettings):
             return self
 
         errors: list[str] = []
-        _default_secret = "finpilot-secret-key-change-in-production"  # pragma: allowlist secret
-        if self.auth.secret_key == _default_secret:
-            errors.append("AUTH__SECRET_KEY must be overridden in production")
         if not self.SENTRY_DSN:
             errors.append("SENTRY_DSN must be set in production")
         if "localhost" in self.redis_url or "127.0.0.1" in self.redis_url:

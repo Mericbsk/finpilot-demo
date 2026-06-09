@@ -142,6 +142,14 @@ DELISTED_SYMBOLS: dict[str, str] = {
     "ESLGW": "Warrant",
     "SENEB": "Senior note — not equity",
     "WHLRL": "Wheeler REIT — delisted",
+    # 2025-2026 delistings
+    "EKSO": "Ekso Bionics — delisted (2026)",
+    "ALIGN": "Not a valid ticker (possibly ALGN)",
+    "FILTER": "Not a valid ticker",
+    "SCORE": "Not a valid ticker",
+    "INVALID_SYMBOL_XYZ": "Test/placeholder symbol",
+    "BAERW": "Warrant — not equity",
+    "QSIAW": "Warrant — not equity",
 }
 
 # Fast lookup set for O(1) membership tests

@@ -1,8 +1,8 @@
 {
   "tech_giants": {
     "name": "Tech Giants",
-    "icon": "🖥️",
-    "description": "FAANG+ ve büyük teknoloji şirketleri",
+    "icon": "\ud83d\udda5\ufe0f",
+    "description": "FAANG+ ve b\u00fcy\u00fck teknoloji \u015firketleri",
     "category": "Sectors",
     "symbols": [
       "AAPL",
@@ -39,8 +39,8 @@
   },
   "semiconductors": {
     "name": "Semiconductors",
-    "icon": "💾",
-    "description": "Çip üreticileri ve yarı iletken şirketleri",
+    "icon": "\ud83d\udcbe",
+    "description": "\u00c7ip \u00fcreticileri ve yar\u0131 iletken \u015firketleri",
     "category": "Sectors",
     "symbols": [
       "NVDA",
@@ -77,8 +77,8 @@
   },
   "cloud_saas": {
     "name": "Cloud & SaaS",
-    "icon": "☁️",
-    "description": "Bulut altyapı ve yazılım hizmetleri",
+    "icon": "\u2601\ufe0f",
+    "description": "Bulut altyap\u0131 ve yaz\u0131l\u0131m hizmetleri",
     "category": "Sectors",
     "symbols": [
       "CRM",
@@ -112,7 +112,7 @@
   },
   "biotech_large": {
     "name": "Biotech Majors",
-    "icon": "🧬",
+    "icon": "\ud83e\uddec",
     "description": "Major biotech companies with approved products",
     "category": "Sectors",
     "symbols": [
@@ -148,7 +148,7 @@
   },
   "biotech_emerging": {
     "name": "Emerging Biotech",
-    "icon": "🔬",
+    "icon": "\ud83d\udd2c",
     "description": "Small-cap biotech with pipeline catalysts",
     "category": "Sectors",
     "symbols": [
@@ -186,8 +186,8 @@
   },
   "healthcare_services": {
     "name": "Healthcare",
-    "icon": "🏥",
-    "description": "Sağlık hizmet sağlayıcıları",
+    "icon": "\ud83c\udfe5",
+    "description": "Sa\u011fl\u0131k hizmet sa\u011flay\u0131c\u0131lar\u0131",
     "category": "Sectors",
     "symbols": [
       "UNH",
@@ -224,7 +224,7 @@
   },
   "finance_banks": {
     "name": "Banks",
-    "icon": "🏦",
+    "icon": "\ud83c\udfe6",
     "description": "Major US and global banks",
     "category": "Sectors",
     "symbols": [
@@ -262,7 +262,7 @@
   },
   "finance_fintech": {
     "name": "Fintech",
-    "icon": "💳",
+    "icon": "\ud83d\udcb3",
     "description": "Financial technology disruptors",
     "category": "Sectors",
     "symbols": [
@@ -300,8 +300,8 @@
   },
   "insurance": {
     "name": "Insurance",
-    "icon": "🛡️",
-    "description": "Sigorta şirketleri",
+    "icon": "\ud83d\udee1\ufe0f",
+    "description": "Sigorta \u015firketleri",
     "category": "Sectors",
     "symbols": [
       "BRK.B",
@@ -338,7 +338,7 @@
   },
   "energy_oil": {
     "name": "Oil & Gas",
-    "icon": "🛢️",
+    "icon": "\ud83d\udee2\ufe0f",
     "description": "Oil, gas, and traditional energy producers",
     "category": "Sectors",
     "symbols": [
@@ -376,7 +376,7 @@
   },
   "energy_renewable": {
     "name": "Renewable Energy",
-    "icon": "🌱",
+    "icon": "\ud83c\udf31",
     "description": "Clean energy and renewable companies",
     "category": "Sectors",
     "symbols": [
@@ -414,8 +414,8 @@
   },
   "ai_leaders": {
     "name": "AI Leaders",
-    "icon": "🤖",
-    "description": "AI ve makine öğrenmesi odaklı şirketler",
+    "icon": "\ud83e\udd16",
+    "description": "AI ve makine \u00f6\u011frenmesi odakl\u0131 \u015firketler",
     "category": "Thematic",
     "symbols": [
       "NVDA",
@@ -452,8 +452,8 @@
   },
   "ev_mobility": {
     "name": "EV & Mobility",
-    "icon": "🚗",
-    "description": "EV üreticileri ve şarj altyapısı",
+    "icon": "\ud83d\ude97",
+    "description": "EV \u00fcreticileri ve \u015farj altyap\u0131s\u0131",
     "category": "Thematic",
     "symbols": [
       "TSLA",
@@ -490,7 +490,7 @@
   },
   "space_defense": {
     "name": "Space & Defense",
-    "icon": "🚀",
+    "icon": "\ud83d\ude80",
     "description": "Uzay teknolojisi ve savunma sanayi",
     "category": "Thematic",
     "symbols": [
@@ -528,8 +528,8 @@
   },
   "crypto_blockchain": {
     "name": "Crypto & Blockchain",
-    "icon": "₿",
-    "description": "Kripto para ve blockchain şirketleri",
+    "icon": "\u20bf",
+    "description": "Kripto para ve blockchain \u015firketleri",
     "category": "Thematic",
     "symbols": [
       "COIN",
@@ -566,8 +566,8 @@
   },
   "high_dividend": {
     "name": "High Dividend",
-    "icon": "💰",
-    "description": "Yüksek temettü veren şirketler (%4+)",
+    "icon": "\ud83d\udcb0",
+    "description": "Y\u00fcksek temett\u00fc veren \u015firketler (%4+)",
     "category": "Strategy",
     "symbols": [
       "T",
@@ -604,8 +604,8 @@
   },
   "growth_momentum": {
     "name": "Growth & Momentum",
-    "icon": "📈",
-    "description": "Yüksek büyüme gösteren şirketler",
+    "icon": "\ud83d\udcc8",
+    "description": "Y\u00fcksek b\u00fcy\u00fcme g\u00f6steren \u015firketler",
     "category": "Strategy",
     "symbols": [
       "NVDA",
@@ -642,7 +642,7 @@
   },
   "value_picks": {
     "name": "Value Stocks",
-    "icon": "💎",
+    "icon": "\ud83d\udc8e",
     "description": "Undervalued stocks with strong fundamentals",
     "category": "Strategy",
     "symbols": [
@@ -680,8 +680,8 @@
   },
   "small_cap_growth": {
     "name": "Small Cap Growth",
-    "icon": "🌱",
-    "description": "Yüksek potansiyelli küçük şirketler",
+    "icon": "\ud83c\udf31",
+    "description": "Y\u00fcksek potansiyelli k\u00fc\u00e7\u00fck \u015firketler",
     "category": "Strategy",
     "symbols": [
       "SOFI",
@@ -718,8 +718,8 @@
   },
   "uk_europe": {
     "name": "UK & Europe",
-    "icon": "🇬🇧",
-    "description": "Avrupa merkezli şirketler (ADR)",
+    "icon": "\ud83c\uddec\ud83c\udde7",
+    "description": "Avrupa merkezli \u015firketler (ADR)",
     "category": "Regional",
     "symbols": [
       "AZN",
@@ -756,8 +756,8 @@
   },
   "china_adr": {
     "name": "China ADR",
-    "icon": "🇨🇳",
-    "description": "Çin merkezli şirketler (ADR)",
+    "icon": "\ud83c\udde8\ud83c\uddf3",
+    "description": "\u00c7in merkezli \u015firketler (ADR)",
     "category": "Regional",
     "symbols": [
       "BABA",
@@ -794,8 +794,8 @@
   },
   "industrials": {
     "name": "Industrials",
-    "icon": "🏭",
-    "description": "Sanayi ve üretim şirketleri",
+    "icon": "\ud83c\udfed",
+    "description": "Sanayi ve \u00fcretim \u015firketleri",
     "category": "Sectors",
     "symbols": [
       "HON",
@@ -832,8 +832,8 @@
   },
   "consumer_retail": {
     "name": "Consumer & Retail",
-    "icon": "🛒",
-    "description": "Perakende ve tüketici şirketleri",
+    "icon": "\ud83d\uded2",
+    "description": "Perakende ve t\u00fcketici \u015firketleri",
     "category": "Sectors",
     "symbols": [
       "AMZN",
@@ -870,8 +870,8 @@
   },
   "pharma_pipeline": {
     "name": "Pharma Pipeline",
-    "icon": "💊",
-    "description": "Klinik aşamadaki ilaç ve biyotek şirketleri",
+    "icon": "\ud83d\udc8a",
+    "description": "Klinik a\u015famadaki ila\u00e7 ve biyotek \u015firketleri",
     "category": "Sectors",
     "symbols": [
       "ABCL",
@@ -908,8 +908,8 @@
   },
   "medical_devices": {
     "name": "Medical Devices",
-    "icon": "🩺",
-    "description": "Tıbbi cihaz, diagnostik ve sağlık hizmetleri",
+    "icon": "\ud83e\ude7a",
+    "description": "T\u0131bbi cihaz, diagnostik ve sa\u011fl\u0131k hizmetleri",
     "category": "Sectors",
     "symbols": [
       "ALGN",
@@ -946,8 +946,8 @@
   },
   "enterprise_software": {
     "name": "Enterprise Software",
-    "icon": "🏢",
-    "description": "SaaS, kurumsal çözümler ve altyapı yazılımları",
+    "icon": "\ud83c\udfe2",
+    "description": "SaaS, kurumsal \u00e7\u00f6z\u00fcmler ve altyap\u0131 yaz\u0131l\u0131mlar\u0131",
     "category": "Sectors",
     "symbols": [
       "ADBE",
@@ -984,7 +984,7 @@
   },
   "finance_diversified": {
     "name": "Diversified Finance",
-    "icon": "💰",
+    "icon": "\ud83d\udcb0",
     "description": "Diversified financial services",
     "category": "Sectors",
     "symbols": [
@@ -1022,7 +1022,7 @@
   },
   "trending_momentum": {
     "name": "Trending & Volume",
-    "icon": "📊",
+    "icon": "\ud83d\udcca",
     "description": "High volume, trending momentum plays",
     "category": "Strategy",
     "symbols": [
@@ -1060,8 +1060,8 @@
   },
   "international_mix": {
     "name": "International Mix",
-    "icon": "🌐",
-    "description": "ABD dışı ve çok uluslu şirketler",
+    "icon": "\ud83c\udf10",
+    "description": "ABD d\u0131\u015f\u0131 ve \u00e7ok uluslu \u015firketler",
     "category": "Regional",
     "symbols": [
       "AAPG",
@@ -1098,7 +1098,7 @@
   },
   "fp_technology": {
     "name": "FP: Technology",
-    "icon": "💻",
+    "icon": "\ud83d\udcbb",
     "description": "Full FinPilot technology sector scan (100 stocks)",
     "category": "FinPilot",
     "symbols": [
@@ -1206,7 +1206,7 @@
   },
   "fp_health_care": {
     "name": "FP: Healthcare",
-    "icon": "🏥",
+    "icon": "\ud83c\udfe5",
     "description": "Full FinPilot healthcare sector scan (100 stocks)",
     "category": "FinPilot",
     "symbols": [
@@ -1314,8 +1314,8 @@
   },
   "fp_finance": {
     "name": "FP: Finance",
-    "icon": "🏦",
-    "description": "Bankacılık, sigorta, yatırım, fintech — NASDAQ sektör tarama",
+    "icon": "\ud83c\udfe6",
+    "description": "Bankac\u0131l\u0131k, sigorta, yat\u0131r\u0131m, fintech \u2014 NASDAQ sekt\u00f6r tarama",
     "category": "FinPilot",
     "symbols": [
       "CME",
@@ -1422,8 +1422,8 @@
   },
   "fp_industrials": {
     "name": "FP: Industrials",
-    "icon": "🏭",
-    "description": "Makine, havacılık, inşaat, lojistik — NASDAQ sektör tarama",
+    "icon": "\ud83c\udfed",
+    "description": "Makine, havac\u0131l\u0131k, in\u015faat, lojistik \u2014 NASDAQ sekt\u00f6r tarama",
     "category": "FinPilot",
     "symbols": [
       "HON",
@@ -1658,7 +1658,6 @@
       "APWC",
       "QSIAW",
       "CLIR",
-      "EKSO",
       "BAERW",
       "DAIO",
       "HBIO",
@@ -1739,7 +1738,7 @@
   },
   "fp_consumer_discretionary": {
     "name": "FP: Consumer Disc.",
-    "icon": "🛍️",
+    "icon": "\ud83d\udecd\ufe0f",
     "description": "Full FinPilot consumer discretionary scan (100 stocks)",
     "category": "FinPilot",
     "symbols": [
@@ -1847,8 +1846,8 @@
   },
   "fp_energy": {
     "name": "FP: Energy",
-    "icon": "🛢️",
-    "description": "Petrol, gaz, yenilenebilir enerji — NASDAQ sektör tarama",
+    "icon": "\ud83d\udee2\ufe0f",
+    "description": "Petrol, gaz, yenilenebilir enerji \u2014 NASDAQ sekt\u00f6r tarama",
     "category": "FinPilot",
     "symbols": [
       "FANG",
@@ -1905,8 +1904,8 @@
   },
   "fp_consumer_staples": {
     "name": "FP: Consumer Staples",
-    "icon": "🛒",
-    "description": "Gıda, içecek, ev bakım, tarım — NASDAQ sektör tarama",
+    "icon": "\ud83d\uded2",
+    "description": "G\u0131da, i\u00e7ecek, ev bak\u0131m, tar\u0131m \u2014 NASDAQ sekt\u00f6r tarama",
     "category": "FinPilot",
     "symbols": [
       "MNST",
@@ -2000,8 +1999,8 @@
   },
   "fp_real_estate": {
     "name": "FP: Real Estate",
-    "icon": "🏠",
-    "description": "REIT, emlak yönetimi, geliştirme — NASDAQ sektör tarama",
+    "icon": "\ud83c\udfe0",
+    "description": "REIT, emlak y\u00f6netimi, geli\u015ftirme \u2014 NASDAQ sekt\u00f6r tarama",
     "category": "FinPilot",
     "symbols": [
       "MELI",
@@ -2157,7 +2156,7 @@
   },
   "fp_telecommunications": {
     "name": "FP: Telecom",
-    "icon": "📡",
+    "icon": "\ud83d\udce1",
     "description": "Full FinPilot telecom sector scan (64 stocks)",
     "category": "FinPilot",
     "symbols": [
@@ -2229,7 +2228,7 @@
   },
   "fp_utilities": {
     "name": "FP: Utilities",
-    "icon": "⚡",
+    "icon": "\u26a1",
     "description": "Full FinPilot utilities sector scan (45 stocks)",
     "category": "FinPilot",
     "symbols": [
@@ -2282,7 +2281,7 @@
   },
   "fp_miscellaneous": {
     "name": "FP: Miscellaneous",
-    "icon": "📦",
+    "icon": "\ud83d\udce6",
     "description": "Full FinPilot miscellaneous sector scan (44 stocks)",
     "category": "FinPilot",
     "symbols": [
