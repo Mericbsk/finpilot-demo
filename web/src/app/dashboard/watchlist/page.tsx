@@ -329,6 +329,11 @@ function SinyalTakipTab() {
   const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
   const [lifecycleFilter, setLifecycleFilter] = useState<string>("ALL");
 
+  // Archive: date list (count only) + lazy-loaded items per date
+  const [archiveDates, setArchiveDates] = useState<{ date: string; count: number }[]>([]);
+  const [archiveItemsCache, setArchiveItemsCache] = useState<Map<string, TrackedSignal[]>>(new Map());
+  const [loadingArchiveDate, setLoadingArchiveDate] = useState<string | null>(null);
+
   const fetchList = useCallback(async (silent = false) => {
     if (!silent) setLoading(true); else setRefreshing(true);
     try {
@@ -341,11 +346,33 @@ function SinyalTakipTab() {
     finally { setLoading(false); setRefreshing(false); }
   }, []);
 
+  // Fetch the full archive date list once on mount (lightweight — only dates+counts)
+  useEffect(() => {
+    fetch("/py-api/watchlist/dates")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (data) setArchiveDates(data.dates ?? []); })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     fetchList();
     const id = setInterval(() => fetchList(true), 60_000);
     return () => clearInterval(id);
   }, [fetchList]);
+
+  // Load items for one archive date on demand (called when user expands the row)
+  const loadArchiveDate = async (date: string) => {
+    if (archiveItemsCache.has(date)) return;
+    setLoadingArchiveDate(date);
+    try {
+      const res = await fetch(`/py-api/watchlist/history?date=${date}&limit=200`);
+      if (res.ok) {
+        const d = await res.json();
+        setArchiveItemsCache((prev) => new Map(prev).set(date, d.items ?? []));
+      }
+    } catch { /* silent */ }
+    finally { setLoadingArchiveDate(null); }
+  };
 
   const removeItem = async (symbol: string) => {
     try {
@@ -370,10 +397,11 @@ function SinyalTakipTab() {
     setDrawerItem((prev) => prev && prev.id === id ? { ...prev, notes, tags } : prev);
   };
 
-  const toggleDate = (date: string) => {
+  const toggleDate = (date: string, isArchiveOnly: boolean) => {
     setCollapsedDates((prev) => {
       const s = new Set(prev);
-      if (s.has(date)) s.delete(date); else s.add(date);
+      if (s.has(date)) { s.delete(date); }
+      else { s.add(date); if (isArchiveOnly) loadArchiveDate(date); }
       return s;
     });
   };
@@ -392,7 +420,12 @@ function SinyalTakipTab() {
     if (!grouped.has(date)) grouped.set(date, []);
     grouped.get(date)!.push(item);
   }
-  const sortedDates = Array.from(grouped.keys()).sort((a, b) => b.localeCompare(a));
+  // Merge active-item dates + archive-only dates (deduplicated, newest first)
+  const activeDatesSet = new Set(grouped.keys());
+  const archiveOnlyDates = archiveDates.map((d) => d.date).filter((d) => !activeDatesSet.has(d));
+  const sortedDates = [...Array.from(grouped.keys()), ...archiveOnlyDates]
+    .sort((a, b) => b.localeCompare(a));
+  const archiveDateCountMap = new Map(archiveDates.map((d) => [d.date, d.count]));
 
   const onTrack  = items.filter((i) => i.status === "On Track").length;
   const tpHit    = items.filter((i) => i.status === "TP Hit").length;
@@ -408,7 +441,7 @@ function SinyalTakipTab() {
     </div>
   );
 
-  if (items.length === 0) return (
+  if (items.length === 0 && archiveDates.length === 0) return (
     <div style={{ textAlign: "center", padding: "60px 20px", color: C.text3, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
       <BookmarkX size={44} style={{ opacity: 0.4 }} />
       <p style={{ fontSize: 15, color: C.text2 }}>Sinyal takip listesi boş</p>
@@ -468,9 +501,15 @@ function SinyalTakipTab() {
         ))}
       </div>
 
-      {/* Date grouped list */}
+      {/* Date grouped list — active dates + archive-only dates */}
       {sortedDates.map((date) => {
-        const dateItems = grouped.get(date) ?? [];
+        const isArchiveOnly = !grouped.has(date);
+        const dateItems = isArchiveOnly
+          ? (archiveItemsCache.get(date) ?? [])
+          : (grouped.get(date) ?? []);
+        const displayCount = isArchiveOnly && !archiveItemsCache.has(date)
+          ? (archiveDateCountMap.get(date) ?? 0)
+          : dateItems.length;
         const isToday = date === today;
         const collapsed = collapsedDates.has(date) && !isToday;
         const dateLabel = isToday ? "Bugün" : new Date(date + "T00:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -479,24 +518,31 @@ function SinyalTakipTab() {
         const dateAvg  = dateItems.length > 0 ? dateItems.reduce((s, i) => s + (i.pnl_pct ?? 0), 0) / dateItems.length : 0;
 
         return (
-          <div key={date} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
+          <div key={date} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", opacity: isArchiveOnly ? 0.85 : 1 }}>
             {/* Date header */}
             <div
-              onClick={() => toggleDate(date)}
+              onClick={() => toggleDate(date, isArchiveOnly)}
               style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 16px", borderBottom: collapsed ? "none" : `1px solid ${C.border}`, cursor: "pointer", background: isToday ? "rgba(0,212,255,0.04)" : "transparent" }}
             >
               {collapsed ? <ChevronRight size={14} style={{ color: C.text3 }} /> : <ChevronDown size={14} style={{ color: C.text3 }} />}
               <span style={{ fontSize: 13, fontWeight: 700, color: isToday ? C.cyan : C.text1 }}>{dateLabel}</span>
-              <span style={{ fontSize: 11, color: C.text3, marginLeft: 2 }}>— {dateItems.length} sinyal</span>
+              <span style={{ fontSize: 11, color: C.text3, marginLeft: 2 }}>— {displayCount} sinyal</span>
               {isToday && <span style={{ marginLeft: 4, padding: "2px 7px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(0,212,255,0.15)", color: C.cyan }}>BUGÜN</span>}
+              {isArchiveOnly && <span style={{ marginLeft: 4, padding: "2px 7px", borderRadius: 5, fontSize: 10, fontWeight: 600, background: "rgba(255,255,255,0.06)", color: C.text3 }}>ARŞİV</span>}
               <span style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center" }}>
                 {dateTp > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: "#ffd60a" }}>✓ {dateTp} TP</span>}
                 {dateStop > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: C.red }}>✗ {dateStop} Stop</span>}
-                <span style={{ fontSize: 11, color: dateAvg >= 0 ? C.green : C.red, fontWeight: 600 }}>{dateAvg >= 0 ? "+" : ""}{dateAvg.toFixed(2)}% ort.</span>
+                {dateItems.length > 0 && <span style={{ fontSize: 11, color: dateAvg >= 0 ? C.green : C.red, fontWeight: 600 }}>{dateAvg >= 0 ? "+" : ""}{dateAvg.toFixed(2)}% ort.</span>}
               </span>
             </div>
 
-            {!collapsed && (
+            {!collapsed && isArchiveOnly && loadingArchiveDate === date && (
+              <div style={{ padding: "16px", textAlign: "center", color: C.text3, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                <RefreshCw size={13} style={{ animation: "spin 1s linear infinite" }} /> Arşiv yükleniyor…
+              </div>
+            )}
+
+            {!collapsed && !(isArchiveOnly && loadingArchiveDate === date) && (
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead>
@@ -539,10 +585,12 @@ function SinyalTakipTab() {
                           <td style={{ padding: "11px 12px", fontWeight: 700, color: item.score >= 70 ? C.green : item.score >= 50 ? "#ffd60a" : C.text2 }}>{item.score > 0 ? Math.round(item.score) : "—"}</td>
                           <td style={{ padding: "11px 12px", color: C.text3, fontSize: 11, whiteSpace: "nowrap" }}>{new Date(item.added_at).toLocaleString("tr-TR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}</td>
                           <td style={{ padding: "11px 12px" }} onClick={(e) => e.stopPropagation()}>
-                            <div style={{ display: "flex", gap: 4 }}>
-                              <button onClick={(e) => { e.stopPropagation(); setDrawerItem(item); }} style={{ background: "none", border: "none", cursor: "pointer", color: C.cyan, padding: "4px 6px", borderRadius: 6, display: "flex", alignItems: "center" }} title="Detay"><MessageSquare size={13} /></button>
-                              <button onClick={() => removeItem(item.symbol)} style={{ background: "none", border: "none", cursor: "pointer", color: C.red, padding: "4px 6px", borderRadius: 6, display: "flex", alignItems: "center" }}><Trash2 size={13} /></button>
-                            </div>
+                            {!isArchiveOnly && (
+                              <div style={{ display: "flex", gap: 4 }}>
+                                <button onClick={(e) => { e.stopPropagation(); setDrawerItem(item); }} style={{ background: "none", border: "none", cursor: "pointer", color: C.cyan, padding: "4px 6px", borderRadius: 6, display: "flex", alignItems: "center" }} title="Detay"><MessageSquare size={13} /></button>
+                                <button onClick={() => removeItem(item.symbol)} style={{ background: "none", border: "none", cursor: "pointer", color: C.red, padding: "4px 6px", borderRadius: 6, display: "flex", alignItems: "center" }}><Trash2 size={13} /></button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                         {expanded === (item.id ?? item.symbol) && (
