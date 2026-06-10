@@ -364,32 +364,79 @@ def fetch_symbols_batch(
     days: int = 100,
     with_indicators: bool = True,
     max_workers: int = 8,
+    use_alpaca: bool | None = None,
 ) -> dict[str, pd.DataFrame]:
+    """Fetch OHLCV + indicators for multiple symbols.
+
+    Uses Alpaca bulk-bars when available (single HTTP call per batch of up to
+    1 000 symbols, ~20× faster than sequential yfinance).  Falls back to
+    parallel yfinance ThreadPoolExecutor when Alpaca credentials are missing.
+
+    Parameters
+    ----------
+    symbols : list[str]
+        Tickers to fetch.
+    interval : str
+        FinPilot interval string (``"15m"``, ``"1h"``, ``"1d"`` …).
+    days : int
+        Look-back window in calendar days.
+    with_indicators : bool
+        Apply ``add_indicators()`` to each DataFrame.
+    max_workers : int
+        Thread count used only for the yfinance fallback path.
+    use_alpaca : bool | None
+        ``True`` forces Alpaca, ``False`` forces yfinance, ``None``
+        auto-detects (Alpaca when env vars are present).
     """
-    Fetch data for multiple symbols in parallel.
+    if not symbols:
+        return {}
 
-    Optimized for batch operations like scanning large symbol lists.
+    # --- Auto-detect Alpaca availability ---
+    if use_alpaca is None:
+        use_alpaca = bool(os.environ.get("ALPACA_API_KEY"))
 
-    Args:
-        symbols: List of stock ticker symbols
-        interval: Time interval for all symbols
-        days: Number of days of history
-        with_indicators: Whether to add technical indicators
-        max_workers: Maximum parallel threads (default 8 for batch)
-
-    Returns:
-        Dictionary mapping symbol to DataFrame:
-        {'AAPL': df_aapl, 'GOOGL': df_googl, ...}
-
-    Example:
-        >>> symbols = ['AAPL', 'GOOGL', 'MSFT']
-        >>> data = fetch_symbols_batch(symbols)
-        >>> df_apple = data['AAPL']
-    """
     results: dict[str, pd.DataFrame] = {}
 
+    if use_alpaca:
+        try:
+            from drl.data_sources.alpaca_provider import fetch_bars_bulk
+
+            logger.info(
+                "fetch_symbols_batch: Alpaca bulk path (%d symbols, %s, %dd)",
+                len(symbols),
+                interval,
+                days,
+            )
+            raw = fetch_bars_bulk(symbols, interval=interval, days=days)
+
+            for sym, df in raw.items():
+                if df.empty:
+                    results[sym] = df
+                    continue
+                if with_indicators:
+                    try:
+                        df = add_indicators(df)
+                    except Exception:
+                        pass
+                results[sym] = df
+
+            # Fill missing symbols with empty frames
+            for sym in symbols:
+                if sym not in results:
+                    results[sym] = pd.DataFrame()
+
+            logger.info(
+                "fetch_symbols_batch: Alpaca returned %d/%d non-empty",
+                sum(1 for v in results.values() if not v.empty),
+                len(symbols),
+            )
+            return results
+
+        except Exception as exc:
+            logger.warning("Alpaca bulk fetch failed (%s) — falling back to yfinance", exc)
+
+    # --- yfinance fallback (original implementation) ---
     def _fetch_symbol(symbol: str) -> tuple[str, pd.DataFrame]:
-        """Fetch single symbol."""
         if with_indicators:
             df = fetch_with_indicators(symbol, interval, days)
         else:
@@ -398,7 +445,6 @@ def fetch_symbols_batch(
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(_fetch_symbol, symbol): symbol for symbol in symbols}
-
         for future in as_completed(futures):
             symbol = futures[future]
             try:
@@ -489,18 +535,75 @@ def prefetch_symbols_multi_timeframe(
     return results
 
 
-def load_symbols() -> list[str]:
-    """
-    Load list of symbols to scan.
+def load_symbols(
+    tradable_only: bool = True,
+    exchanges: list[str] | None = None,
+    limit: int | None = None,
+) -> list[str]:
+    """Load tradable US equity symbols from the local symbols table.
 
-    Currently returns a basic list. In production, this should
-    read from a configuration file or database.
+    Falls back to a minimal hardcoded list when the table doesn't exist yet
+    (i.e. before ``scripts/sync_symbols.py`` has been run).
 
-    Returns:
-        List of stock ticker symbols
+    Parameters
+    ----------
+    tradable_only:
+        When True (default) only returns symbols Alpaca marks as tradable.
+    exchanges:
+        Optional filter, e.g. ``["NASDAQ", "NYSE"]``.  None = all.
+    limit:
+        Cap the number of symbols returned (useful for quick dev runs).
     """
-    # Basic symbol list - extend as needed
-    return ["AAPL", "MSFT", "GOOGL", "NVDA", "SPY", "QQQ"]
+    try:
+        import sqlite3
+
+        from core.config import DB_PATH
+
+        with sqlite3.connect(str(DB_PATH)) as conn:
+            # Confirm table exists
+            exists = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='symbols'"
+            ).fetchone()
+            if not exists:
+                raise RuntimeError("symbols table not found")
+
+            clauses: list[str] = []
+            params: list[object] = []
+            if tradable_only:
+                clauses.append("tradable = 1")
+            if exchanges:
+                placeholders = ",".join("?" * len(exchanges))
+                clauses.append(f"exchange IN ({placeholders})")
+                params.extend(exchanges)
+
+            where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
+            # limit is cast to int to prevent injection; parameterised WHERE
+            # handles all user-supplied values (params list above).
+            sql = f"SELECT ticker FROM symbols {where} ORDER BY ticker"  # noqa: S608
+            if limit:
+                sql += f" LIMIT {int(limit)}"  # noqa: S608
+            rows = conn.execute(sql, params).fetchall()
+
+        symbols = [r[0] for r in rows]
+        logger.info("load_symbols: %d symbols from DB (tradable=%s)", len(symbols), tradable_only)
+        return symbols
+
+    except Exception as exc:
+        logger.warning("load_symbols DB fallback: %s — returning hardcoded list", exc)
+        return [
+            "AAPL",
+            "MSFT",
+            "GOOGL",
+            "NVDA",
+            "AMZN",
+            "META",
+            "TSLA",
+            "SPY",
+            "QQQ",
+            "NVDA",
+            "AMD",
+            "INTC",
+        ]
 
 
 def load_symbols_from_file(filepath: str) -> list[str]:

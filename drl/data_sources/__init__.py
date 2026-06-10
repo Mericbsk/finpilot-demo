@@ -1,6 +1,7 @@
 """Alternative data adapters and utilities."""
 
 from . import exceptions
+from .alpaca_provider import AlpacaProvider, fetch_bars, fetch_bars_bulk
 from .async_base import (
     AsyncBaseAdapter,
     AsyncCircuitBreaker,
@@ -34,5 +35,8 @@ __all__ = [
     "OnChainAdapter",
     "RawOnChainFetcher",
     "normalize_onchain_rows",
+    "AlpacaProvider",
+    "fetch_bars",
+    "fetch_bars_bulk",
     "exceptions",
 ]
