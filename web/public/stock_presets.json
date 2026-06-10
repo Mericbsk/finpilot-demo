@@ -4,7 +4,7 @@
     "name_en": "Technology",
     "icon": "💻",
     "description": "Yarı iletken, bulut, SaaS, kurumsal yazılım, AI, telekom",
-    "category": "Sektör",
+    "category": "Sectors",
     "symbols": [
       "AAPL",
       "MSFT",
@@ -223,7 +223,7 @@
     "name_en": "Healthcare & Biotech",
     "icon": "🧬",
     "description": "Büyük biyotek, yükselen biyotek, sağlık hizmetleri, ilaç pipeline, tıbbi cihaz",
-    "category": "Sektör",
+    "category": "Sectors",
     "symbols": [
       "AMGN",
       "GILD",
@@ -392,7 +392,7 @@
     "name_en": "Finance",
     "icon": "🏦",
     "description": "Bankalar, fintek, sigorta, çeşitlendirilmiş finans, gayrimenkul (REIT)",
-    "category": "Sektör",
+    "category": "Sectors",
     "symbols": [
       "JPM",
       "BAC",
@@ -721,7 +721,7 @@
     "name_en": "Energy & Industrials",
     "icon": "⚙️",
     "description": "Petrol & gaz, yenilenebilir enerji, sanayi, savunma, altyapı & kamu hizmetleri",
-    "category": "Sektör",
+    "category": "Sectors",
     "symbols": [
       "XOM",
       "CVX",
@@ -1193,7 +1193,7 @@
     "name_en": "Consumer",
     "icon": "🛒",
     "description": "Perakende, restoran, turizm, ihtiyari ve temel tüketim",
-    "category": "Sektör",
+    "category": "Sectors",
     "symbols": [
       "AMZN",
       "WMT",
@@ -1400,7 +1400,7 @@
     "name_en": "Growth & Thematic",
     "icon": "🚀",
     "description": "Yapay zeka, elektrikli araç, kripto & blockchain, uzay, momentum & çeşitli",
-    "category": "Strateji",
+    "category": "Strategy",
     "symbols": [
       "NVDA",
       "MSFT",
@@ -1557,7 +1557,7 @@
     "name_en": "Small Cap Growth",
     "icon": "🌱",
     "description": "Russell 2000 küçük sermayeli büyüme şirketleri ($50M–$300M piyasa değeri)",
-    "category": "Strateji",
+    "category": "Strategy",
     "symbols": [
       "ACGC",
       "ACOG",
@@ -1932,7 +1932,7 @@
     "name_en": "Value & Income",
     "icon": "💎",
     "description": "Düşük değerlemeli kaliteli şirketler ve yüksek temettü geliri (%4+)",
-    "category": "Strateji",
+    "category": "Strategy",
     "symbols": [
       "BRK.B",
       "JPM",
@@ -1995,7 +1995,7 @@
     "name_en": "International",
     "icon": "🌍",
     "description": "Çin ADR, İngiltere & Avrupa, küresel çeşitlilik",
-    "category": "Bölgesel",
+    "category": "Regional",
     "symbols": [
       "AZN",
       "ARM",
