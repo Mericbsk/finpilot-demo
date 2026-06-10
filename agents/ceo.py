@@ -50,6 +50,8 @@ class FinPilotState(TypedDict, total=False):
     scan_results: dict[str, Any]
     analysis_results: dict[str, Any]
     risk_results: dict[str, Any]
+    research_results: dict[str, Any]
+    social_results: dict[str, Any]
     alerts_sent: list[str]
     errors: list[str]
     top_symbols: list[str]
@@ -92,12 +94,18 @@ def _node_analyze(state: FinPilotState) -> dict:
 
     symbols = state.get("top_symbols", [])
     scan = state.get("scan_results", {})
+    research = state.get("research_results", {})
+    social = state.get("social_results", {})
     errors = list(state.get("errors", []))
     analysis: dict = {}
 
     for sym in symbols:
         ctx = AgentContext(symbols=[sym], scan_results={sym: scan.get(sym, {})})
-        result = AnalysisAgent().run(ctx)
+        result = AnalysisAgent().run(
+            ctx,
+            research_data=research.get(sym, {}),
+            social_data=social.get(sym, {}),
+        )
         if result.success:
             analysis[sym] = result.data.get(sym, result.data)
         else:
@@ -105,6 +113,49 @@ def _node_analyze(state: FinPilotState) -> dict:
 
     logger.info("CEO: analysis complete — %d symbols", len(analysis))
     return {"analysis_results": analysis, "errors": errors}
+
+
+def _node_research(state: FinPilotState) -> dict:
+    """Run ResearchAgent on top_symbols to gather news + social posts."""
+    from agents.base import AgentContext
+    from agents.research_agent import ResearchAgent
+
+    symbols = state.get("top_symbols", []) or state.get("symbols", [])
+    if not symbols:
+        return {"research_results": {}}
+
+    ctx = AgentContext(symbols=symbols)
+    result = ResearchAgent().run(ctx)
+    if result.success:
+        logger.info("CEO: research complete — %d symbols", len(result.data or {}))
+        return {"research_results": result.data or {}}
+
+    logger.warning("CEO: research failed — %s", result.error)
+    return {"research_results": {}}
+
+
+def _node_social(state: FinPilotState) -> dict:
+    """Run SocialIntelligenceAgent on top_symbols for Reddit/HN/Polymarket sentiment."""
+    import os
+
+    if os.environ.get("SOCIAL_SENTIMENT_ENABLED", "false").lower() != "true":
+        return {"social_results": {}}
+
+    from agents.base import AgentContext
+    from agents.social_intelligence_agent import SocialIntelligenceAgent
+
+    symbols = state.get("top_symbols", []) or state.get("symbols", [])
+    if not symbols:
+        return {"social_results": {}}
+
+    ctx = AgentContext(symbols=symbols)
+    result = SocialIntelligenceAgent().run(ctx)
+    if result.success:
+        logger.info("CEO: social intelligence complete — %d symbols", len(result.data or {}))
+        return {"social_results": result.data or {}}
+
+    logger.warning("CEO: social intelligence failed — %s", result.error)
+    return {"social_results": {}}
 
 
 def _node_risk(state: FinPilotState) -> dict:
@@ -157,7 +208,7 @@ def _route_after_scan(state: FinPilotState) -> str:
     if task == "scan":
         return "__end__"
     if task in ("full", "analyze"):
-        return "analyze"
+        return "research"
     return "risk"
 
 
@@ -178,8 +229,8 @@ def build_graph() -> Any:
     """Build and compile the FinPilot LangGraph StateGraph.
 
     Graph topology:
-        scan ──[full/analyze]──► analyze ──► risk ──[full]──► alert ──► END
-             ──[scan/risk]────────────────► risk ──[scan/risk]────────► END
+        scan ──[full/analyze]──► research ──► social ──► analyze ──► risk ──[full]──► alert ──► END
+             ──[scan/risk]────────────────────────────────────────► risk ──[scan/risk]──────────► END
     """
     try:
         from langgraph.graph import END, StateGraph
@@ -191,6 +242,8 @@ def build_graph() -> Any:
     g: StateGraph = StateGraph(FinPilotState)
 
     g.add_node("scan", _node_scan)
+    g.add_node("research", _node_research)
+    g.add_node("social", _node_social)
     g.add_node("analyze", _node_analyze)
     g.add_node("risk", _node_risk)
     g.add_node("alert", _node_alert)
@@ -200,8 +253,10 @@ def build_graph() -> Any:
     g.add_conditional_edges(
         "scan",
         _route_after_scan,
-        {"analyze": "analyze", "risk": "risk", "__end__": END},
+        {"research": "research", "risk": "risk", "__end__": END},
     )
+    g.add_edge("research", "social")
+    g.add_edge("social", "analyze")
     g.add_edge("analyze", "risk")
 
     g.add_conditional_edges(

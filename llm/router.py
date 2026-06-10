@@ -29,6 +29,7 @@ from llm.base import (
     LLMProvider,
     LLMRateLimitError,
     LLMResponse,
+    LLMRole,
 )
 
 logger = logging.getLogger(__name__)
@@ -39,16 +40,60 @@ logger = logging.getLogger(__name__)
 
 _LLM_CACHE_NS = "llm_response"
 _LLM_CACHE_TTL = int(os.environ.get("LLM_CACHE_TTL_SECONDS", "3600"))
+_HEADROOM_ENABLED = os.environ.get("HEADROOM_ENABLED", "false").lower() == "true"
+
+
+def _headroom_compress(messages: list[LLMMessage]) -> list[LLMMessage]:
+    """Compress messages with headroom before sending to LLM provider.
+
+    Silently returns original messages if headroom is disabled, not installed,
+    or raises any error — never blocks the LLM call.
+    """
+    if not _HEADROOM_ENABLED:
+        return messages
+    try:
+        from headroom import compress  # noqa: PLC0415
+
+        dicts = [{"role": m.role.value, "content": m.content} for m in messages]
+        compressed = compress(dicts)
+        if not compressed or not isinstance(compressed, list):
+            return messages
+        result = [
+            LLMMessage(role=LLMRole(c["role"]), content=c["content"])
+            for c in compressed
+            if isinstance(c, dict) and "role" in c and "content" in c
+        ]
+        if not result:
+            return messages
+        original_chars = sum(len(m.content) for m in messages)
+        compressed_chars = sum(len(m.content) for m in result)
+        if original_chars > 0:
+            logger.debug(
+                "Headroom compression: %d → %d chars (%.0f%% reduction)",
+                original_chars,
+                compressed_chars,
+                (1 - compressed_chars / original_chars) * 100,
+            )
+        return result
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("Headroom compression skipped: %s", exc)
+        return messages
+
+
 # Bucket defaults: ~5 RPS, burst 10. Override via env per provider:
 #   LLM_RATE_GROQ=10, LLM_BURST_GROQ=20
 _LLM_DEFAULT_RATE = float(os.environ.get("LLM_RATE_DEFAULT", "5"))
 _LLM_DEFAULT_BURST = float(os.environ.get("LLM_BURST_DEFAULT", "10"))
 
 
-def _llm_cache_key(messages: list[LLMMessage], temperature: float, max_tokens: int, model: str | None) -> str:
+def _llm_cache_key(
+    messages: list[LLMMessage], temperature: float, max_tokens: int, model: str | None
+) -> str:
     from core.cache import make_cache_key
 
-    serialised = [(m.role.value if hasattr(m.role, "value") else str(m.role), m.content) for m in messages]
+    serialised = [
+        (m.role.value if hasattr(m.role, "value") else str(m.role), m.content) for m in messages
+    ]
     return make_cache_key("llm", model or "", (temperature, max_tokens, serialised), {})
 
 
@@ -56,6 +101,7 @@ def _provider_rate_limit(provider_name: str) -> tuple[float, float]:
     rate = float(os.environ.get(f"LLM_RATE_{provider_name.upper()}", _LLM_DEFAULT_RATE))
     burst = float(os.environ.get(f"LLM_BURST_{provider_name.upper()}", _LLM_DEFAULT_BURST))
     return rate, burst
+
 
 # ---------------------------------------------------------------------------
 # Langfuse — optional LLM observability
@@ -239,18 +285,14 @@ class LLMRouter:
 
         # ----- S4-2: response cache check (only for deterministic prompts) -----
         cache_enabled = (
-            kwargs.pop("use_cache", True)
-            and temperature < 0.7
-            and not kwargs.get("stream", False)
+            kwargs.pop("use_cache", True) and temperature < 0.7 and not kwargs.get("stream", False)
         )
         cache_key = None
         if cache_enabled:
             try:
                 from core.cache import cache_manager
 
-                cache_key = _llm_cache_key(
-                    messages, temperature, max_tokens, kwargs.get("model")
-                )
+                cache_key = _llm_cache_key(messages, temperature, max_tokens, kwargs.get("model"))
                 cached = cache_manager.get(cache_key)
                 if cached is not None and isinstance(cached, dict):
                     logger.info("LLM cache HIT (%s)", cache_key[:12])
@@ -312,7 +354,7 @@ class LLMRouter:
 
                 t0 = time.perf_counter()
                 response = provider.generate(
-                    messages,
+                    _headroom_compress(messages),
                     temperature=temperature,
                     max_tokens=max_tokens,
                     **kwargs,

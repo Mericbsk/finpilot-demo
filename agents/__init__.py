@@ -19,6 +19,7 @@ from agents.market_intelligence import MarketIntelligenceAgent
 from agents.performance_monitor import PerformanceMonitorAgent
 from agents.report_agent import ReportAgent
 from agents.research_agent import ResearchAgent
+from agents.social_intelligence_agent import SocialIntelligenceAgent
 from agents.strategy_optimizer import StrategyOptimizerAgent
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     "get_threshold_boosts",
     "get_graph",
     "ResearchAgent",
+    "SocialIntelligenceAgent",
     "BacktestAgent",
     "ReportAgent",
     "MarketIntelligenceAgent",

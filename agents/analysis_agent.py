@@ -37,6 +37,8 @@ class AnalysisAgent(BaseAgent):
         import time
 
         t0 = time.perf_counter()
+        research_data: dict = kwargs.get("research_data", {})  # type: ignore[assignment]
+        social_data: dict = kwargs.get("social_data", {})  # type: ignore[assignment]
         try:
             from llm import get_router
             from llm.base import LLMMessage, LLMRole
@@ -49,7 +51,7 @@ class AnalysisAgent(BaseAgent):
 
         for sym in context.symbols:
             scan_data = context.scan_results.get(sym, {})
-            prompt = _build_prompt(sym, scan_data)
+            prompt = _build_prompt(sym, scan_data, research_data, social_data)
             try:
                 response = router.generate_messages(
                     messages=[
@@ -91,8 +93,10 @@ class AnalysisAgent(BaseAgent):
 # ---------------------------------------------------------------------------
 
 
-def _build_prompt(symbol: str, data: dict) -> str:
-    """Build a structured Turkish analysis prompt from scanner row data."""
+def _build_prompt(
+    symbol: str, data: dict, research: dict | None = None, social: dict | None = None
+) -> str:
+    """Build a structured Turkish analysis prompt from scanner + research + social data."""
     score = data.get("finpilot_score", data.get("composite_score", "N/A"))
     signal = "AL 🟢" if data.get("direction") else "SAT 🔴"
     regime = "Boğa 📈" if data.get("regime") else "Ayı 📉"
@@ -106,7 +110,7 @@ def _build_prompt(symbol: str, data: dict) -> str:
     alignment = data.get("alignment_ratio", "N/A")
     strategy = data.get("strategy_tag", "Normal")
 
-    return (
+    base = (
         f"## {symbol} Teknik Analiz Raporu\n\n"
         f"| Parametre | Değer |\n"
         f"|-----------|-------|\n"
@@ -122,6 +126,62 @@ def _build_prompt(symbol: str, data: dict) -> str:
         f"| Momentum | {momentum} |\n"
         f"| Zaman Dilimi Uyumu | {alignment} |\n"
         f"| Strateji Etiketi | {strategy} |\n\n"
+    )
+
+    # --- Research context (news + Reddit + HN) ---
+    news_section = ""
+    if research:
+        news_items = research.get("news", [])
+        reddit_items = research.get("reddit", [])
+        hn_items = research.get("hacker_news", [])
+        if news_items or reddit_items or hn_items:
+            news_section = "## Güncel Haber ve Sosyal Medya Verileri\n\n"
+            if news_items:
+                news_section += "**Son Haberler:**\n"
+                for item in news_items[:3]:
+                    news_section += f"- [{item.get('title','')}]({item.get('url','')}) ({item.get('date','')})\n"
+                    if item.get("body"):
+                        news_section += f"  → {item['body'][:150]}\n"
+                news_section += "\n"
+            if reddit_items:
+                news_section += "**Reddit (son 30 gün, en çok oy alan):**\n"
+                for post in reddit_items[:3]:
+                    news_section += f"- {post.get('title','')} (↑{post.get('score',0)} · r/{post.get('subreddit','')})\n"
+                news_section += "\n"
+            if hn_items:
+                news_section += "**Hacker News:**\n"
+                for post in hn_items[:2]:
+                    news_section += f"- {post.get('title','')} ({post.get('points',0)} puan)\n"
+                news_section += "\n"
+
+    # --- Social sentiment context ---
+    sentiment_section = ""
+    if social:
+        score_val = social.get("sentiment_score")
+        buzz = social.get("buzz_level", "")
+        poly = social.get("polymarket_markets", [])
+        if score_val is not None:
+            sentiment_label = (
+                "POZİTİF 🟢"
+                if score_val >= 0.6
+                else "NEGATİF 🔴"
+                if score_val <= 0.4
+                else "NÖTR ⚪"
+            )
+            sentiment_section = (
+                f"## Sosyal Sentiment\n\n"
+                f"Sentiment skoru: **{score_val:.0%}** — {sentiment_label} | "
+                f"Buzz seviyesi: **{buzz.upper()}** ({social.get('post_count', 0)} post)\n"
+            )
+            if poly:
+                sentiment_section += "\n**Polymarket Tahminleri:**\n"
+                for m in poly[:3]:
+                    prob = m.get("yes_probability")
+                    prob_str = f"{prob:.0%}" if prob is not None else "N/A"
+                    sentiment_section += f"- {m.get('question','')} → Evet: {prob_str}\n"
+            sentiment_section += "\n"
+
+    analysis_request = (
         "Yukarıdaki verilere göre lütfen şunları analiz et:\n\n"
         "### 1. Teknik Görünüm\n"
         "Önemli destek/direnç seviyeleri, trend durumu ve teknik oluşumlar.\n\n"
@@ -133,3 +193,5 @@ def _build_prompt(symbol: str, data: dict) -> str:
         "### 4. Özet Karar\n"
         "Tek cümleyle net görüş (AL / SAT / BEKLE + neden)."
     )
+
+    return base + news_section + sentiment_section + analysis_request

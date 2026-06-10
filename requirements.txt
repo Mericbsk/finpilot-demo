@@ -21,6 +21,7 @@ beautifulsoup4==4.14.3
 lxml==6.0.4
 
 # LLM Integration
+headroom-ai
 google-genai==1.15.0
 duckduckgo-search==8.1.1
 groq==1.1.2
