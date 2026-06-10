@@ -81,6 +81,24 @@ class ScannerConfig(BaseModel):
     max_stocks_to_scan: int = Field(default=500, ge=1)
     signal_threshold: int = Field(default=3, ge=1)
 
+    # Universe / market-cap filtering (opt-in — None means no filter)
+    scanner_universe: str | None = Field(
+        default=None,
+        description=(
+            "Named symbol universe from symbol_lists table. "
+            "E.g. 'preset_1500', 'iwm_300m', 'combined_2026'. "
+            "None = full symbols table."
+        ),
+    )
+    market_cap_min: int | None = Field(
+        default=None,
+        description="Minimum market cap in USD. None = no lower bound.",
+    )
+    market_cap_max: int | None = Field(
+        default=None,
+        description="Maximum market cap in USD. None = no upper bound.",
+    )
+
     @model_validator(mode="after")
     def validate_rsi_range(self) -> "ScannerConfig":
         if self.rsi_oversold >= self.rsi_overbought:

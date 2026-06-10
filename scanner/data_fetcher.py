@@ -539,8 +539,11 @@ def load_symbols(
     tradable_only: bool = True,
     exchanges: list[str] | None = None,
     limit: int | None = None,
+    universe: str | None = None,
+    market_cap_min: int | None = None,
+    market_cap_max: int | None = None,
 ) -> list[str]:
-    """Load tradable US equity symbols from the local symbols table.
+    """Load tradable US equity symbols from the local DB.
 
     Falls back to a minimal hardcoded list when the table doesn't exist yet
     (i.e. before ``scripts/sync_symbols.py`` has been run).
@@ -553,6 +556,18 @@ def load_symbols(
         Optional filter, e.g. ``["NASDAQ", "NYSE"]``.  None = all.
     limit:
         Cap the number of symbols returned (useful for quick dev runs).
+    universe:
+        Named universe from the ``symbol_lists`` table, e.g.
+        ``"preset_1500"``, ``"iwm_300m"``, ``"combined_2026"``.
+        When set, the query joins against that list instead of scanning
+        the full symbols table.  If the list doesn't exist the function
+        falls back to the regular symbols table query.
+    market_cap_min:
+        Include only symbols with ``market_cap >= market_cap_min``.
+        Symbols with NULL market_cap are excluded when this is set.
+    market_cap_max:
+        Include only symbols with ``market_cap <= market_cap_max``.
+        Symbols with NULL market_cap are excluded when this is set.
     """
     try:
         import sqlite3
@@ -560,32 +575,78 @@ def load_symbols(
         from core.config import DB_PATH
 
         with sqlite3.connect(str(DB_PATH)) as conn:
-            # Confirm table exists
-            exists = conn.execute(
+            # Confirm symbols table exists
+            if not conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name='symbols'"
-            ).fetchone()
-            if not exists:
+            ).fetchone():
                 raise RuntimeError("symbols table not found")
 
             clauses: list[str] = []
             params: list[object] = []
+
+            # --- universe (symbol_lists join) ---
+            use_universe = False
+            if universe:
+                lists_exist = conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='symbol_lists'"
+                ).fetchone()
+                list_count = (
+                    conn.execute(
+                        "SELECT COUNT(*) FROM symbol_lists WHERE list_name=?", (universe,)
+                    ).fetchone()[0]
+                    if lists_exist
+                    else 0
+                )
+                if list_count > 0:
+                    use_universe = True
+                else:
+                    logger.warning(
+                        "load_symbols: universe '%s' not found in symbol_lists — using full table",
+                        universe,
+                    )
+
             if tradable_only:
-                clauses.append("tradable = 1")
+                clauses.append("s.tradable = 1")
             if exchanges:
                 placeholders = ",".join("?" * len(exchanges))
-                clauses.append(f"exchange IN ({placeholders})")
+                clauses.append(f"s.exchange IN ({placeholders})")
                 params.extend(exchanges)
+            if market_cap_min is not None:
+                clauses.append("s.market_cap >= ?")
+                params.append(market_cap_min)
+            if market_cap_max is not None:
+                clauses.append("s.market_cap <= ?")
+                params.append(market_cap_max)
+            if market_cap_min is not None or market_cap_max is not None:
+                clauses.append("s.market_cap IS NOT NULL")
 
             where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
-            # limit is cast to int to prevent injection; parameterised WHERE
-            # handles all user-supplied values (params list above).
-            sql = f"SELECT ticker FROM symbols {where} ORDER BY ticker"  # noqa: S608
+
+            if use_universe:
+                # Join to symbol_lists to restrict to the named universe
+                # user input is parameterised (universe, *params); clauses
+                # contain only static strings — safe against injection.
+                extra = ("AND " + " AND ".join(clauses) + " ") if clauses else ""
+                sql = f"SELECT s.ticker FROM symbols s JOIN symbol_lists sl ON sl.ticker = s.ticker WHERE sl.list_name = ? {extra}ORDER BY s.ticker"  # noqa: S608
+                query_params: list[object] = [universe, *params]
+            else:
+                sql = f"SELECT s.ticker FROM symbols s {where} ORDER BY s.ticker"  # noqa: S608
+                query_params = params  # type: ignore[assignment]
+
             if limit:
                 sql += f" LIMIT {int(limit)}"  # noqa: S608
-            rows = conn.execute(sql, params).fetchall()
+
+            rows = conn.execute(sql, query_params).fetchall()
 
         symbols = [r[0] for r in rows]
-        logger.info("load_symbols: %d symbols from DB (tradable=%s)", len(symbols), tradable_only)
+        logger.info(
+            "load_symbols: %d symbols (universe=%s, tradable=%s, cap=%s–%s)",
+            len(symbols),
+            universe,
+            tradable_only,
+            market_cap_min,
+            market_cap_max,
+        )
         return symbols
 
     except Exception as exc:
