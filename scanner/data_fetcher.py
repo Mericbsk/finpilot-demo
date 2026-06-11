@@ -40,10 +40,33 @@ logger = logging.getLogger(__name__)
 # ============================================
 # 🧠 Cache Configuration
 # ============================================
-# TTL: 5 dakika (300 saniye) - tüm modüllerde standart
-# Bu değer tüm cache'ler için tek kaynak olarak kullanılır
-CACHE_TTL_SECONDS = 300
-CACHE_TTL_MARKET_INDEX = 300  # Market index için de aynı TTL (önceden 600 idi)
+# Market-aware TTL: 5 min during trading hours, 60 min outside.
+# This avoids stale data during market hours while eliminating
+# unnecessary yfinance calls on nights/weekends.
+
+
+def _market_aware_ttl() -> int:
+    """Return appropriate cache TTL based on current time (UTC).
+
+    - 300s  during NYSE trading hours (Mon-Fri 13:30–20:00 UTC)
+    - 3600s outside trading hours / weekends
+    """
+    now = datetime.utcnow()
+    weekday = now.weekday()  # 0=Mon … 6=Sun
+    if weekday >= 5:  # Weekend
+        return 3600
+    market_open_h, market_open_m = 13, 30  # 09:30 ET = 13:30 UTC
+    market_close_h, market_close_m = 20, 0  # 16:00 ET = 20:00 UTC
+    total_min = now.hour * 60 + now.minute
+    open_min = market_open_h * 60 + market_open_m
+    close_min = market_close_h * 60 + market_close_m
+    if open_min <= total_min <= close_min:
+        return 300  # 5 min — market open
+    return 3600  # 60 min — pre/post market or overnight
+
+
+CACHE_TTL_SECONDS = _market_aware_ttl()
+CACHE_TTL_MARKET_INDEX = CACHE_TTL_SECONDS
 
 # In-memory fallback cache for non-Streamlit usage
 _memory_cache: dict[str, tuple] = {}
@@ -295,12 +318,34 @@ def fetch_with_indicators(symbol: str, interval: str, days: int) -> pd.DataFrame
 # ============================================
 
 # Default timeframes for multi-timeframe analysis
+# NOTE: yfinance does not reliably support "4h" as a native interval.
+# The 4h DataFrame is derived by resampling the 1h data (fetched with 100-day window)
+# inside fetch_multi_timeframe(), saving one network round-trip per symbol.
 DEFAULT_TIMEFRAMES: list[tuple[str, int]] = [
     ("15m", 10),  # 15-minute, 10 days
-    ("1h", 60),  # 1-hour, 60 days
-    ("4h", 100),  # 4-hour, 100 days
+    ("1h", 100),  # 1-hour, 100 days (also used to build 4h via resample)
     ("1d", 400),  # Daily, 400 days
 ]
+
+
+def _resample_4h(df_1h: pd.DataFrame) -> pd.DataFrame:
+    """Derive a 4-hour OHLCV DataFrame from 1-hour data via resample.
+
+    This avoids a separate yfinance network call for the 4h interval
+    (which yfinance does not support reliably anyway).
+    """
+    if df_1h.empty:
+        return pd.DataFrame()
+    try:
+        df = df_1h[["Open", "High", "Low", "Close", "Volume"]].copy()
+        df4 = (
+            df.resample("4h")
+            .agg({"Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"})
+            .dropna()
+        )
+        return df4
+    except Exception:
+        return pd.DataFrame()
 
 
 def fetch_multi_timeframe(
@@ -344,9 +389,12 @@ def fetch_multi_timeframe(
             df = fetch(symbol, interval, days)
         return interval, df
 
-    # Parallel fetch
+    # Parallel fetch (only real timeframes — 4h is derived from 1h below)
+    real_timeframes = [(iv, d) for iv, d in timeframes if iv != "4h"]
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(_fetch_single, interval, days) for interval, days in timeframes]
+        futures = [
+            executor.submit(_fetch_single, interval, days) for interval, days in real_timeframes
+        ]
 
         for future in as_completed(futures):
             try:
@@ -354,6 +402,14 @@ def fetch_multi_timeframe(
                 results[interval] = df
             except Exception as e:
                 logger.warning("Paralel fetch hatası: %s %s - %s", symbol, str(e), type(e).__name__)
+
+    # Derive 4h from 1h to avoid an extra yfinance round-trip
+    df_1h = results.get("1h", pd.DataFrame())
+    df_4h_raw = _resample_4h(df_1h)
+    if not df_4h_raw.empty:
+        results["4h"] = add_indicators(df_4h_raw) if with_indicators else df_4h_raw
+    else:
+        results["4h"] = pd.DataFrame()
 
     return results
 

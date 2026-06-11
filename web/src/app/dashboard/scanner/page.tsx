@@ -610,19 +610,29 @@ export default function ScannerPage() {
       let scanned = 0;
 
       try {
+        // Build all batches upfront, then fire them all in parallel.
+        // Promise.allSettled ensures a failing batch doesn't cancel the rest.
+        const batches: string[][] = [];
         for (let i = 0; i < symbols.length; i += BATCH_SIZE) {
-          if (abortRef.current) break;
-          const batch = symbols.slice(i, i + BATCH_SIZE);
-          try {
-            const batchResult = await scanBatch(batch);
-            Object.assign(results, batchResult);
-          } catch (batchErr) {
-            console.warn("Batch scan failed:", batchErr);
-          }
-          scanned += batch.length;
-          setScanProgress(scanned);
-          setScanResults({ ...results });
+          batches.push(symbols.slice(i, i + BATCH_SIZE));
         }
+
+        const batchPromises = batches.map((batch) =>
+          scanBatch(batch)
+            .then((batchResult) => {
+              Object.assign(results, batchResult);
+              scanned += batch.length;
+              setScanProgress(scanned);
+              setScanResults({ ...results });
+            })
+            .catch((batchErr) => {
+              console.warn("Batch scan failed:", batchErr);
+              scanned += batch.length;
+              setScanProgress(scanned);
+            })
+        );
+
+        await Promise.allSettled(batchPromises);
 
         setScanResults({ ...results });
         writeCache({ scanResults: { ...results }, activePresetId, scanAllMode });
