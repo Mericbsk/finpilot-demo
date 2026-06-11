@@ -47,6 +47,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - HEADROOM_ENABLED=false
       - SOCIAL_SENTIMENT_ENABLED=false
+      - FINPILOT_LLM_SINGLE_PROVIDER=groq
       # DATABASE_URL example for PostgreSQL (uncomment after S2-1 auth refactor):
       # - DATABASE_URL=postgresql://finpilot:${POSTGRES_PASSWORD:-finpilot_dev_2026}@postgres:5432/finpilot
     env_file:
