@@ -609,30 +609,38 @@ export default function ScannerPage() {
       const results: Record<string, ScanResult> = {};
       let scanned = 0;
 
+      // Max concurrent batches — keeps backend executor from being saturated
+      // and respects browser connection-per-host limits (~6).
+      const CONCURRENT_BATCHES = 3;
+
       try {
-        // Build all batches upfront, then fire them all in parallel.
-        // Promise.allSettled ensures a failing batch doesn't cancel the rest.
+        // Build all batches upfront
         const batches: string[][] = [];
         for (let i = 0; i < symbols.length; i += BATCH_SIZE) {
           batches.push(symbols.slice(i, i + BATCH_SIZE));
         }
 
-        const batchPromises = batches.map((batch) =>
-          scanBatch(batch)
-            .then((batchResult) => {
-              Object.assign(results, batchResult);
-              scanned += batch.length;
-              setScanProgress(scanned);
-              setScanResults({ ...results });
-            })
-            .catch((batchErr) => {
-              console.warn("Batch scan failed:", batchErr);
-              scanned += batch.length;
-              setScanProgress(scanned);
-            })
-        );
-
-        await Promise.allSettled(batchPromises);
+        // Fire in chunks of CONCURRENT_BATCHES; check abort between chunks
+        for (let i = 0; i < batches.length; i += CONCURRENT_BATCHES) {
+          if (abortRef.current) break;
+          const chunk = batches.slice(i, i + CONCURRENT_BATCHES);
+          await Promise.allSettled(
+            chunk.map((batch) =>
+              scanBatch(batch)
+                .then((batchResult) => {
+                  Object.assign(results, batchResult);
+                  scanned += batch.length;
+                  setScanProgress(scanned);
+                  setScanResults({ ...results });
+                })
+                .catch((batchErr) => {
+                  console.warn("Batch scan failed:", batchErr);
+                  scanned += batch.length;
+                  setScanProgress(scanned);
+                })
+            )
+          );
+        }
 
         setScanResults({ ...results });
         writeCache({ scanResults: { ...results }, activePresetId, scanAllMode });

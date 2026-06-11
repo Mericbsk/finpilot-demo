@@ -27,7 +27,7 @@ _REPORTS_DIR = Path("data/daily_reports")
 _STALE_DAYS = 7
 _SCAN_TIMEOUT_SECONDS = 300
 
-_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="scan")
+_executor = ThreadPoolExecutor(max_workers=8, thread_name_prefix="scan")
 
 
 def _clean_value(v: object) -> object:
