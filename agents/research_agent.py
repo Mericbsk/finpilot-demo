@@ -126,7 +126,6 @@ class ResearchAgent(BaseAgent):
 
         results: dict[str, dict[str, Any]] = {}
         errors: list[str] = []
-        ddgs = DDGS(timeout=_SEARCH_TIMEOUT_S)
 
         for sym in context.symbols:
             clean = sym.split(".")[0]
@@ -137,28 +136,36 @@ class ResearchAgent(BaseAgent):
                 else f"{clean} stock news analysis 2026"
             )
 
-            # --- DuckDuckGo (synchronous, already fast) ---
+            # --- DuckDuckGo with retry on rate-limit ---
             ddg_news: list[dict[str, Any]] = []
             top_urls: list[str] = []
-            try:
-                ddg_raw = list(
-                    ddgs.news(ddg_query, max_results=_MAX_RESULTS_PER_SYMBOL, safesearch="off")
-                )
-                ddg_news = [
-                    {
-                        "title": r.get("title", ""),
-                        "url": r.get("url", ""),
-                        "body": r.get("body", "")[:300],
-                        "date": r.get("date", ""),
-                        "source": r.get("source", ""),
-                    }
-                    for r in ddg_raw
-                ]
-                top_urls = [r.get("url", "") for r in ddg_raw[:2] if r.get("url")]
-                logger.info("ResearchAgent: %s → %d DDG news", sym, len(ddg_news))
-            except Exception as exc:
-                logger.warning("ResearchAgent: %s DDG failed: %s", sym, exc)
-                errors.append(f"{sym} DDG: {exc}")
+            for attempt in range(2):
+                try:
+                    ddgs = DDGS(timeout=_SEARCH_TIMEOUT_S)
+                    ddg_raw = list(
+                        ddgs.news(ddg_query, max_results=_MAX_RESULTS_PER_SYMBOL, safesearch="off")
+                    )
+                    ddg_news = [
+                        {
+                            "title": r.get("title", ""),
+                            "url": r.get("url", ""),
+                            "body": r.get("body", "")[:300],
+                            "date": r.get("date", ""),
+                            "source": r.get("source", ""),
+                        }
+                        for r in ddg_raw
+                    ]
+                    top_urls = [r.get("url", "") for r in ddg_raw[:2] if r.get("url")]
+                    logger.info("ResearchAgent: %s → %d DDG news", sym, len(ddg_news))
+                    break
+                except Exception as exc:
+                    if attempt == 0 and "403" in str(exc):
+                        logger.debug("ResearchAgent: %s DDG 403 rate-limit, retry in 3s", sym)
+                        time.sleep(3)
+                    else:
+                        logger.warning("ResearchAgent: %s DDG failed: %s", sym, exc)
+                        errors.append(f"{sym} DDG: {exc}")
+                        break
 
             # --- Parallel fetch: Reddit + HN + Jina ---
             reddit_posts: list[dict[str, Any]] = []

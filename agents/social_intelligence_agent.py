@@ -141,14 +141,14 @@ def _fetch_reddit_30d(symbol: str, clean: str, limit: int = 10) -> list[dict[str
 
 
 def _fetch_hn_30d(symbol: str, clean: str, limit: int = 5) -> list[dict[str, Any]]:
-    """Recent HN stories from the last 30 days via Algolia API."""
+    """Recent HN stories from the last 90 days via Algolia API."""
     is_bist = "." in symbol
     query = f"{clean} hisse senedi" if is_bist else f"{clean} stock"
-    epoch_30d_ago = int((datetime.now(tz=UTC) - timedelta(days=30)).timestamp())
+    epoch_90d_ago = int((datetime.now(tz=UTC) - timedelta(days=90)).timestamp())
     url = (
         f"https://hn.algolia.com/api/v1/search"
         f"?query={requests.utils.quote(query)}&tags=story"
-        f"&numericFilters=created_at_i>{epoch_30d_ago}&hitsPerPage={limit}"
+        f"&numericFilters=created_at_i>{epoch_90d_ago}&hitsPerPage={limit}"
     )
     try:
         resp = requests.get(url, timeout=_HTTP_TIMEOUT_S)
@@ -169,10 +169,10 @@ def _fetch_hn_30d(symbol: str, clean: str, limit: int = 5) -> list[dict[str, Any
 
 
 def _fetch_polymarket(symbol: str, clean: str, limit: int = 5) -> list[dict[str, Any]]:
-    """Fetch active Polymarket prediction markets mentioning the symbol."""
+    """Fetch Polymarket prediction markets mentioning the symbol."""
     url = (
         f"https://gamma-api.polymarket.com/markets"
-        f"?q={requests.utils.quote(clean)}&status=active&limit={limit}"
+        f"?q={requests.utils.quote(clean)}&limit={limit}"
     )
     try:
         resp = requests.get(url, timeout=_HTTP_TIMEOUT_S)

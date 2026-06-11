@@ -41,6 +41,8 @@ logger = logging.getLogger(__name__)
 _LLM_CACHE_NS = "llm_response"
 _LLM_CACHE_TTL = int(os.environ.get("LLM_CACHE_TTL_SECONDS", "3600"))
 _HEADROOM_ENABLED = os.environ.get("HEADROOM_ENABLED", "false").lower() == "true"
+# Cost-focused compression: target token budget per request (default 8192 ≈ cheap Groq tier)
+_HEADROOM_TARGET_TOKENS: int = int(os.environ.get("HEADROOM_TARGET_TOKENS", "8192"))
 
 
 def _headroom_compress(messages: list[LLMMessage]) -> list[LLMMessage]:
@@ -55,7 +57,11 @@ def _headroom_compress(messages: list[LLMMessage]) -> list[LLMMessage]:
         from headroom import compress  # noqa: PLC0415
 
         dicts = [{"role": m.role.value, "content": m.content} for m in messages]
-        compressed = compress(dicts)
+        compress_result = compress(dicts, model_limit=_HEADROOM_TARGET_TOKENS)
+        # headroom returns a CompressResult dataclass with .messages attribute
+        compressed = (
+            compress_result.messages if hasattr(compress_result, "messages") else compress_result
+        )
         if not compressed or not isinstance(compressed, list):
             return messages
         result = [
@@ -65,15 +71,25 @@ def _headroom_compress(messages: list[LLMMessage]) -> list[LLMMessage]:
         ]
         if not result:
             return messages
-        original_chars = sum(len(m.content) for m in messages)
-        compressed_chars = sum(len(m.content) for m in result)
-        if original_chars > 0:
-            logger.debug(
-                "Headroom compression: %d → %d chars (%.0f%% reduction)",
-                original_chars,
-                compressed_chars,
-                (1 - compressed_chars / original_chars) * 100,
+        # Log using token counts from CompressResult if available, else char counts
+        if hasattr(compress_result, "tokens_before") and compress_result.tokens_before:
+            logger.info(
+                "Headroom compression: %d → %d tokens (saved %d, %.0f%%)",
+                compress_result.tokens_before,
+                compress_result.tokens_after,
+                compress_result.tokens_saved,
+                compress_result.compression_ratio * 100,
             )
+        else:
+            original_chars = sum(len(m.content) for m in messages)
+            compressed_chars = sum(len(m.content) for m in result)
+            if original_chars > 0:
+                logger.debug(
+                    "Headroom compression: %d → %d chars (%.0f%% reduction)",
+                    original_chars,
+                    compressed_chars,
+                    (1 - compressed_chars / original_chars) * 100,
+                )
         return result
     except Exception as exc:  # noqa: BLE001
         logger.debug("Headroom compression skipped: %s", exc)
