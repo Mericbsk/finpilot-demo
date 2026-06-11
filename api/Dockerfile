@@ -12,8 +12,8 @@ WORKDIR /app
 # Copy installed packages from builder
 COPY --from=builder /install /usr/local
 
-# Ensure headroom-ai is installed (builder stage may be cached without it)
-RUN pip install --no-cache-dir headroom-ai
+# Ensure headroom-ai and aiolimiter are installed (builder stage may be cached without them)
+RUN pip install --no-cache-dir headroom-ai aiolimiter==1.1.0
 
 # Copy application code
 COPY api/ ./api/
