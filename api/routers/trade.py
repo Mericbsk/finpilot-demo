@@ -34,7 +34,13 @@ class OrderRequest(BaseModel):
 
 def _get_broker():
     """Lazy-import broker so module loads even without alpaca-py."""
-    from broker import AlpacaBroker
+    try:
+        from broker import AlpacaBroker
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Alpaca broker module not installed. Set ALPACA_API_KEY to enable.",
+        ) from exc
 
     b = AlpacaBroker()
     if not b.is_available:

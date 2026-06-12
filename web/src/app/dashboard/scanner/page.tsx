@@ -28,6 +28,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { C, companyNames } from "@/lib/stockData";
 import { useStockPrices } from "@/lib/useStockPrices";
 import { getCurrencySymbol } from "@/lib/userSettings";
+import { apiFetch } from "@/lib/api";
 import PriceChart from "@/components/PriceChart";
 import { ExplainPanel } from "@/components/ExplainPanel";
 import { ConfidenceBadge } from "@/components/dashboard/ConfidenceCard";
@@ -66,6 +67,23 @@ interface ScanResult {
   timeframe_aligned: boolean;
   momentum_confluence: boolean;
   composite_score?: number;
+  // Task 2: Risk-adjusted metrics
+  sharpe_ratio?: number;
+  sortino_ratio?: number;
+  calmar_ratio?: number;
+  max_drawdown_pct?: number;
+  ann_vol_pct?: number;
+  ann_return_pct?: number;
+  ev_per_trade?: number;
+  risk_data_quality?: string;
+  // Task 3: Dynamic position sizing
+  dyn_shares?: number;
+  dyn_notional?: number;
+  dyn_risk_pct?: number;
+  dyn_position_pct?: number;
+  dyn_kelly_pct?: number;
+  dyn_regime_scale?: number;
+  dyn_portfolio_ok?: boolean;
 }
 
 interface DisplayStock {
@@ -94,6 +112,21 @@ interface DisplayStock {
   fromAPI: boolean;
   reason: string;
   explanation: string;
+  // Task 2
+  sharpe: number;
+  sortino: number;
+  annVol: number;
+  maxDD: number;
+  annReturn: number;
+  evPerTrade: number;
+  riskDataQuality: string;
+  // Task 3
+  dynShares: number;
+  dynRiskPct: number;
+  dynPositionPct: number;
+  dynKellyPct: number;
+  dynRegimeScale: number;
+  dynPortfolioOk: boolean;
 }
 
 type Preset = {
@@ -147,6 +180,21 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     fromAPI: true,
     reason: r.reason ?? "",
     explanation: r.explanation ?? "",
+    // Task 2: risk-adjusted metrics
+    sharpe: r.sharpe_ratio ?? 0,
+    sortino: r.sortino_ratio ?? 0,
+    annVol: r.ann_vol_pct ?? 0,
+    maxDD: r.max_drawdown_pct ?? 0,
+    annReturn: r.ann_return_pct ?? 0,
+    evPerTrade: r.ev_per_trade ?? 0,
+    riskDataQuality: r.risk_data_quality ?? "low",
+    // Task 3: dynamic position sizing
+    dynShares: r.dyn_shares ?? 0,
+    dynRiskPct: r.dyn_risk_pct ?? 0,
+    dynPositionPct: r.dyn_position_pct ?? 0,
+    dynKellyPct: r.dyn_kelly_pct ?? 0,
+    dynRegimeScale: r.dyn_regime_scale ?? 1.0,
+    dynPortfolioOk: r.dyn_portfolio_ok ?? true,
   };
 }
 
@@ -177,6 +225,19 @@ function mockToStock(ticker: string): DisplayStock {
     fromAPI: false,
     reason: "",
     explanation: "",
+    sharpe: 0,
+    sortino: 0,
+    annVol: 0,
+    maxDD: 0,
+    annReturn: 0,
+    evPerTrade: 0,
+    riskDataQuality: "low",
+    dynShares: 0,
+    dynRiskPct: 0,
+    dynPositionPct: 0,
+    dynKellyPct: 0,
+    dynRegimeScale: 1.0,
+    dynPortfolioOk: true,
   };
 }
 
@@ -295,7 +356,7 @@ const BATCH_SIZE = 50;
 async function scanBatch(
   symbols: string[],
 ): Promise<Record<string, ScanResult>> {
-  const resp = await fetch("/py-api/scan", {
+  const resp = await apiFetch("/api/v1/scan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ symbols }),
@@ -378,7 +439,7 @@ export default function ScannerPage() {
 
   /* Check Alpaca connection on mount */
   useEffect(() => {
-    fetch("/py-api/trade/account")
+    apiFetch("/api/v1/trade/account")
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((data) => { setAlpacaAccount(data); setAlpacaConnected(true); })
       .catch(() => setAlpacaConnected(false));
@@ -387,7 +448,7 @@ export default function ScannerPage() {
   /* Add one stock to persistent watchlist */
   const addToWatchlist = useCallback(async (stock: DisplayStock) => {
     try {
-      const res = await fetch("/py-api/watchlist", {
+      const res = await apiFetch("/api/v1/watchlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -419,7 +480,7 @@ export default function ScannerPage() {
     setOrderPending(true);
     const toastId = toast.loading(`Placing order for ${stock.ticker}…`);
     try {
-      const resp = await fetch("/py-api/trade/buy", {
+      const resp = await apiFetch("/api/v1/trade/buy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -440,7 +501,7 @@ export default function ScannerPage() {
         `${stock.ticker} — ${order.qty} shares @ ${currency}${order.limit_price || 'MKT'} (${order.order_id.slice(0, 8)}…)`,
         { id: toastId },
       );
-      fetch("/py-api/trade/account").then(r => r.json()).then(setAlpacaAccount).catch(() => {});
+      apiFetch("/api/v1/trade/account").then(r => r.json()).then(setAlpacaAccount).catch(() => {});
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Order failed";
       toast.error(msg, { id: toastId });
@@ -544,6 +605,8 @@ export default function ScannerPage() {
         case "score": return dir * (a.score - b.score);
         case "signal": return dir * a.signal.localeCompare(b.signal);
         case "rr": return dir * (a.rr - b.rr);
+        case "sharpe": return dir * (a.sharpe - b.sharpe);
+        case "annVol": return dir * (a.annVol - b.annVol);
         case "regime": return dir * a.regime.localeCompare(b.regime);
         default: return dir * (a.score - b.score);
       }
@@ -569,7 +632,7 @@ export default function ScannerPage() {
     const signals = filtered.filter((s) => s.fromAPI && (s.signal === "BUY" || s.highQuality));
     if (signals.length === 0) { toast.warning("Eklenecek BUY sinyali yok"); return; }
     try {
-      const res = await fetch("/py-api/watchlist/bulk", {
+      const res = await apiFetch("/api/v1/watchlist/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -688,7 +751,7 @@ export default function ScannerPage() {
           setShowReportPanel(true);
 
           // Auto-save report to backend
-          fetch("/py-api/scan/daily-report", {
+          apiFetch("/api/v1/scan/daily-report", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -761,6 +824,21 @@ export default function ScannerPage() {
   const avgRR =
     rrStocks.length > 0
       ? (rrStocks.reduce((a, s) => a + s.rr, 0) / rrStocks.length).toFixed(1)
+      : "—";
+
+  // Risk-adjusted summary stats (only from scanned stocks)
+  const scannedStocks = filtered.filter((s) => s.fromAPI);
+  const avgSharpe =
+    scannedStocks.length > 0
+      ? (scannedStocks.reduce((a, s) => a + s.sharpe, 0) / scannedStocks.length).toFixed(2)
+      : "—";
+  const avgMaxDD =
+    scannedStocks.length > 0
+      ? (scannedStocks.reduce((a, s) => a + s.maxDD, 0) / scannedStocks.length).toFixed(1) + "%"
+      : "—";
+  const avgAnnVol =
+    scannedStocks.length > 0
+      ? (scannedStocks.reduce((a, s) => a + s.annVol, 0) / scannedStocks.length).toFixed(1) + "%"
       : "—";
   const totalUniqueSymbols = useMemo(
     () => new Set(presets.flatMap((p) => p.symbols)).size,
@@ -1046,6 +1124,46 @@ export default function ScannerPage() {
         ))}
       </div>
 
+      {/* Risk-adjusted metrics row (shown once scan results are available) */}
+      {scannedStocks.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            {
+              label: "Avg Sharpe",
+              value: avgSharpe,
+              sub: "Risk-adj return",
+              color: parseFloat(avgSharpe) >= 1 ? C.green : parseFloat(avgSharpe) >= 0 ? C.cyan : C.red,
+            },
+            {
+              label: "Avg MaxDD",
+              value: avgMaxDD,
+              sub: "Max peak-to-trough",
+              color: parseFloat(avgMaxDD) < 15 ? C.green : parseFloat(avgMaxDD) < 30 ? C.yellow : C.red,
+            },
+            {
+              label: "Avg Ann Vol",
+              value: avgAnnVol,
+              sub: "Annualised volatility",
+              color: parseFloat(avgAnnVol) < 25 ? C.cyan : parseFloat(avgAnnVol) < 40 ? C.yellow : C.red,
+            },
+          ].map((m) => (
+            <div
+              key={m.label}
+              className="rounded-xl px-4 py-3"
+              style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+            >
+              <div className="flex items-center justify-between">
+                <span style={{ fontSize: 11, color: C.text3 }}>{m.label}</span>
+                <span style={{ fontSize: 9, color: C.text3 }}>{m.sub}</span>
+              </div>
+              <div className="mt-1 text-lg font-semibold" style={{ color: m.color }}>
+                {m.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Search */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
@@ -1240,6 +1358,8 @@ export default function ScannerPage() {
                     { key: "score", label: "Score" },
                     { key: "signal", label: "Signal" },
                     { key: "rr", label: "R/R" },
+                    { key: "sharpe", label: "Sharpe" },
+                    { key: "annVol", label: "Vol%" },
                     { key: "regime", label: "Regime" },
                   ].map((col) => (
                     <th
@@ -1388,6 +1508,22 @@ export default function ScannerPage() {
                             }}
                           >
                             {s.rr > 0 ? `${s.rr.toFixed(1)}x` : "—"}
+                          </td>
+                          <td
+                            className="px-4 py-2.5"
+                            style={{
+                              color: !s.fromAPI ? C.text3 : s.sharpe >= 1.5 ? C.green : s.sharpe >= 0.5 ? C.cyan : s.sharpe > 0 ? C.yellow : C.red,
+                            }}
+                          >
+                            {s.fromAPI && s.sharpe !== 0 ? s.sharpe.toFixed(2) : "—"}
+                          </td>
+                          <td
+                            className="px-4 py-2.5"
+                            style={{
+                              color: !s.fromAPI ? C.text3 : s.annVol < 20 ? C.green : s.annVol < 35 ? C.yellow : C.red,
+                            }}
+                          >
+                            {s.fromAPI && s.annVol > 0 ? `${s.annVol.toFixed(1)}%` : "—"}
                           </td>
                           <td
                             className="px-4 py-2.5"
@@ -1661,6 +1797,55 @@ export default function ScannerPage() {
                 </div>
               )}
 
+              {/* Risk Metrics */}
+              {selected.fromAPI && selected.sharpe !== 0 && (
+                <div
+                  className="rounded-2xl p-5"
+                  style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-xs font-semibold" style={{ color: C.text1 }}>
+                      Risk Metrics
+                    </h3>
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[9px] font-semibold"
+                      style={{
+                        backgroundColor: selected.riskDataQuality === "high"
+                          ? "rgba(48,209,88,0.15)" : selected.riskDataQuality === "medium"
+                          ? "rgba(255,214,10,0.15)" : "rgba(255,69,58,0.15)",
+                        color: selected.riskDataQuality === "high" ? C.green
+                          : selected.riskDataQuality === "medium" ? C.yellow : C.red,
+                      }}
+                    >
+                      {selected.riskDataQuality?.toUpperCase()} DATA
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {[
+                      { label: "Sharpe Ratio", value: selected.sharpe.toFixed(2), color: selected.sharpe >= 1.5 ? C.green : selected.sharpe >= 0.5 ? C.cyan : selected.sharpe > 0 ? C.yellow : C.red },
+                      { label: "Sortino Ratio", value: selected.sortino.toFixed(2), color: selected.sortino >= 2 ? C.green : selected.sortino >= 1 ? C.cyan : C.yellow },
+                      { label: "Calmar Ratio", value: selected.maxDD > 0 ? selected.sortino.toFixed(2) : "—", color: C.text1 },
+                      { label: "Max Drawdown", value: selected.maxDD > 0 ? `${selected.maxDD.toFixed(1)}%` : "—", color: selected.maxDD < 15 ? C.green : selected.maxDD < 30 ? C.yellow : C.red },
+                      { label: "Ann. Volatility", value: selected.annVol > 0 ? `${selected.annVol.toFixed(1)}%` : "—", color: selected.annVol < 20 ? C.green : selected.annVol < 35 ? C.yellow : C.red },
+                      { label: "Ann. Return", value: selected.annReturn !== 0 ? `${selected.annReturn > 0 ? "+" : ""}${selected.annReturn.toFixed(1)}%` : "—", color: selected.annReturn >= 0 ? C.green : C.red },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-lg px-2.5 py-2" style={{ backgroundColor: C.primary }}>
+                        <div style={{ color: C.text3, fontSize: 9 }}>{item.label}</div>
+                        <div className="mt-0.5 font-bold" style={{ color: item.color }}>{item.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {selected.evPerTrade !== 0 && (
+                    <div className="mt-2 rounded-lg px-2.5 py-2 text-xs" style={{ backgroundColor: C.primary }}>
+                      <div style={{ color: C.text3, fontSize: 9 }}>Expected Value / Trade</div>
+                      <div className="mt-0.5 font-bold" style={{ color: selected.evPerTrade > 0 ? C.green : C.red }}>
+                        {selected.evPerTrade > 0 ? "+" : ""}{selected.evPerTrade.toFixed(4)}% per period
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Trade Plan */}
               {selected.fromAPI && selected.stop > 0 && (
                 <div
@@ -1701,30 +1886,71 @@ export default function ScannerPage() {
                         ${selected.tp1.toFixed(2)}
                       </span>
                     </div>
-                    <div
-                      className="flex items-center justify-between rounded-lg px-3 py-2 text-xs"
-                      style={{ backgroundColor: C.cardHover }}
-                    >
-                      <span style={{ color: C.text3 }}>Position Size</span>
-                      <span
-                        className="font-medium"
-                        style={{ color: C.text1 }}
-                      >
-                        ${selected.positionSize.toLocaleString()}
-                      </span>
-                    </div>
-                    <div
-                      className="flex items-center justify-between rounded-lg px-3 py-2 text-xs"
-                      style={{ backgroundColor: C.cardHover }}
-                    >
-                      <span style={{ color: C.text3 }}>Kelly Fraction</span>
-                      <span
-                        className="font-medium"
-                        style={{ color: C.text1 }}
-                      >
-                        {(selected.kellyFraction * 100).toFixed(0)}%
-                      </span>
-                    </div>
+                    {/* Dynamic position sizing (Task 3) */}
+                    {selected.fromAPI && selected.dynShares > 0 ? (
+                      <>
+                        <div className="rounded-lg px-3 py-2 text-xs" style={{ backgroundColor: "rgba(0,212,255,0.08)", border: `1px solid rgba(0,212,255,0.2)` }}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span style={{ color: C.cyan, fontWeight: 600 }}>Dynamic Size</span>
+                            <span className="text-[9px] rounded px-1.5 py-0.5" style={{ backgroundColor: "rgba(0,212,255,0.15)", color: C.cyan }}>
+                              {selected.dynRegimeScale !== 1.0 ? `×${selected.dynRegimeScale.toFixed(2)} regime` : "neutral regime"}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-1.5 mt-1">
+                            <div>
+                              <div style={{ color: C.text3, fontSize: 9 }}>Shares</div>
+                              <div className="font-bold" style={{ color: C.text1 }}>{selected.dynShares.toLocaleString()}</div>
+                            </div>
+                            <div>
+                              <div style={{ color: C.text3, fontSize: 9 }}>Risk %</div>
+                              <div className="font-bold" style={{ color: selected.dynRiskPct <= 1 ? C.green : selected.dynRiskPct <= 2 ? C.yellow : C.red }}>
+                                {selected.dynRiskPct.toFixed(2)}%
+                              </div>
+                            </div>
+                            <div>
+                              <div style={{ color: C.text3, fontSize: 9 }}>Position %</div>
+                              <div className="font-bold" style={{ color: C.text1 }}>{selected.dynPositionPct.toFixed(1)}%</div>
+                            </div>
+                            <div>
+                              <div style={{ color: C.text3, fontSize: 9 }}>Kelly %</div>
+                              <div className="font-bold" style={{ color: C.text2 }}>{selected.dynKellyPct.toFixed(1)}%</div>
+                            </div>
+                          </div>
+                          {!selected.dynPortfolioOk && (
+                            <div className="mt-1.5 text-[10px] font-semibold" style={{ color: C.red }}>
+                              ⚠ Portfolio heat limit reached
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div
+                          className="flex items-center justify-between rounded-lg px-3 py-2 text-xs"
+                          style={{ backgroundColor: C.cardHover }}
+                        >
+                          <span style={{ color: C.text3 }}>Position Size</span>
+                          <span
+                            className="font-medium"
+                            style={{ color: C.text1 }}
+                          >
+                            ${selected.positionSize.toLocaleString()}
+                          </span>
+                        </div>
+                        <div
+                          className="flex items-center justify-between rounded-lg px-3 py-2 text-xs"
+                          style={{ backgroundColor: C.cardHover }}
+                        >
+                          <span style={{ color: C.text3 }}>Kelly Fraction</span>
+                          <span
+                            className="font-medium"
+                            style={{ color: C.text1 }}
+                          >
+                            {(selected.kellyFraction * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                   {/* Buy on Alpaca button */}
                   {alpacaConnected && (

@@ -1,10 +1,17 @@
 """FinPilot Agent Registry.
 
-Defines metadata for all 23 agents across 6 organisational layers.
+Defines metadata for all agents across 6 organisational layers.
 Status:
   active   — fully implemented, running in production
-  planned  — next sprint, not yet built
   advisory — LLM role-wrapper, generates text advice
+  planned  — next sprint, not yet built
+
+Auto-verification
+-----------------
+``audit_registry()`` scans the ``agents/`` package, discovers all
+``BaseAgent`` subclasses and cross-references them against ``AGENT_REGISTRY``.
+Call it from tests or the ``GET /agent/registry/audit`` endpoint to detect
+drift between the registry (human-readable metadata) and the codebase.
 """
 
 from __future__ import annotations
@@ -134,8 +141,17 @@ AGENT_REGISTRY: list[AgentMeta] = [
     ),
     AgentMeta(
         11,
-        "Combination Testing",
+        "Backtest Agent",
         "backtest",
+        "strategy",
+        "Strateji geriye dönük test motoru; tek sembol + çoklu-strateji rejim testi",
+        "active",
+        ["backtest", "strategy", "historical", "regime"],
+    ),
+    AgentMeta(
+        11,
+        "Combination Testing",
+        "backtest_combo",
         "strategy",
         "Multi-kombinasyon test matrisi, A/B strateji karşılaştırması, overfit riski",
         "active",
@@ -218,10 +234,10 @@ AGENT_REGISTRY: list[AgentMeta] = [
     AgentMeta(
         20,
         "Data Quality",
-        "advisory",
+        "data_quality",
         "quality",
         "Veri şema validasyonu, anomali tespiti, pipeline güvenilirlik kontrolü",
-        "advisory",
+        "active",
         ["validate", "anomaly", "schema", "pipeline"],
     ),
     # ── Layer 6: Operations ──────────────────────────────────────────────
@@ -251,6 +267,71 @@ AGENT_REGISTRY: list[AgentMeta] = [
         "Kullanıcı geri bildirim analizi, NPS takibi, churn riski uyarısı",
         "advisory",
         ["feedback", "nps", "churn", "onboard"],
+    ),
+    # ── Layer 3 additions: INT-5 researchers + Social Intelligence ───────
+    AgentMeta(
+        24,
+        "Bull Researcher",
+        "bull_research",
+        "strategy",
+        "Sembol başına boğa tezi üretimi — LLM destekli 3-5 yükseliş argümanı + katalizörler",
+        "active",
+        ["bull", "catalyst", "upside", "debate"],
+    ),
+    AgentMeta(
+        25,
+        "Bear Researcher",
+        "bear_research",
+        "strategy",
+        "Sembol başına ayı tezi üretimi — LLM destekli 3-5 risk argümanı + tehditler",
+        "active",
+        ["bear", "risk", "downside", "debate"],
+    ),
+    AgentMeta(
+        26,
+        "Social Intelligence",
+        "social_intel",
+        "strategy",
+        "Reddit/HN/Polymarket sosyal sentiment tespiti; buzz seviyesi + FinBERT skoru",
+        "active",
+        ["sentiment", "reddit", "polymarket", "social"],
+    ),
+    # ── Worker agents missing from original org-chart registry ───────────
+    AgentMeta(
+        27,
+        "Alert Agent",
+        "alert",
+        "ops",
+        "Onaylanan sinyal için Telegram + dashboard bildirimi",
+        "active",
+        ["telegram", "notify", "alert", "signal"],
+    ),
+    AgentMeta(
+        28,
+        "Analysis Agent",
+        "analysis",
+        "strategy",
+        "Sembol başına teknik + bağlamsal analiz; rejim ve LLM destekli yorum",
+        "active",
+        ["analysis", "technical", "llm", "context"],
+    ),
+    AgentMeta(
+        29,
+        "Risk Agent",
+        "risk",
+        "strategy",
+        "Pozisyon riski değerlendirmesi; Kelly kriterli boyutlandırma ve DD limiti kontrolü",
+        "active",
+        ["risk", "kelly", "position", "drawdown"],
+    ),
+    AgentMeta(
+        30,
+        "Alpha Tracker",
+        "alpha_tracker",
+        "quality",
+        "Sembol bazlı rolling win-rate ve profit-factor; dinamik skor eşik önerisi",
+        "active",
+        ["win-rate", "alpha", "threshold", "tracker"],
     ),
 ]
 
@@ -286,4 +367,112 @@ def registry_as_dict() -> dict:
         },
         "layers": layers,
         "agents": [a.to_dict() for a in AGENT_REGISTRY],
+    }
+
+
+# ---------------------------------------------------------------------------
+# Auto-verification (Audit #5)
+# ---------------------------------------------------------------------------
+
+def discover_agent_classes() -> dict[str, str]:
+    """Scan ``agents/`` package and return all BaseAgent subclass names.
+
+    Returns
+    -------
+    dict mapping class_name → module_path (e.g. "ScannerAgent" → "agents.scanner_agent")
+    Skips modules that fail to import (missing optional deps, etc.).
+    """
+    import importlib
+    import inspect
+    import pkgutil
+    import agents as _agents_pkg
+    from agents.base import BaseAgent
+
+    found: dict[str, str] = {}
+    for module_info in pkgutil.iter_modules(_agents_pkg.__path__):
+        mod_name = f"agents.{module_info.name}"
+        try:
+            mod = importlib.import_module(mod_name)
+        except Exception:  # noqa: BLE001 — optional deps, skip silently
+            continue
+        for name, obj in inspect.getmembers(mod, inspect.isclass):
+            if (
+                issubclass(obj, BaseAgent)
+                and obj is not BaseAgent
+                and obj.__module__ == mod_name
+            ):
+                found[name] = mod_name
+    return found
+
+
+def audit_registry() -> dict:
+    """Cross-reference discovered BaseAgent subclasses against AGENT_REGISTRY.
+
+    Returns a summary with:
+    - ``discovered``: all BaseAgent subclasses found in agents/ (class → module)
+    - ``registered_active``: names of active agents in registry
+    - ``in_code_not_registry``: classes found in code but missing from registry
+    - ``in_registry_not_code``: active registry entries with no matching class
+    - ``ok``: True when no discrepancies
+    """
+    discovered = discover_agent_classes()
+
+    # Strip internal/base classes that aren't real agents
+    _INTERNAL = {"_AdvisoryBase"}
+    discovered_real = {k: v for k, v in discovered.items() if k not in _INTERNAL}
+
+    registered_active = {
+        a.name.replace(" ", "") + "Agent": a.name
+        for a in AGENT_REGISTRY
+        if a.status == "active"
+    }
+    # Explicit class-name → registry mapping covering all layers
+    _key_to_class: dict[str, str] = {
+        "scanner": "ScannerAgent",
+        "full": "ScannerAgent",
+        "research": "ResearchAgent",
+        "analysis": "AnalysisAgent",
+        "risk": "RiskAgent",
+        "alert": "AlertAgent",
+        "backtest": "BacktestAgent",
+        "bull_research": "BullResearcherAgent",
+        "bear_research": "BearResearcherAgent",
+        "social_intel": "SocialIntelligenceAgent",
+        "market_intel": "MarketIntelligenceAgent",
+        "data_quality": "DataQualityAgent",
+        "optimize": "StrategyOptimizerAgent",
+        "monitor": "PerformanceMonitorAgent",
+        "report": "ReportAgent",
+        "alpha_tracker": "AlphaTrackerAgent",
+        "backtest_combo": "ComboTestingAgent",
+        # Advisory personas — named agents in advisory.py
+        "advisory": "SeniorDevAgent",  # placeholder; advisory key covers all personas
+    }
+    # Collect all registered class names (active + advisory persona classes)
+    registered_class_names: set[str] = {
+        _key_to_class.get(a.key, "")
+        for a in AGENT_REGISTRY
+        if a.status in ("active", "advisory")
+    } - {""}
+    # Also add advisory dynamic classes by convention
+    advisory_class_names = {
+        k for k in discovered_real
+        if discovered_real[k] == "agents.advisory"
+    }
+    registered_class_names |= advisory_class_names
+
+    in_code_not_registry = sorted(
+        set(discovered_real.keys()) - registered_class_names
+    )
+    in_registry_not_code = sorted(
+        registered_class_names - set(discovered_real.keys())
+    )
+
+    return {
+        "discovered": discovered_real,
+        "registered_active_count": len([a for a in AGENT_REGISTRY if a.status == "active"]),
+        "discovered_count": len(discovered_real),
+        "in_code_not_registry": in_code_not_registry,
+        "in_registry_not_code": in_registry_not_code,
+        "ok": not in_code_not_registry and not in_registry_not_code,
     }

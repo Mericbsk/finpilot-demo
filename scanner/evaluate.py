@@ -19,8 +19,10 @@ from .data_fetcher import (
     fetch_multi_timeframe,
     prefetch_symbols_multi_timeframe,
 )
-from .risk_engine import calculate_risk_management, daily_dd_breached
-from .score_engine import compute_recommendation_strength
+from .risk_engine import calculate_risk_management, calculate_risk_management_yz, daily_dd_breached
+from .risk_metrics import calculate_risk_adjusted_metrics
+from .position_sizer import calculate_dynamic_position
+from .score_engine import compute_recommendation_strength, regime_gate_mult
 from .signals import (
     analyze_price_momentum,
     check_momentum_confluence,
@@ -198,11 +200,19 @@ def evaluate_symbol(
         except Exception:
             momentum_score = 50
 
-        risk_data = calculate_risk_management(
-            price=safe_float(last_price),
-            atr_val=safe_float(atr_val) if pd.notna(atr_val) else 0.01,
-            momentum_score=int(momentum_score),
-        )
+        # Use Yang-Zhang vol when ≥21 daily bars available; fall back to ATR otherwise
+        if len(df_1d) >= 21 and all(c in df_1d.columns for c in ("Open", "High", "Low", "Close")):
+            risk_data = calculate_risk_management_yz(
+                price=safe_float(last_price),
+                df=df_1d,
+                momentum_score=int(momentum_score),
+            )
+        else:
+            risk_data = calculate_risk_management(
+                price=safe_float(last_price),
+                atr_val=safe_float(atr_val) if pd.notna(atr_val) else 0.01,
+                momentum_score=int(momentum_score),
+            )
 
         sentiment = 0.0
         onchain_metric = 0.0
@@ -257,6 +267,38 @@ def evaluate_symbol(
         except Exception:
             pass
 
+        # Regime × score-band gate (2026-06-12 barrier audit findings)
+        _composite_score = compute_recommendation_strength(
+            {
+                "regime": regime,
+                "direction": bool(direction),
+                "score": int(score),
+                "filter_score": int(filter_score),
+                "alignment_ratio": float(alignment_ratio),
+                "momentum_ratio": float(momentum_ratio),
+                "volume_spike": bool(volume_spike),
+                "price_momentum": bool(price_momentum),
+                "trend_strength": bool(trend_strength),
+                "is_premium_symbol": bool(is_premium_symbol),
+            }
+        )
+        _gate_mult = regime_gate_mult(bool(regime), _composite_score)
+
+        # ── Task 2: Risk-adjusted metrics from daily OHLC ─────────────────
+        _risk_metrics = calculate_risk_adjusted_metrics(df_1d) if len(df_1d) >= 10 else {}
+        _ann_vol_pct = float(_risk_metrics.get("ann_vol_pct", 20.0) or 20.0)
+
+        # ── Task 3: Dynamic position sizing ──────────────────────────────
+        _dyn_pos = calculate_dynamic_position(
+            price=safe_float(last_price),
+            stop_loss=risk_data["stop_loss"],
+            composite_score=int(_composite_score),
+            is_bull_regime=bool(regime),
+            risk_reward=float(risk_data["risk_reward_ratio"]),
+            ann_vol_pct=_ann_vol_pct,
+            kelly_fraction=kelly_fraction,
+        )
+
         return {
             "symbol": symbol,
             "price": round(safe_float(last_price), 4),
@@ -304,20 +346,27 @@ def evaluate_symbol(
             "earnings_proximity": round(earnings_prox, 4),
             "sector_rs": round(sector_rs, 4),
             "vol_regime": vol_regime_val,
-            "composite_score": compute_recommendation_strength(
-                {
-                    "regime": regime,
-                    "direction": bool(direction),
-                    "score": int(score),
-                    "filter_score": int(filter_score),
-                    "alignment_ratio": float(alignment_ratio),
-                    "momentum_ratio": float(momentum_ratio),
-                    "volume_spike": bool(volume_spike),
-                    "price_momentum": bool(price_momentum),
-                    "trend_strength": bool(trend_strength),
-                    "is_premium_symbol": bool(is_premium_symbol),
-                }
-            ),
+            "composite_score": _composite_score,
+            "regime_gate_mult": _gate_mult,
+            "position_size_gated": int(risk_data["position_size"] * _gate_mult),
+            # ── Task 2: Risk-adjusted performance metrics ─────────────────
+            "sharpe_ratio": _risk_metrics.get("sharpe_ratio", 0.0),
+            "sortino_ratio": _risk_metrics.get("sortino_ratio", 0.0),
+            "calmar_ratio": _risk_metrics.get("calmar_ratio", 0.0),
+            "max_drawdown_pct": _risk_metrics.get("max_drawdown_pct", 0.0),
+            "ann_vol_pct": _risk_metrics.get("ann_vol_pct", 0.0),
+            "ann_return_pct": _risk_metrics.get("ann_return_pct", 0.0),
+            "ev_per_trade": _risk_metrics.get("ev_per_trade", 0.0),
+            "risk_data_quality": _risk_metrics.get("data_quality", "low"),
+            # ── Task 3: Dynamic position sizing ──────────────────────────
+            "dyn_shares": _dyn_pos.get("shares", 0),
+            "dyn_notional": _dyn_pos.get("notional", 0.0),
+            "dyn_risk_pct": _dyn_pos.get("risk_pct", 0.0),
+            "dyn_position_pct": _dyn_pos.get("position_pct", 0.0),
+            "dyn_kelly_pct": _dyn_pos.get("kelly_pct", 0.0),
+            "dyn_regime_scale": _dyn_pos.get("regime_scale", 1.0),
+            "dyn_portfolio_ok": _dyn_pos.get("portfolio_ok", True),
+            "dyn_sizing_method": _dyn_pos.get("sizing_method", "fixed-fractional"),
         }
     except Exception as e:
         logger.error("[%s] evaluation error: %s", symbol, e)

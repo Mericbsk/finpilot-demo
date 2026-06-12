@@ -41,6 +41,10 @@ _eval_last_run: str | None = None
 # Sprint 8 — Job timeout budget (seconds). Any job exceeding this is killed & alerted.
 _JOB_TIMEOUT_SECONDS = 600  # 10 minutes
 
+# Faz 3a — In-process DQ exclusion fallback (used when Redis is unavailable).
+# Maps broken symbol → expiry timestamp. Cleared on process restart.
+_DQ_EXCLUSIONS: set[str] = set()
+
 
 def _make_watchdog_job(job_name: str, fn: Any, timeout_s: int = _JOB_TIMEOUT_SECONDS) -> Any:
     """Wrap a scheduler job with a timeout watchdog.
@@ -183,6 +187,57 @@ def _run_weekly_calibration_retrain_job() -> None:
         )
     except Exception as exc:
         logger.warning("Weekly calibration retrain failed: %s", exc)
+
+
+def _run_resolve_open_signals_job() -> None:
+    """Weekly resolution of open signals_archive rows (Mondays 03:00 UTC).
+
+    Computes dual-label outcomes:
+        resolved_pct_t5      — fixed T+5 close return
+        resolved_pct_barrier — first TP/SL/21-trading-day barrier hit
+    """
+    try:
+        from scripts.resolve_open_signals import run as resolve_run
+
+        stats = resolve_run(horizon=5, dry_run=False)
+        logger.info(
+            "resolve_open_signals: symbols=%s rows=%s t5=%s barrier=%s unresolvable=%s",
+            stats.get("symbols"),
+            stats.get("rows"),
+            stats.get("t5"),
+            stats.get("barrier"),
+            stats.get("unresolvable"),
+        )
+    except Exception as exc:
+        logger.warning("resolve_open_signals job failed: %s", exc)
+
+
+def _run_edge_report_job() -> None:
+    """Weekly Edge Report update (Mondays 04:00 UTC).
+
+    Runs profitcore_audit + barrier_audit + regime_cross_section then
+    re-generates data/edge_report.html.  Verdict is logged so the
+    scheduler dashboard can surface it.
+    """
+    try:
+        from scripts.profitcore_audit import run as audit_run
+        from scripts.barrier_audit import run as barrier_run
+        from scripts.regime_cross_section import run as regime_run
+
+        audit_run()
+        barrier_run()
+        regime_run()
+        logger.info("Edge report components regenerated (profitcore + barrier + regime).")
+    except Exception as exc:
+        logger.warning("edge_report job components failed: %s", exc)
+
+    try:
+        from scripts._write_report import write_report
+
+        write_report()
+        logger.info("Edge report HTML regenerated: data/edge_report.html")
+    except Exception as exc:
+        logger.warning("edge_report HTML write failed: %s", exc)
 
 
 def _run_weekly_report_job() -> None:
@@ -340,7 +395,24 @@ def _run_auto_approve_job(symbols: list[str]) -> None:
 
                     if mark_signal_auto_approved(sig["symbol"], sig["cycle"], p_win):
                         approved += 1
-                except Exception:
+                        # Faz 3b: open a paper-trade for every auto-approved signal
+                        try:
+                            from core.paper_portfolio import open_position
+
+                            open_position(
+                                signal_id=str(sig.get("id", sig.get("cycle", "?"))),
+                                symbol=sig["symbol"],
+                                direction="BUY",
+                                entry_price=float(sig.get("price") or sig.get("close") or 0),
+                                score=float(sig.get("score") or sig.get("finpilot_score") or 0),
+                                cycle=int(sig.get("cycle") or _cycle_count + 1),
+                                p_win=p_win,
+                            )
+                        except Exception as pe:  # noqa: BLE001
+                            logger.debug(
+                                "auto_approve: paper_portfolio.open_position skipped: %s", pe
+                            )
+                except Exception:  # noqa: BLE001, S110
                     pass
 
         logger.info("auto_approve: approved %d signals with p_win >= 0.65", approved)
@@ -354,6 +426,37 @@ def _run_auto_approve_job(symbols: list[str]) -> None:
                 )
             except Exception:  # noqa: BLE001
                 pass
+
+        # Faz 3b: alarm for signals that were auto-approved but have no paper trade
+        try:
+            from core.paper_portfolio import get_open_positions
+
+            open_syms = {p["signal_id"] for p in get_open_positions()}
+            approved_without_trade = [
+                sig
+                for sig in sigs
+                if sig.get("auto_approved")
+                and sig.get("outcome") is None
+                and str(sig.get("id", sig.get("cycle", "?"))) not in open_syms
+            ]
+            if approved_without_trade:
+                logger.warning(
+                    "auto_approve: %d approved signal(s) have no paper trade: %s",
+                    len(approved_without_trade),
+                    [s["symbol"] for s in approved_without_trade],
+                )
+                try:
+                    from telegram_alerts import TelegramNotifier
+
+                    TelegramNotifier()._send_message(
+                        f"⚠️ *Auto-Approve Alarm* — "
+                        f"{len(approved_without_trade)} onaylı sinyal kağıt işlem bekliyor: "
+                        + ", ".join(s["symbol"] for s in approved_without_trade)
+                    )
+                except Exception:  # noqa: BLE001
+                    pass
+        except Exception:  # noqa: BLE001, S110
+            pass
     except Exception as exc:
         logger.warning("Auto-approve job failed: %s", exc)
 
@@ -410,6 +513,7 @@ def run_cycle_once(
                 symbols=symbols,
                 task="scan",
                 kelly_fraction=kelly_fraction,
+                stages={"social", "bull_bear"},
             )
             scan_data = ceo_state.get("scan_results", {}) or {}
             ceo_errors = ceo_state.get("errors", []) or []
@@ -489,7 +593,30 @@ def run_cycle_once(
             errors.append(f"data_quality: {exc}")
             logger.warning("Scheduler: data_quality failed: %s", exc)
 
-        # --- 2. Research — enriched with regime context + CEO scan results ---
+        # --- 1c. Feedback: data_quality → 24h symbol exclusion list ─────────
+        # Symbols flagged as "broken" (missing OHLCV, stale prices) are added
+        # to a Redis / in-process set so the next pipeline run skips them.
+        try:
+            dq_data_local = results.get("data_quality") or {}
+            broken_symbols: list[str] = dq_data_local.get("broken_symbols", [])
+            if broken_symbols:
+                try:
+                    from core.cache import get_redis
+
+                    _redis = get_redis()
+                    for _sym in broken_symbols:
+                        _redis.set(f"excl:dq:{_sym}", "1", ex=86_400)  # 24 h TTL
+                    logger.info(
+                        "Scheduler: DQ exclusion set for %d symbols: %s",
+                        len(broken_symbols),
+                        broken_symbols,
+                    )
+                except Exception:  # noqa: BLE001
+                    # Redis unavailable — fall back to in-process set
+                    _DQ_EXCLUSIONS.update(broken_symbols)
+                    logger.debug("Scheduler: DQ exclusions (in-process): %s", broken_symbols)
+        except Exception as exc2:  # noqa: BLE001
+            logger.debug("Scheduler: DQ exclusion update skipped: %s", exc2)
         _t = time.perf_counter()
         try:
             # Load latest CEO scan results from shared state (best-effort)
@@ -670,7 +797,30 @@ def run_cycle_once(
                 errors.append(f"optimizer: {exc}")
                 logger.warning("Scheduler: optimizer failed: %s", exc)
 
-        # --- 5. Performance Monitor — KPI feedback via drawdown outcomes ---
+        # --- 4b. Feedback: strategy_optimizer → scanner_config.json ─────────
+        # If optimizer produced best_params, persist them so the next scanner
+        # cycle picks them up automatically without a full restart.
+        try:
+            opt_params = (results.get("optimizer") or {}).get("best_params")
+            if opt_params and isinstance(opt_params, dict):
+                import json as _json
+
+                _cfg_path = os.path.join(
+                    os.path.dirname(os.path.dirname(__file__)), "data", "scanner_config.json"
+                )
+                existing: dict = {}
+                try:
+                    with open(_cfg_path) as _f:
+                        existing = _json.load(_f)
+                except Exception:  # noqa: BLE001
+                    pass
+                existing.update(opt_params)
+                existing["_updated_cycle"] = _cycle_count + 1
+                with open(_cfg_path, "w") as _f:
+                    _json.dump(existing, _f, indent=2)
+                logger.info("Scheduler: scanner_config.json updated from optimizer")
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Scheduler: scanner_config write skipped: %s", exc)
         _t = time.perf_counter()
         pm_data: dict[str, Any] = {}
         try:
@@ -755,6 +905,41 @@ def run_cycle_once(
                         logger.warning("Scheduler: telegram drawdown alert failed: %s", tex)
             except Exception:
                 pass  # feedback is best-effort
+
+            # --- 5b. Feedback: drawdown → reduce kelly_fraction for next cycle ---
+            # If portfolio is in WARN/STOP, reduce the kelly multiplier by 30%
+            # so the next scan cycle sizes positions more conservatively.
+            try:
+                if pm_data.get("portfolio_status") in ("STOP", "WARN"):
+                    _new_kelly = round(max(0.1, kelly_fraction * 0.70), 4)
+                    logger.warning(
+                        "Scheduler: drawdown detected (%s) — kelly_fraction reduced "
+                        "from %.4f to %.4f for next cycle",
+                        pm_data.get("portfolio_status"),
+                        kelly_fraction,
+                        _new_kelly,
+                    )
+                    # Persist to scanner_config.json so the effect survives restarts
+                    try:
+                        import json as _json
+
+                        _cfg_path = os.path.join(
+                            os.path.dirname(os.path.dirname(__file__)), "data", "scanner_config.json"
+                        )
+                        existing: dict = {}
+                        try:
+                            with open(_cfg_path) as _f:
+                                existing = _json.load(_f)
+                        except Exception:  # noqa: BLE001
+                            pass
+                        existing["kelly_fraction"] = _new_kelly
+                        existing["_kelly_reduced_cycle"] = _cycle_count + 1
+                        with open(_cfg_path, "w") as _f:
+                            _json.dump(existing, _f, indent=2)
+                    except Exception:  # noqa: BLE001, S110
+                        pass
+            except Exception:  # noqa: BLE001, S110
+                pass
         except Exception as exc:
             errors.append(f"monitor: {exc}")
             logger.warning("Scheduler: monitor failed: %s", exc)
@@ -902,92 +1087,17 @@ def run_cycle_once(
     except Exception:
         pass  # tracing is best-effort
 
-    # --- 8. Advisory post-step (Sprint 3 — S3-2/S3-6) ---
-    # Every N cycles, feed scan + KPI summary to competitive_intel + cto advisors
-    # for an autonomous strategic review. Results are persisted to advisory_memory
-    # under user_id="scheduler" so the UI / future runs can read them.
-    try:
-        _advisory_every_n = 10  # ~10 cycles ≈ weekly at hourly interval
-        if _cycle_count > 0 and _cycle_count % _advisory_every_n == 0:
-            from agents.advisory import advisory_agent_for
-
-            from core.advisory_memory import append_message
-
-            top_signals: list[str] = []
-            try:
-                for sym, sig in (scan_data or {}).items():  # noqa: F821 (defined above)
-                    if isinstance(sig, dict) and sig.get("entry_ok"):
-                        top_signals.append(
-                            f"{sym}: skor={sig.get('finpilot_score', '?')} "
-                            f"R/R={sig.get('risk_reward', '?')}"
-                        )
-            except Exception:  # noqa: BLE001, S110
-                pass
-            top_block = "\n".join(top_signals[:10]) if top_signals else "Aktif sinyal yok."
-            kpi_block = ""
-            try:
-                from core.kpi_tracker import get_kpis
-
-                _k = get_kpis()
-                kpi_block = (
-                    f"Win rate: {_k.get('win_rate', 0):.1f}% | "
-                    f"Resolved: {_k.get('resolved_signals', 0)} | "
-                    f"Open: {_k.get('open_signals', 0)}"
-                )
-            except Exception:  # noqa: BLE001, S110
-                pass
-
-            review_question = (
-                f"Cycle #{_cycle_count} otomatik strateji incelemesi. "
-                "Mevcut sinyaller ve KPI'lar göz önüne alındığında en kritik "
-                "gelişme nedir ve önerin nedir? (Kısa, 3 madde)"
-            )
-            review_context = (
-                f"Top sinyaller:\n{top_block}\n\n"
-                f"KPI özeti: {kpi_block or '?'}\n"
-                f"Market regime: {mi_data.get('regime', '?')}"
-            )
-            review_results: dict[str, Any] = {}
-            for advisor_key in ("competitive_intel", "cto"):
-                try:
-                    agent = advisory_agent_for(advisor_key)
-                    a_ctx = AgentContext(symbols=symbols)
-                    a_res = agent.run(
-                        a_ctx,
-                        question=review_question,
-                        context_str=review_context,
-                    )
-                    if a_res.success:
-                        advice = (a_res.data or {}).get("advice", "")
-                        review_results[advisor_key] = advice
-                        append_message(advisor_key, "scheduler", "user", review_question)
-                        append_message(
-                            advisor_key,
-                            "scheduler",
-                            "assistant",
-                            advice,
-                            extra={"cycle": _cycle_count, "auto": True},
-                        )
-                except Exception as ae:  # noqa: BLE001
-                    logger.warning("Scheduler: advisory review failed for %s: %s", advisor_key, ae)
-            if review_results:
-                results["advisory_review"] = review_results
-                try:
-                    save_agent_result("advisory_review", symbols, review_results)
-                except Exception:  # noqa: BLE001, S110
-                    pass
-                log_event(
-                    "Advisory",
-                    "auto_review",
-                    "ok",
-                    0.0,
-                    f"Cycle #{_cycle_count} — {len(review_results)} danışman incelemesi",
-                    symbols,
-                    "management",
-                )
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("Scheduler: advisory post-step failed: %s", exc)
-        errors.append(f"advisory_post: {exc}")
+    # --- 8. Advisory post-step — DEACTIVATED (2026-06-12)
+    # Advisory persona LLM calls ran every ~10 cycles but output was never consumed
+    # by any downstream system (pure cost with zero measured value).
+    # Personas remain available on-demand via API task="advisory".
+    # Re-enable by uncommenting the block below if a consumption surface is added.
+    # try:
+    #     _advisory_every_n = 10
+    #     if _cycle_count > 0 and _cycle_count % _advisory_every_n == 0:
+    #         ...  (original advisory review code removed)
+    # except Exception as exc:
+    #     logger.warning("Scheduler: advisory post-step failed: %s", exc)
 
     results["errors"] = errors
     results["cycle_number"] = _cycle_count
@@ -1177,6 +1287,24 @@ def start_scheduler(
             trigger=CronTrigger(day_of_week="mon", hour=2, minute=0, timezone="UTC"),
             id="finpilot_weekly_calibration_retrain",
             name="FinPilot Weekly Calibration Retrain (Mon 02:00 UTC)",
+        )
+
+        # Always-on: weekly open signal resolution, Mondays 03:00 UTC.
+        # Runs after calibration retrain so freshly resolved signals feed the refit.
+        _scheduler_instance.add_job(
+            _make_watchdog_job("resolve_open_signals", _run_resolve_open_signals_job),
+            trigger=CronTrigger(day_of_week="mon", hour=3, minute=0, timezone="UTC"),
+            id="finpilot_resolve_open_signals",
+            name="FinPilot Resolve Open Signals (Mon 03:00 UTC)",
+        )
+
+        # Always-on: weekly Edge Report regeneration, Mondays 04:00 UTC.
+        # Runs after resolve so the report reflects the freshest resolved outcomes.
+        _scheduler_instance.add_job(
+            _make_watchdog_job("edge_report", _run_edge_report_job),
+            trigger=CronTrigger(day_of_week="mon", hour=4, minute=0, timezone="UTC"),
+            id="finpilot_edge_report",
+            name="FinPilot Edge Report (Mon 04:00 UTC)",
         )
 
         _scheduler_instance.start()

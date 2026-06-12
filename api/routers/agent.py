@@ -380,14 +380,17 @@ async def run_agent(req: AgentRunRequest):
     if req.task == "auto":
         loop = asyncio.get_running_loop()
         try:
-            from core.auto_pipeline import run_auto_pipeline
+            # auto_pipeline merged into pipeline.run_cycle with stages={"backtest","synthesize"}
+            from core.pipeline import run_cycle
 
             final_state = await asyncio.wait_for(
                 loop.run_in_executor(
                     _executor,
-                    lambda: run_auto_pipeline(
+                    lambda: run_cycle(
                         req.symbols,
+                        task="full",
                         kelly_fraction=req.kelly_fraction,
+                        stages={"social", "bull_bear", "backtest", "synthesize"},
                     ),
                 ),
                 timeout=_AGENT_TIMEOUT_SECONDS,
@@ -552,11 +555,27 @@ def agent_status():
 
 @router.get("/agent/registry")
 def agent_registry():
-    """Return the full 23-agent registry with layer groupings and status counts."""
+    """Return the full agent registry with layer groupings and status counts."""
     try:
         from agents.registry import registry_as_dict
 
         return registry_as_dict()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/agent/registry/audit")
+def agent_registry_audit():
+    """Diff registered agents vs discovered BaseAgent subclasses in code.
+
+    Returns ``ok: true`` when registry matches codebase exactly.
+    ``in_code_not_registry`` lists new classes not yet registered.
+    ``in_registry_not_code`` lists stale registry entries with no class.
+    """
+    try:
+        from agents.registry import audit_registry
+
+        return audit_registry()
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -566,6 +585,31 @@ def agent_events(limit: int = 50):
     """Return recent agent-run events from the Redis activity stream."""
     events = _get_events(limit=min(limit, 200))
     return {"events": events, "count": len(events)}
+
+
+@router.get("/agent/signal-events")
+def agent_signal_events(
+    symbol: str = "*",
+    limit: int = 100,
+    cycle_id: str | None = None,
+):
+    """Return pipeline signal-transition events from the signal_events table.
+
+    - ``symbol``: filter by ticker, or ``"*"`` for all symbols (default).
+    - ``limit``:  max rows to return (capped at 500).
+    - ``cycle_id``: if given, return all events for that specific pipeline cycle
+      (overrides symbol/limit).
+    """
+    try:
+        from core.signal_events import get_cycle_events, get_events
+
+        if cycle_id:
+            data = get_cycle_events(cycle_id)
+        else:
+            data = get_events(symbol=symbol, limit=min(limit, 500))
+        return {"events": data, "count": len(data)}
+    except Exception as exc:  # noqa: BLE001
+        return {"events": [], "count": 0, "error": str(exc)}
 
 
 @router.get("/agent/scheduler")

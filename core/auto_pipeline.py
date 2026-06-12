@@ -1,224 +1,49 @@
-"""FinPilot Auto-Pipeline — single-call unified analysis workflow.
+"""FinPilot Auto-Pipeline — DEPRECATED (2026-06-12).
 
-Runs all analysis phases automatically without requiring the user to select
-a task type.  All phases are best-effort; a failure in any phase appends to
-``errors`` but does not abort subsequent phases.
+This module's 7-phase workflow has been merged into ``core.pipeline.run_cycle``
+with ``stages={"social", "bull_bear", "backtest", "synthesize"}``.
 
-Phases
-------
-1. Scan          — ScannerAgent (mandatory; aborts if fails)
-2. Research      — ResearchAgent parallel per top-5 symbols
-3. Analysis      — AnalysisAgent parallel per top-5 symbols
-4. Risk          — RiskAgent per top-5 symbols
-5. Backtest      — BacktestAgent top-3 symbols
-6. Synthesize    — Compute composite_confidence (0-100) per symbol
-7. Alert         — AlertAgent for confirmed high-confidence signals
-
-Usage::
-
-    from core.auto_pipeline import run_auto_pipeline
-
-    state = run_auto_pipeline(["NVDA", "AAPL", "TSLA", ...])
-    top = state["synthesized_picks"]  # list of {symbol, composite_confidence, ...}
+``run_auto_pipeline`` is kept as a thin shim so that any remaining call sites
+continue to work until they are updated to call ``run_cycle`` directly.
 """
 
 from __future__ import annotations
 
 import logging
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import warnings
 from typing import Any
 
 logger = logging.getLogger(__name__)
-
-# Weights for composite_confidence synthesis
-_W_SCAN = 0.40
-_W_ANALYSIS = 0.35
-_W_BACKTEST = 0.25
-
-# Confidence threshold above which Alert fires
-_ALERT_THRESHOLD = 70.0
 
 
 def run_auto_pipeline(
     symbols: list[str],
     kelly_fraction: float = 0.5,
-    top_n: int = 5,
-    backtest_top_n: int = 3,
+    top_n: int = 5,  # noqa: ARG001 — kept for call-site compatibility
+    backtest_top_n: int = 3,  # noqa: ARG001 — kept for call-site compatibility
 ) -> dict[str, Any]:
-    """Execute all analysis phases and return a synthesized result.
+    """Delegate to ``core.pipeline.run_cycle`` with all stages enabled.
 
-    Returns a state dict::
-
-        {
-            "task":                "auto",
-            "symbols":             list[str],
-            "scan_results":        dict[symbol, ...],
-            "top_symbols":         list[str],          # top_n by scan score
-            "research_results":    dict[symbol, list],
-            "analysis_results":    dict[symbol, {...}],
-            "risk_results":        dict[symbol, {...}],
-            "backtest_results":    dict[symbol, {...}],
-            "synthesized_picks":   list[dict],         # sorted by composite_confidence desc
-            "alerts_sent":         list[str],
-            "errors":              list[str],
-        }
+    .. deprecated:: 2026-06-12
+        Use ``core.pipeline.run_cycle(..., stages={"social","bull_bear","backtest","synthesize"})``
+        directly.  This shim exists only for backward compatibility.
     """
-    from agents.base import AgentContext
-    from agents.scanner_agent import ScannerAgent
-
-    state: dict[str, Any] = {
-        "task": "auto",
-        "symbols": symbols,
-        "scan_results": {},
-        "top_symbols": [],
-        "research_results": {},
-        "analysis_results": {},
-        "risk_results": {},
-        "backtest_results": {},
-        "synthesized_picks": [],
-        "alerts_sent": [],
-        "errors": [],
-    }
-
-    # ── Phase 1: Scan ────────────────────────────────────────────────────────
-    try:
-        ctx = AgentContext(symbols=symbols)
-        result = ScannerAgent().run(ctx, kelly_fraction=kelly_fraction)
-        if result.success:
-            scan = result.data or {}
-            ranked = sorted(
-                scan.items(),
-                key=lambda kv: kv[1].get("finpilot_score", kv[1].get("composite_score", 0)),
-                reverse=True,
-            )
-            state["scan_results"] = scan
-            state["top_symbols"] = [sym for sym, _ in ranked[:top_n]]
-            logger.info("auto_pipeline: scan — %d symbols, top=%s", len(scan), state["top_symbols"])
-        else:
-            state["errors"].append(f"scan: {result.error}")
-            logger.error("auto_pipeline: scan failed — aborting: %s", result.error)
-            return state
-    except Exception as exc:
-        state["errors"].append(f"scan: {exc}")
-        logger.exception("auto_pipeline: scan exception")
-        return state
-
-    top = state["top_symbols"]
-    if not top:
-        return state
-
-    # ── Phase 2 + 3: Research & Analysis (parallel per symbol) ──────────────
-    def _research_one(sym: str) -> tuple[str, list]:
-        try:
-            from agents.research_agent import ResearchAgent
-
-            ctx = AgentContext(symbols=[sym])
-            r = ResearchAgent().run(ctx)
-            return sym, r.data.get(sym, []) if r.success else []
-        except Exception as exc:
-            logger.warning("auto_pipeline: research %s failed: %s", sym, exc)
-            return sym, []
-
-    def _analyze_one(sym: str) -> tuple[str, dict | None]:
-        try:
-            from agents.analysis_agent import AnalysisAgent
-
-            ctx = AgentContext(
-                symbols=[sym],
-                scan_results={sym: state["scan_results"].get(sym, {})},
-            )
-            r = AnalysisAgent().run(ctx)
-            if r.success:
-                return sym, r.data.get(sym, r.data)
-            state["errors"].append(f"analyze/{sym}: {r.error}")
-            return sym, None
-        except Exception as exc:
-            logger.warning("auto_pipeline: analysis %s failed: %s", sym, exc)
-            return sym, None
-
-    with ThreadPoolExecutor(max_workers=8, thread_name_prefix="auto") as pool:
-        research_futures = {pool.submit(_research_one, sym): sym for sym in top}
-        analysis_futures = {pool.submit(_analyze_one, sym): sym for sym in top}
-
-        for fut in as_completed(research_futures):
-            sym, items = fut.result()
-            state["research_results"][sym] = items
-
-        for fut in as_completed(analysis_futures):
-            sym, data = fut.result()
-            if data is not None:
-                state["analysis_results"][sym] = data
-
-    logger.info(
-        "auto_pipeline: research=%d analysis=%d symbols",
-        len(state["research_results"]),
-        len(state["analysis_results"]),
+    warnings.warn(
+        "run_auto_pipeline is deprecated; use core.pipeline.run_cycle with stages=… instead.",
+        DeprecationWarning,
+        stacklevel=2,
     )
+    from core.pipeline import run_cycle
 
-    # ── Phase 4: Risk ────────────────────────────────────────────────────────
-    try:
-        from agents.risk_agent import RiskAgent
-
-        ctx = AgentContext(symbols=top, scan_results=state["scan_results"])
-        r = RiskAgent().run(ctx)
-        if r.success:
-            state["risk_results"] = r.data or {}
-            logger.info("auto_pipeline: risk — %d symbols", len(state["risk_results"]))
-        else:
-            state["errors"].append(f"risk: {r.error}")
-    except Exception as exc:
-        state["errors"].append(f"risk: {exc}")
-        logger.exception("auto_pipeline: risk exception")
-
-    # ── Phase 5: Backtest (top-N by scan score) ──────────────────────────────
-    backtest_symbols = top[:backtest_top_n]
-    try:
-        from agents.backtest_agent import BacktestAgent
-
-        ctx = AgentContext(symbols=backtest_symbols, scan_results=state["scan_results"])
-        r = BacktestAgent().run(ctx, strategy="momentum", initial_capital=10_000)
-        if r.success:
-            state["backtest_results"] = r.data or {}
-            logger.info("auto_pipeline: backtest — %d symbols", len(state["backtest_results"]))
-        else:
-            state["errors"].append(f"backtest: {r.error}")
-    except Exception as exc:
-        state["errors"].append(f"backtest: {exc}")
-        logger.exception("auto_pipeline: backtest exception")
-
-    # ── Phase 6: Synthesize ──────────────────────────────────────────────────
-    state["synthesized_picks"] = _synthesize(state)
-    logger.info(
-        "auto_pipeline: synthesized %d picks",
-        len(state["synthesized_picks"]),
+    state = run_cycle(
+        symbols=symbols,
+        task="full",
+        kelly_fraction=kelly_fraction,
+        stages={"social", "bull_bear", "backtest", "synthesize"},
     )
-
-    # ── Phase 7: Alert (composite_confidence >= threshold) ───────────────────
-    high_confidence = [
-        p["symbol"]
-        for p in state["synthesized_picks"]
-        if p.get("composite_confidence", 0) >= _ALERT_THRESHOLD
-    ]
-    if high_confidence:
-        try:
-            from agents.alert_agent import AlertAgent
-
-            alert_scan = {
-                sym: state["scan_results"][sym]
-                for sym in high_confidence
-                if sym in state["scan_results"]
-            }
-            ctx = AgentContext(symbols=high_confidence, scan_results=alert_scan)
-            r = AlertAgent().run(ctx)
-            if r.success:
-                state["alerts_sent"] = r.data or []
-                logger.info("auto_pipeline: alerts sent for %s", high_confidence)
-            else:
-                state["errors"].append(f"alert: {r.error}")
-        except Exception as exc:
-            state["errors"].append(f"alert: {exc}")
-            logger.exception("auto_pipeline: alert exception")
-
+    # Back-fill synthesized_picks for call sites that read state["synthesized_picks"]
+    if "synthesized_picks" not in state:
+        state["synthesized_picks"] = _synthesize(state)
     return state
 
 
