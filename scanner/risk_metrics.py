@@ -20,12 +20,11 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-
 # ── Constants ────────────────────────────────────────────────────────────────
 TRADING_DAYS = 252
-RISK_FREE_DAILY = 0.045 / TRADING_DAYS   # ~4.5% annual T-bill rate (2025-2026)
-MIN_BARS_RELIABLE = 60   # Below this, all estimates are flagged as low-quality
-MIN_BARS_CALMAR = 120    # Need at least 6 months for a meaningful max-drawdown
+RISK_FREE_DAILY = 0.045 / TRADING_DAYS  # ~4.5% annual T-bill rate (2025-2026)
+MIN_BARS_RELIABLE = 60  # Below this, all estimates are flagged as low-quality
+MIN_BARS_CALMAR = 120  # Need at least 6 months for a meaningful max-drawdown
 
 
 def _safe_div(numerator: float, denominator: float, fallback: float = 0.0) -> float:
@@ -148,15 +147,13 @@ def calculate_risk_adjusted_metrics(
             mdd = _max_drawdown(equity)
             out["max_drawdown_pct"] = round(mdd * 100, 2)
             if mdd > 0:
-                out["calmar_ratio"] = round(
-                    _safe_div(ann_return, mdd, fallback=0.0), 3
-                )
+                out["calmar_ratio"] = round(_safe_div(ann_return, mdd, fallback=0.0), 3)
         elif n >= 30:
             # Rough estimate with shorter window (marked as low quality)
             equity = np.cumprod(1.0 + returns)
             mdd = _max_drawdown(equity)
             out["max_drawdown_pct"] = round(mdd * 100, 2)
-            out["calmar_ratio"] = 0.0   # not enough history for calmar
+            out["calmar_ratio"] = 0.0  # not enough history for calmar
 
         # ── Beta ─────────────────────────────────────────────────────────────
         if benchmark_returns is not None and len(benchmark_returns) >= 10:
@@ -186,7 +183,7 @@ def calculate_risk_adjusted_metrics(
             avg_win = wins.mean()
             avg_loss = abs(losses.mean())
             ev = p_win * avg_win - (1 - p_win) * avg_loss
-            out["ev_per_trade"] = round(float(ev) * 100, 4)   # as % per period
+            out["ev_per_trade"] = round(float(ev) * 100, 4)  # as % per period
 
     except Exception:
         pass
@@ -210,11 +207,7 @@ def portfolio_risk_summary(
             high_quality_count, total_count,
             risk_budget_used_pct   (avg_ann_vol weighted by signal quality)
     """
-    metrics = [
-        r["risk_metrics"]
-        for r in results
-        if isinstance(r.get("risk_metrics"), dict)
-    ]
+    metrics = [r["risk_metrics"] for r in results if isinstance(r.get("risk_metrics"), dict)]
     if not metrics:
         return {}
 

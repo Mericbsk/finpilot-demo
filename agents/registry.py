@@ -374,6 +374,7 @@ def registry_as_dict() -> dict:
 # Auto-verification (Audit #5)
 # ---------------------------------------------------------------------------
 
+
 def discover_agent_classes() -> dict[str, str]:
     """Scan ``agents/`` package and return all BaseAgent subclass names.
 
@@ -385,6 +386,7 @@ def discover_agent_classes() -> dict[str, str]:
     import importlib
     import inspect
     import pkgutil
+
     import agents as _agents_pkg
     from agents.base import BaseAgent
 
@@ -396,11 +398,7 @@ def discover_agent_classes() -> dict[str, str]:
         except Exception:  # noqa: BLE001 — optional deps, skip silently
             continue
         for name, obj in inspect.getmembers(mod, inspect.isclass):
-            if (
-                issubclass(obj, BaseAgent)
-                and obj is not BaseAgent
-                and obj.__module__ == mod_name
-            ):
+            if issubclass(obj, BaseAgent) and obj is not BaseAgent and obj.__module__ == mod_name:
                 found[name] = mod_name
     return found
 
@@ -421,11 +419,6 @@ def audit_registry() -> dict:
     _INTERNAL = {"_AdvisoryBase"}
     discovered_real = {k: v for k, v in discovered.items() if k not in _INTERNAL}
 
-    registered_active = {
-        a.name.replace(" ", "") + "Agent": a.name
-        for a in AGENT_REGISTRY
-        if a.status == "active"
-    }
     # Explicit class-name → registry mapping covering all layers
     _key_to_class: dict[str, str] = {
         "scanner": "ScannerAgent",
@@ -450,23 +443,14 @@ def audit_registry() -> dict:
     }
     # Collect all registered class names (active + advisory persona classes)
     registered_class_names: set[str] = {
-        _key_to_class.get(a.key, "")
-        for a in AGENT_REGISTRY
-        if a.status in ("active", "advisory")
+        _key_to_class.get(a.key, "") for a in AGENT_REGISTRY if a.status in ("active", "advisory")
     } - {""}
     # Also add advisory dynamic classes by convention
-    advisory_class_names = {
-        k for k in discovered_real
-        if discovered_real[k] == "agents.advisory"
-    }
+    advisory_class_names = {k for k in discovered_real if discovered_real[k] == "agents.advisory"}
     registered_class_names |= advisory_class_names
 
-    in_code_not_registry = sorted(
-        set(discovered_real.keys()) - registered_class_names
-    )
-    in_registry_not_code = sorted(
-        registered_class_names - set(discovered_real.keys())
-    )
+    in_code_not_registry = sorted(set(discovered_real.keys()) - registered_class_names)
+    in_registry_not_code = sorted(registered_class_names - set(discovered_real.keys()))
 
     return {
         "discovered": discovered_real,

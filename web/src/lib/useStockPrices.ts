@@ -17,9 +17,9 @@ const REFRESH_MS = 30_000; // 30 seconds
 async function fetchQuotes(symbols: string[]): Promise<QuoteMap> {
   if (symbols.length === 0) return {};
   const merged: QuoteMap = {};
-  // Split into batches of 100 to avoid URL length limits
-  for (let i = 0; i < symbols.length; i += 100) {
-    const batch = symbols.slice(i, i + 100);
+  // Split into batches of 30 to match API hard limit and avoid proxy timeouts
+  for (let i = 0; i < symbols.length; i += 30) {
+    const batch = symbols.slice(i, i + 30);
     try {
       const resp = await fetch(`/py-api/quotes?symbols=${batch.join(",")}`);
       if (!resp.ok) continue;
@@ -29,6 +29,10 @@ async function fetchQuotes(symbols: string[]): Promise<QuoteMap> {
         merged[sym] = q;
       }
     } catch { /* skip batch */ }
+    // Small delay between batches to avoid hammering yfinance
+    if (i + 30 < symbols.length) {
+      await new Promise((r) => setTimeout(r, 200));
+    }
   }
   return merged;
 }

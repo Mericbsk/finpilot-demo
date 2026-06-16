@@ -10,7 +10,8 @@ slowapi==0.1.9
 # Data Processing
 pandas==2.2.3
 numpy==2.4.2
-yfinance==1.2.0
+yfinance>=1.4.1
+financedatabase>=0.3
 
 # Visualization
 plotly==6.1.1

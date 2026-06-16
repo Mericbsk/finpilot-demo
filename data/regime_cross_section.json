@@ -1,0 +1,145 @@
+{
+  "ran_at": "2026-06-12T13:55:09",
+  "total_barrier_resolved": 4066,
+  "segments": {
+    "overall": {
+      "n": 4066,
+      "win_rate": 0.305,
+      "avg_pct": 0.452,
+      "median_pct": -0.704,
+      "stdev_pct": 3.845,
+      "profit_factor": 1.478,
+      "corr_score_return": -0.0064
+    },
+    "by_regime": {
+      "Bull": {
+        "n": 2375,
+        "win_rate": 0.29,
+        "avg_pct": 0.176,
+        "median_pct": -0.7,
+        "stdev_pct": 2.925,
+        "profit_factor": 1.2,
+        "corr_score_return": 0.0285
+      },
+      "Bear": {
+        "n": 1691,
+        "win_rate": 0.326,
+        "avg_pct": 0.841,
+        "median_pct": -0.712,
+        "stdev_pct": 4.826,
+        "profit_factor": 1.808,
+        "corr_score_return": -0.0518
+      }
+    },
+    "by_vol_regime": {
+      "unknown": {
+        "n": 4066,
+        "win_rate": 0.305,
+        "avg_pct": 0.452,
+        "median_pct": -0.704,
+        "stdev_pct": 3.845,
+        "profit_factor": 1.478,
+        "corr_score_return": -0.0064
+      }
+    },
+    "by_sector_rs": {
+      "no_data": {
+        "n": 4066,
+        "win_rate": 0.305,
+        "avg_pct": 0.452,
+        "median_pct": -0.704,
+        "stdev_pct": 3.845,
+        "profit_factor": 1.478,
+        "corr_score_return": -0.0064
+      }
+    },
+    "by_earnings_blackout": {
+      "unknown": {
+        "n": 4066,
+        "win_rate": 0.305,
+        "avg_pct": 0.452,
+        "median_pct": -0.704,
+        "stdev_pct": 3.845,
+        "profit_factor": 1.478
+      }
+    },
+    "score_quartile_by_regime": {
+      "Bull": {
+        "Q1_low": {
+          "n": 593,
+          "win_rate": 0.28,
+          "avg_pct": 0.179,
+          "median_pct": -0.487,
+          "stdev_pct": 2.567,
+          "profit_factor": 1.336,
+          "score_range": "1.0–1.0"
+        },
+        "Q2": {
+          "n": 593,
+          "win_rate": 0.331,
+          "avg_pct": 0.379,
+          "median_pct": -0.791,
+          "stdev_pct": 3.187,
+          "profit_factor": 1.385,
+          "score_range": "1.0–1.0"
+        },
+        "Q3": {
+          "n": 593,
+          "win_rate": 0.243,
+          "avg_pct": 0.042,
+          "median_pct": -0.992,
+          "stdev_pct": 2.963,
+          "profit_factor": 1.04,
+          "score_range": "1.0–2.0"
+        },
+        "Q4_high": {
+          "n": 596,
+          "win_rate": 0.307,
+          "avg_pct": 0.103,
+          "median_pct": -0.8,
+          "stdev_pct": 2.945,
+          "profit_factor": 1.107,
+          "score_range": "2.0–78.0"
+        }
+      },
+      "Bear": {
+        "Q1_low": {
+          "n": 422,
+          "win_rate": 0.268,
+          "avg_pct": 0.103,
+          "median_pct": -0.486,
+          "stdev_pct": 1.573,
+          "profit_factor": 1.204,
+          "score_range": "1.0–1.0"
+        },
+        "Q2": {
+          "n": 422,
+          "win_rate": 0.427,
+          "avg_pct": 1.479,
+          "median_pct": -1.035,
+          "stdev_pct": 4.858,
+          "profit_factor": 2.184,
+          "score_range": "1.0–1.0"
+        },
+        "Q3": {
+          "n": 422,
+          "win_rate": 0.322,
+          "avg_pct": 1.091,
+          "median_pct": -0.964,
+          "stdev_pct": 5.351,
+          "profit_factor": 1.921,
+          "score_range": "1.0–2.0"
+        },
+        "Q4_high": {
+          "n": 425,
+          "win_rate": 0.289,
+          "avg_pct": 0.694,
+          "median_pct": -1.031,
+          "stdev_pct": 6.122,
+          "profit_factor": 1.565,
+          "score_range": "2.0–40.0"
+        }
+      }
+    }
+  }
+}

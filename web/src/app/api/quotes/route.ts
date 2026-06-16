@@ -15,10 +15,12 @@ export async function GET(req: NextRequest) {
   if (!symbolsParam.trim()) {
     return NextResponse.json({ error: "symbols parameter required" }, { status: 400 });
   }
+  // Enforce max 30 symbols to match API hard limit
+  const limited = symbolsParam.split(",").slice(0, 30).join(",");
 
   try {
     const upstream = await fetch(
-      `${BACKEND_URL}/api/v1/quotes?symbols=${encodeURIComponent(symbolsParam)}`,
+      `${BACKEND_URL}/api/v1/quotes?symbols=${encodeURIComponent(limited)}`,
       { signal: AbortSignal.timeout(15_000), cache: "no-store" },
     );
     if (!upstream.ok) {

@@ -103,6 +103,16 @@ def run_research_pipeline(
             summary["registry"]["promoted"] = promoted
             if promoted:
                 logger.info("pipeline: challenger id=%d promoted to champion", row_id)
+                # Hot-reload weights into the running finpilot_score module
+                try:
+                    from scanner.finpilot_score import load_weights  # noqa: PLC0415
+
+                    reloaded = load_weights()
+                    summary["registry"]["weights_reloaded"] = bool(reloaded)
+                    logger.info("pipeline: champion weights hot-reloaded — %d keys", len(reloaded))
+                except Exception as exc:
+                    logger.warning("pipeline: weights hot-reload failed: %s", exc)
+                    summary["registry"]["weights_reloaded"] = False
         except Exception as exc:
             logger.warning("pipeline: registry update failed: %s", exc)
             summary["registry"] = {"status": "error", "error": str(exc)}

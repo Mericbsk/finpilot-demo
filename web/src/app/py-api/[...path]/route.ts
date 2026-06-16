@@ -26,14 +26,22 @@ async function proxy(req: NextRequest, params: { path: string[] }): Promise<Next
     body = await req.arrayBuffer();
   }
 
+  // Timeout: 90 s for scan (yfinance batch analysis), 20 s for all other routes
+  const isScan = rest === "scan" || rest.startsWith("scan/");
+  const timeoutMs = isScan ? 90_000 : 20_000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const upstream = await fetch(target, {
       method: req.method,
       headers,
       body,
+      signal: controller.signal,
       // @ts-expect-error — Node 18+ fetch accepts duplex
       duplex: "half",
     });
+    clearTimeout(timeoutId);
 
     const responseHeaders = new Headers(upstream.headers);
     // Strip hop-by-hop headers
@@ -47,7 +55,11 @@ async function proxy(req: NextRequest, params: { path: string[] }): Promise<Next
       headers: responseHeaders,
     });
   } catch (err) {
-    console.error(`[py-api proxy] Failed to reach ${target}:`, err);
+    clearTimeout(timeoutId);
+    const isTimeout = err instanceof Error && (err.name === "AbortError" || err.message.includes("timeout") || err.message.includes("Timeout"));
+    if (!isTimeout) {
+      console.error(`[py-api proxy] Failed to reach ${target}:`, err);
+    }
     return NextResponse.json(
       { detail: "Backend unreachable", target },
       { status: 502 },

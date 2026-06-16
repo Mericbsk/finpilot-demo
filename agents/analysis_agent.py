@@ -51,7 +51,9 @@ class AnalysisAgent(BaseAgent):
 
         for sym in context.symbols:
             scan_data = context.scan_results.get(sym, {})
-            prompt = _build_prompt(sym, scan_data, research_data, social_data)
+            bull_case: dict = kwargs.get("bull_case", {})  # type: ignore[assignment]
+            bear_case: dict = kwargs.get("bear_case", {})  # type: ignore[assignment]
+            prompt = _build_prompt(sym, scan_data, research_data, social_data, bull_case, bear_case)
             try:
                 response = router.generate_messages(
                     messages=[
@@ -94,7 +96,12 @@ class AnalysisAgent(BaseAgent):
 
 
 def _build_prompt(
-    symbol: str, data: dict, research: dict | None = None, social: dict | None = None
+    symbol: str,
+    data: dict,
+    research: dict | None = None,
+    social: dict | None = None,
+    bull_case: dict | None = None,
+    bear_case: dict | None = None,
 ) -> str:
     """Build a structured Turkish analysis prompt from scanner + research + social data."""
     score = data.get("finpilot_score", data.get("composite_score", "N/A"))
@@ -194,4 +201,34 @@ def _build_prompt(
         "Tek cümleyle net görüş (AL / SAT / BEKLE + neden)."
     )
 
-    return base + news_section + sentiment_section + analysis_request
+    # INT-5: Bull/Bear researcher debate synthesis
+    debate_section = ""
+    if bull_case or bear_case:
+        debate_section = "\n## 🔴🟢 Araştırma Tartışması (Bull vs Bear)\n\n"
+        if bull_case and bull_case.get("arguments"):
+            bull_score = bull_case.get("strength_score", 0.5)
+            debate_section += f"**BOĞA ARGÜMANları** (güç: {bull_score:.0%}):\n"
+            for arg in bull_case["arguments"][:4]:
+                debate_section += f"- {arg}\n"
+            if bull_case.get("key_catalysts"):
+                debate_section += f"*Temel katalizörler:* {', '.join(bull_case['key_catalysts'])}\n"
+            debate_section += "\n"
+        if bear_case and bear_case.get("arguments"):
+            bear_score = bear_case.get("strength_score", 0.5)
+            debate_section += f"**AYI ARGÜMANları** (güç: {bear_score:.0%}):\n"
+            for arg in bear_case["arguments"][:4]:
+                debate_section += f"- {arg}\n"
+            if bear_case.get("key_risks"):
+                debate_section += f"*Temel riskler:* {', '.join(bear_case['key_risks'])}\n"
+            debate_section += "\n"
+        # Compute conviction ratio
+        bull_s = float((bull_case or {}).get("strength_score", 0.5))
+        bear_s = float((bear_case or {}).get("strength_score", 0.5))
+        conviction = bull_s / (bull_s + bear_s) if (bull_s + bear_s) > 0 else 0.5
+        debate_section += (
+            f"*Tartışma sonucu:* Boğa inancı **{conviction:.0%}** / Ayı inancı **{1-conviction:.0%}**\n\n"
+            "**Görevin:** Yukarıdaki boğa/ayı tartışmasını da göz önünde bulundurarak "
+            "dengeli bir sentez yap.\n\n"
+        )
+
+    return base + news_section + sentiment_section + debate_section + analysis_request

@@ -158,4 +158,102 @@ __all__ = [
     "calculate_momentum",
     "create_lag_features",
     "assemble_feature_frame",
+    "calculate_alpha158_features",
 ]
+
+
+def calculate_alpha158_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate Qlib Alpha158-inspired features for DRL training (INT-6).
+
+    Adds 25 new features to the input DataFrame:
+    - ROC series: roc_5, roc_10, roc_20, roc_30, roc_60 (5)
+    - STD series: std_5, std_10, std_20, std_30 (4)
+    - Multi-period RSI: rsi_5, rsi_10, rsi_20, rsi_30 (4)
+    - Price-volume correlation: corr_pv_5, corr_pv_10, corr_pv_20 (3)
+    - Candlestick: kmid, klen, kmid2, kup, kdn (5)
+    - Multi-period EMA ratios: close_ema5_ratio, close_ema10_ratio, close_ema30_ratio, close_ema60_ratio (4)
+
+    All values are normalised to be scale-free and clipped to [-10, 10].
+
+    Args:
+        df: DataFrame with OHLCV columns (Open, High, Low, Close, Volume).
+
+    Returns:
+        DataFrame with Alpha158 feature columns appended.
+    """
+    if df.empty:
+        return df
+
+    required = {"Open", "High", "Low", "Close", "Volume"}
+    missing = required - set(df.columns)
+    if missing:
+        return df
+
+    result = df.copy()
+
+    def _s(col: str) -> pd.Series:
+        s = result[col]
+        return s.iloc[:, 0] if isinstance(s, pd.DataFrame) else s
+
+    close = _s("Close")
+    high = _s("High")
+    low = _s("Low")
+    open_ = _s("Open")
+    vol = _s("Volume")
+
+    # ── ROC Series ────────────────────────────────────────────────────────────
+    for d in (5, 10, 20, 30, 60):
+        result[f"roc_{d}"] = close.pct_change(d)
+
+    # ── STD Series ────────────────────────────────────────────────────────────
+    ret = close.pct_change()
+    for d in (5, 10, 20, 30):
+        result[f"std_{d}"] = ret.rolling(d).std()
+
+    # ── Multi-period RSI ──────────────────────────────────────────────────────
+    def _rsi(s: pd.Series, p: int) -> pd.Series:
+        delta = s.diff()
+        up = delta.clip(lower=0)
+        dn = -delta.clip(upper=0)
+        rs = up.ewm(alpha=1 / p, adjust=False).mean() / dn.ewm(
+            alpha=1 / p, adjust=False
+        ).mean().replace(0, 1e-10)
+        return 100 - (100 / (1 + rs))
+
+    for d in (5, 10, 20, 30):
+        result[f"rsi_{d}"] = _rsi(close, d)
+
+    # ── Price-Volume Correlation ──────────────────────────────────────────────
+    log_vol = vol.apply(lambda x: float(np.log(x + 1)) if x > 0 else 0.0)
+    for d in (5, 10, 20):
+        result[f"corr_pv_{d}"] = ret.rolling(d).corr(log_vol)
+
+    # ── Candlestick Features ──────────────────────────────────────────────────
+    day_range = (high - low).replace(0, float("nan"))
+    result["kmid"] = ((close - open_) / day_range).fillna(0.0)
+    result["klen"] = ((high - low) / open_.replace(0, float("nan"))).fillna(0.0)
+    result["kmid2"] = ((close - open_) / (open_.replace(0, float("nan")) * 2)).fillna(0.0)
+    result["kup"] = ((high - pd.concat([open_, close], axis=1).max(axis=1)) / day_range).fillna(0.0)
+    result["kdn"] = ((pd.concat([open_, close], axis=1).min(axis=1) - low) / day_range).fillna(0.0)
+
+    # ── Extended EMA Ratios ───────────────────────────────────────────────────
+    for d in (5, 10, 30, 60):
+        ema = close.ewm(span=d, adjust=False).mean()
+        result[f"close_ema{d}_ratio"] = (close / ema - 1.0).replace(
+            [float("inf"), float("-inf")], 0.0
+        )
+
+    # ── Clip ──────────────────────────────────────────────────────────────────
+    alpha_cols = (
+        [f"roc_{d}" for d in (5, 10, 20, 30, 60)]
+        + [f"std_{d}" for d in (5, 10, 20, 30)]
+        + [f"rsi_{d}" for d in (5, 10, 20, 30)]
+        + [f"corr_pv_{d}" for d in (5, 10, 20)]
+        + ["kmid", "klen", "kmid2", "kup", "kdn"]
+        + [f"close_ema{d}_ratio" for d in (5, 10, 30, 60)]
+    )
+    for col in alpha_cols:
+        if col in result.columns:
+            result[col] = result[col].clip(-10.0, 10.0)
+
+    return result

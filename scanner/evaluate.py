@@ -19,9 +19,9 @@ from .data_fetcher import (
     fetch_multi_timeframe,
     prefetch_symbols_multi_timeframe,
 )
+from .position_sizer import calculate_dynamic_position
 from .risk_engine import calculate_risk_management, calculate_risk_management_yz, daily_dd_breached
 from .risk_metrics import calculate_risk_adjusted_metrics
-from .position_sizer import calculate_dynamic_position
 from .score_engine import compute_recommendation_strength, regime_gate_mult
 from .signals import (
     analyze_price_momentum,

@@ -191,6 +191,7 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
                         "DRL conflict for %s: scanner=%s drl=%s", sym, scanner_signal, drl_sig
                     )
 
+            _now = datetime.now(tz=UTC)
             entry: dict = {
                 "symbol": sym,
                 "signal": scanner_signal,
@@ -198,12 +199,15 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
                 "stop_loss": float(r.get("stop_loss") or 0),
                 "take_profit": float(r.get("take_profit") or 0),
                 "score": float(r.get("filter_score") or r.get("score") or 0),
+                "finpilot_score": int(r.get("finpilot_score") or 0),
+                "composite_score": int(r.get("composite_score") or 0),
+                "signal_date": _now.strftime("%Y-%m-%d"),
                 "regime": "Bull" if r.get("regime") else "Bear",
                 "sentiment": "Bullish" if direction else "Bearish",
                 "risk_reward": float(r.get("risk_reward") or 0),
                 "reason": r.get("reason") or "",
                 "explanation": r.get("explanation") or "",
-                "added_at": datetime.now(tz=UTC).isoformat(),
+                "added_at": _now.isoformat(),
                 "current_price": 0.0,
                 "change_pct": 0.0,
                 "pnl_pct": 0.0,

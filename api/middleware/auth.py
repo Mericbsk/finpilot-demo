@@ -16,16 +16,22 @@ from __future__ import annotations
 
 from typing import Annotated
 
+from auth.core import AuthConfig, TokenExpiredError, TokenInvalidError
+from auth.tokens import JWTHandler, TokenPayload
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from auth.core import AuthConfig, TokenExpiredError, TokenInvalidError
-from auth.tokens import JWTHandler, TokenPayload
-
 _bearer = HTTPBearer(auto_error=False)
 
-_config = AuthConfig()
-_jwt = JWTHandler(secret_key=_config.secret_key, algorithm=_config.algorithm)
+
+def _get_jwt() -> JWTHandler:
+    """Return a JWTHandler keyed from the current environment.
+
+    Intentionally not cached at module level so that environment overrides
+    (e.g. monkeypatched FINPILOT_SECRET_KEY in tests) are always honoured.
+    """
+    config = AuthConfig()
+    return JWTHandler(secret_key=config.secret_key, algorithm=config.algorithm)
 
 
 def _extract_payload(
@@ -35,7 +41,7 @@ def _extract_payload(
     if credentials is None:
         return None
     try:
-        data = _jwt.decode(credentials.credentials)
+        data = _get_jwt().decode(credentials.credentials)
         return TokenPayload(**{k: data[k] for k in TokenPayload.__dataclass_fields__})
     except (TokenExpiredError, TokenInvalidError, KeyError):
         return None

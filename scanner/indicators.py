@@ -171,3 +171,91 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df["vol_avg10"] = vol.rolling(10).mean()
 
     return df
+
+
+def add_alpha_indicators(df: pd.DataFrame) -> pd.DataFrame:
+    """Add Alpha158-inspired indicators (INT-6: Qlib Alpha158 port).
+
+    Extends add_indicators() output with:
+    - ROC series (Rate of Change): roc_5, roc_10, roc_20, roc_30, roc_60
+    - STD series (Rolling volatility): std_5, std_10, std_20, std_30
+    - Multi-period RSI: rsi_5, rsi_10, rsi_20, rsi_30
+    - Price-volume correlation: corr_pv_5, corr_pv_10, corr_pv_20
+    - Candlestick features: kmid, klen, kmid2, kup, kdn
+
+    Args:
+        df: DataFrame with at minimum OHLCV columns (add_indicators() already called recommended)
+
+    Returns:
+        DataFrame with additional Alpha158 columns appended.
+    """
+    import numpy as np  # noqa: PLC0415
+
+    df = df.copy()
+
+    required_cols = {"Open", "High", "Low", "Close", "Volume"}
+    if not required_cols.issubset(set(df.columns)):
+        return df
+
+    # Ensure single Series
+    close = df["Close"]
+    if isinstance(close, pd.DataFrame):
+        close = close.iloc[:, 0]
+    high = df["High"]
+    if isinstance(high, pd.DataFrame):
+        high = high.iloc[:, 0]
+    low = df["Low"]
+    if isinstance(low, pd.DataFrame):
+        low = low.iloc[:, 0]
+    open_ = df["Open"]
+    if isinstance(open_, pd.DataFrame):
+        open_ = open_.iloc[:, 0]
+    vol = df["Volume"]
+    if isinstance(vol, pd.DataFrame):
+        vol = vol.iloc[:, 0]
+
+    # ── ROC Series (Rate of Change) ──────────────────────────────────────────
+    for d in (5, 10, 20, 30, 60):
+        df[f"roc_{d}"] = close.pct_change(d)
+
+    # ── STD Series (Rolling realised vol, normalised by close) ───────────────
+    for d in (5, 10, 20, 30):
+        df[f"std_{d}"] = close.pct_change().rolling(d).std()
+
+    # ── Multi-period RSI ─────────────────────────────────────────────────────
+    for d in (5, 10, 20, 30):
+        if d != 14:  # rsi(14) already in add_indicators()
+            df[f"rsi_{d}"] = rsi(close, d)
+
+    # ── Price-Volume Correlation ─────────────────────────────────────────────
+    log_ret = close.pct_change()
+    log_vol = vol.apply(lambda x: float(np.log(x + 1)) if x > 0 else 0.0)
+    for d in (5, 10, 20):
+        df[f"corr_pv_{d}"] = log_ret.rolling(d).corr(log_vol)
+
+    # ── Candlestick Features (Qlib KMID / KLEN / KMID2 / KUP / KDN) ─────────
+    day_range = (high - low).replace(0, float("nan"))
+    # KMID: (close - open) / (high - low)  — body relative to range
+    df["kmid"] = ((close - open_) / day_range).fillna(0.0)
+    # KLEN: (high - low) / open           — range relative to open
+    df["klen"] = ((high - low) / open_.replace(0, float("nan"))).fillna(0.0)
+    # KMID2: (close - open) / (open * 2)  — body relative to open price
+    df["kmid2"] = ((close - open_) / (open_.replace(0, float("nan")) * 2)).fillna(0.0)
+    # KUP: (high - max(open, close)) / (high - low)  — upper wick fraction
+    df["kup"] = ((high - pd.concat([open_, close], axis=1).max(axis=1)) / day_range).fillna(0.0)
+    # KDN: (min(open, close) - low) / (high - low)   — lower wick fraction
+    df["kdn"] = ((pd.concat([open_, close], axis=1).min(axis=1) - low) / day_range).fillna(0.0)
+
+    # Clip extreme values (guard against overnight gaps, splits)
+    alpha_cols = (
+        [f"roc_{d}" for d in (5, 10, 20, 30, 60)]
+        + [f"std_{d}" for d in (5, 10, 20, 30)]
+        + [f"rsi_{d}" for d in (5, 10, 20, 30)]
+        + [f"corr_pv_{d}" for d in (5, 10, 20)]
+        + ["kmid", "klen", "kmid2", "kup", "kdn"]
+    )
+    for col in alpha_cols:
+        if col in df.columns:
+            df[col] = df[col].clip(-10.0, 10.0)
+
+    return df

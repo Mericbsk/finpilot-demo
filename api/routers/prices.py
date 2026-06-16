@@ -1,5 +1,9 @@
 """GET /api/v1/prices/stream/{symbol} — Server-Sent Events real-time price feed.
 GET /api/v1/quotes?symbols=AAPL,MSFT   — Batch real-time quote endpoint.
+
+Quote fetch strategy (fastest first):
+  1. Alpaca StockLatestTrade  — ~300 ms for 30 symbols (requires ALPACA_API_KEY)
+  2. yf.download fallback     — ~3-8 s (no key needed)
 """
 
 from __future__ import annotations
@@ -7,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import re
 from datetime import UTC, datetime
 
@@ -26,76 +31,134 @@ import time as _time
 _QUOTE_CACHE: dict[str, dict] = {}
 _QUOTE_TTL = 30  # seconds
 
+# ── Alpaca client singleton ───────────────────────────────────────────────────
+_alpaca_client = None
+_alpaca_available: bool | None = None  # None = not yet checked
+
+
+def _get_alpaca_client():
+    """Return shared StockHistoricalDataClient or None if keys not set."""
+    global _alpaca_client, _alpaca_available  # noqa: PLW0603
+    if _alpaca_available is False:
+        return None
+    if _alpaca_client is not None:
+        return _alpaca_client
+    try:
+        from alpaca.data.historical import StockHistoricalDataClient
+
+        api_key = os.getenv("ALPACA_API_KEY")
+        secret = os.getenv("ALPACA_SECRET_KEY")
+        if not api_key or not secret:
+            _alpaca_available = False
+            return None
+        _alpaca_client = StockHistoricalDataClient(api_key, secret)
+        _alpaca_available = True
+        logger.info("quotes: Alpaca client ready (key=...%s)", api_key[-4:])
+        return _alpaca_client
+    except Exception as exc:
+        logger.warning("quotes: Alpaca SDK unavailable — %s", exc)
+        _alpaca_available = False
+        return None
+
 
 def _fetch_price_sync(symbol: str) -> dict:
-    import yfinance as yf
+    """Single-symbol price via Alpaca latest trade, fallback to yfinance."""
+    batch = _fetch_batch_sync([symbol])
+    if symbol in batch:
+        d = batch[symbol]
+        return {
+            "symbol": symbol,
+            "price": d["price"],
+            "change_pct": d["change"],
+            "ts": datetime.now(UTC).isoformat(),
+        }
+    return {"symbol": symbol, "price": 0.0, "change_pct": 0.0, "ts": datetime.now(UTC).isoformat()}
 
-    ticker = yf.Ticker(symbol)
-    fi = ticker.fast_info
+
+def _fetch_batch_alpaca(symbols: list[str]) -> dict[str, dict]:
+    """Fetch latest trade price from Alpaca (~300 ms for 30 symbols)."""
+    client = _get_alpaca_client()
+    if client is None:
+        return {}
     try:
-        info = ticker.info
-        market_state = info.get("marketState", "REGULAR")
-        reg_price = float(info.get("regularMarketPrice") or fi.last_price or 0)
-        pre_price = float(info.get("preMarketPrice") or 0)
-        post_price = float(info.get("postMarketPrice") or 0)
-        if market_state == "PRE" and pre_price > 0:
-            price = pre_price
-        elif market_state in ("POST", "POSTPOST") and post_price > 0:
-            price = post_price
-        else:
-            price = reg_price
-    except Exception:
-        price = float(fi.last_price or 0)
+        from alpaca.data.requests import StockLatestBarRequest, StockLatestTradeRequest
 
-    prev = float(fi.previous_close or price)
-    change_pct = ((price - prev) / prev * 100) if prev else 0.0
-    return {
-        "symbol": symbol,
-        "price": round(price, 4),
-        "change_pct": round(change_pct, 2),
-        "ts": datetime.now(UTC).isoformat(),
-    }
+        # Get latest trade (real-time price) + latest bar (OHLCV)
+        trade_req = StockLatestTradeRequest(symbol_or_symbols=symbols)
+        bar_req = StockLatestBarRequest(symbol_or_symbols=symbols)
+
+        trades = client.get_stock_latest_trade(trade_req)
+        bars = client.get_stock_latest_bar(bar_req)
+
+        result: dict[str, dict] = {}
+        for sym in symbols:
+            try:
+                trade = trades.get(sym)
+                bar = bars.get(sym)
+                if trade is None and bar is None:
+                    continue
+
+                price = float(trade.price) if trade else (float(bar.close) if bar else 0.0)
+                prev = float(bar.vwap) if bar and bar.vwap else price  # approximation
+                # Use bar.open as prev-close proxy if vwap not useful
+                if bar:
+                    # prev close ≈ open - (close - open) reversed; use open as anchor
+                    prev = float(bar.open) if bar.open else price
+
+                high = float(bar.high) if bar else price
+                low = float(bar.low) if bar else price
+                volume = int(bar.volume) if bar else 0
+                change = round(((price - prev) / prev * 100) if prev else 0.0, 2)
+
+                result[sym] = {
+                    "price": round(price, 2),
+                    "change": change,
+                    "prevClose": round(prev, 2),
+                    "high": round(high, 2),
+                    "low": round(low, 2),
+                    "volume": volume,
+                    "marketState": "REGULAR",
+                }
+            except Exception as e:
+                logger.debug("Alpaca quote parse failed for %s: %s", sym, e)
+        return result
+    except Exception as exc:
+        logger.warning("Alpaca batch quote failed (%s) — will fallback to yfinance", exc)
+        return {}
 
 
-def _fetch_batch_sync(symbols: list[str]) -> dict[str, dict]:
-    """Fetch batch quotes via yfinance.Tickers.
-
-    Uses pre-market / after-hours price when market is not in regular session,
-    so returned price always reflects the most recent tradeable value.
-    """
+def _fetch_batch_yfinance(symbols: list[str]) -> dict[str, dict]:
+    """Fetch batch quotes using yf.download — single bulk HTTP request (~3-8s for 30 symbols)."""
     import yfinance as yf
 
     result: dict[str, dict] = {}
     try:
-        tickers = yf.Tickers(" ".join(symbols))
+        raw = yf.download(
+            symbols,
+            period="2d",
+            interval="1d",
+            auto_adjust=True,
+            progress=False,
+            group_by="ticker",
+            threads=False,
+        )
+        if raw is None or raw.empty:
+            return result
+
+        is_single = len(symbols) == 1
+
         for sym in symbols:
             try:
-                ticker = tickers.tickers[sym]
-                fi = ticker.fast_info
+                sym_df = raw if is_single else raw[sym]
+                sym_df = sym_df.dropna(how="all")
+                if sym_df.empty or "Close" not in sym_df.columns:
+                    continue
 
-                # fast_info.last_price == regularMarketPrice (yesterday's close
-                # during pre/post market).  Use .info to get the correct current
-                # session price when market is not in REGULAR state.
-                try:
-                    info = ticker.info
-                    market_state = info.get("marketState", "REGULAR")
-                    reg_price = float(info.get("regularMarketPrice") or fi.last_price or 0)
-                    pre_price = float(info.get("preMarketPrice") or 0)
-                    post_price = float(info.get("postMarketPrice") or 0)
-
-                    if market_state == "PRE" and pre_price > 0:
-                        price = pre_price
-                    elif market_state in ("POST", "POSTPOST") and post_price > 0:
-                        price = post_price
-                    else:
-                        price = reg_price
-                except Exception:
-                    price = float(fi.last_price or 0)
-
-                prev = float(fi.previous_close or price)
-                high = float(fi.day_high or 0)
-                low = float(fi.day_low or 0)
-                volume = int(fi.three_month_average_volume or 0)
+                price = float(sym_df["Close"].iloc[-1])
+                prev = float(sym_df["Close"].iloc[-2]) if len(sym_df) >= 2 else price
+                high = float(sym_df["High"].iloc[-1]) if "High" in sym_df.columns else price
+                low = float(sym_df["Low"].iloc[-1]) if "Low" in sym_df.columns else price
+                volume = int(sym_df["Volume"].iloc[-1]) if "Volume" in sym_df.columns else 0
                 change = round(((price - prev) / prev * 100) if prev else 0.0, 2)
                 result[sym] = {
                     "price": round(price, 2),
@@ -104,13 +167,28 @@ def _fetch_batch_sync(symbols: list[str]) -> dict[str, dict]:
                     "high": round(high, 2),
                     "low": round(low, 2),
                     "volume": volume,
-                    "marketState": market_state if "market_state" in dir() else "REGULAR",
+                    "marketState": "REGULAR",
                 }
             except Exception as e:
-                logger.debug("Quote failed for %s: %s", sym, e)
+                logger.debug("yfinance quote parse failed for %s: %s", sym, e)
     except Exception as e:
-        logger.warning("Batch quote fetch failed: %s", e)
+        logger.warning("yfinance batch download failed: %s", e)
     return result
+
+
+def _fetch_batch_sync(symbols: list[str]) -> dict[str, dict]:
+    """Fetch batch quotes: Alpaca first (~300 ms), yfinance fallback (~5 s)."""
+    # Try Alpaca (fast path)
+    result = _fetch_batch_alpaca(symbols)
+    if result:
+        missing = [s for s in symbols if s not in result]
+        if missing:
+            # Fill gaps with yfinance for any symbols Alpaca missed
+            yf_result = _fetch_batch_yfinance(missing)
+            result.update(yf_result)
+        return result
+    # Full fallback to yfinance
+    return _fetch_batch_yfinance(symbols)
 
 
 @router.get("/quotes")
@@ -123,7 +201,8 @@ async def get_quotes(
     Cached for 30 seconds per symbol.
     """
     raw = [s.strip().upper() for s in symbols.split(",") if s.strip()]
-    valid = [s for s in raw if _SYMBOL_RE.match(s)][:200]
+    # Hard limit: max 30 symbols per request to prevent proxy timeout
+    valid = [s for s in raw if _SYMBOL_RE.match(s)][:30]
     if not valid:
         return JSONResponse({})
 
@@ -140,13 +219,17 @@ async def get_quotes(
 
     if to_fetch:
         loop = asyncio.get_event_loop()
-        # Fetch in batches of 50 to avoid yfinance overhead
-        for i in range(0, len(to_fetch), 50):
-            batch = to_fetch[i : i + 50]
-            fresh = await loop.run_in_executor(None, _fetch_batch_sync, batch)
+        # Single batch (max 30 symbols) — fast_info avoids per-symbol HTTP calls
+        try:
+            fresh = await asyncio.wait_for(
+                loop.run_in_executor(None, _fetch_batch_sync, to_fetch),
+                timeout=15.0,
+            )
             for sym, data in fresh.items():
                 _QUOTE_CACHE[sym] = {**data, "_ts": now}
                 result[sym] = data
+        except TimeoutError:
+            logger.warning("quotes: batch fetch timed out for %d symbols", len(to_fetch))
 
     return JSONResponse(result)
 

@@ -133,7 +133,7 @@ def resolve_outcomes_yf(signals: list[dict], horizon_days: int) -> int:
 
 
 def extract_score(s: dict) -> float | None:
-    for k in ("score", "finpilot_score", "composite_score", "strength"):
+    for k in ("finpilot_score", "composite_score", "score", "strength"):
         v = s.get(k)
         if v is None:
             continue

@@ -150,6 +150,50 @@ DEFAULT_FEATURE_SPECS: list[FeatureSpec] = [
         scaler="minmax",
         weight=1.5,  # Sprint 16: boosted — these are now dynamically simulated
     ),
+    # INT-6: Qlib Alpha158-inspired feature group
+    # 25 new features: ROC series (5), STD series (4), multi-period RSI (4),
+    # price-volume correlation (3), candlestick features (5), extended EMA ratios (4).
+    # required=False: training continues without these if data_loader
+    # doesn't call calculate_alpha158_features().
+    FeatureSpec(
+        name="alpha158",
+        columns=[
+            # Rate of Change series
+            "roc_5",
+            "roc_10",
+            "roc_20",
+            "roc_30",
+            "roc_60",
+            # Rolling volatility series
+            "std_5",
+            "std_10",
+            "std_20",
+            "std_30",
+            # Multi-period RSI
+            "rsi_5",
+            "rsi_10",
+            "rsi_20",
+            "rsi_30",
+            # Price-volume correlation
+            "corr_pv_5",
+            "corr_pv_10",
+            "corr_pv_20",
+            # Candlestick features
+            "kmid",
+            "klen",
+            "kmid2",
+            "kup",
+            "kdn",
+            # Extended EMA ratios
+            "close_ema5_ratio",
+            "close_ema10_ratio",
+            "close_ema30_ratio",
+            "close_ema60_ratio",
+        ],
+        scaler="robust",
+        required=False,  # gracefully skipped if not computed
+        weight=0.8,  # slightly downweighted until validated in backtest
+    ),
 ]
 
 

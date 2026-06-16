@@ -56,6 +56,7 @@ from api.routers import (
     scan,
     trade,
     user,
+    waitlist_signup,
     watchlist,
 )
 from core.monitoring import health_check, metrics, sentry_client
@@ -211,6 +212,18 @@ async def lifespan(app: FastAPI):
             _svc_registry.register("scheduler", healthy=False, meta={"error": str(exc)})
             _logging.getLogger(__name__).warning("Scheduler autostart failed: %s", exc)
 
+    # Load champion weights from model registry into finpilot_score (if available)
+    try:
+        from scanner.finpilot_score import load_weights  # noqa: PLC0415
+
+        loaded = load_weights()
+        if loaded:
+            _logging.getLogger(__name__).info(
+                "startup: champion weights loaded — %d keys", len(loaded)
+            )
+    except Exception as exc:
+        _logging.getLogger(__name__).debug("startup: champion weights not loaded: %s", exc)
+
     yield
 
 
@@ -337,6 +350,7 @@ app.include_router(market_data.router, prefix="/api/v1")
 app.include_router(closed_loop.router, prefix="/api/v1")
 app.include_router(research.router, prefix="/api/v1")
 app.include_router(profitcore.router, prefix="/api/v1")
+app.include_router(waitlist_signup.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health")

@@ -1,0 +1,86 @@
+{
+  "ran_at": "2026-06-12T14:17:18",
+  "n_total_barrier": 5123,
+  "n_usable": 5123,
+  "n_dropped_missing_fields": 0,
+  "dim1_source": "score (fallback)",
+  "dim2_source": "risk_reward (fallback)",
+  "hypothesis": "Dim1=momentum proxy, Dim2=volume/quality proxy. High momentum + High vol → mean-reversion risk. High momentum + Low vol → breakout candidate.",
+  "note": "Using fallback fields (score, risk_reward) because momentum_3d_pct and volume_multiple are only present in signals generated after scanner_v2 with full payload. Rerun after 200+ new signals to get proper double-sort.",
+  "best_cell": "score_mid_4-18_rr_none",
+  "worst_cell": "score_mid_4-18_rr_high_RR",
+  "grid": {
+    "score_zero_rr_none": {
+      "score_band": "zero",
+      "rr_band": "none",
+      "n": 187,
+      "win_rate": 0.4439,
+      "avg_pct": 1.074,
+      "profit_factor": 2.142
+    },
+    "score_zero_rr_normal": {
+      "score_band": "zero",
+      "rr_band": "normal",
+      "n": 832,
+      "win_rate": 0.2404,
+      "avg_pct": -0.0326,
+      "profit_factor": 0.944
+    },
+    "score_zero_rr_high_RR": {
+      "score_band": "zero",
+      "rr_band": "high_RR",
+      "n": 38,
+      "win_rate": 0.4737,
+      "avg_pct": 0.7854,
+      "profit_factor": 2.332
+    },
+    "score_low_1-3_rr_none": {
+      "score_band": "low_1-3",
+      "rr_band": "none",
+      "n": 2211,
+      "win_rate": 0.3008,
+      "avg_pct": 0.6424,
+      "profit_factor": 1.514
+    },
+    "score_low_1-3_rr_normal": {
+      "score_band": "low_1-3",
+      "rr_band": "normal",
+      "n": 1221,
+      "win_rate": 0.2662,
+      "avg_pct": 0.1234,
+      "profit_factor": 1.239
+    },
+    "score_low_1-3_rr_high_RR": {
+      "score_band": "low_1-3",
+      "rr_band": "high_RR",
+      "n": 281,
+      "win_rate": 0.3772,
+      "avg_pct": 0.6361,
+      "profit_factor": 1.908
+    },
+    "score_mid_4-18_rr_none": {
+      "score_band": "mid_4-18",
+      "rr_band": "none",
+      "n": 103,
+      "win_rate": 0.6214,
+      "avg_pct": 0.3334,
+      "profit_factor": 2.531
+    },
+    "score_mid_4-18_rr_high_RR": {
+      "score_band": "mid_4-18",
+      "rr_band": "high_RR",
+      "n": 32,
+      "win_rate": 0.1875,
+      "avg_pct": -0.3773,
+      "profit_factor": 0.632
+    },
+    "score_high_19+_rr_high_RR": {
+      "score_band": "high_19+",
+      "rr_band": "high_RR",
+      "n": 218,
+      "win_rate": 0.344,
+      "avg_pct": 0.3109,
+      "profit_factor": 1.331
+    }
+  }
+}

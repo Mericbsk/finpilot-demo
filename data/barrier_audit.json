@@ -1,0 +1,434 @@
+{
+  "ran_at": "2026-06-12T13:54:23",
+  "label_type": "barrier (TP/SL/21g)",
+  "schemas": {
+    "new_100 (score>18, composite 0-100)": {
+      "schema": "new_100 (score>18, composite 0-100)",
+      "n": 218,
+      "overall": {
+        "hit_rate_barrier": 0.344,
+        "hit_rate_t5": 0.573,
+        "expectancy_pct": 0.311,
+        "median_pct": -0.851,
+        "profit_factor": 1.331,
+        "stdev_pct": 2.811
+      },
+      "deciles": [
+        {
+          "decile": 1,
+          "score_min": 20.0,
+          "score_max": 29.0,
+          "n": 22,
+          "win_rate": 0.182,
+          "avg_pct": -0.594,
+          "median_pct": -1.178
+        },
+        {
+          "decile": 2,
+          "score_min": 31.0,
+          "score_max": 36.0,
+          "n": 22,
+          "win_rate": 0.318,
+          "avg_pct": -0.039,
+          "median_pct": -0.908
+        },
+        {
+          "decile": 3,
+          "score_min": 36.0,
+          "score_max": 42.0,
+          "n": 22,
+          "win_rate": 0.545,
+          "avg_pct": 1.257,
+          "median_pct": 1.068
+        },
+        {
+          "decile": 4,
+          "score_min": 42.0,
+          "score_max": 46.0,
+          "n": 22,
+          "win_rate": 0.318,
+          "avg_pct": -0.021,
+          "median_pct": -0.709
+        },
+        {
+          "decile": 5,
+          "score_min": 46.0,
+          "score_max": 49.0,
+          "n": 22,
+          "win_rate": 0.318,
+          "avg_pct": 0.249,
+          "median_pct": -0.925
+        },
+        {
+          "decile": 6,
+          "score_min": 49.0,
+          "score_max": 53.0,
+          "n": 22,
+          "win_rate": 0.364,
+          "avg_pct": 0.27,
+          "median_pct": -0.91
+        },
+        {
+          "decile": 7,
+          "score_min": 53.0,
+          "score_max": 55.0,
+          "n": 22,
+          "win_rate": 0.5,
+          "avg_pct": 0.977,
+          "median_pct": -0.008
+        },
+        {
+          "decile": 8,
+          "score_min": 55.0,
+          "score_max": 56.0,
+          "n": 22,
+          "win_rate": 0.318,
+          "avg_pct": 0.881,
+          "median_pct": -1.111
+        },
+        {
+          "decile": 9,
+          "score_min": 58.0,
+          "score_max": 62.0,
+          "n": 22,
+          "win_rate": 0.318,
+          "avg_pct": -0.052,
+          "median_pct": -0.851
+        },
+        {
+          "decile": 10,
+          "score_min": 62.0,
+          "score_max": 78.0,
+          "n": 20,
+          "win_rate": 0.25,
+          "avg_pct": 0.167,
+          "median_pct": -0.954
+        }
+      ],
+      "decile_lift": 0.727,
+      "permutation_p": 0.688,
+      "verdict": "NO EDGE — decile_lift=0.727<1.3 FAIL, perm_p=0.688>=0.05 FAIL"
+    },
+    "old_filter (score 0-3, filter_score)": {
+      "schema": "old_filter (score 0-3, filter_score)",
+      "n": 3713,
+      "overall": {
+        "hit_rate_barrier": 0.295,
+        "hit_rate_t5": 0.375,
+        "expectancy_pct": 0.471,
+        "median_pct": -0.71,
+        "profit_factor": 1.488,
+        "stdev_pct": 3.959
+      },
+      "deciles": [
+        {
+          "decile": 1,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 372,
+          "win_rate": 0.306,
+          "avg_pct": 0.326,
+          "median_pct": -0.588
+        },
+        {
+          "decile": 2,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 372,
+          "win_rate": 0.258,
+          "avg_pct": -0.024,
+          "median_pct": -0.46
+        },
+        {
+          "decile": 3,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 372,
+          "win_rate": 0.258,
+          "avg_pct": 0.078,
+          "median_pct": -0.444
+        },
+        {
+          "decile": 4,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 372,
+          "win_rate": 0.433,
+          "avg_pct": 1.313,
+          "median_pct": -0.853
+        },
+        {
+          "decile": 5,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 372,
+          "win_rate": 0.371,
+          "avg_pct": 0.925,
+          "median_pct": -1.107
+        },
+        {
+          "decile": 6,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 372,
+          "win_rate": 0.204,
+          "avg_pct": -0.22,
+          "median_pct": -1.133
+        },
+        {
+          "decile": 7,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 372,
+          "win_rate": 0.237,
+          "avg_pct": 0.361,
+          "median_pct": -1.279
+        },
+        {
+          "decile": 8,
+          "score_min": 1.0,
+          "score_max": 2.0,
+          "n": 372,
+          "win_rate": 0.363,
+          "avg_pct": 0.934,
+          "median_pct": -0.579
+        },
+        {
+          "decile": 9,
+          "score_min": 2.0,
+          "score_max": 2.0,
+          "n": 372,
+          "win_rate": 0.21,
+          "avg_pct": 0.155,
+          "median_pct": -1.042
+        },
+        {
+          "decile": 10,
+          "score_min": 2.0,
+          "score_max": 3.0,
+          "n": 365,
+          "win_rate": 0.312,
+          "avg_pct": 0.872,
+          "median_pct": -0.967
+        }
+      ],
+      "decile_lift": 1.058,
+      "permutation_p": 0.04,
+      "verdict": "NO EDGE — decile_lift=1.058<1.3 FAIL"
+    },
+    "old_raw (score 3-18, raw reco score)": {
+      "schema": "old_raw (score 3-18, raw reco score)",
+      "n": 135,
+      "overall": {
+        "hit_rate_barrier": 0.519,
+        "hit_rate_t5": 0.407,
+        "expectancy_pct": 0.165,
+        "median_pct": 0.435,
+        "profit_factor": 1.403,
+        "stdev_pct": 1.202
+      },
+      "deciles": [
+        {
+          "decile": 1,
+          "score_min": 3.6,
+          "score_max": 5.0,
+          "n": 14,
+          "win_rate": 0.571,
+          "avg_pct": 0.24,
+          "median_pct": 1.273
+        },
+        {
+          "decile": 2,
+          "score_min": 5.0,
+          "score_max": 6.3,
+          "n": 14,
+          "win_rate": 0.357,
+          "avg_pct": -0.018,
+          "median_pct": -0.527
+        },
+        {
+          "decile": 3,
+          "score_min": 6.3,
+          "score_max": 7.6,
+          "n": 14,
+          "win_rate": 0.643,
+          "avg_pct": 0.588,
+          "median_pct": 0.86
+        },
+        {
+          "decile": 4,
+          "score_min": 7.6,
+          "score_max": 7.6,
+          "n": 14,
+          "win_rate": 0.5,
+          "avg_pct": 0.055,
+          "median_pct": 0.065
+        },
+        {
+          "decile": 5,
+          "score_min": 7.6,
+          "score_max": 7.6,
+          "n": 14,
+          "win_rate": 0.5,
+          "avg_pct": 0.057,
+          "median_pct": 0.065
+        },
+        {
+          "decile": 6,
+          "score_min": 7.6,
+          "score_max": 9.0,
+          "n": 14,
+          "win_rate": 0.643,
+          "avg_pct": 0.512,
+          "median_pct": 0.683
+        },
+        {
+          "decile": 7,
+          "score_min": 9.0,
+          "score_max": 9.6,
+          "n": 14,
+          "win_rate": 0.857,
+          "avg_pct": 0.482,
+          "median_pct": 0.615
+        },
+        {
+          "decile": 8,
+          "score_min": 9.6,
+          "score_max": 11.0,
+          "n": 14,
+          "win_rate": 0.5,
+          "avg_pct": 0.062,
+          "median_pct": 0.016
+        },
+        {
+          "decile": 9,
+          "score_min": 11.0,
+          "score_max": 15.0,
+          "n": 14,
+          "win_rate": 0.357,
+          "avg_pct": 0.22,
+          "median_pct": -0.608
+        },
+        {
+          "decile": 10,
+          "score_min": 16.0,
+          "score_max": 18.0,
+          "n": 9,
+          "win_rate": 0.111,
+          "avg_pct": -0.946,
+          "median_pct": -1.181
+        }
+      ],
+      "decile_lift": 0.214,
+      "permutation_p": 0.941,
+      "verdict": "NO EDGE — decile_lift=0.214<1.3 FAIL, perm_p=0.941>=0.05 FAIL"
+    },
+    "all_combined": {
+      "schema": "all_combined",
+      "n": 4066,
+      "overall": {
+        "hit_rate_barrier": 0.305,
+        "hit_rate_t5": 0.386,
+        "expectancy_pct": 0.452,
+        "median_pct": -0.704,
+        "profit_factor": 1.478,
+        "stdev_pct": 3.845
+      },
+      "deciles": [
+        {
+          "decile": 1,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 407,
+          "win_rate": 0.285,
+          "avg_pct": 0.241,
+          "median_pct": -0.6
+        },
+        {
+          "decile": 2,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 407,
+          "win_rate": 0.263,
+          "avg_pct": 0.005,
+          "median_pct": -0.453
+        },
+        {
+          "decile": 3,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 407,
+          "win_rate": 0.319,
+          "avg_pct": 0.466,
+          "median_pct": -0.444
+        },
+        {
+          "decile": 4,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 407,
+          "win_rate": 0.396,
+          "avg_pct": 1.065,
+          "median_pct": -1.024
+        },
+        {
+          "decile": 5,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 407,
+          "win_rate": 0.312,
+          "avg_pct": 0.546,
+          "median_pct": -1.089
+        },
+        {
+          "decile": 6,
+          "score_min": 1.0,
+          "score_max": 1.0,
+          "n": 407,
+          "win_rate": 0.199,
+          "avg_pct": -0.241,
+          "median_pct": -1.18
+        },
+        {
+          "decile": 7,
+          "score_min": 1.0,
+          "score_max": 2.0,
+          "n": 407,
+          "win_rate": 0.327,
+          "avg_pct": 0.921,
+          "median_pct": -0.678
+        },
+        {
+          "decile": 8,
+          "score_min": 2.0,
+          "score_max": 2.0,
+          "n": 407,
+          "win_rate": 0.292,
+          "avg_pct": 0.498,
+          "median_pct": -1.031
+        },
+        {
+          "decile": 9,
+          "score_min": 2.0,
+          "score_max": 3.0,
+          "n": 407,
+          "win_rate": 0.265,
+          "avg_pct": 0.678,
+          "median_pct": -0.967
+        },
+        {
+          "decile": 10,
+          "score_min": 3.0,
+          "score_max": 78.0,
+          "n": 403,
+          "win_rate": 0.395,
+          "avg_pct": 0.344,
+          "median_pct": -0.667
+        }
+      ],
+      "decile_lift": 1.295,
+      "permutation_p": 0.705,
+      "verdict": "NO EDGE — decile_lift=1.295<1.3 FAIL, perm_p=0.705>=0.05 FAIL"
+    }
+  }
+}

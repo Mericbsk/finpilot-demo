@@ -17,9 +17,9 @@ def _reset_state(tmp_path, monkeypatch):
     monkeypatch.setenv("FINPILOT_AUDIT_LOG", str(tmp_path / "audit.jsonl"))
 
     import core.audit_log as audit_log
-    import core.pending_actions as pending_actions
-    import core.kpi_tracker as kpi_tracker
     import core.calibration as calibration
+    import core.kpi_tracker as kpi_tracker
+    import core.pending_actions as pending_actions
 
     # Reload to pick up env-redirected disk paths and clear module-level state.
     importlib.reload(audit_log)
@@ -27,9 +27,11 @@ def _reset_state(tmp_path, monkeypatch):
     importlib.reload(kpi_tracker)
     importlib.reload(calibration)
 
-    monkeypatch.setattr(
-        calibration, "_DISK_PATH", tmp_path / "calibration.json", raising=True
-    )
+    monkeypatch.setattr(calibration, "_DISK_PATH", tmp_path / "calibration.json", raising=True)
+
+    # Disable Redis so tests use only in-memory state (avoids cross-test pollution).
+    monkeypatch.setattr(kpi_tracker, "_redis_unavailable", True, raising=False)
+    monkeypatch.setattr(kpi_tracker, "_redis_client", None, raising=False)
 
     audit_log.reset_for_tests()
     pending_actions.reset_for_tests()
@@ -38,14 +40,15 @@ def _reset_state(tmp_path, monkeypatch):
     yield
 
 
-
 def _seed(symbol_prefix, count, score, won):
     """Helper: record N resolved signals via the real kpi_tracker API."""
     from core import kpi_tracker as kt
+
     for i in range(count):
         sym = f"{symbol_prefix}{i}"
         kt.record_signal(symbol=sym, direction="BUY", price=100.0, score=score, cycle=i)
         kt.record_outcome(symbol=sym, cycle=i, profit_pct=1.0 if won else -1.0)
+
 
 def test_pending_enqueue_approve_runs_applier():
     from core import pending_actions
@@ -58,9 +61,7 @@ def test_pending_enqueue_approve_runs_applier():
 
     pending_actions.register_applier("demo", applier)
 
-    entry = pending_actions.enqueue(
-        "demo", {"x": 42}, requested_by="scheduler", reason="test"
-    )
+    entry = pending_actions.enqueue("demo", {"x": 42}, requested_by="scheduler", reason="test")
     assert entry["status"] == "pending"
     assert len(pending_actions.list_pending()) == 1
 
@@ -103,8 +104,12 @@ def test_calibration_gate_promotes_first_fit():
 
     # Seed enough resolved signals to satisfy min_samples.
     for i in range(25):
-        kpi_tracker.record_signal(symbol=f"X{i}", direction="BUY", price=100.0, score=10.0 + (i % 5), cycle=i)
-        kpi_tracker.record_outcome(symbol=f"X{i}", cycle=i, profit_pct=1.0 if (i % 2 == 0) else -1.0)
+        kpi_tracker.record_signal(
+            symbol=f"X{i}", direction="BUY", price=100.0, score=10.0 + (i % 5), cycle=i
+        )
+        kpi_tracker.record_outcome(
+            symbol=f"X{i}", cycle=i, profit_pct=1.0 if (i % 2 == 0) else -1.0
+        )
 
     result = refit_with_gate(min_samples_to_promote=20)
     assert result["promoted"] is True
@@ -116,7 +121,7 @@ def test_calibration_gate_promotes_first_fit():
 
 def test_calibration_gate_rollback_on_insufficient_samples():
     from core import kpi_tracker
-    from core.calibration import _persist_model, refit_with_gate, get_calibration_model
+    from core.calibration import get_calibration_model, refit_with_gate
 
     # Seed a strong prior model first (lots of wins at high score).
     for i in range(40):
@@ -143,7 +148,7 @@ def test_calibration_gate_rollback_on_insufficient_samples():
 
 def test_calibration_gate_rollback_on_degraded_brier():
     from core import kpi_tracker
-    from core.calibration import refit_with_gate, get_calibration_model
+    from core.calibration import refit_with_gate
 
     # Seed a well-calibrated prior: high score -> wins.
     for i in range(50):

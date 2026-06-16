@@ -1,0 +1,31 @@
+{
+  "model_type": "LogisticRegression",
+  "feature_names": [
+    "score_norm",
+    "regime",
+    "rr_norm",
+    "regime_x_score"
+  ],
+  "intercept": -0.649763,
+  "coefficients": [
+    -0.323341,
+    -0.274943,
+    -0.339428,
+    1.048386
+  ],
+  "feature_importance": {
+    "score_norm": 0.1628,
+    "regime": 0.1384,
+    "rr_norm": 0.1709,
+    "regime_x_score": 0.5279
+  },
+  "n_samples": 5123,
+  "win_rate": 0.301,
+  "cv_brier_avg": 0.2094,
+  "cv_auc_avg": 0.5456,
+  "naive_brier": 0.2104,
+  "brier_lift_pct": 0.48,
+  "fitted_at": "2026-06-12T14:21:37",
+  "min_samples_to_retrain": 200,
+  "verdict": "MARGINAL"
+}

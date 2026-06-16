@@ -364,6 +364,389 @@ class TrendFollowingStrategy(Strategy):
 
 
 # ============================================
+# 📊 Systematic Strategy Classes — INT-3
+# (Awesome-Systematic-Trading inspired)
+# ============================================
+
+
+class ShortTermReversalStrategy(Strategy):
+    """Short-Term Reversal (Jegadeesh 1990 variant).
+
+    Buys 5-day losers and sells 5-day winners.
+    Academic Sharpe ~0.9. Works best on liquid large caps.
+    """
+
+    name = "ShortTermReversal"
+    description = "5-day reversal: buy recent losers, sell recent winners"
+
+    def __init__(self, params: dict[str, Any] | None = None):
+        defaults = {
+            "lookback": 5,  # days to measure recent return
+            "loss_threshold": -0.03,  # must be down at least 3% to qualify
+            "gain_threshold": 0.04,  # must be up at least 4% to sell
+            "min_volume_mult": 1.0,  # volume must be >= this × avg
+        }
+        super().__init__({**defaults, **(params or {})})
+
+    def generate_signals(self, data: pd.DataFrame, symbol: str) -> list[Signal]:
+        signals = []
+        lb = self.params["lookback"]
+        if len(data) < lb + 10:
+            return signals
+
+        df = data.copy()
+        df["ret_n"] = df["Close"].pct_change(lb)
+        df["avg_vol"] = df["Volume"].rolling(20).mean()
+
+        for i in range(lb + 10, len(df)):
+            row = df.iloc[i]
+            prev = df.iloc[i - 1]
+            date = df.index[i] if isinstance(df.index[i], datetime) else datetime.now()
+
+            # Liquidity guard
+            if (
+                df["avg_vol"].iloc[i] > 0
+                and row["Volume"] < df["avg_vol"].iloc[i] * self.params["min_volume_mult"]
+            ):
+                continue
+
+            ret = float(row["ret_n"]) if not pd.isna(row["ret_n"]) else 0.0
+
+            # BUY: sharp 5-day loser (reversal candidate)
+            if ret <= self.params["loss_threshold"]:
+                strength = min(1.0, abs(ret) / 0.10)
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.LONG,
+                        strength=strength,
+                        price=row["Close"],
+                        stop_loss=row["Close"] * 0.96,
+                        take_profit=row["Close"] * (1 - ret * 0.5),
+                    )
+                )
+
+            # SELL: sharp 5-day winner (mean reversion exit)
+            elif ret >= self.params["gain_threshold"]:
+                strength = min(1.0, ret / 0.10)
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.SHORT,
+                        strength=strength,
+                        price=row["Close"],
+                    )
+                )
+
+        return signals
+
+
+class LowVolatilityStrategy(Strategy):
+    """Low Volatility Factor Strategy (Baker, Bradley & Wurgler 2011).
+
+    Enters when 20-day realised volatility drops below threshold and
+    RSI is in a neutral range (no extreme overbought/oversold).
+    Academic Sharpe ~0.7.
+    """
+
+    name = "LowVolatility"
+    description = "Low vol factor: enter on calm vol regime + neutral RSI"
+
+    def __init__(self, params: dict[str, Any] | None = None):
+        defaults = {
+            "vol_window": 20,
+            "vol_threshold_ann": 0.20,  # annualised vol must be < 20%
+            "rsi_low": 40,
+            "rsi_high": 60,
+            "hold_days": 20,
+        }
+        super().__init__({**defaults, **(params or {})})
+
+    def generate_signals(self, data: pd.DataFrame, symbol: str) -> list[Signal]:
+        signals = []
+        w = self.params["vol_window"]
+        if len(data) < w + 10:
+            return signals
+
+        df = data.copy()
+        df["rets"] = df["Close"].pct_change()
+        df["rv_ann"] = df["rets"].rolling(w).std() * (252**0.5)
+        if "rsi" not in df.columns:
+            df["rsi"] = df["Close"].ewm(alpha=1 / 14, adjust=False).mean()
+
+        in_trade = False
+        trade_open_i = -999
+
+        for i in range(w + 10, len(df)):
+            row = df.iloc[i]
+            prev = df.iloc[i - 1]
+            date = df.index[i] if isinstance(df.index[i], datetime) else datetime.now()
+
+            rv = float(row["rv_ann"]) if not pd.isna(row["rv_ann"]) else 1.0
+            rsi_val = float(row.get("rsi", 50))
+
+            # Entry: low vol + neutral RSI
+            if (
+                not in_trade
+                and rv < self.params["vol_threshold_ann"]
+                and self.params["rsi_low"] <= rsi_val <= self.params["rsi_high"]
+            ):
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.LONG,
+                        strength=1.0 - rv / self.params["vol_threshold_ann"],
+                        price=row["Close"],
+                        stop_loss=row["Close"] * 0.95,
+                        take_profit=row["Close"] * 1.08,
+                    )
+                )
+                in_trade = True
+                trade_open_i = i
+
+            # Exit: hold_days elapsed or vol spikes
+            elif in_trade and (
+                (i - trade_open_i) >= self.params["hold_days"]
+                or rv > self.params["vol_threshold_ann"] * 1.5
+            ):
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.SHORT,
+                        strength=0.6,
+                        price=row["Close"],
+                    )
+                )
+                in_trade = False
+
+        return signals
+
+
+class MeanReversionStrategy(Strategy):
+    """Statistical Mean Reversion (price z-score vs rolling mean).
+
+    Buys when price is > 2σ below 20-day mean; sells when it reverts.
+    Academic Sharpe ~0.6.
+    """
+
+    name = "MeanReversion"
+    description = "Price z-score mean reversion: buy >2σ below mean"
+
+    def __init__(self, params: dict[str, Any] | None = None):
+        defaults = {
+            "window": 20,
+            "entry_z": -2.0,  # z-score below mean to trigger buy
+            "exit_z": 0.0,  # exit when price returns to mean
+            "stop_z": -3.5,  # hard stop at extreme deviation
+        }
+        super().__init__({**defaults, **(params or {})})
+
+    def generate_signals(self, data: pd.DataFrame, symbol: str) -> list[Signal]:
+        signals = []
+        w = self.params["window"]
+        if len(data) < w + 5:
+            return signals
+
+        df = data.copy()
+        df["mu"] = df["Close"].rolling(w).mean()
+        df["sigma"] = df["Close"].rolling(w).std()
+        df["zscore"] = (df["Close"] - df["mu"]) / df["sigma"].replace(0, 1e-9)
+
+        in_trade = False
+
+        for i in range(w + 5, len(df)):
+            row = df.iloc[i]
+            prev = df.iloc[i - 1]
+            date = df.index[i] if isinstance(df.index[i], datetime) else datetime.now()
+
+            z = float(row["zscore"]) if not pd.isna(row["zscore"]) else 0.0
+            prev_z = float(prev["zscore"]) if not pd.isna(prev["zscore"]) else 0.0
+
+            # BUY: z-score crosses entry threshold from below
+            if not in_trade and z <= self.params["entry_z"] and prev_z > self.params["entry_z"]:
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.LONG,
+                        strength=min(1.0, abs(z) / 3.0),
+                        price=row["Close"],
+                        stop_loss=row["Close"] * 0.93,
+                        take_profit=float(row["mu"]),
+                    )
+                )
+                in_trade = True
+
+            # SELL: reverted to mean or hard stop
+            elif in_trade and (z >= self.params["exit_z"] or z <= self.params["stop_z"]):
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.SHORT,
+                        strength=0.7,
+                        price=row["Close"],
+                    )
+                )
+                in_trade = False
+
+        return signals
+
+
+class DualMomentumStrategy(Strategy):
+    """Dual Momentum (Antonacci 2012).
+
+    Combines absolute momentum (vs cash / T-bills) and relative momentum
+    (best performing asset). Simplified to single-asset version: holds
+    only when 12-month return is positive AND above SPY proxy.
+    Academic Sharpe ~0.7.
+    """
+
+    name = "DualMomentum"
+    description = "Dual momentum: absolute + relative 12-month signal"
+
+    def __init__(self, params: dict[str, Any] | None = None):
+        defaults = {
+            "abs_lookback": 252,  # days for absolute momentum
+            "rel_lookback": 126,  # days for relative momentum
+            "abs_threshold": 0.0,  # must have positive 12m return
+        }
+        super().__init__({**defaults, **(params or {})})
+
+    def generate_signals(self, data: pd.DataFrame, symbol: str) -> list[Signal]:
+        signals = []
+        lb_abs = self.params["abs_lookback"]
+        if len(data) < lb_abs + 5:
+            return signals
+
+        df = data.copy()
+        df["ret_abs"] = df["Close"].pct_change(lb_abs)
+        df["ret_rel"] = df["Close"].pct_change(self.params["rel_lookback"])
+
+        in_trade = False
+
+        for i in range(lb_abs + 5, len(df)):
+            row = df.iloc[i]
+            date = df.index[i] if isinstance(df.index[i], datetime) else datetime.now()
+
+            ret_abs = float(row["ret_abs"]) if not pd.isna(row["ret_abs"]) else 0.0
+            ret_rel = float(row["ret_rel"]) if not pd.isna(row["ret_rel"]) else 0.0
+
+            # HOLD signal: both absolute and relative momentum positive
+            momentum_ok = ret_abs > self.params["abs_threshold"] and ret_rel > 0.0
+
+            if momentum_ok and not in_trade:
+                strength = min(1.0, (ret_abs + ret_rel) / 0.3)
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.LONG,
+                        strength=max(0.5, strength),
+                        price=row["Close"],
+                        stop_loss=row["Close"] * 0.92,
+                    )
+                )
+                in_trade = True
+
+            elif not momentum_ok and in_trade:
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.SHORT,
+                        strength=0.6,
+                        price=row["Close"],
+                    )
+                )
+                in_trade = False
+
+        return signals
+
+
+class JegadeeshTitmanMomentumStrategy(Strategy):
+    """12-1 Momentum Factor (Jegadeesh & Titman 1993).
+
+    Signal = 12-month return excluding the last month (avoids 1-month reversal).
+    Buys when this measure is strongly positive. Academic Sharpe ~0.8.
+    """
+
+    name = "JegadeeshTitmanMomentum"
+    description = "12-1 momentum: 12mo return minus last month (classic factor)"
+
+    def __init__(self, params: dict[str, Any] | None = None):
+        defaults = {
+            "formation_period": 252,  # 12 months in trading days
+            "skip_period": 21,  # skip last month
+            "entry_percentile": 0.7,  # enter if score > 70th pct (relative rank proxy)
+            "hold_period": 21,  # rebalance monthly
+        }
+        super().__init__({**defaults, **(params or {})})
+
+    def generate_signals(self, data: pd.DataFrame, symbol: str) -> list[Signal]:
+        signals = []
+        fp = self.params["formation_period"]
+        sp = self.params["skip_period"]
+        hold = self.params["hold_period"]
+
+        if len(data) < fp + sp + 5:
+            return signals
+
+        df = data.copy()
+        # 12-1 momentum: return from t-252 to t-21
+        df["mom12_1"] = df["Close"].shift(sp) / df["Close"].shift(fp + sp) - 1.0
+
+        in_trade = False
+        trade_open_i = -999
+
+        for i in range(fp + sp + 5, len(df)):
+            row = df.iloc[i]
+            date = df.index[i] if isinstance(df.index[i], datetime) else datetime.now()
+
+            mom = float(row["mom12_1"]) if not pd.isna(row["mom12_1"]) else 0.0
+
+            # Monthly rebalance only
+            if i - trade_open_i < hold and in_trade:
+                continue
+
+            # BUY: strong 12-1 momentum
+            if mom > 0.15:  # above 15% annualised momentum
+                if not in_trade:
+                    signals.append(
+                        Signal(
+                            date=date,
+                            symbol=symbol,
+                            direction=TradeDirection.LONG,
+                            strength=min(1.0, mom / 0.40),
+                            price=row["Close"],
+                            stop_loss=row["Close"] * 0.90,
+                            take_profit=row["Close"] * (1 + mom * 0.5),
+                        )
+                    )
+                    in_trade = True
+                    trade_open_i = i
+
+            # EXIT: momentum turned negative
+            elif mom < 0.0 and in_trade:
+                signals.append(
+                    Signal(
+                        date=date,
+                        symbol=symbol,
+                        direction=TradeDirection.SHORT,
+                        strength=0.6,
+                        price=row["Close"],
+                    )
+                )
+                in_trade = False
+
+        return signals
+
+
+# ============================================
 # 🏦 Portfolio & Position Management
 # ============================================
 
@@ -872,6 +1255,11 @@ __all__ = [
     "Strategy",
     "MomentumStrategy",
     "TrendFollowingStrategy",
+    "ShortTermReversalStrategy",
+    "LowVolatilityStrategy",
+    "MeanReversionStrategy",
+    "DualMomentumStrategy",
+    "JegadeeshTitmanMomentumStrategy",
     # Portfolio
     "Portfolio",
     # Backtest

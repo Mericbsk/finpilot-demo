@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinPilot &mdash; Full Edge Audit v2</title>
+<style>
+  :root {--bg:#0f1117;--card:#1a1d27;--border:#2a2d3e;--text:#e2e8f0;--muted:#8892a4;--accent:#6366f1;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;padding:24px;max-width:1400px;margin:0 auto}
+  h1{font-size:1.6rem;font-weight:800;margin-bottom:4px}
+  .subtitle{color:var(--muted);font-size:.875rem;margin-bottom:28px}
+  .section{margin-bottom:32px}
+  .section-title{font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+  .kpi-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+  .kpi{font-size:1.8rem;font-weight:700}
+  .kpi.green{color:var(--green)}.kpi.red{color:var(--red)}.kpi.yellow{color:var(--yellow)}.kpi.neutral{color:var(--text)}
+  .badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.72rem;font-weight:700}
+  .badge.fail{background:rgba(239,68,68,.13);color:var(--red)}
+  .badge.warn{background:rgba(245,158,11,.13);color:var(--yellow)}
+  .badge.pass{background:rgba(34,197,94,.13);color:var(--green)}
+  .badge.info{background:rgba(99,102,241,.13);color:#6366f1}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  th{text-align:left;padding:9px 12px;background:rgba(255,255,255,.04);color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+  td{padding:9px 12px;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  tr.hl td{background:rgba(99,102,241,.07)}
+  tr.hl2 td{background:rgba(34,197,94,.06)}
+  .bar-w{display:flex;align-items:center;gap:6px;min-width:80px}
+  .bar{height:7px;border-radius:4px;min-width:3px}
+  .bar.g{background:var(--green)}.bar.r{background:var(--red)}.bar.y{background:var(--yellow)}
+  .verdict-box{border-radius:12px;padding:18px;margin-bottom:22px}
+  .verdict-box.fail{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.28)}
+  .verdict-box.warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.28)}
+  .verdict-box h3{font-size:.95rem;font-weight:700;margin-bottom:8px}
+  .verdict-box p{font-size:.85rem;color:var(--muted);line-height:1.65}
+  .insight-box{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.22);border-radius:12px;padding:18px;margin-bottom:22px}
+  .insight-box h3{font-size:.9rem;font-weight:700;color:var(--yellow);margin-bottom:10px}
+  .insight-box li{font-size:.85rem;color:var(--text);line-height:1.8;margin-left:18px}
+  .tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;margin-left:5px}
+  .tag.new{background:rgba(34,197,94,.15);color:var(--green)}
+  .tag.old{background:rgba(239,68,68,.15);color:var(--red)}
+  .pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}.zero{color:var(--muted)}
+  footer{margin-top:32px;padding-top:14px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+
+<h1>FinPilot &mdash; Full Edge Audit v2</h1>
+<p class="subtitle">2026-06-12 &nbsp;&middot;&nbsp; Barrier (TP/SL/21g) + T+5 + Regime Cross-Section &nbsp;&middot;&nbsp; 4,066 barrier-çözümlü sinyal</p>
+
+<div class="verdict-box fail">
+  <h3>&#9888; Genel Teşhis: TÜM ŞEMALARDA EDGE YOK veya ZAYIF</h3>
+  <p>
+    Tüm şemalar birleşik: barrier decile_lift = <strong>1.295</strong>, perm_p=0.705 &rarr; FAIL.
+    0-100 ölçek izole: decile_lift=<strong>0.727</strong>, perm_p=0.688.
+    Corr(score, return)=<strong>-0.0064</strong> (neredeyse sıfır, hafif negatif).
+    <strong>Tek pozitif sinyal:</strong> Bear rejimde Q2 skoru: wr=42.7%, avg=+1.48%.
+    Bu segment Faz 1 öncelidir. old_filter perm_p=0.04 geçiyor ancak lift=1.058 &mdash; ekonomik anlam zayıf.
+  </p>
+</div>
+
+<div class="section">
+<div class="section-title"><span class="dot"></span> Veri Durumu</div>
+<div class="grid-4">
+  <div class="card"><div class="kpi-label">Barrier Çözümlü</div><div class="kpi green">4,066</div></div>
+  <div class="card"><div class="kpi-label">Genel Win Rate</div><div class="kpi yellow">30.5%</div></div>
+  <div class="card"><div class="kpi-label">Genel Ort. Getiri</div><div class="kpi green">+0.45%</div></div>
+  <div class="card"><div class="kpi-label">Corr(skor, getiri)</div><div class="kpi red">-0.0064</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title"><span class="dot"></span> Şema Bazlı Barrier Analizi</div>
+<div class="card">
+<table>
+<thead><tr><th>Şema</th><th>n</th><th>Win Rate</th><th>Ort. Getiri</th><th>Medyan</th><th>PF</th><th>Decile Lift</th><th>Perm. p</th><th>Durum</th></tr></thead>
+<tbody>
+  <tr>
+    <td><strong>0-100 Kompozit</strong> <span class="tag new">YENİ</span></td><td>218</td>
+    <td>34.4%</td>
+    <td class="pos">+0.31%</td>
+    <td class="neg">-0.85%</td>
+    <td>1.33</td>
+    <td class="neg">0.727</td>
+    <td class="neg">0.688</td>
+    <td><span class="badge fail">NO EDGE</span></td>
+  </tr>
+  <tr>
+    <td><strong>0-3 Filtre Skoru</strong> <span class="tag old">MID</span></td><td>3,713</td>
+    <td>29.5%</td>
+    <td class="pos">+0.47%</td>
+    <td class="neg">-0.71%</td>
+    <td>1.49</td>
+    <td class="zero">1.058</td>
+    <td class="pos">0.040</td>
+    <td><span class="badge warn">ZAYIF (p&lt;0.05, lift&lt;1.3)</span></td>
+  </tr>
+  <tr>
+    <td><strong>0-18 Ham Skor</strong> <span class="tag old">ESKİ</span></td><td>135</td>
+    <td>51.9%</td>
+    <td class="pos">+0.17%</td>
+    <td class="pos">+0.43%</td>
+    <td>1.40</td>
+    <td class="neg">0.214</td>
+    <td class="neg">0.941</td>
+    <td><span class="badge warn">KARMA (wr yüksek, lift düşük)</span></td>
+  </tr>
+  <tr class="hl">
+    <td><strong>Birleşik</strong></td><td>4,066</td>
+    <td>30.5%</td>
+    <td class="pos">+0.45%</td>
+    <td class="neg">-0.70%</td>
+    <td>1.48</td>
+    <td class="zero">1.295</td>
+    <td class="neg">0.705</td>
+    <td><span class="badge warn">EŞİKTE (lift~1.3, p FAIL)</span></td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title"><span class="dot"></span> Rejim Kesit Analizi (4,066 barrier sinyal)</div>
+<div class="grid-2">
+  <div class="card">
+    <div style="font-size:.8rem;font-weight:700;margin-bottom:12px;color:#6366f1">Bull vs Bear</div>
+    <table>
+    <thead><tr><th>Rejim</th><th>n</th><th>Win Rate</th><th>Ort. Getiri</th><th>PF</th><th>Corr(s,r)</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>&#127836; Bull</td><td>2,375</td>
+        <td>29.0%</td>
+        <td class="pos">+0.18%</td>
+        <td>1.20</td>
+        <td class="pos">+0.0285</td>
+      </tr>
+      <tr class="hl2">
+        <td><strong>&#128308; Bear</strong></td><td>1,691</td>
+        <td><strong>32.6%</strong></td>
+        <td class="pos"><strong>+0.84%</strong></td>
+        <td><strong>1.81</strong></td>
+        <td class="neg">-0.0518</td>
+      </tr>
+    </tbody>
+    </table>
+    <p style="margin-top:10px;font-size:.78rem;color:var(--yellow)">Bear rejimde yüksek PF=1.81. Corr negatif &rarr; düşük/orta skor Bear'da daha iyi (geri dönüş fırsatı).</p>
+  </div>
+  <div class="card">
+    <div style="font-size:.8rem;font-weight:700;margin-bottom:12px;color:#6366f1">Skor Çeyreği &times; Rejim (en kritik tablo)</div>
+    <table>
+    <thead><tr><th>Rejim</th><th>Çeyrek</th><th>n</th><th>Win Rate</th><th>Ort. %</th><th>PF</th></tr></thead>
+    <tbody>
+      <tr><td>Bull</td><td>Q1 düşük</td><td>593</td><td>28.0%</td><td class="pos">+0.18%</td><td>1.34</td></tr>
+      <tr><td>Bull</td><td>Q2</td><td>593</td><td>33.1%</td><td class="pos">+0.38%</td><td>1.39</td></tr>
+      <tr><td>Bull</td><td>Q3</td><td>593</td><td>24.3%</td><td class="pos">+0.04%</td><td>1.04</td></tr>
+      <tr><td>Bull</td><td>Q4 yüksek</td><td>596</td><td>30.7%</td><td class="pos">+0.10%</td><td>1.11</td></tr>
+      <tr><td>Bear</td><td>Q1 düşük</td><td>422</td><td>26.8%</td><td class="pos">+0.10%</td><td>1.20</td></tr>
+      <tr class="hl2"><td><strong>Bear</strong></td><td><strong>Q2 &#11088;</strong></td><td>422</td><td><strong>42.7%</strong></td><td class="pos"><strong>+1.48%</strong></td><td><strong>2.18</strong></td></tr>
+      <tr><td>Bear</td><td>Q3</td><td>422</td><td>32.2%</td><td class="pos">+1.09%</td><td>1.92</td></tr>
+      <tr><td>Bear</td><td>Q4 yüksek</td><td>425</td><td>28.9%</td><td class="pos">+0.69%</td><td>1.56</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+<div class="insight-box">
+  <h3>&#128273; Kritik Bulgular</h3>
+  <ul>
+    <li><strong>Bear Q2 en güçlü segment:</strong> wr=42.7%, avg=+1.48%, PF=2.18 (n=422) &mdash; Bu segmenti izole etmek Faz 1'in #1 öncelidir.</li>
+    <li><strong>Bear Q4 (yüksek skor) zayıf:</strong> wr=28.9% &mdash; Momentum zirvesi = yakın dönüş riski, Bear'da da geçerli.</li>
+    <li><strong>vol_regime + sector_rs tamamen NULL:</strong> 4.066 kaydın tamamı bu alanları boş döndürüyor. Sadece June 2026 sonrası sinyallerde mevcut.</li>
+    <li><strong>Bull Q3 en kötü:</strong> wr=24.3%, PF=1.04 &mdash; "orta-yüksek skor + Bull" kombinasyonundan kaçın.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title"><span class="dot"></span> Decile Analizi &mdash; 0-100 Kompozit (n=218, barrier label)</div>
+<div class="card">
+<table>
+<thead><tr><th>Decile</th><th>Skor Aral.</th><th>n</th><th>Win Rate</th><th>Bar</th><th>Ort. %</th><th>Medyan %</th></tr></thead>
+<tbody>
+  <tr>
+    <td><strong>1</strong></td>
+    <td>20&ndash;29</td>
+    <td>22</td>
+    <td>18.2%</td>
+    <td><div class="bar-w"><div class="bar r" style="width:36px"></div></div></td>
+    <td class="neg">-0.59%</td>
+    <td class="neg">-1.18%</td>
+  </tr>
+  <tr>
+    <td><strong>2</strong></td>
+    <td>31&ndash;36</td>
+    <td>22</td>
+    <td>31.8%</td>
+    <td><div class="bar-w"><div class="bar r" style="width:63px"></div></div></td>
+    <td class="neg">-0.04%</td>
+    <td class="neg">-0.91%</td>
+  </tr>
+  <tr class="hl2">
+    <td><strong>3</strong> &#11088;</td>
+    <td>36&ndash;42</td>
+    <td>22</td>
+    <td>54.5%</td>
+    <td><div class="bar-w"><div class="bar g" style="width:109px"></div></div></td>
+    <td class="pos">+1.26%</td>
+    <td class="pos">+1.07%</td>
+  </tr>
+  <tr>
+    <td><strong>4</strong></td>
+    <td>42&ndash;46</td>
+    <td>22</td>
+    <td>31.8%</td>
+    <td><div class="bar-w"><div class="bar r" style="width:63px"></div></div></td>
+    <td class="neg">-0.02%</td>
+    <td class="neg">-0.71%</td>
+  </tr>
+  <tr>
+    <td><strong>5</strong></td>
+    <td>46&ndash;49</td>
+    <td>22</td>
+    <td>31.8%</td>
+    <td><div class="bar-w"><div class="bar r" style="width:63px"></div></div></td>
+    <td class="pos">+0.25%</td>
+    <td class="neg">-0.93%</td>
+  </tr>
+  <tr>
+    <td><strong>6</strong></td>
+    <td>49&ndash;53</td>
+    <td>22</td>
+    <td>36.4%</td>
+    <td><div class="bar-w"><div class="bar y" style="width:72px"></div></div></td>
+    <td class="pos">+0.27%</td>
+    <td class="neg">-0.91%</td>
+  </tr>
+  <tr>
+    <td><strong>7</strong></td>
+    <td>53&ndash;55</td>
+    <td>22</td>
+    <td>50.0%</td>
+    <td><div class="bar-w"><div class="bar g" style="width:100px"></div></div></td>
+    <td class="pos">+0.98%</td>
+    <td class="neg">-0.01%</td>
+  </tr>
+  <tr>
+    <td><strong>8</strong></td>
+    <td>55&ndash;56</td>
+    <td>22</td>
+    <td>31.8%</td>
+    <td><div class="bar-w"><div class="bar r" style="width:63px"></div></div></td>
+    <td class="pos">+0.88%</td>
+    <td class="neg">-1.11%</td>
+  </tr>
+  <tr>
+    <td><strong>9</strong></td>
+    <td>58&ndash;62</td>
+    <td>22</td>
+    <td>31.8%</td>
+    <td><div class="bar-w"><div class="bar r" style="width:63px"></div></div></td>
+    <td class="neg">-0.05%</td>
+    <td class="neg">-0.85%</td>
+  </tr>
+  <tr>
+    <td><strong>10</strong></td>
+    <td>62&ndash;78</td>
+    <td>20</td>
+    <td>25.0%</td>
+    <td><div class="bar-w"><div class="bar r" style="width:50px"></div></div></td>
+    <td class="pos">+0.17%</td>
+    <td class="neg">-0.95%</td>
+  </tr>
+</tbody>
+</table>
+<p style="margin-top:10px;font-size:.78rem;color:var(--yellow)">n=218 küçük örneklem. Decile 3 (skor 36-42) = 54.5% wr en yüksek. Decile 10 (yüksek skor) = 25.0% wr en düşük.</p>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title"><span class="dot"></span> Sonraki Adımlar (Öncelik Sırası)</div>
+<div class="grid-3">
+  <div class="card">
+    <div class="kpi-label">FAZ 1 &mdash; Hemen (P1)</div>
+    <ul style="font-size:.82rem;line-height:1.9;padding-left:16px;margin-top:8px">
+      <li><strong>Bear + Q2 Filtresi:</strong> Sadece Bear rejimde orta skor bandında al &rarr; expected wr=42.7%</li>
+      <li><strong>Yüksek skor suppression:</strong> Decile 10 (62+) pozisyon boyutunu yarıya indir</li>
+      <li><strong>vol_regime kaydı:</strong> June+ sinyaller yazılıyor &mdash; ilerleyen analizde mevcut olacak</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="kpi-label">FAZ 1 &mdash; Veri Birikmesi (P1.5)</div>
+    <ul style="font-size:.82rem;line-height:1.9;padding-left:16px;margin-top:8px">
+      <li>Yang-Zhang vol ile TP/SL hesapla (ATR yerine)</li>
+      <li>Double-sort momentum x turnover segment analizi</li>
+      <li>Walk-forward weight optimizer (altyapı hazır)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="kpi-label">FAZ 2 &mdash; Edge Kanıtı Sonrası</div>
+    <ul style="font-size:.82rem;line-height:1.9;padding-left:16px;margin-top:8px">
+      <li>Meta-labeling XGBoost (core/calibration.py yükseltme)</li>
+      <li>SJM + Hurst rejim tespiti</li>
+      <li>Black-Litterman portföy çerçevesi</li>
+      <li style="color:var(--red)">OFI/Order Book: L2 veri yok &mdash; REDDET</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title"><span class="dot"></span> Uygulanan Değişiklikler (Bu Oturum)</div>
+<div class="card">
+<table>
+<thead><tr><th>Değişiklik</th><th>Dosya</th><th>Etki</th><th>Durum</th></tr></thead>
+<tbody>
+  <tr><td>finpilot_score write-back</td><td>api/routers/scan.py</td><td>Yeni sinyallerden finpilot_score DB'ye yazılıyor</td><td><span class="badge pass">&#10003; Uygulandı</span></td></tr>
+  <tr><td>extract_score öncelikleri</td><td>scripts/profitcore_audit.py</td><td>Audit composite_score'u score yerine okuyor</td><td><span class="badge pass">&#10003; Uygulandı</span></td></tr>
+  <tr><td>resolve_open_signals.py</td><td>scripts/ (yeni)</td><td>T+5 + barrier ikili etiket; 4.566 sinyal çözüldü</td><td><span class="badge pass">&#10003; Çalıştı</span></td></tr>
+  <tr><td>Scheduler haftalık job</td><td>core/scheduler.py</td><td>Pzt 03:00 UTC otomatik çalışır</td><td><span class="badge pass">&#10003; Eklendi</span></td></tr>
+  <tr><td>barrier_audit.py</td><td>scripts/ (yeni)</td><td>DB tabanlı şema-izole barrier analizi</td><td><span class="badge pass">&#10003; Çalıştı</span></td></tr>
+  <tr><td>regime_cross_section.py</td><td>scripts/ (yeni)</td><td>Regime x skor kesit analizi</td><td><span class="badge pass">&#10003; Çalıştı</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<footer>
+  FinPilot Edge Audit v2 &nbsp;&middot;&nbsp; 2026-06-12 &nbsp;&middot;&nbsp; 4,066 barrier-çözümlü sinyal
+  &nbsp;&middot;&nbsp; Sonraki otomatik çalışma: Pazartesi 03:00 UTC
+  &nbsp;&middot;&nbsp; <strong>Uyarı:</strong> Seviye-2 edge kanıtlanana kadar canlı performans iddiası yok.
+</footer>
+</body>
+</html>

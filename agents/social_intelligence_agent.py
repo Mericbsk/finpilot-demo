@@ -91,9 +91,22 @@ _POSITIVE_WORDS = {
 
 
 def _simple_sentiment(texts: list[str]) -> float:
-    """Return a 0-1 sentiment score based on keyword frequency."""
+    """Return a 0-1 sentiment score using FinBERT (with keyword fallback).
+
+    INT-4: Routes through llm.finbert_provider which tries:
+      1. Local transformers FinBERT (ProsusAI/finbert)
+      2. HuggingFace Inference API (HF_API_TOKEN)
+      3. Enhanced keyword scoring (always available)
+    """
     if not texts:
         return 0.5
+    try:
+        from llm.finbert_provider import score_texts  # type: ignore[import]
+
+        return score_texts(texts)
+    except Exception:
+        pass
+    # Pure keyword fallback (original implementation)
     pos = neg = 0
     for text in texts:
         low = text.lower()

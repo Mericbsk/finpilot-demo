@@ -220,8 +220,8 @@ def _run_edge_report_job() -> None:
     scheduler dashboard can surface it.
     """
     try:
-        from scripts.profitcore_audit import run as audit_run
         from scripts.barrier_audit import run as barrier_run
+        from scripts.profitcore_audit import run as audit_run
         from scripts.regime_cross_section import run as regime_run
 
         audit_run()
@@ -924,7 +924,9 @@ def run_cycle_once(
                         import json as _json
 
                         _cfg_path = os.path.join(
-                            os.path.dirname(os.path.dirname(__file__)), "data", "scanner_config.json"
+                            os.path.dirname(os.path.dirname(__file__)),
+                            "data",
+                            "scanner_config.json",
                         )
                         existing: dict = {}
                         try:

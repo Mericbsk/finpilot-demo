@@ -231,23 +231,42 @@ class AlpacaProvider(BaseAdapter):
             return {}
 
         result: dict[str, pd.DataFrame] = {}
-        for sym in symbols:
-            try:
-                sym_bars = bars[sym]
-            except (KeyError, TypeError):
-                logger.debug("No bars returned for %s", sym)
-                continue
-
-            try:
-                df = sym_bars.df if hasattr(sym_bars, "df") else pd.DataFrame(sym_bars)
-            except Exception as exc:
-                logger.warning("Could not convert bars for %s: %s", sym, exc)
-                continue
-
-            if df.empty:
-                continue
-
-            result[sym] = _normalise_df(df)
+        # Use BarSet.df — returns a properly-named MultiIndex (symbol, timestamp) DataFrame.
+        # Accessing bars[sym] returns a list of Pydantic Bar objects; pd.DataFrame() on those
+        # produces integer columns instead of Open/High/Low/Close/Volume.
+        try:
+            all_df = bars.df
+            if isinstance(all_df.index, pd.MultiIndex):
+                for sym in symbols:
+                    try:
+                        df = all_df.loc[sym].copy()
+                        if not df.empty:
+                            result[sym] = _normalise_df(df)
+                    except KeyError:
+                        logger.debug("No bars returned for %s", sym)
+            else:
+                # Single-symbol response — shouldn't happen for multi-symbol requests
+                if symbols and not all_df.empty:
+                    result[symbols[0]] = _normalise_df(all_df.copy())
+        except Exception as exc:
+            logger.warning("BarSet.df failed (%s) — per-symbol fallback", exc)
+            for sym in symbols:
+                try:
+                    sym_bars = bars[sym]
+                    if not sym_bars:
+                        continue
+                    # Convert Pydantic Bar objects to dicts for proper column names
+                    if hasattr(sym_bars[0], "model_dump"):
+                        records = [b.model_dump() for b in sym_bars]
+                    elif hasattr(sym_bars[0], "dict"):
+                        records = [b.dict() for b in sym_bars]
+                    else:
+                        records = list(sym_bars)
+                    df = pd.DataFrame(records)
+                    if not df.empty:
+                        result[sym] = _normalise_df(df)
+                except Exception as e:
+                    logger.warning("Could not convert bars for %s: %s", sym, e)
 
         logger.debug(
             "fetch_bulk(%d symbols, %s) → %d results", len(symbols), timeframe, len(result)

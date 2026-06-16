@@ -350,8 +350,8 @@ function writeCache(data: Omit<ScannerCache, "savedAt">) {
   } catch { /* quota — skip */ }
 }
 
-/* ── Scan API caller (batches of 50) ───────────────────────── */
-const BATCH_SIZE = 50;
+/* ── Scan API caller (batches of 10) ───────────────────────── */
+const BATCH_SIZE = 10;
 
 async function scanBatch(
   symbols: string[],

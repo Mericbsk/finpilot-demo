@@ -47,15 +47,26 @@ logger = logging.getLogger(__name__)
 _SOCIAL_ENABLED = os.getenv("SOCIAL_SENTIMENT_ENABLED", "true").lower() in ("1", "true", "yes")
 
 
-def _emit(cycle_id: str, symbols: list[str], agent: str, to_state: str,
-          from_state: str | None = None, payload: dict | None = None,
-          success: bool = True, error: str | None = None) -> None:
+def _emit(
+    cycle_id: str,
+    symbols: list[str],
+    agent: str,
+    to_state: str,
+    from_state: str | None = None,
+    payload: dict | None = None,
+    success: bool = True,
+    error: str | None = None,
+) -> None:
     """Fire-and-forget wrapper around signal_events.emit_event."""
     try:
         from core.signal_events import emit_event
+
         for sym in symbols:
             emit_event(
-                cycle_id, sym, agent, to_state,
+                cycle_id,
+                sym,
+                agent,
+                to_state,
                 from_state=from_state,
                 payload=payload,
                 success=success,
@@ -146,20 +157,39 @@ def run_cycle(
                 len(scan),
                 state["top_symbols"],
             )
-            _emit(_cycle_id, symbols, "scanner", "scan_done",
-                  from_state="init",
-                  payload={"n_symbols": len(scan), "top": state["top_symbols"]})
+            _emit(
+                _cycle_id,
+                symbols,
+                "scanner",
+                "scan_done",
+                from_state="init",
+                payload={"n_symbols": len(scan), "top": state["top_symbols"]},
+            )
         else:
             state["errors"].append(f"scan: {result.error}")
             logger.error("pipeline: scan failed: %s", result.error)
-            _emit(_cycle_id, symbols, "scanner", "scan_failed",
-                  from_state="init", success=False, error=str(result.error))
+            _emit(
+                _cycle_id,
+                symbols,
+                "scanner",
+                "scan_failed",
+                from_state="init",
+                success=False,
+                error=str(result.error),
+            )
             return state  # downstream steps are meaningless without scan data
     except Exception as exc:
         state["errors"].append(f"scan: {exc}")
         logger.exception("pipeline: scan exception")
-        _emit(_cycle_id, symbols, "scanner", "scan_error",
-              from_state="init", success=False, error=str(exc))
+        _emit(
+            _cycle_id,
+            symbols,
+            "scanner",
+            "scan_error",
+            from_state="init",
+            success=False,
+            error=str(exc),
+        )
         return state
 
     if task == "scan":
@@ -175,17 +205,27 @@ def run_cycle(
             s_result = SocialIntelligenceAgent().run(s_ctx)
             if s_result.success:
                 state["social_results"] = s_result.data or {}
-                logger.info(
-                    "pipeline: social — %d symbols enriched", len(state["social_results"])
+                logger.info("pipeline: social — %d symbols enriched", len(state["social_results"]))
+                _emit(
+                    _cycle_id,
+                    top_for_social,
+                    "social_intel",
+                    "social_done",
+                    from_state="scan_done",
+                    payload={"n": len(state["social_results"])},
                 )
-                _emit(_cycle_id, top_for_social, "social_intel", "social_done",
-                      from_state="scan_done",
-                      payload={"n": len(state["social_results"])})
             else:
                 state["errors"].append(f"social: {s_result.error}")
                 logger.warning("pipeline: social failed (non-fatal): %s", s_result.error)
-                _emit(_cycle_id, top_for_social, "social_intel", "social_failed",
-                      from_state="scan_done", success=False, error=str(s_result.error))
+                _emit(
+                    _cycle_id,
+                    top_for_social,
+                    "social_intel",
+                    "social_failed",
+                    from_state="scan_done",
+                    success=False,
+                    error=str(s_result.error),
+                )
         except Exception as exc:
             state["errors"].append(f"social: {exc}")
             logger.warning("pipeline: social exception (non-fatal): %s", exc)
@@ -229,24 +269,48 @@ def run_cycle(
             if bull_result.success:
                 state["bull_cases"] = bull_result.data or {}
                 logger.info("pipeline: bull_research — %d symbols", len(state["bull_cases"]))
-                _emit(_cycle_id, top_for_debate, "bull_researcher", "bull_done",
-                      from_state="scan_done",
-                      payload={"n": len(state["bull_cases"])})
+                _emit(
+                    _cycle_id,
+                    top_for_debate,
+                    "bull_researcher",
+                    "bull_done",
+                    from_state="scan_done",
+                    payload={"n": len(state["bull_cases"])},
+                )
             else:
                 state["errors"].append(f"bull_research: {bull_result.error}")
-                _emit(_cycle_id, top_for_debate, "bull_researcher", "bull_failed",
-                      from_state="scan_done", success=False, error=str(bull_result.error))
+                _emit(
+                    _cycle_id,
+                    top_for_debate,
+                    "bull_researcher",
+                    "bull_failed",
+                    from_state="scan_done",
+                    success=False,
+                    error=str(bull_result.error),
+                )
 
             if bear_result.success:
                 state["bear_cases"] = bear_result.data or {}
                 logger.info("pipeline: bear_research — %d symbols", len(state["bear_cases"]))
-                _emit(_cycle_id, top_for_debate, "bear_researcher", "bear_done",
-                      from_state="scan_done",
-                      payload={"n": len(state["bear_cases"])})
+                _emit(
+                    _cycle_id,
+                    top_for_debate,
+                    "bear_researcher",
+                    "bear_done",
+                    from_state="scan_done",
+                    payload={"n": len(state["bear_cases"])},
+                )
             else:
                 state["errors"].append(f"bear_research: {bear_result.error}")
-                _emit(_cycle_id, top_for_debate, "bear_researcher", "bear_failed",
-                      from_state="scan_done", success=False, error=str(bear_result.error))
+                _emit(
+                    _cycle_id,
+                    top_for_debate,
+                    "bear_researcher",
+                    "bear_failed",
+                    from_state="scan_done",
+                    success=False,
+                    error=str(bear_result.error),
+                )
         except Exception as exc:
             state["errors"].append(f"bull_bear: {exc}")
             logger.warning("pipeline: bull/bear exception (non-fatal): %s", exc)

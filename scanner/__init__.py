@@ -22,7 +22,11 @@ from .evaluate import (
     evaluate_symbols_parallel,
 )
 from .indicators import add_indicators, atr, bbands, ema, macd_hist, rsi
-from .score_engine import compute_recommendation_score, compute_recommendation_strength
+from .score_engine import (
+    compute_recommendation_score,
+    compute_recommendation_strength,
+    regime_gate_mult,
+)
 from .signals import (
     analyze_price_momentum,
     build_explanation,
@@ -53,6 +57,7 @@ __all__ = [
     "signal_score_row",
     "compute_recommendation_score",
     "compute_recommendation_strength",
+    "regime_gate_mult",
     "build_explanation",
     "build_reason",
     "analyze_price_momentum",

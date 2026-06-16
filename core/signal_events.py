@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from core.database import get_sync_session
 
@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Write helpers
 # ---------------------------------------------------------------------------
+
 
 def emit_event(
     signal_id: str,
@@ -50,7 +51,7 @@ def emit_event(
     """
     try:
         payload_json = json.dumps(payload) if payload else None
-        ts = datetime.now(tz=timezone.utc).replace(tzinfo=None)  # naive UTC for SQLite
+        ts = datetime.now(tz=UTC).replace(tzinfo=None)  # naive UTC for SQLite
         with get_sync_session() as session:
             session.execute(
                 """
@@ -85,10 +86,21 @@ def emit_event(
 # Read helpers
 # ---------------------------------------------------------------------------
 
+
 def _row_to_dict(row) -> dict:
-    keys = ("id", "signal_id", "symbol", "from_state", "to_state",
-            "agent", "payload", "ts", "success", "error")
-    d = dict(zip(keys, row))
+    keys = (
+        "id",
+        "signal_id",
+        "symbol",
+        "from_state",
+        "to_state",
+        "agent",
+        "payload",
+        "ts",
+        "success",
+        "error",
+    )
+    d = dict(zip(keys, row, strict=False))
     if d.get("payload"):
         try:
             d["payload"] = json.loads(d["payload"])

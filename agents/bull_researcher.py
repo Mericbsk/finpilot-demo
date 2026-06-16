@@ -80,8 +80,7 @@ def _build_bull_prompt(symbol: str, scan: dict[str, Any], research: dict[str, An
     news_text = ""
     if news_items:
         news_text = "Son haberler:\n" + "\n".join(
-            f"- {n.get('title', '')} ({n.get('date', '')})"
-            for n in news_items
+            f"- {n.get('title', '')} ({n.get('date', '')})" for n in news_items
         )
 
     return (
@@ -108,8 +107,6 @@ class BullResearcherAgent(BaseAgent):
             from llm.base import LLMMessage, LLMRole
         except ImportError as exc:
             return AgentResult(agent=self.name, success=False, error=f"LLM unavailable: {exc}")
-
-        import json as _json
 
         router = get_router()
         results: dict[str, Any] = {}

@@ -32,6 +32,7 @@ def get_graph() -> None:  # type: ignore[return]
     Use ``core.pipeline.run_cycle`` instead.
     """
     import warnings
+
     warnings.warn(
         "get_graph() is deprecated. Use core.pipeline.run_cycle() instead.",
         DeprecationWarning,

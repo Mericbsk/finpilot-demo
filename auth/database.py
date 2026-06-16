@@ -46,9 +46,11 @@ class Database:
 
     def __init__(self, db_path: str | None = None):
         if db_path is None:
-            from core.config import DB_PATH
+            import os
 
-            db_path = str(DB_PATH)
+            from core.config import DATA_DIR
+
+            db_path = os.getenv("FINPILOT_DB_PATH") or str(DATA_DIR / "finpilot.db")
         self.db_path = db_path
         self._ensure_directory()
 

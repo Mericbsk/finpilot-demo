@@ -3,14 +3,22 @@
 ATR-based dynamic stop-loss, take-profit, and position sizing extracted
 from scanner/evaluate.py so it can be unit-tested and adjusted without
 touching the main evaluation pipeline.
+
+Yang-Zhang volatility estimator added 2026-06-12 (Faz 1 P1):
+  Reduces false-stop rate by using overnight gap + intraday range together,
+  as documented in Yang & Zhang (2000) and Rogers-Satchell (1991).
 """
 
 from __future__ import annotations
 
 import json
+import math
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
+
+import numpy as np
+import pandas as pd
 
 # Portfolio drawdown gate state file (resets daily)
 _DD_STATE_PATH = Path(__file__).resolve().parents[1] / "data" / "portfolio_dd_state.json"
@@ -65,6 +73,100 @@ def record_equity_snapshot(equity: float) -> None:
 
 # Suppress unused-import warnings if timedelta gets pruned by ruff later
 _ = timedelta
+
+
+# ── Yang-Zhang Volatility ─────────────────────────────────────────────────────
+
+
+def yang_zhang_vol(df: pd.DataFrame, window: int = 20, k: float = 0.34) -> float:
+    """Compute Yang-Zhang close-to-close volatility estimate (annualised daily σ).
+
+    Yang-Zhang combines three components:
+    - σ²_overnight : variance of overnight log-returns  (Close[t-1] → Open[t])
+    - σ²_openclose : variance of open-to-close log-returns
+    - σ²_rs        : Rogers-Satchell intraday variance (uses H, L, O, C)
+
+    Formula:
+        σ²_YZ = σ²_overnight + k·σ²_openclose + (1-k)·σ²_rs
+
+    The result is the *daily* σ (not annualised), matching ATR units.
+
+    Args:
+        df:     DataFrame with columns Open, High, Low, Close (sorted oldest→newest).
+        window: Number of bars to use (default 20 trading days ≈ 1 month).
+        k:      Weighting parameter (Yang-Zhang optimal ≈ 0.34).
+
+    Returns:
+        Daily volatility estimate (same units as price, i.e. σ·Close_last).
+        Falls back to ATR-proxy (0.01 × last_close) on any error.
+    """
+    try:
+        needed = ["Open", "High", "Low", "Close"]
+        for col in needed:
+            if col not in df.columns:
+                raise ValueError(f"Missing column: {col}")
+        tail = df[needed].tail(window + 1).copy()
+        if len(tail) < window + 1:
+            raise ValueError("Insufficient rows")
+        o = tail["Open"].astype(float).values
+        h = tail["High"].astype(float).values
+        lv = tail["Low"].astype(float).values
+        c = tail["Close"].astype(float).values
+
+        # Overnight returns: log(Open[t] / Close[t-1])
+        log_oc = np.log(o[1:] / c[:-1])
+        # Open-to-close returns: log(Close[t] / Open[t])
+        log_co = np.log(c[1:] / o[1:])
+        # Rogers-Satchell per-bar: log(H/C)*log(H/O) + log(L/C)*log(L/O)
+        log_ho = np.log(h[1:] / o[1:])
+        log_hc = np.log(h[1:] / c[1:])
+        log_lo = np.log(lv[1:] / o[1:])
+        log_lc = np.log(lv[1:] / c[1:])
+        rs = log_ho * log_hc + log_lo * log_lc
+
+        n = len(log_oc)
+        mu_oc = log_oc.mean()
+        mu_co = log_co.mean()
+        var_overnight = ((log_oc - mu_oc) ** 2).sum() / (n - 1)
+        var_openclose = ((log_co - mu_co) ** 2).sum() / (n - 1)
+        var_rs = rs.mean()
+
+        var_yz = var_overnight + k * var_openclose + (1.0 - k) * var_rs
+        # σ in log-return space → convert to price units via last close
+        sigma_log = math.sqrt(max(var_yz, 1e-12))
+        last_close = float(c[-1])
+        return sigma_log * last_close
+    except Exception:
+        try:
+            return 0.01 * float(df["Close"].iloc[-1])
+        except Exception:
+            return 0.0
+
+
+def calculate_risk_management_yz(
+    price: float,
+    df: pd.DataFrame,
+    momentum_score: int,
+    yz_window: int = 20,
+) -> dict[str, Any]:
+    """ATR-independent TP/SL using Yang-Zhang volatility.
+
+    Drops-in as a replacement for calculate_risk_management() when a DataFrame
+    with OHLC columns is available. The multipliers mirror the ATR version so
+    the strategy_tag tiers remain unchanged.
+
+    Args:
+        price:          Current entry price.
+        df:             Daily OHLC DataFrame (≥21 rows recommended).
+        momentum_score: 0-100 composite momentum score.
+        yz_window:      Number of bars for YZ estimation (default 20).
+
+    Returns:
+        Same dict shape as calculate_risk_management().
+    """
+    yz_val = yang_zhang_vol(df, window=yz_window)
+    # YZ already in price units (σ × last_close); treat identically to ATR
+    return calculate_risk_management(price=price, atr_val=yz_val, momentum_score=momentum_score)
 
 
 def calculate_risk_management(price: float, atr_val: float, momentum_score: int) -> dict[str, Any]:

@@ -1,118 +1,118 @@
 {
-  "ran_at": "2026-05-23T13:47:45",
+  "ran_at": "2026-06-12T13:37:42",
   "params": {
-    "days": 30,
+    "days": 365,
     "horizon": 5,
     "resolve": true
   },
   "data": {
     "live_signals": 0,
-    "archive_signals": 946,
-    "usable_rows": 402,
+    "archive_signals": 5781,
+    "usable_rows": 834,
     "skipped_no_score": 0,
-    "skipped_no_outcome": 544
+    "skipped_no_outcome": 4947
   },
   "overall": {
-    "n": 402,
-    "hit_rate": 0.368,
-    "expectancy_pct": -1.746,
-    "median_pct": -1.74,
-    "profit_factor": 0.591,
-    "stdev_pct": 9.753
+    "n": 834,
+    "hit_rate": 0.392,
+    "expectancy_pct": -0.459,
+    "median_pct": -1.413,
+    "profit_factor": 0.875,
+    "stdev_pct": 10.419
   },
   "deciles": [
     {
       "decile": 10,
-      "score_min": 73.0,
+      "score_min": 71.0,
       "score_max": 89.0,
-      "n": 41,
-      "win_rate": 0.268,
-      "avg_pct": -4.993,
-      "median_pct": -5.261
+      "n": 84,
+      "win_rate": 0.357,
+      "avg_pct": -0.225,
+      "median_pct": -3.428
     },
     {
       "decile": 9,
-      "score_min": 69.0,
-      "score_max": 73.0,
-      "n": 40,
-      "win_rate": 0.3,
-      "avg_pct": -4.834,
-      "median_pct": -4.558
+      "score_min": 66.0,
+      "score_max": 71.0,
+      "n": 83,
+      "win_rate": 0.422,
+      "avg_pct": -0.853,
+      "median_pct": -1.87
     },
     {
       "decile": 8,
-      "score_min": 64.0,
-      "score_max": 69.0,
-      "n": 40,
-      "win_rate": 0.375,
-      "avg_pct": -1.575,
-      "median_pct": -2.276
+      "score_min": 62.0,
+      "score_max": 66.0,
+      "n": 84,
+      "win_rate": 0.357,
+      "avg_pct": -2.145,
+      "median_pct": -2.671
     },
     {
       "decile": 7,
-      "score_min": 62.0,
-      "score_max": 64.0,
-      "n": 40,
-      "win_rate": 0.35,
-      "avg_pct": -1.681,
-      "median_pct": -2.195
+      "score_min": 60.0,
+      "score_max": 62.0,
+      "n": 83,
+      "win_rate": 0.361,
+      "avg_pct": -1.647,
+      "median_pct": -2.265
     },
     {
       "decile": 6,
-      "score_min": 60.0,
-      "score_max": 62.0,
-      "n": 40,
-      "win_rate": 0.35,
-      "avg_pct": -4.935,
-      "median_pct": -5.583
+      "score_min": 56.0,
+      "score_max": 60.0,
+      "n": 83,
+      "win_rate": 0.337,
+      "avg_pct": -0.692,
+      "median_pct": -2.05
     },
     {
       "decile": 5,
-      "score_min": 60.0,
-      "score_max": 60.0,
-      "n": 41,
-      "win_rate": 0.341,
-      "avg_pct": -1.783,
-      "median_pct": -1.418
-    },
-    {
-      "decile": 4,
-      "score_min": 56.0,
-      "score_max": 60.0,
-      "n": 40,
-      "win_rate": 0.225,
-      "avg_pct": -3.878,
-      "median_pct": -2.849
-    },
-    {
-      "decile": 3,
       "score_min": 51.0,
       "score_max": 56.0,
-      "n": 40,
-      "win_rate": 0.525,
-      "avg_pct": -0.265,
+      "n": 84,
+      "win_rate": 0.512,
+      "avg_pct": 2.132,
       "median_pct": 0.181
     },
     {
-      "decile": 2,
-      "score_min": 47.0,
+      "decile": 4,
+      "score_min": 3.0,
       "score_max": 51.0,
-      "n": 40,
-      "win_rate": 0.25,
-      "avg_pct": -0.677,
-      "median_pct": -1.562
+      "n": 83,
+      "win_rate": 0.361,
+      "avg_pct": 1.524,
+      "median_pct": -0.614
+    },
+    {
+      "decile": 3,
+      "score_min": 2.0,
+      "score_max": 3.0,
+      "n": 84,
+      "win_rate": 0.417,
+      "avg_pct": -1.014,
+      "median_pct": -1.366
+    },
+    {
+      "decile": 2,
+      "score_min": 2.0,
+      "score_max": 2.0,
+      "n": 83,
+      "win_rate": 0.12,
+      "avg_pct": -5.493,
+      "median_pct": -5.017
     },
     {
       "decile": 1,
       "score_min": 0.0,
-      "score_max": 47.0,
-      "n": 40,
-      "win_rate": 0.7,
-      "avg_pct": 7.241,
-      "median_pct": 3.764
+      "score_max": 2.0,
+      "n": 83,
+      "win_rate": 0.675,
+      "avg_pct": 3.818,
+      "median_pct": 1.805
     }
   ],
-  "decile_lift": 0.728,
-  "permutation_p": 0.995,
-  "verdict": "NO EDGE DETECTED \u2014 hit_rate=0.368, decile_lift=0.728<1.3 FAIL, perm_p=0.995>=0.05 FAIL, profit_factor=0.591<1.2 FAIL"
+  "decile_lift": 0.911,
+  "permutation_p": 0.379,
+  "verdict": "NO EDGE DETECTED \u2014 hit_rate=0.392, decile_lift=0.911<1.3 FAIL, perm_p=0.379>=0.05 FAIL, profit_factor=0.875<1.2 FAIL"
 }

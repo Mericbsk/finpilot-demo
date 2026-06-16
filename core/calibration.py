@@ -207,6 +207,74 @@ def calibrated_probability(score: float) -> float:
     return 0.5
 
 
+# ── Meta-labeler (Faz 1 P2) — feature-based P(win) ───────────────────────────
+_ML_MODEL_PATH = Path("data") / "meta_labeler.json"
+_ml_model: dict[str, Any] | None = None
+_ml_model_mtime: float = 0.0
+
+
+def _load_ml_model() -> dict[str, Any] | None:
+    """Load the meta-labeler JSON model, reloading on disk change."""
+    global _ml_model, _ml_model_mtime
+    try:
+        if not _ML_MODEL_PATH.exists():
+            return None
+        mtime = _ML_MODEL_PATH.stat().st_mtime
+        if _ml_model is not None and mtime == _ml_model_mtime:
+            return _ml_model
+        raw = json.loads(_ML_MODEL_PATH.read_text(encoding="utf-8"))
+        if "coefficients" not in raw or "intercept" not in raw:
+            return None
+        _ml_model = raw
+        _ml_model_mtime = mtime
+        logger.debug(
+            "meta_labeler: loaded n=%d brier=%.4f",
+            raw.get("n_samples", 0),
+            raw.get("cv_brier_avg", 0),
+        )
+        return _ml_model
+    except Exception as exc:
+        logger.debug("meta_labeler: load failed: %s", exc)
+        return None
+
+
+def calibrated_probability_ml(
+    score: float,
+    regime: bool | int | None = None,
+    risk_reward: float | None = None,
+) -> float | None:
+    """Return meta-labeler P(win) using additional features.
+
+    Falls back to None (caller should use calibrated_probability) when the
+    meta-labeler model file does not exist or hasn't been trained yet.
+
+    Args:
+        score:       Raw recommendation score (0-18 range).
+        regime:      True/1 = Bull, False/0 = Bear, None = unknown.
+        risk_reward: Risk-reward ratio of the setup (0-5 range).
+
+    Returns:
+        Probability in [0, 1] or None if meta-labeler unavailable.
+    """
+    ml = _load_ml_model()
+    if ml is None:
+        return None
+    try:
+        coef = ml["coefficients"]
+        intercept = float(ml["intercept"])
+        score_norm = min(float(score) / 18.0, 1.0)
+        reg = 0.5 if regime is None else (1.0 if regime in (True, 1) else 0.0)
+        rr_norm = min(float(risk_reward or 0), 5.0) / 5.0
+        regime_x_score = reg * score_norm
+        x = [score_norm, reg, rr_norm, regime_x_score]
+        dot = sum(xi * ci for xi, ci in zip(x, coef, strict=False)) + intercept
+        p = 1.0 / (1.0 + (2.718281828 ** (-dot)))
+        return round(float(p), 4)
+    except Exception as exc:
+        logger.debug("meta_labeler: predict failed: %s", exc)
+        return None
+
+
 def get_calibration_model() -> dict[str, Any] | None:
     """Return the current fitted calibration model (None if not fitted)."""
     return _load_model()
@@ -462,7 +530,7 @@ def refit_with_gate(
                 reg = ModelRegistry()
                 champion = reg.get_champion()
                 if champion and champion.get("weights"):
-                    from scanner.finpilot_score import load_weights, set_weights  # type: ignore
+                    from scanner.finpilot_score import set_weights  # type: ignore
 
                     set_weights(champion["weights"])
                     logger.info(
@@ -578,9 +646,7 @@ def detect_drift(
 
         if p_value < p_value_threshold:
             result["drift_detected"] = True
-            result["reason"] = (
-                f"ks_drift: stat={ks_stat:.4f} p={p_value:.4f} < {p_value_threshold}"
-            )
+            result["reason"] = f"ks_drift: stat={ks_stat:.4f} p={p_value:.4f} < {p_value_threshold}"
             logger.warning(
                 "calibration: score distribution drift detected — KS=%.4f p=%.4f",
                 ks_stat,

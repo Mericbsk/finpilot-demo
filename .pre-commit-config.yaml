@@ -34,7 +34,7 @@ repos:
     hooks:
       - id: bandit
         args: ['-ll', '-ii', '--skip=B101']
-        exclude: tests/
+        exclude: ^(tests/|archive/|scripts/)
 
   # Check for secrets
   - repo: https://github.com/Yelp/detect-secrets

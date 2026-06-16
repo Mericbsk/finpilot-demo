@@ -14,17 +14,15 @@ calculate_dynamic_position(price, stop_loss, account_equity, ...)
 
 from __future__ import annotations
 
-import math
 from typing import Any
 
-
 # ── Default account config ────────────────────────────────────────────────────
-DEFAULT_EQUITY = 10_000.0      # Fallback account equity if none provided
-MAX_RISK_PCT = 0.02            # Maximum 2% of equity at risk per trade
-MIN_RISK_PCT = 0.005           # Minimum 0.5% of equity at risk per trade
-MAX_POSITION_PCT = 0.15        # Max 15% of equity in a single position
-PORTFOLIO_HEAT_MAX = 0.06      # Stop adding positions once >6% total portfolio at risk
-DEFAULT_KELLY_FRAC = 0.25      # Conservative half-Kelly fraction
+DEFAULT_EQUITY = 10_000.0  # Fallback account equity if none provided
+MAX_RISK_PCT = 0.02  # Maximum 2% of equity at risk per trade
+MIN_RISK_PCT = 0.005  # Minimum 0.5% of equity at risk per trade
+MAX_POSITION_PCT = 0.15  # Max 15% of equity in a single position
+PORTFOLIO_HEAT_MAX = 0.06  # Stop adding positions once >6% total portfolio at risk
+DEFAULT_KELLY_FRAC = 0.25  # Conservative half-Kelly fraction
 
 
 def _clamp(val: float, lo: float, hi: float) -> float:
@@ -171,9 +169,7 @@ def calculate_dynamic_position(
         else:
             vol_scale = 1.0
 
-        final_risk_pct = _clamp(
-            adjusted_risk_pct * vol_scale, MIN_RISK_PCT, MAX_RISK_PCT
-        )
+        final_risk_pct = _clamp(adjusted_risk_pct * vol_scale, MIN_RISK_PCT, MAX_RISK_PCT)
 
         # ── Compute shares ────────────────────────────────────────────────
         risk_dollars = account_equity * final_risk_pct
@@ -188,14 +184,16 @@ def calculate_dynamic_position(
         notional = shares * price
         actual_risk = shares * risk_per_share
 
-        out.update({
-            "shares": shares,
-            "notional": round(notional, 2),
-            "risk_amount": round(actual_risk, 2),
-            "risk_pct": round(actual_risk / account_equity * 100, 3),
-            "position_pct": round(notional / account_equity * 100, 2),
-            "sizing_method": "kelly+regime+vol-norm",
-        })
+        out.update(
+            {
+                "shares": shares,
+                "notional": round(notional, 2),
+                "risk_amount": round(actual_risk, 2),
+                "risk_pct": round(actual_risk / account_equity * 100, 3),
+                "position_pct": round(notional / account_equity * 100, 2),
+                "sizing_method": "kelly+regime+vol-norm",
+            }
+        )
 
     except Exception:
         pass
@@ -246,10 +244,7 @@ def calculate_portfolio_metrics(
     # Diversification score: 100 if single position, decreases with concentration
     # Simple Herfindahl-Hirschman Index (HHI) proxy
     if total_notional > 0:
-        weights = [
-            (float(p.get("notional", 0) or 0) / total_notional) ** 2
-            for p in positions
-        ]
+        weights = [(float(p.get("notional", 0) or 0) / total_notional) ** 2 for p in positions]
         hhi = sum(weights)  # 1/N = perfect diversification
         divers_score = int(_clamp((1 - hhi) * 100, 0, 100))
     else:
