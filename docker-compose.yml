@@ -60,6 +60,7 @@ services:
       - ./llm:/app/llm:ro
       - ./core:/app/core:ro
       - ./scanner:/app/scanner:ro
+      - ./auth:/app/auth:ro
     networks:
       - finpilot_network
     depends_on:
