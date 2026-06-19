@@ -189,14 +189,28 @@ async function performAuthorizedRequest(
 }
 
 async function refreshStoredSession(session: StoredAuthSession): Promise<StoredAuthSession | null> {
-  const response = await getBaseFetch()("/py-api/auth/refresh", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: session.refreshToken }),
-  });
+  let response: Response;
+  try {
+    response = await getBaseFetch()("/py-api/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: session.refreshToken }),
+    });
+  } catch {
+    // Ağ hatası (container henüz hazır değil, bilgisayar uyku'dan döndü vs.)
+    // localStorage'ı SİLME — token hâlâ geçerli olabilir, bir sonraki istekte tekrar dener.
+    return null;
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    // Refresh token gerçekten geçersiz/süresi dolmuş → oturumu kapat
+    clearStoredSession();
+    return null;
+  }
 
   if (!response.ok) {
-    clearStoredSession();
+    // 5xx, 502, 503 vb. — sunucu/container geçici hatası.
+    // localStorage'ı SİLME — bir sonraki istekte tekrar refresh denenecek.
     return null;
   }
 

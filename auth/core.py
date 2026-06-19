@@ -57,7 +57,9 @@ class AuthConfig:
     # Eksikse uygulama başlatılmaz (fail-fast). Production'da mutlaka güçlü anahtar kullanılmalıdır.
     secret_key: str = field(default_factory=lambda: _require_secret_key())
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 60 * 24  # 24 hours
+    access_token_expire_minutes: int = (
+        60 * 24 * 30
+    )  # 30 days — bilgisayar uyku/restart sonrası oturum korunur
     refresh_token_expire_days: int = 30
 
     # Password Settings
