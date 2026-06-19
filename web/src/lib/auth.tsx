@@ -127,12 +127,15 @@ export function readStoredSession(): StoredAuthSession | null {
 export function writeStoredSession(session: StoredAuthSession) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  // apiFetch (lib/api.ts) reads "finpilot_token" — keep them in sync
+  window.localStorage.setItem("finpilot_token", session.accessToken);
   dispatchAuthChange();
 }
 
 export function clearStoredSession() {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  window.localStorage.removeItem("finpilot_token");
   dispatchAuthChange();
 }
 
