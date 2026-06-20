@@ -17,6 +17,7 @@ redundant yfinance calls during scanner cycles.
 from __future__ import annotations
 
 import logging
+import os
 import time
 from typing import Any
 
@@ -42,7 +43,7 @@ _FEATURE_CACHE: dict[str, dict[str, Any]] = {}
 _CACHE_TTL = 3600.0  # seconds
 
 
-def _fetch_returns(ticker: str, period: str = "3mo") -> "pd.Series | None":  # type: ignore[name-defined]
+def _fetch_returns(ticker: str, period: str = "3mo") -> Any:
     """Return a pandas Series of daily close prices, or None on failure."""
     try:
         import yfinance as yf  # type: ignore[import]
@@ -87,8 +88,6 @@ def compute_vol_regime(symbol: str) -> int:
     if close is None or len(close) < 21:
         return 1
 
-    import numpy as np  # noqa: PLC0415
-
     daily_rets = close.pct_change().dropna()
     if len(daily_rets) < 20:
         return 1
@@ -101,10 +100,59 @@ def compute_vol_regime(symbol: str) -> int:
     return 2
 
 
-def get_alpha_features(symbol: str, sector: str | None = None) -> dict[str, Any]:
-    """Return cached ``sector_rs`` and ``vol_regime`` for a symbol.
+# ─── Float / Short squeeze factor ───────────────────────────────────────────
+# Low float + high short interest = squeeze fuel. This data is already fetched
+# from yfinance for display (api/routers/market_data.py) but never reached the
+# scoring engine. The factor is a normalised 0.0–1.0 squeeze-potential score.
+#
+# Reference float pivot: 50M shares (below this, supply is tight enough to
+# matter). Reference short-interest pivot: 20% of float (above this, covering
+# pressure can drive >30% moves).
+_SQUEEZE_FLOAT_PIVOT: float = 50e6
+_SQUEEZE_SHORT_PIVOT: float = 0.20
 
-    Uses a 1-hour in-memory cache to avoid redundant fetches.
+
+def compute_squeeze_factor(symbol: str) -> float:
+    """Return a 0.0–1.0 short-squeeze potential score for ``symbol``.
+
+    Combines two yfinance fundamentals:
+      * ``shortPercentOfFloat`` — short interest as a fraction of float.
+      * ``floatShares`` — tradable share count (lower = tighter supply).
+
+    The two components are equally weighted. Returns 0.0 when the
+    fundamentals are unavailable (the factor is then a no-op in scoring).
+    """
+    try:
+        import yfinance as yf  # noqa: PLC0415
+
+        info = yf.Ticker(symbol).info or {}
+    except Exception as exc:
+        logger.debug("features: squeeze info(%s) failed: %s", symbol, exc)
+        return 0.0
+
+    short_pct = info.get("shortPercentOfFloat")
+    float_shares = info.get("floatShares")
+
+    # Short-interest component: scales 0→1 as short% rises toward the pivot.
+    short_comp = 0.0
+    if isinstance(short_pct, int | float) and short_pct > 0:
+        short_comp = min(1.0, float(short_pct) / _SQUEEZE_SHORT_PIVOT)
+
+    # Float-tightness component: scales 1→0 as float rises toward the pivot.
+    float_comp = 0.0
+    if isinstance(float_shares, int | float) and float_shares > 0:
+        float_comp = max(0.0, 1.0 - float(float_shares) / _SQUEEZE_FLOAT_PIVOT)
+
+    squeeze = 0.5 * short_comp + 0.5 * float_comp
+    return round(max(0.0, min(1.0, squeeze)), 4)
+
+
+def get_alpha_features(symbol: str, sector: str | None = None) -> dict[str, Any]:
+    """Return cached ``sector_rs``, ``vol_regime`` and ``squeeze_factor``.
+
+    Uses a 1-hour in-memory cache to avoid redundant fetches. The squeeze
+    factor is only computed when ``FINPILOT_ENABLE_SQUEEZE_FACTOR=1`` so the
+    extra yfinance ``.info`` call is skipped while the factor is disabled.
     """
     now = time.time()
     cache_key = f"{symbol}:{sector or ''}"
@@ -115,10 +163,19 @@ def get_alpha_features(symbol: str, sector: str | None = None) -> dict[str, Any]
     sector_rs = compute_sector_rs(sector or "") if sector else 0.0
     vol_regime = compute_vol_regime(symbol)
 
+    squeeze_factor = 0.0
+    if os.environ.get("FINPILOT_ENABLE_SQUEEZE_FACTOR", "0") == "1":
+        squeeze_factor = compute_squeeze_factor(symbol)
+
     entry: dict[str, Any] = {
         "sector_rs": sector_rs,
         "vol_regime": vol_regime,
+        "squeeze_factor": squeeze_factor,
         "ts": now,
     }
     _FEATURE_CACHE[cache_key] = entry
-    return {"sector_rs": sector_rs, "vol_regime": vol_regime}
+    return {
+        "sector_rs": sector_rs,
+        "vol_regime": vol_regime,
+        "squeeze_factor": squeeze_factor,
+    }

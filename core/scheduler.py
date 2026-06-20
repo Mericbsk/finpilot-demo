@@ -1309,6 +1309,40 @@ def start_scheduler(
             name="FinPilot Edge Report (Mon 04:00 UTC)",
         )
 
+        # Always-on (env-gated): SEC EDGAR catalyst cache refresh every 6h.
+        # No-op unless FINPILOT_ENABLE_EDGAR_CATALYST=1. Pre-populates
+        # data/catalyst_cache.json so the scanner hot path never hits SEC.
+        def _catalyst_refresh_wrapper() -> None:
+            from scanner.catalyst import edgar_enabled, refresh_catalyst_cache
+
+            if not edgar_enabled():
+                return
+            refresh_catalyst_cache(list(symbols))
+
+        _scheduler_instance.add_job(
+            _make_watchdog_job("catalyst_refresh", _catalyst_refresh_wrapper),
+            trigger=IntervalTrigger(hours=6),
+            id="finpilot_catalyst_refresh",
+            name="FinPilot EDGAR Catalyst Refresh (every 6h)",
+        )
+
+        # Always-on (env-gated): FRED macro regime refresh, daily 12:00 UTC.
+        # No-op unless FINPILOT_ENABLE_FRED_MACRO=1 and FRED_API_KEY is set.
+        # FRED series update once per business day, so daily cadence suffices.
+        def _macro_refresh_wrapper() -> None:
+            from core.macro_regime import fred_enabled, refresh_macro_regime
+
+            if not fred_enabled():
+                return
+            refresh_macro_regime()
+
+        _scheduler_instance.add_job(
+            _make_watchdog_job("macro_refresh", _macro_refresh_wrapper),
+            trigger=CronTrigger(hour=12, minute=0, timezone="UTC"),
+            id="finpilot_macro_refresh",
+            name="FinPilot FRED Macro Refresh (daily 12:00 UTC)",
+        )
+
         _scheduler_instance.start()
         logger.info(
             "Scheduler başlatıldı — %d dakikada bir, semboller: %s",

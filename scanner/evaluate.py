@@ -258,12 +258,23 @@ def evaluate_symbol(
         # Sprint 15: Sector RS + vol regime alpha features
         sector_rs = 0.0
         vol_regime_val = 1
+        squeeze_factor = 0.0
         try:
             from scanner.features import get_alpha_features  # noqa: PLC0415
 
             alpha = get_alpha_features(symbol)
             sector_rs = alpha.get("sector_rs", 0.0)
             vol_regime_val = alpha.get("vol_regime", 1)
+            squeeze_factor = alpha.get("squeeze_factor", 0.0)
+        except Exception:
+            pass
+
+        # SEC EDGAR catalyst factor (env-gated, reads from cache — hot-path safe)
+        catalyst_factor = 0.0
+        try:
+            from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
+
+            catalyst_factor = compute_catalyst_factor(symbol)
         except Exception:
             pass
 
@@ -280,6 +291,8 @@ def evaluate_symbol(
                 "price_momentum": bool(price_momentum),
                 "trend_strength": bool(trend_strength),
                 "is_premium_symbol": bool(is_premium_symbol),
+                "squeeze_factor": float(squeeze_factor),
+                "catalyst_factor": float(catalyst_factor),
             }
         )
         _gate_mult = regime_gate_mult(bool(regime), _composite_score)

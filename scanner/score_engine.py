@@ -7,6 +7,7 @@ it can be unit-tested and modified independently of the signal pipeline.
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,43 @@ logger = logging.getLogger(__name__)
 # (profitcore_audit 2026-05-23 showed inverted decile lift; removing subjective
 # components is the first step in the simplification plan.)
 MAX_RECO_SCORE: float = 18.0
+
+# ── Float/Short squeeze factor (env-gated, default OFF) ──────────────────────
+# Additive 0.0–1.0 squeeze potential (scanner.features.compute_squeeze_factor)
+# scaled by this weight. Disabled by default so live scoring is unchanged until
+# component_ablation validates marginal lift in the >30% move bucket.
+_SQUEEZE_WEIGHT: float = 1.5
+
+
+def _squeeze_enabled() -> bool:
+    return os.environ.get("FINPILOT_ENABLE_SQUEEZE_FACTOR", "0") == "1"
+
+
+# ── SEC EDGAR catalyst factor (env-gated, default OFF) ───────────────────────
+# Signed -1.0..1.0 catalyst score (scanner.catalyst.compute_catalyst_factor):
+# 8-K/Form4 push positive, S-1/424B offerings push negative. Scaled by this
+# weight. Disabled by default; validate with component_ablation before enabling.
+_CATALYST_WEIGHT: float = 1.5
+
+
+def _catalyst_enabled() -> bool:
+    return os.environ.get("FINPILOT_ENABLE_EDGAR_CATALYST", "0") == "1"
+
+
+def _macro_mult() -> float:
+    """Return the FRED macro multiplier for the new factors (1.0 when disabled).
+
+    Dampens squeeze/catalyst additive terms in a risk-off regime so small-cap
+    plays are sized down when the macro backdrop is hostile.
+    """
+    if os.environ.get("FINPILOT_ENABLE_FRED_MACRO", "0") != "1":
+        return 1.0
+    try:
+        from core.macro_regime import macro_factor_multiplier  # noqa: PLC0415
+
+        return macro_factor_multiplier()
+    except Exception:  # noqa: BLE001
+        return 1.0
 
 
 def compute_recommendation_score(
@@ -49,7 +87,31 @@ def compute_recommendation_score(
         sentiment_delta = (float(sentiment_score) - 0.5) * 2.0 * _SENTIMENT_WEIGHT
         score += sentiment_delta
 
+    # Float/Short squeeze factor (env-gated, default OFF). Additive 0.0–1.5.
+    # SEC EDGAR catalyst factor (env-gated, default OFF). Signed ±1.5.
+    # Both are dampened by the FRED macro multiplier in a risk-off regime.
+    if _squeeze_enabled() or _catalyst_enabled():
+        macro_mult = _macro_mult()
+        if _squeeze_enabled():
+            squeeze = float(row.get("squeeze_factor", 0.0) or 0.0)
+            score += max(0.0, min(1.0, squeeze)) * _SQUEEZE_WEIGHT * macro_mult
+        if _catalyst_enabled():
+            catalyst = float(row.get("catalyst_factor", 0.0) or 0.0)
+            score += max(-1.0, min(1.0, catalyst)) * _CATALYST_WEIGHT * macro_mult
+
     return round(score, 3)
+
+
+def effective_max_reco_score() -> float:
+    """Return the composite-score normalisation ceiling.
+
+    Kept fixed at ``MAX_RECO_SCORE`` even when the squeeze factor is enabled:
+    widening the ceiling would re-scale every signal (including those with no
+    squeeze data) and shift the calibration. Instead the squeeze factor acts as
+    a pure additive boost on the numerator — symbols without squeeze data are an
+    exact no-op, and squeeze symbols gain strength (clamped at 100).
+    """
+    return MAX_RECO_SCORE
 
 
 # ── Regime × Score-Band Gate ─────────────────────────────────────────────────
@@ -102,7 +164,7 @@ def compute_recommendation_strength(x: Any, sentiment_score: float | None = None
             score = compute_recommendation_score(x, sentiment_score=sentiment_score)
         else:
             score = float(x)
-        strength = max(0.0, min(100.0, (score / MAX_RECO_SCORE) * 100.0))
+        strength = max(0.0, min(100.0, (score / effective_max_reco_score()) * 100.0))
         return int(round(strength))
     except (TypeError, ValueError, ZeroDivisionError) as e:
         logger.debug("Signal strength calculation failed: %s", e)
