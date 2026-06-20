@@ -179,3 +179,113 @@ def get_alpha_features(symbol: str, sector: str | None = None) -> dict[str, Any]
         "vol_regime": vol_regime,
         "squeeze_factor": squeeze_factor,
     }
+
+
+# ─── Lottery / MAX fade factor (Faz 1) ──────────────────────────────────────
+# Bali-Cakici-Whitelaw (2011): stocks with high MAX (best single-day return),
+# high idiosyncratic vol, and positive return skew have systematically NEGATIVE
+# expected returns — investors overpay for lottery-like payoffs.
+#
+# The factor is 0.0–1.0 where 1.0 = maximum lottery character = FADE signal.
+# It is computed from the already-fetched df_1d so no extra network call.
+#
+# Component weights: MAX 30%, IVOL 30%, skew 25%, low-price 15%.
+# Reference caps: 15% max single-day gain, 80% annualised IVOL, 2σ skew, $50 price.
+_MAX_WINDOW: int = 21  # days for MAX / IVOL / skew window
+_LOTTERY_PRICE_CAP: float = 50.0  # above this price, lottery character diminishes
+
+
+def compute_lottery_factor(df: Any) -> float:
+    """Return 0.0–1.0 lottery-spike score from daily OHLC DataFrame.
+
+    Higher score = more lottery-like = stronger fade expectation.
+
+    Args:
+        df: Daily OHLC DataFrame with at least a ``Close`` column.
+
+    Returns:
+        0.0 when fewer than 22 daily bars are available.
+    """
+    try:
+        if not hasattr(df, "iloc") or len(df) < _MAX_WINDOW + 1 or "Close" not in df.columns:
+            return 0.0
+        close = df["Close"].iloc[-(_MAX_WINDOW + 1) :].astype(float)
+        rets = close.pct_change().dropna()
+        if len(rets) < 10:
+            return 0.0
+
+        # MAX: best single-day gain in window, normalised via 15% cap
+        max_ret = float(rets.max())
+        max_comp = min(1.0, max(0.0, max_ret / 0.15))
+
+        # IVOL: annualised daily-return std, normalised via 80% annual vol cap
+        ivol = float(rets.std() * (252**0.5))
+        ivol_comp = min(1.0, max(0.0, ivol / 0.80))
+
+        # Skewness: positive skew = right-tail lottery-like payoff
+        skew_val = float(rets.skew())
+        skew_comp = min(1.0, max(0.0, skew_val / 2.0))
+
+        # Price: lower price → more lottery character
+        last_price = float(df["Close"].iloc[-1])
+        price_comp = max(0.0, 1.0 - min(1.0, last_price / _LOTTERY_PRICE_CAP))
+
+        lottery = 0.30 * max_comp + 0.30 * ivol_comp + 0.25 * skew_comp + 0.15 * price_comp
+        return round(max(0.0, min(1.0, lottery)), 4)
+    except Exception as exc:
+        logger.debug("features: compute_lottery_factor failed: %s", exc)
+        return 0.0
+
+
+# ─── Overnight gap reversal factor (Faz 4) ──────────────────────────────────
+# Large overnight gaps (open_t / close_{t-1} − 1) create short-term
+# mean-reversion pressure (gap-and-fade). The factor is 0.0–1.0 where
+# 1.0 = extreme recent gap-up = strong reversal/fade expectation.
+#
+# Reference gap cap: 8% overnight gap → component saturates at 1.0.
+# Looks back over the last 3 trading days; blends max single gap (60%)
+# with average positive gap (40%).
+_OVERNIGHT_WINDOW: int = 3  # look-back trading days
+_OVERNIGHT_GAP_CAP: float = 0.08  # 8% gap → full factor (1.0)
+
+
+def compute_overnight_gap_factor(df: Any) -> float:
+    """Return 0.0–1.0 overnight-gap reversal pressure from daily OHLC DataFrame.
+
+    Args:
+        df: Daily OHLC DataFrame with ``Open`` and ``Close`` columns.
+
+    Returns:
+        0.0 when Open column is unavailable or fewer than 4 bars.
+    """
+    try:
+        if (
+            not hasattr(df, "iloc")
+            or len(df) < _OVERNIGHT_WINDOW + 1
+            or "Open" not in df.columns
+            or "Close" not in df.columns
+        ):
+            return 0.0
+        recent = df.iloc[-(_OVERNIGHT_WINDOW + 1) :].reset_index(drop=True)
+        gaps: list[float] = []
+        for i in range(1, len(recent)):
+            prev_close = float(recent["Close"].iloc[i - 1])
+            today_open = float(recent["Open"].iloc[i])
+            if prev_close > 0:
+                gaps.append((today_open - prev_close) / prev_close)
+
+        if not gaps:
+            return 0.0
+
+        # Only positive gaps (gap-ups) drive reversal pressure
+        max_pos_gap = max(0.0, max(gaps))
+        avg_pos_gap = sum(max(0.0, g) for g in gaps) / len(gaps)
+
+        gap_comp = min(1.0, max_pos_gap / _OVERNIGHT_GAP_CAP)
+        avg_comp = min(1.0, avg_pos_gap / (_OVERNIGHT_GAP_CAP / 2.0))
+
+        factor = 0.6 * gap_comp + 0.4 * avg_comp
+        return round(max(0.0, min(1.0, factor)), 4)
+    except Exception as exc:
+        logger.debug("features: compute_overnight_gap_factor failed: %s", exc)
+        return 0.0

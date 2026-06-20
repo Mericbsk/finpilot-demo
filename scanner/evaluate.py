@@ -44,6 +44,49 @@ STRATEGY_PARAMS = {
     "Momentum": {"min_score": 1, "rsi_low": 35, "rsi_high": 65},
 }
 
+# Faz 6: cost-label thresholds
+_COST_FLAT_PCT: float = 0.0020  # 0.20% round-trip cost assumption (retail fallback)
+_THIN_EDGE_THRESH: float = 0.003  # net EV < 0.3% → thin edge
+_DECAY_EV_THRESH: float = 0.005  # high-vol + net EV < 0.5% → edge_decay warning
+
+
+def _compute_cost_labels(
+    ev_per_trade: float,
+    ann_vol_pct: float,
+    vol_regime: int,
+    price: float,
+) -> dict[str, object]:
+    """Return Faz 6 net-return and edge-decay fields for the signal result dict.
+
+    Uses core.slippage_tracker to estimate round-trip cost when available;
+    falls back to _COST_FLAT_PCT (0.20%) otherwise.
+
+    Returns keys: net_expected_return (float %), edge_label (str).
+    """
+    cost_pct = _COST_FLAT_PCT
+    try:
+        from core.slippage_tracker import estimate_round_trip_cost  # noqa: PLC0415
+
+        cost_pct = float(estimate_round_trip_cost(price) or _COST_FLAT_PCT)
+    except Exception:
+        pass
+
+    net_ev = ev_per_trade - cost_pct
+
+    if net_ev <= 0:
+        label = "negative"
+    elif vol_regime == 2 and net_ev < _DECAY_EV_THRESH:
+        label = "edge_decay"
+    elif net_ev < _THIN_EDGE_THRESH:
+        label = "thin_edge"
+    else:
+        label = "ok"
+
+    return {
+        "net_expected_return": round(net_ev, 4),
+        "edge_label": label,
+    }
+
 
 def evaluate_symbol(
     symbol: str,
@@ -173,7 +216,11 @@ def evaluate_symbol(
         core_signal = bool(regime and direction and (score >= min_score_threshold))
         entry_ok = bool(score == 3) if core_signal else False
 
-        is_premium_symbol = symbol in ["SPY", "QQQ", "GOOGL", "NVDA", "AAPL", "MSFT"]
+        # Faz 5: is_premium_symbol removed — subjective hardcoded list had no
+        # measurable lift in scoring (score_engine never read the key; it was
+        # a no-op in the composite calculation). high_quality_signal retained
+        # as a reporting flag for UI display only.
+        is_premium_symbol = False
         # Downgrade to non-high-quality if we didn't have 200 days of history
         high_quality_signal = entry_ok and _has_full_history
 
@@ -278,6 +325,24 @@ def evaluate_symbol(
         except Exception:
             pass
 
+        # Faz 1: Lottery/MAX fade factor (pure pandas, no network call)
+        lottery_factor = 0.0
+        try:
+            from scanner.features import compute_lottery_factor  # noqa: PLC0415
+
+            lottery_factor = compute_lottery_factor(df_1d)
+        except Exception:
+            pass
+
+        # Faz 4: Overnight gap reversal factor (pure pandas, no network call)
+        overnight_gap_factor = 0.0
+        try:
+            from scanner.features import compute_overnight_gap_factor  # noqa: PLC0415
+
+            overnight_gap_factor = compute_overnight_gap_factor(df_1d)
+        except Exception:
+            pass
+
         # Regime × score-band gate (2026-06-12 barrier audit findings)
         _composite_score = compute_recommendation_strength(
             {
@@ -291,8 +356,16 @@ def evaluate_symbol(
                 "price_momentum": bool(price_momentum),
                 "trend_strength": bool(trend_strength),
                 "is_premium_symbol": bool(is_premium_symbol),
+                # Faz 3: vol_regime drives momentum weight in score_engine
+                "vol_regime": int(vol_regime_val),
                 "squeeze_factor": float(squeeze_factor),
                 "catalyst_factor": float(catalyst_factor),
+                # Faz 1/2: lottery penalty (gated by FINPILOT_ENABLE_LOTTERY_FADE)
+                "lottery_factor": float(lottery_factor),
+                # Faz 4: overnight gap reversal (gated by FINPILOT_ENABLE_OVERNIGHT_GAP)
+                "overnight_gap_factor": float(overnight_gap_factor),
+                # Faz 5: is_premium_symbol removed (was dead code — score_engine
+                # never read it). Kept as False in return dict for UI compat.
             }
         )
         _gate_mult = regime_gate_mult(bool(regime), _composite_score)
@@ -359,6 +432,8 @@ def evaluate_symbol(
             "earnings_proximity": round(earnings_prox, 4),
             "sector_rs": round(sector_rs, 4),
             "vol_regime": vol_regime_val,
+            "lottery_factor": round(lottery_factor, 4),
+            "overnight_gap_factor": round(overnight_gap_factor, 4),
             "composite_score": _composite_score,
             "regime_gate_mult": _gate_mult,
             "position_size_gated": int(risk_data["position_size"] * _gate_mult),
@@ -380,6 +455,21 @@ def evaluate_symbol(
             "dyn_regime_scale": _dyn_pos.get("regime_scale", 1.0),
             "dyn_portfolio_ok": _dyn_pos.get("portfolio_ok", True),
             "dyn_sizing_method": _dyn_pos.get("sizing_method", "fixed-fractional"),
+            # ── Faz 6: Cost-adjusted expected return + edge decay label ────
+            # net_expected_return: ev_per_trade minus estimated round-trip cost
+            # (slippage + commission). Uses core.slippage_tracker when available;
+            # falls back to 0.20% flat assumption (typical retail, low-cap).
+            # Edge decay labels warn when edge may be thin or regime-dependent:
+            #   "ok"         — net EV > 0.3% and vol is normal/low
+            #   "thin_edge"  — net EV between 0% and 0.3% (barely profitable)
+            #   "edge_decay" — high-vol regime (vol_regime==2) AND net EV < 0.5%
+            #   "negative"   — net EV ≤ 0 (expected loss after costs)
+            **_compute_cost_labels(
+                ev_per_trade=float(_risk_metrics.get("ev_per_trade") or 0.0),
+                ann_vol_pct=_ann_vol_pct,
+                vol_regime=int(vol_regime_val),
+                price=safe_float(last_price),
+            ),
         }
     except Exception as e:
         logger.error("[%s] evaluation error: %s", symbol, e)

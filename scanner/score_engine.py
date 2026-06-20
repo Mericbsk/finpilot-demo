@@ -12,10 +12,16 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Theoretical maximum composite score after premium-bonus removal
-# (profitcore_audit 2026-05-23 showed inverted decile lift; removing subjective
-# components is the first step in the simplification plan.)
-MAX_RECO_SCORE: float = 18.0
+# Theoretical maximum composite score after Faz 5 RSI/MACD demotion
+# (score weight reduced ×1.0→×0.5, max score=3 → contributes 1.5 instead of 3.0)
+# Previous MAX: 18.0 (with score×1.0). New ceiling: 16.5
+# Components: regime 2 + direction 2 + score(max 3)×0.5=1.5 + filter(max 3)×1.5=4.5
+#             + alignment_ratio(1.0)×2=2 + momentum_ratio(1.0)×2.5(low-vol)=2.5
+#             + volume_spike 0.5 + price_momentum 0.5 + trend_strength 0.5 = 16.5
+# The 0.5 reduction per good signal also means the upper suppression band
+# needs a slight downward shift: _HIGH_SCORE_THRESH from 62→58 to preserve
+# the same relative percentile cut-off in the composite 0-100 distribution.
+MAX_RECO_SCORE: float = 16.5
 
 # ── Float/Short squeeze factor (env-gated, default OFF) ──────────────────────
 # Additive 0.0–1.0 squeeze potential (scanner.features.compute_squeeze_factor)
@@ -37,6 +43,41 @@ _CATALYST_WEIGHT: float = 1.5
 
 def _catalyst_enabled() -> bool:
     return os.environ.get("FINPILOT_ENABLE_EDGAR_CATALYST", "0") == "1"
+
+
+# ── Lottery / MAX fade factor (Faz 1, env-gated, default OFF) ─────────────────
+# Subtracts 0.0–_LOTTERY_WEIGHT from composite score.
+# Bali-Cakici-Whitelaw lottery effect: high-MAX/high-IVOL/positive-skew stocks
+# have systematically NEGATIVE expected returns. Factor computed in evaluate.py
+# via scanner.features.compute_lottery_factor (pure pandas, no network call).
+#
+# Faz 2 (fade-vs-continuation): when BOTH lottery AND catalyst are enabled,
+# a strong positive catalyst_factor (genuine PEAD/news event) partially offsets
+# the lottery penalty — distinguishing a real event-continuation from a
+# noise-driven lottery spike.
+_LOTTERY_WEIGHT: float = 2.0
+
+
+def _lottery_enabled() -> bool:
+    return os.environ.get("FINPILOT_ENABLE_LOTTERY_FADE", "0") == "1"
+
+
+# ── Overnight gap reversal factor (Faz 4, env-gated, default OFF) ─────────────
+# Subtracts 0.0–_OVERNIGHT_WEIGHT from composite score.
+# Large recent overnight gap-ups create short-term mean-reversion pressure.
+# Factor computed in evaluate.py via scanner.features.compute_overnight_gap_factor.
+_OVERNIGHT_WEIGHT: float = 1.0
+
+
+def _overnight_enabled() -> bool:
+    return os.environ.get("FINPILOT_ENABLE_OVERNIGHT_GAP", "0") == "1"
+
+
+# ── Vol-regime scaled momentum weight (Faz 3) ─────────────────────────────────
+# Low-vol momentum is cleaner alpha (fewer noise-driven spikes). High-vol
+# momentum is less reliable — vol itself inflates pct-change z-scores.
+# vol_regime: 0=low (σ<15%), 1=normal (15–30%), 2=high (>30%)
+_VOL_REGIME_MOM_WEIGHTS: dict[int, float] = {0: 2.5, 1: 2.0, 2: 1.5}
 
 
 def _macro_mult() -> float:
@@ -61,20 +102,44 @@ def compute_recommendation_score(
     """Compute composite recommendation score from signal components.
 
     Args:
-        row: Dictionary with signal data
+        row: Dictionary with signal data. Recognised keys:
+             regime, direction, score, filter_score, alignment_ratio,
+             momentum_ratio, volume_spike, price_momentum, trend_strength,
+             vol_regime (Faz 3), squeeze_factor, catalyst_factor,
+             lottery_factor (Faz 1/2), overnight_gap_factor (Faz 4).
         sentiment_score: Optional 0.0-1.0 FinBERT sentiment (0.5=neutral).
                          INT-4: When provided, adds a ±0.5 sentiment boost/penalty.
 
     Returns:
-        Recommendation score (0 to ~18.0)
+        Recommendation score (0 to ~18.0). Lottery/overnight penalties can
+        push the value below 0; compute_recommendation_strength clamps at 0.
     """
     score = 0.0
     score += 2.0 if bool(row.get("regime", False)) else 0.0
     score += 2.0 if bool(row.get("direction", False)) else 0.0
-    score += float(row.get("score", 0)) * 1.0
+
+    # Faz 5: RSI/MACD/volume raw-score demoted from ×1.0 → ×0.5.
+    # These three binary checks (RSI in 30-70, volume > med×1.2, MACD hist rising)
+    # are necessary but not sufficient — they act as a confirmation filter, not
+    # the primary signal source. Reducing their weight prevents noise-driven
+    # over-scoring while keeping the gate: entry_ok still requires score==3.
+    score += float(row.get("score", 0)) * 0.5
+
+    # filter_score (volume_spike + price_momentum + trend_strength) remains at ×1.5:
+    # these are the cleaner, longer-horizon confirmations from momentum analysis.
     score += float(row.get("filter_score", 0)) * 1.5
     score += float(row.get("alignment_ratio", 0.0)) * 2.0
-    score += float(row.get("momentum_ratio", 0.0)) * 2.0
+
+    # Faz 3: vol-regime scaled momentum weight
+    # Low-vol (0): weight 2.5 — clean momentum, trust more
+    # Normal (1):  weight 2.0 — current baseline
+    # High-vol (2): weight 1.5 — vol-inflated momentum, trust less
+    # Note: use explicit None-check to avoid `0 or 1` falsy-trap.
+    _vr = row.get("vol_regime")
+    vol_regime = int(_vr) if _vr is not None else 1
+    mom_weight = _VOL_REGIME_MOM_WEIGHTS.get(vol_regime, 2.0)
+    score += float(row.get("momentum_ratio", 0.0)) * mom_weight
+
     score += 0.5 if bool(row.get("volume_spike", False)) else 0.0
     score += 0.5 if bool(row.get("price_momentum", False)) else 0.0
     score += 0.5 if bool(row.get("trend_strength", False)) else 0.0
@@ -99,6 +164,29 @@ def compute_recommendation_score(
             catalyst = float(row.get("catalyst_factor", 0.0) or 0.0)
             score += max(-1.0, min(1.0, catalyst)) * _CATALYST_WEIGHT * macro_mult
 
+    # ── Faz 1: Lottery / MAX fade penalty (env-gated, default OFF) ───────────
+    # Subtracts up to _LOTTERY_WEIGHT (2.0) for high-MAX/high-IVOL/skew stocks.
+    # Faz 2: Fade-vs-Continuation — a strong positive catalyst_factor (genuine
+    # news/PEAD event) partially offsets the lottery penalty: real event-driven
+    # continuation should not be penalised as a pure lottery fade.
+    if _lottery_enabled():
+        lottery = float(row.get("lottery_factor", 0.0) or 0.0)
+        lottery_penalty = max(0.0, min(1.0, lottery)) * _LOTTERY_WEIGHT
+        # Faz 2: catalyst relief — if catalyst > 0.3, reduce penalty by up to 50%
+        # (catalyst 0.3→0.7 maps linearly to 0%→50% penalty reduction)
+        if _catalyst_enabled():
+            catalyst = float(row.get("catalyst_factor", 0.0) or 0.0)
+            if catalyst > 0.3:
+                catalyst_relief = min(0.5, (catalyst - 0.3) / 0.8)
+                lottery_penalty *= 1.0 - catalyst_relief
+        score -= lottery_penalty
+
+    # ── Faz 4: Overnight gap reversal penalty (env-gated, default OFF) ────────
+    # Subtracts up to _OVERNIGHT_WEIGHT (1.0) for recent large gap-up setups.
+    if _overnight_enabled():
+        overnight = float(row.get("overnight_gap_factor", 0.0) or 0.0)
+        score -= max(0.0, min(1.0, overnight)) * _OVERNIGHT_WEIGHT
+
     return round(score, 3)
 
 
@@ -122,7 +210,9 @@ def effective_max_reco_score() -> float:
 # All other segments:         neutral                         → ×1.0
 _BEAR_BOOST_LOW: int = 30
 _BEAR_BOOST_HIGH: int = 55
-_HIGH_SCORE_THRESH: int = 62
+# Faz 5b: lowered from 62→58 to match new score ceiling (16.5 vs 18.0).
+# Maintains the same ~top-25% cut-off in the 0-100 composite distribution.
+_HIGH_SCORE_THRESH: int = 58
 _BEAR_BOOST_MULT: float = 1.3
 _BEAR_SUPPRESS_MULT: float = 0.5
 _BULL_SUPPRESS_MULT: float = 0.75
