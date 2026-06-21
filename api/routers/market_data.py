@@ -192,3 +192,100 @@ async def get_fundamentals(symbol: str):
     except Exception as exc:
         logger.warning("fundamentals fetch failed for %s: %s", sym, exc)
         raise HTTPException(status_code=502, detail="Fundamentals fetch failed") from exc
+
+
+# ---------------------------------------------------------------------------
+# Signal Factors  (squeeze, EDGAR catalyst, FRED macro)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/factors/{symbol}")
+async def get_signal_factors(symbol: str):
+    """Return the live signal enrichment factors for a ticker.
+
+    Reads from the in-memory / on-disk caches populated by the scanner
+    and scheduler jobs — never makes a blocking network call in the
+    hot path.
+
+    Response fields:
+      squeeze_factor   — 0.0–1.0 short-squeeze potential (float + short%)
+      catalyst_factor  — signed -1.0..1.0 (8-K/Form4 positive, S-1 negative)
+      macro_regime     — "risk_on" | "neutral" | "risk_off"
+      macro_vix        — latest CBOE VIX reading
+      macro_spread     — 10Y-2Y treasury spread
+      macro_multiplier — position-size multiplier (0.5 in risk_off, else 1.0)
+      flags_active     — which env flags are currently enabled
+    """
+    sym = symbol.upper().strip()
+    if not sym or len(sym) > 10:
+        raise HTTPException(status_code=400, detail="Invalid symbol")
+
+    import json
+    import os
+    from pathlib import Path
+
+    # ── Squeeze factor (from yfinance cache in features module) ──────────
+    squeeze = 0.0
+    squeeze_enabled = os.environ.get("FINPILOT_ENABLE_SQUEEZE_FACTOR", "0") == "1"
+    if squeeze_enabled:
+        try:
+            from scanner.features import compute_squeeze_factor  # noqa: PLC0415
+
+            squeeze = compute_squeeze_factor(sym)
+        except Exception as exc:
+            logger.debug("squeeze factor failed for %s: %s", sym, exc)
+
+    # ── Catalyst factor (from on-disk cache) ─────────────────────────────
+    catalyst = 0.0
+    catalyst_enabled = os.environ.get("FINPILOT_ENABLE_EDGAR_CATALYST", "0") == "1"
+    raw_filings: list[dict] = []
+    if catalyst_enabled:
+        try:
+            from scanner.catalyst import (  # noqa: PLC0415
+                compute_catalyst_factor,
+                fetch_recent_filings,
+            )
+
+            catalyst = compute_catalyst_factor(sym)
+            raw_filings = fetch_recent_filings(sym, days=7)
+        except Exception as exc:
+            logger.debug("catalyst factor failed for %s: %s", sym, exc)
+
+    # ── FRED macro regime (from on-disk cache) ───────────────────────────
+    macro_regime = "neutral"
+    macro_vix: float | None = None
+    macro_spread: float | None = None
+    macro_mult = 1.0
+    fred_enabled = os.environ.get("FINPILOT_ENABLE_FRED_MACRO", "0") == "1" and bool(
+        os.environ.get("FRED_API_KEY")
+    )
+    if fred_enabled:
+        try:
+            from core.macro_regime import get_macro_regime, macro_factor_multiplier  # noqa: PLC0415
+
+            macro_regime = get_macro_regime()
+            macro_mult = macro_factor_multiplier()
+            _cache = Path("data/macro_regime.json")
+            if _cache.exists():
+                _payload = json.loads(_cache.read_text(encoding="utf-8"))
+                macro_vix = _payload.get("vix")
+                macro_spread = _payload.get("spread")
+        except Exception as exc:
+            logger.debug("macro regime failed: %s", exc)
+
+    return {
+        "symbol": sym,
+        "squeeze_factor": round(squeeze, 4),
+        "catalyst_factor": round(catalyst, 4),
+        "recent_filings": raw_filings[:5],
+        "macro_regime": macro_regime,
+        "macro_vix": macro_vix,
+        "macro_spread": macro_spread,
+        "macro_multiplier": macro_mult,
+        "flags_active": {
+            "squeeze": squeeze_enabled,
+            "edgar": catalyst_enabled,
+            "fred": fred_enabled,
+        },
+        "fetched_at": datetime.now(UTC).isoformat(),
+    }

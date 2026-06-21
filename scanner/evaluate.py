@@ -432,6 +432,8 @@ def evaluate_symbol(
             "earnings_proximity": round(earnings_prox, 4),
             "sector_rs": round(sector_rs, 4),
             "vol_regime": vol_regime_val,
+            "squeeze_factor": round(squeeze_factor, 4),
+            "catalyst_factor": round(catalyst_factor, 4),
             "lottery_factor": round(lottery_factor, 4),
             "overnight_gap_factor": round(overnight_gap_factor, 4),
             "composite_score": _composite_score,

@@ -32,6 +32,7 @@ import { apiFetch } from "@/lib/api";
 import PriceChart from "@/components/PriceChart";
 import { ExplainPanel } from "@/components/ExplainPanel";
 import { ConfidenceBadge } from "@/components/dashboard/ConfidenceCard";
+import { FactorBadgeRow, MacroRegimeBanner, type FactorData, type MacroRegime } from "@/components/dashboard/FactorBadges";
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface ScanResult {
@@ -76,6 +77,9 @@ interface ScanResult {
   ann_return_pct?: number;
   ev_per_trade?: number;
   risk_data_quality?: string;
+  // New enrichment factors
+  squeeze_factor?: number;
+  catalyst_factor?: number;
   // Task 3: Dynamic position sizing
   dyn_shares?: number;
   dyn_notional?: number;
@@ -127,6 +131,9 @@ interface DisplayStock {
   dynKellyPct: number;
   dynRegimeScale: number;
   dynPortfolioOk: boolean;
+  // New enrichment factors
+  squeezeFactor: number;
+  catalystFactor: number;
 }
 
 type Preset = {
@@ -195,6 +202,8 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     dynKellyPct: r.dyn_kelly_pct ?? 0,
     dynRegimeScale: r.dyn_regime_scale ?? 1.0,
     dynPortfolioOk: r.dyn_portfolio_ok ?? true,
+    squeezeFactor: r.squeeze_factor ?? 0,
+    catalystFactor: r.catalyst_factor ?? 0,
   };
 }
 
@@ -238,6 +247,8 @@ function mockToStock(ticker: string): DisplayStock {
     dynKellyPct: 0,
     dynRegimeScale: 1.0,
     dynPortfolioOk: true,
+    squeezeFactor: 0,
+    catalystFactor: 0,
   };
 }
 
@@ -405,6 +416,7 @@ export default function ScannerPage() {
   const [minScoreFilter, setMinScoreFilter] = useState(0);
   const [currency, setCurrency] = useState("$");
   const [systemBrier, setSystemBrier] = useState<number | null>(null);
+  const [macroData, setMacroData] = useState<FactorData | null>(null);
   useEffect(() => {
     try {
       const stored = localStorage.getItem("finpilot_settings");
@@ -423,6 +435,14 @@ export default function ScannerPage() {
     fetch("/py-api/loop/calibration/stats")
       .then((r) => r.ok ? r.json() : null)
       .then((d) => { if (d?.brier != null) setSystemBrier(d.brier); })
+      .catch(() => {});
+  }, []);
+
+  /* Fetch FRED macro regime once on mount (SPY as proxy — regime is global) */
+  useEffect(() => {
+    apiFetch("/api/v1/factors/SPY")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.macro_regime) setMacroData(d as FactorData); })
       .catch(() => {});
   }, []);
 
@@ -874,6 +894,13 @@ export default function ScannerPage() {
           </h1>
           <div className="flex items-center gap-2 mt-0.5">
             {systemBrier != null && <ConfidenceBadge brier={systemBrier} />}
+            {macroData?.flags_active?.fred && (
+              <MacroRegimeBanner
+                regime={macroData.macro_regime as MacroRegime}
+                vix={macroData.macro_vix}
+                spread={macroData.macro_spread}
+              />
+            )}
             <p className="text-sm" style={{ color: C.text3 }}>
             {presets.length} preset · {totalUniqueSymbols.toLocaleString()}{" "}
             stocks
@@ -1451,15 +1478,29 @@ export default function ScannerPage() {
                             className="px-4 py-2.5 font-medium"
                             style={{ color: C.text1 }}
                           >
-                            {s.ticker}
-                            {s.fromAPI && (
-                              <span
-                                title="Scanned"
-                                style={{ color: C.green, marginLeft: 4 }}
-                              >
-                                ●
+                            <div className="flex flex-col gap-0.5">
+                              <span>
+                                {s.ticker}
+                                {s.fromAPI && (
+                                  <span
+                                    title="Scanned"
+                                    style={{ color: C.green, marginLeft: 4 }}
+                                  >
+                                    ●
+                                  </span>
+                                )}
                               </span>
-                            )}
+                              {s.fromAPI && (s.squeezeFactor > 0.35 || Math.abs(s.catalystFactor) >= 0.05) && (
+                                <FactorBadgeRow
+                                  data={{
+                                    squeeze_factor: s.squeezeFactor,
+                                    catalyst_factor: s.catalystFactor,
+                                    macro_regime: (macroData?.macro_regime ?? "neutral") as MacroRegime,
+                                    flags_active: macroData?.flags_active,
+                                  }}
+                                />
+                              )}
+                            </div>
                           </td>
                           <td
                             className="px-4 py-2.5"
@@ -1583,6 +1624,26 @@ export default function ScannerPage() {
                   </div>
                   <SignalBadge signal={selected.signal} />
                 </div>
+                {selected.fromAPI && (selected.squeezeFactor > 0.1 || Math.abs(selected.catalystFactor) >= 0.05 || macroData?.flags_active?.fred) && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <FactorBadgeRow
+                      data={{
+                        squeeze_factor: selected.squeezeFactor,
+                        catalyst_factor: selected.catalystFactor,
+                        macro_regime: (macroData?.macro_regime ?? "neutral") as MacroRegime,
+                        flags_active: macroData?.flags_active,
+                      }}
+                    />
+                    {macroData?.flags_active?.fred && (
+                      <span
+                        title={`FRED Macro: ${macroData.macro_regime} | VIX ${macroData.macro_vix?.toFixed(1)} | Position ×${macroData.macro_multiplier}`}
+                        style={{ fontSize: 10, color: C.text3, alignSelf: "center" }}
+                      >
+                        Macro ×{macroData.macro_multiplier?.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <div className="flex items-baseline gap-2 mt-2">
                   <span
                     className="text-2xl font-bold"
