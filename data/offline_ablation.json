@@ -1,0 +1,62 @@
+{
+  "n_resolved": 5123,
+  "n_win": 1542,
+  "n_loss": 3581,
+  "overall_win_rate": 30.1,
+  "score_bands": {
+    "0-9": {
+      "n": 4875,
+      "win_rate": 30.0
+    },
+    "10-19": {
+      "n": 30,
+      "win_rate": 20.0
+    },
+    "20-29": {
+      "n": 22,
+      "win_rate": 18.2
+    },
+    "30-39": {
+      "n": 32,
+      "win_rate": 37.5
+    },
+    "40-49": {
+      "n": 62,
+      "win_rate": 33.9
+    },
+    "50-59": {
+      "n": 71,
+      "win_rate": 40.8
+    },
+    "60-69": {
+      "n": 25,
+      "win_rate": 28.0
+    },
+    "70-79": {
+      "n": 6,
+      "win_rate": 33.3
+    }
+  },
+  "move_buckets": {
+    "<5": 1128,
+    "5-10": 319,
+    "10-30": 87,
+    "30-100": 8,
+    ">100": 0,
+    "loss": 3581
+  },
+  "squeeze_cohort": {
+    "low_squeeze": {
+      "n": 299,
+      "win_rate": 19.4,
+      "threshold": 0.148
+    },
+    "high_squeeze": {
+      "n": 104,
+      "win_rate": 35.6,
+      "threshold": 0.386
+    },
+    "lift": 16.2,
+    "verdict": "DIRECTIONAL"
+  }
+}
