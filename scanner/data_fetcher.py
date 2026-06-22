@@ -627,6 +627,93 @@ def _prefetch_alpaca_bulk(
         return None
 
 
+def _bulk_yf_download(
+    symbols: list[str],
+    interval: str,
+    days: int,
+    with_indicators: bool,
+) -> dict[str, pd.DataFrame]:
+    """Download all symbols for one timeframe in a single yf.download() call.
+
+    This is ~20-50× faster than calling yf.Ticker.history() per symbol because
+    it issues exactly ONE HTTP request regardless of how many tickers are
+    requested.  Used as the second fast path in prefetch_symbols_multi_timeframe
+    (after Alpaca, before per-symbol ThreadPoolExecutor fallback).
+    """
+    if not symbols:
+        return {}
+
+    period = f"{days}d"
+    try:
+        raw = yf.download(
+            symbols,
+            period=period,
+            interval=interval,
+            auto_adjust=True,
+            progress=False,
+            group_by="ticker",
+            threads=True,
+        )
+    except Exception as exc:
+        logger.warning("yf.download bulk failed for interval=%s: %s", interval, exc)
+        return {}
+
+    if raw is None or raw.empty:
+        return {}
+
+    results: dict[str, pd.DataFrame] = {}
+
+    # Single-symbol download: yfinance returns flat (non-MultiIndex) columns
+    if len(symbols) == 1 or not isinstance(raw.columns, pd.MultiIndex):
+        df = raw.copy()
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.droplevel(1)
+        df = df.dropna(how="all")
+        if "Close" not in df.columns and "Adj Close" in df.columns:
+            df = df.rename(columns={"Adj Close": "Close"})
+        if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is not None:
+            df.index = df.index.tz_convert(None)
+        if with_indicators and not df.empty:
+            try:
+                df = add_indicators(df)
+            except Exception:
+                pass
+        results[symbols[0]] = df
+        return results
+
+    # Multi-symbol: outer level of MultiIndex is the ticker
+    try:
+        tickers_in_df = raw.columns.get_level_values(0).unique().tolist()
+    except Exception as exc:
+        logger.warning("yf.download MultiIndex parse error: %s", exc)
+        return {}
+
+    for sym in symbols:
+        try:
+            if sym not in tickers_in_df:
+                results[sym] = pd.DataFrame()
+                continue
+            df = raw[sym].copy()
+            df = df.dropna(how="all")
+            if "Close" not in df.columns and "Adj Close" in df.columns:
+                df = df.rename(columns={"Adj Close": "Close"})
+            if "Close" in df.columns:
+                df = df.dropna(subset=["Close"])
+            if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is not None:
+                df.index = df.index.tz_convert(None)
+            if with_indicators and not df.empty:
+                try:
+                    df = add_indicators(df)
+                except Exception:
+                    pass
+            results[sym] = df
+        except Exception as exc:
+            logger.debug("bulk_yf_download extract failed for %s: %s", sym, exc)
+            results[sym] = pd.DataFrame()
+
+    return results
+
+
 def prefetch_symbols_multi_timeframe(
     symbols: list[str],
     timeframes: list[tuple[str, int]] | None = None,
@@ -637,8 +724,9 @@ def prefetch_symbols_multi_timeframe(
     """
     Prefetch all timeframe data for multiple symbols.
 
-    Fast path: Alpaca bulk bars (1 HTTP call per timeframe, ~3-5s for 50 symbols).
-    Fallback:  Parallel yfinance ThreadPoolExecutor (original implementation).
+    Fast path 1: Alpaca bulk bars (1 HTTP call per timeframe, ~3-5s for 50 symbols).
+    Fast path 2: yf.download() bulk (1 HTTP call per timeframe, ~5-15s for 200 symbols).
+    Fallback:    Parallel yfinance ThreadPoolExecutor (original per-symbol implementation).
 
     Returns:
         Nested dictionary: {symbol: {interval: DataFrame}}
@@ -648,7 +736,7 @@ def prefetch_symbols_multi_timeframe(
 
     total = len(symbols)
 
-    # ── Fast path: Alpaca bulk ──────────────────────────────────────────────
+    # ── Fast path 1: Alpaca bulk ──────────────────────────────────────────────
     alpaca_result = _prefetch_alpaca_bulk(symbols, timeframes, with_indicators)
     if alpaca_result is not None:
         if progress_callback:
@@ -658,7 +746,50 @@ def prefetch_symbols_multi_timeframe(
                 pass
         return alpaca_result
 
-    # ── Fallback: parallel yfinance ─────────────────────────────────────────
+    # ── Fast path 2: yf.download() bulk (avoids per-symbol HTTP overhead) ────
+    # Issues 1 request per real timeframe (3 requests total for the default set),
+    # regardless of how many symbols are in the batch.  Falls back to per-symbol
+    # ThreadPoolExecutor when yf.download() itself fails.
+    real_tfs = [(iv, d) for iv, d in timeframes if iv != "4h"]
+    try:
+        bulk_result: dict[str, dict[str, pd.DataFrame]] = {s: {} for s in symbols}
+        all_ok = True
+
+        for interval, days in real_tfs:
+            per_tf = _bulk_yf_download(symbols, interval, days, with_indicators)
+            if not per_tf:
+                # Empty result — bulk download failed for this timeframe; fall back
+                all_ok = False
+                break
+            for sym in symbols:
+                bulk_result[sym][interval] = per_tf.get(sym, pd.DataFrame())
+
+        if all_ok:
+            # Derive 4h from 1h (no extra HTTP call needed)
+            for sym in symbols:
+                df_4h_raw = _resample_4h(bulk_result[sym].get("1h", pd.DataFrame()))
+                bulk_result[sym]["4h"] = (
+                    add_indicators(df_4h_raw)
+                    if with_indicators and not df_4h_raw.empty
+                    else df_4h_raw
+                )
+            logger.info(
+                "prefetch bulk yf.download: %d symbols × %d timeframes OK",
+                len(symbols),
+                len(real_tfs) + 1,
+            )
+            if progress_callback:
+                try:
+                    progress_callback(total, total)
+                except Exception:
+                    pass
+            return bulk_result
+
+        logger.warning("prefetch bulk yf.download partial failure — falling back to per-symbol")
+    except Exception as exc:
+        logger.warning("prefetch bulk yf.download error: %s — falling back to per-symbol", exc)
+
+    # ── Fallback: parallel yfinance per-symbol ─────────────────────────────
     results: dict[str, dict[str, pd.DataFrame]] = {}
     completed = 0
 

@@ -25,9 +25,15 @@ _SHORTLIST_DIR = Path("data/shortlists")
 _FEEDBACK_DIR = Path("data/feedback")
 _REPORTS_DIR = Path("data/daily_reports")
 _STALE_DAYS = 7
-_SCAN_TIMEOUT_SECONDS = 300
+# Timeout per scan call.  200-symbol batches with Alpaca bulk prefetch + 32-worker
+# evaluation typically complete in 30-60s, but slow markets or yfinance fallback
+# can push this to ~5 min.  600s gives comfortable headroom.
+_SCAN_TIMEOUT_SECONDS = 600
 
-_executor = ThreadPoolExecutor(max_workers=8, thread_name_prefix="scan")
+# 16 workers allows up to 16 concurrent scan requests without queuing.
+# Each request only occupies a thread during the evaluate phase (Alpaca
+# I/O runs in its own async loop) so 16 is well within container limits.
+_executor = ThreadPoolExecutor(max_workers=16, thread_name_prefix="scan")
 
 
 def _clean_value(v: object) -> object:
@@ -38,7 +44,7 @@ def _clean_value(v: object) -> object:
 
 
 class ScanRequest(BaseModel):
-    symbols: list[str] = Field(..., max_length=300)
+    symbols: list[str] = Field(..., max_length=500)
     kelly_fraction: float = Field(0.5, ge=0.0, le=1.0)
 
 

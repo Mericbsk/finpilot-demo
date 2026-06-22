@@ -361,8 +361,15 @@ function writeCache(data: Omit<ScannerCache, "savedAt">) {
   } catch { /* quota — skip */ }
 }
 
-/* ── Scan API caller (batches of 10) ───────────────────────── */
-const BATCH_SIZE = 10;
+/* ── Scan API caller (batches of 200) ─────────────────────────────────────
+ * Sending 200 symbols per call means only ~9 batches for all 1812 symbols
+ * (vs 182 batches at batch=10).  Alpaca bulk prefetch makes 3 HTTP calls
+ * regardless of symbol count, so larger batches = fewer API requests =
+ * less rate-limiting pressure.  Sequential (CONCURRENT_BATCHES=1) avoids
+ * hammering Alpaca with 9 simultaneous requests.
+ * ─────────────────────────────────────────────────────────────────────── */
+const BATCH_SIZE = 200;
+const CONCURRENT_BATCHES = 1;
 
 async function scanBatch(
   symbols: string[],
@@ -691,10 +698,6 @@ export default function ScannerPage() {
 
       const results: Record<string, ScanResult> = {};
       let scanned = 0;
-
-      // Max concurrent batches — keeps backend executor from being saturated
-      // and respects browser connection-per-host limits (~6).
-      const CONCURRENT_BATCHES = 3;
 
       try {
         // Build all batches upfront
@@ -1080,7 +1083,7 @@ export default function ScannerPage() {
               </span>
               ...
               <span style={{ color: C.text3, marginLeft: 8 }}>
-                ({Math.round(scanProgress / BATCH_SIZE)} batch complete)
+                ({Math.floor(scanProgress / BATCH_SIZE)}/{Math.ceil(scanTotal / BATCH_SIZE)} batch)
               </span>
             </span>
             <span style={{ color: C.cyan, fontWeight: 600 }}>
