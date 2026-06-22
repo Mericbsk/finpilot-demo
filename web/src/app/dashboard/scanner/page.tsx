@@ -365,11 +365,12 @@ function writeCache(data: Omit<ScannerCache, "savedAt">) {
  * Sending 200 symbols per call means only ~9 batches for all 1812 symbols
  * (vs 182 batches at batch=10).  Alpaca bulk prefetch makes 3 HTTP calls
  * regardless of symbol count, so larger batches = fewer API requests =
- * less rate-limiting pressure.  Sequential (CONCURRENT_BATCHES=1) avoids
- * hammering Alpaca with 9 simultaneous requests.
+ * less rate-limiting pressure.  2 concurrent batches halves total scan time
+ * (~3 min) while keeping Alpaca load at 6 concurrent HTTP requests — well
+ * within rate limits.
  * ─────────────────────────────────────────────────────────────────────── */
 const BATCH_SIZE = 200;
-const CONCURRENT_BATCHES = 1;
+const CONCURRENT_BATCHES = 2;
 
 async function scanBatch(
   symbols: string[],

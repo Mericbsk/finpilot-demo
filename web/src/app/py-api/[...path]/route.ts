@@ -26,9 +26,9 @@ async function proxy(req: NextRequest, params: { path: string[] }): Promise<Next
     body = await req.arrayBuffer();
   }
 
-  // Timeout: 90 s for scan (yfinance batch analysis), 20 s for all other routes
+  // Timeout: 120 s for scan (200-symbol Alpaca+eval ~37s, 120s gives 3× safety margin)
   const isScan = rest === "scan" || rest.startsWith("scan/");
-  const timeoutMs = isScan ? 90_000 : 20_000;
+  const timeoutMs = isScan ? 120_000 : 20_000;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
