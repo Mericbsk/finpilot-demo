@@ -590,17 +590,21 @@ export default function ScannerPage() {
     [activePreset],
   );
 
-  /* Live prices from Yahoo Finance */
+  /* All unique symbols across every preset (1812) */
+  const allPresetSymbols = useMemo(
+    () => [...new Set(presets.flatMap((p) => p.symbols))],
+    [presets],
+  );
+
+  /* Live prices from Yahoo Finance — only for the active preset to avoid hammering the API */
   const { data: live } = useStockPrices(currentSymbols);
 
   /* Build display stocks: merge API results with live prices */
   const stocks = useMemo(() => {
-    // In Scan All mode, show ALL scanned results (not limited to active preset)
-    const symbolsToShow = scanAllMode
-      ? Object.keys(scanResults).length > 0
-        ? Object.keys(scanResults)
-        : currentSymbols
-      : currentSymbols;
+    // In Scan All mode show ALL preset symbols (1812) so the user can see every
+    // stock; scanned ones (213) get full API data, the rest get price from live
+    // quotes or show "—" placeholders.
+    const symbolsToShow = scanAllMode ? allPresetSymbols : currentSymbols;
 
     const list: DisplayStock[] = symbolsToShow.map((ticker) => {
       const apiData = scanResults[ticker];
@@ -619,7 +623,7 @@ export default function ScannerPage() {
       return base;
     });
     return list;
-  }, [currentSymbols, scanResults, live, scanAllMode]);
+  }, [currentSymbols, allPresetSymbols, scanResults, live, scanAllMode]);
 
   /* Sort stocks */
   const sorted = useMemo(() => {
@@ -840,12 +844,6 @@ export default function ScannerPage() {
   const scannedCount = filtered.filter((s) => s.fromAPI).length;
   // Total scan results across all presets (for status bar)
   const totalScanResults = Object.keys(scanResults).length;
-  const avgScore =
-    filtered.length > 0
-      ? (filtered.reduce((a, s) => a + s.score, 0) / filtered.length).toFixed(
-          1,
-        )
-      : "0";
   const rrStocks = filtered.filter((s) => s.rr > 0);
   const avgRR =
     rrStocks.length > 0
@@ -854,6 +852,10 @@ export default function ScannerPage() {
 
   // Risk-adjusted summary stats (only from scanned stocks)
   const scannedStocks = filtered.filter((s) => s.fromAPI);
+  const avgScore =
+    scannedStocks.length > 0
+      ? (scannedStocks.reduce((a, s) => a + s.score, 0) / scannedStocks.length).toFixed(1)
+      : "0";
   const avgSharpe =
     scannedStocks.length > 0
       ? (scannedStocks.reduce((a, s) => a + s.sharpe, 0) / scannedStocks.length).toFixed(2)
@@ -1514,16 +1516,17 @@ export default function ScannerPage() {
                             className="px-4 py-2.5"
                             style={{ color: C.text1 }}
                           >
-                            {currency}{s.price.toFixed(2)}
+                            {s.price > 0 ? `${currency}${s.price.toFixed(2)}` : "—"}
                           </td>
                           <td
                             className="px-4 py-2.5"
                             style={{
-                              color: s.change >= 0 ? C.green : C.red,
+                              color: !s.fromAPI && s.price === 0 ? C.text3 : s.change >= 0 ? C.green : C.red,
                             }}
                           >
-                            {s.change >= 0 ? "+" : ""}
-                            {s.change.toFixed(2)}%
+                            {!s.fromAPI && s.price === 0
+                              ? "—"
+                              : `${s.change >= 0 ? "+" : ""}${s.change.toFixed(2)}%`}
                           </td>
                           <td className="px-4 py-2.5">
                             <div className="flex items-center gap-1.5">
