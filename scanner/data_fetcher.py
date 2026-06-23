@@ -323,8 +323,8 @@ def fetch_with_indicators(symbol: str, interval: str, days: int) -> pd.DataFrame
 # inside fetch_multi_timeframe(), saving one network round-trip per symbol.
 DEFAULT_TIMEFRAMES: list[tuple[str, int]] = [
     ("15m", 10),  # 15-minute, 10 days
-    ("1h", 100),  # 1-hour, 100 days (also used to build 4h via resample)
-    ("1d", 400),  # Daily, 400 days
+    ("1h", 10),  # 1-hour, 10 days — enough for EMA50/RSI; 4h derived via resample
+    ("1d", 300),  # Daily, 300 days (~210 trading bars — enough for EMA200)
 ]
 
 
@@ -569,16 +569,20 @@ def _prefetch_alpaca_bulk(
             end_dt = datetime.now(UTC)
             start_dt = end_dt - _timedelta(days=days)
 
+            # Dynamic limit: enough bars so ALL symbols fit in a single page
+            # per timeframe request (limit=page_size, not total cap).
+            # Worst case: 1d 300 days ≈ 210 trading bars/symbol.
+            # Formula: symbols × 250 gives ~20% safety margin above 210.
+            # Example: 50 symbols → 12500; 200 symbols → 50000.
+            _limit = max(10_000, len(symbols) * 250)
+
             req = StockBarsRequest(
                 symbol_or_symbols=symbols,
                 timeframe=tf_obj,
                 start=start_dt,
                 end=end_dt,
                 feed="iex",
-                # No hard limit — the SDK paginates automatically.
-                # 10 000 was too low for large batches (200 symbols × 100 days
-                # ≈ 14 000 bars), causing ~25% of symbols to silently return
-                # empty frames.
+                limit=_limit,
             )
 
             try:

@@ -369,8 +369,8 @@ function writeCache(data: Omit<ScannerCache, "savedAt">) {
  * (~3 min) while keeping Alpaca load at 6 concurrent HTTP requests — well
  * within rate limits.
  * ─────────────────────────────────────────────────────────────────────── */
-const BATCH_SIZE = 200;
-const CONCURRENT_BATCHES = 2;
+const BATCH_SIZE = 50;        // 50 symbols ≈ 30s per batch (well within 240s proxy timeout)
+const CONCURRENT_BATCHES = 1; // Sequential batches — concurrent scan causes API thread exhaustion
 
 async function scanBatch(
   symbols: string[],
@@ -422,6 +422,7 @@ export default function ScannerPage() {
 
   /* Load min score threshold + currency from user settings */
   const [minScoreFilter, setMinScoreFilter] = useState(0);
+  const [showOnlyResults, setShowOnlyResults] = useState(false);
   const [currency, setCurrency] = useState("$");
   const [systemBrier, setSystemBrier] = useState<number | null>(null);
   const [macroData, setMacroData] = useState<FactorData | null>(null);
@@ -625,22 +626,29 @@ export default function ScannerPage() {
     return list;
   }, [currentSymbols, allPresetSymbols, scanResults, live, scanAllMode]);
 
-  /* Sort stocks */
+  /* Sort stocks — BUY signals always pinned to top when sorting by score */
   const sorted = useMemo(() => {
     const arr = [...stocks];
     const dir = sortAsc ? 1 : -1;
+    // Signal priority: BUY=0, HOLD=1, CAUTION=2, SELL=3, —=4
+    const sigPriority = (s: string) =>
+      s === "BUY" ? 0 : s === "HOLD" ? 1 : s === "CAUTION" ? 2 : s === "SELL" ? 3 : 4;
     arr.sort((a, b) => {
       switch (sortCol) {
         case "ticker": return dir * a.ticker.localeCompare(b.ticker);
         case "price": return dir * (a.price - b.price);
         case "change": return dir * (a.change - b.change);
-        case "score": return dir * (a.score - b.score);
         case "signal": return dir * a.signal.localeCompare(b.signal);
         case "rr": return dir * (a.rr - b.rr);
         case "sharpe": return dir * (a.sharpe - b.sharpe);
         case "annVol": return dir * (a.annVol - b.annVol);
         case "regime": return dir * a.regime.localeCompare(b.regime);
-        default: return dir * (a.score - b.score);
+        default: {
+          // Default (score): BUY first → score desc → "—" last
+          const sigDiff = sigPriority(a.signal) - sigPriority(b.signal);
+          if (sigDiff !== 0) return sigDiff; // BUY always top regardless of asc/desc toggle
+          return dir * (a.score - b.score);
+        }
       }
     });
     return arr;
@@ -655,6 +663,10 @@ export default function ScannerPage() {
     // In scanAllMode show ALL results (ignore risk filter) so "Hepsini Tara" always shows output
     if (!scanAllMode && minScoreFilter > 0 && Object.keys(scanResults).length > 0) {
       list = list.filter((s) => s.score >= minScoreFilter);
+    }
+    // Hide unscanned (—) rows when toggle is on
+    if (showOnlyResults && Object.keys(scanResults).length > 0) {
+      list = list.filter((s) => s.fromAPI);
     }
     return list;
   }, [sorted, searchTerm, minScoreFilter, scanResults, scanAllMode]);
@@ -1227,6 +1239,20 @@ export default function ScannerPage() {
             Risk filter: <span style={{ color: C.cyan, fontWeight: 600 }}>≥{minScoreFilter}</span>
             <button onClick={() => setMinScoreFilter(0)} className="ml-2 underline" style={{ color: C.text3 }}>clear</button>
           </div>
+        )}
+        {Object.keys(scanResults).length > 0 && (
+          <button
+            onClick={() => setShowOnlyResults((v) => !v)}
+            className="rounded-xl px-3 py-2.5 text-xs whitespace-nowrap transition-colors"
+            style={{
+              border: `1px solid ${showOnlyResults ? C.cyan : C.border}`,
+              backgroundColor: showOnlyResults ? `${C.cyan}22` : C.card,
+              color: showOnlyResults ? C.cyan : C.text3,
+              fontWeight: showOnlyResults ? 600 : 400,
+            }}
+          >
+            {showOnlyResults ? "✓ Sonuçları Göster" : "Sadece Sonuçlar"}
+          </button>
         )}
       </div>
 
