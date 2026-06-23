@@ -838,6 +838,8 @@ export default function ScannerPage() {
   /* Stats */
   const buyCount = filtered.filter((s) => s.signal === "BUY").length;
   const scannedCount = filtered.filter((s) => s.fromAPI).length;
+  // Total scan results across all presets (for status bar)
+  const totalScanResults = Object.keys(scanResults).length;
   const avgScore =
     filtered.length > 0
       ? (filtered.reduce((a, s) => a + s.score, 0) / filtered.length).toFixed(
@@ -908,10 +910,12 @@ export default function ScannerPage() {
             <p className="text-sm" style={{ color: C.text3 }}>
             {presets.length} preset · {totalUniqueSymbols.toLocaleString()}{" "}
             stocks
-            {scannedCount > 0 && (
+            {totalScanResults > 0 && (
               <span style={{ color: C.green }}>
                 {" "}
-                · {scannedCount} scanned (live)
+                · {scanTotal > 0
+                    ? `${scanTotal.toLocaleString()} tarandı · ${totalScanResults} sinyal`
+                    : `${totalScanResults} sinyal`}
               </span>
             )}
             {alpacaConnected && alpacaAccount && (
