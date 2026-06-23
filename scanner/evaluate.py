@@ -111,8 +111,13 @@ def evaluate_symbol(
             df_4h = data.get("4h", pd.DataFrame())
             df_1d = data.get("1d", pd.DataFrame())
 
-        # Hard minimum: need at least some data to evaluate
-        if len(df_15m) < 15 or len(df_1h) < 10 or len(df_4h) < 15 or len(df_1d) < 50:
+        # Hard minimum: need at least some data to evaluate.
+        # Thresholds are intentionally low so that thinly-traded small-caps
+        # with limited intraday history are still analysed using whatever data
+        # yfinance can provide.  The downstream stages already guard against
+        # empty series via safe_float / try-except, so sparse intraday data
+        # produces lower scores rather than crashes.
+        if len(df_15m) < 3 or len(df_1h) < 3 or len(df_4h) < 3 or len(df_1d) < 20:
             return None
 
         # Track whether we have enough history for high-quality signals

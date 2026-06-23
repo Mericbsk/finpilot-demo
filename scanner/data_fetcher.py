@@ -575,7 +575,10 @@ def _prefetch_alpaca_bulk(
                 start=start_dt,
                 end=end_dt,
                 feed="iex",
-                limit=10000,
+                # No hard limit — the SDK paginates automatically.
+                # 10 000 was too low for large batches (200 symbols × 100 days
+                # ≈ 14 000 bars), causing ~25% of symbols to silently return
+                # empty frames.
             )
 
             try:
