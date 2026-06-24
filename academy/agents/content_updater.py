@@ -72,10 +72,12 @@ class ContentUpdaterAgent:
     def update_lesson(self, lesson: Lesson, update_prompt: str) -> Lesson | None:
         """Actually update a lesson using LLM. Returns updated lesson."""
         try:
-            from llm import get_router
+            from academy.llm_provider import get_academy_provider
 
-            llm = get_router()
+            llm = get_academy_provider()
         except Exception:
+            llm = None
+        if llm is None:
             logger.warning("[%s] LLM unavailable, skipping update for %s", AGENT_NAME, lesson.id)
             return None
 

@@ -98,9 +98,9 @@ class QualityGuardAgent:
     def llm(self):
         if self._llm is None:
             try:
-                from llm import get_router
+                from academy.llm_provider import get_academy_provider
 
-                self._llm = get_router()
+                self._llm = get_academy_provider()
             except Exception:
                 pass
         return self._llm
@@ -171,8 +171,6 @@ class QualityGuardAgent:
     def review_pending_lessons(self) -> list[dict]:
         """Review all lessons with status='draft'."""
         results = []
-        with self.lesson_repo.__class__() as _:
-            pass
         # Get all draft lessons
         from academy.models import db_cursor
 

@@ -16,17 +16,19 @@ Tables:
 from __future__ import annotations
 
 import json
-
-# Use session dir if mounted filesystem doesn't support WAL
+import os
 import sqlite3
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+# DB konumu: kararlı ve yapılandırılabilir.
+#   ACADEMY_DB_PATH ayarlıysa onu kullan; değilse repo içindeki data/academy.db.
+# (Eski sürümdeki sabit /sessions/... oturum yolu kaldırıldı — veri kaybı riskiydi.)
 _DATA_BASE = Path(__file__).parent.parent / "data"
-_SESSION_BASE = Path("/sessions/kind-jolly-galileo")
-DB_PATH = _SESSION_BASE / "academy.db" if _SESSION_BASE.exists() else _DATA_BASE / "academy.db"
+_ENV_DB = os.getenv("ACADEMY_DB_PATH")
+DB_PATH = Path(_ENV_DB).expanduser() if _ENV_DB else _DATA_BASE / "academy.db"
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 # ─────────────────────────────────────────────────────────────────────────────

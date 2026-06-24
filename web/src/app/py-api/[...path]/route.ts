@@ -26,9 +26,9 @@ async function proxy(req: NextRequest, params: { path: string[] }): Promise<Next
     body = await req.arrayBuffer();
   }
 
-  // Timeout: 120 s for scan (200-symbol Alpaca+eval ~37s, 120s gives 3× safety margin)
+  // Timeout: 240 s for scan (50-symbol Alpaca+eval ≈30s, 240s gives 8× safety margin)
   const isScan = rest === "scan" || rest.startsWith("scan/");
-  const timeoutMs = isScan ? 120_000 : 20_000;
+  const timeoutMs = isScan ? 240_000 : 20_000;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 

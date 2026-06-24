@@ -8,6 +8,7 @@ geriye dönük uyumluluk için bu modülü import eder.
 from __future__ import annotations
 
 import logging
+import os
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
@@ -390,6 +391,31 @@ def evaluate_symbol(
             kelly_fraction=kelly_fraction,
         )
 
+        # ── Early-detection ladder (env-gated, default OFF) ───────────────
+        # Surfaces WATCH/SETUP/TRIGGER/CONFIRM *before* a name is entry-ready.
+        # Additive ONLY: does not change entry_ok or composite_score. Best-effort.
+        _early_tier = {
+            "tier": "NONE",
+            "tier_score": 0.0,
+            "tier_reasons": [],
+            "suggested_size_fraction": 0.0,
+            "contraction_factor": 0.0,
+            "rvol_acceleration": 0.0,
+            "range_expansion": 0.0,
+        }
+        if os.environ.get("FINPILOT_ENABLE_EARLY_TIER", "0") == "1":
+            try:
+                from scanner.watch_tier import compute_early_tier  # noqa: PLC0415
+
+                _early_tier = compute_early_tier(
+                    df_1d,
+                    catalyst_factor=float(catalyst_factor),
+                    volume_multiple=float(volume_multiple),
+                    entry_ok=bool(entry_ok),
+                )
+            except Exception:
+                pass
+
         return {
             "symbol": symbol,
             "price": round(safe_float(last_price), 4),
@@ -441,6 +467,14 @@ def evaluate_symbol(
             "catalyst_factor": round(catalyst_factor, 4),
             "lottery_factor": round(lottery_factor, 4),
             "overnight_gap_factor": round(overnight_gap_factor, 4),
+            # ── Early-detection ladder (env-gated; NONE when disabled) ────
+            "tier": _early_tier.get("tier", "NONE"),
+            "tier_score": _early_tier.get("tier_score", 0.0),
+            "tier_reasons": _early_tier.get("tier_reasons", []),
+            "tier_size_fraction": _early_tier.get("suggested_size_fraction", 0.0),
+            "contraction_factor": round(float(_early_tier.get("contraction_factor", 0.0)), 4),
+            "rvol_acceleration": round(float(_early_tier.get("rvol_acceleration", 0.0)), 4),
+            "range_expansion": round(float(_early_tier.get("range_expansion", 0.0)), 4),
             "composite_score": _composite_score,
             "regime_gate_mult": _gate_mult,
             "position_size_gated": int(risk_data["position_size"] * _gate_mult),

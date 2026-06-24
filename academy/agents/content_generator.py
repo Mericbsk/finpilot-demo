@@ -106,11 +106,11 @@ class ContentGeneratorAgent:
     def llm(self):
         if self._llm is None:
             try:
-                from llm import get_router
+                from academy.llm_provider import get_academy_provider
 
-                self._llm = get_router()
+                self._llm = get_academy_provider()
             except Exception as e:
-                logger.warning("LLM router unavailable: %s — using mock mode", e)
+                logger.warning("LLM provider unavailable: %s — using mock mode", e)
         return self._llm
 
     # ──────────────────────────────────────────────────────────────────────

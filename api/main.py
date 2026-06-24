@@ -36,6 +36,7 @@ from slowapi.util import get_remote_address
 
 from api.middleware.pii_filter import PIIFilterMiddleware
 from api.routers import (
+    academy,
     advisory,
     agent,
     ai_explain,
@@ -212,6 +213,22 @@ async def lifespan(app: FastAPI):
             _svc_registry.register("scheduler", healthy=False, meta={"error": str(exc)})
             _logging.getLogger(__name__).warning("Scheduler autostart failed: %s", exc)
 
+    # ── Finance Academy autonomous scheduler ──────────────────
+    # Kendi kendini geliştiren sözlük döngüsü: günlük gap→üret→denetle→yayınla.
+    # Akademi kritik-olmayan bir alt sistemdir; başlatma hatası uygulamayı düşürmez.
+    if os.getenv("ACADEMY_AUTOSTART_SCHEDULER", "1") == "1":
+        try:
+            from academy.scheduler import start_academy_scheduler
+
+            academy_started = start_academy_scheduler()
+            _svc_registry.register("academy_scheduler", healthy=academy_started)
+            _logging.getLogger(__name__).info(
+                "Academy scheduler autostart: started=%s", academy_started
+            )
+        except Exception as exc:  # noqa: BLE001
+            _svc_registry.register("academy_scheduler", healthy=False, meta={"error": str(exc)})
+            _logging.getLogger(__name__).warning("Academy scheduler autostart failed: %s", exc)
+
     # Load champion weights from model registry into finpilot_score (if available)
     try:
         from scanner.finpilot_score import load_weights  # noqa: PLC0415
@@ -351,6 +368,7 @@ app.include_router(closed_loop.router, prefix="/api/v1")
 app.include_router(research.router, prefix="/api/v1")
 app.include_router(profitcore.router, prefix="/api/v1")
 app.include_router(waitlist_signup.router, prefix="/api/v1")
+app.include_router(academy.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health")

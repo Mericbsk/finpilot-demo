@@ -289,3 +289,89 @@ def compute_overnight_gap_factor(df: Any) -> float:
     except Exception as exc:
         logger.debug("features: compute_overnight_gap_factor failed: %s", exc)
         return 0.0
+
+
+# ─── Early-detection features (pre-event / "coiled spring") ──────────────────
+_CONTRACTION_WINDOW: int = 60
+_CONTRACTION_RECENT: int = 5
+_RVOL_BASELINE: int = 20
+_RVOL_ACCEL_CAP: float = 1.5
+
+
+def _percentile_rank(series: Any, value: float) -> float:
+    """Fraction of ``series`` values <= ``value`` (0.0-1.0). Empty -> 0.5."""
+    try:
+        n = len(series)
+        if n == 0:
+            return 0.5
+        return float((series <= value).sum()) / float(n)
+    except Exception:
+        return 0.5
+
+
+def compute_contraction_factor(df: Any, window: int = _CONTRACTION_WINDOW) -> float:
+    """Return a 0.0-1.0 volatility-contraction ("coiled spring") score."""
+    try:
+        if (
+            not hasattr(df, "iloc")
+            or len(df) < window + 1
+            or not {"High", "Low", "Close"}.issubset(df.columns)
+        ):
+            return 0.0
+        close = df["Close"].astype(float)
+        high = df["High"].astype(float)
+        low = df["Low"].astype(float)
+
+        ntr = ((high - low) / close.replace(0, float("nan"))).dropna()
+        if len(ntr) < window:
+            return 0.0
+        ntr_window = ntr.iloc[-window:]
+        ntr_current = float(ntr.iloc[-_CONTRACTION_RECENT:].mean())
+        ntr_contraction = 1.0 - _percentile_rank(ntr_window, ntr_current)
+
+        roll_std = close.rolling(20).std()
+        roll_mean = close.rolling(20).mean()
+        bb_width = (roll_std / roll_mean.replace(0, float("nan"))).dropna()
+        if len(bb_width) >= window:
+            bbw_window = bb_width.iloc[-window:]
+            bbw_current = float(bb_width.iloc[-_CONTRACTION_RECENT:].mean())
+            bbw_contraction = 1.0 - _percentile_rank(bbw_window, bbw_current)
+        else:
+            bbw_contraction = ntr_contraction
+
+        factor = 0.6 * ntr_contraction + 0.4 * bbw_contraction
+        return round(max(0.0, min(1.0, factor)), 4)
+    except Exception as exc:
+        logger.debug("features: compute_contraction_factor failed: %s", exc)
+        return 0.0
+
+
+def compute_rvol_acceleration(df: Any, baseline: int = _RVOL_BASELINE) -> float:
+    """Return a 0.0–1.0 *relative-volume acceleration* score.
+
+    Leading volume signal: measures whether relative volume is RISING
+    (recent RVOL > prior RVOL), not whether a spike has already printed.
+
+      rvol_t       = Volume_t / SMA(Volume, baseline)
+      acceleration = mean(rvol last 3 bars) − mean(rvol prior 3 bars)
+      factor       = clamp(acceleration / cap, 0, 1)
+
+    1.0 = volume building fast from a low base (early interest).
+    0.0 = volume flat or fading. Pure pandas; 0.0 when insufficient data.
+    """
+    try:
+        if not hasattr(df, "iloc") or len(df) < baseline + 6 or "Volume" not in df.columns:
+            return 0.0
+        vol = df["Volume"].astype(float)
+        vol_sma = vol.rolling(baseline).mean()
+        rvol = (vol / vol_sma.replace(0, float("nan"))).dropna()
+        if len(rvol) < 6:
+            return 0.0
+        recent = float(rvol.iloc[-3:].mean())
+        prior = float(rvol.iloc[-6:-3].mean())
+        accel = recent - prior
+        factor = accel / _RVOL_ACCEL_CAP
+        return round(max(0.0, min(1.0, factor)), 4)
+    except Exception as exc:
+        logger.debug("features: compute_rvol_acceleration failed: %s", exc)
+        return 0.0
