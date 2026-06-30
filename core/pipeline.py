@@ -76,6 +76,29 @@ def _emit(
         logger.debug("pipeline: _emit failed (ignored): %s", exc)
 
 
+def analyze_shortlist(
+    symbols: list[str],
+    kelly_fraction: float = 0.5,
+) -> dict[str, Any]:
+    """Birleşik shortlist analizi: scan → social → enrich → bull/bear.
+
+    Tek çağrıda tarar, sosyal sinyali çeker, yerel-LLM ile zenginleştirir
+    (açıklama + katalizör + sosyal okuma) ve boğa/ayı tezini üretir; sonucu
+    per-sembol birleşik görünüm olarak döndürür (UI/API bunu tüketir).
+
+    Returns: {symbol: {symbol, scan, social, bull, bear, enrichment}}
+    """
+    from core.shortlist_view import merge_shortlist_view
+
+    state = run_cycle(
+        symbols,
+        task="scan",
+        kelly_fraction=kelly_fraction,
+        stages={"social", "enrich", "bull_bear"},
+    )
+    return merge_shortlist_view(state)
+
+
 def run_cycle(
     symbols: list[str],
     task: str = "full",
@@ -135,6 +158,7 @@ def run_cycle(
         "social_results": {},
         "bull_cases": {},
         "bear_cases": {},
+        "enrichment": {},
         "composite_confidence": None,
         "errors": [],
     }
@@ -229,6 +253,44 @@ def run_cycle(
         except Exception as exc:
             state["errors"].append(f"social: {exc}")
             logger.warning("pipeline: social exception (non-fatal): %s", exc)
+
+    # ── Step 1b2: Shortlist Enrichment (optional — "enrich" in stages) ───────
+    # Tek birleşik yerel-LLM çağrısı/sembol: açıklama + katalizör triage + tez.
+    if "enrich" in _stages:
+        try:
+            from agents.shortlist_enricher import ShortlistEnricherAgent
+
+            top_for_enrich = state["top_symbols"] or symbols[:5]
+            # social sentiment'i scan'e işle ki enricher sosyal okumayı yapabilsin
+            if state["social_results"]:
+                for sym in top_for_enrich:
+                    soc = state["social_results"].get(sym, {})
+                    if soc and sym in state["scan_results"]:
+                        state["scan_results"][sym]["sentiment_score"] = soc.get(
+                            "sentiment_score", 0.5
+                        )
+                        if "mention_delta" in soc:
+                            state["scan_results"][sym]["mention_delta"] = soc.get("mention_delta")
+            e_ctx = AgentContext(
+                symbols=top_for_enrich,
+                scan_results=state["scan_results"],
+            )
+            e_result = ShortlistEnricherAgent().run(e_ctx)
+            if e_result.success:
+                state["enrichment"] = e_result.data or {}
+                logger.info("pipeline: enrich — %d symbols", len(state["enrichment"]))
+                _emit(
+                    _cycle_id,
+                    top_for_enrich,
+                    "shortlist_enricher",
+                    "enrichment",
+                    payload={"n": len(state["enrichment"])},
+                )
+            else:
+                state["errors"].append(f"enrich: {e_result.error}")
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("pipeline: enrich stage failed: %s", exc)
+            state["errors"].append(f"enrich: {exc}")
 
     # ── Step 1c: Bull/Bear Debate (optional — "bull_bear" in stages) ─────────
     if "bull_bear" in _stages:

@@ -24,4 +24,18 @@ __all__ = [
     "LLMResponse",
     "LLMRouter",
     "get_router",
+    "OllamaProvider",
+    "MockProvider",
 ]
+
+
+def __getattr__(name):  # lazy export — providers loaded only when accessed
+    if name == "OllamaProvider":
+        from llm.ollama_provider import OllamaProvider
+
+        return OllamaProvider
+    if name == "MockProvider":
+        from llm.mock_provider import MockProvider
+
+        return MockProvider
+    raise AttributeError(f"module 'llm' has no attribute {name!r}")

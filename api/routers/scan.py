@@ -293,6 +293,48 @@ async def run_scan(
     return out
 
 
+class AnalyzeRequest(BaseModel):
+    symbols: list[str] = Field(..., max_length=200)
+    kelly_fraction: float = Field(0.5, ge=0.0, le=1.0)
+
+
+@router.post("/scan/analyze")
+async def run_analyze(
+    req: AnalyzeRequest,
+    _auth: Annotated[TokenPayload, Depends(require_auth)],
+):
+    """Birleşik shortlist analizi: scan → social → enrich → bull/bear.
+
+    Per-sembol birleşik görünüm döndürür (scan + social + bull + bear + enrichment).
+    LLM zenginleştirmesi FINPILOT_LLM_BACKEND=ollama iken yerel modelle yapılır;
+    backend kapalıysa enrichment alanları boş/temiz döner (akış bozulmaz).
+    """
+    try:
+        from core.pipeline import analyze_shortlist
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail="Pipeline module unavailable.") from exc
+
+    loop = asyncio.get_running_loop()
+    try:
+        view = await asyncio.wait_for(
+            loop.run_in_executor(
+                _executor,
+                lambda: analyze_shortlist(symbols=req.symbols, kelly_fraction=req.kelly_fraction),
+            ),
+            timeout=_SCAN_TIMEOUT_SECONDS,
+        )
+    except TimeoutError:
+        raise HTTPException(
+            status_code=504, detail=f"Analyze timed out after {_SCAN_TIMEOUT_SECONDS}s"
+        ) from None
+    except Exception as exc:
+        logger.exception("Analyze failed for %d symbols: %s", len(req.symbols), exc)
+        raise HTTPException(
+            status_code=500, detail=f"Analyze error: {type(exc).__name__}: {exc}"
+        ) from exc
+    return view
+
+
 @router.get("/scan/shortlist/status")
 def shortlist_status():
     """Return age of the newest shortlist CSV and a staleness warning if > 7 days."""

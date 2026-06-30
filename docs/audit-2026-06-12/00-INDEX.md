@@ -35,6 +35,10 @@
 | `.env.example` | `FINPILOT_ENABLE_EARLY_TIER=0` dokümante | — |
 
 Devreye-alma raporu: `13-devreye-alma-raporu.md` + `FinPilot_Devreye_Alma_Ozet.docx`
+
+Jules test stratejisi: `14-jules-test-stratejisi.md` + `FinPilot_Jules_Test_Stratejisi_Ozet.docx`
+
+Jules ilk 5 görev brifi (girdi paketi): `15-jules-gorev-brifleri.md` + `FinPilot_Jules_5_Gorev_Brifi.docx`
 | `FinPilot_Yonetici_Ozeti.docx` | Yatırımcı/hibe paylaşımına uygun özet (repo kökünde değil, bu klasörde) |
 
 ## TEK SAYFA ÖZET

@@ -346,6 +346,185 @@ def compute_contraction_factor(df: Any, window: int = _CONTRACTION_WINDOW) -> fl
         return 0.0
 
 
+# ── Fundamental score (EODHD-gated) ──────────────────────────────────────────
+# Called only when FINPILOT_ENABLE_FUNDAMENTALS=1.  EODHD client has 24-hour
+# cache so subsequent scans within a day hit zero new API calls per symbol.
+
+
+def compute_fundamental_score(symbol: str) -> dict:
+    """EODHD fundamental sinyallerinden 0-100 skoru ve ham alanlar döndür.
+
+    Formül (baseline 50):
+      PE < 15 → +15 | PE 15-25 → +5 | PE > 40 → -10
+      Forward PE < Trailing PE → +5  (büyüme beklentisi)
+      EPS büyümesi YoY: her %10 = +5 (max +20, min -15)
+      Gelir büyümesi YoY: her %10 = +3 (max +12, min -8)
+      Kâr marjı > %20 → +5 | negatif → -10
+      Analist rating 4.5+ → +15 | 4.0+ → +10 | 3.5+ → +5 | <2.5 → -10
+      (EODHD: 5=güçlü alım → 1=güçlü satım ağırlıklı ortalama)
+
+    Returns:
+        {
+          "fundamental_score":    int   0-100,
+          "fundamental_quality":  str   "high"|"medium"|"low",
+          "pe_ratio":             float | None,
+          "forward_pe":           float | None,
+          "eps_growth_yoy":       float | None,
+          "revenue_growth_yoy":   float | None,
+          "profit_margin":        float | None,
+          "return_on_equity":     float | None,
+          "analyst_target":       float | None,
+          "analyst_rating":       float | None,
+          "beta":                 float | None,
+          "week52_high":          float | None,
+          "week52_low":           float | None,
+        }
+    """
+    try:
+        import sys
+
+        sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+        from data.eodhd_client import fundamental_signals  # noqa: PLC0415
+
+        sigs = fundamental_signals(symbol)
+    except Exception as exc:
+        logger.debug("features: fundamental_signals(%s) unavailable: %s", symbol, exc)
+        return {"fundamental_score": 0, "fundamental_quality": "low"}
+
+    if not sigs or sigs.get("data_quality") == "low":
+        return {"fundamental_score": 0, "fundamental_quality": "low", **sigs}
+
+    score = 50.0
+
+    # PE katkısı (düşük PE = değer)
+    pe = sigs.get("pe_ratio")
+    fwd_pe = sigs.get("forward_pe")
+    if pe and pe > 0:
+        if pe < 15:
+            score += 15
+        elif pe < 25:
+            score += 5
+        elif pe > 40:
+            score -= 10
+    if pe and fwd_pe and fwd_pe > 0 and fwd_pe < pe:
+        score += 5  # kazanç büyümesi bekleniyor
+
+    # EPS büyümesi YoY
+    eps_g = sigs.get("eps_growth_yoy")
+    if eps_g is not None:
+        score += max(-15.0, min(20.0, eps_g * 100.0))
+
+    # Gelir büyümesi YoY
+    rev_g = sigs.get("revenue_growth_yoy")
+    if rev_g is not None:
+        score += max(-8.0, min(12.0, rev_g * 60.0))
+
+    # Kâr marjı
+    margin = sigs.get("profit_margin")
+    if margin is not None:
+        if margin > 0.20:
+            score += 5
+        elif margin < 0:
+            score -= 10
+
+    # Analist konsensüs (EODHD ağırlıklı ortalama: 5=güçlü alım, 1=güçlü satım)
+    rating = sigs.get("analyst_rating")
+    if rating is not None:
+        if rating >= 4.5:
+            score += 15
+        elif rating >= 4.0:
+            score += 10
+        elif rating >= 3.5:
+            score += 5
+        elif rating < 2.5:
+            score -= 10
+
+    final_score = int(max(0, min(100, round(score))))
+    return {
+        "fundamental_score": final_score,
+        "fundamental_quality": sigs.get("data_quality", "low"),
+        **{k: v for k, v in sigs.items() if k != "data_quality"},
+    }
+
+
+def compute_news_catalyst(symbol: str) -> dict:
+    """EODHD haber akışından 0-100 skor ve son başlıklar döndür.
+
+    Kaynak:
+      • news(symbol, limit=10, days=7)   – polarity sentimenti olan haber listesi
+      • sentiment(symbol, days=7)        – günlük normalize (-1…+1) sentiment serisi
+
+    Formül (baseline 50):
+      avg_sentiment  –1…+1  → * 25  (max ±25)
+      news_count (7 günlük)   → min(15, count)  (katalizör varlığı bonusu)
+
+    Returns:
+        {
+          "news_catalyst_score": int   0-100,
+          "news_sentiment":      float −1…+1,
+          "news_count":          int,
+          "top_headlines":       list[str],  # en fazla 3 başlık
+        }
+    """
+    _default = {
+        "news_catalyst_score": 0,
+        "news_sentiment": 0.0,
+        "news_count": 0,
+        "top_headlines": [],
+    }
+    try:
+        import sys
+
+        sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+        from data.eodhd_client import get_client  # noqa: PLC0415
+
+        client = get_client()
+        news_items = client.news(symbol, limit=10, days=7)
+        sent_series = client.sentiment(symbol, days=7)
+    except Exception as exc:
+        logger.debug("features: news_catalyst(%s) unavailable: %s", symbol, exc)
+        return _default
+
+    # ── Sentiment skoru ────────────────────────────────────────────────────────
+    # Önce günlük sentiment API'sini kullan (daha güvenilir), yoksa haber polarity'si
+    avg_sentiment = 0.0
+    if sent_series and len(sent_series) >= 1:
+        normals = [
+            float(s["normalized"])
+            for s in sent_series
+            if isinstance(s.get("normalized"), (int, float))
+        ]
+        if normals:
+            avg_sentiment = sum(normals) / len(normals)
+    elif news_items:
+        polarities = []
+        for item in news_items:
+            sent = item.get("sentiment") or {}
+            pol = sent.get("polarity")
+            if isinstance(pol, (int, float)):
+                # EODHD polarity: 0-1, 0.5=nötr → -1/+1'e çevir
+                polarities.append((float(pol) - 0.5) * 2)
+        if polarities:
+            avg_sentiment = sum(polarities) / len(polarities)
+
+    avg_sentiment = max(-1.0, min(1.0, avg_sentiment))
+
+    # ── Başlıklar ──────────────────────────────────────────────────────────────
+    headlines = [str(item.get("title", ""))[:80] for item in news_items[:3] if item.get("title")]
+
+    # ── Skor ──────────────────────────────────────────────────────────────────
+    news_count = len(news_items)
+    score = 50.0 + avg_sentiment * 25.0 + min(15.0, float(news_count))
+    final_score = int(max(0, min(100, round(score))))
+
+    return {
+        "news_catalyst_score": final_score,
+        "news_sentiment": round(avg_sentiment, 4),
+        "news_count": news_count,
+        "top_headlines": headlines,
+    }
+
+
 def compute_rvol_acceleration(df: Any, baseline: int = _RVOL_BASELINE) -> float:
     """Return a 0.0–1.0 *relative-volume acceleration* score.
 

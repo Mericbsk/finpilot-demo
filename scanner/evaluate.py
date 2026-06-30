@@ -416,6 +416,45 @@ def evaluate_symbol(
             except Exception:
                 pass
 
+        # ── Fundamental enrichment (env-gated, default OFF) ───────────────
+        # EODHD 24-saat cache'i sayesinde yeniden taramalar ek API çağrısı yapmaz.
+        # Additive ONLY — composite_score veya entry_ok'u değiştirmez.
+        _fund: dict = {
+            "fundamental_score": 0,
+            "fundamental_quality": "low",
+            "pe_ratio": None,
+            "forward_pe": None,
+            "eps_growth_yoy": None,
+            "revenue_growth_yoy": None,
+            "profit_margin": None,
+            "return_on_equity": None,
+            "analyst_target": None,
+            "analyst_rating": None,
+        }
+        if os.environ.get("FINPILOT_ENABLE_FUNDAMENTALS", "0") == "1":
+            try:
+                from scanner.features import compute_fundamental_score  # noqa: PLC0415
+
+                _fund = compute_fundamental_score(symbol)
+            except Exception:
+                pass
+
+        # ── Faz 4: EODHD canlı haber katalizörü (env-gated) ─────────────────
+        # FINPILOT_ENABLE_NEWS=1 ile aktif. 30-dk cache → hot path güvenli.
+        _news: dict = {
+            "news_catalyst_score": 0,
+            "news_sentiment": 0.0,
+            "news_count": 0,
+            "top_headlines": [],
+        }
+        if os.environ.get("FINPILOT_ENABLE_NEWS", "0") == "1":
+            try:
+                from scanner.features import compute_news_catalyst  # noqa: PLC0415
+
+                _news = compute_news_catalyst(symbol)
+            except Exception:
+                pass
+
         return {
             "symbol": symbol,
             "price": round(safe_float(last_price), 4),
@@ -496,6 +535,22 @@ def evaluate_symbol(
             "dyn_regime_scale": _dyn_pos.get("regime_scale", 1.0),
             "dyn_portfolio_ok": _dyn_pos.get("portfolio_ok", True),
             "dyn_sizing_method": _dyn_pos.get("sizing_method", "fixed-fractional"),
+            # ── Fundamental enrichment (EODHD, env-gated) ─────────────────
+            "fundamental_score": int(_fund.get("fundamental_score", 0)),
+            "fundamental_quality": str(_fund.get("fundamental_quality", "low")),
+            "pe_ratio": _fund.get("pe_ratio"),
+            "forward_pe": _fund.get("forward_pe"),
+            "eps_growth_yoy": _fund.get("eps_growth_yoy"),
+            "revenue_growth_yoy": _fund.get("revenue_growth_yoy"),
+            "profit_margin": _fund.get("profit_margin"),
+            "return_on_equity": _fund.get("return_on_equity"),
+            "analyst_target": _fund.get("analyst_target"),
+            "analyst_rating": _fund.get("analyst_rating"),
+            # ── Faz 4: Haber katalizörü (EODHD, env-gated) ────────────────────
+            "news_catalyst_score": int(_news.get("news_catalyst_score", 0)),
+            "news_sentiment": float(_news.get("news_sentiment", 0.0)),
+            "news_count": int(_news.get("news_count", 0)),
+            "top_headlines": list(_news.get("top_headlines", [])),
             # ── Faz 6: Cost-adjusted expected return + edge decay label ────
             # net_expected_return: ev_per_trade minus estimated round-trip cost
             # (slippage + commission). Uses core.slippage_tracker when available;

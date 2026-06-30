@@ -80,6 +80,30 @@ interface ScanResult {
   // New enrichment factors
   squeeze_factor?: number;
   catalyst_factor?: number;
+  // Early tier (WATCH/SETUP/TRIGGER/CONFIRM)
+  tier?: string;
+  tier_score?: number;
+  tier_reasons?: string[];
+  tier_size_fraction?: number;
+  contraction_factor?: number;
+  rvol_acceleration?: number;
+  range_expansion?: number;
+  // Fundamentals (EODHD)
+  fundamental_score?: number;
+  fundamental_quality?: string;
+  pe_ratio?: number | null;
+  forward_pe?: number | null;
+  eps_growth_yoy?: number | null;
+  revenue_growth_yoy?: number | null;
+  profit_margin?: number | null;
+  return_on_equity?: number | null;
+  analyst_target?: number | null;
+  analyst_rating?: number | null;
+  // Faz 4: News catalyst (EODHD)
+  news_catalyst_score?: number;
+  news_sentiment?: number;
+  news_count?: number;
+  top_headlines?: string[];
   // Task 3: Dynamic position sizing
   dyn_shares?: number;
   dyn_notional?: number;
@@ -134,6 +158,30 @@ interface DisplayStock {
   // New enrichment factors
   squeezeFactor: number;
   catalystFactor: number;
+  // Early tier
+  tier: string;
+  tierScore: number;
+  tierReasons: string[];
+  tierSizeFraction: number;
+  contractionFactor: number;
+  rvolAcceleration: number;
+  rangeExpansion: number;
+  // Fundamentals
+  fundamentalScore: number;
+  fundamentalQuality: string;
+  peRatio: number | null;
+  forwardPE: number | null;
+  epsGrowth: number | null;
+  revenueGrowth: number | null;
+  profitMargin: number | null;
+  returnOnEquity: number | null;
+  analystTarget: number | null;
+  analystRating: number | null;
+  // Faz 4: News catalyst
+  newsCatalystScore: number;
+  newsSentiment: number;
+  newsCount: number;
+  topHeadlines: string[];
 }
 
 type Preset = {
@@ -204,6 +252,27 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     dynPortfolioOk: r.dyn_portfolio_ok ?? true,
     squeezeFactor: r.squeeze_factor ?? 0,
     catalystFactor: r.catalyst_factor ?? 0,
+    tier: r.tier ?? "",
+    tierScore: r.tier_score ?? 0,
+    tierReasons: r.tier_reasons ?? [],
+    tierSizeFraction: r.tier_size_fraction ?? 0,
+    contractionFactor: r.contraction_factor ?? 0,
+    rvolAcceleration: r.rvol_acceleration ?? 0,
+    rangeExpansion: r.range_expansion ?? 0,
+    fundamentalScore: r.fundamental_score ?? 0,
+    fundamentalQuality: r.fundamental_quality ?? "low",
+    peRatio: r.pe_ratio ?? null,
+    forwardPE: r.forward_pe ?? null,
+    epsGrowth: r.eps_growth_yoy ?? null,
+    revenueGrowth: r.revenue_growth_yoy ?? null,
+    profitMargin: r.profit_margin ?? null,
+    returnOnEquity: r.return_on_equity ?? null,
+    analystTarget: r.analyst_target ?? null,
+    analystRating: r.analyst_rating ?? null,
+    newsCatalystScore: r.news_catalyst_score ?? 0,
+    newsSentiment: r.news_sentiment ?? 0,
+    newsCount: r.news_count ?? 0,
+    topHeadlines: r.top_headlines ?? [],
   };
 }
 
@@ -249,6 +318,27 @@ function mockToStock(ticker: string): DisplayStock {
     dynPortfolioOk: true,
     squeezeFactor: 0,
     catalystFactor: 0,
+    tier: "",
+    tierScore: 0,
+    tierReasons: [],
+    tierSizeFraction: 0,
+    contractionFactor: 0,
+    rvolAcceleration: 0,
+    rangeExpansion: 0,
+    fundamentalScore: 0,
+    fundamentalQuality: "low",
+    peRatio: null,
+    forwardPE: null,
+    epsGrowth: null,
+    revenueGrowth: null,
+    profitMargin: null,
+    returnOnEquity: null,
+    analystTarget: null,
+    analystRating: null,
+    newsCatalystScore: 0,
+    newsSentiment: 0,
+    newsCount: 0,
+    topHeadlines: [],
   };
 }
 
@@ -325,6 +415,35 @@ function SignalBadge({ signal }: { signal: string }) {
       }}
     >
       {signal}
+    </span>
+  );
+}
+
+/* ── Tier Badge ───────────────────────────────────────────── */
+const TIER_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
+  WATCH:   { color: "#ffd60a", bg: "rgba(255,214,10,0.15)",   label: "👁 WATCH" },
+  SETUP:   { color: "#ff9f0a", bg: "rgba(255,159,10,0.15)",   label: "⚙ SETUP" },
+  TRIGGER: { color: "#00d4ff", bg: "rgba(0,212,255,0.15)",    label: "⚡ TRIGGER" },
+  CONFIRM: { color: "#30d158", bg: "rgba(48,209,88,0.15)",    label: "✓ CONFIRM" },
+};
+
+function TierBadge({ tier }: { tier: string }) {
+  const cfg = TIER_CONFIG[tier];
+  if (!cfg) return null;
+  return (
+    <span
+      style={{
+        color: cfg.color,
+        backgroundColor: cfg.bg,
+        borderRadius: 9999,
+        padding: "1px 6px",
+        fontSize: 9,
+        fontWeight: 700,
+        letterSpacing: "0.02em",
+        whiteSpace: "nowrap" as const,
+      }}
+    >
+      {cfg.label}
     </span>
   );
 }
@@ -1536,6 +1655,9 @@ export default function ScannerPage() {
                                   }}
                                 />
                               )}
+                              {s.fromAPI && s.tier && s.tier !== "NONE" && (
+                                <TierBadge tier={s.tier} />
+                              )}
                             </div>
                           </td>
                           <td
@@ -1891,6 +2013,458 @@ export default function ScannerPage() {
                   )}
                   {selected.explanation && (
                     <p className="mt-1" style={{ color: C.text3 }}>{selected.explanation}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Early Tier Panel */}
+              {selected.fromAPI && selected.tier && selected.tier !== "NONE" && selected.tier !== "" && (
+                <div
+                  className="rounded-2xl p-4"
+                  style={{
+                    border: `1px solid ${TIER_CONFIG[selected.tier]?.color ?? C.border}44`,
+                    backgroundColor: `${TIER_CONFIG[selected.tier]?.bg ?? "transparent"}`,
+                  }}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <TierBadge tier={selected.tier} />
+                      <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: C.text3 }}>
+                        Early Detection
+                      </span>
+                    </div>
+                    <span
+                      className="text-xs font-bold"
+                      style={{ color: TIER_CONFIG[selected.tier]?.color }}
+                    >
+                      {Math.round(selected.tierScore * 100)}%
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="mb-3">
+                    <div className="h-1 rounded-full" style={{ backgroundColor: C.primary }}>
+                      <div
+                        className="h-1 rounded-full transition-all"
+                        style={{
+                          width: `${selected.tierScore * 100}%`,
+                          backgroundColor: TIER_CONFIG[selected.tier]?.color,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Tier ladder */}
+                  <div className="mb-3 flex gap-1">
+                    {["WATCH", "SETUP", "TRIGGER", "CONFIRM"].map((t) => {
+                      const tiers = ["WATCH", "SETUP", "TRIGGER", "CONFIRM"];
+                      const currentIdx = tiers.indexOf(selected.tier);
+                      const thisIdx = tiers.indexOf(t);
+                      const isActive = t === selected.tier;
+                      const isPast = thisIdx < currentIdx;
+                      return (
+                        <div
+                          key={t}
+                          className="flex-1 rounded px-1 py-1 text-center"
+                          style={{
+                            backgroundColor: isActive
+                              ? `${TIER_CONFIG[t]?.color}33`
+                              : isPast
+                              ? `${TIER_CONFIG[t]?.color}18`
+                              : C.primary,
+                            border: isActive
+                              ? `1px solid ${TIER_CONFIG[t]?.color}99`
+                              : "1px solid transparent",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 8,
+                              fontWeight: isActive ? 700 : 400,
+                              color: isActive
+                                ? TIER_CONFIG[t]?.color
+                                : isPast
+                                ? `${TIER_CONFIG[t]?.color}88`
+                                : C.text3,
+                            }}
+                          >
+                            {t}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Metrics */}
+                  <div className="grid grid-cols-3 gap-1.5 mb-3 text-xs">
+                    <div className="rounded-lg px-2 py-1.5" style={{ backgroundColor: C.primary }}>
+                      <div style={{ color: C.text3, fontSize: 9 }}>Size Fraction</div>
+                      <div className="font-bold" style={{ color: C.text1 }}>
+                        {selected.tierSizeFraction > 0 ? `${Math.round(selected.tierSizeFraction * 100)}%` : "0%"}
+                      </div>
+                    </div>
+                    <div className="rounded-lg px-2 py-1.5" style={{ backgroundColor: C.primary }}>
+                      <div style={{ color: C.text3, fontSize: 9 }}>Contraction</div>
+                      <div
+                        className="font-bold"
+                        style={{ color: selected.contractionFactor >= 0.6 ? C.green : C.yellow }}
+                      >
+                        {selected.contractionFactor > 0 ? selected.contractionFactor.toFixed(2) : "—"}
+                      </div>
+                    </div>
+                    <div className="rounded-lg px-2 py-1.5" style={{ backgroundColor: C.primary }}>
+                      <div style={{ color: C.text3, fontSize: 9 }}>RVOL Accel</div>
+                      <div
+                        className="font-bold"
+                        style={{ color: selected.rvolAcceleration >= 0.3 ? C.cyan : C.text2 }}
+                      >
+                        {selected.rvolAcceleration > 0 ? `+${selected.rvolAcceleration.toFixed(2)}` : "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reasons */}
+                  {selected.tierReasons.length > 0 && (
+                    <div className="space-y-1">
+                      {selected.tierReasons.map((reason, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-1.5 text-[10px]"
+                          style={{ color: C.text2 }}
+                        >
+                          <span style={{ color: TIER_CONFIG[selected.tier]?.color, flexShrink: 0 }}>›</span>
+                          {reason}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Fundamentals Panel (EODHD) */}
+              {selected.fromAPI && selected.fundamentalScore > 0 && (
+                <div
+                  className="rounded-2xl p-5"
+                  style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-xs font-semibold" style={{ color: C.text1 }}>
+                      Fundamentals
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[9px] font-semibold"
+                        style={{
+                          backgroundColor:
+                            selected.fundamentalQuality === "high"
+                              ? "rgba(48,209,88,0.15)"
+                              : selected.fundamentalQuality === "medium"
+                              ? "rgba(255,214,10,0.15)"
+                              : "rgba(255,255,255,0.08)",
+                          color:
+                            selected.fundamentalQuality === "high"
+                              ? C.green
+                              : selected.fundamentalQuality === "medium"
+                              ? C.yellow
+                              : C.text3,
+                        }}
+                      >
+                        {selected.fundamentalQuality?.toUpperCase()} DATA
+                      </span>
+                      <span
+                        className="text-sm font-bold"
+                        style={{
+                          color:
+                            selected.fundamentalScore >= 65
+                              ? C.green
+                              : selected.fundamentalScore >= 45
+                              ? C.cyan
+                              : C.red,
+                        }}
+                      >
+                        {selected.fundamentalScore}/100
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Score bar */}
+                  <div className="mb-4 h-1.5 rounded-full" style={{ backgroundColor: C.primary }}>
+                    <div
+                      className="h-1.5 rounded-full"
+                      style={{
+                        width: `${selected.fundamentalScore}%`,
+                        backgroundColor:
+                          selected.fundamentalScore >= 65
+                            ? C.green
+                            : selected.fundamentalScore >= 45
+                            ? C.cyan
+                            : C.red,
+                      }}
+                    />
+                  </div>
+
+                  {/* Metrics grid */}
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {[
+                      {
+                        label: "P/E (Trailing)",
+                        value: selected.peRatio != null ? selected.peRatio.toFixed(1) : "—",
+                        color:
+                          selected.peRatio == null
+                            ? C.text3
+                            : selected.peRatio < 15
+                            ? C.green
+                            : selected.peRatio < 30
+                            ? C.cyan
+                            : C.red,
+                      },
+                      {
+                        label: "P/E (Forward)",
+                        value: selected.forwardPE != null ? selected.forwardPE.toFixed(1) : "—",
+                        color:
+                          selected.forwardPE == null
+                            ? C.text3
+                            : selected.forwardPE < 20
+                            ? C.green
+                            : selected.forwardPE < 35
+                            ? C.cyan
+                            : C.red,
+                      },
+                      {
+                        label: "EPS Büyüme YoY",
+                        value:
+                          selected.epsGrowth != null
+                            ? `${selected.epsGrowth > 0 ? "+" : ""}${(selected.epsGrowth * 100).toFixed(1)}%`
+                            : "—",
+                        color:
+                          selected.epsGrowth == null
+                            ? C.text3
+                            : selected.epsGrowth > 0.15
+                            ? C.green
+                            : selected.epsGrowth > 0
+                            ? C.cyan
+                            : C.red,
+                      },
+                      {
+                        label: "Gelir Büyüme YoY",
+                        value:
+                          selected.revenueGrowth != null
+                            ? `${selected.revenueGrowth > 0 ? "+" : ""}${(selected.revenueGrowth * 100).toFixed(1)}%`
+                            : "—",
+                        color:
+                          selected.revenueGrowth == null
+                            ? C.text3
+                            : selected.revenueGrowth > 0.1
+                            ? C.green
+                            : selected.revenueGrowth > 0
+                            ? C.cyan
+                            : C.red,
+                      },
+                      {
+                        label: "Kâr Marjı",
+                        value:
+                          selected.profitMargin != null
+                            ? `${(selected.profitMargin * 100).toFixed(1)}%`
+                            : "—",
+                        color:
+                          selected.profitMargin == null
+                            ? C.text3
+                            : selected.profitMargin > 0.2
+                            ? C.green
+                            : selected.profitMargin > 0
+                            ? C.cyan
+                            : C.red,
+                      },
+                      {
+                        label: "Özsermaye Getirisi",
+                        value:
+                          selected.returnOnEquity != null
+                            ? `${(selected.returnOnEquity * 100).toFixed(1)}%`
+                            : "—",
+                        color:
+                          selected.returnOnEquity == null
+                            ? C.text3
+                            : selected.returnOnEquity > 0.15
+                            ? C.green
+                            : selected.returnOnEquity > 0
+                            ? C.cyan
+                            : C.red,
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="rounded-lg px-2.5 py-2"
+                        style={{ backgroundColor: C.primary }}
+                      >
+                        <div style={{ color: C.text3, fontSize: 9 }}>{item.label}</div>
+                        <div className="mt-0.5 font-bold" style={{ color: item.color }}>
+                          {item.value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Analyst consensus */}
+                  {selected.analystTarget != null && selected.analystRating != null && (
+                    <div className="mt-2 rounded-lg px-2.5 py-2.5" style={{ backgroundColor: C.primary }}>
+                      <div className="flex items-center justify-between text-xs">
+                        <div>
+                          <div style={{ color: C.text3, fontSize: 9 }}>Analist Konsensüs</div>
+                          <div
+                            className="mt-0.5 font-bold"
+                            style={{
+                              color:
+                                selected.analystRating >= 4.0
+                                  ? C.green
+                                  : selected.analystRating >= 3.0
+                                  ? C.cyan
+                                  : C.red,
+                            }}
+                          >
+                            {selected.analystRating >= 4.5
+                              ? "Güçlü Al"
+                              : selected.analystRating >= 4.0
+                              ? "Al"
+                              : selected.analystRating >= 3.0
+                              ? "Tut"
+                              : selected.analystRating >= 2.0
+                              ? "Sat"
+                              : "Güçlü Sat"}{" "}
+                            <span style={{ color: C.text3, fontWeight: 400 }}>
+                              ({selected.analystRating.toFixed(2)}/5)
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div style={{ color: C.text3, fontSize: 9 }}>Hedef Fiyat</div>
+                          <div className="mt-0.5 font-bold" style={{ color: C.text1 }}>
+                            ${selected.analystTarget.toFixed(2)}
+                          </div>
+                          {selected.price > 0 && (
+                            <div
+                              style={{
+                                fontSize: 9,
+                                color:
+                                  selected.analystTarget > selected.price ? C.green : C.red,
+                              }}
+                            >
+                              {selected.analystTarget > selected.price ? "+" : ""}
+                              {(
+                                ((selected.analystTarget - selected.price) / selected.price) *
+                                100
+                              ).toFixed(1)}
+                              % potansiyel
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Son Haberler Paneli (EODHD Faz 4) */}
+              {selected.fromAPI && selected.newsCount > 0 && (
+                <div
+                  className="rounded-2xl p-5"
+                  style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-xs font-semibold" style={{ color: C.text1 }}>
+                      Son Haberler
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[9px] font-semibold"
+                        style={{
+                          backgroundColor:
+                            selected.newsSentiment > 0.15
+                              ? "rgba(48,209,88,0.15)"
+                              : selected.newsSentiment < -0.15
+                              ? "rgba(255,69,58,0.15)"
+                              : "rgba(255,255,255,0.08)",
+                          color:
+                            selected.newsSentiment > 0.15
+                              ? C.green
+                              : selected.newsSentiment < -0.15
+                              ? C.red
+                              : C.text3,
+                        }}
+                      >
+                        {selected.newsSentiment > 0.15
+                          ? "BULLISH"
+                          : selected.newsSentiment < -0.15
+                          ? "BEARISH"
+                          : "NÖTR"}
+                      </span>
+                      <span style={{ color: C.text3, fontSize: 10 }}>
+                        {selected.newsCount} haber (7g)
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Sentiment çubuğu */}
+                  <div className="relative mb-4 h-1.5 rounded-full" style={{ backgroundColor: C.primary }}>
+                    {/* Merkez çizgisi */}
+                    <div
+                      className="absolute top-0 h-1.5 w-px"
+                      style={{ left: "50%", backgroundColor: C.border }}
+                    />
+                    {/* Sentiment dolgusu */}
+                    {selected.newsSentiment >= 0 ? (
+                      <div
+                        className="absolute h-1.5 rounded-r-full"
+                        style={{
+                          left: "50%",
+                          width: `${Math.min(50, selected.newsSentiment * 50)}%`,
+                          backgroundColor: C.green,
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className="absolute h-1.5 rounded-l-full"
+                        style={{
+                          right: "50%",
+                          width: `${Math.min(50, Math.abs(selected.newsSentiment) * 50)}%`,
+                          backgroundColor: C.red,
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div
+                    className="mb-3 flex justify-between text-[9px]"
+                    style={{ color: C.text3 }}
+                  >
+                    <span>Çok Negatif</span>
+                    <span>Sentiment: {selected.newsSentiment > 0 ? "+" : ""}{(selected.newsSentiment * 100).toFixed(0)}%</span>
+                    <span>Çok Pozitif</span>
+                  </div>
+
+                  {/* Başlıklar */}
+                  {selected.topHeadlines.length > 0 && (
+                    <div className="space-y-1.5">
+                      {selected.topHeadlines.map((headline, i) => (
+                        <div
+                          key={i}
+                          className="rounded-lg px-2.5 py-2 text-[10px] leading-snug"
+                          style={{ backgroundColor: C.primary, color: C.text2 }}
+                        >
+                          <span
+                            className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full"
+                            style={{
+                              backgroundColor:
+                                selected.newsSentiment > 0.15
+                                  ? C.green
+                                  : selected.newsSentiment < -0.15
+                                  ? C.red
+                                  : C.text3,
+                              verticalAlign: "middle",
+                            }}
+                          />
+                          {headline}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               )}

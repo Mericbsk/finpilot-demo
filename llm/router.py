@@ -645,6 +645,27 @@ def get_router() -> LLMRouter:
 
     router = LLMRouter()
 
+    # Backend seçimi: cloud (vars) | ollama (yerel) | mock (çevrimdışı test).
+    # Yerel-öncelikli kullanım için FINPILOT_LLM_BACKEND=ollama.
+    _backend = os.environ.get("FINPILOT_LLM_BACKEND", "cloud").strip().lower()
+    if _backend == "ollama":
+        try:
+            from llm.ollama_provider import OllamaProvider
+
+            router.add_provider(OllamaProvider())
+            logger.info("LLM router: yerel Ollama backend")
+            _router_instance = router
+            return router
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Ollama backend başlatılamadı, cloud'a düşülüyor: %s", e)
+    elif _backend == "mock":
+        from llm.mock_provider import MockProvider
+
+        router.add_provider(MockProvider())
+        logger.info("LLM router: mock backend")
+        _router_instance = router
+        return router
+
     if _should_load("groq"):
         try:
             from llm.groq_provider import GroqProvider
