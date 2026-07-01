@@ -53,6 +53,8 @@ services:
       # EODHD destekli zenginleştirme — 1 = aktif, 0 = devre dışı
       - FINPILOT_ENABLE_FUNDAMENTALS=${FINPILOT_ENABLE_FUNDAMENTALS:-0}
       - FINPILOT_ENABLE_NEWS=${FINPILOT_ENABLE_NEWS:-0}
+      # Early detection tier ladder
+      - FINPILOT_ENABLE_EARLY_TIER=${FINPILOT_ENABLE_EARLY_TIER:-0}
       # DATABASE_URL example for PostgreSQL (uncomment after S2-1 auth refactor):
       # - DATABASE_URL=postgresql://finpilot:${POSTGRES_PASSWORD:-finpilot_dev_2026}@postgres:5432/finpilot
     env_file:

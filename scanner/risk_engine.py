@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -195,6 +196,13 @@ def calculate_risk_management(price: float, atr_val: float, momentum_score: int)
     else:
         stop_mult, tp1_mult, tp2_mult, tp3_mult = 2.0, 3.5, 5.5, 7.5
         strategy_tag = "Normal 📈"
+
+    # Alpha-v2 (env-gated): 2026-06 backtest — tp2=5.5xATR yalnizca %3.9 vuruluyor
+    # (tipik 5g maks hareket ~%2.5). Take-profit'i tp1 yakinina (~3xATR) cekmek
+    # beklenen yakalamayi ~2x artiriyor. Stop ve tp1/tp3 korunur; sadece
+    # birincil take_profit (tp2) yakinlastirilir.
+    if os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1":
+        tp2_mult = min(tp2_mult, 3.0)
 
     stop_loss = price - (atr_val * stop_mult)
     tp1 = price + (atr_val * tp1_mult)

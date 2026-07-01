@@ -143,8 +143,108 @@ def compute_squeeze_factor(symbol: str) -> float:
     if isinstance(float_shares, int | float) and float_shares > 0:
         float_comp = max(0.0, 1.0 - float(float_shares) / _SQUEEZE_FLOAT_PIVOT)
 
-    squeeze = 0.5 * short_comp + 0.5 * float_comp
+    # Alpha-v2 backtest (2026-06, n=6410 real EODHD fundamentals): short interest
+    # is the dominant squeeze driver — short>=20% lifts the >=10% bucket x2.57,
+    # while float adds ~nothing once short is controlled for (multivariate coef
+    # went negative). short-only / 70-30 both beat the 50-50 mix on the top-decile
+    # >=10% lift (2.21-2.23 vs 2.15). Under ALPHA_V2 we weight short heavily.
+    if _alpha_v2_enabled():
+        w_short, w_float = 0.7, 0.3
+    else:
+        w_short, w_float = 0.5, 0.5
+    squeeze = w_short * short_comp + w_float * float_comp
     return round(max(0.0, min(1.0, squeeze)), 4)
+
+
+# --- Alpha-v2 price-derived factors (2026-06 backtest) ----------------------
+# All three are PURE pandas (no network) and mirror the compute_*_factor pattern
+# so evaluate.py can wire them into the score row exactly like lottery/overnight.
+# Consumed by score_engine only when FINPILOT_ENABLE_ALPHA_V2=1.
+#   gap >3%      -> hit 56% / lift 1.74 (strongest INDEPENDENT predictor)
+#   RVOL >=2..5  -> dose-response, lift 1.24 -> 1.50
+#   52w-high >0.9 (extended) -> lift 0.68 (NEGATIVE: fade, not chase)
+_GAP_PIVOT: float = 5.0
+_RVOL_PIVOT: float = 3.0
+_EXTENSION_PIVOT: float = 0.90
+
+
+def _alpha_v2_enabled() -> bool:
+    return os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1"
+
+
+def compute_gap_factor(df: Any) -> float:
+    """Return 0.0-1.0 opening-gap strength from a daily OHLC DataFrame.
+
+    gap% = (today Open - prev Close) / prev Close * 100, scaled by _GAP_PIVOT.
+    Only positive gaps score; returns 0.0 when data is unavailable.
+    """
+    try:
+        if (
+            not hasattr(df, "iloc")
+            or len(df) < 2
+            or "Open" not in df.columns
+            or "Close" not in df.columns
+        ):
+            return 0.0
+        open_now = float(df["Open"].iloc[-1])
+        prev_close = float(df["Close"].iloc[-2])
+        if prev_close <= 0:
+            return 0.0
+        gap_pct = (open_now - prev_close) / prev_close * 100.0
+        if gap_pct <= 0:
+            return 0.0
+        return round(min(1.0, gap_pct / _GAP_PIVOT), 4)
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
+def compute_rvol_factor(df: Any) -> float:
+    """Return 0.0-1.0 relative-volume strength from a daily OHLC DataFrame.
+
+    RVOL = today Volume / mean(Volume, last 20 bars), scaled by _RVOL_PIVOT.
+    Returns 0.0 when data is unavailable.
+    """
+    try:
+        if not hasattr(df, "iloc") or len(df) < 6 or "Volume" not in df.columns:
+            return 0.0
+        vol_now = float(df["Volume"].iloc[-1])
+        window = df["Volume"].iloc[-21:-1] if len(df) >= 21 else df["Volume"].iloc[:-1]
+        avg = float(window.mean())
+        if avg <= 0 or vol_now <= 0:
+            return 0.0
+        rvol = vol_now / avg
+        if rvol <= 1.0:
+            return 0.0
+        return round(min(1.0, (rvol - 1.0) / (_RVOL_PIVOT - 1.0)), 4)
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
+def compute_extension_factor(df: Any) -> float:
+    """Return 0.0-1.0 over-extension penalty (proximity to 52-week high).
+
+    close / max(High, last 252 bars). Above _EXTENSION_PIVOT the stock is
+    extended and historically FADES (lift 0.68), so score_engine SUBTRACTS this.
+    Returns 0.0 (no penalty) when data is unavailable.
+    """
+    try:
+        if (
+            not hasattr(df, "iloc")
+            or len(df) < 20
+            or "High" not in df.columns
+            or "Close" not in df.columns
+        ):
+            return 0.0
+        close_now = float(df["Close"].iloc[-1])
+        hi = float(df["High"].iloc[-252:].max())
+        if hi <= 0:
+            return 0.0
+        ratio = close_now / hi
+        if ratio <= _EXTENSION_PIVOT:
+            return 0.0
+        return round(min(1.0, (ratio - _EXTENSION_PIVOT) / (1.0 - _EXTENSION_PIVOT)), 4)
+    except Exception:  # noqa: BLE001
+        return 0.0
 
 
 def get_alpha_features(symbol: str, sector: str | None = None) -> dict[str, Any]:
@@ -164,7 +264,7 @@ def get_alpha_features(symbol: str, sector: str | None = None) -> dict[str, Any]
     vol_regime = compute_vol_regime(symbol)
 
     squeeze_factor = 0.0
-    if os.environ.get("FINPILOT_ENABLE_SQUEEZE_FACTOR", "0") == "1":
+    if os.environ.get("FINPILOT_ENABLE_SQUEEZE_FACTOR", "0") == "1" or _alpha_v2_enabled():
         squeeze_factor = compute_squeeze_factor(symbol)
 
     entry: dict[str, Any] = {

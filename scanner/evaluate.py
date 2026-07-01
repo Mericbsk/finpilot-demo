@@ -218,9 +218,31 @@ def evaluate_symbol(
         momentum_confluence = bool(momentum_confluence)
         momentum_ratio = float(momentum_ratio or 0.0)
 
+        # Alpha-v2 fiyat faktorleri (env-gated, saf/yerel — hot-path guvenli)
+        _alpha_gap = _alpha_rvol = _alpha_ext = 0.0
+        try:
+            from scanner.features import (  # noqa: PLC0415
+                compute_extension_factor,
+                compute_gap_factor,
+                compute_rvol_factor,
+            )
+
+            _alpha_gap = compute_gap_factor(df_1d)
+            _alpha_rvol = compute_rvol_factor(df_1d)
+            _alpha_ext = compute_extension_factor(df_1d)
+        except Exception:
+            pass
+
         min_score_threshold = 3
         core_signal = bool(regime and direction and (score >= min_score_threshold))
         entry_ok = bool(score == 3) if core_signal else False
+        # Alpha-v2 giris kapisi: 2026-06 backtest — eski score==3 kapisi bazi
+        # ancak ×1.07 asiyor; gap/RVOL kapisi hem precision hem recall'u artiriyor
+        # (lift 1.49, recall %60). regime+direction korunur, RSI/MACD kapisi
+        # yerine volatilite/gap tetikleyicisi gelir.
+        if os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1":
+            _alpha_trigger = (_alpha_gap >= 0.6) or (_alpha_rvol >= 0.5)
+            entry_ok = bool(regime and direction and (_alpha_trigger or score >= 2))
 
         # Faz 5: is_premium_symbol removed — subjective hardcoded list had no
         # measurable lift in scoring (score_engine never read the key; it was
@@ -365,6 +387,9 @@ def evaluate_symbol(
                 # Faz 3: vol_regime drives momentum weight in score_engine
                 "vol_regime": int(vol_regime_val),
                 "squeeze_factor": float(squeeze_factor),
+                "gap_factor": float(_alpha_gap),
+                "rvol_factor": float(_alpha_rvol),
+                "extension_factor": float(_alpha_ext),
                 "catalyst_factor": float(catalyst_factor),
                 # Faz 1/2: lottery penalty (gated by FINPILOT_ENABLE_LOTTERY_FADE)
                 "lottery_factor": float(lottery_factor),

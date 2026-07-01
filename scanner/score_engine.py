@@ -80,6 +80,23 @@ def _overnight_enabled() -> bool:
 _VOL_REGIME_MOM_WEIGHTS: dict[int, float] = {0: 2.5, 1: 2.0, 2: 1.5}
 
 
+# ── Alpha-v2 factors (env-gated, default OFF) ────────────────────────────────
+# Evidence: 2026-06 real-data backtest (n=6410). gap% and RVOL are strong
+# INDEPENDENT predictors absent from the legacy score; short interest is the
+# single best signal (>=10% lift 2.57); 52w-high extension FADES (lift 0.68).
+# The whole block is a no-op unless FINPILOT_ENABLE_ALPHA_V2=1, so default
+# scoring/calibration is byte-for-byte unchanged.
+_ALPHA_V2_GAP_WEIGHT: float = 2.0
+_ALPHA_V2_RVOL_WEIGHT: float = 1.0
+_ALPHA_V2_EXTENSION_WEIGHT: float = 1.5  # SUBTRACTED (over-extension fade)
+_ALPHA_V2_SQUEEZE_WEIGHT: float = 3.0  # short-heavy squeeze, boosted vs 1.5
+_ALPHA_V2_SCORE_MULT: float = 0.25  # RSI/MACD demoted further (was 0.5)
+
+
+def _alpha_v2_enabled() -> bool:
+    return os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1"
+
+
 def _macro_mult() -> float:
     """Return the FRED macro multiplier for the new factors (1.0 when disabled).
 
@@ -123,7 +140,8 @@ def compute_recommendation_score(
     # are necessary but not sufficient — they act as a confirmation filter, not
     # the primary signal source. Reducing their weight prevents noise-driven
     # over-scoring while keeping the gate: entry_ok still requires score==3.
-    score += float(row.get("score", 0)) * 0.5
+    _score_mult = _ALPHA_V2_SCORE_MULT if _alpha_v2_enabled() else 0.5
+    score += float(row.get("score", 0)) * _score_mult
 
     # filter_score (volume_spike + price_momentum + trend_strength) remains at ×1.5:
     # these are the cleaner, longer-horizon confirmations from momentum analysis.
@@ -155,11 +173,12 @@ def compute_recommendation_score(
     # Float/Short squeeze factor (env-gated, default OFF). Additive 0.0–1.5.
     # SEC EDGAR catalyst factor (env-gated, default OFF). Signed ±1.5.
     # Both are dampened by the FRED macro multiplier in a risk-off regime.
-    if _squeeze_enabled() or _catalyst_enabled():
+    if _squeeze_enabled() or _catalyst_enabled() or _alpha_v2_enabled():
         macro_mult = _macro_mult()
-        if _squeeze_enabled():
+        if _squeeze_enabled() or _alpha_v2_enabled():
             squeeze = float(row.get("squeeze_factor", 0.0) or 0.0)
-            score += max(0.0, min(1.0, squeeze)) * _SQUEEZE_WEIGHT * macro_mult
+            _sq_w = _ALPHA_V2_SQUEEZE_WEIGHT if _alpha_v2_enabled() else _SQUEEZE_WEIGHT
+            score += max(0.0, min(1.0, squeeze)) * _sq_w * macro_mult
         if _catalyst_enabled():
             catalyst = float(row.get("catalyst_factor", 0.0) or 0.0)
             score += max(-1.0, min(1.0, catalyst)) * _CATALYST_WEIGHT * macro_mult
@@ -187,6 +206,16 @@ def compute_recommendation_score(
         overnight = float(row.get("overnight_gap_factor", 0.0) or 0.0)
         score -= max(0.0, min(1.0, overnight)) * _OVERNIGHT_WEIGHT
 
+    # ── Alpha-v2 price-derived factors (FINPILOT_ENABLE_ALPHA_V2) ─────────────
+    # gap% ve RVOL guclu bagimsiz tahminci; 52w-high asiri-uzama negatif.
+    if _alpha_v2_enabled():
+        gap_f = max(0.0, min(1.0, float(row.get("gap_factor", 0.0) or 0.0)))
+        rvol_f = max(0.0, min(1.0, float(row.get("rvol_factor", 0.0) or 0.0)))
+        ext_f = max(0.0, min(1.0, float(row.get("extension_factor", 0.0) or 0.0)))
+        score += gap_f * _ALPHA_V2_GAP_WEIGHT
+        score += rvol_f * _ALPHA_V2_RVOL_WEIGHT
+        score -= ext_f * _ALPHA_V2_EXTENSION_WEIGHT
+
     return round(score, 3)
 
 
@@ -199,6 +228,11 @@ def effective_max_reco_score() -> float:
     a pure additive boost on the numerator — symbols without squeeze data are an
     exact no-op, and squeeze symbols gain strength (clamped at 100).
     """
+    if _alpha_v2_enabled():
+        # Alpha-v2 adds up to gap(2)+rvol(1)+squeeze(3)=6 headroom; widen the
+        # ceiling so boosted names are not saturated at 100. Non-boosted symbols
+        # score on the same 0-16.5 base.
+        return MAX_RECO_SCORE + 6.0
     return MAX_RECO_SCORE
 
 
