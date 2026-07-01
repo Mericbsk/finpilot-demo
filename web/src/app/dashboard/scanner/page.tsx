@@ -481,14 +481,16 @@ function writeCache(data: Omit<ScannerCache, "savedAt">) {
 }
 
 /* ── Scan API caller (batches of 200) ─────────────────────────────────────
- * Sending 200 symbols per call means only ~9 batches for all 1812 symbols
- * (vs 182 batches at batch=10).  Alpaca bulk prefetch makes 3 HTTP calls
- * regardless of symbol count, so larger batches = fewer API requests =
- * less rate-limiting pressure.  2 concurrent batches halves total scan time
- * (~3 min) while keeping Alpaca load at 6 concurrent HTTP requests — well
- * within rate limits.
+ * Sending 200 symbols per call means only ~9 sequential batches for all 1812
+ * symbols (vs 36+ batches at batch=50). Alpaca bulk prefetch issues a fixed
+ * number of HTTP calls per batch regardless of symbol count (~O(timeframes),
+ * not O(symbols)), so larger batches cut total request count with no extra
+ * server-side cost. CONCURRENT_BATCHES stays at 1 for now — raising it is a
+ * separate follow-up once single-batch throughput is confirmed stable.
  * ─────────────────────────────────────────────────────────────────────── */
-const BATCH_SIZE = 50;        // 50 symbols ≈ 30s per batch (well within 240s proxy timeout)
+const BATCH_SIZE = 200;       // 200 symbols per batch — Alpaca bulk prefetch issues O(timeframes)
+                               // HTTP calls, not O(symbols), so larger batches don't add server-side
+                               // cost; cuts a 1812-symbol scan from ~36 sequential requests to ~9.
 const CONCURRENT_BATCHES = 1; // Sequential batches — concurrent scan causes API thread exhaustion
 
 async function scanBatch(

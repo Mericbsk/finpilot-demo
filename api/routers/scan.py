@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import math
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
@@ -255,6 +256,7 @@ async def run_scan(
         raise HTTPException(status_code=503, detail="Scanner module is not available.") from exc
 
     loop = asyncio.get_running_loop()
+    _t_start = time.perf_counter()
 
     try:
         results = await asyncio.wait_for(
@@ -280,8 +282,18 @@ async def run_scan(
             status_code=500, detail=f"Scan error: {type(exc).__name__}: {exc}"
         ) from exc
 
+    _t_eval_done = time.perf_counter()
+
     drl_cache, drl_valid = _load_drl_cache()
     out = _enrich_results(results, drl_cache, drl_valid)
+    _t_scoring_done = time.perf_counter()
+    logger.info(
+        "scan timing: symbols=%d eval=%.2fs enrich=%.2fs total=%.2fs",
+        len(req.symbols),
+        _t_eval_done - _t_start,
+        _t_scoring_done - _t_eval_done,
+        _t_scoring_done - _t_start,
+    )
     _persist_shortlist(out)
     _auto_add_watchlist(out, drl_cache, drl_valid)
     try:

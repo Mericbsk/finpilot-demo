@@ -11,6 +11,8 @@ Performance Features:
 
 import logging
 import os
+import threading
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import Any
@@ -70,6 +72,78 @@ CACHE_TTL_MARKET_INDEX = CACHE_TTL_SECONDS
 
 # In-memory fallback cache for non-Streamlit usage
 _memory_cache: dict[str, tuple] = {}
+
+
+# ============================================
+# Alpaca client reuse (module-level singleton)
+# ============================================
+# A fresh StockHistoricalDataClient used to be created on every
+# _prefetch_alpaca_bulk() call. The SDK client only wraps a requests.Session,
+# so recreating it per-call throws away HTTP keep-alive connections and adds
+# needless setup overhead. We build it once and reuse it across scans.
+_alpaca_client_lock = threading.Lock()
+_alpaca_client: Any | None = None
+
+
+def _get_alpaca_client() -> Any | None:
+    """Return a process-wide singleton StockHistoricalDataClient, or None
+    when ALPACA_API_KEY is not configured.
+    """
+    global _alpaca_client  # noqa: PLW0603
+    if _alpaca_client is not None:
+        return _alpaca_client
+    api_key = os.environ.get("ALPACA_API_KEY")
+    if not api_key:
+        return None
+    with _alpaca_client_lock:
+        if _alpaca_client is None:
+            from alpaca.data.historical import StockHistoricalDataClient
+
+            secret_key = os.environ.get("ALPACA_SECRET_KEY", "")
+            _alpaca_client = StockHistoricalDataClient(api_key, secret_key)
+    return _alpaca_client
+
+
+# Retry-with-backoff tuning for Alpaca bulk bar requests. A single transient
+# error (rate limit, network blip) used to permanently cascade the whole
+# batch down to the slow per-symbol yfinance fallback; retrying 2-3x with
+# exponential backoff absorbs most transient failures before giving up.
+_ALPACA_MAX_RETRIES = 3
+_ALPACA_BACKOFF_BASE_SECONDS = 0.5
+
+
+def _get_stock_bars_with_retry(client: Any, req: Any, interval: str, days: int) -> Any | None:
+    """Call client.get_stock_bars(req) with exponential-backoff retries.
+
+    Returns the BarSet on success, or None if all attempts fail (caller
+    falls back to yfinance).
+    """
+    last_exc: Exception | None = None
+    for attempt in range(_ALPACA_MAX_RETRIES):
+        try:
+            return client.get_stock_bars(req)
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if attempt < _ALPACA_MAX_RETRIES - 1:
+                backoff = _ALPACA_BACKOFF_BASE_SECONDS * (2**attempt)
+                logger.warning(
+                    "Alpaca bulk bars attempt %d/%d failed for %s/%dd: %s - retrying in %.1fs",
+                    attempt + 1,
+                    _ALPACA_MAX_RETRIES,
+                    interval,
+                    days,
+                    exc,
+                    backoff,
+                )
+                time.sleep(backoff)
+    logger.warning(
+        "Alpaca bulk bars failed for %s/%dd after %d attempts: %s",
+        interval,
+        days,
+        _ALPACA_MAX_RETRIES,
+        last_exc,
+    )
+    return None
 
 
 def _get_cache_key(symbol: str, interval: str, days: int) -> str:
@@ -533,7 +607,6 @@ def _prefetch_alpaca_bulk(
         from datetime import UTC
         from datetime import timedelta as _timedelta
 
-        from alpaca.data.historical import StockHistoricalDataClient
         from alpaca.data.requests import StockBarsRequest
         from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
 
@@ -553,9 +626,9 @@ def _prefetch_alpaca_bulk(
             "trade_count": "TradeCount",
         }
 
-        api_key = os.environ["ALPACA_API_KEY"]
-        secret_key = os.environ.get("ALPACA_SECRET_KEY", "")
-        client = StockHistoricalDataClient(api_key, secret_key)
+        client = _get_alpaca_client()
+        if client is None:
+            return None
 
         result: dict[str, dict[str, pd.DataFrame]] = {s: {} for s in symbols}
         real_tfs = [(iv, d) for iv, d in timeframes if iv != "4h"]
@@ -586,7 +659,9 @@ def _prefetch_alpaca_bulk(
             )
 
             try:
-                bars = client.get_stock_bars(req)
+                bars = _get_stock_bars_with_retry(client, req, interval, days)
+                if bars is None:
+                    return None  # Fall back entirely to yfinance after exhausting retries
                 # BarSet.df returns MultiIndex (symbol, timestamp) with lowercase columns
                 full_df = bars.df
             except Exception as exc:
