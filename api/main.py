@@ -262,6 +262,11 @@ def _setup_log_rotation() -> None:
     handler.setLevel(logging.INFO)
 
     root = logging.getLogger()
+    # Root logger defaults to WARNING, which silently drops all app-level INFO
+    # logs (e.g. scanner/evaluate.py and api/routers/scan.py stage-timing logs)
+    # before they ever reach a handler. Raise it so INFO actually propagates.
+    if root.level == logging.NOTSET or root.level > logging.INFO:
+        root.setLevel(logging.INFO)
     if not any(isinstance(h, RotatingFileHandler) for h in root.handlers):
         root.addHandler(handler)
 
