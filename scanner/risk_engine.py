@@ -202,7 +202,12 @@ def calculate_risk_management(price: float, atr_val: float, momentum_score: int)
     # beklenen yakalamayi ~2x artiriyor. Stop ve tp1/tp3 korunur; sadece
     # birincil take_profit (tp2) yakinlastirilir.
     if os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1":
-        tp2_mult = min(tp2_mult, 3.0)
+        # 2026-06 intraday stop testi (15-dk bar, gercek MAE): beklenti SIKI stop
+        # + UZAK TP ile maksimum (kazanani kostur). stop=1.5xATR, tp=5xATR ->
+        # beklenti 0.40R, win %52, PF 1.66; genis stop=2.0/yakin tp=3.0'dan (0.29R)
+        # cok daha iyi. Zarari cabuk kes, kazanani birak.
+        stop_mult = min(stop_mult, 1.5)
+        tp2_mult = max(tp2_mult, 5.0)
 
     stop_loss = price - (atr_val * stop_mult)
     tp1 = price + (atr_val * tp1_mult)

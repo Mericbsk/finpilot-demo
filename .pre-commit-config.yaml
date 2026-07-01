@@ -29,7 +29,7 @@ repos:
         args: ['--fix', '--ignore=E501,S105,UP038']
         # Standalone offline research/backtest scripts (root-level, manually run,
         # not imported by the live app) — not held to production lint standards.
-        exclude: ^(eodhd_check|fetch_and_retest|fetch_squeeze_and_analyze|paper_validate|score_lab_1_weights|score_lab_2_exits|score_lab_3_regime|analyze_enriched|backtest_signals|backtest_v2_extra)\.py$
+        exclude: ^(eodhd_check|fetch_and_retest|fetch_squeeze_and_analyze|paper_validate|score_lab_1_weights|score_lab_2_exits|score_lab_3_regime|analyze_enriched|backtest_signals|backtest_v2_extra|finra_short_fetch|historical_short_check|intraday_stop_test|sec_catalyst_test)\.py$
 
   # Security linting with Bandit
   - repo: https://github.com/PyCQA/bandit

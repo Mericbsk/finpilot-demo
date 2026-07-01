@@ -26,9 +26,13 @@ async function proxy(req: NextRequest, params: { path: string[] }): Promise<Next
     body = await req.arrayBuffer();
   }
 
-  // Timeout: 240 s for scan (50-symbol Alpaca+eval ≈30s, 240s gives 8× safety margin)
+  // Timeout: 620 s for scan. Batches are now up to 200 symbols (BATCH_SIZE in
+  // scanner/page.tsx); Alpaca bulk prefetch + per-symbol eval (with yfinance
+  // fallback retries for symbols not covered by Alpaca) can take 3-8 min at
+  // that scale. Backend's own _SCAN_TIMEOUT_SECONDS is 600s, so give the
+  // proxy a small margin above that instead of aborting first.
   const isScan = rest === "scan" || rest.startsWith("scan/");
-  const timeoutMs = isScan ? 240_000 : 20_000;
+  const timeoutMs = isScan ? 620_000 : 20_000;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
