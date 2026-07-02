@@ -172,6 +172,71 @@ def _alpha_v2_enabled() -> bool:
     return os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1"
 
 
+# --- Konviksiyon tier (env-gated) --------------------------------------------
+# Sinyal kalitesi labi (2026-06, n=6410): skor kalibre; faktor-hizalamasi isabeti
+# yukseltir. short>=15 & gap>=3 -> >=%5 %73 / >=%10 %69 (elit). Skoru DEGISTIRMEZ;
+# yalniz etiketler. conviction_prob = o tier'in gozlemlenen >=%5 isabeti (tahmin).
+_CONV_PROB = {"A": 0.73, "B": 0.63, "C": 0.56}
+
+
+def _conviction_enabled() -> bool:
+    return os.environ.get("FINPILOT_ENABLE_CONVICTION_TIERS", "0") == "1"
+
+
+def compute_atr_pct(df: Any) -> float:
+    """Gunluk ATR(14) / kapanis * 100 (yuzde). Veri yoksa 0.0."""
+    try:
+        if (
+            not hasattr(df, "iloc")
+            or len(df) < 15
+            or "High" not in df.columns
+            or "Low" not in df.columns
+            or "Close" not in df.columns
+        ):
+            return 0.0
+        trs = []
+        for j in range(len(df) - 14, len(df)):
+            h = float(df["High"].iloc[j])
+            lo = float(df["Low"].iloc[j])
+            pc = float(df["Close"].iloc[j - 1])
+            trs.append(max(h - lo, abs(h - pc), abs(lo - pc)))
+        close = float(df["Close"].iloc[-1])
+        return round(sum(trs) / len(trs) / close * 100.0, 4) if close > 0 else 0.0
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
+def compute_conviction(
+    squeeze_factor: float, gap_factor: float, rvol_factor: float, atr_pct: float
+):
+    """(tier, prob) dondur. tier in {A,B,C,''}. Env kapaliyken ('',0.0).
+
+    Esikler normalize faktorlere gore (evaluate zaten bunlari hesaplar):
+      short_strong  = squeeze_factor >= 0.5  (~short>=15%)
+      gap_strong    = gap_factor >= 0.6      (~gap>=3%)
+      gap_present   = gap_factor >= 0.2      (~gap>=1%)
+      rvol_present  = rvol_factor >= 0.25    (~RVOL>=1.5)
+      atr_present   = atr_pct >= 4.0
+    """
+    if not _conviction_enabled():
+        return ("", 0.0)
+    short_strong = squeeze_factor >= 0.5
+    gap_strong = gap_factor >= 0.6
+    gap_present = gap_factor >= 0.2
+    rvol_present = rvol_factor >= 0.25
+    atr_present = atr_pct >= 4.0
+    nfac = sum([short_strong, atr_present, gap_present, rvol_present])
+    if short_strong and gap_strong:
+        tier = "A"
+    elif (short_strong and atr_present) or nfac >= 3:
+        tier = "B"
+    elif nfac >= 2:
+        tier = "C"
+    else:
+        tier = ""
+    return (tier, _CONV_PROB.get(tier, 0.0))
+
+
 def compute_gap_factor(df: Any) -> float:
     """Return 0.0-1.0 opening-gap strength from a daily OHLC DataFrame.
 

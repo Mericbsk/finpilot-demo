@@ -65,11 +65,7 @@ class AlertAgent(BaseAgent):
         sent: list[str] = []
         url = _TELEGRAM_API.format(token=bot_token)
 
-        for sym in context.symbols:
-            row = context.scan_results.get(sym, {})
-            if not row.get("entry_ok"):
-                continue
-
+        for sym, row in _select_signals(context):
             message = _format_alert(sym, row)
             try:
                 resp = requests.post(
@@ -96,6 +92,51 @@ class AlertAgent(BaseAgent):
 
 
 # ---------------------------------------------------------------------------
+# Konviksiyon-tier gunluk tavan (env-gated)
+# ---------------------------------------------------------------------------
+# Sinyal kalitesi labi (2026-06): tum entry_ok sinyalleri gostermek yerine
+# konviksiyon tier'ina gore SUN: Tier A (short+gap, ~%73 isabet) HEPSI +
+# Tier B/C'den skorca en iyiler, gunluk tavana kadar. Skoru/sinyali degistirmez,
+# yalniz KAC sinyalin kullaniciya gosterildigini sinirlar.
+# FINPILOT_ENABLE_CONVICTION_TIERS=0 iken eski davranis (tum entry_ok).
+
+
+def _select_signals(context) -> list[tuple[str, dict]]:
+    cand: list[tuple[str, dict]] = []
+    for sym in context.symbols:
+        row = context.scan_results.get(sym, {})
+        if row.get("entry_ok"):
+            cand.append((sym, row))
+
+    if os.environ.get("FINPILOT_ENABLE_CONVICTION_TIERS", "0") != "1":
+        return cand  # eski davranis: hepsi
+
+    try:
+        max_total = int(os.environ.get("FINPILOT_ALERT_MAX_PER_RUN", "5"))
+    except ValueError:
+        max_total = 5
+
+    def _rank(item: tuple[str, dict]):
+        row = item[1]
+        return (
+            float(row.get("conviction_prob", 0.0) or 0.0),
+            float(row.get("composite_score", 0.0) or 0.0),
+        )
+
+    A = sorted([c for c in cand if c[1].get("conviction_tier") == "A"], key=_rank, reverse=True)
+    B = sorted([c for c in cand if c[1].get("conviction_tier") == "B"], key=_rank, reverse=True)
+    C = sorted([c for c in cand if c[1].get("conviction_tier") == "C"], key=_rank, reverse=True)
+
+    out = list(A)  # Tier A hepsi (nadir + yuksek isabet)
+    for grp in (B, C):
+        for c in grp:
+            if len(out) >= max_total:
+                break
+            out.append(c)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Message formatter
 # ---------------------------------------------------------------------------
 
@@ -111,6 +152,12 @@ def _format_alert(symbol: str, data: dict) -> str:
     rr = data.get("risk_reward", "?")
     regime = "📈 Boğa" if data.get("regime") else "📉 Ayı"
     strategy = data.get("strategy_tag", "Normal")
+    tier = data.get("conviction_tier", "")
+    prob = data.get("conviction_prob", 0.0)
+    tier_line = ""
+    if tier:
+        _lbl = {"A": "🅰️ Elite", "B": "🅱️ Güçlü", "C": "🅲 Orta"}.get(tier, tier)
+        tier_line = f"Konviksiyon: *{_lbl}*  (~%{prob * 100:.0f} >=%5)\n"
 
     return (
         f"🤖 *FinPilot Sinyal*\n"
@@ -124,5 +171,6 @@ def _format_alert(symbol: str, data: dict) -> str:
         f"Hedef:       `{tp}`\n"
         f"Risk/Ödül: `{rr}`\n"
         f"━━━━━━━━━━━━━━━━\n"
+        f"{tier_line}"
         f"FinPilot Skoru: *{score}/100*"
     )

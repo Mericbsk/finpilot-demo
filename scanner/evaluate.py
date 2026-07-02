@@ -480,6 +480,18 @@ def evaluate_symbol(
             except Exception:
                 pass
 
+        # Konviksiyon tier (env-gated): skoru DEGISTIRMEZ, sadece etiketler.
+        _conv_tier, _conv_prob = "", 0.0
+        try:
+            from scanner.features import compute_atr_pct, compute_conviction  # noqa: PLC0415
+
+            _atr_pct_daily = compute_atr_pct(df_1d)
+            _conv_tier, _conv_prob = compute_conviction(
+                float(squeeze_factor), float(_alpha_gap), float(_alpha_rvol), _atr_pct_daily
+            )
+        except Exception:
+            _conv_tier, _conv_prob = "", 0.0
+
         return {
             "symbol": symbol,
             "price": round(safe_float(last_price), 4),
@@ -531,6 +543,9 @@ def evaluate_symbol(
             "catalyst_factor": round(catalyst_factor, 4),
             "lottery_factor": round(lottery_factor, 4),
             "overnight_gap_factor": round(overnight_gap_factor, 4),
+            # ── Konviksiyon tier (env-gated; '' + 0.0 disabled) ───────────
+            "conviction_tier": _conv_tier,
+            "conviction_prob": round(float(_conv_prob), 3),
             # ── Early-detection ladder (env-gated; NONE when disabled) ────
             "tier": _early_tier.get("tier", "NONE"),
             "tier_score": _early_tier.get("tier_score", 0.0),
