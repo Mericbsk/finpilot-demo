@@ -89,6 +89,11 @@ data/price_cache/
 data/backtest_out/
 data/fundamentals_cache.json
 
+# Auto-generated per-symbol cache dumps (EDGAR/FINRA/intraday) — thousands of files, never commit
+data/edgar_cache/
+data/finra_cache/
+data/intraday_cache/
+
 # Claude settings
 .claude/
 data/finpilot.db
