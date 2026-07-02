@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 import os
-import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
@@ -605,7 +604,6 @@ def evaluate_symbols_parallel(
     use_prefetch: bool = True,
 ) -> list[dict[str, Any]]:
     """Evaluate multiple symbols in parallel with optimized data fetching."""
-    _t_start = time.perf_counter()
     # Filter known-delisted / acquired symbols to eliminate yfinance "No data" noise
     before = len(symbols)
     symbols = [s for s in symbols if s.upper() not in DELISTED_SYMBOLS_SET]
@@ -635,13 +633,6 @@ def evaluate_symbols_parallel(
             logger.warning("Prefetch phase timed out — continuing with partial data")
             all_data = {}
 
-        _t_prefetch_done = time.perf_counter()
-        logger.info(
-            "scan timing: prefetch_done at %.2fs (%d symbols)",
-            _t_prefetch_done - _t_start,
-            total,
-        )
-
         total_done = 0
 
         # Parallel evaluation: evaluate_symbol is CPU-light after prefetch (pure pandas),
@@ -670,14 +661,6 @@ def evaluate_symbols_parallel(
                     except Exception:
                         logger.debug("Progress callback error — ignored")
 
-        _t_eval_done = time.perf_counter()
-        logger.info(
-            "scan timing: features_done at %.2fs (eval stage %.2fs, %d results)",
-            _t_eval_done - _t_start,
-            _t_eval_done - _t_prefetch_done,
-            len(results),
-        )
-
     else:
         # Single symbol or prefetch disabled — evaluate directly without batch prefetch
         for symbol in symbols:
@@ -688,10 +671,5 @@ def evaluate_symbols_parallel(
             except Exception as e:
                 logger.warning("Evaluate error for %s: %s", symbol, e)
 
-    logger.info(
-        "evaluate_symbols_parallel complete: %d/%d results in %.2fs",
-        len(results),
-        total,
-        time.perf_counter() - _t_start,
-    )
+    logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
     return results

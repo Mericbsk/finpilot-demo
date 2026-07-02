@@ -60,7 +60,7 @@ def main():
         else ("NOTR" if base5 and p5 / base5 > 1.05 else "ZAYIF - gozden gecir")
     )
     print(f"Karar: {verdict}")
-    print("Hedef: picks lift >1.3 ve zamanla stabil. <1.05 ise reçeteyi/flag'i tekrar degerlendir.")
+    print("Hedef: picks lift >1.3 ve zamanla stabil. <1.05 ise receteyi/flag'i tekrar degerlendir.")
 
 
 if __name__ == "__main__":
