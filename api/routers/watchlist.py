@@ -77,6 +77,11 @@ class WatchlistAddRequest(BaseModel):
     source_model: str = Field("scanner_v2", max_length=50)
     notes: str = Field("", max_length=2000)
     tags: list[str] = Field(default_factory=list)
+    # Early-tier / conviction-tier tracking (additive, optional — see plan)
+    tier: str = Field("", max_length=20)
+    tier_score: float = Field(0.0)
+    conviction_tier: str = Field("", max_length=5)
+    conviction_prob: float = Field(0.0)
 
 
 class WatchlistBulkRequest(BaseModel):
@@ -127,6 +132,14 @@ def _migrate_item(item: dict) -> dict:
         item["tags"] = []
     if "source_model" not in item:
         item["source_model"] = "scanner_v2"
+    if "tier" not in item:
+        item["tier"] = ""
+    if "tier_score" not in item:
+        item["tier_score"] = 0.0
+    if "conviction_tier" not in item:
+        item["conviction_tier"] = ""
+    if "conviction_prob" not in item:
+        item["conviction_prob"] = 0.0
     return item
 
 
@@ -920,6 +933,43 @@ def _evaluate_signal_sync(item: dict, days: int) -> dict:
         return {**item, "outcome": "ERROR", "pnl_pct": 0.0, "exit_price": 0.0, "exit_at": None}
 
 
+def _group_signals_by(results: list[dict], key: str, empty_label: str) -> list[dict]:
+    """Aggregate evaluated performance `results` by an arbitrary signal field
+    (e.g. "tier" or "conviction_tier"). Mirrors the by_type breakdown shape.
+    """
+    groups: dict[str, dict] = {}
+    for r in results:
+        val = r.get(key) or empty_label
+        if val not in groups:
+            groups[val] = {"key": val, "count": 0, "tp": 0, "stop": 0, "open": 0, "pnl_sum": 0.0}
+        g = groups[val]
+        g["count"] += 1
+        if r["outcome"] == "TP_HIT":
+            g["tp"] += 1
+        elif r["outcome"] == "STOP_HIT":
+            g["stop"] += 1
+        else:
+            g["open"] += 1
+        g["pnl_sum"] += r["pnl_pct"]
+
+    out = []
+    for g in groups.values():
+        n = g["count"]
+        out.append(
+            {
+                "group": g["key"],
+                "count": n,
+                "tp_count": g["tp"],
+                "stop_count": g["stop"],
+                "open_count": g["open"],
+                "tp_rate": round(g["tp"] / n * 100, 1) if n else 0.0,
+                "avg_pnl": round(g["pnl_sum"] / n, 2) if n else 0.0,
+            }
+        )
+    out.sort(key=lambda x: x["tp_rate"], reverse=True)
+    return out
+
+
 @router.get("/watchlist/performance")
 async def get_watchlist_performance(days: int = Query(default=1, ge=1, le=30)):
     """
@@ -1000,6 +1050,9 @@ async def get_watchlist_performance(days: int = Query(default=1, ge=1, le=30)):
         )
     by_type.sort(key=lambda x: x["tp_rate"], reverse=True)
 
+    by_tier = _group_signals_by(results, "tier", "NONE")
+    by_conviction = _group_signals_by(results, "conviction_tier", "—")
+
     return {
         "days": days,
         "total": len(results),
@@ -1014,6 +1067,8 @@ async def get_watchlist_performance(days: int = Query(default=1, ge=1, le=30)):
         "avg_pnl_tp": avg_pnl_tp,
         "avg_pnl_stop": avg_pnl_stop,
         "by_type": by_type,
+        "by_tier": by_tier,
+        "by_conviction": by_conviction,
         "signals": sorted(results, key=lambda r: r.get("added_at", ""), reverse=True),
         "evaluated_at": datetime.now(UTC).isoformat(),
     }

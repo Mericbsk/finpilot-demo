@@ -32,7 +32,7 @@ import { apiFetch } from "@/lib/api";
 import PriceChart from "@/components/PriceChart";
 import { ExplainPanel } from "@/components/ExplainPanel";
 import { ConfidenceBadge } from "@/components/dashboard/ConfidenceCard";
-import { FactorBadgeRow, MacroRegimeBanner, type FactorData, type MacroRegime } from "@/components/dashboard/FactorBadges";
+import { FactorBadgeRow, MacroRegimeBanner, TIER_CONFIG, TierBadge, ConvictionBadge, type FactorData, type MacroRegime } from "@/components/dashboard/FactorBadges";
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface ScanResult {
@@ -88,6 +88,9 @@ interface ScanResult {
   contraction_factor?: number;
   rvol_acceleration?: number;
   range_expansion?: number;
+  // Conviction tier (A/B/C)
+  conviction_tier?: string;
+  conviction_prob?: number;
   // Fundamentals (EODHD)
   fundamental_score?: number;
   fundamental_quality?: string;
@@ -166,6 +169,9 @@ interface DisplayStock {
   contractionFactor: number;
   rvolAcceleration: number;
   rangeExpansion: number;
+  // Conviction tier (A/B/C)
+  convictionTier: string;
+  convictionProb: number;
   // Fundamentals
   fundamentalScore: number;
   fundamentalQuality: string;
@@ -259,6 +265,8 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     contractionFactor: r.contraction_factor ?? 0,
     rvolAcceleration: r.rvol_acceleration ?? 0,
     rangeExpansion: r.range_expansion ?? 0,
+    convictionTier: r.conviction_tier ?? "",
+    convictionProb: r.conviction_prob ?? 0,
     fundamentalScore: r.fundamental_score ?? 0,
     fundamentalQuality: r.fundamental_quality ?? "low",
     peRatio: r.pe_ratio ?? null,
@@ -325,6 +333,8 @@ function mockToStock(ticker: string): DisplayStock {
     contractionFactor: 0,
     rvolAcceleration: 0,
     rangeExpansion: 0,
+    convictionTier: "",
+    convictionProb: 0,
     fundamentalScore: 0,
     fundamentalQuality: "low",
     peRatio: null,
@@ -419,34 +429,7 @@ function SignalBadge({ signal }: { signal: string }) {
   );
 }
 
-/* ── Tier Badge ───────────────────────────────────────────── */
-const TIER_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
-  WATCH:   { color: "#ffd60a", bg: "rgba(255,214,10,0.15)",   label: "👁 WATCH" },
-  SETUP:   { color: "#ff9f0a", bg: "rgba(255,159,10,0.15)",   label: "⚙ SETUP" },
-  TRIGGER: { color: "#00d4ff", bg: "rgba(0,212,255,0.15)",    label: "⚡ TRIGGER" },
-  CONFIRM: { color: "#30d158", bg: "rgba(48,209,88,0.15)",    label: "✓ CONFIRM" },
-};
-
-function TierBadge({ tier }: { tier: string }) {
-  const cfg = TIER_CONFIG[tier];
-  if (!cfg) return null;
-  return (
-    <span
-      style={{
-        color: cfg.color,
-        backgroundColor: cfg.bg,
-        borderRadius: 9999,
-        padding: "1px 6px",
-        fontSize: 9,
-        fontWeight: 700,
-        letterSpacing: "0.02em",
-        whiteSpace: "nowrap" as const,
-      }}
-    >
-      {cfg.label}
-    </span>
-  );
-}
+/* ── Tier Badge (imported from shared FactorBadges component) ─── */
 
 /* ── sessionStorage persistence ────────────────────────────── */
 const CACHE_KEY = "finpilot_scanner_cache";
@@ -613,6 +596,10 @@ export default function ScannerPage() {
           risk_reward: stock.rr,
           reason: stock.reason,
           explanation: stock.explanation,
+          tier: stock.tier,
+          tier_score: stock.tierScore,
+          conviction_tier: stock.convictionTier,
+          conviction_prob: stock.convictionProb,
         }),
       });
       if (!res.ok) throw new Error();
@@ -813,6 +800,10 @@ export default function ScannerPage() {
             risk_reward: s.rr,
             reason: s.reason,
             explanation: s.explanation,
+            tier: s.tier,
+            tier_score: s.tierScore,
+            conviction_tier: s.convictionTier,
+            conviction_prob: s.convictionProb,
           })),
         }),
       });
@@ -1660,6 +1651,9 @@ export default function ScannerPage() {
                               {s.fromAPI && s.tier && s.tier !== "NONE" && (
                                 <TierBadge tier={s.tier} />
                               )}
+                              {s.fromAPI && s.convictionTier && (
+                                <ConvictionBadge tier={s.convictionTier} prob={s.convictionProb} />
+                              )}
                             </div>
                           </td>
                           <td
@@ -2140,6 +2134,24 @@ export default function ScannerPage() {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Conviction Tier Panel (A/B/C signal quality) */}
+              {selected.fromAPI && selected.convictionTier && (
+                <div
+                  className="rounded-2xl p-4 flex items-center justify-between"
+                  style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+                >
+                  <div className="flex items-center gap-2">
+                    <ConvictionBadge tier={selected.convictionTier} prob={selected.convictionProb} />
+                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: C.text3 }}>
+                      Konviksiyon
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold" style={{ color: C.text1 }}>
+                    ~%{Math.round(selected.convictionProb * 100)}
+                  </span>
                 </div>
               )}
 

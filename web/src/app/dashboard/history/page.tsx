@@ -148,6 +148,36 @@ interface ReturnsData {
   summary: ReturnsSummary;
 }
 
+interface TierPerfGroup {
+  group: string;
+  count: number;
+  tp_count: number;
+  stop_count: number;
+  open_count: number;
+  tp_rate: number;
+  avg_pnl: number;
+}
+
+interface WatchlistPerformance {
+  total: number;
+  by_tier?: TierPerfGroup[];
+  by_conviction?: TierPerfGroup[];
+}
+
+const TIER_LABELS: Record<string, string> = {
+  WATCH: "👁 WATCH",
+  SETUP: "⚙ SETUP",
+  TRIGGER: "⚡ TRIGGER",
+  CONFIRM: "✓ CONFIRM",
+  NONE: "—",
+};
+
+const CONVICTION_LABELS: Record<string, string> = {
+  A: "Elite (A)",
+  B: "Güçlü (B)",
+  C: "Orta (C)",
+};
+
 function SignalBadge({ signal }: { signal: string }) {
   const m: Record<string, { color: string; bg: string }> = {
     BUY: { color: "var(--accent-green)", bg: "rgba(48,209,88,0.1)" },
@@ -165,6 +195,7 @@ export default function HistoryPage() {
   const [apiSource, setApiSource] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [returnsData, setReturnsData] = useState<ReturnsData | null>(null);
+  const [tierPerf, setTierPerf] = useState<WatchlistPerformance | null>(null);
   const [currency, setCurrency] = useState("$");
 
   useEffect(() => {
@@ -196,6 +227,13 @@ export default function HistoryPage() {
     fetch("/py-api/history/returns?days=30")
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((data: ReturnsData) => { if (data.summary) setReturnsData(data); })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/py-api/watchlist/performance?days=30")
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((data: WatchlistPerformance) => setTierPerf(data))
       .catch(() => {});
   }, []);
 
@@ -320,6 +358,58 @@ export default function HistoryPage() {
               ) : (
                 <div className="text-lg font-bold text-[var(--text-tertiary)]">\u2014</div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tier / Conviction Performance Panel */}
+      {tierPerf && (
+        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Target size={16} className="text-[var(--accent-cyan)]" />
+            <h2 className="text-sm font-semibold text-[var(--text-primary)]">Tier &amp; Konviksiyon Performansı</h2>
+            <span className="ml-auto text-[11px] text-[var(--text-tertiary)]">{tierPerf.total} sinyal</span>
+          </div>
+          <p className="mb-3 text-[11px] text-[var(--text-tertiary)]">
+            Erken-tespit tier (WATCH/SETUP/TRIGGER/CONFIRM) ve konviksiyon (A/B/C) verisi yalnızca
+            bu özellikler etkinleştirildikten sonra watchlist'e eklenen sinyallerde bulunur — sayılar
+            zamanla büyüyecektir.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <div className="mb-2 text-[11px] font-semibold text-[var(--text-secondary)]">Erken-Tespit Tier</div>
+              <div className="space-y-1.5">
+                {(tierPerf.by_tier ?? []).filter((g) => g.group !== "NONE").length === 0 ? (
+                  <div className="rounded-lg bg-[var(--bg-primary)] px-3 py-2 text-[11px] text-[var(--text-tertiary)]">Henüz veri yok</div>
+                ) : (
+                  tierPerf.by_tier!.filter((g) => g.group !== "NONE").map((g) => (
+                    <div key={g.group} className="flex items-center justify-between rounded-lg bg-[var(--bg-primary)] px-3 py-2 text-xs">
+                      <span className="font-semibold text-[var(--text-primary)]">{TIER_LABELS[g.group] ?? g.group}</span>
+                      <span className="text-[var(--text-tertiary)]">n={g.count}</span>
+                      <span style={{ color: g.tp_rate >= 50 ? "var(--accent-green)" : "var(--accent-red)" }} className="font-bold">{g.tp_rate.toFixed(0)}%</span>
+                      <span style={{ color: g.avg_pnl >= 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{g.avg_pnl >= 0 ? "+" : ""}{g.avg_pnl.toFixed(2)}%</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            <div>
+              <div className="mb-2 text-[11px] font-semibold text-[var(--text-secondary)]">Konviksiyon Tier</div>
+              <div className="space-y-1.5">
+                {(tierPerf.by_conviction ?? []).filter((g) => g.group !== "—").length === 0 ? (
+                  <div className="rounded-lg bg-[var(--bg-primary)] px-3 py-2 text-[11px] text-[var(--text-tertiary)]">Henüz veri yok</div>
+                ) : (
+                  tierPerf.by_conviction!.filter((g) => g.group !== "—").map((g) => (
+                    <div key={g.group} className="flex items-center justify-between rounded-lg bg-[var(--bg-primary)] px-3 py-2 text-xs">
+                      <span className="font-semibold text-[var(--text-primary)]">{CONVICTION_LABELS[g.group] ?? g.group}</span>
+                      <span className="text-[var(--text-tertiary)]">n={g.count}</span>
+                      <span style={{ color: g.tp_rate >= 50 ? "var(--accent-green)" : "var(--accent-red)" }} className="font-bold">{g.tp_rate.toFixed(0)}%</span>
+                      <span style={{ color: g.avg_pnl >= 0 ? "var(--accent-green)" : "var(--accent-red)" }}>{g.avg_pnl >= 0 ? "+" : ""}{g.avg_pnl.toFixed(2)}%</span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>

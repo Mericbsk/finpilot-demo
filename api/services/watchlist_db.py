@@ -37,7 +37,21 @@ _COLS = (
     "status_lifecycle",
     "signal_date",
     "added_at",
+    # Early-tier / conviction-tier tracking (added migration 003) — additive,
+    # backfilled with defaults below for entries that predate this schema.
+    "tier",
+    "tier_score",
+    "conviction_tier",
+    "conviction_prob",
 )
+
+# Defaults for columns that may be absent on older entries / requests.
+_COL_DEFAULTS: dict[str, Any] = {
+    "tier": "",
+    "tier_score": 0.0,
+    "conviction_tier": "",
+    "conviction_prob": 0.0,
+}
 
 _CREATE_SQL = """
     CREATE TABLE IF NOT EXISTS watchlist_signals (
@@ -58,9 +72,22 @@ _CREATE_SQL = """
         tags         TEXT DEFAULT '[]',
         status_lifecycle TEXT DEFAULT 'new',
         signal_date  TEXT NOT NULL,
-        added_at     TEXT NOT NULL
+        added_at     TEXT NOT NULL,
+        tier             TEXT DEFAULT '',
+        tier_score       REAL DEFAULT 0.0,
+        conviction_tier  TEXT DEFAULT '',
+        conviction_prob  REAL DEFAULT 0.0
     )
 """
+
+# (new_column_name, sql_type_with_default) — applied via idempotent
+# ALTER TABLE ADD COLUMN for tables created before migration 003.
+_MIGRATION_003_COLUMNS = (
+    ("tier", "TEXT DEFAULT ''"),
+    ("tier_score", "REAL DEFAULT 0.0"),
+    ("conviction_tier", "TEXT DEFAULT ''"),
+    ("conviction_prob", "REAL DEFAULT 0.0"),
+)
 
 
 # ─── Internal helpers ─────────────────────────────────────────────────────────
@@ -77,16 +104,19 @@ def _row_to_dict(row: Any) -> dict:
 
 
 def _entry_to_params(entry: dict) -> dict:
-    params: dict[str, Any] = {col: entry.get(col) for col in _COLS}
+    params: dict[str, Any] = {col: entry.get(col, _COL_DEFAULTS.get(col)) for col in _COLS}
     if isinstance(params.get("tags"), list):
         params["tags"] = json.dumps(params["tags"])
     return params
 
 
 def _insert_sql() -> str:
+    # Column names are drawn exclusively from the static `_COLS` tuple defined
+    # above (never from request/user input), so this dynamic query building is
+    # not a SQL-injection vector; values are always bound via `:param` placeholders.
     cols = ", ".join(_COLS)
     vals = ", ".join(f":{c}" for c in _COLS)
-    return f"INSERT INTO watchlist_signals ({cols}) VALUES ({vals})"
+    return f"INSERT INTO watchlist_signals ({cols}) VALUES ({vals})"  # noqa: S608
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
@@ -108,6 +138,26 @@ def ensure_table() -> None:
                 " ON watchlist_signals(signal_date)"
             )
         )
+        _migrate_missing_columns(session)
+
+
+def _migrate_missing_columns(session: Any) -> None:
+    """Migration 003: add tier/conviction columns to tables created before
+    this schema existed. Safe to run on every startup (checks PRAGMA first).
+    """
+    try:
+        existing = {row[1] for row in session.execute(text("PRAGMA table_info(watchlist_signals)"))}
+    except Exception as exc:
+        logger.debug("watchlist_db: PRAGMA table_info unavailable (non-SQLite?): %s", exc)
+        return
+    for col_name, col_def in _MIGRATION_003_COLUMNS:
+        if col_name in existing:
+            continue
+        try:
+            session.execute(text(f"ALTER TABLE watchlist_signals ADD COLUMN {col_name} {col_def}"))
+            logger.info("watchlist_db: migration 003 added column %s", col_name)
+        except Exception as exc:
+            logger.warning("watchlist_db: migration 003 failed to add %s: %s", col_name, exc)
 
 
 def migrate_from_json(json_path: Path) -> int:
@@ -176,13 +226,21 @@ def update_field(item_id: str, **fields: Any) -> bool:
     """Update specific fields for a signal by ID. Returns True if found."""
     if not fields:
         return False
+    # Defense-in-depth: reject any keyword that isn't a real table column,
+    # so the dynamic SET clause below can never carry an injected identifier
+    # even if a caller is ever refactored to pass through untrusted keys.
+    unknown = set(fields) - set(_COLS)
+    if unknown:
+        raise ValueError(f"update_field: unknown column(s) {sorted(unknown)}")
     if "tags" in fields and isinstance(fields["tags"], list):
         fields["tags"] = json.dumps(fields["tags"])
+    # Safe: keys are validated against the `_COLS` allowlist above; values are
+    # always bound via `:param` placeholders, never interpolated directly.
     set_clause = ", ".join(f"{k} = :{k}" for k in fields)
     params: dict[str, Any] = {"item_id": item_id, **fields}
     with get_sync_session() as session:
         result = session.execute(
-            text(f"UPDATE watchlist_signals SET {set_clause} WHERE id = :item_id"),
+            text(f"UPDATE watchlist_signals SET {set_clause} WHERE id = :item_id"),  # noqa: S608
             params,
         )
     return result.rowcount > 0

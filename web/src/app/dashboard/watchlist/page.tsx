@@ -35,6 +35,7 @@ import { C, hashStr, seededRandom, genStock, companyNames, genSparkline, withLiv
 import { useStockPrices } from "@/lib/useStockPrices";
 import { getCurrencySymbol } from "@/lib/userSettings";
 import DemoBanner from "@/components/DemoBanner";
+import { TierBadge, ConvictionBadge } from "@/components/dashboard/FactorBadges";
 
 /* ══════════════════════════════════════════════════════════════
    SINYAL TAKİP — types & helpers
@@ -64,6 +65,11 @@ interface TrackedSignal {
   change_pct: number;
   pnl_pct: number;
   status: "On Track" | "Stop Hit" | "TP Hit" | "Watching" | "Pending";
+  // Early-tier / conviction-tier tracking (optional — older signals won't have these)
+  tier?: string;
+  tier_score?: number;
+  conviction_tier?: string;
+  conviction_prob?: number;
 }
 
 const LIFECYCLE_CONFIG: Record<LifecycleStatus, { label: string; color: string; bg: string; icon: React.ReactNode; pulse?: boolean }> = {
@@ -588,6 +594,12 @@ function SinyalTakipTab() {
                           <td style={{ padding: "11px 12px" }}>
                             <div style={{ fontWeight: 700 }}>{item.symbol}</div>
                             <div style={{ fontSize: 10, color: C.text3 }}>{companyNames[item.symbol] ?? ""}</div>
+                            {(item.tier || item.conviction_tier) && (
+                              <div style={{ display: "flex", gap: 4, marginTop: 3, flexWrap: "wrap" }}>
+                                {item.tier && item.tier !== "NONE" && <TierBadge tier={item.tier} />}
+                                {item.conviction_tier && <ConvictionBadge tier={item.conviction_tier} prob={item.conviction_prob} />}
+                              </div>
+                            )}
                           </td>
                           <td style={{ padding: "11px 12px" }}>
                             <span style={{ padding: "2px 8px", borderRadius: 5, fontSize: 11, fontWeight: 700, background: item.signal === "BUY" ? "rgba(48,209,88,0.15)" : item.signal === "SELL" ? "rgba(255,69,58,0.15)" : "rgba(255,214,10,0.15)", color: item.signal === "BUY" ? C.green : item.signal === "SELL" ? C.red : "#ffd60a" }}>{item.signal}</span>
@@ -777,7 +789,15 @@ function GecmisTab() {
               <tbody>
                 {historyItems.map((item, idx) => (
                   <tr key={item.id ?? idx} style={{ borderBottom: `1px solid ${C.border}` }}>
-                    <td style={{ padding: "10px 11px", fontWeight: 700 }}>{item.symbol}</td>
+                    <td style={{ padding: "10px 11px", fontWeight: 700 }}>
+                      {item.symbol}
+                      {(item.tier || item.conviction_tier) && (
+                        <div style={{ display: "flex", gap: 4, marginTop: 3, flexWrap: "wrap" }}>
+                          {item.tier && item.tier !== "NONE" && <TierBadge tier={item.tier} />}
+                          {item.conviction_tier && <ConvictionBadge tier={item.conviction_tier} prob={item.conviction_prob} />}
+                        </div>
+                      )}
+                    </td>
                     <td style={{ padding: "10px 11px" }}>
                       <span style={{ padding: "2px 7px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: item.signal === "BUY" ? "rgba(48,209,88,0.15)" : "rgba(255,69,58,0.15)", color: item.signal === "BUY" ? C.green : C.red }}>{item.signal}</span>
                     </td>

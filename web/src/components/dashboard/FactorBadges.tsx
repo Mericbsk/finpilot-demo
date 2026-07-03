@@ -241,3 +241,70 @@ export function FactorBadgeRow({ data }: { data: FactorData }) {
     </span>
   );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tier Badge (Early-Detection ladder: WATCH / SETUP / TRIGGER / CONFIRM)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const TIER_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
+  WATCH: { color: "#ffd60a", bg: "rgba(255,214,10,0.15)", label: "👁 WATCH" },
+  SETUP: { color: "#ff9f0a", bg: "rgba(255,159,10,0.15)", label: "⚙ SETUP" },
+  TRIGGER: { color: "#00d4ff", bg: "rgba(0,212,255,0.15)", label: "⚡ TRIGGER" },
+  CONFIRM: { color: "#30d158", bg: "rgba(48,209,88,0.15)", label: "✓ CONFIRM" },
+};
+
+/** Shows only for tiers WATCH/SETUP/TRIGGER/CONFIRM (hidden for "NONE"/""). */
+export function TierBadge({ tier }: { tier: string }) {
+  const cfg = TIER_CONFIG[tier];
+  if (!cfg) return null;
+  return (
+    <span
+      title={`Erken-tespit tier: ${tier}`}
+      style={{
+        color: cfg.color,
+        backgroundColor: cfg.bg,
+        borderRadius: 9999,
+        padding: "1px 6px",
+        fontSize: 9,
+        fontWeight: 700,
+        letterSpacing: "0.02em",
+        whiteSpace: "nowrap" as const,
+      }}
+    >
+      {cfg.label}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Conviction Badge (A / B / C signal-quality tier)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const CONVICTION_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
+  A: { color: "#30d158", bg: "rgba(48,209,88,0.15)", label: "Elite (A)" },
+  B: { color: "#00d4ff", bg: "rgba(0,212,255,0.15)", label: "Güçlü (B)" },
+  C: { color: "#ffd60a", bg: "rgba(255,214,10,0.15)", label: "Orta (C)" },
+};
+
+/** Shows only for A/B/C (hidden when conviction_tier is ""). */
+export function ConvictionBadge({ tier, prob }: { tier: string; prob?: number }) {
+  const cfg = CONVICTION_CONFIG[tier];
+  if (!cfg) return null;
+  return (
+    <span
+      title={`Konviksiyon: ${cfg.label}${prob != null ? ` (~%${Math.round(prob * 100)})` : ""}`}
+      style={{
+        color: cfg.color,
+        backgroundColor: cfg.bg,
+        borderRadius: 9999,
+        padding: "1px 6px",
+        fontSize: 9,
+        fontWeight: 700,
+        letterSpacing: "0.02em",
+        whiteSpace: "nowrap" as const,
+      }}
+    >
+      {cfg.label}
+    </span>
+  );
+}
