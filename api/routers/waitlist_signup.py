@@ -22,6 +22,7 @@ _MAX_SIGNUPS = 10_000
 class WaitlistRequest(BaseModel):
     email: str = Field(..., min_length=5, max_length=254)
     source: str = Field("landing", max_length=50)
+    utm: str = Field("", max_length=200)
 
 
 def _load() -> list[dict]:
@@ -73,6 +74,15 @@ def join_waitlist(body: WaitlistRequest):
         }
     )
     _save(entries)
+
+    # Dual-write to the distribution SQLite store (canonical going forward;
+    # JSON file kept for backwards compatibility with existing tooling).
+    try:
+        from distribution.store import add_waitlist
+
+        add_waitlist(email, source=body.source, utm=body.utm)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning("waitlist sqlite dual-write failed: %s", exc)
 
     logger.info("Waitlist signup: email=<redacted> source=%s total=%d", body.source, len(entries))
     return {"status": "ok", "position": len(entries)}

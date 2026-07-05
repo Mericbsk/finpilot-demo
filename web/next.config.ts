@@ -14,11 +14,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://plausible.io",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://www.google-analytics.com http://localhost:8001 ws://localhost:8001",
+      "connect-src 'self' https://www.google-analytics.com https://plausible.io https: http://localhost:8000 http://localhost:8001 ws://localhost:8001",
       "frame-ancestors 'none'",
     ].join("; "),
   },

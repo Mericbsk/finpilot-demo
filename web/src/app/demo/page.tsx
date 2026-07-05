@@ -1,1028 +1,462 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+/**
+ * FinPilot Web Demo — "yesterday's real brief, frozen".
+ *
+ * Reframed per Web Demo MVP Spec (2026-07-03):
+ *  - Single Grade label (no BUY/SELL, no stop/TP, no position sizing)
+ *  - Candidate cards: Grade + probability band + factor badges + rationale
+ *  - Scorecard strip (the proof) + methodology note
+ *  - Term cards (FinSense bridge), 3-question feedback, Telegram/waitlist CTAs
+ *  - Data: static /demo_snapshot.json published daily by the distribution layer.
+ */
+
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, Search, Heart, Star, ChevronRight,
-  Shield, BarChart3, Brain, Zap, Check, Clock, TrendingUp, TrendingDown,
+  ArrowLeft,
+  BarChart3,
+  CalendarDays,
+  CheckCircle2,
+  ChevronRight,
+  MessageCircle,
+  ScrollText,
+  Send,
+  ShieldQuestion,
+  Sparkles,
 } from "lucide-react";
-import StockChart from "@/components/dashboard/StockChart";
-import { C } from "@/lib/stockData";
+import { BadgeWithTerm } from "@/components/TermCard";
+import { apiFetch } from "@/lib/api";
 
-/* ─── Types ──────────────────────────────────────────────────── */
-interface RawStock {
-  symbol: string;
-  price: number;
-  score: number;
-  filter_score: number;
-  composite_score?: number;
-  regime: boolean;
-  direction: boolean;
-  entry_ok: boolean;
-  high_quality_signal: boolean;
-  trend_strength: boolean;
-  volume_spike: boolean;
-  price_momentum: boolean;
-  momentum_bias: string;
-  momentum_3d_pct: number;
-  momentum_best_return_pct: number;
-  stop_loss: number;
-  take_profit: number;
-  risk_reward: number;
-  position_size: number;
-  stop_loss_percent: number;
-  kelly_fraction: number;
-  atr: number;
-  ema_gap_pct: number;
-  alignment_ratio: number;
-  timeframe_aligned: boolean;
-  momentum_confluence: boolean;
-  timestamp: string;
-}
-
-interface DemoStock {
+/* Types mirror distribution/schema.py (demo view) */
+interface Candidate {
   ticker: string;
-  price: number;
-  score: number;
-  signal: "BUY" | "HOLD" | "CAUTION" | "SELL";
-  regime: string;
-  sentiment: string;
-  rr: number;
-  stop: number;
-  tp: number;
-  entryOk: boolean;
-  highQuality: boolean;
-  trendStrength: boolean;
-  volumeSpike: boolean;
-  momentum: string;
-  momentum3d: number;
-  atr: number;
-  positionSize: number;
-  kelly: number;
-  emaGap: number;
-  aligned: boolean;
-  confluence: boolean;
-  stopPct: number;
+  company?: string;
+  grade: "A" | "B" | "C";
+  prob_band: string;
+  badges: string[];
+  rationale: string;
+  premium_only?: boolean;
+}
+interface Snapshot {
+  schema: number;
+  date: string;
+  generated_at: string;
+  universe: number;
+  candidates: Candidate[];
+  karne: {
+    toplam_aday_bugun?: Record<string, number>;
+    by_grade?: Record<string, { n?: number; hit_rate?: number | string }>;
+    window?: string;
+  } | null;
+  warnings?: string[];
+  sample?: boolean;
 }
 
-/* ─── Helpers ────────────────────────────────────────────────── */
-function parseBool(v: unknown): boolean {
-  return v === true || v === "True" || v === "true" || v === 1;
-}
+const TELEGRAM_URL = process.env.NEXT_PUBLIC_TELEGRAM_URL || "https://t.me/finpilot";
+const DISCLAIMER =
+  "FinPilot is a research and education tool; it does not provide investment advice. Past performance does not guarantee future results.";
 
-function rawToDemo(r: RawStock): DemoStock {
-  const filterScore = r.filter_score ?? r.score ?? 0;
-  const score =
-    r.composite_score != null
-      ? Math.round(r.composite_score)
-      : Math.round((Math.min(filterScore, 4) / 4) * 100);
-
-  const hq = parseBool(r.high_quality_signal);
-  const eo = parseBool(r.entry_ok);
-  const signal: DemoStock["signal"] =
-    hq || eo ? "BUY" : filterScore >= 3 ? "HOLD" : filterScore >= 2 ? "CAUTION" : "SELL";
-
-  const regime = parseBool(r.regime)
-    ? parseBool(r.trend_strength) ? "Trend" : "Range"
-    : "Volatile";
-
-  return {
-    ticker: r.symbol,
-    price: r.price,
-    score,
-    signal,
-    regime,
-    sentiment:
-      r.momentum_bias === "bullish"
-        ? "Bullish"
-        : r.momentum_bias === "bearish"
-        ? "Bearish"
-        : "Neutral",
-    rr: r.risk_reward ?? 0,
-    stop: r.stop_loss ?? 0,
-    tp: r.take_profit ?? 0,
-    entryOk: eo,
-    highQuality: hq,
-    trendStrength: parseBool(r.trend_strength),
-    volumeSpike: parseBool(r.volume_spike),
-    momentum: r.momentum_bias ?? "neutral",
-    momentum3d: r.momentum_3d_pct ?? 0,
-    atr: r.atr ?? 0,
-    positionSize: r.position_size ?? 0,
-    kelly: r.kelly_fraction ?? 0,
-    emaGap: r.ema_gap_pct ?? 0,
-    aligned: parseBool(r.timeframe_aligned),
-    confluence: parseBool(r.momentum_confluence),
-    stopPct: r.stop_loss_percent ?? 0,
-  };
-}
-
-function generateWhySignal(s: DemoStock): string {
-  const parts: string[] = [];
-  if (s.highQuality) parts.push("High-quality signal confirmed across multiple model layers.");
-  if (s.trendStrength && s.regime === "Trend")
-    parts.push(`Strong trend in ${s.regime} regime — EMA gap ${s.emaGap > 0 ? "+" : ""}${s.emaGap.toFixed(1)}%.`);
-  if (s.volumeSpike) parts.push("Unusual volume spike detected — potential institutional activity.");
-  if (s.momentum !== "neutral")
-    parts.push(`3-day momentum is ${s.momentum} (${s.momentum3d > 0 ? "+" : ""}${s.momentum3d.toFixed(1)}%).`);
-  if (s.aligned) parts.push("Multi-timeframe alignment confirmed across 15m, 1h, and 4h intervals.");
-  if (s.confluence) parts.push("Momentum confluence active — indicators align directionally.");
-  if (s.rr > 0) parts.push(`Risk/reward: ${s.rr.toFixed(1)}x with ${s.stopPct.toFixed(1)}% stop distance.`);
-  if (parts.length === 0)
-    parts.push("Signal based on composite technical analysis across trend, volume, and momentum factors.");
-  return parts.join(" ");
-}
-
-function generateEnsemble(s: DemoStock) {
-  const g = C.green, r = C.red, t = C.text3;
-  if (s.signal === "BUY" && s.highQuality)
-    return [
-      { name: "Trend Agent",      vote: "BUY",  conf: Math.min(95, 80 + Math.floor(s.score * 0.12)), color: g },
-      { name: "Range Agent",      vote: s.regime === "Range" ? "BUY" : "HOLD", conf: 65, color: s.regime === "Range" ? g : t },
-      { name: "Volatility Agent", vote: "BUY",  conf: 74, color: g },
-    ];
-  if (s.signal === "SELL")
-    return [
-      { name: "Trend Agent",      vote: "SELL", conf: 78, color: r },
-      { name: "Range Agent",      vote: "HOLD", conf: 54, color: t },
-      { name: "Volatility Agent", vote: "SELL", conf: 71, color: r },
-    ];
-  return [
-    { name: "Trend Agent",      vote: "HOLD", conf: 62, color: t },
-    { name: "Range Agent",      vote: "HOLD", conf: 68, color: t },
-    { name: "Volatility Agent", vote: s.momentum === "bullish" ? "BUY" : "HOLD", conf: 57, color: s.momentum === "bullish" ? g : t },
-  ];
-}
-
-const SIGNAL_COLOR: Record<string, string> = {
-  BUY: C.green, HOLD: C.cyan, CAUTION: "#ffd60a", SELL: C.red,
+const GRADE_STYLES: Record<string, { ring: string; chip: string; label: string }> = {
+  A: { ring: "ring-emerald-400/40", chip: "bg-emerald-500/15 text-emerald-300", label: "Rare, highest-conviction profile" },
+  B: { ring: "ring-sky-400/40", chip: "bg-sky-500/15 text-sky-300", label: "Strong multi-factor profile" },
+  C: { ring: "ring-zinc-400/30", chip: "bg-zinc-500/15 text-zinc-300", label: "Watch-stage profile" },
 };
 
-const STATIC_FALLBACK: DemoStock[] = [
-  { ticker: "NVDA", price: 142.5, score: 82, signal: "BUY",  regime: "Trend",    sentiment: "Bullish", rr: 1.8, stop: 128.0, tp: 162.0, entryOk: true,  highQuality: true,  trendStrength: true,  volumeSpike: true,  momentum: "bullish", momentum3d: 3.2,  atr: 4.2,  positionSize: 1000, kelly: 0.5, emaGap: 12.3, aligned: true,  confluence: true,  stopPct: 10.2 },
-  { ticker: "AAPL", price: 198.7, score: 68, signal: "BUY",  regime: "Range",    sentiment: "Neutral", rr: 1.6, stop: 188.0, tp: 215.0, entryOk: true,  highQuality: false, trendStrength: false, volumeSpike: false, momentum: "neutral", momentum3d: -0.8, atr: 3.1,  positionSize: 1000, kelly: 0.5, emaGap: 2.1,  aligned: false, confluence: false, stopPct: 5.4 },
-  { ticker: "MSFT", price: 445.2, score: 74, signal: "BUY",  regime: "Trend",    sentiment: "Bullish", rr: 2.1, stop: 420.0, tp: 493.0, entryOk: true,  highQuality: true,  trendStrength: true,  volumeSpike: false, momentum: "bullish", momentum3d: 1.4,  atr: 7.8,  positionSize: 1000, kelly: 0.5, emaGap: 8.6,  aligned: true,  confluence: true,  stopPct: 5.7 },
-  { ticker: "TSLA", price: 178.3, score: 38, signal: "SELL", regime: "Volatile", sentiment: "Bearish", rr: 2.1, stop: 195.0, tp: 145.0, entryOk: false, highQuality: false, trendStrength: false, volumeSpike: false, momentum: "bearish", momentum3d: -4.1, atr: 8.9,  positionSize: 1000, kelly: 0.5, emaGap: -6.2, aligned: false, confluence: false, stopPct: 9.4 },
-  { ticker: "META", price: 512.8, score: 62, signal: "HOLD", regime: "Range",    sentiment: "Neutral", rr: 1.4, stop: 488.0, tp: 546.0, entryOk: false, highQuality: false, trendStrength: false, volumeSpike: false, momentum: "neutral", momentum3d: 0.3,  atr: 9.2,  positionSize: 1000, kelly: 0.5, emaGap: 1.5,  aligned: false, confluence: false, stopPct: 4.8 },
-  { ticker: "AMZN", price: 193.5, score: 71, signal: "BUY",  regime: "Trend",    sentiment: "Bullish", rr: 1.9, stop: 182.0, tp: 213.0, entryOk: true,  highQuality: false, trendStrength: true,  volumeSpike: true,  momentum: "bullish", momentum3d: 2.1,  atr: 4.6,  positionSize: 1000, kelly: 0.5, emaGap: 7.4,  aligned: true,  confluence: false, stopPct: 6.0 },
-];
-
-/* ─── Sub-components ─────────────────────────────────────────── */
-function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 70 ? C.green : score >= 45 ? C.cyan : C.red;
-  return (
-    <span
-      style={{
-        display: "inline-block",
-        minWidth: 36,
-        padding: "2px 8px",
-        borderRadius: 99,
-        background: `${color}22`,
-        color,
-        fontSize: 11,
-        fontWeight: 700,
-        textAlign: "center",
-      }}
-    >
-      {score}
-    </span>
-  );
-}
-
-function SignalBadge({ signal }: { signal: string }) {
-  const color = SIGNAL_COLOR[signal] ?? C.text3;
-  return (
-    <span
-      style={{
-        padding: "2px 10px",
-        borderRadius: 99,
-        background: `${color}22`,
-        color,
-        fontSize: 11,
-        fontWeight: 700,
-      }}
-    >
-      {signal}
-    </span>
-  );
-}
-
-function FeedbackWidget({ ticker }: { ticker?: string }) {
-  const [rating, setRating] = useState(0);
-  const [hovered, setHovered] = useState(0);
-  const [comment, setComment] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit() {
-    if (!rating) return;
-    setLoading(true);
-    try {
-      await fetch("/py-api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating, comment, page: "demo", ticker: ticker ?? null }),
-      });
-    } catch {
-      // best effort
-    }
-    setSubmitted(true);
-    setLoading(false);
+function track(event: string) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).plausible?.(event);
+  } catch {
+    /* noop */
   }
+}
 
-  if (submitted)
-    return (
-      <div
-        style={{
-          background: `${C.green}15`,
-          border: `1px solid ${C.green}30`,
-          borderRadius: 12,
-          padding: "16px 20px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <Check size={16} color={C.green} />
-        <span style={{ color: C.green, fontSize: 13, fontWeight: 600 }}>
-          Thank you for your feedback!
+function CandidateCard({ c, onOpen }: { c: Candidate; onOpen: () => void }) {
+  const s = GRADE_STYLES[c.grade] ?? GRADE_STYLES.C;
+  return (
+    <div className={`rounded-2xl border border-white/10 bg-white/[0.03] p-5 ring-1 ${s.ring}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-lg font-bold text-white">
+            ${c.ticker}
+            {c.company ? <span className="ml-2 text-sm font-normal text-white/50">{c.company}</span> : null}
+          </div>
+          <div className="mt-1 text-[13px] text-white/70">
+            Historically, candidates with this profile moved {"≥"}5% within 5 days about{" "}
+            <span className="font-semibold text-white">{c.prob_band}</span> of the time*
+          </div>
+        </div>
+        <span className={`shrink-0 rounded-lg px-2.5 py-1 text-sm font-bold ${s.chip}`} title={s.label}>
+          Grade {c.grade}
         </span>
       </div>
-    );
 
-  return (
-    <div
-      style={{
-        background: C.card,
-        border: `1px solid ${C.border}`,
-        borderRadius: 14,
-        padding: "20px 22px",
-      }}
-    >
-      <p style={{ color: C.text2, fontSize: 12, marginBottom: 10, fontWeight: 600 }}>
-        How useful was this demo?
-      </p>
-      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            onClick={() => setRating(n)}
-            onMouseEnter={() => setHovered(n)}
-            onMouseLeave={() => setHovered(0)}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}
-          >
-            <Star
-              size={22}
-              fill={(hovered || rating) >= n ? "#ffd60a" : "transparent"}
-              color={(hovered || rating) >= n ? "#ffd60a" : C.text3}
-            />
-          </button>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {c.badges.map((b) => (
+          <BadgeWithTerm key={b} badge={b} />
         ))}
       </div>
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        placeholder="Optional: what would make this more useful?"
-        rows={2}
-        style={{
-          width: "100%",
-          background: "rgba(255,255,255,0.04)",
-          border: `1px solid ${C.border}`,
-          borderRadius: 8,
-          color: C.text1,
-          fontSize: 12,
-          padding: "8px 10px",
-          resize: "none",
-          outline: "none",
-          marginBottom: 10,
-          boxSizing: "border-box",
-        }}
-      />
+
+      <p className="mt-3 text-[13px] leading-relaxed text-white/60">{c.rationale}</p>
+
       <button
-        onClick={handleSubmit}
-        disabled={!rating || loading}
-        style={{
-          background: rating ? C.blue : "rgba(255,255,255,0.06)",
-          color: rating ? "#fff" : C.text3,
-          border: "none",
-          borderRadius: 8,
-          padding: "8px 18px",
-          fontSize: 12,
-          fontWeight: 600,
-          cursor: rating ? "pointer" : "not-allowed",
-          transition: "all .2s",
+        onClick={() => {
+          track("demo-card-open");
+          onOpen();
         }}
+        className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-white/80 hover:text-white"
       >
-        {loading ? "Sending…" : "Submit Feedback"}
+        Why this grade? <ChevronRight className="h-4 w-4" />
       </button>
     </div>
   );
 }
 
-/* ─── Main Page ──────────────────────────────────────────────── */
-export default function DemoPage() {
-  const [stocks, setStocks] = useState<DemoStock[]>([]);
-  const [timestamp, setTimestamp] = useState<string | null>(null);
-  const [isLive, setIsLive] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [watchlist, setWatchlist] = useState<Set<string>>(new Set());
-  const [chartInterval, setChartInterval] = useState<"1d" | "1h" | "4h">("1d");
+function Scorecard({ snap }: { snap: Snapshot }) {
+  const totals = snap.karne?.toplam_aday_bugun ?? {};
+  const byGrade = snap.karne?.by_grade ?? {};
+  const totalToday = Object.values(totals).reduce((a, b) => a + (b || 0), 0);
+  const shown = snap.candidates.length;
 
-  /* Load watchlist from localStorage */
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("demo_watchlist");
-      if (saved) setWatchlist(new Set(JSON.parse(saved)));
-    } catch {}
-  }, []);
+  return (
+    <section id="karne" className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex items-center gap-2 text-white">
+        <BarChart3 className="h-4 w-4 text-emerald-300" />
+        <h2 className="text-sm font-semibold">The open scorecard</h2>
+      </div>
 
-  const toggleWatchlist = useCallback((ticker: string) => {
-    setWatchlist((prev) => {
-      const next = new Set(prev);
-      next.has(ticker) ? next.delete(ticker) : next.add(ticker);
-      try { localStorage.setItem("demo_watchlist", JSON.stringify([...next])); } catch {}
-      return next;
-    });
-  }, []);
+      {totalToday > 0 && (
+        <p className="mt-2 text-[13px] text-white/70">
+          On {snap.date} the system flagged <span className="font-semibold text-white">{totalToday} candidates</span>{" "}
+          ({Object.entries(totals).map(([g, n]) => `${n}× Grade ${g}`).join(", ")}). You are seeing{" "}
+          <span className="font-semibold text-white">{shown}</span> of them here — the full daily list is part of the
+          premium brief.
+        </p>
+      )}
 
-  /* Fetch shortlist */
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const res = await fetch("/py-api/scan/shortlist/latest?limit=30");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.stocks?.length) {
-            setStocks(data.stocks.map((r: RawStock) => rawToDemo(r)));
-            setTimestamp(data.timestamp);
-            setIsLive(true);
-            setLoading(false);
-            return;
-          }
-        }
-      } catch {}
-      setStocks(STATIC_FALLBACK);
-      setTimestamp(null);
-      setIsLive(false);
-      setLoading(false);
-    }
-    load();
-  }, []);
+      {Object.keys(byGrade).length > 0 ? (
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {(["A", "B", "C"] as const).map((g) => {
+            const st = byGrade[g];
+            if (!st) return <div key={g} />;
+            return (
+              <div key={g} className="rounded-xl bg-black/20 p-3 text-center">
+                <div className="text-xs text-white/50">Grade {g}</div>
+                <div className="text-lg font-bold text-white">
+                  {typeof st.hit_rate === "number" ? `${Math.round(st.hit_rate * 100)}%` : st.hit_rate ?? "—"}
+                </div>
+                <div className="text-[10px] text-white/40">n={st.n ?? "—"}</div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="mt-3 text-[12px] text-white/50">
+          Grade-level hit rates are published as the sample builds — including the bad weeks. Grade A is rare (~1/day),
+          so its statistics accumulate slowly. That honesty is the product.
+        </p>
+      )}
 
-  const filtered = stocks.filter((s) =>
-    s.ticker.toLowerCase().includes(search.toLowerCase())
+      <p className="mt-3 text-[11px] text-white/40">
+        *Measured as a {"≥"}5% absolute move within 5 trading days, against the day&apos;s base rate — a research
+        target, not a profit claim. Costs, slippage and timing are not included.
+      </p>
+    </section>
   );
+}
 
-  const selectedStock = stocks.find((s) => s.ticker === selected);
-  const ensemble = selectedStock ? generateEnsemble(selectedStock) : [];
-  const whySig = selectedStock ? generateWhySignal(selectedStock) : "";
+function DetailModal({ c, onClose }: { c: Candidate; onClose: () => void }) {
+  const s = GRADE_STYLES[c.grade] ?? GRADE_STYLES.C;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
+      <div
+        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/10 bg-[#0d1220] p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <div className="text-xl font-bold text-white">${c.ticker}</div>
+          <span className={`rounded-lg px-2.5 py-1 text-sm font-bold ${s.chip}`}>Grade {c.grade}</span>
+        </div>
+        <p className="mt-1 text-[12px] text-white/50">{s.label}</p>
 
-  /* ── Timestamp display ── */
-  function formatTimestamp(iso: string | null): string {
-    if (!iso) return "Demo data";
+        <h3 className="mt-4 text-sm font-semibold text-white">Why it was flagged</h3>
+        <p className="mt-1 text-[13px] leading-relaxed text-white/70">{c.rationale}</p>
+
+        <h3 className="mt-4 text-sm font-semibold text-white">Aligned factors</h3>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {c.badges.map((b) => (
+            <BadgeWithTerm key={b} badge={b} />
+          ))}
+        </div>
+
+        <div className="mt-5 rounded-xl bg-white/[0.04] p-4">
+          <p className="text-[13px] text-white/70">
+            What happened in the 5 days after this snapshot? Today&apos;s brief — and the follow-up on every past
+            candidate — goes out on Telegram each morning at 08:30.
+          </p>
+          <a
+            href={TELEGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => track("demo-modal-telegram")}
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-sky-500/20 px-3 py-2 text-sm font-medium text-sky-300 hover:bg-sky-500/30"
+          >
+            <Send className="h-4 w-4" /> Get today&apos;s brief
+          </a>
+        </div>
+
+        <p className="mt-4 text-[11px] text-white/40">{DISCLAIMER}</p>
+        <button onClick={onClose} className="mt-4 text-sm text-white/60 hover:text-white">
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function FeedbackForm() {
+  const [q1, setQ1] = useState("");
+  const [q2, setQ2] = useState("");
+  const [q3, setQ3] = useState("");
+  const [q3Why, setQ3Why] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+
+  const submit = async () => {
+    if (!(q1 || q2 || q3)) return;
+    setState("sending");
     try {
-      const d = new Date(iso);
-      const now = new Date();
-      const diffH = Math.round((now.getTime() - d.getTime()) / 3600000);
-      if (diffH < 1) return "Less than 1h ago";
-      if (diffH < 24) return `${diffH}h ago`;
-      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    } catch { return "Recent"; }
+      const res = await apiFetch("/api/v1/demo/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: Math.random().toString(36).slice(2, 10),
+          q1,
+          q2,
+          q3,
+          q3_why: q3Why,
+          source: "demo",
+        }),
+      });
+      setState(res.ok ? "done" : "error");
+      if (res.ok) track("demo-feedback-submit");
+    } catch {
+      setState("error");
+    }
+  };
+
+  if (state === "done") {
+    return (
+      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/5 p-5 text-center">
+        <CheckCircle2 className="mx-auto h-6 w-6 text-emerald-300" />
+        <p className="mt-2 text-sm text-white/80">Thank you — every answer is read, every Friday.</p>
+        <a
+          href={TELEGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-sky-300 hover:text-sky-200"
+        >
+          <Send className="h-4 w-4" /> Join the daily brief on Telegram
+        </a>
+      </div>
+    );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#09090f", color: C.text1 }}>
-
-      {/* ── Header ── */}
-      <header
-        style={{
-          position: "fixed",
-          top: 0, left: 0, right: 0,
-          zIndex: 50,
-          background: "rgba(9,9,15,0.92)",
-          backdropFilter: "blur(20px)",
-          borderBottom: `1px solid ${C.border}`,
-          height: 52,
-          display: "flex",
-          alignItems: "center",
-          padding: "0 24px",
-          gap: 16,
-        }}
-      >
-        <Link
-          href="/"
-          style={{ display: "flex", alignItems: "center", gap: 6, color: C.text3, fontSize: 13, textDecoration: "none" }}
-        >
-          <ArrowLeft size={15} />
-          Home
-        </Link>
-
-        <div style={{ flex: 1 }} />
-
-        {/* Live / Demo badge */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "3px 10px",
-            borderRadius: 99,
-            background: isLive ? `${C.green}18` : "rgba(255,255,255,0.06)",
-            border: `1px solid ${isLive ? C.green + "40" : C.border}`,
-            fontSize: 11,
-            fontWeight: 600,
-            color: isLive ? C.green : C.text3,
-          }}
-        >
-          <span
-            style={{
-              width: 6, height: 6,
-              borderRadius: "50%",
-              background: isLive ? C.green : C.text3,
-              animation: isLive ? "pulse 2s infinite" : "none",
-            }}
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex items-center gap-2 text-white">
+        <MessageCircle className="h-4 w-4 text-violet-300" />
+        <h2 className="text-sm font-semibold">60 seconds of feedback shapes this product</h2>
+      </div>
+      <div className="mt-3 space-y-3">
+        <label className="block text-[13px] text-white/70">
+          In your own words — what does this product do?
+          <textarea
+            value={q1}
+            onChange={(e) => setQ1(e.target.value)}
+            rows={2}
+            className="mt-1 w-full rounded-lg border border-white/10 bg-black/20 p-2 text-sm text-white outline-none focus:border-white/30"
           />
-          {isLive ? "Live Data" : "Demo Mode"}
+        </label>
+        <label className="block text-[13px] text-white/70">
+          Most useful thing — and most confusing thing?
+          <textarea
+            value={q2}
+            onChange={(e) => setQ2(e.target.value)}
+            rows={2}
+            className="mt-1 w-full rounded-lg border border-white/10 bg-black/20 p-2 text-sm text-white outline-none focus:border-white/30"
+          />
+        </label>
+        <div className="text-[13px] text-white/70">
+          Would you pay {"€"}9/month for the full daily version?
+          <div className="mt-1 flex gap-2">
+            {(["yes", "maybe", "no"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setQ3(v)}
+                className={`rounded-lg px-3 py-1.5 text-sm capitalize ${
+                  q3 === v ? "bg-violet-500/30 text-violet-200" : "bg-white/5 text-white/60 hover:bg-white/10"
+                }`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+          {q3 && (
+            <input
+              value={q3Why}
+              onChange={(e) => setQ3Why(e.target.value)}
+              placeholder="why? (optional)"
+              className="mt-2 w-full rounded-lg border border-white/10 bg-black/20 p-2 text-sm text-white outline-none focus:border-white/30"
+            />
+          )}
+        </div>
+        <button
+          onClick={submit}
+          disabled={state === "sending"}
+          className="rounded-lg bg-violet-500/25 px-4 py-2 text-sm font-medium text-violet-200 hover:bg-violet-500/35 disabled:opacity-50"
+        >
+          {state === "sending" ? "Sending…" : "Send"}
+        </button>
+        {state === "error" && (
+          <p className="text-[12px] text-red-300">Could not send right now — please try again later.</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+export default function DemoPage() {
+  const [snap, setSnap] = useState<Snapshot | null>(null);
+  const [loadState, setLoadState] = useState<"loading" | "ok" | "missing">("loading");
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    track("demo-start");
+    fetch("/demo_snapshot.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("missing"))))
+      .then((d: Snapshot) => {
+        setSnap(d);
+        setLoadState("ok");
+      })
+      .catch(() => setLoadState("missing"));
+  }, []);
+
+  const visible = useMemo(() => (snap?.candidates ?? []).filter((c) => !c.premium_only), [snap]);
+
+  return (
+    <main className="min-h-screen bg-[#0a0e1a] px-4 py-8">
+      <div className="mx-auto max-w-2xl space-y-6">
+        <div>
+          <Link href="/" className="inline-flex items-center gap-1 text-sm text-white/50 hover:text-white">
+            <ArrowLeft className="h-4 w-4" /> finpilot.at
+          </Link>
+          <h1 className="mt-3 text-2xl font-bold text-white">
+            Yesterday&apos;s brief — <span className="text-emerald-300">real, dated, frozen</span>
+          </h1>
+          <p className="mt-2 text-[14px] leading-relaxed text-white/60">
+            This is not a mockup. Below is the actual output of the morning scan
+            {snap ? (
+              <>
+                {" "}
+                from <span className="font-semibold text-white">{snap.date}</span> across{" "}
+                <span className="font-semibold text-white">{snap.universe.toLocaleString()} stocks</span>
+              </>
+            ) : null}
+            . Today&apos;s edition goes out on Telegram at 08:30 — we publish yesterday&apos;s here so you can judge us
+            with hindsight.
+          </p>
+          <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-white/50">
+            <CalendarDays className="h-3 w-3" /> snapshot: {snap?.date ?? "…"}
+            {snap?.sample ? " · sample data until first live publish" : ""}
+          </div>
         </div>
 
-        {isLive && timestamp && (
-          <div style={{ display: "flex", alignItems: "center", gap: 5, color: C.text3, fontSize: 11 }}>
-            <Clock size={12} />
-            {formatTimestamp(timestamp)}
+        {loadState === "loading" && (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-white/50">
+            Loading yesterday&apos;s brief…
           </div>
         )}
-
-        <Link
-          href="/dashboard"
-          style={{
-            padding: "6px 14px",
-            borderRadius: 99,
-            background: C.blue,
-            color: "#fff",
-            fontSize: 12,
-            fontWeight: 700,
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-          }}
-        >
-          Full Dashboard →
-        </Link>
-      </header>
-
-      {/* ── Main ── */}
-      <main style={{ paddingTop: 52, display: "flex", height: "100vh", overflow: "hidden" }}>
-
-        {/* ── Left panel: Scanner list ── */}
-        <div
-          style={{
-            width: 340,
-            minWidth: 280,
-            borderRight: `1px solid ${C.border}`,
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            flexShrink: 0,
-          }}
-          className="hidden sm:flex"
-        >
-          {/* Search */}
-          <div style={{ padding: "14px 14px 8px", borderBottom: `1px solid ${C.border}` }}>
-            <div style={{ position: "relative" }}>
-              <Search
-                size={14}
-                style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: C.text3 }}
-              />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search ticker…"
-                style={{
-                  width: "100%",
-                  background: "rgba(255,255,255,0.04)",
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 8,
-                  color: C.text1,
-                  fontSize: 12,
-                  padding: "7px 10px 7px 30px",
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
-              />
-            </div>
-            <div style={{ marginTop: 6, fontSize: 10, color: C.text3 }}>
-              {filtered.length} signals · Sorted by score
-            </div>
+        {loadState === "missing" && (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+            <ShieldQuestion className="mx-auto h-6 w-6 text-white/40" />
+            <p className="mt-2 text-sm text-white/60">
+              No snapshot published yet (markets may be closed). The daily brief resumes on the next trading day.
+            </p>
+            <a
+              href={TELEGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-sky-300 hover:text-sky-200"
+            >
+              <Send className="h-4 w-4" /> Get notified on Telegram
+            </a>
           </div>
-
-          {/* Stock rows */}
-          <div style={{ flex: 1, overflowY: "auto" }}>
-            {loading ? (
-              <div style={{ padding: 24, textAlign: "center", color: C.text3, fontSize: 12 }}>
-                Loading scan data…
-              </div>
-            ) : filtered.length === 0 ? (
-              <div style={{ padding: 24, textAlign: "center", color: C.text3, fontSize: 12 }}>
-                No results
-              </div>
-            ) : (
-              filtered.map((s) => {
-                const isSelected = selected === s.ticker;
-                const sigColor = SIGNAL_COLOR[s.signal];
-                return (
-                  <button
-                    key={s.ticker}
-                    onClick={() => setSelected(s.ticker)}
-                    style={{
-                      width: "100%",
-                      padding: "11px 14px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      background: isSelected ? "rgba(255,255,255,0.06)" : "transparent",
-                      border: "none",
-                      borderBottom: `1px solid ${C.border}`,
-                      cursor: "pointer",
-                      textAlign: "left",
-                      transition: "background .15s",
-                    }}
-                  >
-                    {/* Signal color bar */}
-                    <div style={{ width: 3, height: 32, borderRadius: 2, background: sigColor, flexShrink: 0 }} />
-
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: C.text1 }}>{s.ticker}</span>
-                        <ScoreBadge score={s.score} />
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
-                        <SignalBadge signal={s.signal} />
-                        <span style={{ fontSize: 10, color: C.text3 }}>{s.regime}</span>
-                        {s.rr > 0 && (
-                          <span style={{ fontSize: 10, color: C.text3, marginLeft: "auto" }}>
-                            R/R {s.rr.toFixed(1)}x
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <ChevronRight size={14} color={isSelected ? C.text2 : C.text3} />
-                  </button>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* ── Right panel: Detail ── */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px 40px" }}>
-
-          {/* Mobile: stock list when nothing selected */}
-          {!selected && (
-            <div className="sm:hidden">
-              {/* Mobile search */}
-              <div style={{ marginBottom: 14, position: "relative" }}>
-                <Search
-                  size={14}
-                  style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: C.text3 }}
-                />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search ticker…"
-                  style={{
-                    width: "100%",
-                    background: "rgba(255,255,255,0.04)",
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 8,
-                    color: C.text1,
-                    fontSize: 12,
-                    padding: "8px 10px 8px 30px",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {filtered.map((s) => (
-                  <button
-                    key={s.ticker}
-                    onClick={() => setSelected(s.ticker)}
-                    style={{
-                      background: C.card,
-                      border: `1px solid ${C.border}`,
-                      borderRadius: 12,
-                      padding: "14px",
-                      textAlign: "left",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                      <span style={{ fontSize: 15, fontWeight: 700, color: C.text1 }}>{s.ticker}</span>
-                      <ScoreBadge score={s.score} />
-                    </div>
-                    <SignalBadge signal={s.signal} />
-                    <div style={{ marginTop: 6, fontSize: 10, color: C.text3 }}>{s.regime} · R/R {s.rr.toFixed(1)}x</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Desktop: placeholder when nothing selected */}
-          {!selected && (
-            <div className="hidden sm:flex" style={{ flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 400, gap: 12, color: C.text3 }}>
-              <BarChart3 size={40} color={C.text3} />
-              <p style={{ fontSize: 14 }}>Select a stock from the list to view analysis</p>
-              {!isLive && (
-                <p style={{ fontSize: 11, color: C.text3, background: "rgba(255,255,255,0.04)", padding: "6px 14px", borderRadius: 99 }}>
-                  Demo mode — showing sample data
-                </p>
+        )}
+        {loadState === "ok" && snap && (
+          <>
+            <div className="space-y-4">
+              {visible.map((c, i) => (
+                <CandidateCard key={c.ticker} c={c} onOpen={() => setOpenIdx(i)} />
+              ))}
+              {visible.length === 0 && (
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center text-sm text-white/60">
+                  No candidates cleared the bar on {snap.date}. Some days the best candidate is patience — and we say
+                  so instead of inventing one.
+                </div>
               )}
             </div>
-          )}
 
-          {/* Detail view */}
-          {selected && selectedStock && (
-            <>
-              {/* Mobile back */}
-              <button
-                onClick={() => setSelected(null)}
-                className="sm:hidden"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  marginBottom: 16,
-                  color: C.text3,
-                  fontSize: 13,
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
-              >
-                <ArrowLeft size={15} />
-                Back to list
-              </button>
+            <Scorecard snap={snap} />
+          </>
+        )}
 
-              {/* Stock header */}
-              <div
-                style={{
-                  background: C.card,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 14,
-                  padding: "18px 20px",
-                  marginBottom: 16,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                      <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text1, margin: 0 }}>
-                        {selectedStock.ticker}
-                      </h1>
-                      <SignalBadge signal={selectedStock.signal} />
-                      {selectedStock.highQuality && (
-                        <span
-                          style={{
-                            fontSize: 10,
-                            fontWeight: 700,
-                            color: C.green,
-                            background: `${C.green}18`,
-                            border: `1px solid ${C.green}30`,
-                            padding: "2px 8px",
-                            borderRadius: 99,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <Zap size={10} />
-                          High Quality
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                      {[
-                        { label: "Regime", val: selectedStock.regime },
-                        { label: "Sentiment", val: selectedStock.sentiment },
-                        { label: "Score", val: `${selectedStock.score}/100` },
-                        ...(selectedStock.price > 0 ? [{ label: "Price", val: `$${selectedStock.price.toFixed(2)}` }] : []),
-                      ].map((m) => (
-                        <div key={m.label}>
-                          <div style={{ fontSize: 10, color: C.text3, marginBottom: 1 }}>{m.label}</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: C.text1 }}>{m.val}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Watchlist button */}
-                  <button
-                    onClick={() => toggleWatchlist(selectedStock.ticker)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      padding: "8px 14px",
-                      borderRadius: 8,
-                      border: `1px solid ${watchlist.has(selectedStock.ticker) ? C.green + "50" : C.border}`,
-                      background: watchlist.has(selectedStock.ticker) ? `${C.green}15` : "rgba(255,255,255,0.04)",
-                      color: watchlist.has(selectedStock.ticker) ? C.green : C.text3,
-                      cursor: "pointer",
-                      fontSize: 12,
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Heart
-                      size={14}
-                      fill={watchlist.has(selectedStock.ticker) ? C.green : "transparent"}
-                      color={watchlist.has(selectedStock.ticker) ? C.green : C.text3}
-                    />
-                    {watchlist.has(selectedStock.ticker) ? "Saved" : "Watchlist"}
-                  </button>
-                </div>
-              </div>
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <div className="flex items-center gap-2 text-white">
+            <ScrollText className="h-4 w-4 text-amber-300" />
+            <h2 className="text-sm font-semibold">How the grade is made</h2>
+          </div>
+          <ol className="mt-3 space-y-2 text-[13px] text-white/60">
+            <li>1 · Every morning 1,800+ US stocks are scanned for volume, volatility, short-interest and catalyst patterns.</li>
+            <li>2 · Independent factors combine into a calibrated probability — checked weekly against reality.</li>
+            <li>3 · Candidates get a single Grade (A/B/C). Grade A is rare by design (~1/day).</li>
+            <li>4 · Every outcome is recorded and published in the open scorecard — including the misses.</li>
+          </ol>
+        </section>
 
-              {/* Chart */}
-              <div
-                style={{
-                  background: C.card,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 14,
-                  padding: "16px 18px",
-                  marginBottom: 16,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.text2 }}>Price Chart</span>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    {(["1d", "4h", "1h"] as const).map((iv) => (
-                      <button
-                        key={iv}
-                        onClick={() => setChartInterval(iv)}
-                        style={{
-                          padding: "3px 10px",
-                          borderRadius: 6,
-                          border: `1px solid ${chartInterval === iv ? C.cyan + "60" : C.border}`,
-                          background: chartInterval === iv ? `${C.cyan}18` : "transparent",
-                          color: chartInterval === iv ? C.cyan : C.text3,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {iv}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <StockChart symbol={selectedStock.ticker} interval={chartInterval} days={90} height={220} />
-                <div style={{ marginTop: 8, fontSize: 10, color: C.text3 }}>
-                  Model output · For informational purposes only · Not financial advice
-                </div>
-              </div>
-
-              {/* Risk metrics */}
-              {selectedStock.stop > 0 && (
-                <div
-                  style={{
-                    background: C.card,
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 14,
-                    padding: "16px 18px",
-                    marginBottom: 16,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 14 }}>
-                    <Shield size={15} color={C.cyan} />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: C.text2 }}>Risk Management</span>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-                    {[
-                      { label: "Entry", val: selectedStock.price > 0 ? `$${selectedStock.price.toFixed(2)}` : "—", color: C.text1 },
-                      { label: "Stop Loss", val: `$${selectedStock.stop.toFixed(2)}`, color: C.red },
-                      { label: "Take Profit", val: `$${selectedStock.tp.toFixed(2)}`, color: C.green },
-                      { label: "R/R Ratio", val: `${selectedStock.rr.toFixed(1)}x`, color: C.cyan },
-                    ].map((m) => (
-                      <div
-                        key={m.label}
-                        style={{
-                          background: "rgba(255,255,255,0.03)",
-                          border: `1px solid ${C.border}`,
-                          borderRadius: 10,
-                          padding: "12px 10px",
-                          textAlign: "center",
-                        }}
-                      >
-                        <div style={{ fontSize: 15, fontWeight: 700, color: m.color }}>{m.val}</div>
-                        <div style={{ fontSize: 10, color: C.text3, marginTop: 4 }}>{m.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                  {selectedStock.stopPct > 0 && (
-                    <div style={{ marginTop: 10, fontSize: 11, color: C.text3 }}>
-                      Stop distance: {selectedStock.stopPct.toFixed(1)}% · Kelly fraction: {(selectedStock.kelly * 100).toFixed(0)}%
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Why this signal */}
-              <div
-                style={{
-                  background: `${C.cyan}08`,
-                  border: `1px solid ${C.cyan}25`,
-                  borderRadius: 14,
-                  padding: "16px 18px",
-                  marginBottom: 16,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
-                  <Brain size={15} color={C.cyan} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.cyan }}>Why this signal?</span>
-                </div>
-                <p style={{ fontSize: 13, color: C.text2, lineHeight: 1.65, margin: 0 }}>{whySig}</p>
-
-                {/* Signal flags */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-                  {[
-                    { flag: selectedStock.trendStrength, label: "Trend Strength" },
-                    { flag: selectedStock.volumeSpike,   label: "Volume Spike" },
-                    { flag: selectedStock.aligned,       label: "TF Aligned" },
-                    { flag: selectedStock.confluence,    label: "Confluence" },
-                    { flag: selectedStock.entryOk,       label: "Entry OK" },
-                  ]
-                    .filter((f) => f.flag)
-                    .map((f) => (
-                      <span
-                        key={f.label}
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 600,
-                          padding: "3px 9px",
-                          borderRadius: 99,
-                          background: `${C.green}18`,
-                          color: C.green,
-                          border: `1px solid ${C.green}30`,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                      >
-                        <Check size={9} />
-                        {f.label}
-                      </span>
-                    ))}
-                </div>
-              </div>
-
-              {/* Ensemble voting */}
-              <div
-                style={{
-                  background: C.card,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 14,
-                  padding: "16px 18px",
-                  marginBottom: 16,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 14 }}>
-                  <Brain size={15} color={C.blue} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.text2 }}>Ensemble Voting</span>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {ensemble.map((a) => (
-                    <div key={a.name} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: a.color, flexShrink: 0 }} />
-                      <span style={{ fontSize: 11, fontWeight: 600, color: C.text1, width: 110 }}>{a.name}</span>
-                      <div style={{ flex: 1, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-                        <div style={{ width: `${a.conf}%`, height: "100%", background: a.color, borderRadius: 2, transition: "width .8s ease" }} />
-                      </div>
-                      <span style={{ fontSize: 10, color: C.text3, width: 32, textAlign: "right" }}>{a.conf}%</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: a.color, width: 34, textAlign: "right" }}>{a.vote}</span>
-                    </div>
-                  ))}
-                </div>
-                <div
-                  style={{
-                    marginTop: 12,
-                    padding: "8px 12px",
-                    borderRadius: 8,
-                    background: `${SIGNAL_COLOR[selectedStock.signal]}15`,
-                    border: `1px solid ${SIGNAL_COLOR[selectedStock.signal]}30`,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <span style={{ fontSize: 12, fontWeight: 700, color: SIGNAL_COLOR[selectedStock.signal] }}>
-                    Consensus: {selectedStock.signal}
-                  </span>
-                  <span style={{ fontSize: 10, color: SIGNAL_COLOR[selectedStock.signal] + "aa" }}>
-                    Score {selectedStock.score}/100
-                  </span>
-                </div>
-              </div>
-
-              {/* Backtest mini-card */}
-              <div
-                style={{
-                  background: C.card,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: 14,
-                  padding: "16px 18px",
-                  marginBottom: 16,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 14 }}>
-                  <BarChart3 size={15} color={C.purple} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.text2 }}>Backtest Summary</span>
-                  <span style={{ fontSize: 10, color: C.text3, marginLeft: "auto" }}>Walk-forward validated</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-                  {[
-                    { label: "Win Rate", val: "68%", bar: 68, color: C.green },
-                    { label: "Sharpe", val: "1.24", bar: 62, color: C.cyan },
-                    { label: "Profit Factor", val: "2.1×", bar: 70, color: C.blue },
-                    { label: "Max DD", val: "12.4%", bar: 25, color: C.red },
-                  ].map((m) => (
-                    <div key={m.label} style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: m.color }}>{m.val}</div>
-                      <div style={{ margin: "6px auto 4px", height: 3, borderRadius: 2, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-                        <div style={{ width: `${m.bar}%`, height: "100%", background: m.color, borderRadius: 2 }} />
-                      </div>
-                      <div style={{ fontSize: 10, color: C.text3 }}>{m.label}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: 10, fontSize: 10, color: C.text3 }}>
-                  Based on 1,000 Monte Carlo simulations · PPO-v3 ensemble
-                </div>
-              </div>
-
-              {/* Feedback + CTA */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 24 }} className="sm:grid-cols-2">
-                <FeedbackWidget ticker={selectedStock.ticker} />
-                <div
-                  style={{
-                    background: `${C.blue}12`,
-                    border: `1px solid ${C.blue}30`,
-                    borderRadius: 14,
-                    padding: "20px 22px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    gap: 14,
-                  }}
-                >
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8 }}>
-                      <TrendingUp size={15} color={C.blue} />
-                      <span style={{ fontSize: 12, fontWeight: 700, color: C.blue }}>Full Dashboard</span>
-                    </div>
-                    <p style={{ fontSize: 12, color: C.text3, lineHeight: 1.55, margin: 0 }}>
-                      Access 1,500+ stocks, real-time alerts, portfolio tracking, and advanced backtesting.
-                    </p>
-                  </div>
-                  <Link
-                    href="/dashboard"
-                    style={{
-                      display: "inline-block",
-                      padding: "9px 16px",
-                      borderRadius: 8,
-                      background: C.blue,
-                      color: "#fff",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      textDecoration: "none",
-                      textAlign: "center",
-                    }}
-                  >
-                    Open Dashboard →
-                  </Link>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Bottom feedback (when nothing selected) */}
-          {!selected && !loading && (
-            <div style={{ maxWidth: 480, marginTop: 32 }}>
-              <FeedbackWidget />
+        <section className="grid gap-3 sm:grid-cols-2">
+          <a
+            href={TELEGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => track("demo-cta-telegram")}
+            className="flex items-center justify-between rounded-2xl border border-sky-400/20 bg-sky-500/10 p-4 hover:bg-sky-500/15"
+          >
+            <div>
+              <div className="text-sm font-semibold text-white">Today&apos;s brief, every morning</div>
+              <div className="text-[12px] text-white/50">08:30 · one message a day · free</div>
             </div>
-          )}
-        </div>
-      </main>
+            <Send className="h-5 w-5 text-sky-300" />
+          </a>
+          <Link
+            href="/#waitlist"
+            onClick={() => track("demo-cta-waitlist")}
+            className="flex items-center justify-between rounded-2xl border border-violet-400/20 bg-violet-500/10 p-4 hover:bg-violet-500/15"
+          >
+            <div>
+              <div className="text-sm font-semibold text-white">Full dashboard (invite beta)</div>
+              <div className="text-[12px] text-white/50">watchlists, alerts, full history</div>
+            </div>
+            <Sparkles className="h-5 w-5 text-violet-300" />
+          </Link>
+        </section>
 
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-      `}</style>
-    </div>
+        <FeedbackForm />
+
+        <footer className="pb-8 pt-2 text-center text-[11px] leading-relaxed text-white/35">{DISCLAIMER}</footer>
+      </div>
+
+      {openIdx !== null && visible[openIdx] && <DetailModal c={visible[openIdx]} onClose={() => setOpenIdx(null)} />}
+    </main>
   );
 }

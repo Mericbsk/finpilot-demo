@@ -1343,6 +1343,47 @@ def start_scheduler(
             name="FinPilot FRED Macro Refresh (daily 12:00 UTC)",
         )
 
+        # Always-on (env-gated): distribution layer — daily brief draft,
+        # approved-broadcast publish, weekly summary. No-op unless
+        # FINPILOT_ENABLE_DISTRIBUTION=1. Europe/Vienna cron so the 08:30
+        # publish promise holds across DST changes.
+        def _dist_draft_wrapper() -> None:
+            from distribution.jobs import distribution_enabled, job_draft
+
+            if distribution_enabled():
+                job_draft()
+
+        def _dist_publish_wrapper() -> None:
+            from distribution.jobs import distribution_enabled, job_publish
+
+            if distribution_enabled():
+                job_publish()
+
+        def _dist_weekly_wrapper() -> None:
+            from distribution.jobs import distribution_enabled, job_weekly
+
+            if distribution_enabled():
+                job_weekly()
+
+        _scheduler_instance.add_job(
+            _make_watchdog_job("dist_draft", _dist_draft_wrapper),
+            trigger=CronTrigger(hour=7, minute=50, timezone="Europe/Vienna"),
+            id="finpilot_dist_draft",
+            name="FinPilot Distribution Draft (07:50 Vienna)",
+        )
+        _scheduler_instance.add_job(
+            _make_watchdog_job("dist_publish", _dist_publish_wrapper),
+            trigger=CronTrigger(hour=8, minute=30, timezone="Europe/Vienna"),
+            id="finpilot_dist_publish",
+            name="FinPilot Distribution Publish (08:30 Vienna)",
+        )
+        _scheduler_instance.add_job(
+            _make_watchdog_job("dist_weekly", _dist_weekly_wrapper),
+            trigger=CronTrigger(day_of_week="sun", hour=10, minute=0, timezone="Europe/Vienna"),
+            id="finpilot_dist_weekly",
+            name="FinPilot Distribution Weekly (Sun 10:00 Vienna)",
+        )
+
         _scheduler_instance.start()
         logger.info(
             "Scheduler başlatıldı — %d dakikada bir, semboller: %s",

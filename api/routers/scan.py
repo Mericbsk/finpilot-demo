@@ -296,6 +296,7 @@ async def run_scan(
     )
     _persist_shortlist(out)
     _auto_add_watchlist(out, drl_cache, drl_valid)
+    _persist_distribution_export(out, universe=len(req.symbols))
     try:
         from core.analytics import increment_event
 
@@ -576,3 +577,28 @@ def get_daily_report(date: str):
             return json.load(fh)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+def _persist_distribution_export(results: dict, universe: int) -> None:
+    """Write full enriched scan results for the distribution layer.
+
+    The daily brief / web demo snapshot is built from THIS export (it carries
+    tier/conviction fields) — never from legacy daily_reports (BUY/stop/TP
+    language). Best-effort: a failure here must never break the scan response.
+    """
+    try:
+        import os as _os
+
+        export_dir = Path(_os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
+        export_dir.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "date": datetime.now(tz=UTC).strftime("%Y-%m-%d"),
+            "generated_at": datetime.now(tz=UTC).isoformat(),
+            "universe": universe,
+            "results": list(results.values()) if isinstance(results, dict) else results,
+        }
+        text = json.dumps(payload, ensure_ascii=False, default=str)
+        (export_dir / "scan_export_latest.json").write_text(text, encoding="utf-8")
+        (export_dir / f"scan_export_{payload['date']}.json").write_text(text, encoding="utf-8")
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning("distribution export failed (non-fatal): %s", exc)

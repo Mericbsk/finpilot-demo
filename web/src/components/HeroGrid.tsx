@@ -12,21 +12,20 @@ const fadeUp = {
   }),
 };
 
-/* ─── Scan table mockup ─── */
+/* ─── Daily brief mockup (research framing — no buy/sell, no targets) ─── */
 function ScanTable() {
   const rows = [
-    { sym: "NVDA", score: 87, signal: "BUY", entry: "$179.00", sl: "$168.50", tp: "$198.00", rr: "1.8", color: "text-[var(--accent-green)]" },
-    { sym: "META", score: 79, signal: "BUY", entry: "$634.60", sl: "$608.00", tp: "$682.00", rr: "1.8", color: "text-[var(--accent-green)]" },
-    { sym: "AAPL", score: 74, signal: "BUY", entry: "$257.10", sl: "$245.80", tp: "$275.50", rr: "1.6", color: "text-[var(--accent-green)]" },
-    { sym: "MSFT", score: 52, signal: "HOLD", entry: "—", sl: "—", tp: "—", rr: "—", color: "text-[var(--text-tertiary)]" },
-    { sym: "TSLA", score: 38, signal: "SELL", entry: "$386.60", sl: "$405.00", tp: "$348.00", rr: "2.1", color: "text-[var(--accent-red)]" },
+    { sym: "EXAS", grade: "A", band: "~65%", factors: "high short + gap", color: "text-[var(--accent-green)]" },
+    { sym: "RXRX", grade: "B", band: "~60%", factors: "volume accel + catalyst", color: "text-[var(--accent-cyan)]" },
+    { sym: "IONQ", grade: "B", band: "~55%", factors: "contraction \u2192 expansion", color: "text-[var(--accent-cyan)]" },
+    { sym: "SOUN", grade: "C", band: "~45%", factors: "momentum, watch stage", color: "text-[var(--text-tertiary)]" },
+    { sym: "PLUG", grade: "C", band: "~40%", factors: "regime supportive", color: "text-[var(--text-tertiary)]" },
   ];
 
   return (
     <div className="w-full rounded-xl border border-white/[0.08] bg-white/[0.015] overflow-hidden backdrop-blur-sm">
-      <div className="grid grid-cols-7 gap-1 px-4 py-2.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-[var(--text-tertiary)] border-b border-white/[0.06]">
-        <span>Symbol</span><span className="text-center">Score</span><span className="text-center">Signal</span>
-        <span className="text-right">Entry</span><span className="text-right">Stop</span><span className="text-right">Target</span><span className="text-right">R/R</span>
+      <div className="grid grid-cols-4 gap-1 px-4 py-2.5 text-[9px] font-semibold uppercase tracking-[0.15em] text-[var(--text-tertiary)] border-b border-white/[0.06]">
+        <span>Symbol</span><span className="text-center">Grade</span><span className="text-center">{"\u2265"}5% in 5d*</span><span className="text-right">Aligned factors</span>
       </div>
       {rows.map((r, i) => (
         <motion.div
@@ -35,27 +34,27 @@ function ScanTable() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.15 + i * 0.06, duration: 0.35 }}
-          className="grid grid-cols-7 gap-1 px-4 py-2 text-[11px] border-b border-white/[0.03] last:border-0 hover:bg-white/[0.03] transition"
+          className="grid grid-cols-4 gap-1 px-4 py-2 text-[11px] border-b border-white/[0.03] last:border-0 hover:bg-white/[0.03] transition"
         >
           <span className="font-semibold text-white">{r.sym}</span>
-          <span className="text-center"><span className="inline-block min-w-[28px] rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium">{r.score}</span></span>
-          <span className={`text-center font-bold ${r.color}`}>{r.signal}</span>
-          <span className="text-right text-[var(--text-secondary)]">{r.entry}</span>
-          <span className="text-right text-[var(--text-tertiary)]">{r.sl}</span>
-          <span className="text-right text-[var(--text-tertiary)]">{r.tp}</span>
-          <span className="text-right font-medium">{r.rr}</span>
+          <span className={`text-center font-bold ${r.color}`}>{r.grade}</span>
+          <span className="text-center text-[var(--text-secondary)]">{r.band}</span>
+          <span className="text-right text-[var(--text-tertiary)]">{r.factors}</span>
         </motion.div>
       ))}
+      <div className="px-4 py-1.5 text-[8px] text-[var(--text-tertiary)] border-t border-white/[0.04]">
+        *historical frequency of a {"\u2265"}5% move within 5 days for this profile {"\u2014"} research grade, not advice
+      </div>
     </div>
   );
 }
 
-/* ─── Ensemble voting ─── */
+/* ─── Factor alignment (explainable grade breakdown) ─── */
 function EnsembleVoting() {
   const agents = [
-    { name: "Trend Agent", vote: "BUY", conf: 92, weight: 0.50, color: "var(--accent-green)" },
-    { name: "Range Agent", vote: "HOLD", conf: 61, weight: 0.20, color: "var(--text-tertiary)" },
-    { name: "Volatility Agent", vote: "BUY", conf: 74, weight: 0.30, color: "var(--accent-green)" },
+    { name: "Short interest", vote: "ALIGNED", conf: 82, weight: 0.35, color: "var(--accent-green)" },
+    { name: "Volume acceleration", vote: "ALIGNED", conf: 74, weight: 0.35, color: "var(--accent-green)" },
+    { name: "Market regime", vote: "NEUTRAL", conf: 55, weight: 0.30, color: "var(--text-tertiary)" },
   ];
 
   return (
@@ -92,8 +91,8 @@ function EnsembleVoting() {
         transition={{ delay: 0.5, duration: 0.4 }}
         className="flex items-center justify-between rounded-lg bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 px-4 py-2.5"
       >
-        <span className="text-xs font-bold text-[var(--accent-green)]">Consensus: BUY</span>
-        <span className="text-[10px] text-[var(--accent-green)]/70">88% confidence</span>
+        <span className="text-xs font-bold text-[var(--accent-green)]">Combined grade: A</span>
+        <span className="text-[10px] text-[var(--accent-green)]/70">calibrated ~65% (5d, {"\u2265"}5%)</span>
       </motion.div>
     </div>
   );
@@ -124,20 +123,20 @@ export default function HeroGrid() {
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 mb-8">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-green)] animate-pulse" />
-            <span className="text-[11px] text-[var(--text-secondary)]">Now scanning 1,500+ symbols daily</span>
+            <span className="text-[11px] text-[var(--text-secondary)]">Scanning 1,800+ US stocks every morning</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl lg:text-[72px] font-bold tracking-tight text-white leading-[1.06]">
-            AI that reads the market<br />
+            1,800 stocks scanned.<br />
             <span className="bg-gradient-to-r from-[var(--accent-cyan)] via-[var(--accent-blue)] to-[var(--accent-purple)] bg-clip-text text-transparent">
-              so you don&apos;t have to.
+              3 candidates. Reasons included.
             </span>
           </h1>
 
           <p className="mt-6 text-base sm:text-lg text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed">
-            FinPilot scans 1,500+ stocks, runs 12 trained reinforcement learning models,
-            and delivers clear buy/hold/sell signals with built-in risk management.
-            Not an LLM wrapper — real AI, real decisions.
+            FinPilot is a research tool that flags stocks with unusual move potential — each
+            candidate graded with a calibrated probability, an explanation, and an open
+            scorecard you can check yourself. The decision is always yours.
           </p>
 
           <div className="mt-10 flex items-center justify-center gap-4">
@@ -145,7 +144,7 @@ export default function HeroGrid() {
               href="/demo"
               className="rounded-full bg-[var(--accent-blue)] px-7 py-3 text-sm font-semibold text-white hover:brightness-110 transition shadow-lg shadow-[var(--accent-blue)]/20"
             >
-              Try Demo →
+              See yesterday&apos;s brief →
             </a>
             <a
               href="#features"
@@ -165,10 +164,10 @@ export default function HeroGrid() {
           className="flex flex-wrap justify-center gap-x-8 sm:gap-x-14 gap-y-4 py-10 sm:py-14 border-b border-white/[0.06]"
         >
           {[
-            { num: "1,500+", label: "Symbols tracked" },
-            { num: "12", label: "DRL models" },
-            { num: "3", label: "Expert agents" },
-            { num: "68%", label: "Historical win rate" },
+            { num: "1,800+", label: "Stocks scanned daily" },
+            { num: "A/B/C", label: "Single research grade" },
+            { num: "08:30", label: "Daily brief, one message" },
+            { num: "Open", label: "Public scorecard" },
           ].map((s) => (
             <div key={s.label} className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-white">{s.num}</div>
@@ -200,19 +199,19 @@ export default function HeroGrid() {
               {
                 step: "01",
                 title: "Scan",
-                desc: "Every day, FinPilot scans 1,500+ symbols across volume, trend, RSI, MACD, Bollinger Bands, and 6 more technical indicators.",
+                desc: "Every morning, FinPilot scans 1,800+ US stocks across volume, volatility, short-interest, gap and catalyst patterns.",
                 accent: "var(--accent-cyan)",
               },
               {
                 step: "02",
-                title: "Analyze",
-                desc: "Three specialized DRL agents — Trend, Range, and Volatility — independently evaluate each opportunity and vote on the final decision.",
+                title: "Grade",
+                desc: "Independent factors combine into a calibrated probability. Each candidate gets a single research Grade — A, B or C. Grade A is rare by design.",
                 accent: "var(--accent-blue)",
               },
               {
                 step: "03",
-                title: "Decide",
-                desc: "You get a clear signal with entry price, stop-loss, target, position size, and risk score. No noise, just the decision point.",
+                title: "Verify",
+                desc: "Every candidate's outcome is measured and published in the open scorecard — including the misses. You judge us on the record, not the pitch.",
                 accent: "var(--accent-purple)",
               },
             ].map((s, i) => (
@@ -278,11 +277,11 @@ export default function HeroGrid() {
               <div className="relative">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent-cyan)] mb-3">Smart Scanner</div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  1,500+ symbols.<br />Every single day.
+                  1,800+ stocks.<br />Every single morning.
                 </h3>
                 <p className="mt-3 text-sm text-[var(--text-secondary)] leading-relaxed max-w-md">
-                  Volume spikes, trend shifts, RSI divergences, MACD crossovers —
-                  our scanner catches them all so you never miss an opportunity.
+                  Volume acceleration, range contraction, short-interest, gaps and filings —
+                  the scanner condenses the whole market into a short, graded daily brief.
                 </p>
                 <div className="mt-7">
                   <ScanTable />
@@ -301,20 +300,20 @@ export default function HeroGrid() {
             >
               <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--accent-green)]/[0.04] to-transparent pointer-events-none" />
               <div className="relative">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent-green)] mb-3">Risk Shield</div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent-green)] mb-3">Honest Measurement</div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  Every trade has<br />a safety net.
+                  Every claim has<br />a scorecard.
                 </h3>
                 <p className="mt-3 text-sm text-[var(--text-secondary)] leading-relaxed max-w-md">
-                  ATR-based stop-loss, Kelly criterion position sizing, and risk scoring
-                  on every signal. Know your risk before you enter.
+                  Every candidate&apos;s outcome is recorded and measured against the market&apos;s
+                  base rate. The scorecard is public — including the weeks we were wrong.
                 </p>
                 <div className="mt-7 grid grid-cols-2 gap-3">
                   {[
-                    { label: "Stop-Loss", val: "$168.50", sub: "ATR-based", icon: "🛡️" },
-                    { label: "Target", val: "$198.00", sub: "R/R 1.8", icon: "🎯" },
-                    { label: "Position Size", val: "12%", sub: "Kelly criterion", icon: "📊" },
-                    { label: "Risk Score", val: "Low", sub: "0.3 / 1.0", icon: "✅" },
+                    { label: "Calibration", val: "Weekly", sub: "probability vs reality", icon: "🎯" },
+                    { label: "Base rate", val: "Always", sub: "lift over no-filter", icon: "📏" },
+                    { label: "Outcomes", val: "5,000+", sub: "archived & resolved", icon: "🗂️" },
+                    { label: "Misses", val: "Shown", sub: "bad weeks included", icon: "🪞" },
                   ].map((m, i) => (
                     <motion.div
                       key={m.label}
@@ -359,13 +358,14 @@ export default function HeroGrid() {
             >
               <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--accent-blue)]/[0.04] to-transparent pointer-events-none" />
               <div className="relative">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent-blue)] mb-3">AI Ensemble</div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent-blue)] mb-3">Explainable Grades</div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  12 models. 3 experts.<br />One decision.
+                  Independent factors.<br />One transparent grade.
                 </h3>
                 <p className="mt-3 text-sm text-[var(--text-secondary)] leading-relaxed max-w-md">
-                  PPO-trained deep reinforcement learning models grouped into three regime-specific agents.
-                  They vote independently — no single point of failure.
+                  Short-interest, volume acceleration, gaps, catalysts and market regime are
+                  scored independently and combined into a calibrated probability — every
+                  factor visible, nothing hidden behind a black box.
                 </p>
                 <div className="mt-7">
                   <EnsembleVoting />
@@ -384,20 +384,20 @@ export default function HeroGrid() {
             >
               <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--accent-blue)]/[0.04] to-transparent pointer-events-none" />
               <div className="relative">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent-blue)] mb-3">Battle-Tested</div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent-blue)] mb-3">Validation-First</div>
                 <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  We don&apos;t guess.<br />We backtest.
+                  We don&apos;t guess.<br />We measure.
                 </h3>
                 <p className="mt-3 text-sm text-[var(--text-secondary)] leading-relaxed max-w-md">
-                  Walk-forward optimization, 1,000 Monte Carlo simulations, and rigorous performance metrics
-                  on every strategy before it goes live.
+                  In-sample vs out-of-sample splits, walk-forward checks and weekly edge
+                  reports. A factor that fails validation never reaches your brief.
                 </p>
                 <div className="mt-7 space-y-3">
                   {[
-                    { label: "Sharpe Ratio", val: "1.24", bar: 62 },
-                    { label: "Win Rate", val: "68%", bar: 68 },
-                    { label: "Max Drawdown", val: "12.4%", bar: 24 },
-                    { label: "Profit Factor", val: "2.1×", bar: 70 },
+                    { label: "Archived signals", val: "5,000+", bar: 85 },
+                    { label: "Edge report", val: "Weekly", bar: 70 },
+                    { label: "Out-of-sample", val: "Always", bar: 90 },
+                    { label: "Config-stamped", val: "Every run", bar: 80 },
                   ].map((m, i) => (
                     <motion.div
                       key={m.label}
@@ -424,12 +424,12 @@ export default function HeroGrid() {
                 {/* PilotShield badge */}
                 <div className="mt-6 rounded-xl border border-[var(--accent-cyan)]/15 bg-[var(--accent-cyan)]/[0.04] px-5 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm">🛡️</span>
-                    <span className="text-[11px] font-semibold text-[var(--accent-cyan)]">PilotShield</span>
+                    <span className="text-sm">🔬</span>
+                    <span className="text-[11px] font-semibold text-[var(--accent-cyan)]">Methodology, open</span>
                   </div>
                   <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                    Kelly criterion sizing, ATR stops, and hard position limits.
-                    Risk management is automatic and cannot be overridden.
+                    How grades are computed, what they measure and what they don&apos;t —
+                    documented on the demo page next to the scorecard. Judge the record, not the pitch.
                   </p>
                 </div>
               </div>
@@ -448,13 +448,13 @@ export default function HeroGrid() {
         >
           <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[var(--accent-cyan)] mb-6">What makes us different</p>
           <h2 className="text-2xl sm:text-4xl font-bold text-white tracking-tight max-w-3xl mx-auto leading-snug">
-            FinPilot doesn&apos;t wrap an LLM.<br />
+            Most tools sell certainty.<br />
             <span className="text-[var(--text-secondary)]">
-              It runs its own trained reinforcement learning models that learn from market data — not from prompts.
+              FinPilot sells calibrated probabilities and publishes its own scorecard — including the misses.
             </span>
           </h2>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
-            {["PPO Training", "HMM Regime Detection", "Ensemble Voting", "Kelly Sizing", "Monte Carlo Validation", "Telegram Alerts"].map((tag) => (
+            {["Calibrated Probability", "Point-in-Time Data", "Regime Awareness", "Open Scorecard", "Out-of-Sample Validation", "Daily Telegram Brief"].map((tag) => (
               <span
                 key={tag}
                 className="rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 text-[11px] text-[var(--text-secondary)]"
@@ -475,29 +475,32 @@ export default function HeroGrid() {
           className="py-20 sm:py-28 text-center"
         >
           <h2 className="text-3xl sm:text-5xl font-bold text-white tracking-tight">
-            Ready to stop guessing?
+            See yesterday&apos;s brief. Judge for yourself.
           </h2>
           <p className="mt-4 text-base text-[var(--text-secondary)] max-w-md mx-auto">
-            Try the live demo with real scanner data — no sign-up required.
+            Real scan output, dated and frozen — no sign-up required. Today&apos;s edition
+            arrives on Telegram every morning at 08:30.
           </p>
           <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
             <a
               href="/demo"
               className="rounded-full bg-[var(--accent-blue)] px-8 py-3.5 text-sm font-semibold text-white hover:brightness-110 transition shadow-lg shadow-[var(--accent-blue)]/20"
             >
-              Try Demo →
+              See yesterday&apos;s brief →
             </a>
             <a
-              href="http://localhost:8501"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#waitlist"
               className="rounded-full border border-white/[0.12] px-8 py-3.5 text-sm font-medium text-[var(--text-secondary)] hover:text-white hover:border-white/[0.25] transition"
             >
-              Open Dashboard
+              Join the beta waitlist
             </a>
           </div>
           <p className="mt-8 text-[11px] text-[var(--text-tertiary)]">
-            1,500+ symbols · 12 DRL models · 4 strategy modes · Telegram alerts · 3 languages
+            1,800+ stocks daily · graded candidates · open scorecard · daily Telegram brief
+          </p>
+          <p className="mt-4 text-[10px] text-[var(--text-tertiary)] max-w-xl mx-auto">
+            FinPilot is a research and education tool; it does not provide investment advice.
+            Past performance does not guarantee future results.
           </p>
         </motion.div>
 

@@ -44,6 +44,7 @@ from api.routers import (
     auth,
     backtest,
     closed_loop,
+    demo_feedback,
     ensemble,
     history,
     inference,
@@ -55,6 +56,7 @@ from api.routers import (
     profitcore,
     research,
     scan,
+    stripe_webhook,
     trade,
     user,
     waitlist_signup,
@@ -374,6 +376,8 @@ app.include_router(research.router, prefix="/api/v1")
 app.include_router(profitcore.router, prefix="/api/v1")
 app.include_router(waitlist_signup.router, prefix="/api/v1")
 app.include_router(academy.router, prefix="/api/v1")
+app.include_router(demo_feedback.router, prefix="/api/v1")
+app.include_router(stripe_webhook.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health")

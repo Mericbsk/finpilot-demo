@@ -49,6 +49,10 @@ ignore = [
 "academy/*" = ["F841"]
 "core/backtest.py" = ["F841"]
 "scripts/_system_check.py" = ["S310", "UP031"]
+# urlopen calls target a hardcoded https://api.telegram.org or an
+# ops-controlled FINPILOT_LOCAL_API env var (not user input) — not SSRF risk.
+"distribution/telegram_client.py" = ["S310"]
+"distribution/jobs.py" = ["S310"]
 "core/prometheus_exporter.py" = ["S104"]
 "core/audit.py" = ["S105"]
 "drl/observability.py" = ["S104"]
