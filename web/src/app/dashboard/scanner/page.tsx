@@ -190,6 +190,34 @@ interface DisplayStock {
   topHeadlines: string[];
 }
 
+/* ── Yerel LLM (Ollama) shortlist zenginleştirmesi — /scan/analyze ── */
+interface AiEnrichment {
+  explanation?: string;
+  catalyst_strength?: number;
+  catalyst_summary?: string;
+  bull_point?: string;
+  bear_point?: string;
+  social_read?: string;
+  verdict?: string;
+  provider?: string;
+  latency_ms?: number;
+}
+
+interface AiBullBearCase {
+  arguments?: string[];
+  strength_score?: number;
+  key_catalysts?: string[];
+  key_risks?: string[];
+  provider?: string;
+}
+
+interface AiAnalyzeEntry {
+  symbol: string;
+  enrichment?: AiEnrichment;
+  bull?: AiBullBearCase;
+  bear?: AiBullBearCase;
+}
+
 type Preset = {
   id: string;
   name: string;
@@ -502,6 +530,10 @@ export default function ScannerPage() {
   );
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
   const [explainOpen, setExplainOpen] = useState(false);
+  /* Yerel LLM (Ollama) — AI Analiz sonuçları per-sembol cache */
+  const [aiResults, setAiResults] = useState<Record<string, AiAnalyzeEntry>>({});
+  const [aiLoadingTicker, setAiLoadingTicker] = useState<string | null>(null);
+  const [aiErrorByTicker, setAiErrorByTicker] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [sortCol, setSortCol] = useState<string>("score");
   const [sortAsc, setSortAsc] = useState(false);
@@ -957,6 +989,35 @@ export default function ScannerPage() {
     setScanAllMode(true);
     runScan(allSymbols);
   }, [presets, runScan]);
+
+  /* Yerel LLM (Ollama) ile tek sembol için AI analizi tetikler (/scan/analyze).
+   * İlk çağrıda model host makinede yüklenir — ~30-40s sürebilir. */
+  const runAiAnalyze = useCallback(async (ticker: string) => {
+    setAiLoadingTicker(ticker);
+    setAiErrorByTicker((prev) => {
+      const next = { ...prev };
+      delete next[ticker];
+      return next;
+    });
+    try {
+      const resp = await apiFetch("/api/v1/scan/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbols: [ticker] }),
+      });
+      if (!resp.ok) throw new Error(`AI analiz başarısız (HTTP ${resp.status})`);
+      const data = await resp.json();
+      const entry: AiAnalyzeEntry | undefined = data[ticker];
+      if (!entry) throw new Error("Sonuç boş döndü");
+      setAiResults((prev) => ({ ...prev, [ticker]: entry }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Bilinmeyen hata";
+      setAiErrorByTicker((prev) => ({ ...prev, [ticker]: msg }));
+      toast.error(`AI analiz hatası (${ticker}): ${msg}`);
+    } finally {
+      setAiLoadingTicker(null);
+    }
+  }, []);
 
   /* Selected stock */
   const selected =
@@ -2482,6 +2543,182 @@ export default function ScannerPage() {
                   )}
                 </div>
               )}
+
+              {/* Yerel AI Analizi (Ollama) — /scan/analyze */}
+              {selected && (() => {
+                const ticker = selected.ticker;
+                const aiEntry = aiResults[ticker];
+                const enrichment = aiEntry?.enrichment;
+                const isLoading = aiLoadingTicker === ticker;
+                const errorMsg = aiErrorByTicker[ticker];
+                const catalystStrength = enrichment?.catalyst_strength ?? 0;
+                const verdict = (enrichment?.verdict ?? "").toLowerCase();
+                const socialRead = (enrichment?.social_read ?? "").toLowerCase();
+                return (
+                  <div
+                    className="rounded-2xl p-5"
+                    style={{ border: `1px solid ${C.border}`, backgroundColor: C.card }}
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Brain size={14} style={{ color: C.cyan }} />
+                        <h3 className="text-xs font-semibold" style={{ color: C.text1 }}>
+                          Yerel AI Analizi
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => runAiAnalyze(ticker)}
+                        disabled={isLoading}
+                        className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold transition-opacity disabled:opacity-60"
+                        style={{ backgroundColor: C.cyan, color: "#001018" }}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 size={11} className="animate-spin" />
+                            Analiz ediliyor…
+                          </>
+                        ) : enrichment ? (
+                          "Yeniden Analiz Et"
+                        ) : (
+                          "AI Analiz Yap"
+                        )}
+                      </button>
+                    </div>
+
+                    {isLoading && !enrichment && (
+                      <p className="text-[10px]" style={{ color: C.text3 }}>
+                        İlk çağrıda yerel model belleğe yükleniyor — 30-40 saniye sürebilir.
+                      </p>
+                    )}
+
+                    {errorMsg && (
+                      <p className="text-[10px]" style={{ color: C.red }}>
+                        {errorMsg}
+                      </p>
+                    )}
+
+                    {!enrichment && !isLoading && !errorMsg && (
+                      <p className="text-[10px]" style={{ color: C.text3 }}>
+                        Bu sembol için henüz yerel LLM analizi çalıştırılmadı.
+                      </p>
+                    )}
+
+                    {enrichment && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          {verdict && (
+                            <span
+                              className="rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase"
+                              style={{
+                                backgroundColor:
+                                  verdict === "buy" || verdict === "bullish"
+                                    ? "rgba(48,209,88,0.15)"
+                                    : verdict === "sell" || verdict === "bearish"
+                                    ? "rgba(255,69,58,0.15)"
+                                    : "rgba(255,255,255,0.08)",
+                                color:
+                                  verdict === "buy" || verdict === "bullish"
+                                    ? C.green
+                                    : verdict === "sell" || verdict === "bearish"
+                                    ? C.red
+                                    : C.text3,
+                              }}
+                            >
+                              {verdict}
+                            </span>
+                          )}
+                          {socialRead && (
+                            <span
+                              className="rounded-full px-2 py-0.5 text-[9px] font-semibold"
+                              style={{ backgroundColor: "rgba(255,255,255,0.08)", color: C.text3 }}
+                            >
+                              sosyal: {socialRead}
+                            </span>
+                          )}
+                          <span className="ml-auto text-[9px]" style={{ color: C.text3 }}>
+                            katalizör {catalystStrength}/10
+                            {enrichment.provider ? ` · ${enrichment.provider}` : ""}
+                          </span>
+                        </div>
+
+                        <div className="h-1.5 rounded-full" style={{ backgroundColor: C.primary }}>
+                          <div
+                            className="h-1.5 rounded-full"
+                            style={{
+                              width: `${Math.min(100, catalystStrength * 10)}%`,
+                              backgroundColor:
+                                catalystStrength >= 7 ? C.green : catalystStrength >= 4 ? C.cyan : C.red,
+                            }}
+                          />
+                        </div>
+
+                        {enrichment.explanation && (
+                          <p className="text-[11px] leading-snug" style={{ color: C.text2 }}>
+                            {enrichment.explanation}
+                          </p>
+                        )}
+                        {enrichment.catalyst_summary && (
+                          <p className="text-[10px] leading-snug" style={{ color: C.text3 }}>
+                            {enrichment.catalyst_summary}
+                          </p>
+                        )}
+
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          {enrichment.bull_point && (
+                            <div className="rounded-lg px-2.5 py-2" style={{ backgroundColor: C.primary }}>
+                              <div style={{ color: C.green, fontSize: 9 }} className="mb-0.5 font-semibold">
+                                BOĞA
+                              </div>
+                              <div style={{ color: C.text2, fontSize: 10 }}>{enrichment.bull_point}</div>
+                            </div>
+                          )}
+                          {enrichment.bear_point && (
+                            <div className="rounded-lg px-2.5 py-2" style={{ backgroundColor: C.primary }}>
+                              <div style={{ color: C.red, fontSize: 9 }} className="mb-0.5 font-semibold">
+                                AYI
+                              </div>
+                              <div style={{ color: C.text2, fontSize: 10 }}>{enrichment.bear_point}</div>
+                            </div>
+                          )}
+                        </div>
+
+                        {(aiEntry?.bull?.arguments?.length || aiEntry?.bear?.arguments?.length) && (
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            {!!aiEntry?.bull?.arguments?.length && (
+                              <div className="rounded-lg px-2.5 py-2" style={{ backgroundColor: C.primary }}>
+                                <div style={{ color: C.green, fontSize: 9 }} className="mb-1 font-semibold">
+                                  Boğa Tezi ({Math.round((aiEntry.bull.strength_score ?? 0) * 100)}%)
+                                </div>
+                                <ul className="space-y-1">
+                                  {aiEntry.bull.arguments.map((a, i) => (
+                                    <li key={i} style={{ color: C.text2, fontSize: 10 }}>
+                                      • {a}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {!!aiEntry?.bear?.arguments?.length && (
+                              <div className="rounded-lg px-2.5 py-2" style={{ backgroundColor: C.primary }}>
+                                <div style={{ color: C.red, fontSize: 9 }} className="mb-1 font-semibold">
+                                  Ayı Tezi ({Math.round((aiEntry.bear.strength_score ?? 0) * 100)}%)
+                                </div>
+                                <ul className="space-y-1">
+                                  {aiEntry.bear.arguments.map((a, i) => (
+                                    <li key={i} style={{ color: C.text2, fontSize: 10 }}>
+                                      • {a}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Risk Metrics */}
               {selected.fromAPI && selected.sharpe !== 0 && (

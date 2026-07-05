@@ -216,9 +216,6 @@ def run_cycle(
         )
         return state
 
-    if task == "scan":
-        return state
-
     # ── Step 1b: Social Intelligence (optional — "social" in stages) ────────
     if "social" in _stages and _SOCIAL_ENABLED:
         try:
@@ -376,6 +373,9 @@ def run_cycle(
         except Exception as exc:
             state["errors"].append(f"bull_bear: {exc}")
             logger.warning("pipeline: bull/bear exception (non-fatal): %s", exc)
+
+    if task == "scan":
+        return state
 
     # ── Step 2: Analysis (task in ["analyze", "full"]) ──────────────────────
     if task in ("analyze", "full"):

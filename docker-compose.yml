@@ -48,6 +48,12 @@ services:
       - HEADROOM_ENABLED=true
       - SOCIAL_SENTIMENT_ENABLED=true
       - FINPILOT_LLM_SINGLE_PROVIDER=groq
+      # Yerel LLM (Ollama) — shortlist enrichment için. host.docker.internal,
+      # Docker Desktop (Windows/Mac) üzerinden container'dan host makineye
+      # (Ollama'nın çalıştığı yer) erişimi sağlar.
+      - FINPILOT_LLM_BACKEND=${FINPILOT_LLM_BACKEND:-ollama}
+      - FINPILOT_OLLAMA_URL=${FINPILOT_OLLAMA_URL:-http://host.docker.internal:11434}
+      - FINPILOT_OLLAMA_MODEL=${FINPILOT_OLLAMA_MODEL:-qwen2.5:3b}
       # EODHD veri API'sı
       - EODHD_API_KEY=${EODHD_API_KEY:-}
       # EODHD destekli zenginleştirme — 1 = aktif, 0 = devre dışı
@@ -68,6 +74,10 @@ services:
       - ./core:/app/core:ro
       - ./scanner:/app/scanner:ro
       - ./auth:/app/auth:ro
+    extra_hosts:
+      # host.docker.internal Windows/Mac Docker Desktop'ta otomatik çözülür;
+      # native Linux Docker Engine'de bu satır olmadan çözülmez.
+      - "host.docker.internal:host-gateway"
     networks:
       - finpilot_network
     depends_on:
