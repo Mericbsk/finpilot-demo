@@ -306,6 +306,42 @@ async def run_scan(
     return out
 
 
+class ScanSummarizeRequest(BaseModel):
+    results: dict[str, dict] = Field(
+        ...,
+        description="Aggregated /scan sonuclari — TUM batch'lerin birlesimi (symbol -> result dict)",
+    )
+
+
+@router.post("/scan/summarize")
+async def summarize_scan(
+    req: ScanSummarizeRequest,
+    _auth: Annotated[TokenPayload, Depends(require_auth)],
+):
+    """Tum batch'ler bittikten sonra frontend'in TEK kez cagirdigi ozet endpoint'i.
+
+    Kural-tabanli aday havuzundan (entry_ok VEYA conviction_tier A/B/C) LLM ile
+    basari olasiligi en yuksek <=10 taneyi secer/daraltir + tek seferlik Telegram
+    bildirimi gonderir. LLM kullanilamazsa kural-tabanli siralamaya duser.
+    """
+    from scanner.scan_summary import summarize_full_scan
+
+    loop = asyncio.get_running_loop()
+    try:
+        summary = await asyncio.wait_for(
+            loop.run_in_executor(_executor, lambda: summarize_full_scan(req.results)),
+            timeout=180,
+        )
+    except TimeoutError:
+        raise HTTPException(status_code=504, detail="Summarize timed out after 180s") from None
+    except Exception as exc:
+        logger.exception("scan/summarize failed")
+        raise HTTPException(
+            status_code=500, detail=f"Summarize error: {type(exc).__name__}: {exc}"
+        ) from exc
+    return summary
+
+
 class AnalyzeRequest(BaseModel):
     symbols: list[str] = Field(..., max_length=200)
     kelly_fraction: float = Field(0.5, ge=0.0, le=1.0)

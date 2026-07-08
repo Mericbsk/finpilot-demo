@@ -241,8 +241,21 @@ def evaluate_symbol(
         # (lift 1.49, recall %60). regime+direction korunur, RSI/MACD kapisi
         # yerine volatilite/gap tetikleyicisi gelir.
         if os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1":
-            _alpha_trigger = (_alpha_gap >= 0.6) or (_alpha_rvol >= 0.5)
-            entry_ok = bool(regime and direction and (_alpha_trigger or score >= 2))
+            # Sinyal sayisini DUSUR + precision ARTIR (2026-06 backtest):
+            # gevsek 'score>=2' fallback cok sinyal uretiyordu (~150/gun). Tetikleyici
+            # artik volatilite/gap/hacim: ATR>=4 VEYA gap>=%3 VEYA RVOL>=2 — dogrulanmis
+            # yuksek-precision populasyon. FINPILOT_STRICT_ENTRY=0 ile eski gevsek moda donulur.
+            try:
+                from scanner.features import compute_atr_pct  # noqa: PLC0415
+
+                _atr_pct_gate = compute_atr_pct(df_1d)
+            except Exception:
+                _atr_pct_gate = 0.0
+            _alpha_trigger = (_alpha_gap >= 0.6) or (_alpha_rvol >= 0.5) or (_atr_pct_gate >= 4.0)
+            if os.environ.get("FINPILOT_STRICT_ENTRY", "1") == "1":
+                entry_ok = bool(regime and direction and _alpha_trigger)
+            else:
+                entry_ok = bool(regime and direction and (_alpha_trigger or score >= 2))
 
         # Faz 5: is_premium_symbol removed — subjective hardcoded list had no
         # measurable lift in scoring (score_engine never read the key; it was
@@ -481,14 +494,18 @@ def evaluate_symbol(
                 pass
 
         # Konviksiyon tier (env-gated): skoru DEGISTIRMEZ, sadece etiketler.
+        # ONEMLI: tier YALNIZCA eyleme gecilebilir AL (entry_ok) sinyallerine atanir.
+        # Boylece 'Tier A ama BEKLE/SAT' tutarsizligi olmaz ve Tier A otomatik
+        # watchlist'e (entry_ok BUY) dusup izlenebilir.
         _conv_tier, _conv_prob = "", 0.0
         try:
-            from scanner.features import compute_atr_pct, compute_conviction  # noqa: PLC0415
+            if entry_ok:
+                from scanner.features import compute_atr_pct, compute_conviction  # noqa: PLC0415
 
-            _atr_pct_daily = compute_atr_pct(df_1d)
-            _conv_tier, _conv_prob = compute_conviction(
-                float(squeeze_factor), float(_alpha_gap), float(_alpha_rvol), _atr_pct_daily
-            )
+                _atr_pct_daily = compute_atr_pct(df_1d)
+                _conv_tier, _conv_prob = compute_conviction(
+                    float(squeeze_factor), float(_alpha_gap), float(_alpha_rvol), _atr_pct_daily
+                )
         except Exception:
             _conv_tier, _conv_prob = "", 0.0
 

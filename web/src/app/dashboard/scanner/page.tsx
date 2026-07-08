@@ -218,6 +218,25 @@ interface AiAnalyzeEntry {
   bear?: AiBullBearCase;
 }
 
+/* ── Tarama sonrası otomatik AI özeti — /scan/summarize ── */
+interface AiScanTopEntry {
+  symbol: string;
+  confidence?: number;
+  reason?: string;
+}
+interface AiScanSummary {
+  total_scanned: number;
+  buy_signals: number;
+  candidates_considered: number;
+  tier_A: number;
+  tier_B: number;
+  tier_C: number;
+  top: AiScanTopEntry[];
+  overall_note: string;
+  llm_used: boolean;
+  alert_sent: boolean;
+}
+
 type Preset = {
   id: string;
   name: string;
@@ -549,6 +568,11 @@ export default function ScannerPage() {
   const [reportSaved, setReportSaved] = useState(false);
   const [showReportPanel, setShowReportPanel] = useState(false);
 
+  /* Tarama sonrası otomatik AI özeti (tüm batch'ler bitince TEK kez) */
+  const [aiScanSummary, setAiScanSummary] = useState<AiScanSummary | null>(null);
+  const [aiScanSummaryLoading, setAiScanSummaryLoading] = useState(false);
+  const [aiScanSummaryError, setAiScanSummaryError] = useState<string | null>(null);
+
   /* Alpaca state */
   const [alpacaAccount, setAlpacaAccount] = useState<{
     cash: number; portfolio_value: number; buying_power: number;
@@ -847,6 +871,30 @@ export default function ScannerPage() {
   }, [filtered]);
 
   /* ── Scan function: calls real backend in batches ──────── */
+  /* Tarama tum batch'ler bitince TEK kez cagrilir: LLM ile en yuksek basari
+   * olasilikli 10 hisseyi secer/daraltir + tek Telegram bildirimi gonderir.
+   * Kendi loading/error state'ini yonetir — runScan'i bloke etmez (fire-and-forget). */
+  const runPostScanSummary = useCallback(async (results: Record<string, ScanResult>) => {
+    setAiScanSummaryLoading(true);
+    setAiScanSummaryError(null);
+    try {
+      const resp = await apiFetch("/api/v1/scan/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ results }),
+      });
+      if (!resp.ok) throw new Error(`AI özet başarısız (HTTP ${resp.status})`);
+      const data: AiScanSummary = await resp.json();
+      setAiScanSummary(data);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Bilinmeyen hata";
+      setAiScanSummaryError(msg);
+      toast.error(`AI tarama özeti hatası: ${msg}`);
+    } finally {
+      setAiScanSummaryLoading(false);
+    }
+  }, []);
+
   const runScan = useCallback(
     async (symbols: string[]) => {
       if (isScanning) return;
@@ -856,9 +904,13 @@ export default function ScannerPage() {
       setScanProgress(0);
       setScanTotal(symbols.length);
       setSelectedTicker(null);
+      setAiScanSummary(null);
+      setAiScanSummaryError(null);
 
       const results: Record<string, ScanResult> = {};
       let scanned = 0;
+      let failedBatches = 0;
+      let failedSymbolCount = 0;
 
       try {
         // Build all batches upfront
@@ -882,6 +934,8 @@ export default function ScannerPage() {
                 })
                 .catch((batchErr) => {
                   console.warn("Batch scan failed:", batchErr);
+                  failedBatches += 1;
+                  failedSymbolCount += batch.length;
                   scanned += batch.length;
                   setScanProgress(scanned);
                 })
@@ -891,6 +945,12 @@ export default function ScannerPage() {
 
         setScanResults({ ...results });
         writeCache({ scanResults: { ...results }, activePresetId, scanAllMode });
+
+        if (failedBatches > 0) {
+          toast.warning(
+            `${failedBatches} batch başarısız oldu (${failedSymbolCount} sembol taranamadı) — muhtemelen zaman aşımı. Tekrar deneyebilirsiniz.`
+          );
+        }
 
         if (Object.keys(results).length === 0) {
           try {
@@ -911,6 +971,10 @@ export default function ScannerPage() {
           toast.success(
             `Scan complete — ${Object.keys(results).length} stocks · ${buyCount} buy signals · Top ${topScore}/100`
           );
+
+          // Tarama tamamlandi — TEK kez AI ozeti tetikle (kendi loading state'i var,
+          // burada await edilmez ki tarama akisi/rapor kaydi bloklanmasin).
+          runPostScanSummary(results);
 
           // Build top signals list (BUY + highest composite score)
           const allScanned = Object.values(results)
@@ -972,7 +1036,7 @@ export default function ScannerPage() {
         setIsScanning(false);
       }
     },
-    [isScanning, scanAllMode, activePresetId],
+    [isScanning, scanAllMode, activePresetId, runPostScanSummary],
   );
 
   /* Scan preset */
@@ -1428,6 +1492,112 @@ export default function ScannerPage() {
           </button>
         )}
       </div>
+
+      {/* AI Tarama Özeti — tüm batch'ler bitince otomatik (tek seferlik) */}
+      {(aiScanSummaryLoading || aiScanSummary || aiScanSummaryError) && (
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: `1px solid ${C.cyan}55`, backgroundColor: C.card }}
+        >
+          <div className="flex items-center justify-between px-5 py-3">
+            <div className="flex items-center gap-2">
+              <Brain size={14} style={{ color: C.cyan }} />
+              <span className="text-xs font-semibold" style={{ color: C.text1 }}>
+                AI Tarama Özeti — En Güçlü Fırsatlar
+              </span>
+              {aiScanSummaryLoading && <Loader2 size={12} className="animate-spin" style={{ color: C.cyan }} />}
+              {aiScanSummary && (
+                <span
+                  className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                  style={{
+                    backgroundColor: aiScanSummary.llm_used ? "rgba(0,212,255,0.15)" : "rgba(255,255,255,0.08)",
+                    color: aiScanSummary.llm_used ? C.cyan : C.text3,
+                  }}
+                >
+                  {aiScanSummary.llm_used ? "Yerel AI (Ollama)" : "Kural tabanlı"}
+                </span>
+              )}
+              {aiScanSummary?.alert_sent && (
+                <span className="text-[10px]" style={{ color: C.text3 }}>● Telegram gönderildi</span>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t px-5 pb-4 pt-3 space-y-3" style={{ borderColor: C.border }}>
+            {aiScanSummaryLoading && (
+              <div className="text-xs" style={{ color: C.text3 }}>
+                Tarama tamamlandı, AI en güçlü fırsatları seçiyor — ilk çağrıda yerel model ısınması nedeniyle
+                30-90 saniye sürebilir…
+              </div>
+            )}
+
+            {aiScanSummaryError && !aiScanSummaryLoading && (
+              <div className="text-xs" style={{ color: C.red }}>{aiScanSummaryError}</div>
+            )}
+
+            {aiScanSummary && !aiScanSummaryLoading && (
+              <>
+                <div className="grid grid-cols-4 gap-3">
+                  {[
+                    { label: "Taranan", value: aiScanSummary.total_scanned, color: C.text1 },
+                    { label: "BUY Sinyali", value: aiScanSummary.buy_signals, color: C.green },
+                    { label: "Aday (A/B/C)", value: aiScanSummary.candidates_considered, color: C.cyan },
+                    { label: "Seçilen", value: aiScanSummary.top.length, color: C.cyan },
+                  ].map((m) => (
+                    <div key={m.label} className="rounded-xl px-3 py-2" style={{ backgroundColor: C.primary }}>
+                      <div className="text-[10px]" style={{ color: C.text3 }}>{m.label}</div>
+                      <div className="text-lg font-bold" style={{ color: m.color }}>{m.value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {aiScanSummary.overall_note && (
+                  <div className="rounded-xl px-3 py-2.5 text-xs leading-relaxed" style={{ backgroundColor: C.primary, color: C.text2 }}>
+                    {aiScanSummary.overall_note}
+                  </div>
+                )}
+
+                {aiScanSummary.top.length === 0 ? (
+                  <div className="text-xs" style={{ color: C.text3 }}>
+                    Bu taramada yeterince güçlü aday bulunamadı.
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {aiScanSummary.top.map((t, idx) => (
+                      <div
+                        key={t.symbol}
+                        className="flex items-center justify-between rounded-lg px-3 py-2 text-xs cursor-pointer"
+                        style={{ backgroundColor: C.primary }}
+                        onClick={() => setSelectedTicker(t.symbol)}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="w-5 text-[10px] font-bold" style={{ color: C.text3 }}>#{idx + 1}</span>
+                          <span className="font-bold w-14" style={{ color: C.text1 }}>{t.symbol}</span>
+                          <span className="truncate" style={{ color: C.text3 }} title={t.reason}>{t.reason}</span>
+                        </div>
+                        {typeof t.confidence === "number" && (
+                          <div className="flex items-center gap-2 shrink-0">
+                            <div className="h-1.5 w-16 rounded-full overflow-hidden" style={{ backgroundColor: C.border }}>
+                              <div
+                                className="h-full rounded-full"
+                                style={{
+                                  width: `${Math.max(0, Math.min(100, t.confidence))}%`,
+                                  backgroundColor: t.confidence >= 70 ? C.green : t.confidence >= 40 ? C.yellow : C.red,
+                                }}
+                              />
+                            </div>
+                            <span className="font-bold w-8 text-right" style={{ color: C.cyan }}>{Math.round(t.confidence)}%</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Daily Report Panel */}
       {dailyReport && (

@@ -1,0 +1,129 @@
+Design a complete learning-first web platform called "FinPilot Open Classroom"
+that fuses a financial-literacy academy (FinSense) with a live market research
+engine (FinPilot). The engine scans 1,800+ US stocks every morning and grades
+candidates A/B/C with calibrated probabilities, factor badges, plain-language
+reasons and an OPEN scorecard including misses. The twist: here, LEARNING is
+the front door — the live brief exists inside lessons as "today's case study".
+Education + research only; never BUY/SELL language, price targets or profit
+promises; a friendly disclaimer is always visible.
+
+═══ CONCEPT ═══
+"Learn the market from the market." A warm, serious night-school where every
+concept is taught with THIS morning's real data, and every real candidate
+becomes a teachable case. Duolingo's habit mechanics with adult gravity —
+progress feels like growing judgment, not collecting gems.
+
+═══ BRAND SYSTEM ═══
+- Background: warm charcoal #14161C (softer than pure black); cards in
+  #1C1F28 with 12px radius and gentle 1px warm borders.
+- Palette: chalk cream #F2EAD8 (primary text), teacher's green #9BC4A0
+  (progress, mastery, Grade context), amber highlight #E9B872 (today/live
+  elements — everything LIVE glows faintly amber, everything ARCHIVED is
+  neutral: liveness as a color system), dusty violet #A99AC6 (FinSense
+  identity), soft coral #D89090 for misses/mistakes (never shaming red).
+- Typography: "Sora" for headings (geometric warmth), "Inter" for body,
+  "JetBrains Mono" only for tickers/numbers. Slightly larger base size
+  (17px) — a reading platform.
+- Texture: subtle chalk-dust noise on section headers; hand-drawn-style
+  underlines (SVG squiggle) for key phrases; diagrams look like clean
+  whiteboard sketches (2px strokes, slightly imperfect).
+- Motion: gentle. Cards rise 4px on hover; mastery ring fills with a soft
+  chalk-swipe sound-feel; confetti NEVER — completion gives a quiet green
+  checkmark and one sentence of real praise ("You can now read a squeeze
+  setup unaided.").
+
+═══ INFORMATION ARCHITECTURE ═══
+Top nav: 1. Today (home) 2. Learning Paths 3. Market Case Files (the brief)
+4. My Blind-Spot Map 5. Scorecard 6. Go Deeper (premium).
+
+═══ SCREEN 1 — TODAY (daily loop home) ═══
+- Greeting header: "Good morning, Meriç — day 12 of your streak. The market
+  opens in 2h." (streak shown as a simple row of filled dots, adult tone).
+- THE DAILY DOUBLE — the screen's core, two linked cards side by side:
+  a) LESSON OF THE DAY (violet accent): "Relative Volume — 3 minutes" with
+     a whiteboard-sketch icon and a progress ring.
+  b) TODAY'S CASE FILE (amber glow = live): the real morning brief's top
+     candidate as a case card — $EXAS, Grade A seal, probability sentence,
+     factor chips. A connecting bracket visually TIES card (a) to card (b)
+     with the label "today's lesson appears in today's market →" whenever
+     the engine's top candidate actually contains the taught concept (the
+     content system guarantees this pairing daily). This bracket is the
+     signature fusion element of the whole design.
+- Below: "Continue your path" (next 3 lessons as small cards with mastery
+  rings) + "Yesterday's case — what happened?" outcome card: yesterday's
+  candidate with its 5-day-later result revealed (hit/miss/open) and one
+  reflection question ("The gap filled by Wednesday. Which factor weakened
+  first?") — closing the learning loop with real outcomes.
+- Right rail: mini scorecard ("The engine's own report card — A: 67% of 21")
+  and the daily concept from the glossary.
+- Footer disclaimer in teacher voice: "We teach judgment, not tips. Nothing
+  here is investment advice."
+
+═══ SCREEN 2 — LEARNING PATHS ═══
+- Two tracks as two shelves: "The Investor Path" and "The Trader's
+  Discipline Path" — each a horizontal shelf of module cards (12 domains:
+  foundations, risk, technical, behavioral, options intro…), cards show a
+  whiteboard sketch, lesson count, and a mastery ring. Locked modules show
+  their prerequisite ("unlocks after Risk Basics") — knowledge locks, never
+  paywall locks in learning.
+- A path map line (hand-drawn style) connects modules like a metro map;
+  the user's position is a small chalk avatar.
+
+═══ SCREEN 3 — LESSON PAGE (the workhorse) ═══
+- Split rhythm layout, one concept per screen-third:
+  1) EXPLAIN: 90-second read, whiteboard diagram, one "common misconception"
+     box in coral with a gentle "everyone believes this at first" tone.
+  2) SHOW (amber = live/real): an embedded REAL example — an archived case
+     file with actual dated chart ("March 14: $SOUN showed RVOL 3.2 — here's
+     the day after"), interactive: a slider scrubs the 5 days AFTER, letting
+     the learner feel outcome uncertainty. Archive of 5,000 resolved signals
+     powers infinite real examples — say this in a small trust line:
+     "Every example on this platform is real, dated, and was graded before
+     the outcome was known."
+  3) TRY: one scenario question ("You see this setup — watch, skip, or
+     study more?") + confidence slider ("How sure are you? 50–95%") — the
+     CALIBRATION TRAINER: over weeks the app shows "when you say 80% sure,
+     you're right 61% of the time" on the Blind-Spot Map. This is the
+     platform's unique mechanic — it teaches the exact skill the engine
+     itself practices (calibration), user and machine measured the same way.
+- Lesson footer: mastery ring fills; "This concept appears in 3 of this
+  week's case files →" link into Market Case Files.
+
+═══ SCREEN 4 — MARKET CASE FILES (the FinPilot brief, reframed) ═══
+- The daily brief presented as a case-file folder UI: today's folder (amber,
+  live) on top, past folders below in a timeline. Inside a folder: candidate
+  cards (Grade seal, probability line, factor chips where every chip is a
+  mini-lesson link, risk note in teacher voice) and — for past folders —
+  the OUTCOME stamped across the corner (HIT ≥5% / MISS / OPEN) in honest
+  ink. Free tier: 3 candidates per folder visible; a quiet line notes the
+  full folder is in "Go Deeper".
+- A study mechanic: "Annotate" — learners can highlight a factor chip and
+  the margin explains it; annotated terms feed their Blind-Spot Map.
+
+═══ SCREEN 5 — MY BLIND-SPOT MAP ═══
+- The personal signature screen: a heat-mapped concept constellation —
+  every glossary concept as a node, sized by how often it appears in cases,
+  colored by the user's mastery (green mastered, neutral unseen, coral
+  weak). Beneath: "Your three most expensive blind spots" (weak concepts
+  that appeared most in recent case files) each with a "3-minute fix" CTA.
+- Calibration corner: personal confidence-vs-accuracy chart (the same dial
+  language as the engine's scorecard — human and machine, same honest
+  mirror). Line: "The engine keeps a scorecard. So do you."
+
+═══ SCREEN 6 — SCORECARD + GO DEEPER ═══
+- Scorecard: same open-ledger content as the engine's record, presented as
+  "the teacher grades itself" — monthly report cards, worst week pinned,
+  methodology in plain words.
+- Go Deeper (premium): "The full case file, every day" — all candidates,
+  full factor breakdowns, risk notes, watch-updates + advanced lessons.
+  €9/month or founding class of 20 at €99/year, 14-day unconditional
+  refund. Framed as tuition, warm not salesy; comparison table in the
+  whiteboard style.
+
+═══ STATES ═══
+- Market closed: Today screen swaps the case card for "Markets are closed —
+  perfect day for the Weather module" (lesson suggestion). Empty candidates:
+  "The engine found nothing worth a case file today. Lesson: most days are
+  no-trade days — here's why that's a skill." Loading: chalk line draws
+  across. Mobile: Daily Double stacks vertically, bracket becomes a vertical
+  tie; bottom tab nav (Today / Paths / Cases / Map).

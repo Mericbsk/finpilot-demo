@@ -1,0 +1,118 @@
+Design a complete web application called "FinPilot Cockpit" — a stock-market
+research copilot with an integrated flight-school learning system (FinSense).
+FinPilot scans 1,800+ US stocks each morning and grades top candidates A/B/C
+with calibrated probabilities, factor badges and plain reasons; an OPEN
+scorecard tracks every outcome including misses. Strictly decision-support +
+education: no BUY/SELL words, no price targets, no profit promises, disclaimer
+visible on every screen.
+
+═══ CONCEPT ═══
+A precision flight deck for markets. The user is the pilot; FinPilot is the
+instrument panel and co-pilot voice; FinSense is flight school — and the two
+are mechanically fused: instruments you haven't been trained on render
+slightly FROSTED (readable but muted) with a small "training available" chip;
+completing the 3-minute lesson polishes the glass permanently. Competence,
+not gambling adrenaline.
+
+═══ BRAND SYSTEM ═══
+- Background: graphite cockpit black #0A0C10 with a faint brushed-metal
+  vertical gradient; panels are inset cards #10141C with soft inner shadow
+  (recessed instrument look) and 2px rounded bezels.
+- Instrument accents: phosphor amber #FFB454 (primary, Grade A, active
+  states), HUD cyan #6FD3E7 (Grade B, info), neutral #8B93A3 (Grade C).
+  Scorecard hit/miss: calm green #6FBF8F / amber-red #D98A6A.
+- Typography: "IBM Plex Sans" for UI, "IBM Plex Mono" for all numbers,
+  tickers, timestamps (every numeral on the deck is mono — instrument DNA).
+- Texture details: fine tick-marks on gauge edges, tiny engraved labels in
+  8px uppercase tracking-wide, toggle switches with satisfying 150ms snap.
+- Motion: needle sweeps (400ms ease-out) when gauges load; radar ping on
+  scan refresh; nothing bounces, nothing floats — everything is mounted.
+
+═══ INFORMATION ARCHITECTURE ═══
+Left vertical rail (thin, icon+label): 1. Flight Deck (home) 2. Radar
+(today's candidates) 3. Black Box (scorecard) 4. Flight School (FinSense)
+5. Checklists 6. Full Clearance (premium). Top bar: UTC+Vienna dual clock,
+market phase indicator (PRE-FLIGHT / IN-SESSION / GROUNDED), pilot avatar
+with license level.
+
+═══ SCREEN 1 — FLIGHT DECK (daily home) ═══
+- Hero row of three INSTRUMENT CLUSTERS:
+  a) "Morning Sweep" gauge — a half-circle dial showing 1,812 stocks swept,
+     needle settling on candidates found (7); below it the timestamp
+     "sweep completed 07:46".
+  b) "Today's Grade Panel" — three vertical lamp indicators (A/B/C) with
+     count lights: A×1 lit amber, B×2 cyan, C×4 dim.
+  c) "System Integrity" — the scorecard-in-miniature: a small horizontal
+     strip of the last 20 outcomes as hit/miss lamps + "calibration OK,
+     last check Mon 04:00" engraved label. Clicking opens Black Box.
+- Below: PRIMARY FLIGHT CARD — today's top candidate as the main instrument:
+  large mono ticker $EXAS, Grade A amber seal, a linear "probability tape"
+  (aviation-style horizontal tape from 0–100% with a marker at ~65% and the
+  base-rate marked as a second small tick at 17% — SHOWING LIFT VISUALLY),
+  factor badges as cockpit annunciator lights [SQUEEZE][GAP][RVOL] — lit
+  badges are trained concepts, frosted badges show a tiny 🎓 chip.
+  Co-pilot voice line beneath in italics: "High short interest plus a gap
+  open — squeeze conditions. Your call, captain. Risk note: high volatility."
+- FinSense fusion strip: "Pre-flight training — 3 min: Reading the RVOL
+  gauge" with a progress ring showing license progress (Student → Private →
+  Instrument → Commercial ratings as license levels, engraved card).
+- Persistent bottom status bar: "Research instrument only — not investment
+  advice. You are pilot in command." (compliance written IN the metaphor).
+
+═══ SCREEN 2 — RADAR (all candidates) ═══
+- Centerpiece: a circular radar scope (max 420px) — today's graded candidates
+  as blips at radius = probability band (closer to center = higher), blip
+  color by grade; sweep line rotates once on load. Hover a blip → heads-up
+  readout card pins to the right with the full candidate card.
+- Right column: the same candidates as a strict instrument LIST (mono table:
+  TICKER | GRADE | P-BAND | FACTORS | RISK) for people who hate radars —
+  toggle "SCOPE / TABLE" as a physical switch.
+- Free tier sees 3 blips sharp, others as faded "restricted airspace" blips
+  with count ("4 more in Full Clearance") — honest, visible, not fake-blurred.
+
+═══ SCREEN 3 — BLACK BOX (scorecard) ═══
+- Named for the flight recorder: "Every flight is recorded. Every one."
+- Cockpit-voice-recorder aesthetic: a long vertical tape of dated entries,
+  each with grade seal, outcome lamp (HIT ≥5% / MISS / OPEN), and the
+  original reason preserved verbatim ("what we said that morning").
+- Top: three analog-style calibration dials — "Grade A accuracy 67%",
+  "B 55%", "C 41%" — each dial face shows the claimed probability band as a
+  shaded arc and the actual needle position ON or OFF that arc. The needle
+  sitting inside the shaded arc = calibration, made visible. This is the
+  design's signature honesty instrument.
+- A "worst week" flight report card is always pinned: date, what failed,
+  what changed — presented like an incident report, badge of maturity.
+
+═══ SCREEN 4 — FLIGHT SCHOOL (FinSense) ═══
+- Hangar layout: courses as aircraft in a hangar (cards with schematic
+  line-drawings): "Instruments 101" (RVOL, ATR, gaps), "Weather" (regimes,
+  macro), "Emergency Procedures" (risk, position sizing, drawdowns),
+  "Advanced Ratings" (calibration, base rates — the meta-skills).
+- Each lesson = pre-flight briefing format: 90-second read → one real
+  radar replay from the archive ("June 12, $RXRX — what did the instruments
+  show? What happened in 5 days?") → 3 checklist questions → gauge unlocked
+  animation (frost clears on the corresponding cockpit instrument, with a
+  soft wipe — THE reward moment of the whole app).
+- License progress card: current rating, next checkride, streak shown as
+  "consecutive flight days" counter in mono.
+
+═══ SCREEN 5 — CHECKLISTS ═══
+- Printable/interactive discipline cards: "Morning brief checklist",
+  "Before adding to watchlist", "After a losing week". Each item toggleable
+  with the physical-switch component. This screen sells the real product:
+  discipline. Free feature, heavily shareable.
+
+═══ SCREEN 6 — FULL CLEARANCE (premium) ═══
+- Framed as clearance level, not paywall: comparison as two cockpit layouts
+  (VFR free vs IFR full: all candidates, full factor breakdowns, risk notes,
+  watch updates). €9/mo, founding crew 20 seats €99/yr price-locked,
+  14-day unconditional refund. Stripe payment link buttons styled as
+  guarded toggle switches (flip cover + confirm).
+
+═══ STATES ═══
+- Market closed: deck in "GROUNDED" mode — instruments dimmed, message
+  "Tower closed (US holiday). Next sweep Monday 07:45." Loading: needles
+  sweep to position. No-candidates day: all grade lamps dark + co-pilot
+  line "Clear skies, nothing worth flying today. Patience is a position."
+- Mobile: rail becomes bottom tab bar; radar defaults to TABLE mode;
+  primary flight card stacks. Numbers stay mono everywhere.

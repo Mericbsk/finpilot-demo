@@ -1,0 +1,106 @@
+Design a complete, production-grade marketing site + product web app called
+"FinPilot — The Morning Ledger". FinPilot is a stock-market research copilot
+that scans 1,800+ US stocks every morning, grades the most interesting
+candidates (A/B/C) with calibrated probabilities and plain-language reasons,
+and publishes an OPEN scorecard of its own hits and misses. Its learning layer,
+FinSense, teaches financial concepts contextually — every term is explained
+where it appears. This is decision support and education, never investment
+advice; the words BUY/SELL, price targets, or profit promises must never appear.
+
+═══ CONCEPT ═══
+"The market's morning newspaper." Calm, editorial, trustworthy — the opposite
+of neon fintech dashboards. Think Financial Times print elegance meets a quiet
+dark-mode reading app. The daily brief is the front-page story; the scorecard
+is the paper's masthead promise; learning is woven into the copy like living
+footnotes.
+
+═══ BRAND SYSTEM ═══
+- Background: deep ink navy #0B0F1A with a very subtle paper-grain texture.
+- Surface cards: #121826 with 1px hairline borders (#FFFFFF at 8% opacity).
+- Accent: single warm gold #E8C468 used ONLY for Grade A and key CTAs;
+  Grade B = muted steel blue #7FA6C9; Grade C = warm gray #9AA3B2.
+- Success/miss in scorecard: sage green #7FB58A / soft brick #C97F7F
+  (never aggressive red/green — this is a newspaper, not a casino).
+- Typography: headlines in an elegant serif (e.g. "Fraunces" or "Source
+  Serif 4"), body/UI in "Inter". Big generous line-height, max 68ch measure.
+- Motion: almost none. Fades of 200ms. The calm IS the brand.
+
+═══ INFORMATION ARCHITECTURE ═══
+1. Front Page (landing) 2. Today's Brief (the product) 3. The Scorecard
+4. FinSense Library 5. Premium ("Full Edition") 6. About/Methodology
+
+═══ SCREEN 1 — FRONT PAGE ═══
+- Masthead: "FINPILOT" in serif smallcaps, date line "Vienna · Tuesday,
+  July 7 2026 · Markets open in 2h 14m", thin double rule under it (newspaper
+  style).
+- Headline block: "1,800 stocks read before your coffee." Subhead: "Three
+  candidates a morning, each with its reasons — and a public scorecard we
+  can't hide from."
+- Below the fold: an actual rendered "front page article" = yesterday's real
+  brief as editorial content: dateline, lede paragraph, then three candidate
+  entries typeset like news items (see Screen 2 card spec). This section is
+  labeled "Yesterday's Edition — real, frozen".
+- Right rail (desktop): "The Ledger" box — scorecard summary as a small
+  elegant table (Grade A: 67% of 21 · B: 55% of 118 · C: 41% of 264, window
+  label) with a footnote glyph linking to methodology.
+- Footer of hero: two quiet CTAs — primary gold text-button "Read yesterday's
+  edition", secondary "Get the daily edition on Telegram, 08:30".
+- Persistent thin disclaimer bar at page bottom (like a newspaper colophon):
+  "Research & education. Not investment advice. Past results ≠ future results."
+
+═══ SCREEN 2 — TODAY'S BRIEF (core product) ═══
+- Page behaves like an article, not a dashboard. Title: "The Brief — July 7".
+- Lede: one-sentence market context ("Regime: risk-on; quiet macro calendar.")
+- CANDIDATE ENTRY (repeat 3x), typeset like a refined news item:
+  · Ticker as a drop-cap style monogram block ($EXAS) + company name.
+  · Grade appears as a wax-seal-inspired circular stamp (gold A / steel B /
+    gray C) at the entry's top-right — the signature visual of this design.
+  · One italic serif line: "Candidates with this profile moved ≥5% within
+    five days about ~65% of the time."
+  · Body: 2-sentence rationale in body type. Inside the body, financial terms
+    (short interest, gap, RVOL) are set with a fine dotted underline — these
+    are FINSENSE LIVING FOOTNOTES: hover/tap opens a footnote card at the
+    paragraph's edge (desktop: margin note in the right gutter,真 newspaper
+    style; mobile: bottom sheet) with a 60-word plain explanation + "read the
+    full lesson" link. This margin-note mechanic is the FinSense fusion —
+    learning lives inside the reading flow, never in a separate tab.
+  · Risk note as smaller "editor's note:" line.
+- After entries: "The Ledger" full-width strip — horizontal bar showing today's
+  totals ("The system flagged 7 candidates today; you read 3. The full list
+  is in the Full Edition.") — transparency as upsell, no dark patterns.
+- End of article: byline block "Compiled by the FinPilot engine · reviewed by
+  a human editor · config #cbe5cf" (the config stamp shown like a print run
+  number — a trust detail).
+
+═══ SCREEN 3 — THE SCORECARD ═══
+- Full page ledger table: month by month, grade by grade; hits and misses in
+  sage/brick dots forming a calendar heat-strip. Headline: "We keep score,
+  including the misses." A pull-quote style callout: "Last bad week: June
+  23–27, Grade B hit 2 of 9. It's on the record."
+- Methodology accordion in plain language + a small "what this does NOT
+  mean" box (serif italic) — compliance as brand voice.
+
+═══ SCREEN 4 — FINSENSE LIBRARY ═══
+- Presented as the paper's "Glossary & School" section: alphabetical index
+  in three columns (print-style), each term opens the same footnote card
+  grown into a full lesson page: definition → real example from a dated past
+  brief ("as seen in the June 12 edition") → one misconception → 3-question
+  quiz styled as a crossword-corner puzzle box.
+- Personal progress shown as a subtle "reading level" line under the section
+  title: "You've mastered 14 of 120 entries — today's suggested read: RVOL."
+
+═══ SCREEN 5 — FULL EDITION (premium) ═══
+- Newspaper subscription framing: "The Full Edition — every candidate, every
+  reason, every risk note. €9/month, founding print run of 20 at €99/year,
+  price locked." Comparison as two newspaper mockups side by side (thin free
+  edition vs thick full edition). 14-day unconditional refund line. FAQ set
+  in classifieds-style small type.
+
+═══ STATES & DETAILS ═══
+- Loading: a folding-paper shimmer, one line: "Printing this morning's
+  edition…". Market-closed state: "No edition today — markets closed for
+  Independence Day. Next edition Monday." Empty candidates: "Today's best
+  candidate is patience. We'd rather print nothing than invent something."
+- Mobile: single column, margin notes become bottom-sheets, masthead
+  condenses to monogram "FP".
+- Every screen includes the colophon disclaimer bar.
