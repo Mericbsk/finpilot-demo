@@ -67,25 +67,174 @@ def _sort_key(row: dict[str, Any]) -> tuple:
     return (_GRADE_ORDER.get(grade, 9), -prob, -score)
 
 
-def _risk_note(row: dict[str, Any]) -> str:
-    notes: list[str] = []
-    try:
-        atr = float(row.get("atr_pct") or 0.0)
-        if atr >= 6:
-            notes.append("volatilite çok yüksek (geniş günlük aralık)")
-    except (TypeError, ValueError):
-        pass
-    if float(row.get("squeeze_factor") or 0) >= 0.5:
-        notes.append("squeeze senaryoları iki yönlü sert hareket üretebilir")
-    price = row.get("price")
-    try:
-        if price is not None and float(price) < 5:
-            notes.append("düşük fiyatlı hisse — likidite/spread riski")
-    except (TypeError, ValueError):
-        pass
-    return (
-        "; ".join(notes) if notes else "standart izleme riski; pozisyon disiplini okuyucuya aittir"
+# ── E3: Risk notu havuzu — koşul-öncelikli, deterministik, brif içi tekrarsız ──
+_RISK_POOLS: dict[str, dict[str, list[str]]] = {
+    "squeeze_lowprice": {
+        "tr": [
+            "yüksek short + düşük fiyat bileşimi: hareketler sert, spread geniş olabilir",
+            "squeeze profili düşük fiyatlı bir hissede — oynaklık ve kayma riski birlikte gelir",
+        ],
+        "en": [
+            "high short interest on a low-priced stock: moves can be violent, spreads wide",
+            "a squeeze profile in a low-priced name — volatility and slippage arrive together",
+        ],
+    },
+    "squeeze_highatr": {
+        "tr": [
+            "squeeze + yüksek volatilite: iki yön de aynı hızla işleyebilir",
+            "geniş günlük aralıkla birleşen squeeze profili — tempo çok yüksek olabilir",
+        ],
+        "en": [
+            "squeeze plus high volatility: both directions can run equally fast",
+            "a squeeze profile paired with a wide daily range — the pace can be extreme",
+        ],
+    },
+    "squeeze": {
+        "tr": [
+            "squeeze senaryoları iki yönlü sert hareket üretebilir",
+            "short kapanışları kadar short baskısı da mümkün — iki yöne de hazırlıklı izle",
+        ],
+        "en": [
+            "squeeze scenarios can produce sharp moves in either direction",
+            "short-covering and renewed shorting are both possible — watch both ways",
+        ],
+    },
+    "high_atr": {
+        "tr": [
+            "volatilite çok yüksek (geniş günlük aralık)",
+            "günlük aralığı geniş — sakin bir hisse değil",
+            "yüksek ATR profili: fiyat gün içinde büyük yol katedebilir",
+        ],
+        "en": [
+            "very high volatility (wide daily range)",
+            "a wide daily range — not a quiet name",
+            "a high-ATR profile: price can travel far within a session",
+        ],
+    },
+    "low_price": {
+        "tr": [
+            "düşük fiyatlı hisse — likidite/spread riski",
+            "düşük fiyat kademesi: emir derinliği ince olabilir",
+        ],
+        "en": [
+            "low-priced stock — liquidity/spread risk",
+            "a low price tier: order-book depth can be thin",
+        ],
+    },
+    "gap_risk": {
+        "tr": [
+            "gapli açılışlar kısmen geri dolabilir — ilk saatler yanıltıcı olabilir",
+            "açılış boşluğu her zaman kalıcı değildir; gün içi geri çekilme olağandır",
+        ],
+        "en": [
+            "gapped opens can partially fill — the first hours may mislead",
+            "opening gaps are not always durable; intraday give-backs are common",
+        ],
+    },
+    "catalyst_risk": {
+        "tr": [
+            "haber/katalizör kaynaklı hareketlerde belirsizlik yüksektir — akış değişebilir",
+            "katalizör fiyatlanmış olabilir; teyit gelmezse ilgi hızla söner",
+        ],
+        "en": [
+            "news/catalyst-driven moves carry high uncertainty — the flow can turn",
+            "the catalyst may already be priced in; without follow-through, interest fades fast",
+        ],
+    },
+    "contraction_risk": {
+        "tr": [
+            "sıkışma sonrası genişleme iki yöne de açılabilir — yön teyidi önemli",
+        ],
+        "en": [
+            "post-contraction expansion can break either way — direction needs confirming",
+        ],
+    },
+    "c_grade": {
+        "tr": [
+            "erken aşama profili: sinyal henüz olgunlaşmamış olabilir",
+            "izleme-aşaması adayı — teyit basamakları henüz tamamlanmadı",
+        ],
+        "en": [
+            "an early-stage profile: the signal may not be mature yet",
+            "a watch-stage candidate — confirmation rungs are not complete",
+        ],
+    },
+    "generic": {
+        "tr": [
+            "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+            "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+            "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
+        ],
+        "en": [
+            "standard monitoring risk; position discipline rests with the reader",
+            "usual market risk applies — set your monitoring pace to your own plan",
+            "no salient extra risk flag; judgement and risk still rest with the reader",
+        ],
+    },
+}
+
+
+def _risk_conditions(row: dict[str, Any], grade: str) -> list[str]:
+    """Uygulanabilir risk havuzları, öncelik sırasıyla (ilk eşleşen kullanılır)."""
+
+    def num(key: str) -> float:
+        try:
+            return float(row.get(key) or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    squeeze = num("squeeze_factor") >= 0.5
+    high_atr = num("atr_pct") >= 6
+    low_price = 0 < num("price") < 5
+    conds: list[str] = []
+    if squeeze and low_price:
+        conds.append("squeeze_lowprice")
+    if squeeze and high_atr:
+        conds.append("squeeze_highatr")
+    if squeeze:
+        conds.append("squeeze")
+    if high_atr:
+        conds.append("high_atr")
+    if low_price:
+        conds.append("low_price")
+    if num("overnight_gap_factor") >= 0.5 or num("gap_pct") >= 1.0:
+        conds.append("gap_risk")
+    if num("catalyst_factor") >= 0.3:
+        conds.append("catalyst_risk")
+    if num("contraction_factor") >= 0.5:
+        conds.append("contraction_risk")
+    if grade == "C":
+        conds.append("c_grade")
+    conds.append("generic")
+    return conds
+
+
+def _risk_note(
+    row: dict[str, Any],
+    grade: str = "C",
+    lang: str = "tr",
+    date_str: str = "",
+    used: set[str] | None = None,
+) -> str:
+    """Koşula uyan ilk havuzdan deterministik varyant; brif içinde tekrarı önler."""
+    import hashlib as _h
+
+    used = used if used is not None else set()
+    ticker = str(row.get("symbol") or row.get("ticker") or "")
+    seed = int(
+        _h.sha1(f"{date_str}|{ticker}|risk".encode(), usedforsecurity=False).hexdigest()[:8], 16
     )
+    lang = "tr" if lang == "tr" else "en"
+
+    for cond in _risk_conditions(row, grade):
+        pool = _RISK_POOLS[cond][lang]
+        for offset in range(len(pool)):
+            candidate = pool[(seed + offset) % len(pool)]
+            if candidate not in used:
+                used.add(candidate)
+                return candidate
+    # tüm havuzlar tükendiyse (çok büyük brif) tekrar serbest
+    return _RISK_POOLS["generic"][lang][seed % 3]
 
 
 def build_snapshot(
@@ -108,6 +257,7 @@ def build_snapshot(
         if g:
             grade_totals[g] = grade_totals.get(g, 0) + 1
 
+    _used_risk_notes: set[str] = set()
     for i, row in enumerate(graded):
         ticker = str(row.get("symbol") or row.get("ticker") or "").upper()
         if not ticker:
@@ -120,9 +270,21 @@ def build_snapshot(
             "grade": grade,
             "prob_band": prob_band(float(row.get("conviction_prob") or 0.0)),
             "badges": badges,
-            "rationale": build_rationale(ticker, grade, badges, lang=lang),
+            "rationale": build_rationale(
+                ticker,
+                grade,
+                badges,
+                lang=lang,
+                context={
+                    "date": date_str,
+                    "atr_pct": row.get("atr_pct"),
+                    "price": row.get("price"),
+                },
+            ),
             "premium_only": i >= FREE_CANDIDATES,
-            "risk_note": _risk_note(row),
+            "risk_note": _risk_note(
+                row, grade=grade, lang=lang, date_str=date_str, used=_used_risk_notes
+            ),
             "factor_detail": {
                 k: row.get(k)
                 for k in (

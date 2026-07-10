@@ -1384,7 +1384,73 @@ def start_scheduler(
             name="FinPilot Distribution Weekly (Sun 10:00 Vienna)",
         )
 
+        # E5 — sabah taraması + bekçi (Hafta-1). Tarama uzun sürebilir:
+        # watchdog bütçesi 45 dk (varsayılan 10 dk yetmez).
+        def _dist_scan_wrapper() -> None:
+            from distribution.jobs import distribution_enabled, job_morning_scan
+
+            if distribution_enabled():
+                job_morning_scan()
+
+        def _dist_sentinel_wrapper() -> None:
+            from distribution.jobs import distribution_enabled, job_scan_sentinel
+
+            if distribution_enabled():
+                job_scan_sentinel()
+
+        _scheduler_instance.add_job(
+            _make_watchdog_job("dist_scan", _dist_scan_wrapper, timeout_s=2700),
+            trigger=CronTrigger(hour=7, minute=15, timezone="Europe/Vienna"),
+            id="finpilot_dist_scan",
+            name="FinPilot Morning Scan (07:15 Vienna)",
+        )
+        _scheduler_instance.add_job(
+            _make_watchdog_job("dist_scan_sentinel", _dist_sentinel_wrapper),
+            trigger=CronTrigger(hour=7, minute=40, timezone="Europe/Vienna"),
+            id="finpilot_dist_scan_sentinel",
+            name="FinPilot Scan Sentinel (07:40 Vienna)",
+        )
+
+        # E6/E7 — haftalık yedek + günlük arşiv kontrolü.
+        def _dist_backup_wrapper() -> None:
+            from distribution.jobs import distribution_enabled
+            from distribution.maintenance import job_backup
+
+            if distribution_enabled():
+                job_backup()
+
+        def _dist_archive_check_wrapper() -> None:
+            from distribution.maintenance import job_archive_check
+
+            job_archive_check()
+
+        _scheduler_instance.add_job(
+            _make_watchdog_job("dist_backup", _dist_backup_wrapper),
+            trigger=CronTrigger(day_of_week="sun", hour=20, minute=0, timezone="Europe/Vienna"),
+            id="finpilot_dist_backup",
+            name="FinPilot Weekly Backup (Sun 20:00 Vienna)",
+        )
+        _scheduler_instance.add_job(
+            _make_watchdog_job("dist_archive_check", _dist_archive_check_wrapper),
+            trigger=CronTrigger(hour=22, minute=0, timezone="Europe/Vienna"),
+            id="finpilot_dist_archive_check",
+            name="FinPilot Archive Check (22:00 Vienna)",
+        )
+
         _scheduler_instance.start()
+
+        # Startup catch-up: PC sabah elle açıldığında kaçan dist job'larını
+        # tamamla (env-gated; kendi pencere/koruma kuralları jobs içinde).
+        def _dist_catchup_thread() -> None:
+            try:
+                from distribution.jobs import distribution_enabled, job_startup_catchup
+
+                if distribution_enabled():
+                    job_startup_catchup()
+            except Exception as exc:  # pragma: no cover
+                logger.warning("dist catch-up failed: %s", exc)
+
+        threading.Thread(target=_dist_catchup_thread, daemon=True, name="dist-catchup").start()
         logger.info(
             "Scheduler başlatıldı — %d dakikada bir, semboller: %s",
             interval_minutes,

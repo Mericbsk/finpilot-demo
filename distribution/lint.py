@@ -45,7 +45,7 @@ _RULES: list[tuple[str, re.Pattern[str], str]] = [
     (
         "fomo",
         re.compile(
-            r"\b(ka[cç][ıi]rma(y[ıi]n)?|son\s+f[ıi]rsat|acele\s+et|"
+            r"(ka[cç][ıi]rmay[ıi]n|ka[cç][ıi]rma\s*!|f[ıi]rsat[ıi]?\s+ka[cç][ıi]rma\b|\bson\s+f[ıi]rsat|acele\s+et|"
             r"don'?t\s+miss|last\s+chance|act\s+now|limited\s+time\s+only)\b",
             re.IGNORECASE,
         ),

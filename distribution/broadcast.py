@@ -97,3 +97,15 @@ def get_last_sent(kind_prefix: str = "daily") -> dict[str, Any] | None:
     if not row:
         return None
     return {"id": row[0], "kind": row[1], "brief_date": row[2], "text": row[3], "sent_at": row[4]}
+
+
+def drop(queue_id: int, by: str = "admin") -> bool:
+    """Pending YA DA approved (gönderilmemiş) taslağı iptal et."""
+    ensure_tables()
+    with get_conn() as conn:
+        cur = conn.execute(
+            "UPDATE broadcast_queue SET status='rejected', decided_at=?, decided_by=?"
+            " WHERE id=? AND status IN ('pending','approved') AND sent_at IS NULL",
+            (now(), by, queue_id),
+        )
+    return cur.rowcount > 0

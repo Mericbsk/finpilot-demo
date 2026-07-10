@@ -297,6 +297,7 @@ async def run_scan(
     _persist_shortlist(out)
     _auto_add_watchlist(out, drl_cache, drl_valid)
     _persist_distribution_export(out, universe=len(req.symbols))
+    _persist_distribution_export(out, universe=len(req.symbols))
     try:
         from core.analytics import increment_event
 
@@ -450,7 +451,7 @@ async def get_chart(
     candles = []
     for _, row in df.iterrows():
         t = row[time_col]
-        ts = int(pd.Timestamp(t).timestamp()) if not isinstance(t, (int, float)) else int(t)
+        ts = int(pd.Timestamp(t).timestamp()) if not isinstance(t, int | float) else int(t)
         candles.append(
             {
                 "time": ts,
@@ -471,7 +472,7 @@ async def get_chart(
             v = row[sma50_col]
             if pd.notna(v):
                 t = row[time_col]
-                ts = int(pd.Timestamp(t).timestamp()) if not isinstance(t, (int, float)) else int(t)
+                ts = int(pd.Timestamp(t).timestamp()) if not isinstance(t, int | float) else int(t)
                 sma50.append({"time": ts, "value": round(float(v), 4)})
 
     return {"symbol": symbol.upper(), "interval": interval, "candles": candles, "sma50": sma50}
@@ -636,5 +637,31 @@ def _persist_distribution_export(results: dict, universe: int) -> None:
         text = json.dumps(payload, ensure_ascii=False, default=str)
         (export_dir / "scan_export_latest.json").write_text(text, encoding="utf-8")
         (export_dir / f"scan_export_{payload['date']}.json").write_text(text, encoding="utf-8")
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning("distribution export failed (non-fatal): %s", exc)
+
+
+def _persist_distribution_export(results: dict, universe: int) -> None:
+    """Write full enriched scan results for the distribution layer.
+
+    Atomic writes (tmp+replace) so a concurrent reader can never see a
+    half-written file. Best-effort: failure must never break the scan.
+    """
+    try:
+        import os as _os
+
+        export_dir = Path(_os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
+        export_dir.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "date": datetime.now(tz=UTC).strftime("%Y-%m-%d"),
+            "generated_at": datetime.now(tz=UTC).isoformat(),
+            "universe": universe,
+            "results": list(results.values()) if isinstance(results, dict) else results,
+        }
+        text = json.dumps(payload, ensure_ascii=False, default=str)
+        for name in ("scan_export_latest.json", f"scan_export_{payload['date']}.json"):
+            tmp = export_dir / (name + ".tmp")
+            tmp.write_text(text, encoding="utf-8")
+            tmp.replace(export_dir / name)
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("distribution export failed (non-fatal): %s", exc)

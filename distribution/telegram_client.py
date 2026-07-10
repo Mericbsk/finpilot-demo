@@ -57,15 +57,18 @@ def send_message(chat_id: str, text: str, queue_id: int | None = None) -> bool:
             {
                 "chat_id": chat_id,
                 "text": text,
-                "parse_mode": "Markdown",
+                "parse_mode": "HTML",
                 "disable_web_page_preview": True,
             },
         )
         log_delivery(queue_id, str(chat_id), True)
         return True
     except Exception as exc:
-        logger.error("telegram send to %s failed: %s", chat_id, exc)
-        log_delivery(queue_id, str(chat_id), False, str(exc))
+        hint = ""
+        if "403" in str(exc):
+            hint = " — İPUCU: bot bu kanala ADMIN olarak ekli mi ve 'Mesaj gönder' yetkisi açık mı?"
+        logger.error("telegram send to %s failed: %s%s", chat_id, exc, hint)
+        log_delivery(queue_id, str(chat_id), False, str(exc) + hint)
         return False
 
 

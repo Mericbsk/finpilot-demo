@@ -1,73 +1,58 @@
 {
  "schema": 1,
- "date": "2026-07-02",
- "generated_at": "2026-07-03T22:15:44.293397+00:00",
- "config_sha": "cbe5cfdf7c21",
- "universe": 1812,
+ "date": "2026-07-10",
+ "generated_at": "2026-07-10T14:04:57.266177+00:00",
+ "config_sha": "25380d7f07d7@fe4930c",
+ "universe": 160,
  "candidates": [
   {
-   "ticker": "EXAS",
-   "company": "Exact Sciences",
-   "grade": "A",
-   "prob_band": "~65%",
+   "ticker": "ATAI",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
    "badges": [
-    "squeeze",
-    "rvol",
-    "gap",
-    "early_tier"
+    "early_tier",
+    "regime"
    ],
-   "rationale": "Today's highest-conviction candidate: EXAS — elevated short interest (squeeze potential); volume acceleration above average; opened with a notable price gap; high on the early-detection ladder. This is a watch candidate; decisions and risk management remain yours.",
+   "rationale": "Dikkate değer bir kurulum: ATAI: en dikkat çekeni, kurulum, teyit merdiveninin ileri aşamasında; ayrıca makro rejim arka planı olumlu. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
    "premium_only": false
   },
   {
-   "ticker": "RXRX",
-   "company": "Recursion Pharma",
+   "ticker": "CRNX",
+   "company": "",
    "grade": "B",
-   "prob_band": "~60%",
-   "badges": [
-    "catalyst",
-    "rvol",
-    "early_tier"
-   ],
-   "rationale": "Strong candidate: RXRX — a recent catalyst/filing is present; volume acceleration above average; high on the early-detection ladder. This is a watch candidate; decisions and risk management remain yours.",
-   "premium_only": false
-  },
-  {
-   "ticker": "IONQ",
-   "company": "IonQ Inc",
-   "grade": "B",
-   "prob_band": "~55%",
+   "prob_band": "—",
    "badges": [
     "momentum",
     "contraction",
-    "early_tier"
+    "early_tier",
+    "regime"
    ],
-   "rationale": "Strong candidate: IONQ — strong short-term momentum; signals expansion after contraction; high on the early-detection ladder. This is a watch candidate; decisions and risk management remain yours.",
+   "rationale": "Dikkate değer bir kurulum: CRNX: en dikkat çekeni, yakın dönem momentum okuması olumlu; ayrıca yay gibi sıkışmış aralık gevşemeye başladı; erken-yakalama merdiveninde üst basamakta; rejim okuması setup ile aynı yönde. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+   "premium_only": false
+  },
+  {
+   "ticker": "MRNA",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [
+    "early_tier",
+    "regime"
+   ],
+   "rationale": "Dikkate değer bir kurulum: MRNA: en dikkat çekeni, kurulum, teyit merdiveninin ileri aşamasında; ayrıca geniş piyasa koşulları rüzgarı arkadan veriyor. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
    "premium_only": false
   }
  ],
  "karne": {
-  "by_grade": {
-   "A": {
-    "n": 21,
-    "hit_rate": 0.67
-   },
-   "B": {
-    "n": 118,
-    "hit_rate": 0.55
-   },
-   "C": {
-    "n": 264,
-    "hit_rate": 0.41
-   }
-  },
-  "window": "last 8 weeks",
   "toplam_aday_bugun": {
-   "A": 1,
-   "B": 2,
-   "C": 2
-  }
+   "B": 7,
+   "C": 1
+  },
+  "by_grade": {},
+  "window": ""
  },
- "warnings": [],
- "sample": true
+ "warnings": [
+  "karne unavailable — using daily totals only"
+ ]
 }
