@@ -11,16 +11,18 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-UTC = UTC
-
 from distribution.rationale import build_rationale, extract_badges, prob_band
 from distribution.schema import SCHEMA_VERSION, validate_snapshot
+
+UTC = UTC
+logger = logging.getLogger(__name__)
 
 EXPORT_DIR = Path(os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
 SCAN_EXPORT_LATEST = EXPORT_DIR / "scan_export_latest.json"
@@ -321,6 +323,30 @@ def build_snapshot(
         "karne": karne_out,
         "warnings": [],
     }
+
+    # v2 additive fields for the web Ledger landing (S1/S3) — best-effort,
+    # never block the snapshot if one of these fails (they're editorial
+    # flourish, not core data).
+    try:
+        from distribution.concepts import concept_of_the_day_struct
+
+        snap["concept"] = concept_of_the_day_struct(lang="en" if lang == "en" else "tr")
+    except Exception as exc:
+        logger.debug("concept_of_the_day_struct unavailable: %s", exc)
+    try:
+        from distribution.market_context import build_context_line
+
+        line = build_context_line(lang="en" if lang == "en" else "tr")
+        if line:
+            snap["context_line"] = line
+    except Exception as exc:
+        logger.debug("build_context_line unavailable: %s", exc)
+    try:
+        from distribution.broadcast import count_sent_editions
+
+        snap["edition_no"] = count_sent_editions()
+    except Exception as exc:
+        logger.debug("count_sent_editions unavailable: %s", exc)
 
     if not candidates:
         snap["warnings"].append("no graded candidates today")

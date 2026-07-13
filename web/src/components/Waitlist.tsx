@@ -33,13 +33,13 @@ export default function Waitlist() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.detail ?? "Bir hata oluştu. Tekrar dene.");
+        setError(data.detail ?? "Something went wrong. Please try again.");
       } else {
         setPosition(data.position ?? null);
         setSubmitted(true);
       }
     } catch {
-      setError("Bağlantı hatası. Tekrar dene.");
+      setError("Connection error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -48,22 +48,19 @@ export default function Waitlist() {
   return (
     <section
       id="waitlist"
-      className="relative px-6 py-32"
+      className="relative border-t px-6 py-24"
+      style={{ borderColor: "var(--ledger-rule)" }}
     >
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 bottom-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-[var(--accent-cyan)] opacity-[0.04] blur-[150px]" />
-      </div>
 
       <div className="relative z-10 mx-auto max-w-2xl text-center">
-        <p className="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-[var(--accent-cyan)]">
-          Erken Erişim
+        <p className="mb-3 font-ledger-mono text-xs uppercase tracking-[0.25em]" style={{ color: "var(--ledger-gold)" }}>
+          Early Access
         </p>
-        <h2 className="mb-4 text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl lg:text-5xl">
-          İlk öğrenen sen ol.
+        <h2 className="mb-4 font-ledger-serif text-3xl font-bold tracking-tight sm:text-4xl" style={{ color: "var(--ledger-ink)" }}>
+          Be the first to read it.
         </h2>
-        <p className="mb-10 text-lg text-[var(--text-secondary)]">
-          FinPilot erken erişim listesine katıl. Ücretsiz plan dahil
-          — kredi kartı gerekmez.
+        <p className="mb-10 text-base" style={{ color: "var(--ledger-ink-soft)" }}>
+          Join the FinPilot waitlist — free tier included, no credit card required.
         </p>
 
         {!submitted ? (
@@ -78,14 +75,16 @@ export default function Waitlist() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="flex-1 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none transition-all focus:border-[var(--accent-cyan)] focus:ring-1 focus:ring-[var(--accent-cyan)]"
+                className="flex-1 border-2 px-5 py-3 text-sm outline-none transition-all"
+                style={{ borderColor: "var(--ledger-ink)", background: "var(--ledger-paper)", color: "var(--ledger-ink)" }}
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="group flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[var(--accent-cyan)] to-[var(--accent-blue)] px-6 py-3 text-sm font-semibold text-black transition-all hover:shadow-[0_0_20px_var(--glow-cyan)] disabled:opacity-50"
+                className="group flex items-center justify-center gap-2 border-2 px-6 py-3 text-sm font-semibold uppercase tracking-widest transition-all disabled:opacity-50"
+                style={{ borderColor: "var(--ledger-ink)", background: "var(--ledger-ink)", color: "var(--ledger-paper)" }}
               >
-                {loading ? "..." : "Katıl"}
+                {loading ? "..." : "Join"}
                 {!loading && (
                   <ArrowRight
                     size={16}
@@ -95,27 +94,30 @@ export default function Waitlist() {
               </button>
             </form>
             {error && (
-              <p className="mt-3 text-sm text-red-400">{error}</p>
+              <p className="mt-3 text-sm" style={{ color: "var(--ledger-brick)" }}>{error}</p>
             )}
           </>
         ) : (
-          <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-2xl border border-[var(--accent-green)] bg-[rgba(48,209,88,0.08)] px-6 py-4">
+          <div
+            className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 border-2 px-6 py-4"
+            style={{ borderColor: "var(--ledger-sage)", background: "var(--ledger-paper-dim)" }}
+          >
             <div className="flex items-center gap-3">
-              <CheckCircle size={20} className="text-[var(--accent-green)]" />
-              <span className="text-sm text-[var(--accent-green)]">
-                Listedesin! FinPilot lansmanında seni bilgilendireceğiz.
+              <CheckCircle size={20} style={{ color: "var(--ledger-sage)" }} />
+              <span className="text-sm" style={{ color: "var(--ledger-sage)" }}>
+                You&apos;re on the list. We&apos;ll email you when FinPilot launches.
               </span>
             </div>
             {position && (
-              <p className="text-xs text-[var(--text-tertiary)]">
-                Sıra numaran: #{position}
+              <p className="text-xs" style={{ color: "var(--ledger-ink-soft)" }}>
+                Your position: #{position}
               </p>
             )}
           </div>
         )}
 
-        <p className="mt-4 text-xs text-[var(--text-tertiary)]">
-          {count !== null ? `${count}+ kişi zaten listede.` : "60+ kişi zaten listede."} Spam yok, asla.
+        <p className="mt-4 text-xs" style={{ color: "var(--ledger-ink-soft)" }}>
+          {count !== null ? `${count}+ readers already on the list.` : "60+ readers already on the list."} No spam, ever.
         </p>
       </div>
     </section>

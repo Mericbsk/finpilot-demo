@@ -20,3 +20,14 @@ def concept_of_the_day(d: date | None = None) -> str:
     d = d or date.today()
     slug, name, definition = TERMS[d.toordinal() % len(TERMS)]
     return f"<b>{name}</b> — {definition}"
+
+
+def concept_of_the_day_struct(d: date | None = None, lang: str = "tr") -> dict[str, str]:
+    """Same deterministic rotation as concept_of_the_day(), structured for the
+    web Ledger's S3 'Daily Double' card (name + line, no HTML markup).
+    """
+    d = d or date.today()
+    entry = GLOSSARY[d.toordinal() % len(GLOSSARY)]
+    if lang == "en":
+        return {"name": entry["name_en"], "line": entry["line_en"]}
+    return {"name": entry["name_tr"], "line": entry["line_tr"]}

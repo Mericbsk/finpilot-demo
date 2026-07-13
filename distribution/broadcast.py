@@ -99,6 +99,22 @@ def get_last_sent(kind_prefix: str = "daily") -> dict[str, Any] | None:
     return {"id": row[0], "kind": row[1], "brief_date": row[2], "text": row[3], "sent_at": row[4]}
 
 
+def count_sent_editions(kind_prefix: str = "daily") -> int:
+    """Number of distinct trading-day editions actually sent (status='sent').
+
+    Used as the web Ledger's "Edition No." — counts distinct `brief_date`
+    values, not rows, so a free+premium pair sent the same day counts once.
+    """
+    ensure_tables()
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT COUNT(DISTINCT brief_date) FROM broadcast_queue"
+            " WHERE status='sent' AND kind LIKE ?",
+            (kind_prefix + "%",),
+        ).fetchone()
+    return int(row[0] or 0)
+
+
 def drop(queue_id: int, by: str = "admin") -> bool:
     """Pending YA DA approved (gönderilmemiş) taslağı iptal et."""
     ensure_tables()

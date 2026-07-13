@@ -19,6 +19,19 @@
   --accent-red: #ff453a;
   --accent-purple: #bf5af2;
   --glow-cyan: rgba(0, 212, 255, 0.15);
+
+  /* ─── Ledger palette (Morning Ledger landing/demo only — placeholder
+     values pending design_ref/*.dc.html; do not use in dashboard) ─── */
+  --ledger-paper: #f7f2e7;
+  --ledger-paper-dim: #efe8d8;
+  --ledger-ink: #1b1712;
+  --ledger-ink-soft: #4a4238;
+  --ledger-rule: rgba(27, 23, 18, 0.16);
+  --ledger-gold: #b8892b;
+  --ledger-sage: #5c7256;
+  --ledger-brick: #a13d2e;
+  --ledger-steel: #55606b;
+  --ledger-amber-live: #d97b1f;
 }
 
 @theme inline {
@@ -26,6 +39,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-ledger-serif: var(--font-fraunces);
+  --font-ledger-mono: var(--font-jetbrains-mono);
 }
 
 * {
@@ -81,4 +96,73 @@ html {
 
 .animate-fade-in {
   animation: fade-in 0.5s ease-out both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LEDGER SKIN — scoped to the Morning Ledger landing (/) and /demo
+   ONLY. Never applied globally; dashboard keeps the dark theme.
+   Wrap any ledger page/section in `.ledger` to opt in.
+   ═══════════════════════════════════════════════════════════════ */
+.ledger {
+  background: var(--ledger-paper);
+  color: var(--ledger-ink);
+  font-family: var(--font-ledger-serif), Georgia, serif;
+}
+
+.ledger .font-ledger-mono {
+  font-family: var(--font-ledger-mono), ui-monospace, monospace;
+}
+
+.ledger .ledger-rule {
+  border-color: var(--ledger-rule);
+}
+
+.ledger .ledger-rule-thick {
+  border-top: 3px double var(--ledger-ink);
+}
+
+.ledger .ledger-dropcap::first-letter {
+  float: left;
+  font-family: var(--font-ledger-serif), Georgia, serif;
+  font-size: 3.4em;
+  line-height: 0.85;
+  font-weight: 700;
+  padding: 0.04em 0.08em 0 0;
+  color: var(--ledger-ink);
+}
+
+.ledger .ledger-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--ledger-amber-live);
+  animation: ledger-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes ledger-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* Mobile: MarginNote becomes a bottom sheet instead of an inline popover
+   (plan Phase B step 10 — ".ledger-marginnote-panel" is set on the note's
+   panel in MarginNote.tsx; two-class selector outweighs Tailwind's
+   single-class ".absolute" utility so this override wins regardless of
+   class order). */
+@media (max-width: 640px) {
+  .ledger .ledger-marginnote-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    max-height: 60vh;
+    overflow-y: auto;
+    border-radius: 0;
+    box-shadow: 0 -8px 24px rgba(27, 23, 18, 0.18);
+  }
 }

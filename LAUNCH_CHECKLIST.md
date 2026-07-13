@@ -4,7 +4,7 @@ _Kaynak plan: FinPilot_Kullaniciya_Cikis_Is_Plani_2026-07-05.md · Her Pazartesi
 ## Lansman Tanımı (10/10 şart)
 - [ ] 1. 10 ardışık işlem günü kesintisiz brif yayını
 - [ ] 2. Sabah operasyonu ≤15 dk/gün
-- [ ] 3. finpilot.at yeni landing + demo canlı, mobil kusursuz
+- [~] 3. finpilot.at yeni landing + demo CANLI ✓ (13 Tem — H2'den öne çekildi) · mobil 3-cihaz testi bekliyor
 - [ ] 4. Demo her gün otomatik taze snapshot
 - [ ] 5. Karne verisi gerçek ve webde (by_grade dolu)
 - [ ] 6. Brif içeriği "insan yazmış" kalitesinde (variety raporu + 3 dış okuyucu)
@@ -42,4 +42,6 @@ _Kaynak plan: FinPilot_Kullaniciya_Cikis_Is_Plani_2026-07-05.md · Her Pazartesi
 - [ ] M3-M7 tamam
 
 ## HAFTA 2 — Canlıya taşıma _(kapı geçilince açılır)_
+_Öne çekilenler (13 Tem): web deploy ✓ · domain birleştirme ✓ · main dalı güncel ✓_
+_Kalanlar: M5+VPS kurulumu, api.finpilot.at A kaydı, public-API profili, Plausible+Sentry, metodoloji sayfası_
 ## HAFTA 3 — Prova · HAFTA 4 — Sertleştirme · HAFTA 5 — Yarı-açık · HAFTA 6 — Stabilizasyon

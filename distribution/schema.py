@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # v2: +concept, +edition_no, +context_line (Ledger landing, additive/optional)
 
 GRADES = ("A", "B", "C")
 
