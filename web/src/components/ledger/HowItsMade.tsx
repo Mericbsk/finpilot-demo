@@ -8,22 +8,22 @@ const COLUMNS = [
   {
     step: "01",
     title: "Scan",
-    desc: "Every session, the scanner reads 1,800+ symbols across volume, gap, RVOL, ATR, and technical structure — the raw wire feed of the market.",
+    desc: "Every morning, before the market opens, the system reads over 1,800 US stocks — how each one is trading today compared to its own normal.",
   },
   {
     step: "02",
     title: "Grade",
-    desc: "Three specialised DRL agents — Trend, Range, and Volatility — vote independently. No single model decides; a research grade (A/B/C) is the consensus, not a guess.",
+    desc: "Three independent computer models look at the same stock and vote separately. When they agree, that agreement becomes the grade — A, B, or C.",
   },
   {
     step: "03",
     title: "Verify",
-    desc: "Walk-forward optimisation and out-of-sample testing before anything is printed. If a rule doesn't survive data it wasn't tuned on, it doesn't ship.",
+    desc: "Before anything is published, every rule is checked against days it has never seen before. Patterns that only worked by luck get thrown out.",
   },
   {
     step: "04",
-    title: "Teach",
-    desc: "Every grade carries its reasoning in plain language — the badge, the risk note, the calibration promise. You learn the 'why', not just the ticker.",
+    title: "Explain",
+    desc: "Every grade comes with a plain-language reason, not just a ticker and a letter. You always know why a stock was picked — not just what it is.",
   },
 ];
 

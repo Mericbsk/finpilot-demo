@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight, CheckCircle } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
 
 export default function Waitlist() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -54,13 +56,13 @@ export default function Waitlist() {
 
       <div className="relative z-10 mx-auto max-w-2xl text-center">
         <p className="mb-3 font-ledger-mono text-xs uppercase tracking-[0.25em]" style={{ color: "var(--ledger-gold)" }}>
-          Early Access
+          {t("waitlist.eyebrow")}
         </p>
         <h2 className="mb-4 font-ledger-serif text-3xl font-bold tracking-tight sm:text-4xl" style={{ color: "var(--ledger-ink)" }}>
-          Be the first to read it.
+          {t("waitlist.headline")}
         </h2>
         <p className="mb-10 text-base" style={{ color: "var(--ledger-ink-soft)" }}>
-          Join the FinPilot waitlist — free tier included, no credit card required.
+          {t("waitlist.tagline")}
         </p>
 
         {!submitted ? (
@@ -84,7 +86,7 @@ export default function Waitlist() {
                 className="group flex items-center justify-center gap-2 border-2 px-6 py-3 text-sm font-semibold uppercase tracking-widest transition-all disabled:opacity-50"
                 style={{ borderColor: "var(--ledger-ink)", background: "var(--ledger-ink)", color: "var(--ledger-paper)" }}
               >
-                {loading ? "..." : "Join"}
+                {loading ? "..." : t("waitlist.join")}
                 {!loading && (
                   <ArrowRight
                     size={16}
@@ -105,19 +107,19 @@ export default function Waitlist() {
             <div className="flex items-center gap-3">
               <CheckCircle size={20} style={{ color: "var(--ledger-sage)" }} />
               <span className="text-sm" style={{ color: "var(--ledger-sage)" }}>
-                You&apos;re on the list. We&apos;ll email you when FinPilot launches.
+                {t("waitlist.subscribed")}
               </span>
             </div>
             {position && (
               <p className="text-xs" style={{ color: "var(--ledger-ink-soft)" }}>
-                Your position: #{position}
+                {t("waitlist.position")}{position}
               </p>
             )}
           </div>
         )}
 
         <p className="mt-4 text-xs" style={{ color: "var(--ledger-ink-soft)" }}>
-          {count !== null ? `${count}+ readers already on the list.` : "60+ readers already on the list."} No spam, ever.
+          {count !== null ? `${count}+ readers already on the list.` : "60+ readers already on the list."} {t("waitlist.noSpam")}
         </p>
       </div>
     </section>

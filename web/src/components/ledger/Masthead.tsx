@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { C } from "./_ledgerColors";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface MastheadProps {
   dateLabel: string;
@@ -42,6 +43,7 @@ function useMarketCountdown() {
 /** S1 masthead: serif banner, dateline, live market-hours line, circulation stats. */
 export default function Masthead({ dateLabel, editionNo, universe, byGrade }: MastheadProps) {
   const marketLabel = useMarketCountdown();
+  const { t } = useLanguage();
 
   // Live weighted hit-rate across graded candidates, when the scorecard has
   // actually compiled (see Masthead's win-rate stat below). Falls back to a
@@ -63,13 +65,13 @@ export default function Masthead({ dateLabel, editionNo, universe, byGrade }: Ma
   }
 
   const winRateStat = liveWinRate != null
-    ? { num: `${Math.round(liveWinRate * 100)}%`, label: "Live hit rate" }
-    : { num: "68%", label: "Backtested win rate*" };
+    ? { num: `${Math.round(liveWinRate * 100)}%`, label: t("masthead.statWinRateLive") }
+    : { num: "68%", label: t("masthead.statWinRateBacktest") };
 
   const stats = [
-    { num: universe > 0 ? `${universe.toLocaleString("en-US")}+` : "—", label: "Stocks scanned" },
-    { num: "12", label: "DRL models" },
-    { num: "3", label: "Expert agents" },
+    { num: universe > 0 ? `${universe.toLocaleString("en-US")}+` : "—", label: t("masthead.statScanned") },
+    { num: "12", label: t("masthead.statModels") },
+    { num: "3", label: t("masthead.statAgents") },
     winRateStat,
   ];
 
@@ -81,10 +83,10 @@ export default function Masthead({ dateLabel, editionNo, universe, byGrade }: Ma
         {marketLabel ? ` · ${marketLabel}` : ""}
       </p>
       <h1 className="mt-3 font-ledger-serif text-6xl font-black tracking-tight sm:text-7xl" style={{ color: C.ink }}>
-        THE FINPILOT LEDGER
+        {t("masthead.title")}
       </h1>
       <p className="mx-auto mt-4 max-w-xl text-base italic" style={{ color: C.inkSoft }}>
-        1,800 stocks read before your coffee. Every grade, every reason, printed daily.
+        {t("masthead.tagline")}
       </p>
 
       <div className="mt-8 flex items-center justify-center gap-4">
@@ -93,14 +95,14 @@ export default function Masthead({ dateLabel, editionNo, universe, byGrade }: Ma
           className="rounded-none border-2 px-7 py-2.5 text-sm font-semibold uppercase tracking-widest transition hover:opacity-80"
           style={{ borderColor: C.ink, background: C.ink, color: C.paper }}
         >
-          Read Today&apos;s Edition
+          {t("masthead.ctaRead")}
         </a>
         <a
           href="#how-its-made"
           className="rounded-none border-2 px-7 py-2.5 text-sm font-medium uppercase tracking-widest transition hover:opacity-70"
           style={{ borderColor: C.ink, color: C.ink }}
         >
-          How It&apos;s Made
+          {t("masthead.ctaHowItsMade")}
         </a>
       </div>
 
@@ -123,7 +125,7 @@ export default function Masthead({ dateLabel, editionNo, universe, byGrade }: Ma
       </div>
       {liveWinRate == null && (
         <p className="mt-3 text-[10px] italic" style={{ color: C.inkSoft }}>
-          *From walk-forward backtests, not yet a live production statistic — the live figure will replace it as the scorecard compiles.
+          {t("masthead.winRateFootnote")}
         </p>
       )}
     </header>

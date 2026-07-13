@@ -10,16 +10,10 @@ import ClassroomPreview from "@/components/ledger/ClassroomPreview";
 import EditorialStance from "@/components/ledger/EditorialStance";
 import FullEditionTeaser from "@/components/ledger/FullEditionTeaser";
 import Colophon from "@/components/ledger/Colophon";
+import SectionHeading from "@/components/ledger/SectionHeading";
 import { C } from "@/components/ledger/_ledgerColors";
 import { getLedgerSnapshot } from "@/lib/ledgerSnapshot";
-
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="mb-6 font-ledger-mono text-xs uppercase tracking-[0.3em]" style={{ color: C.gold }}>
-      {children}
-    </h2>
-  );
-}
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
 export default function Home() {
   const snap = getLedgerSnapshot();
@@ -28,7 +22,7 @@ export default function Home() {
     : "No edition yet";
 
   return (
-    <>
+    <LanguageProvider>
       <Navbar />
       <main className="ledger pt-12">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
@@ -40,7 +34,7 @@ export default function Home() {
           />
 
           <section className="py-14">
-            <SectionHeading>Yesterday&apos;s Edition</SectionHeading>
+            <SectionHeading textKey="section.yesterdaysEdition" />
             <EditionArticle
               dateLabel={dateLabel}
               contextLine={snap?.context_line}
@@ -50,28 +44,28 @@ export default function Home() {
 
           {(snap?.concept || snap?.candidates?.[0]) && (
             <section className="border-t py-14" style={{ borderColor: C.rule }}>
-              <SectionHeading>The Daily Double</SectionHeading>
+              <SectionHeading textKey="section.dailyDouble" />
               <DailyDouble concept={snap?.concept} candidate={snap?.candidates?.[0]} />
             </section>
           )}
 
           <section className="border-t py-14" style={{ borderColor: C.rule }}>
-            <SectionHeading>Inside the Newsroom</SectionHeading>
+            <SectionHeading textKey="section.insideNewsroom" />
             <Newsroom />
           </section>
 
           <section className="border-t py-14" style={{ borderColor: C.rule }}>
-            <SectionHeading>The Ledger Strip</SectionHeading>
+            <SectionHeading textKey="section.ledgerStrip" />
             <LedgerStrip karne={snap?.karne ?? null} />
           </section>
 
           <section className="border-t py-14" style={{ borderColor: C.rule }}>
-            <SectionHeading>How It&apos;s Made</SectionHeading>
+            <SectionHeading textKey="section.howItsMade" />
             <HowItsMade configSha={snap?.config_sha} />
           </section>
 
           <section className="border-t py-14" style={{ borderColor: C.rule }}>
-            <SectionHeading>The Classroom</SectionHeading>
+            <SectionHeading textKey="section.classroom" />
             <ClassroomPreview />
           </section>
         </div>
@@ -87,6 +81,6 @@ export default function Home() {
         <Colophon />
       </main>
       <Footer />
-    </>
+    </LanguageProvider>
   );
 }

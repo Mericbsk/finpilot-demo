@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Fraunces, JetBrains_Mono } from "next/font/google";
+import { Source_Serif_4, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const ledgerSerif = Fraunces({
+const ledgerSerif = Source_Serif_4({
   subsets: ["latin"],
   variable: "--font-fraunces",
   display: "swap",

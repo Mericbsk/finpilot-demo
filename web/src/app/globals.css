@@ -20,18 +20,25 @@
   --accent-purple: #bf5af2;
   --glow-cyan: rgba(0, 212, 255, 0.15);
 
-  /* ─── Ledger palette (Morning Ledger landing/demo only — placeholder
-     values pending design_ref/*.dc.html; do not use in dashboard) ─── */
-  --ledger-paper: #f7f2e7;
-  --ledger-paper-dim: #efe8d8;
-  --ledger-ink: #1b1712;
-  --ledger-ink-soft: #4a4238;
-  --ledger-rule: rgba(27, 23, 18, 0.16);
-  --ledger-gold: #b8892b;
-  --ledger-sage: #5c7256;
-  --ledger-brick: #a13d2e;
-  --ledger-steel: #55606b;
-  --ledger-amber-live: #d97b1f;
+  /* ─── Ledger palette — calibrated from design_ref/FinPilot Morning
+     Ledger.dc.html (real reference, provided 2026-07-13). Dark broadsheet
+     theme: near-black navy paper, warm cream ink, gold/steel/sage/brick
+     accents. Scoped to the Ledger landing/demo only via .ledger — do not
+     use in the dashboard. ─── */
+  --ledger-paper: #0b0f1a;
+  --ledger-paper-dim: #121826;
+  --ledger-ink: #f3efe6;
+  --ledger-ink-soft: #9aa3b2;
+  --ledger-ink-body: #c9d0dc;
+  --ledger-ink-quote: #b6bec8;
+  --ledger-ink-faint: #69707e;
+  --ledger-rule: rgba(255, 255, 255, 0.08);
+  --ledger-rule-double: rgba(233, 228, 216, 0.45);
+  --ledger-gold: #e8c468;
+  --ledger-sage: #7fb58a;
+  --ledger-brick: #c97f7f;
+  --ledger-steel: #7fa6c9;
+  --ledger-amber-live: #e8c468;
 }
 
 @theme inline {

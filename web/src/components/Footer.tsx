@@ -1,4 +1,9 @@
+"use client";
+
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
 export default function Footer() {
+  const { t } = useLanguage();
   return (
     <footer
       className="border-t px-6 py-10"
@@ -9,7 +14,7 @@ export default function Footer() {
           © {new Date().getFullYear()} FinPilot · Vienna, Austria
         </p>
         <p className="text-[10px] max-w-md text-center sm:text-right" style={{ color: "var(--ledger-ink-soft)" }}>
-          Not financial advice. For educational and informational purposes only.
+          {t("footer.notAdvice")}
         </p>
       </div>
     </footer>

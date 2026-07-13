@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import LanguageSwitcher from "./ledger/LanguageSwitcher";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <nav
@@ -18,17 +21,18 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-8 md:flex">
           <a href="#how-its-made" className="text-xs" style={{ color: "var(--ledger-ink-soft)" }}>
-            How It&apos;s Made
+            {t("nav.howItsMade")}
           </a>
           <a href="/demo" className="text-xs" style={{ color: "var(--ledger-ink-soft)" }}>
-            Demo
+            {t("nav.demo")}
           </a>
+          <LanguageSwitcher />
           <a
             href="/demo"
             className="text-xs px-4 py-1.5 border font-medium uppercase tracking-widest"
             style={{ borderColor: "var(--ledger-ink)", background: "var(--ledger-ink)", color: "var(--ledger-paper)" }}
           >
-            Read the Edition
+            {t("nav.readEdition")}
           </a>
         </div>
 
@@ -53,13 +57,16 @@ export default function Navbar() {
           style={{ background: "var(--ledger-paper)", borderColor: "var(--ledger-rule)" }}
         >
           <a href="#how-its-made" onClick={() => setOpen(false)} className="block text-sm" style={{ color: "var(--ledger-ink-soft)" }}>
-            How It&apos;s Made
+            {t("nav.howItsMade")}
           </a>
           <a href="/demo" onClick={() => setOpen(false)} className="block text-sm" style={{ color: "var(--ledger-ink-soft)" }}>
-            Demo
+            {t("nav.demo")}
           </a>
+          <div className="pt-1">
+            <LanguageSwitcher />
+          </div>
           <a href="/demo" onClick={() => setOpen(false)} className="block text-sm pt-1" style={{ color: "var(--ledger-gold)" }}>
-            Read the Edition →
+            {t("nav.readEdition")} →
           </a>
         </div>
       )}

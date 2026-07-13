@@ -105,6 +105,21 @@ def job_draft() -> dict:
     snap = build_snapshot(rows, universe=universe, karne=karne, date_str=date_str)
     save_snapshot(snap)
 
+    # English snapshot for the web Ledger (landing + /demo) — the Telegram
+    # brief above stays Turkish for its existing audience; this is a
+    # separate, additive artefact so the web/Telegram pipelines can't
+    # interfere with each other.
+    try:
+        from distribution.snapshot_builder import EXPORT_DIR
+
+        snap_en = build_snapshot(rows, universe=universe, karne=karne, date_str=date_str, lang="en")
+        EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+        (EXPORT_DIR / "snapshot_en_latest.json").write_text(
+            json.dumps(snap_en, ensure_ascii=False, indent=1), encoding="utf-8"
+        )
+    except Exception as exc:
+        logger.warning("english web snapshot build failed: %s", exc)
+
     concept = concept_of_the_day(today)
     from distribution.market_context import build_context_line
 
@@ -166,7 +181,11 @@ def _push_snapshot_to_web() -> bool:
     from distribution.schema import demo_view
     from distribution.snapshot_builder import EXPORT_DIR
 
-    src = EXPORT_DIR / "snapshot_latest.json"
+    # Prefer the English snapshot (web Ledger's language) when present;
+    # fall back to the Turkish one so publishing never silently breaks.
+    src = EXPORT_DIR / "snapshot_en_latest.json"
+    if not src.exists():
+        src = EXPORT_DIR / "snapshot_latest.json"
     if not src.exists():
         return False
     try:
