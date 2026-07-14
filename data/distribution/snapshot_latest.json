@@ -1,13 +1,19 @@
 {
- "schema": 1,
- "date": "2026-07-13",
- "generated_at": "2026-07-13T13:48:48.320763+00:00",
- "config_sha": "88e8ca54f23d@575d324",
+ "schema": 2,
+ "date": "2026-07-14",
+ "generated_at": "2026-07-14T11:06:57.937613+00:00",
+ "config_sha": "57090eceb7b9@2631873",
  "universe": 12,
  "candidates": [],
  "karne": null,
  "warnings": [
   "no graded candidates today",
   "karne unavailable — using daily totals only"
- ]
+ ],
+ "concept": {
+  "name": "Risk/Ödül Oranı",
+  "line": "Potansiyel kazancın potansiyel kayba oranı; oran iyi olsa da gerçekleşme olasılığı ayrıca sorulmalıdır."
+ },
+ "context_line": "Rejim: risk-iştahı açık (VIX 16)",
+ "edition_no": 1
 }
