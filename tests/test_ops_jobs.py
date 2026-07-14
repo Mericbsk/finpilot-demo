@@ -106,6 +106,63 @@ class TestBackup(unittest.TestCase):
         self.assertTrue(maintenance._integrity(bad / "broken.db").startswith("ERROR"))
 
 
+class TestDraftTrigger(unittest.TestCase):
+    def setUp(self):
+        # Isolate from other tests in this class: clear any "today" rows so
+        # the dedup check starts from a known-clean state regardless of
+        # test execution order.
+        from distribution.store import ensure_tables, get_conn
+
+        ensure_tables()
+        today = jobs._vienna_now().date().isoformat()
+        with get_conn() as conn:
+            conn.execute("DELETE FROM broadcast_queue WHERE brief_date=?", (today,))
+            conn.commit()
+
+    def test_skips_small_universe(self):
+        r = jobs.maybe_trigger_draft_after_scan(50)
+        self.assertEqual(r.get("skipped"), "universe 50 < min 100")
+
+    def test_skips_non_trading_day(self):
+        orig_trading = jobs.is_trading_day
+        jobs.is_trading_day = lambda d: False
+        try:
+            r = jobs.maybe_trigger_draft_after_scan(500)
+            self.assertEqual(r.get("skipped"), "not a trading day")
+        finally:
+            jobs.is_trading_day = orig_trading
+
+    def test_dedup_skips_when_already_drafted(self):
+        from distribution import broadcast, lint
+
+        orig_trading, orig_draft = jobs.is_trading_day, jobs.job_draft
+        jobs.is_trading_day = lambda d: True
+        calls: list[int] = []
+        jobs.job_draft = lambda: calls.append(1) or {"free_queue_id": 1}
+        try:
+            today = jobs._vienna_now().date().isoformat()
+            broadcast.queue_draft("daily_free", today, f"Test brief.\n\n{lint.DISCLAIMER_TR}")
+            r = jobs.maybe_trigger_draft_after_scan(500)
+            self.assertEqual(r.get("skipped"), "already drafted today")
+            self.assertEqual(calls, [])
+        finally:
+            jobs.is_trading_day = orig_trading
+            jobs.job_draft = orig_draft
+
+    def test_triggers_job_draft_when_no_draft_yet(self):
+        orig_trading, orig_draft = jobs.is_trading_day, jobs.job_draft
+        jobs.is_trading_day = lambda d: True
+        calls: list[int] = []
+        jobs.job_draft = lambda: calls.append(1) or {"free_queue_id": 99}
+        try:
+            r = jobs.maybe_trigger_draft_after_scan(500)
+            self.assertEqual(calls, [1])
+            self.assertEqual(r.get("free_queue_id"), 99)
+        finally:
+            jobs.is_trading_day = orig_trading
+            jobs.job_draft = orig_draft
+
+
 class TestArchiveCheck(unittest.TestCase):
     def test_skips_non_trading_day(self):
         import distribution.market_calendar as mc

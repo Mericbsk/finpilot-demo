@@ -327,6 +327,64 @@ def job_startup_catchup() -> dict:
     return result
 
 
+# ── Event-driven draft trigger (manual/ad-hoc scan completion) ───────────────
+# The 07:50 Vienna cron only catches automated mornings. When the daily scan
+# is instead run manually at an arbitrary time — very common in practice —
+# job_draft() never fires and that whole day's brief silently never gets
+# queued (only a warning DM, no retry later). This hook is called from
+# api/routers/scan.py right after a scan persists its distribution export,
+# so a draft gets queued shortly after any sufficiently-large scan completes,
+# regardless of wall-clock time.
+
+_DEFAULT_MIN_UNIVERSE_FOR_DRAFT = 100
+
+
+def maybe_trigger_draft_after_scan(universe: int) -> dict:
+    """Best-effort: queue today's draft right after a manual scan finishes.
+
+    Guards (any failure = silent no-op, never raises):
+      - FINPILOT_ENABLE_DISTRIBUTION=1
+      - universe >= FINPILOT_DIST_MIN_UNIVERSE_FOR_DRAFT (default 100) —
+        skips tiny/manual test scans so they don't spam a draft.
+      - today is a trading day.
+      - no daily% entry already queued for today — avoids re-drafting every
+        time the same day gets scanned more than once. Use
+        scripts/dist_live_test.py draft to force a manual re-draft.
+    """
+    try:
+        if not distribution_enabled():
+            return {"skipped": "distribution disabled"}
+
+        min_universe = int(
+            os.getenv("FINPILOT_DIST_MIN_UNIVERSE_FOR_DRAFT", str(_DEFAULT_MIN_UNIVERSE_FOR_DRAFT))
+        )
+        if universe < min_universe:
+            return {"skipped": f"universe {universe} < min {min_universe}"}
+
+        today = _vienna_now().date()
+        if not is_trading_day(today):
+            return {"skipped": "not a trading day"}
+
+        from distribution.store import ensure_tables, get_conn
+
+        ensure_tables()
+        with get_conn() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) FROM broadcast_queue WHERE brief_date=? AND kind LIKE 'daily%'",
+                (today.isoformat(),),
+            ).fetchone()
+        if row and row[0] > 0:
+            return {"skipped": "already drafted today"}
+
+        logger.info(
+            "Event-driven draft trigger: scan universe=%d, queuing today's brief.", universe
+        )
+        return job_draft()
+    except Exception as exc:  # pragma: no cover - defensive, never break the caller
+        logger.warning("maybe_trigger_draft_after_scan failed (non-fatal): %s", exc)
+        return {"error": str(exc)}
+
+
 def _trigger_morning_scan() -> dict:
     """E5 sabah taraması — localhost API'ye mevcut /scan yolu üzerinden.
 

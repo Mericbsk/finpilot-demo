@@ -39,6 +39,11 @@ Devreye-alma raporu: `13-devreye-alma-raporu.md` + `FinPilot_Devreye_Alma_Ozet.d
 Jules test stratejisi: `14-jules-test-stratejisi.md` + `FinPilot_Jules_Test_Stratejisi_Ozet.docx`
 
 Jules ilk 5 görev brifi (girdi paketi): `15-jules-gorev-brifleri.md` + `FinPilot_Jules_5_Gorev_Brifi.docx`
+
+Scanner derin teknik audit (sert): `16-scanner-derin-audit.md` + `FinPilot_Scanner_Derin_Audit_Ozet.docx`
+
+Scanner uçtan-uca düzeltme (uygulandı+test): `17-scanner-duzeltme-raporu.md` + `FinPilot_Scanner_Duzeltme_Ozet.docx`
+- Kod: `api/routers/scan.py`, `scanner/evaluate.py`, `scanner/features.py` (M) + `tests/test_scanner_fixes.py` (yeni, 6 test) · 34/34 test geçti
 | `FinPilot_Yonetici_Ozeti.docx` | Yatırımcı/hibe paylaşımına uygun özet (repo kökünde değil, bu klasörde) |
 
 ## TEK SAYFA ÖZET

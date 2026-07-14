@@ -1326,6 +1326,24 @@ def start_scheduler(
             name="FinPilot EDGAR Catalyst Refresh (every 6h)",
         )
 
+        # Always-on (env-gated): EODHD News Sentiment cache refresh every 6h.
+        # No-op unless FINPILOT_ENABLE_SENTIMENT=1 and EODHD_API_KEY is set.
+        # Pre-populates data/sentiment_cache.json so the scanner hot path never
+        # hits the network (mirrors the catalyst refresh above).
+        def _sentiment_refresh_wrapper() -> None:
+            from scanner.sentiment import refresh_sentiment_cache, sentiment_enabled
+
+            if not sentiment_enabled():
+                return
+            refresh_sentiment_cache(list(symbols))
+
+        _scheduler_instance.add_job(
+            _make_watchdog_job("sentiment_refresh", _sentiment_refresh_wrapper),
+            trigger=IntervalTrigger(hours=6),
+            id="finpilot_sentiment_refresh",
+            name="FinPilot EODHD Sentiment Refresh (every 6h)",
+        )
+
         # Always-on (env-gated): FRED macro regime refresh, daily 12:00 UTC.
         # No-op unless FINPILOT_ENABLE_FRED_MACRO=1 and FRED_API_KEY is set.
         # FRED series update once per business day, so daily cadence suffices.

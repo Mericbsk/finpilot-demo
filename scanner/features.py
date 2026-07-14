@@ -312,7 +312,31 @@ def compute_extension_factor(df: Any) -> float:
         return 0.0
 
 
-def get_alpha_features(symbol: str, sector: str | None = None) -> dict[str, Any]:
+def compute_vol_regime_from_df(df: Any) -> int:
+    """Vol-regime (0=low, 1=normal, 2=high) from an ALREADY-FETCHED daily frame.
+
+    Same math as compute_vol_regime (20-day realised vol annualised) but reads
+    the df_1d the scanner already holds — avoiding a redundant per-symbol
+    yfinance download in the hot path. Returns 1 (normal) on any shortfall.
+    """
+    try:
+        if not hasattr(df, "iloc") or "Close" not in df.columns or len(df) < 21:
+            return 1
+        close = df["Close"].astype(float)
+        daily_rets = close.pct_change().dropna()
+        if len(daily_rets) < 20:
+            return 1
+        rv = float(daily_rets.iloc[-20:].std() * (252**0.5))
+        if rv < 0.15:
+            return 0
+        if rv < 0.30:
+            return 1
+        return 2
+    except Exception:
+        return 1
+
+
+def get_alpha_features(symbol: str, sector: str | None = None, df_1d: Any = None) -> dict[str, Any]:
     """Return cached ``sector_rs``, ``vol_regime`` and ``squeeze_factor``.
 
     Uses a 1-hour in-memory cache to avoid redundant fetches. The squeeze
@@ -326,7 +350,12 @@ def get_alpha_features(symbol: str, sector: str | None = None) -> dict[str, Any]
         return {k: v for k, v in cached.items() if k != "ts"}
 
     sector_rs = compute_sector_rs(sector or "") if sector else 0.0
-    vol_regime = compute_vol_regime(symbol)
+    # Hot-path fix: compute vol-regime from the already-fetched df_1d when the
+    # caller provides it (no redundant yfinance download). Falls back to the
+    # network path only when df_1d is unavailable.
+    vol_regime = (
+        compute_vol_regime_from_df(df_1d) if df_1d is not None else compute_vol_regime(symbol)
+    )
 
     squeeze_factor = 0.0
     if os.environ.get("FINPILOT_ENABLE_SQUEEZE_FACTOR", "0") == "1" or _alpha_v2_enabled():
@@ -657,7 +686,7 @@ def compute_news_catalyst(symbol: str) -> dict:
         normals = [
             float(s["normalized"])
             for s in sent_series
-            if isinstance(s.get("normalized"), (int, float))
+            if isinstance(s.get("normalized"), int | float)
         ]
         if normals:
             avg_sentiment = sum(normals) / len(normals)
@@ -666,7 +695,7 @@ def compute_news_catalyst(symbol: str) -> dict:
         for item in news_items:
             sent = item.get("sentiment") or {}
             pol = sent.get("polarity")
-            if isinstance(pol, (int, float)):
+            if isinstance(pol, int | float):
                 # EODHD polarity: 0-1, 0.5=nötr → -1/+1'e çevir
                 polarities.append((float(pol) - 0.5) * 2)
         if polarities:

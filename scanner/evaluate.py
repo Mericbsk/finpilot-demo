@@ -66,9 +66,15 @@ def _compute_cost_labels(
     """
     cost_pct = _COST_FLAT_PCT
     try:
-        from core.slippage_tracker import estimate_round_trip_cost  # noqa: PLC0415
+        # FIX: the previous ``from core.slippage_tracker import
+        # estimate_round_trip_cost`` targeted a function that does NOT exist —
+        # the import raised ImportError on every call and cost_pct silently
+        # fell back to the flat 0.20% assumption (which only counted one side).
+        # Use the real cost model. round_trip_cost_pct() returns a PERCENT, so
+        # divide by 100 to get the fraction _compute_cost_labels works in.
+        from core.slippage_tracker import RealisticBacktestCosts  # noqa: PLC0415
 
-        cost_pct = float(estimate_round_trip_cost(price) or _COST_FLAT_PCT)
+        cost_pct = float(RealisticBacktestCosts().round_trip_cost_pct() / 100.0) or _COST_FLAT_PCT
     except Exception:
         pass
 
@@ -302,27 +308,34 @@ def evaluate_symbol(
                 momentum_score=int(momentum_score),
             )
 
+        # Sentiment / on-chain: no live data source is currently wired. The
+        # legacy ``regime_detection`` and ``altdata`` modules live only under
+        # archive/scripts_legacy and are NOT importable, so the previous
+        # per-symbol imports raised ModuleNotFoundError on EVERY symbol of EVERY
+        # scan (swallowed at debug) — burning exception machinery N× per scan
+        # while always yielding 0.0. Market regime is the inline EMA200 signal
+        # computed above; sentiment/on-chain stay neutral until a real provider
+        # is wired. Honest neutral > silent broken import.
+        # EODHD News Sentiment (env-gated, cache-based — hot-path safe, mirrors
+        # scanner.catalyst). Default OFF → _sentiment_score stays None so the
+        # score hook is untouched and behaviour is identical. When enabled, the
+        # 0..1 value (0.5=neutral) is read from the scheduler-populated cache
+        # (NO per-symbol network in the scan) and flows into the composite score
+        # via score_engine's ±0.5 hook + into the `sentiment` output field.
+        _sentiment_score: float | None = None
         sentiment = 0.0
         onchain_metric = 0.0
-        try:
-            from regime_detection import detect_market_regime
+        if os.environ.get("FINPILOT_ENABLE_SENTIMENT", "0") == "1":
+            try:
+                from scanner.sentiment import compute_sentiment_factor  # noqa: PLC0415
 
-            prices_for_regime = df_1d.get("Close", None)
-            regime = (
-                detect_market_regime(prices_for_regime) if prices_for_regime is not None else regime
-            )
-        except Exception:
-            logger.debug("Regime detection unavailable", exc_info=True)
-        try:
-            from altdata import get_onchain_metric, get_sentiment_score
+                _sentiment_score = float(compute_sentiment_factor(symbol))
+                sentiment = _sentiment_score
+            except Exception:
+                _sentiment_score = None
 
-            sentiment = get_sentiment_score(symbol)
-            onchain_metric = get_onchain_metric(symbol)
-        except Exception:
-            logger.debug("Alt data unavailable", exc_info=True)
-
-        if regime == 1 and sentiment < 0:
-            entry_ok = False
+        # Market-safety gate (unchanged). The old ``regime==1 and sentiment<0``
+        # gate was dead — sentiment was always 0.0, so it never fired.
         if entry_ok and not CURRENT_MARKET_STATUS["safe"]:
             entry_ok = False
 
@@ -350,21 +363,25 @@ def evaluate_symbol(
         try:
             from scanner.features import get_alpha_features  # noqa: PLC0415
 
-            alpha = get_alpha_features(symbol)
+            alpha = get_alpha_features(symbol, df_1d=df_1d)
             sector_rs = alpha.get("sector_rs", 0.0)
             vol_regime_val = alpha.get("vol_regime", 1)
             squeeze_factor = alpha.get("squeeze_factor", 0.0)
         except Exception:
             pass
 
-        # SEC EDGAR catalyst factor (env-gated, reads from cache — hot-path safe)
+        # SEC EDGAR catalyst factor. Reads from a scheduler-populated cache
+        # (hot-path safe), but skip even that per-symbol cache read when the
+        # factor is disabled — its value only affects the score when the flag
+        # is on, so computing it otherwise is pure waste.
         catalyst_factor = 0.0
-        try:
-            from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
+        if os.environ.get("FINPILOT_ENABLE_EDGAR_CATALYST", "0") == "1":
+            try:
+                from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
 
-            catalyst_factor = compute_catalyst_factor(symbol)
-        except Exception:
-            pass
+                catalyst_factor = compute_catalyst_factor(symbol)
+            except Exception:
+                pass
 
         # Faz 1: Lottery/MAX fade factor (pure pandas, no network call)
         lottery_factor = 0.0
@@ -410,7 +427,10 @@ def evaluate_symbol(
                 "overnight_gap_factor": float(overnight_gap_factor),
                 # Faz 5: is_premium_symbol removed (was dead code — score_engine
                 # never read it). Kept as False in return dict for UI compat.
-            }
+            },
+            # EODHD sentiment ±0.5 hook (None when FINPILOT_ENABLE_SENTIMENT off
+            # → no effect; 0.5 neutral also no-op). Measured via Edge Report.
+            sentiment_score=_sentiment_score,
         )
         _gate_mult = regime_gate_mult(bool(regime), _composite_score)
 

@@ -144,6 +144,28 @@ def _persist_shortlist(out: dict) -> None:
         logger.warning("Could not save shortlist CSV: %s", exc)
 
 
+def _trigger_distribution_draft(universe: int) -> None:
+    """Best-effort: after a manual/ad-hoc scan, queue today's distribution
+    draft in the background if it hasn't been queued yet for today (see
+    distribution.jobs.maybe_trigger_draft_after_scan for guards — trading day,
+    minimum universe size, not-already-drafted). Runs in a daemon thread so a
+    slow Telegram call never delays the scan HTTP response.
+    """
+    try:
+        import threading
+
+        from distribution.jobs import maybe_trigger_draft_after_scan
+
+        threading.Thread(
+            target=maybe_trigger_draft_after_scan,
+            args=(universe,),
+            daemon=True,
+            name="dist-draft-trigger",
+        ).start()
+    except Exception as exc:
+        logger.debug("Distribution draft trigger skipped: %s", exc)
+
+
 def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
     """Auto-add BUY signals (entry_ok=True) to the watchlist.
 
@@ -297,7 +319,7 @@ async def run_scan(
     _persist_shortlist(out)
     _auto_add_watchlist(out, drl_cache, drl_valid)
     _persist_distribution_export(out, universe=len(req.symbols))
-    _persist_distribution_export(out, universe=len(req.symbols))
+    _trigger_distribution_draft(universe=len(req.symbols))
     try:
         from core.analytics import increment_event
 
@@ -620,32 +642,9 @@ def _persist_distribution_export(results: dict, universe: int) -> None:
     """Write full enriched scan results for the distribution layer.
 
     The daily brief / web demo snapshot is built from THIS export (it carries
-    tier/conviction fields) — never from legacy daily_reports (BUY/stop/TP
-    language). Best-effort: a failure here must never break the scan response.
-    """
-    try:
-        import os as _os
-
-        export_dir = Path(_os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
-        export_dir.mkdir(parents=True, exist_ok=True)
-        payload = {
-            "date": datetime.now(tz=UTC).strftime("%Y-%m-%d"),
-            "generated_at": datetime.now(tz=UTC).isoformat(),
-            "universe": universe,
-            "results": list(results.values()) if isinstance(results, dict) else results,
-        }
-        text = json.dumps(payload, ensure_ascii=False, default=str)
-        (export_dir / "scan_export_latest.json").write_text(text, encoding="utf-8")
-        (export_dir / f"scan_export_{payload['date']}.json").write_text(text, encoding="utf-8")
-    except Exception as exc:  # pragma: no cover - defensive
-        logger.warning("distribution export failed (non-fatal): %s", exc)
-
-
-def _persist_distribution_export(results: dict, universe: int) -> None:
-    """Write full enriched scan results for the distribution layer.
-
-    Atomic writes (tmp+replace) so a concurrent reader can never see a
-    half-written file. Best-effort: failure must never break the scan.
+    tier/conviction fields) — never from legacy daily_reports. Atomic writes
+    (tmp+replace) so a concurrent reader can never see a half-written file.
+    Best-effort: failure must never break the scan.
     """
     try:
         import os as _os
