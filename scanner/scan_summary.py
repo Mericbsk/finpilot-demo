@@ -23,13 +23,16 @@ logger = logging.getLogger(__name__)
 
 _TIER_LABEL = {"A": "🅰️ ELİTE", "B": "🅱️ GÜÇLÜ", "C": "🅲 ORTA"}
 _TIER_ORDER = {"A": 0, "B": 1, "C": 2, "": 3}
+_EXECUTION_ORDER = {"Tier 2": 0, "Tier 1": 1, "Tier 0": 2}
 
 
-def _rank(item: tuple[str, dict]) -> tuple[float, float]:
+def _rank(item: tuple[str, dict]) -> tuple[int, int, float, float]:
     r = item[1]
     return (
-        float(r.get("conviction_prob", 0.0) or 0.0),
-        float(r.get("ranking_score", r.get("composite_score", 0.0)) or 0.0),
+        _TIER_ORDER.get(str(r.get("conviction_tier", "") or ""), 3),
+        _EXECUTION_ORDER.get(str(r.get("execution_confidence", "Tier 0")), 3),
+        -float(r.get("conviction_prob", 0.0) or 0.0),
+        -float(r.get("ranking_score", r.get("composite_score", 0.0)) or 0.0),
     )
 
 
@@ -43,7 +46,7 @@ def build_candidate_pool(out: dict, max_candidates: int = 25) -> list[tuple[str,
         )
         and not r.get("position_cap_reject_reason")
     ]
-    cand.sort(key=_rank, reverse=True)
+    cand.sort(key=_rank)
     return cand[:max_candidates]
 
 

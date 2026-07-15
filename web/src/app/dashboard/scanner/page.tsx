@@ -75,6 +75,7 @@ interface ScanResult {
   execution_feasible?: boolean;
   dollar_adv?: number | null;
   spread_bps?: number | null;
+  position_cap_reject_reason?: string | null;
   // Task 2: Risk-adjusted metrics
   sharpe_ratio?: number;
   sortino_ratio?: number;
@@ -134,6 +135,7 @@ interface DisplayStock {
   executionFeasible: boolean;
   dollarAdv: number | null;
   spreadBps: number | null;
+  positionCapRejected: boolean;
   signal: string;
   regime: string;
   sentiment: string;
@@ -281,6 +283,7 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     executionFeasible: r.execution_feasible ?? true,
     dollarAdv: r.dollar_adv ?? null,
     spreadBps: r.spread_bps ?? null,
+    positionCapRejected: Boolean(r.position_cap_reject_reason),
     signal,
     regime: r.regime ? (r.trend_strength ? "Trend" : "Range") : "Volatile",
     sentiment:
@@ -361,6 +364,7 @@ function mockToStock(ticker: string): DisplayStock {
     executionFeasible: true,
     dollarAdv: null,
     spreadBps: null,
+    positionCapRejected: false,
     signal: "—",
     regime: "—",
     sentiment: "—",
@@ -814,13 +818,24 @@ export default function ScannerPage() {
     return list;
   }, [currentSymbols, allPresetSymbols, scanResults, live, scanAllMode]);
 
-  /* Sort stocks — BUY signals always pinned to top when sorting by score */
+  /* Sort by the selection contract: eligible -> conviction tier -> execution -> score. */
   const sorted = useMemo(() => {
     const arr = [...stocks];
     const dir = sortAsc ? 1 : -1;
-    // Signal priority: BUY=0, HOLD=1, CAUTION=2, SELL=3, —=4
-    const sigPriority = (s: string) =>
-      s === "BUY" ? 0 : s === "HOLD" ? 1 : s === "CAUTION" ? 2 : s === "SELL" ? 3 : 4;
+    const tierOrder: Record<string, number> = { A: 0, B: 1, C: 2, "": 3 };
+    const executionOrder: Record<string, number> = { "Tier 2": 0, "Tier 1": 1, "Tier 0": 2 };
+    const qualityCompare = (a: DisplayStock, b: DisplayStock) => {
+      const aEligible = a.fromAPI && a.executionFeasible && !a.positionCapRejected && (a.entryOk || a.convictionTier);
+      const bEligible = b.fromAPI && b.executionFeasible && !b.positionCapRejected && (b.entryOk || b.convictionTier);
+      if (aEligible !== bEligible) return aEligible ? -1 : 1;
+      if (!aEligible && !bEligible) return a.ticker.localeCompare(b.ticker);
+      const tierDiff = (tierOrder[a.convictionTier] ?? 3) - (tierOrder[b.convictionTier] ?? 3);
+      if (tierDiff !== 0) return tierDiff;
+      const executionDiff = (executionOrder[a.executionConfidence] ?? 3) - (executionOrder[b.executionConfidence] ?? 3);
+      if (executionDiff !== 0) return executionDiff;
+      const probabilityDiff = b.convictionProb - a.convictionProb;
+      return probabilityDiff !== 0 ? probabilityDiff : b.score - a.score;
+    };
     arr.sort((a, b) => {
       switch (sortCol) {
         case "ticker": return dir * a.ticker.localeCompare(b.ticker);
@@ -832,10 +847,7 @@ export default function ScannerPage() {
         case "annVol": return dir * (a.annVol - b.annVol);
         case "regime": return dir * a.regime.localeCompare(b.regime);
         default: {
-          // Default (score): BUY first → score desc → "—" last
-          const sigDiff = sigPriority(a.signal) - sigPriority(b.signal);
-          if (sigDiff !== 0) return sigDiff; // BUY always top regardless of asc/desc toggle
-          return dir * (a.score - b.score);
+          return qualityCompare(a, b);
         }
       }
     });
@@ -1130,7 +1142,7 @@ export default function ScannerPage() {
   const qualityTop = useMemo(() => {
     const tierOrder: Record<string, number> = { A: 0, B: 1, C: 2, "": 3 };
     return stocks
-      .filter((s) => s.fromAPI && s.executionFeasible && (s.entryOk || s.convictionTier))
+      .filter((s) => s.fromAPI && s.executionFeasible && !s.positionCapRejected && (s.entryOk || s.convictionTier))
       .sort((a, b) => {
         const tierDiff = (tierOrder[a.convictionTier] ?? 3) - (tierOrder[b.convictionTier] ?? 3);
         if (tierDiff !== 0) return tierDiff;

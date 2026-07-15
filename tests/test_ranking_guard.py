@@ -68,6 +68,36 @@ def test_scan_summary_prefers_ranking_score():
     assert [symbol for symbol, _ in build_candidate_pool(out, 2)] == ["AAA", "BBB"]
 
 
+def test_scan_summary_orders_tier_then_execution_then_probability():
+    out = {
+        "B_T2": {
+            "entry_ok": True,
+            "selection_eligible": True,
+            "conviction_tier": "B",
+            "execution_confidence": "Tier 2",
+            "conviction_prob": 0.59,
+            "ranking_score": 99,
+        },
+        "A_T1": {
+            "entry_ok": True,
+            "selection_eligible": True,
+            "conviction_tier": "A",
+            "execution_confidence": "Tier 1",
+            "conviction_prob": 0.73,
+            "ranking_score": 70,
+        },
+        "A_T2": {
+            "entry_ok": True,
+            "selection_eligible": True,
+            "conviction_tier": "A",
+            "execution_confidence": "Tier 2",
+            "conviction_prob": 0.73,
+            "ranking_score": 65,
+        },
+    }
+    assert [symbol for symbol, _ in build_candidate_pool(out, 3)] == ["A_T2", "A_T1", "B_T2"]
+
+
 def test_conviction_probabilities_are_calibrated(monkeypatch):
     monkeypatch.setenv("FINPILOT_ENABLE_CONVICTION_TIERS", "1")
     assert compute_conviction(0.7, 0.7, 0.0, 0.0) == ("A", 0.73)
