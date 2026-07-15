@@ -24,6 +24,7 @@ COPY scanner/ ./scanner/
 COPY auth/ ./auth/
 COPY drl/ ./drl/
 COPY models/ ./models/
+COPY distribution/ ./distribution/
 COPY telegram_alerts.py ./
 
 # Non-root user

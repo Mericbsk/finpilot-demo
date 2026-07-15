@@ -86,3 +86,96 @@ def test_format_edge_report_md_renders():
     assert "# Test Edge" in md
     assert "TÜMÜ" in md
     assert "| Grup |" in md
+
+
+# ── factor ablation (which flag to open?) ────────────────────────────────────
+def _abl_rec(entry, closes, factor_key, factor_val, highs=None, lows=None):
+    return {
+        "entry_price": entry,
+        "forward_closes": closes,
+        "forward_highs": highs,
+        "forward_lows": lows,
+        factor_key: factor_val,
+        "side": "long",
+    }
+
+
+def test_factor_ablation_separates_when_high_bucket_wins():
+    from scanner.edge_report import factor_ablation
+
+    # HIGH-squeeze names all win (+12%); LOW-squeeze names all lose (-6%).
+    recs = [
+        _abl_rec(100, [112], "squeeze_factor", 0.8, highs=[112], lows=[111]) for _ in range(3)
+    ] + [_abl_rec(100, [93], "squeeze_factor", 0.1, highs=[94], lows=[93]) for _ in range(3)]
+    out = factor_ablation(
+        recs, factor_key="squeeze_factor", hi_threshold=0.5, tp_pct=0.10, sl_pct=0.05, max_horizon=3
+    )
+    assert out["n_hi"] == 3 and out["n_lo"] == 3
+    assert out["separates"] is True
+    assert out["expectancy_lift"] > 0 and out["tp_rate_lift"] > 0
+
+
+def test_factor_ablation_no_separation_when_random():
+    from scanner.edge_report import factor_ablation
+
+    # Factor uncorrelated with outcome: both buckets mixed → no clean separation.
+    recs = [
+        _abl_rec(100, [112], "f", 0.9, highs=[112], lows=[111]),  # hi, win
+        _abl_rec(100, [93], "f", 0.8, highs=[94], lows=[93]),  # hi, loss
+        _abl_rec(100, [112], "f", 0.1, highs=[112], lows=[111]),  # lo, win
+        _abl_rec(100, [93], "f", 0.2, highs=[94], lows=[93]),  # lo, loss
+    ]
+    out = factor_ablation(recs, factor_key="f", hi_threshold=0.5, max_horizon=3)
+    assert out["separates"] is False  # equal expectancy → no edge
+
+
+def test_factor_ablation_skips_missing_factor():
+    from scanner.edge_report import factor_ablation
+
+    recs = [
+        _abl_rec(100, [112], "f", 0.9, highs=[112], lows=[111]),
+        {"entry_price": 100, "forward_closes": [101]},  # no 'f' → skipped
+    ]
+    out = factor_ablation(recs, factor_key="f", hi_threshold=0.5, max_horizon=3)
+    assert out["n_hi"] + out["n_lo"] == 1
+
+
+# ── ablate_all (full sweep) ──────────────────────────────────────────────────
+def test_ablate_all_flags_edge_and_fade():
+    from scanner.edge_report import ablate_all
+
+    # edge factor 'squeeze_factor': high→win, low→loss (should help, +1).
+    # fade factor 'lottery_factor': high→loss, low→win (should "help" as -1,
+    # i.e. high underperforms → penalty justified).
+    recs = []
+    for _ in range(3):
+        recs.append(_abl_rec(100, [112], "squeeze_factor", 0.8, highs=[112], lows=[111]))
+        recs[-1]["lottery_factor"] = 0.1  # low lottery on a winner
+    for _ in range(3):
+        recs.append(_abl_rec(100, [93], "squeeze_factor", 0.1, highs=[94], lows=[93]))
+        recs[-1]["lottery_factor"] = 0.8  # high lottery on a loser
+    specs = [("squeeze_factor", 0.5, +1), ("lottery_factor", 0.5, -1)]
+    out = ablate_all(recs, specs=specs, tp_pct=0.10, sl_pct=0.05, max_horizon=3)
+    by = {r["factor"]: r for r in out["factors"]}
+    assert by["squeeze_factor"]["helps"] is True  # edge confirmed
+    assert by["lottery_factor"]["helps"] is True  # fade confirmed (high worse)
+    assert out["baseline"]["n"] == 6
+
+
+def test_ablate_all_helps_none_when_one_bucket_empty():
+    from scanner.edge_report import ablate_all
+
+    recs = [_abl_rec(100, [112], "squeeze_factor", 0.9, highs=[112], lows=[111])]  # all HIGH
+    out = ablate_all(recs, specs=[("squeeze_factor", 0.5, +1)], max_horizon=3)
+    assert out["factors"][0]["helps"] is None  # no LOW bucket → can't judge
+
+
+def test_format_ablation_md_renders():
+    from scanner.edge_report import ablate_all, format_ablation_md
+
+    recs = [
+        _abl_rec(100, [112], "squeeze_factor", 0.9, highs=[112], lows=[111]),
+        _abl_rec(100, [93], "squeeze_factor", 0.1, highs=[94], lows=[93]),
+    ]
+    md = format_ablation_md(ablate_all(recs, specs=[("squeeze_factor", 0.5, +1)], max_horizon=3))
+    assert "# Factor Ablation" in md and "Baseline" in md and "squeeze_factor" in md

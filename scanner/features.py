@@ -176,7 +176,7 @@ def _alpha_v2_enabled() -> bool:
 # Sinyal kalitesi labi (2026-06, n=6410): skor kalibre; faktor-hizalamasi isabeti
 # yukseltir. short>=15 & gap>=3 -> >=%5 %73 / >=%10 %69 (elit). Skoru DEGISTIRMEZ;
 # yalniz etiketler. conviction_prob = o tier'in gozlemlenen >=%5 isabeti (tahmin).
-_CONV_PROB = {"A": 0.73, "B": 0.63, "C": 0.56}
+_CONV_PROB = {"A": 0.73, "B": 0.59, "C": 0.52}
 
 
 def _conviction_enabled() -> bool:

@@ -9,10 +9,13 @@ import { C } from "./_ledgerColors";
  * DRL agents voting on a trade — same underlying idea (independent votes,
  * weighted consensus), ledger voice.
  */
+// Register (2026-07-14 web review): each editor gives a READING, not a
+// BUY/HOLD vote. The consensus is a combined GRADE, not a "BUY". No advice
+// language on the public page.
 const AGENTS = [
-  { name: "Trend Editor", vote: "BUY", conf: 92, color: C.sage },
-  { name: "Range Editor", vote: "HOLD", conf: 61, color: C.inkSoft },
-  { name: "Volatility Editor", vote: "BUY", conf: 74, color: C.sage },
+  { name: "Trend Editor", read: "strong", conf: 92, color: C.sage },
+  { name: "Range Editor", read: "neutral", conf: 61, color: C.inkSoft },
+  { name: "Volatility Editor", read: "elevated", conf: 74, color: C.sage },
 ];
 
 export default function EditorialBoard() {
@@ -41,7 +44,7 @@ export default function EditorialBoard() {
             />
           </div>
           <span className="w-8 text-right text-[10px]" style={{ color: C.inkSoft }}>{a.conf}%</span>
-          <span className="w-10 text-right text-[10px] font-bold" style={{ color: a.color }}>{a.vote}</span>
+          <span className="w-16 text-right text-[10px] font-bold" style={{ color: a.color }}>{a.read}</span>
         </motion.div>
       ))}
       <motion.div
@@ -52,8 +55,8 @@ export default function EditorialBoard() {
         className="flex items-center justify-between border-2 px-4 py-2.5"
         style={{ borderColor: C.sage }}
       >
-        <span className="text-xs font-bold" style={{ color: C.sage }}>Consensus: BUY</span>
-        <span className="text-[10px]" style={{ color: C.sage }}>88% confidence</span>
+        <span className="text-xs font-bold" style={{ color: C.sage }}>Combined read: Grade B</span>
+        <span className="text-[10px]" style={{ color: C.sage }}>88% factor agreement</span>
       </motion.div>
     </div>
   );

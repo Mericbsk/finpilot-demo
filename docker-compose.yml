@@ -74,6 +74,7 @@ services:
       - ./core:/app/core:ro
       - ./scanner:/app/scanner:ro
       - ./auth:/app/auth:ro
+      - ./distribution:/app/distribution:ro
       - ./telegram_alerts.py:/app/telegram_alerts.py:ro
     extra_hosts:
       # host.docker.internal Windows/Mac Docker Desktop'ta otomatik çözülür;

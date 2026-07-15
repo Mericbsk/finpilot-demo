@@ -67,7 +67,9 @@ def _open_db(db_path: Path) -> sqlite3.Connection:
 
 
 def _load_open_rows(conn: sqlite3.Connection, limit: int | None) -> list[sqlite3.Row]:
-    # resolved_status stores 'open' or 'watching' for unresolved rows.
+    # resolved_status stores 'new', 'open' or 'watching' for unresolved rows.
+    # 'new' = freshly archived signal whose lifecycle never advanced (migrated
+    #         from status_lifecycle.status='new'); must still be resolved.
     # 'watching' = watchlist lifecycle active but no TP/SL/expiry yet.
     # 'unresolvable' = previously failed due to parse errors; retry on re-run.
     # Also handle IS NULL for rows added before migration.
@@ -75,6 +77,7 @@ def _load_open_rows(conn: sqlite3.Connection, limit: int | None) -> list[sqlite3
         SELECT id, symbol, ts, score, finpilot_score, payload_json
         FROM   signals_archive
         WHERE  resolved_status IS NULL
+           OR  resolved_status = 'new'
            OR  resolved_status = 'open'
            OR  resolved_status = 'watching'
            OR  resolved_status = 'unresolvable'
@@ -111,6 +114,7 @@ def _write_results(
                resolved_pct              = COALESCE(resolved_pct, :pct_barrier)
         WHERE  id = :id
           AND  (resolved_status IS NULL
+                OR resolved_status = 'new'
                 OR resolved_status = 'open'
                 OR resolved_status = 'watching'
                 OR resolved_status = 'unresolvable')

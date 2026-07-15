@@ -82,10 +82,12 @@ function CandidateCard({ c, onOpen }: { c: Candidate; onOpen: () => void }) {
             ${c.ticker}
             {c.company ? <span className="ml-2 text-sm font-normal text-[var(--ledger-ink-soft)]">{c.company}</span> : null}
           </div>
-          <div className="mt-1 text-[13px] text-[var(--ledger-ink-soft)]">
-            Historically, candidates with this profile moved {"≥"}5% within 5 days about{" "}
-            <span className="font-semibold text-[var(--ledger-ink)]">{c.prob_band}</span> of the time*
-          </div>
+          {c.prob_band && c.prob_band !== "—" ? (
+            <div className="mt-1 text-[13px] text-[var(--ledger-ink-soft)]">
+              Historically, candidates with this profile moved {"≥"}5% within 5 days about{" "}
+              <span className="font-semibold text-[var(--ledger-ink)]">{c.prob_band}</span> of the time*
+            </div>
+          ) : null}
         </div>
         <span className={`shrink-0 rounded-lg px-2.5 py-1 text-sm font-bold ${s.chip}`} title={s.label}>
           Grade {c.grade}

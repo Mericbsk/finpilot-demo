@@ -161,6 +161,11 @@ class TestEvaluateSymbol:
             "take_profit",
             "risk_reward",
             "momentum_bias",
+            "spread_bps",
+            "dollar_adv",
+            "feature_timestamps",
+            "feature_age_minutes",
+            "data_quality",
         ]:
             assert key in result, f"Missing key: {key}"
 

@@ -8,10 +8,12 @@ import { C } from "./_ledgerColors";
  * metric cards + "Battle-Tested" backtest bars into one editorial block:
  * the newsroom's fact-checkers verifying every call before print.
  */
+// Register (2026-07-14 web review): these are ILLUSTRATIVE research levels
+// that show how the risk model reasons — not a stop/target recommendation.
 const RISK_METRICS = [
-  { label: "Stop-Loss", val: "$168.50", sub: "ATR-based" },
-  { label: "Target", val: "$198.00", sub: "R/R 1.8" },
-  { label: "Position Size", val: "12%", sub: "Kelly criterion" },
+  { label: "Illustrative stop", val: "$168.50", sub: "ATR-based" },
+  { label: "Research target", val: "$198.00", sub: "R/R 1.8" },
+  { label: "Illustrative size", val: "12%", sub: "Kelly-based" },
   { label: "Risk Score", val: "Low", sub: "0.3 / 1.0" },
 ];
 
@@ -46,6 +48,9 @@ export default function FactCheckingDesk() {
             </motion.div>
           ))}
         </div>
+        <p className="mt-2 text-[9px] italic" style={{ color: C.inkSoft }}>
+          Illustrative levels — a research example of how the risk model reasons, not investment advice.
+        </p>
       </div>
 
       <div>
