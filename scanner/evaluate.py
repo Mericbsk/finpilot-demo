@@ -20,10 +20,17 @@ from .data_fetcher import (
     fetch_multi_timeframe,
     prefetch_symbols_multi_timeframe,
 )
+from .execution_policy import execution_contract, exit_profile, position_cap
 from .position_sizer import calculate_dynamic_position
 from .risk_engine import calculate_risk_management, calculate_risk_management_yz, daily_dd_breached
 from .risk_metrics import calculate_risk_adjusted_metrics
-from .score_engine import compute_recommendation_strength, regime_gate_mult
+from .score_engine import (
+    compute_legacy_quality_score,
+    compute_recommendation_strength,
+    compute_v2_score,
+    legacy_composite_ranking_enabled,
+    regime_gate_mult,
+)
 from .signals import (
     analyze_price_momentum,
     check_momentum_confluence,
@@ -49,6 +56,99 @@ STRATEGY_PARAMS = {
 _COST_FLAT_PCT: float = 0.0020  # 0.20% round-trip cost assumption (retail fallback)
 _THIN_EDGE_THRESH: float = 0.003  # net EV < 0.3% → thin edge
 _DECAY_EV_THRESH: float = 0.005  # high-vol + net EV < 0.5% → edge_decay warning
+
+
+def _rejected_result(symbol: str, reason: str) -> dict[str, Any]:
+    """Keep data/portfolio rejections visible to the scan ledger."""
+    return {
+        "symbol": symbol,
+        "entry_ok": False,
+        "selection_eligible": False,
+        "execution_feasible": False,
+        "execution_confidence": "Tier 0",
+        "data_quality_tier": "Tier 0",
+        "data_quality_status": "unavailable",
+        "reject_reason": [reason],
+        "execution_reject_reason": [reason],
+        "strategy_ids": ["legacy_quality", "v2"],
+        "strategy_scores": {},
+        "exit_profiles": {
+            strategy_id: exit_profile(strategy_id) for strategy_id in ("legacy_quality", "v2")
+        },
+    }
+
+
+def _feature_contract(
+    *,
+    df_15m: pd.DataFrame,
+    df_1h: pd.DataFrame,
+    df_4h: pd.DataFrame,
+    df_1d: pd.DataFrame,
+    signal_timestamp: str,
+) -> dict[str, Any]:
+    frames = {"15m": df_15m, "1h": df_1h, "4h": df_4h, "1d": df_1d}
+    signal_ts = pd.Timestamp(signal_timestamp)
+    if signal_ts.tzinfo is not None:
+        signal_ts = signal_ts.tz_localize(None)
+    timestamps: dict[str, str | None] = {}
+    ages: dict[str, float | None] = {}
+    for name, frame in frames.items():
+        if frame.empty:
+            timestamps[name] = None
+            ages[name] = None
+            continue
+        latest = pd.Timestamp(frame.index[-1])
+        if latest.tzinfo is not None:
+            latest = latest.tz_localize(None)
+        timestamps[name] = latest.isoformat()
+        ages[name] = round(max(0.0, (signal_ts - latest).total_seconds() / 60.0), 2)
+    spread_bps = None
+    if "spread_bps" in df_15m.columns and pd.notna(df_15m["spread_bps"].iloc[-1]):
+        spread_bps = float(df_15m["spread_bps"].iloc[-1])
+    dollar_adv = None
+    if all(column in df_1d.columns for column in ("Close", "Volume")):
+        values = (
+            (
+                pd.to_numeric(df_1d["Close"], errors="coerce")
+                * pd.to_numeric(df_1d["Volume"], errors="coerce")
+            )
+            .dropna()
+            .tail(20)
+        )
+        if len(values) >= 5:
+            dollar_adv = float(values.mean())
+    short_timestamp = df_1d.attrs.get("short_interest_timestamp")
+    if short_timestamp is not None and hasattr(short_timestamp, "isoformat"):
+        short_timestamp = short_timestamp.isoformat()
+    available = {
+        "spread_bps": spread_bps is not None,
+        "dollar_adv": dollar_adv is not None,
+        "short_interest_timestamp": short_timestamp is not None,
+    }
+    return {
+        "spread_bps": spread_bps,
+        "spread_source": "spread_bps" if spread_bps is not None else "missing",
+        "dollar_adv": dollar_adv,
+        "adv_source": "close_volume_20d" if dollar_adv is not None else "missing",
+        "short_interest_timestamp": short_timestamp,
+        "feature_timestamps": timestamps,
+        "feature_age_minutes": ages,
+        "available": available,
+        "missing_fields": [name for name, present in available.items() if not present],
+    }
+
+
+def _execution_contract(data_quality: dict[str, Any]) -> dict[str, str]:
+    """Classify execution confidence without treating missing data as zero."""
+    available = data_quality.get("available", {})
+    if all(
+        available.get(field, False)
+        for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
+    ):
+        return {"execution_confidence": "Tier 2", "data_quality_tier": "Tier 2"}
+    if available.get("dollar_adv", False):
+        return {"execution_confidence": "Tier 1", "data_quality_tier": "Tier 1"}
+    return {"execution_confidence": "Tier 0", "data_quality_tier": "Tier 0"}
 
 
 def _compute_cost_labels(
@@ -225,9 +325,10 @@ def evaluate_symbol(
         momentum_ratio = float(momentum_ratio or 0.0)
 
         # Alpha-v2 fiyat faktorleri (env-gated, saf/yerel — hot-path guvenli)
-        _alpha_gap = _alpha_rvol = _alpha_ext = 0.0
+        _alpha_gap = _alpha_rvol = _alpha_ext = _atr_pct_daily = 0.0
         try:
             from scanner.features import (  # noqa: PLC0415
+                compute_atr_pct,
                 compute_extension_factor,
                 compute_gap_factor,
                 compute_rvol_factor,
@@ -236,6 +337,7 @@ def evaluate_symbol(
             _alpha_gap = compute_gap_factor(df_1d)
             _alpha_rvol = compute_rvol_factor(df_1d)
             _alpha_ext = compute_extension_factor(df_1d)
+            _atr_pct_daily = compute_atr_pct(df_1d)
         except Exception:
             pass
 
@@ -254,7 +356,7 @@ def evaluate_symbol(
             try:
                 from scanner.features import compute_atr_pct  # noqa: PLC0415
 
-                _atr_pct_gate = compute_atr_pct(df_1d)
+                _atr_pct_gate = _atr_pct_daily
             except Exception:
                 _atr_pct_gate = 0.0
             _alpha_trigger = (_alpha_gap >= 0.6) or (_alpha_rvol >= 0.5) or (_atr_pct_gate >= 4.0)
@@ -529,6 +631,47 @@ def evaluate_symbol(
         except Exception:
             _conv_tier, _conv_prob = "", 0.0
 
+        _signal_timestamp = df_15m.index[-1].strftime("%Y-%m-%d %H:%M")
+        _data_quality = _feature_contract(
+            df_15m=df_15m, df_1h=df_1h, df_4h=df_4h, df_1d=df_1d, signal_timestamp=_signal_timestamp
+        )
+        _execution_contract_data = execution_contract(_data_quality)
+        _reject_reasons = list(_execution_contract_data.get("execution_reject_reason", []))
+        if not entry_ok:
+            _reject_reasons.append("signal_not_eligible")
+        _execution_contract_data["reject_reason"] = list(dict.fromkeys(_reject_reasons))
+        _execution_contract_data["selection_eligible"] = bool(
+            entry_ok and _execution_contract_data["execution_feasible"]
+        )
+        _legacy_quality_score = compute_legacy_quality_score(
+            regime=regime,
+            direction=bool(direction),
+            raw_score=float(score),
+            atr_pct=_atr_pct_daily,
+            rvol=(1.0 + float(_alpha_rvol) * 2.0 if _alpha_rvol else None),
+            squeeze_factor=float(squeeze_factor),
+            lottery_factor=float(lottery_factor),
+            overnight_gap_factor=float(overnight_gap_factor),
+        )
+        _ranking_score = (
+            _composite_score if legacy_composite_ranking_enabled() else _legacy_quality_score
+        )
+        _v2_score = compute_v2_score(
+            gap_factor=float(_alpha_gap),
+            rvol_factor=float(_alpha_rvol),
+            atr_pct=float(_atr_pct_daily),
+            squeeze_factor=float(squeeze_factor),
+        )
+        _position_cap = position_cap(
+            _data_quality["dollar_adv"],
+            float(risk_data["position_size"]) * safe_float(last_price),
+        )
+        _position_cap["position_size"] = (
+            round(_position_cap["position_notional"] / safe_float(last_price), 4)
+            if safe_float(last_price) > 0
+            else 0
+        )
+
         return {
             "symbol": symbol,
             "price": round(safe_float(last_price), 4),
@@ -538,7 +681,17 @@ def evaluate_symbol(
             "atr": round(safe_float(atr_val), 6) if pd.notna(atr_val) else None,
             "entry_ok": bool(entry_ok),
             "market_status": CURRENT_MARKET_STATUS["reason"],
-            "timestamp": df_15m.index[-1].strftime("%Y-%m-%d %H:%M"),
+            "timestamp": _signal_timestamp,
+            "spread_bps": _data_quality["spread_bps"],
+            "spread_source": _data_quality["spread_source"],
+            "dollar_adv": _data_quality["dollar_adv"],
+            "adv_source": _data_quality["adv_source"],
+            "short_interest_timestamp": _data_quality["short_interest_timestamp"],
+            "feature_timestamps": _data_quality["feature_timestamps"],
+            "feature_age_minutes": _data_quality["feature_age_minutes"],
+            "data_quality": _data_quality,
+            "entry_drift_pct": None,
+            **_execution_contract_data,
             "liquidity_ok": bool(liquidity_ok),
             "volume_spike": bool(volume_spike),
             "price_momentum": bool(price_momentum),
@@ -576,6 +729,9 @@ def evaluate_symbol(
             "earnings_proximity": round(earnings_prox, 4),
             "sector_rs": round(sector_rs, 4),
             "vol_regime": vol_regime_val,
+            "atr_pct": round(float(_atr_pct_daily), 4),
+            "gap_factor": round(float(_alpha_gap), 4),
+            "rvol_factor": round(float(_alpha_rvol), 4),
             "squeeze_factor": round(squeeze_factor, 4),
             "catalyst_factor": round(catalyst_factor, 4),
             "lottery_factor": round(lottery_factor, 4),
@@ -592,6 +748,29 @@ def evaluate_symbol(
             "rvol_acceleration": round(float(_early_tier.get("rvol_acceleration", 0.0)), 4),
             "range_expansion": round(float(_early_tier.get("range_expansion", 0.0)), 4),
             "composite_score": _composite_score,
+            "legacy_quality_score": _legacy_quality_score,
+            "ranking_score": _ranking_score,
+            "ranking_method": "legacy_composite"
+            if legacy_composite_ranking_enabled()
+            else "legacy_quality",
+            "v2_score": _v2_score,
+            "strategy_scores": {"legacy_quality": _legacy_quality_score, "v2": _v2_score},
+            "strategy_ids": ["legacy_quality", "v2"],
+            "selected_by_legacy_quality": bool(_execution_contract_data["selection_eligible"]),
+            "selected_by_v2": bool(
+                _execution_contract_data["selection_eligible"] and _v2_score >= 50
+            ),
+            "selected_by_both": bool(
+                _execution_contract_data["selection_eligible"] and _v2_score >= 50
+            ),
+            "legacy_only": bool(_execution_contract_data["selection_eligible"] and _v2_score < 50),
+            "v2_only": False,
+            "regime_policy": "favorable" if regime else "selective",
+            "regime_selectivity": round(float(_gate_mult), 4),
+            "exit_profiles": {
+                strategy_id: exit_profile(strategy_id) for strategy_id in ("legacy_quality", "v2")
+            },
+            **_position_cap,
             "regime_gate_mult": _gate_mult,
             "position_size_gated": int(risk_data["position_size"] * _gate_mult),
             # ── Task 2: Risk-adjusted performance metrics ─────────────────
@@ -701,10 +880,10 @@ def evaluate_symbols_parallel(
                 sym = future_map[fut]
                 try:
                     result = fut.result()
-                    if result:
-                        results.append(result)
+                    results.append(result or _rejected_result(sym, "evaluation_unavailable"))
                 except Exception as e:
                     logger.warning("Evaluate error for %s: %s", sym, e)
+                    results.append(_rejected_result(sym, "evaluation_error"))
                 total_done += 1
                 if progress_callback:
                     try:
@@ -718,10 +897,10 @@ def evaluate_symbols_parallel(
         for symbol in symbols:
             try:
                 result = evaluate_symbol(symbol, kelly_fraction)
-                if result:
-                    results.append(result)
+                results.append(result or _rejected_result(symbol, "evaluation_unavailable"))
             except Exception as e:
                 logger.warning("Evaluate error for %s: %s", symbol, e)
+                results.append(_rejected_result(symbol, "evaluation_error"))
 
     logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
     return results

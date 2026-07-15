@@ -29,7 +29,7 @@ def _rank(item: tuple[str, dict]) -> tuple[float, float]:
     r = item[1]
     return (
         float(r.get("conviction_prob", 0.0) or 0.0),
-        float(r.get("composite_score", 0.0) or 0.0),
+        float(r.get("ranking_score", r.get("composite_score", 0.0)) or 0.0),
     )
 
 
@@ -38,7 +38,10 @@ def build_candidate_pool(out: dict, max_candidates: int = 25) -> list[tuple[str,
         (s, r)
         for s, r in out.items()
         if isinstance(r, dict)
-        and (r.get("entry_ok") or r.get("conviction_tier") in ("A", "B", "C"))
+        and r.get(
+            "selection_eligible", r.get("entry_ok") or r.get("conviction_tier") in ("A", "B", "C")
+        )
+        and not r.get("position_cap_reject_reason")
     ]
     cand.sort(key=_rank, reverse=True)
     return cand[:max_candidates]
@@ -254,6 +257,14 @@ def summarize_full_scan(out: dict, max_candidates: int = 25, top_n: int = 10) ->
 
     cands = build_candidate_pool(out, max_candidates)
     n_entry = sum(1 for r in out.values() if isinstance(r, dict) and r.get("entry_ok"))
+    n_rejected = sum(
+        1
+        for r in out.values()
+        if isinstance(r, dict) and not r.get("selection_eligible", r.get("entry_ok", False))
+    )
+    n_cap_rejected = sum(
+        1 for r in out.values() if isinstance(r, dict) and r.get("position_cap_reject_reason")
+    )
     nA = sum(1 for _, r in cands if r.get("conviction_tier") == "A")
     nB = sum(1 for _, r in cands if r.get("conviction_tier") == "B")
     nC = sum(1 for _, r in cands if r.get("conviction_tier") == "C")
@@ -264,6 +275,8 @@ def summarize_full_scan(out: dict, max_candidates: int = 25, top_n: int = 10) ->
     summary = {
         "total_scanned": len(out),
         "buy_signals": n_entry,
+        "rejected": n_rejected,
+        "position_cap_rejected": n_cap_rejected,
         "candidates_considered": len(cands),
         "tier_A": nA,
         "tier_B": nB,

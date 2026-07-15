@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 _SHORTLIST_DIR = Path("data/shortlists")
 _FEEDBACK_DIR = Path("data/feedback")
 _REPORTS_DIR = Path("data/daily_reports")
+_SHADOW_DIR = Path("data/shadow")
 _STALE_DAYS = 7
 # Timeout per scan call.  200-symbol batches with Alpaca bulk prefetch + 32-worker
 # evaluation typically complete in 30-60s, but slow markets or yfinance fallback
@@ -144,6 +145,48 @@ def _persist_shortlist(out: dict) -> None:
         logger.warning("Could not save shortlist CSV: %s", exc)
 
 
+def _persist_shadow_ledger(out: dict, universe: int) -> None:
+    """Append every evaluated row, including rejected rows, to the shadow ledger."""
+    if not out:
+        return
+    try:
+        _SHADOW_DIR.mkdir(parents=True, exist_ok=True)
+        path = _SHADOW_DIR / "scan_shadow.jsonl"
+        scan_id = datetime.now(tz=UTC).isoformat()
+        with path.open("a", encoding="utf-8") as handle:
+            for symbol, row in out.items():
+                record = {
+                    "scan_id": scan_id,
+                    "universe": universe,
+                    "symbol": symbol,
+                    "timestamp": row.get("timestamp"),
+                    "selection_eligible": bool(
+                        row.get("selection_eligible", row.get("entry_ok", False))
+                    ),
+                    "entry_ok": bool(row.get("entry_ok", False)),
+                    "reject_reason": list(row.get("reject_reason", [])),
+                    "data_quality_tier": row.get("data_quality_tier"),
+                    "data_quality_status": row.get("data_quality_status"),
+                    "execution_confidence": row.get("execution_confidence"),
+                    "execution_feasible": row.get("execution_feasible"),
+                    "strategy_scores": row.get("strategy_scores", {}),
+                    "ranking_method": row.get("ranking_method"),
+                    "selected_by_legacy_quality": row.get("selected_by_legacy_quality", False),
+                    "selected_by_v2": row.get("selected_by_v2", False),
+                    "selected_by_both": row.get("selected_by_both", False),
+                    "legacy_only": row.get("legacy_only", False),
+                    "v2_only": row.get("v2_only", False),
+                    "dollar_adv": row.get("dollar_adv"),
+                    "position_cap_notional": row.get("position_cap_notional"),
+                    "position_cap_applied": row.get("position_cap_applied", False),
+                    "position_cap_reject_reason": row.get("position_cap_reject_reason"),
+                    "exit_profiles": row.get("exit_profiles", {}),
+                }
+                handle.write(json.dumps(record, ensure_ascii=True, default=str) + "\n")
+    except Exception as exc:
+        logger.warning("Could not persist shadow ledger: %s", exc)
+
+
 def _trigger_distribution_draft(universe: int) -> None:
     """Best-effort: after a manual/ad-hoc scan, queue today's distribution
     draft in the background if it hasn't been queued yet for today (see
@@ -191,7 +234,7 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
         added = 0
         flagged_low_score = 0
         for sym, r in out.items():
-            if not r.get("entry_ok"):
+            if not r.get("selection_eligible", r.get("entry_ok", False)):
                 continue
 
             # Score floor kontrolü — atlamıyoruz, sadece flag ekliyoruz
@@ -317,6 +360,7 @@ async def run_scan(
         _t_scoring_done - _t_start,
     )
     _persist_shortlist(out)
+    _persist_shadow_ledger(out, universe=len(req.symbols))
     _auto_add_watchlist(out, drl_cache, drl_valid)
     _persist_distribution_export(out, universe=len(req.symbols))
     _trigger_distribution_draft(universe=len(req.symbols))

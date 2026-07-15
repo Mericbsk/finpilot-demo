@@ -190,6 +190,127 @@ def compute_recommendation_score(
     return round(score, 3)
 
 
+def compute_legacy_quality_score(
+    *,
+    regime: bool,
+    direction: bool,
+    raw_score: float,
+    atr_pct: float | None,
+    rvol: float | None,
+    squeeze_factor: float | None = None,
+    lottery_factor: float | None = None,
+    overnight_gap_factor: float | None = None,
+) -> float:
+    """Return the volatility-aware legacy_quality ranking score (0-100)."""
+
+    def normalized(value: float | None, scale: float) -> float:
+        if value is None:
+            return 0.0
+        return max(0.0, min(1.0, float(value) / scale))
+
+    base = 2.0 * float(regime) + 2.0 * float(direction) + 1.5 * normalized(raw_score, 3.0)
+    atr = normalized(atr_pct, 6.0)
+    relative_volume = normalized((float(rvol) - 1.0) if rvol is not None else None, 2.0)
+    squeeze = max(0.0, min(1.0, float(squeeze_factor or 0.0)))
+    lottery = max(0.0, min(1.0, float(lottery_factor or 0.0)))
+    overnight = max(0.0, min(1.0, float(overnight_gap_factor or 0.0)))
+    return round(
+        (base + 1.5 * atr + 1.5 * relative_volume + 0.5 * squeeze - 1.5 * lottery - overnight)
+        / 10.0
+        * 100.0,
+        3,
+    )
+
+
+def compute_v2_score(
+    *, gap_factor: float, rvol_factor: float, atr_pct: float, squeeze_factor: float
+) -> int:
+    """Return the independent Alpha V2 shadow score on a 0-100 scale."""
+    score = (
+        max(0.0, min(1.0, gap_factor)) * 30.0
+        + max(0.0, min(1.0, rvol_factor)) * 30.0
+        + max(0.0, min(1.0, atr_pct / 4.0)) * 25.0
+        + max(0.0, min(1.0, squeeze_factor)) * 15.0
+    )
+    return max(0, min(100, round(score)))
+
+
+def legacy_composite_ranking_enabled() -> bool:
+    """Return whether the legacy composite remains the ranking score."""
+    return os.environ.get("FINPILOT_ENABLE_LEGACY_COMPOSITE_RANKING", "0") == "1"
+
+
+def score_component_breakdown(
+    row: dict[str, Any], sentiment_score: float | None = None
+) -> dict[str, float]:
+    """Return named additive components for score telemetry."""
+    components = {
+        "regime": 2.0 if bool(row.get("regime", False)) else 0.0,
+        "direction": 2.0 if bool(row.get("direction", False)) else 0.0,
+        "raw_score": float(row.get("score", 0)) * 0.5,
+        "filter_score": float(row.get("filter_score", 0)) * 1.5,
+        "alignment": float(row.get("alignment_ratio", 0.0)) * 2.0,
+        "volume_spike": 0.5 if bool(row.get("volume_spike", False)) else 0.0,
+        "price_momentum": 0.5 if bool(row.get("price_momentum", False)) else 0.0,
+        "trend_strength": 0.5 if bool(row.get("trend_strength", False)) else 0.0,
+        "sentiment": 0.0,
+        "squeeze": 0.0,
+        "catalyst": 0.0,
+        "lottery_penalty": 0.0,
+        "overnight_penalty": 0.0,
+    }
+    vol_regime = int(row.get("vol_regime")) if row.get("vol_regime") is not None else 1
+    components["momentum"] = float(row.get("momentum_ratio", 0.0)) * _VOL_REGIME_MOM_WEIGHTS.get(
+        vol_regime, 2.0
+    )
+    if sentiment_score is not None:
+        components["sentiment"] = (float(sentiment_score) - 0.5) * 2.0 * 0.5
+    macro_mult = _macro_mult() if _squeeze_enabled() or _catalyst_enabled() else 1.0
+    if _squeeze_enabled():
+        components["squeeze"] = (
+            max(0.0, min(1.0, float(row.get("squeeze_factor", 0.0) or 0.0)))
+            * _SQUEEZE_WEIGHT
+            * macro_mult
+        )
+    if _catalyst_enabled():
+        components["catalyst"] = (
+            max(-1.0, min(1.0, float(row.get("catalyst_factor", 0.0) or 0.0)))
+            * _CATALYST_WEIGHT
+            * macro_mult
+        )
+    if _lottery_enabled():
+        lottery = max(0.0, min(1.0, float(row.get("lottery_factor", 0.0) or 0.0))) * _LOTTERY_WEIGHT
+        if _catalyst_enabled() and float(row.get("catalyst_factor", 0.0) or 0.0) > 0.3:
+            lottery *= 1.0 - min(0.5, (float(row["catalyst_factor"]) - 0.3) / 0.8)
+        components["lottery_penalty"] = -lottery
+    if _overnight_enabled():
+        components["overnight_penalty"] = (
+            -max(0.0, min(1.0, float(row.get("overnight_gap_factor", 0.0) or 0.0)))
+            * _OVERNIGHT_WEIGHT
+        )
+    components["total"] = round(sum(components.values()), 3)
+    return {key: round(value, 3) for key, value in components.items()}
+
+
+def decision_telemetry(
+    *,
+    reject_reasons: list[str],
+    score: float,
+    components: dict[str, float],
+    point_in_time: bool = True,
+    data_quality: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build the stable P0 decision telemetry envelope."""
+    return {
+        "telemetry_version": "p0.v1",
+        "point_in_time": bool(point_in_time),
+        "reject_reason": list(dict.fromkeys(reject_reasons)),
+        "score_component_breakdown": dict(components),
+        "score_component_total": round(float(score), 3),
+        "data_quality": dict(data_quality or {}),
+    }
+
+
 def effective_max_reco_score() -> float:
     """Return the composite-score normalisation ceiling.
 
