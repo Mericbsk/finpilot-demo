@@ -68,6 +68,13 @@ interface ScanResult {
   timeframe_aligned: boolean;
   momentum_confluence: boolean;
   composite_score?: number;
+  legacy_quality_score?: number;
+  ranking_score?: number;
+  ranking_method?: string;
+  execution_confidence?: string;
+  execution_feasible?: boolean;
+  dollar_adv?: number | null;
+  spread_bps?: number | null;
   // Task 2: Risk-adjusted metrics
   sharpe_ratio?: number;
   sortino_ratio?: number;
@@ -122,6 +129,11 @@ interface DisplayStock {
   price: number;
   change: number;
   score: number;
+  rankingMethod: string;
+  executionConfidence: string;
+  executionFeasible: boolean;
+  dollarAdv: number | null;
+  spreadBps: number | null;
   signal: string;
   regime: string;
   sentiment: string;
@@ -261,7 +273,14 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     ticker: r.symbol,
     price: r.price,
     change: liveChange,
-    score: r.composite_score ?? Math.round((score / 4) * 100), // use backend 0-100 score when available
+    // The production ranking is ranking_score (legacy_quality by default),
+    // not the shadow composite_score.
+    score: r.ranking_score ?? r.legacy_quality_score ?? r.composite_score ?? Math.round((score / 4) * 100),
+    rankingMethod: r.ranking_method ?? "unknown",
+    executionConfidence: r.execution_confidence ?? "Tier 0",
+    executionFeasible: r.execution_feasible ?? true,
+    dollarAdv: r.dollar_adv ?? null,
+    spreadBps: r.spread_bps ?? null,
     signal,
     regime: r.regime ? (r.trend_strength ? "Trend" : "Range") : "Volatile",
     sentiment:
@@ -337,6 +356,11 @@ function mockToStock(ticker: string): DisplayStock {
     price: 0,
     change: 0,
     score: 0,
+    rankingMethod: "unknown",
+    executionConfidence: "Tier 0",
+    executionFeasible: true,
+    dollarAdv: null,
+    spreadBps: null,
     signal: "—",
     regime: "—",
     sentiment: "—",
@@ -479,7 +503,7 @@ function SignalBadge({ signal }: { signal: string }) {
 /* ── Tier Badge (imported from shared FactorBadges component) ─── */
 
 /* ── sessionStorage persistence ────────────────────────────── */
-const CACHE_KEY = "finpilot_scanner_cache";
+const CACHE_KEY = "finpilot_scanner_cache_v2_legacy_quality";
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 interface ScannerCache {
@@ -967,7 +991,7 @@ export default function ScannerPage() {
           const buyCount = Object.values(results).filter(
             r => r.high_quality_signal || r.entry_ok
           ).length;
-          const topScore = Math.max(...Object.values(results).map(r => r.composite_score ?? 0));
+          const topScore = Math.max(...Object.values(results).map(r => r.ranking_score ?? r.legacy_quality_score ?? r.composite_score ?? 0));
           toast.success(
             `Scan complete — ${Object.keys(results).length} stocks · ${buyCount} buy signals · Top ${topScore}/100`
           );
@@ -1101,6 +1125,20 @@ export default function ScannerPage() {
 
   // Risk-adjusted summary stats (only from scanned stocks)
   const scannedStocks = filtered.filter((s) => s.fromAPI);
+  const productionRankingMethods = [...new Set(scannedStocks.map((s) => s.rankingMethod).filter(Boolean))];
+  const productionRankingMethod = productionRankingMethods.length === 1 ? productionRankingMethods[0] : "mixed";
+  const qualityTop = useMemo(() => {
+    const tierOrder: Record<string, number> = { A: 0, B: 1, C: 2, "": 3 };
+    return stocks
+      .filter((s) => s.fromAPI && s.executionFeasible && (s.entryOk || s.convictionTier))
+      .sort((a, b) => {
+        const tierDiff = (tierOrder[a.convictionTier] ?? 3) - (tierOrder[b.convictionTier] ?? 3);
+        if (tierDiff !== 0) return tierDiff;
+        const probDiff = b.convictionProb - a.convictionProb;
+        return probDiff !== 0 ? probDiff : b.score - a.score;
+      })
+      .slice(0, 5);
+  }, [stocks]);
   const avgScore =
     scannedStocks.length > 0
       ? (scannedStocks.reduce((a, s) => a + s.score, 0) / scannedStocks.length).toFixed(1)
@@ -1450,6 +1488,55 @@ export default function ScannerPage() {
         </div>
       )}
 
+      {/* Production ranking and execution-gated shortlist */}
+      {scannedStocks.length > 0 && (
+        <section className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${C.green}55`, backgroundColor: C.card }}>
+          <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp size={14} style={{ color: C.green }} />
+              <span className="text-xs font-semibold" style={{ color: C.text1 }}>Bugünün En İyileri</span>
+              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: "rgba(48,209,88,0.15)", color: C.green }}>
+                Top {qualityTop.length}
+              </span>
+            </div>
+            <span className="text-[10px]" style={{ color: productionRankingMethod === "legacy_quality" ? C.green : C.yellow }}>
+              Ranking: {productionRankingMethod === "legacy_quality" ? "legacy_quality ✓" : productionRankingMethod}
+            </span>
+          </div>
+          <div className="border-t px-5 pb-4 pt-3" style={{ borderColor: C.border }}>
+            {qualityTop.length === 0 ? (
+              <div className="text-xs" style={{ color: C.text3 }}>Execution filtresinden geçen kaliteli aday yok.</div>
+            ) : (
+              <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+                {qualityTop.map((s, index) => (
+                  <button
+                    key={s.ticker}
+                    onClick={() => setSelectedTicker(s.ticker)}
+                    className="rounded-xl p-3 text-left transition-colors"
+                    style={{ border: `1px solid ${C.border}`, backgroundColor: C.primary }}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold" style={{ color: C.text1 }}>#{index + 1} {s.ticker}</span>
+                      <span className="text-xs font-bold" style={{ color: C.cyan }}>{s.score}</span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <ConvictionBadge tier={s.convictionTier} prob={s.convictionProb} />
+                      {s.convictionTier && <span className="text-[10px] font-semibold" style={{ color: C.text2 }}>~%{Math.round(s.convictionProb * 100)}</span>}
+                      <span className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold" style={{ color: s.executionConfidence === "Tier 2" ? C.green : s.executionConfidence === "Tier 1" ? C.yellow : C.red, backgroundColor: C.cardHover }}>
+                        Exec {s.executionConfidence.replace("Tier ", "T")}
+                      </span>
+                    </div>
+                    <div className="mt-2 text-[10px]" style={{ color: C.text3 }}>
+                      {s.price > 0 ? `${currency}${s.price.toFixed(2)}` : "—"} · R/R {s.rr > 0 ? `${s.rr.toFixed(1)}x` : "—"}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Search */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
@@ -1761,7 +1848,9 @@ export default function ScannerPage() {
                     { key: "ticker", label: "Symbol" },
                     { key: "price", label: "Price" },
                     { key: "change", label: "Chg%" },
-                    { key: "score", label: "Score" },
+                    { key: "score", label: productionRankingMethod === "legacy_quality" ? "Score · LQ" : "Score" },
+                    { key: "conviction", label: "Tier / Conv." },
+                    { key: "execution", label: "Execution" },
                     { key: "signal", label: "Signal" },
                     { key: "rr", label: "R/R" },
                     { key: "sharpe", label: "Sharpe" },
@@ -1796,7 +1885,7 @@ export default function ScannerPage() {
                 {filtered.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={12}
                       className="px-4 py-8 text-center text-sm"
                       style={{ color: C.text3 }}
                     >
@@ -1825,7 +1914,7 @@ export default function ScannerPage() {
                     {rowVirtualizer.getVirtualItems()[0]?.start > 0 && (
                       <tr>
                         <td
-                          colSpan={7}
+                          colSpan={12}
                           style={{ height: rowVirtualizer.getVirtualItems()[0].start }}
                         />
                       </tr>
@@ -1903,7 +1992,7 @@ export default function ScannerPage() {
                               ? "—"
                               : `${s.change >= 0 ? "+" : ""}${s.change.toFixed(2)}%`}
                           </td>
-                          <td className="px-4 py-2.5">
+                              <td className="px-4 py-2.5">
                             <div className="flex items-center gap-1.5">
                               <div
                                 className="h-1 w-8 rounded-full"
@@ -1924,6 +2013,17 @@ export default function ScannerPage() {
                               </div>
                               <span style={{ color: C.text2 }}>{s.score}</span>
                             </div>
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <div className="flex flex-col gap-1">
+                              {s.convictionTier ? <><ConvictionBadge tier={s.convictionTier} prob={s.convictionProb} /><span className="text-[10px]" style={{ color: C.text2 }}>~%{Math.round(s.convictionProb * 100)}</span></> : <span style={{ color: C.text3 }}>—</span>}
+                              {s.tier && s.tier !== "NONE" && <TierBadge tier={s.tier} />}
+                            </div>
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <span title={s.spreadBps != null ? `Spread ${s.spreadBps.toFixed(1)} bps` : "ADV/spread verisi"} className="rounded-full px-2 py-1 text-[10px] font-semibold" style={{ color: s.executionConfidence === "Tier 2" ? C.green : s.executionConfidence === "Tier 1" ? C.yellow : C.red, backgroundColor: s.executionFeasible ? "rgba(48,209,88,0.10)" : "rgba(255,69,58,0.12)" }}>
+                              {s.executionConfidence.replace("Tier ", "T")}{s.executionFeasible ? " ✓" : " · BLOCKED"}
+                            </span>
                           </td>
                           <td className="px-4 py-2.5">
                             <SignalBadge signal={s.signal} />
