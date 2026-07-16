@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: finpilot-api
+    runtime: docker
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/ready
+    envVars:
+      - key: CORS_ORIGINS
+        value: https://www.finpilot.at,https://finpilot.at
+      - key: FINPILOT_SECRET_KEY
+        generateValue: true
+      - key: REDIS_URL
+        sync: false
+      - key: EODHD_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHANNEL_ID
+        sync: false
+    disk:
+      name: finpilot-api-data
+      mountPath: /app/data
+      sizeGB: 1
