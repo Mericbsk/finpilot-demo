@@ -19,7 +19,11 @@ services:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHANNEL_ID
-        sync: false
+        value: "@Finpilot_Breif"
+      - key: TELEGRAM_ADMIN_ID
+        value: "7139868446"
+      - key: FINPILOT_ENABLE_DISTRIBUTION
+        value: "1"
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT

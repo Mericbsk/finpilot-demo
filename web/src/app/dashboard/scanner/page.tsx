@@ -910,14 +910,18 @@ export default function ScannerPage() {
   /* Tarama tum batch'ler bitince TEK kez cagrilir: LLM ile en yuksek basari
    * olasilikli 10 hisseyi secer/daraltir + tek Telegram bildirimi gonderir.
    * Kendi loading/error state'ini yonetir — runScan'i bloke etmez (fire-and-forget). */
-  const runPostScanSummary = useCallback(async (results: Record<string, ScanResult>) => {
+  const runPostScanSummary = useCallback(async (
+    results: Record<string, ScanResult>,
+    universe: number,
+    scanComplete: boolean,
+  ) => {
     setAiScanSummaryLoading(true);
     setAiScanSummaryError(null);
     try {
       const resp = await apiFetch("/api/v1/scan/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ results }),
+        body: JSON.stringify({ results, universe, scan_complete: scanComplete }),
       });
       if (!resp.ok) throw new Error(`AI özet başarısız (HTTP ${resp.status})`);
       const data: AiScanSummary = await resp.json();
@@ -1010,7 +1014,7 @@ export default function ScannerPage() {
 
           // Tarama tamamlandi — TEK kez AI ozeti tetikle (kendi loading state'i var,
           // burada await edilmez ki tarama akisi/rapor kaydi bloklanmasin).
-          runPostScanSummary(results);
+          runPostScanSummary(results, symbols.length, failedBatches === 0);
 
           // Build top signals list (BUY + highest composite score)
           const allScanned = Object.values(results)

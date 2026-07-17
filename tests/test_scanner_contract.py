@@ -59,6 +59,8 @@ class TestScannerContract(unittest.TestCase):
         ]
         snapshot = build_snapshot(rows, universe=1812, date_str="2026-07-17")
         self.assertEqual([row["ticker"] for row in snapshot["candidates"]], ["GOOD"])
+        self.assertEqual(snapshot["scan_result_count"], 3)
+        self.assertEqual(snapshot["eligible_candidate_count"], 1)
 
 
 if __name__ == "__main__":

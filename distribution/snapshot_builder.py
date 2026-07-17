@@ -30,7 +30,7 @@ SCAN_EXPORT_LATEST = EXPORT_DIR / "scan_export_latest.json"
 _GRADE_ORDER = {"A": 0, "B": 1, "C": 2}
 _EXECUTION_ORDER = {"Tier 2": 0, "Tier 1": 1, "Tier 0": 2}
 FREE_CANDIDATES = 2  # first N candidates are visible in the free tier
-MAX_CANDIDATES = 10
+MAX_CANDIDATES = 50
 
 
 def config_sha() -> str:
@@ -358,6 +358,8 @@ def build_snapshot(
         "generated_at": datetime.now(tz=UTC).isoformat(),
         "config_sha": config_sha(),
         "universe": int(universe),
+        "scan_result_count": len(scan_rows),
+        "eligible_candidate_count": len(graded),
         "candidates": candidates,
         "karne": karne_out,
         "warnings": [],

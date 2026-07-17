@@ -378,6 +378,8 @@ class ScanSummarizeRequest(BaseModel):
         ...,
         description="Aggregated /scan sonuclari — TUM batch'lerin birlesimi (symbol -> result dict)",
     )
+    universe: int | None = Field(None, ge=1)
+    scan_complete: bool | None = None
 
 
 @router.post("/scan/summarize")
@@ -392,6 +394,12 @@ async def summarize_scan(
     bildirimi gonderir. LLM kullanilamazsa kural-tabanli siralamaya duser.
     """
     from scanner.scan_summary import summarize_full_scan
+
+    # The browser scans the universe in 200-symbol batches and only has the
+    # complete result set at this boundary. Persist that aggregate so the
+    # distribution layer never publishes the last batch as today's scan.
+    if req.scan_complete is not False:
+        _persist_distribution_export(req.results, universe=req.universe or len(req.results))
 
     loop = asyncio.get_running_loop()
     try:

@@ -195,7 +195,7 @@ def _push_snapshot_to_web() -> bool:
     try:
         snap = json.loads(src.read_text(encoding="utf-8"))
         # Public file: yesterday's top-3 (premium fields stripped) + full karne.
-        public = demo_view(snap, max_candidates=3)
+        public = demo_view(snap, max_candidates=len(snap.get("candidates", [])))
         WEB_PUBLIC_SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
         WEB_PUBLIC_SNAPSHOT.write_text(
             json.dumps(public, ensure_ascii=False, indent=1), encoding="utf-8"
