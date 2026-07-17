@@ -97,9 +97,12 @@ data/intraday_cache/
 # Claude settings
 .claude/
 data/finpilot.db
+data/*.corrupt_*
 
 # Distribution layer runtime artefacts (repo'ya girmez; demo_snapshot.json HARİÇ — Vercel onu servis eder)
 data/distribution/scan_export_*.json
 data/distribution/snapshot_*.json
 data/distribution.db*
 backups/
+.vercel
+.env*

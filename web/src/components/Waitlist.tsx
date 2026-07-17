@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
+import { apiFetch } from "@/lib/api";
 
 export default function Waitlist() {
   const { t } = useLanguage();
@@ -16,7 +15,7 @@ export default function Waitlist() {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/waitlist/count`)
+    apiFetch("/api/v1/waitlist/count")
       .then((r) => r.json())
       .then((d) => setCount(d.count ?? null))
       .catch(() => {});
@@ -28,7 +27,7 @@ export default function Waitlist() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/v1/waitlist`, {
+      const res = await apiFetch("/api/v1/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, source: "landing" }),
@@ -38,6 +37,7 @@ export default function Waitlist() {
         setError(data.detail ?? "Something went wrong. Please try again.");
       } else {
         setPosition(data.position ?? null);
+        if (typeof data.position === "number") setCount(data.position);
         setSubmitted(true);
       }
     } catch {

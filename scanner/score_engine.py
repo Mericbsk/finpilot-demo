@@ -201,7 +201,7 @@ def compute_legacy_quality_score(
     lottery_factor: float | None = None,
     overnight_gap_factor: float | None = None,
 ) -> float:
-    """Return the volatility-aware legacy_quality ranking score (0-100)."""
+    """Return the production legacy quality ranking score on a 0-100 scale."""
 
     def normalized(value: float | None, scale: float) -> float:
         if value is None:
@@ -225,7 +225,7 @@ def compute_legacy_quality_score(
 def compute_v2_score(
     *, gap_factor: float, rvol_factor: float, atr_pct: float, squeeze_factor: float
 ) -> int:
-    """Return the independent Alpha V2 shadow score on a 0-100 scale."""
+    """Return the independent V2 shadow score on a 0-100 scale."""
     score = (
         max(0.0, min(1.0, gap_factor)) * 30.0
         + max(0.0, min(1.0, rvol_factor)) * 30.0
@@ -236,7 +236,7 @@ def compute_v2_score(
 
 
 def legacy_composite_ranking_enabled() -> bool:
-    """Return whether the legacy composite remains the ranking score."""
+    """Return whether the legacy composite override is explicitly enabled."""
     return os.environ.get("FINPILOT_ENABLE_LEGACY_COMPOSITE_RANKING", "0") == "1"
 
 
@@ -259,7 +259,7 @@ def score_component_breakdown(
         "lottery_penalty": 0.0,
         "overnight_penalty": 0.0,
     }
-    vol_regime = int(row.get("vol_regime")) if row.get("vol_regime") is not None else 1
+    vol_regime = int(float(row.get("vol_regime") or 1))
     components["momentum"] = float(row.get("momentum_ratio", 0.0)) * _VOL_REGIME_MOM_WEIGHTS.get(
         vol_regime, 2.0
     )

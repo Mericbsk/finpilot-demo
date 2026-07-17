@@ -113,6 +113,10 @@ def job_draft() -> dict:
         from distribution.snapshot_builder import EXPORT_DIR
 
         snap_en = build_snapshot(rows, universe=universe, karne=karne, date_str=date_str, lang="en")
+        tr_tickers = [candidate["ticker"] for candidate in snap.get("candidates", [])]
+        en_tickers = [candidate["ticker"] for candidate in snap_en.get("candidates", [])]
+        if tr_tickers != en_tickers:
+            raise ValueError("Turkish and English snapshots selected different candidates")
         EXPORT_DIR.mkdir(parents=True, exist_ok=True)
         (EXPORT_DIR / "snapshot_en_latest.json").write_text(
             json.dumps(snap_en, ensure_ascii=False, indent=1), encoding="utf-8"

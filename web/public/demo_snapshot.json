@@ -1,58 +1,70 @@
 {
- "schema": 1,
- "date": "2026-07-10",
- "generated_at": "2026-07-10T14:04:57.266177+00:00",
- "config_sha": "25380d7f07d7@fe4930c",
- "universe": 160,
+ "schema": 2,
+ "date": "2026-07-17",
+ "generated_at": "2026-07-17T08:12:13.850209+00:00",
+ "config_sha": "1f7d5800a879@9b9b943",
+ "universe": 1812,
  "candidates": [
   {
-   "ticker": "ATAI",
+   "ticker": "AAL",
    "company": "",
    "grade": "B",
    "prob_band": "—",
-   "badges": [
-    "early_tier",
-    "regime"
-   ],
-   "rationale": "Dikkate değer bir kurulum: ATAI: en dikkat çekeni, kurulum, teyit merdiveninin ileri aşamasında; ayrıca makro rejim arka planı olumlu. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-   "premium_only": false
+   "badges": [],
+   "rationale": "AAL makes today's list with a strong profile. The mix of factors carried it into the upper ranks of today's universe. Candidate status only; what to do with it is always the reader's call.",
+   "premium_only": false,
+   "risk_note": "usual market risk applies — set your monitoring pace to your own plan",
+   "risk_note_i18n": {
+    "tr": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+    "en": "usual market risk applies — set your monitoring pace to your own plan",
+    "de": "übliches Marktrisiko gilt — richte dein Beobachtungstempo nach deinem eigenen Plan"
+   }
   },
   {
-   "ticker": "CRNX",
+   "ticker": "ABCL",
    "company": "",
    "grade": "B",
    "prob_band": "—",
-   "badges": [
-    "momentum",
-    "contraction",
-    "early_tier",
-    "regime"
-   ],
-   "rationale": "Dikkate değer bir kurulum: CRNX: en dikkat çekeni, yakın dönem momentum okuması olumlu; ayrıca yay gibi sıkışmış aralık gevşemeye başladı; erken-yakalama merdiveninde üst basamakta; rejim okuması setup ile aynı yönde. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
-   "premium_only": false
+   "badges": [],
+   "rationale": "ABCL makes today's list with a strong profile. The mix of factors carried it into the upper ranks of today's universe. For monitoring only — judgement and risk stay fully in your hands.",
+   "premium_only": false,
+   "risk_note": "no salient extra risk flag; judgement and risk still rest with the reader",
+   "risk_note_i18n": {
+    "tr": "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
+    "en": "no salient extra risk flag; judgement and risk still rest with the reader",
+    "de": "kein auffälliges Zusatzrisiko; Urteil und Risiko liegen dennoch beim Leser"
+   }
   },
   {
-   "ticker": "MRNA",
+   "ticker": "AMAT",
    "company": "",
    "grade": "B",
    "prob_band": "—",
-   "badges": [
-    "early_tier",
-    "regime"
-   ],
-   "rationale": "Dikkate değer bir kurulum: MRNA: en dikkat çekeni, kurulum, teyit merdiveninin ileri aşamasında; ayrıca geniş piyasa koşulları rüzgarı arkadan veriyor. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-   "premium_only": false
+   "badges": [],
+   "rationale": "AMAT makes today's list with a strong profile. The mix of factors carried it into the upper ranks of today's universe. For monitoring only — judgement and risk stay fully in your hands.",
+   "premium_only": true,
+   "risk_note": "standard monitoring risk; position discipline rests with the reader",
+   "risk_note_i18n": {
+    "tr": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+    "en": "standard monitoring risk; position discipline rests with the reader",
+    "de": "Standard-Beobachtungsrisiko; Positionsdisziplin liegt beim Leser"
+   }
   }
  ],
  "karne": {
   "toplam_aday_bugun": {
-   "B": 7,
-   "C": 1
+   "B": 18
   },
   "by_grade": {},
   "window": ""
  },
  "warnings": [
   "karne unavailable — using daily totals only"
- ]
+ ],
+ "concept": {
+  "name": "Bid-Ask Spread",
+  "line": "The gap between buyer and seller prices; a real cost silently paid on every trade."
+ },
+ "context_line": "Regime: neutral (VIX 17)",
+ "edition_no": 2
 }

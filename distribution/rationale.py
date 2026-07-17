@@ -377,7 +377,7 @@ def build_rationale_parts(
     date_str = str(ctx.get("date") or "")
     seed = _seed_int(date_str, ticker)
 
-    lang = "tr" if lang == "tr" else "en"
+    lang = lang if lang in ("tr", "en", "de") else "en"
     opener = _pick(_OPENERS.get(grade, _OPENERS["C"])[lang], seed).format(t=ticker)
 
     try:
@@ -419,3 +419,108 @@ def prob_band(prob: float) -> str:
     pct = int(round(prob * 100 / 5.0) * 5)
     pct = max(5, min(95, pct))
     return f"~{pct}%"
+
+
+# ── Almanca (de) havuzları — mevcut sözlüklere import anında birleştirilir ────
+_DE_FRAGMENTS = {
+    "squeeze": [
+        "gegen die Aktie haben sich ungewöhnlich viele Short-Positionen aufgebaut — dreht der Kurs nach oben, kann deren Eindeckung die Bewegung beschleunigen",
+        "die Short-Seite ist überfüllt; in einer Erholung könnten diese Positionen zur Eindeckung gezwungen sein, was die Bewegung verstärken kann",
+        "es gibt einen hohen Bestand an Wetten gegen diese Aktie — bei kräftigen Aufwärtsbewegungen kann das als zusätzlicher Treibstoff wirken",
+        "die Leerverkaufsquote ist hoch; bei solchen Konstellationen nähren sich Aufwärtsbewegungen manchmal selbst",
+        "die Short-Positionen liegen auf auffälligem Niveau — eine Erholung könnte diesen Druck ins Gegenteil verkehren",
+    ],
+    "catalyst": [
+        "es gibt eine konkrete jüngste Unternehmensentwicklung (Nachricht oder offizielle Meldung); die Bewegung hat eine identifizierbare Ursache",
+        "eine frische Unternehmensnachricht begleitet das Bild — das Signal steht nicht im luftleeren Raum, sondern stützt sich auf ein reales Ereignis",
+        "kürzlich gab es eine offizielle Meldung oder Nachricht; das gestiegene Interesse hat etwas Greifbares dahinter",
+        "ein aktueller Katalysator begleitet das heutige Signal: der Markt versucht, neue Informationen einzupreisen",
+        "im Hintergrund steht eine neue Entwicklung — ein Hinweis darauf, dass die Bewegung nicht zufällig ist",
+    ],
+    "rvol": [
+        "das Handelsvolumen liegt deutlich über seinem Normalwert — das Interesse kommt aus breiter Beteiligung, nicht aus wenigen Einzelorders",
+        "das Volumen ist gegenüber dem eigenen Durchschnitt der Aktie erhöht; hinter der Kursbewegung steht echter Orderfluss",
+        "der Geldfluss hat sich gegenüber den letzten Tagen beschleunigt — ein Zeichen, dass das Signal mehr ist als ein Kurszucken",
+        "das relative Volumen ist hoch — es wechseln weit mehr Aktien den Besitzer als an einem gewöhnlichen Tag",
+        "die Handelsaktivität liegt über dem Durchschnitt; wachsendes Interesse zeigt sich meist zuerst im Volumen, dann im Kurs",
+    ],
+    "gap": [
+        "die Aktie eröffnete deutlich über dem Vortagesschluss — ein Zeichen für über Nacht aufgebaute Nachfrage",
+        "zur Eröffnung entstand eine Kurslücke (Gap) — der Markt handelte höher, ohne am vorherigen Schlussniveau zu verweilen",
+        "Entwicklungen außerhalb der Handelszeit trugen den Kurs zur Eröffnung nach oben; solche Eröffnungen können auf wachsendes Interesse hindeuten",
+        "die Eröffnung löste sich nach oben vom Vortagesschluss — das deutet auf über Nacht angesammelte Nachfrage hin",
+        "der Eröffnungskurs setzte sich deutlich vom Vortag ab; das Intraday-Verhalten ist deshalb genau zu beobachten",
+    ],
+    "momentum": [
+        "der Kurs tendiert in den letzten Tagen stetig aufwärts — das kurzfristige Momentum spricht für das Signal",
+        "das jüngste Kursverhalten ist stark: Rücksetzer bleiben flach, Gewinne werden gehalten",
+        "das kurzfristige Momentum ist positiv; die Bewegung ist ein anhaltender Trend, kein Ein-Tages-Sprung",
+        "die letzten Sitzungen weisen nach oben — der Kurs wirkt eher von Nachfrage als von Verkaufsdruck getragen",
+        "der kurzfristige Kurstrend ist lebhaft; ob das Momentum hält, zeigt sich in den kommenden Tagen",
+    ],
+    "volume": [
+        "das Volumen ist plötzlich sprunghaft gestiegen — das konkreteste Zeichen dafür, dass die Beteiligung real ist",
+        "der Umsatz sprang weit über das übliche Niveau; solche Tage markieren oft den Beginn frischen Interesses",
+        "es gibt einen deutlichen Volumenschub — die Kursbewegung wird von breiter Handelsaktivität gestützt",
+        "heute läuft eine Sitzung mit überdurchschnittlichem Volumen — der Markt schenkt dieser Aktie mehr Aufmerksamkeit als sonst",
+        "auf der Volumenseite zeigt sich eine klare Belebung; der Kurs bewegt sich mit Beteiligung, nicht allein",
+    ],
+    "contraction": [
+        "der Kurs steckte lange in einer engen Spanne, die sich nun zu öffnen beginnt — je länger die Verengung, desto ausgeprägter kann die Auflösung sein",
+        "eine sich verengende Spanne weicht der Ausdehnung: die Feder war eine Weile gespannt, erste Anzeichen der Entladung sind da",
+        "die Aktie handelte wochenlang in einer engen Spanne; das Öffnen der Spanne kündigt oft eine neue Bewegung an",
+        "die komprimierte Kursspanne signalisiert eine Auflösung — die über die Zeit aufgebaute Energie könnte auszutreten beginnen",
+        "nach einer langen ruhigen Phase weitet sich die Kursspanne; solche Übergangsmomente sind beobachtenswert",
+    ],
+    "regime": [
+        "das breite Marktumfeld stützt solche Konstellationen — die Aktie bewegt sich mit dem Wind, nicht dagegen",
+        "die marktweiten Bedingungen sind günstig: eine freundliche Phase für Aktien mit ähnlichem Profil",
+        "der Gesamtmarkt neigt nach oben; das Einzelsignal verbindet sich mit einem unterstützenden Umfeld",
+        "das Makroumfeld weist in dieselbe Richtung wie das Signal — ein Faktor, der die Chance auf Fortsetzung erhöht",
+        "das Marktregime liest sich unterstützend; dasselbe Signal würde in einem schwachen Markt weit weniger bedeuten",
+    ],
+    "early_tier": [
+        "das Signal beruht nicht auf einem einzigen Tag: es hat in unserem gestuften Prüfsystem mehrere Bestätigungen gesammelt",
+        "ein Kandidat, der in unserer Frühwarnkette weit fortgeschritten ist — er hat seit dem ersten Flag jede Prüfstufe bestanden",
+        "unser Überwachungssystem verfolgte diese Aktie seit Tagen; das Signal wechselte von der Früh- in die bestätigte Phase",
+        "es erreichte die obere Stufe des gestuften Bestätigungsprozesses: ein Signal auf Basis angesammelter Belege, kein plötzlicher Sprung",
+        "die Signalkette wurde Schritt für Schritt stärker — was ein Ein-Tages-Rauschen unwahrscheinlicher macht",
+    ],
+}
+for _b, _lst in _DE_FRAGMENTS.items():
+    _FRAGMENTS.setdefault(_b, {})["de"] = _lst
+
+_DEFAULT_BODY["de"] = [
+    "sein Composite-Score landete im oberen Bereich des heutigen Scans — das Gesamtbild ist stark, nicht nur ein einzelner Faktor",
+    "über mehrere Kennzahlen hinweg lag es deutlich über dem heutigen Durchschnitt",
+    "die Mischung der Faktoren trug es in die oberen Ränge des heutigen Universums",
+]
+
+_OPENERS["A"]["de"] = [
+    "Der heute stärkste Kandidat ist {t}.",
+    "{t} steht an der Spitze des heutigen Scans.",
+    "{t} belegt den obersten Platz auf der heutigen Liste.",
+]
+_OPENERS["B"]["de"] = [
+    "{t} stach im heutigen Scan hervor.",
+    "{t} ist einer der bemerkenswerten Kandidaten des Tages.",
+    "{t} steht mit einem starken Profil auf der heutigen Liste.",
+]
+_OPENERS["C"]["de"] = [
+    "{t} tauchte heute auf dem Radar auf.",
+    "{t} steht als Kandidat im Frühstadium auf der Liste.",
+    "{t} wurde neu zur Beobachtungsliste hinzugefügt.",
+]
+
+_LEADINS["de"] = ["Der Grund:", "Was es dorthin bringt, ist klar:", ""]
+_CONNECTORS["de"] = ["Außerdem:", "Zudem:", "Darüber hinaus:", "Ein weiteres Detail:"]
+_CLOSERS["de"] = [
+    "Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir.",
+    "Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand.",
+    "Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser.",
+]
+_CAUTION_CLOSERS["de"] = [
+    "Die Tagesspanne ist weit — passe dein Beobachtungstempo entsprechend an; die Entscheidung liegt bei dir.",
+    "Ein schnelllebiges Profil: beide Richtungen können rasch laufen. Beobachtungskandidat; deine Entscheidung.",
+    "Ein Kandidat mit hoher Volatilität — er verlangt sorgfältige Beobachtung; das Risiko bleibt beim Leser.",
+]

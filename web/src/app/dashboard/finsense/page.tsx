@@ -268,7 +268,8 @@ export default function FinSensePage() {
 
   /* Navigate to term detail */
   function openTerm(t: DictEntry) {
-    router.push(`/dashboard/finsense/${t.slug || encodeURIComponent(t.term)}`);
+    const identifier = t.slug || t.term;
+    router.push(`/dashboard/finsense/${encodeURIComponent(identifier)}`);
   }
 
   /* Generate quiz */
@@ -821,7 +822,7 @@ export default function FinSensePage() {
                     return entry ? (
                       <button
                         key={slug}
-                        onClick={() => router.push(`/dashboard/finsense/${slug}`)}
+                        onClick={() => router.push(`/dashboard/finsense/${encodeURIComponent(slug)}`)}
                         style={{ borderRadius: 6, backgroundColor: "rgba(0,212,255,0.08)", padding: "2px 8px", fontSize: 10, color: C.cyan, border: "none", cursor: "pointer" }}
                       >
                         {entry.term.split("(")[0].trim().slice(0, 20)}

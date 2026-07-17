@@ -17,6 +17,17 @@ DEMO_URL = f"{SITE_URL}/demo?utm_source=telegram&utm_medium=brief"
 KARNE_URL = f"{SITE_URL}/demo?utm_source=telegram&utm_medium=brief#karne"
 
 _GRADE_EMOJI = {"A": "🟢", "B": "🔵", "C": "⚪"}
+_BADGE_LABELS = {
+    "squeeze": "Short baskısı",
+    "catalyst": "Şirket katalizörü",
+    "rvol": "Göreli hacim",
+    "gap": "Açılış gap'i",
+    "momentum": "Kısa vadeli momentum",
+    "volume": "Hacim artışı",
+    "contraction": "Sıkışma çözülmesi",
+    "regime": "Destekleyici piyasa",
+    "early_tier": "Aşamalı teyit",
+}
 
 
 def _esc(t: str) -> str:
@@ -29,7 +40,10 @@ MAX_PREMIUM_LEN = 2600
 
 
 def _candidate_line(c: dict[str, Any], with_risk: bool = False) -> str:
-    badges = " ".join("#" + b.replace("_", "") for b in c.get("badges", []))
+    badge_labels = [
+        _BADGE_LABELS.get(str(b), str(b).replace("_", " ")) for b in c.get("badges", [])
+    ]
+    badges = " · ".join(_esc(label) for label in badge_labels)
     emoji = _GRADE_EMOJI.get(c.get("grade", ""), "⚪")
     band = c.get("prob_band", "—")
     if band and band != "—":
@@ -38,7 +52,8 @@ def _candidate_line(c: dict[str, Any], with_risk: bool = False) -> str:
         stat = "olasılık bandı için veri birikiyor (yeni faktör seti)"
     line = (
         f"{emoji} <b>{_esc(c['ticker'])}</b> — Grade {_esc(c['grade'])} · {stat}\n"
-        f"{_esc(c['rationale'])}\n{badges}"
+        f"<b>Öne çıkaran nedenler:</b> {_esc(c['rationale'])}\n"
+        f"🔎 <i>Sinyal bileşenleri:</i> {badges or 'çoklu faktör değerlendirmesi'}"
     )
     if with_risk and c.get("risk_note"):
         line += f"\n⚠️ {_esc(c['risk_note'])}"

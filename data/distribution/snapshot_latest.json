@@ -1,19 +1,235 @@
 {
  "schema": 2,
- "date": "2026-07-14",
- "generated_at": "2026-07-14T11:06:57.937613+00:00",
- "config_sha": "57090eceb7b9@2631873",
- "universe": 12,
- "candidates": [],
- "karne": null,
+ "date": "2026-07-17",
+ "generated_at": "2026-07-17T08:12:13.799003+00:00",
+ "config_sha": "1f7d5800a879@9b9b943",
+ "universe": 1812,
+ "candidates": [
+  {
+   "ticker": "AAL",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "AAL bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+   "premium_only": false,
+   "risk_note": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "AAL bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+    "en": "AAL makes today's list with a strong profile. The mix of factors carried it into the upper ranks of today's universe. Candidate status only; what to do with it is always the reader's call.",
+    "de": "AAL steht mit einem starken Profil auf der heutigen Liste. Die Mischung der Faktoren trug es in die oberen Ränge des heutigen Universums. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
+   },
+   "risk_note_i18n": {
+    "tr": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+    "en": "usual market risk applies — set your monitoring pace to your own plan",
+    "de": "übliches Marktrisiko gilt — richte dein Beobachtungstempo nach deinem eigenen Plan"
+   }
+  },
+  {
+   "ticker": "ABCL",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "ABCL bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+   "premium_only": false,
+   "risk_note": "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "ABCL bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+    "en": "ABCL makes today's list with a strong profile. The mix of factors carried it into the upper ranks of today's universe. For monitoring only — judgement and risk stay fully in your hands.",
+    "de": "ABCL steht mit einem starken Profil auf der heutigen Liste. Die Mischung der Faktoren trug es in die oberen Ränge des heutigen Universums. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
+   },
+   "risk_note_i18n": {
+    "tr": "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
+    "en": "no salient extra risk flag; judgement and risk still rest with the reader",
+    "de": "kein auffälliges Zusatzrisiko; Urteil und Risiko liegen dennoch beim Leser"
+   }
+  },
+  {
+   "ticker": "AMAT",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "AMAT bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+   "premium_only": true,
+   "risk_note": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "AMAT bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+    "en": "AMAT makes today's list with a strong profile. The mix of factors carried it into the upper ranks of today's universe. For monitoring only — judgement and risk stay fully in your hands.",
+    "de": "AMAT steht mit einem starken Profil auf der heutigen Liste. Die Mischung der Faktoren trug es in die oberen Ränge des heutigen Universums. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
+   },
+   "risk_note_i18n": {
+    "tr": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+    "en": "standard monitoring risk; position discipline rests with the reader",
+    "de": "Standard-Beobachtungsrisiko; Positionsdisziplin liegt beim Leser"
+   }
+  },
+  {
+   "ticker": "AMD",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "AMD bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+   "premium_only": true,
+   "risk_note": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "AMD bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+    "en": "AMD makes today's list with a strong profile. The mix of factors carried it into the upper ranks of today's universe. Candidate status only; what to do with it is always the reader's call.",
+    "de": "AMD steht mit einem starken Profil auf der heutigen Liste. Die Mischung der Faktoren trug es in die oberen Ränge des heutigen Universums. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
+   },
+   "risk_note_i18n": {
+    "tr": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+    "en": "standard monitoring risk; position discipline rests with the reader",
+    "de": "Standard-Beobachtungsrisiko; Positionsdisziplin liegt beim Leser"
+   }
+  },
+  {
+   "ticker": "ATAI",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "ATAI bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+   "premium_only": true,
+   "risk_note": "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "ATAI bugün güçlü bir profille listede. Faktörlerin bileşimi onu bugünkü evrende üst sıralara taşıdı. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+    "en": "ATAI makes today's list with a strong profile. The mix of factors carried it into the upper ranks of today's universe. This is a watch candidate; decisions and risk management remain yours.",
+    "de": "ATAI steht mit einem starken Profil auf der heutigen Liste. Die Mischung der Faktoren trug es in die oberen Ränge des heutigen Universums. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+   },
+   "risk_note_i18n": {
+    "tr": "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
+    "en": "no salient extra risk flag; judgement and risk still rest with the reader",
+    "de": "kein auffälliges Zusatzrisiko; Urteil und Risiko liegen dennoch beim Leser"
+   }
+  },
+  {
+   "ticker": "CFG",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "CFG bugünkü taramada öne çıktı. Bileşik skoru bugünkü taramanın üst diliminde yer aldı — tek bir faktör değil, genel tablo güçlü. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+   "premium_only": true,
+   "risk_note": "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "CFG bugünkü taramada öne çıktı. Bileşik skoru bugünkü taramanın üst diliminde yer aldı — tek bir faktör değil, genel tablo güçlü. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+    "en": "CFG stood out in today's scan. İts composite score landed in the top slice of today's sweep — the overall picture is strong, not just one factor. For monitoring only — judgement and risk stay fully in your hands.",
+    "de": "CFG stach im heutigen Scan hervor. Sein Composite-Score landete im oberen Bereich des heutigen Scans — das Gesamtbild ist stark, nicht nur ein einzelner Faktor. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
+   },
+   "risk_note_i18n": {
+    "tr": "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
+    "en": "no salient extra risk flag; judgement and risk still rest with the reader",
+    "de": "kein auffälliges Zusatzrisiko; Urteil und Risiko liegen dennoch beim Leser"
+   }
+  },
+  {
+   "ticker": "CHYM",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "CHYM, günün dikkat çeken adaylarından. Birden fazla ölçütün toplamında günün ortalamasının belirgin üzerinde puan aldı. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+   "premium_only": true,
+   "risk_note": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "CHYM, günün dikkat çeken adaylarından. Birden fazla ölçütün toplamında günün ortalamasının belirgin üzerinde puan aldı. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+    "en": "CHYM is one of the day's notable candidates. Across multiple measures combined, it scored clearly above today's average. This is a watch candidate; decisions and risk management remain yours.",
+    "de": "CHYM ist einer der bemerkenswerten Kandidaten des Tages. Über mehrere Kennzahlen hinweg lag es deutlich über dem heutigen Durchschnitt. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+   },
+   "risk_note_i18n": {
+    "tr": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+    "en": "standard monitoring risk; position discipline rests with the reader",
+    "de": "Standard-Beobachtungsrisiko; Positionsdisziplin liegt beim Leser"
+   }
+  },
+  {
+   "ticker": "CRNX",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "CRNX, günün dikkat çeken adaylarından. Birden fazla ölçütün toplamında günün ortalamasının belirgin üzerinde puan aldı. Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+   "premium_only": true,
+   "risk_note": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "CRNX, günün dikkat çeken adaylarından. Birden fazla ölçütün toplamında günün ortalamasının belirgin üzerinde puan aldı. Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+    "en": "CRNX is one of the day's notable candidates. Across multiple measures combined, it scored clearly above today's average. Candidate status only; what to do with it is always the reader's call.",
+    "de": "CRNX ist einer der bemerkenswerten Kandidaten des Tages. Über mehrere Kennzahlen hinweg lag es deutlich über dem heutigen Durchschnitt. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
+   },
+   "risk_note_i18n": {
+    "tr": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
+    "en": "standard monitoring risk; position discipline rests with the reader",
+    "de": "Standard-Beobachtungsrisiko; Positionsdisziplin liegt beim Leser"
+   }
+  },
+  {
+   "ticker": "ERAS",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "ERAS bugünkü taramada öne çıktı. Bileşik skoru bugünkü taramanın üst diliminde yer aldı — tek bir faktör değil, genel tablo güçlü. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+   "premium_only": true,
+   "risk_note": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "ERAS bugünkü taramada öne çıktı. Bileşik skoru bugünkü taramanın üst diliminde yer aldı — tek bir faktör değil, genel tablo güçlü. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+    "en": "ERAS stood out in today's scan. İts composite score landed in the top slice of today's sweep — the overall picture is strong, not just one factor. This is a watch candidate; decisions and risk management remain yours.",
+    "de": "ERAS stach im heutigen Scan hervor. Sein Composite-Score landete im oberen Bereich des heutigen Scans — das Gesamtbild ist stark, nicht nur ein einzelner Faktor. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+   },
+   "risk_note_i18n": {
+    "tr": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+    "en": "usual market risk applies — set your monitoring pace to your own plan",
+    "de": "übliches Marktrisiko gilt — richte dein Beobachtungstempo nach deinem eigenen Plan"
+   }
+  },
+  {
+   "ticker": "HIMS",
+   "company": "",
+   "grade": "B",
+   "prob_band": "—",
+   "badges": [],
+   "rationale": "HIMS bugünkü taramada öne çıktı. Bileşik skoru bugünkü taramanın üst diliminde yer aldı — tek bir faktör değil, genel tablo güçlü. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+   "premium_only": true,
+   "risk_note": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+   "factor_detail": {},
+   "rationale_i18n": {
+    "tr": "HIMS bugünkü taramada öne çıktı. Bileşik skoru bugünkü taramanın üst diliminde yer aldı — tek bir faktör değil, genel tablo güçlü. İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
+    "en": "HIMS stood out in today's scan. İts composite score landed in the top slice of today's sweep — the overall picture is strong, not just one factor. For monitoring only — judgement and risk stay fully in your hands.",
+    "de": "HIMS stach im heutigen Scan hervor. Sein Composite-Score landete im oberen Bereich des heutigen Scans — das Gesamtbild ist stark, nicht nur ein einzelner Faktor. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
+   },
+   "risk_note_i18n": {
+    "tr": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+    "en": "usual market risk applies — set your monitoring pace to your own plan",
+    "de": "übliches Marktrisiko gilt — richte dein Beobachtungstempo nach deinem eigenen Plan"
+   }
+  }
+ ],
+ "karne": {
+  "toplam_aday_bugun": {
+   "B": 18
+  },
+  "by_grade": {},
+  "window": ""
+ },
  "warnings": [
-  "no graded candidates today",
   "karne unavailable — using daily totals only"
  ],
  "concept": {
-  "name": "Risk/Ödül Oranı",
-  "line": "Potansiyel kazancın potansiyel kayba oranı; oran iyi olsa da gerçekleşme olasılığı ayrıca sorulmalıdır."
+  "name": "Spread (Alış-Satış Farkı)",
+  "line": "Alıcı ile satıcının fiyatı arasındaki fark; her işlemde sessizce ödenen gerçek bir maliyettir."
  },
- "context_line": "Rejim: risk-iştahı açık (VIX 16)",
- "edition_no": 1
+ "context_line": "Rejim: nötr (VIX 17)",
+ "edition_no": 2
 }

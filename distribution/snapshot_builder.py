@@ -28,6 +28,7 @@ EXPORT_DIR = Path(os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
 SCAN_EXPORT_LATEST = EXPORT_DIR / "scan_export_latest.json"
 
 _GRADE_ORDER = {"A": 0, "B": 1, "C": 2}
+_EXECUTION_ORDER = {"Tier 2": 0, "Tier 1": 1, "Tier 0": 2}
 FREE_CANDIDATES = 2  # first N candidates are visible in the free tier
 MAX_CANDIDATES = 10
 
@@ -64,9 +65,37 @@ def _grade_of(row: dict[str, Any]) -> str | None:
 
 def _sort_key(row: dict[str, Any]) -> tuple:
     grade = _grade_of(row) or "Z"
-    prob = float(row.get("conviction_prob") or 0.0)
-    score = float(row.get("composite_score") or row.get("score") or 0.0)
-    return (_GRADE_ORDER.get(grade, 9), -prob, -score)
+    execution = str(row.get("execution_confidence") or "Tier 0")
+    try:
+        prob = float(row.get("conviction_prob") or 0.0)
+    except (TypeError, ValueError):
+        prob = 0.0
+    try:
+        score = float(
+            row.get("ranking_score")
+            or row.get("legacy_quality_score")
+            or row.get("composite_score")
+            or row.get("score")
+            or 0.0
+        )
+    except (TypeError, ValueError):
+        score = 0.0
+    return (_GRADE_ORDER.get(grade, 9), _EXECUTION_ORDER.get(execution, 3), -prob, -score)
+
+
+def _is_true(value: Any) -> bool:
+    return value is True or str(value).strip().lower() in {"true", "1", "yes"}
+
+
+def _public_candidate(row: dict[str, Any]) -> bool:
+    """Keep only eligible, executable, non-cap-rejected graded rows public."""
+    if not _grade_of(row):
+        return False
+    if "selection_eligible" in row and not _is_true(row.get("selection_eligible")):
+        return False
+    if "execution_feasible" in row and not _is_true(row.get("execution_feasible")):
+        return False
+    return not row.get("position_cap_reject_reason")
 
 
 # ── E3: Risk notu havuzu — koşul-öncelikli, deterministik, brif içi tekrarsız ──
@@ -226,7 +255,7 @@ def _risk_note(
     seed = int(
         _h.sha1(f"{date_str}|{ticker}|risk".encode(), usedforsecurity=False).hexdigest()[:8], 16
     )
-    lang = "tr" if lang == "tr" else "en"
+    lang = lang if lang in ("tr", "en", "de") else "en"
 
     for cond in _risk_conditions(row, grade):
         pool = _RISK_POOLS[cond][lang]
@@ -248,7 +277,7 @@ def build_snapshot(
 ) -> dict[str, Any]:
     date_str = date_str or datetime.now(tz=UTC).strftime("%Y-%m-%d")
 
-    graded = [r for r in scan_rows if _grade_of(r)]
+    graded = [r for r in scan_rows if _public_candidate(r)]
     graded.sort(key=_sort_key)
     graded = graded[:MAX_CANDIDATES]
 
@@ -260,6 +289,7 @@ def build_snapshot(
             grade_totals[g] = grade_totals.get(g, 0) + 1
 
     _used_risk_notes: set[str] = set()
+    _used_risk_i18n: dict[str, set[str]] = {"tr": set(), "en": set(), "de": set()}
     for i, row in enumerate(graded):
         ticker = str(row.get("symbol") or row.get("ticker") or "").upper()
         if not ticker:
@@ -302,6 +332,15 @@ def build_snapshot(
                 )
                 if row.get(k) is not None
             },
+        }
+        _ctx = {"date": date_str, "atr_pct": row.get("atr_pct"), "price": row.get("price")}
+        cand["rationale_i18n"] = {
+            _L: build_rationale(ticker, grade, badges, lang=_L, context=_ctx)
+            for _L in ("tr", "en", "de")
+        }
+        cand["risk_note_i18n"] = {
+            _L: _risk_note(row, grade=grade, lang=_L, date_str=date_str, used=_used_risk_i18n[_L])
+            for _L in ("tr", "en", "de")
         }
         candidates.append(cand)
 
@@ -359,13 +398,30 @@ def build_snapshot(
     return snap
 
 
+def _read_json_resilient(p: Path) -> dict[str, Any]:
+    """Bozuk-kuyruklu JSON'a dayanıklı okuyucu.
+
+    Senkron/AV (OneDrive vb.) bazen dosya kuyruğunu null-dolgu ('\\x00') ya da
+    'Extra data' ile bozar; bu okuyucu ilk geçerli JSON nesnesini kurtarır ki
+    tüm brif/web hattı tek bozuk export yüzünden durmasın.
+    """
+    raw = Path(p).read_bytes().rstrip(b"\x00")
+    text = raw.decode("utf-8", errors="ignore").lstrip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        obj, _end = json.JSONDecoder().raw_decode(text)
+        logger.warning("scan export kuyruğu bozuktu; ilk geçerli JSON kurtarıldı: %s", p)
+        return obj
+
+
 def load_scan_export(path: Path | None = None) -> tuple[list[dict[str, Any]], int, str]:
     """Read the scan export written by the /scan endpoint hook.
 
     Returns (rows, universe, date_str). Raises FileNotFoundError when missing.
     """
     p = path or SCAN_EXPORT_LATEST
-    data = json.loads(Path(p).read_text(encoding="utf-8"))
+    data = _read_json_resilient(Path(p))
     rows = data.get("results", [])
     universe = int(data.get("universe") or len(rows))
     date_str = str(data.get("date") or datetime.now(tz=UTC).strftime("%Y-%m-%d"))
@@ -381,3 +437,51 @@ def save_snapshot(snap: dict[str, Any], out_dir: Path | None = None) -> Path:
         json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8"
     )
     return dated
+
+
+# ── Almanca (de) risk havuzları — import anında birleştirilir ────────────────
+_DE_RISK = {
+    "squeeze_lowprice": [
+        "hoher Short-Anteil bei niedrigem Kurs: Bewegungen können heftig, Spreads weit sein",
+        "ein Squeeze-Profil in einem niedrigpreisigen Wert — Volatilität und Slippage kommen zusammen",
+    ],
+    "squeeze_highatr": [
+        "Squeeze plus hohe Volatilität: beide Richtungen können gleich schnell laufen",
+        "ein Squeeze-Profil mit weiter Tagesspanne — das Tempo kann extrem sein",
+    ],
+    "squeeze": [
+        "Squeeze-Szenarien können scharfe Bewegungen in beide Richtungen erzeugen",
+        "Short-Eindeckung und erneute Leerverkäufe sind beide möglich — beobachte beide Richtungen",
+    ],
+    "high_atr": [
+        "sehr hohe Volatilität (weite Tagesspanne)",
+        "eine weite Tagesspanne — kein ruhiger Wert",
+        "ein High-ATR-Profil: der Kurs kann innerhalb einer Sitzung weit laufen",
+    ],
+    "low_price": [
+        "niedrigpreisige Aktie — Liquiditäts-/Spread-Risiko",
+        "eine niedrige Kursstufe: die Orderbuchtiefe kann dünn sein",
+    ],
+    "gap_risk": [
+        "Gap-Eröffnungen können sich teilweise schließen — die ersten Stunden können täuschen",
+        "Eröffnungslücken sind nicht immer beständig; Rücksetzer im Tagesverlauf sind normal",
+    ],
+    "catalyst_risk": [
+        "nachrichten-/katalysatorgetriebene Bewegungen tragen hohe Unsicherheit — der Fluss kann drehen",
+        "der Katalysator könnte bereits eingepreist sein; ohne Anschluss verblasst das Interesse schnell",
+    ],
+    "contraction_risk": [
+        "eine Ausdehnung nach der Verengung kann in beide Richtungen ausbrechen — die Richtung braucht Bestätigung",
+    ],
+    "c_grade": [
+        "ein Profil im Frühstadium: das Signal ist womöglich noch nicht ausgereift",
+        "ein Kandidat in der Beobachtungsphase — die Bestätigungsstufen sind noch nicht abgeschlossen",
+    ],
+    "generic": [
+        "Standard-Beobachtungsrisiko; Positionsdisziplin liegt beim Leser",
+        "übliches Marktrisiko gilt — richte dein Beobachtungstempo nach deinem eigenen Plan",
+        "kein auffälliges Zusatzrisiko; Urteil und Risiko liegen dennoch beim Leser",
+    ],
+}
+for _c, _lst in _DE_RISK.items():
+    _RISK_POOLS.setdefault(_c, {})["de"] = _lst

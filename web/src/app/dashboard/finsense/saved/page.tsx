@@ -277,7 +277,7 @@ export default function SavedPage() {
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
                 onClick={() =>
-                  router.push("/dashboard/finsense/" + t.slug)
+                  router.push("/dashboard/finsense/" + encodeURIComponent(t.slug))
                 }
               >
                 {/* Remove button */}

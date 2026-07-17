@@ -1,0 +1,13 @@
+.venv-contract
+.venv
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+api
+data/shadow
+data/distribution
+reports
+scripts
+*.db
+*.db-*

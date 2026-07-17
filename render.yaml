@@ -20,6 +20,16 @@ services:
         sync: false
       - key: TELEGRAM_CHANNEL_ID
         sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_USER
+        value: finpilot@finpilot.at
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: WAITLIST_NOTIFY_TO
+        value: finpilot@finpilot.at
     disk:
       name: finpilot-api-data
       mountPath: /app/data

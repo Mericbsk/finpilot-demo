@@ -701,8 +701,45 @@ def _persist_distribution_export(results: dict, universe: int) -> None:
             "universe": universe,
             "results": list(results.values()) if isinstance(results, dict) else results,
         }
+        current_results = payload["results"]
+        current_symbols = {
+            str(row.get("symbol") or row.get("ticker") or "").upper()
+            for row in current_results
+            if isinstance(row, dict) and (row.get("symbol") or row.get("ticker"))
+        }
+        dated_path = export_dir / f"scan_export_{payload['date']}.json"
+        if dated_path.exists():
+            try:
+                existing = json.loads(dated_path.read_text(encoding="utf-8"))
+                existing_universe = int(existing.get("universe") or 0)
+                existing_results = existing.get("results") or []
+                existing_symbols = {
+                    str(row.get("symbol") or row.get("ticker") or "").upper()
+                    for row in existing_results
+                    if isinstance(row, dict) and (row.get("symbol") or row.get("ticker"))
+                }
+                existing_is_larger = (
+                    existing_universe > universe
+                    or len(existing_results) > len(current_results)
+                    or len(existing_symbols) > len(current_symbols)
+                )
+                if existing_is_larger:
+                    logger.warning(
+                        "distribution export skipped: new scan is smaller than existing "
+                        "export for %s (universe=%d/%d, results=%d/%d, symbols=%d/%d)",
+                        payload["date"],
+                        universe,
+                        existing_universe,
+                        len(current_results),
+                        len(existing_results),
+                        len(current_symbols),
+                        len(existing_symbols),
+                    )
+                    return
+            except (OSError, TypeError, ValueError, json.JSONDecodeError):
+                pass
         text = json.dumps(payload, ensure_ascii=False, default=str)
-        for name in ("scan_export_latest.json", f"scan_export_{payload['date']}.json"):
+        for name in ("scan_export_latest.json", dated_path.name):
             tmp = export_dir / (name + ".tmp")
             tmp.write_text(text, encoding="utf-8")
             tmp.replace(export_dir / name)

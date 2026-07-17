@@ -422,7 +422,7 @@ export default function LearningPathPage() {
                   <div
                     style={{ flex: 1, cursor: "pointer" }}
                     onClick={() =>
-                      router.push("/dashboard/finsense/" + t.slug)
+                      router.push("/dashboard/finsense/" + encodeURIComponent(t.slug))
                     }
                   >
                     <div
@@ -476,7 +476,7 @@ export default function LearningPathPage() {
                   {/* Open link */}
                   <button
                     onClick={() =>
-                      router.push("/dashboard/finsense/" + t.slug)
+                      router.push("/dashboard/finsense/" + encodeURIComponent(t.slug))
                     }
                     style={{
                       background: "none",

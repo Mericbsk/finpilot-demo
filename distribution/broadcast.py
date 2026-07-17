@@ -18,6 +18,11 @@ def queue_draft(kind: str, brief_date: str, text: str) -> int:
     lint.assert_publishable(text)
     ensure_tables()
     with get_conn() as conn:
+        conn.execute(
+            "UPDATE broadcast_queue SET status='expired', decided_at=?, decided_by=?"
+            " WHERE kind=? AND brief_date=? AND status='pending'",
+            (now(), "superseded_by_new_draft", kind, brief_date),
+        )
         cur = conn.execute(
             "INSERT INTO broadcast_queue(kind, brief_date, text, status, created_at)"
             " VALUES(?,?,?,'pending',?)",

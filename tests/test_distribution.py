@@ -120,6 +120,8 @@ class TestTemplates(unittest.TestCase):
         lint.assert_publishable(text)  # raises on failure
         self.assertIn("Daily Brief", text)
         self.assertIn("toplam", text)
+        self.assertIn("Öne çıkaran nedenler:", text)
+        self.assertIn("Short baskısı", text)
 
     def test_premium_brief_lint_clean_and_fuller(self):
         text = render_daily_premium(self._snap())

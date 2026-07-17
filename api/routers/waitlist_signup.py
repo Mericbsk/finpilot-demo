@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
+import smtplib
 from datetime import UTC, datetime
+from email.message import EmailMessage
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, status
@@ -37,6 +40,35 @@ def _load() -> list[dict]:
 def _save(entries: list[dict]) -> None:
     _WAITLIST_PATH.parent.mkdir(parents=True, exist_ok=True)
     _WAITLIST_PATH.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _notify_waitlist_signup(email: str, source: str) -> None:
+    smtp_host = os.getenv("SMTP_HOST", "").strip()
+    smtp_password = os.getenv("SMTP_PASSWORD", "")
+    if not smtp_host or not smtp_password:
+        logger.warning("Waitlist email notification skipped: SMTP is not configured")
+        return
+
+    smtp_user = os.getenv("SMTP_USER", "finpilot@finpilot.at").strip()
+    notify_to = os.getenv("WAITLIST_NOTIFY_TO", "finpilot@finpilot.at").strip()
+    smtp_port = int(os.getenv("SMTP_PORT", "465"))
+    message = EmailMessage()
+    message["Subject"] = "New FinPilot waitlist signup"
+    message["From"] = smtp_user
+    message["To"] = notify_to
+    message.set_content(
+        f"A new visitor joined the FinPilot waitlist.\n\nEmail: {email}\nSource: {source}\n"
+    )
+
+    if smtp_port == 465:
+        with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=15) as server:
+            server.login(smtp_user, smtp_password)
+            server.send_message(message)
+    else:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.send_message(message)
 
 
 @router.post("/waitlist", status_code=201)
@@ -83,6 +115,11 @@ def join_waitlist(body: WaitlistRequest):
         add_waitlist(email, source=body.source, utm=body.utm)
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning("waitlist sqlite dual-write failed: %s", exc)
+
+    try:
+        _notify_waitlist_signup(email, body.source)
+    except Exception as exc:  # pragma: no cover - notification must not break signup
+        logger.warning("waitlist email notification failed: %s", exc)
 
     logger.info("Waitlist signup: email=<redacted> source=%s total=%d", body.source, len(entries))
     return {"status": "ok", "position": len(entries)}

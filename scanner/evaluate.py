@@ -8,7 +8,6 @@ geriye dönük uyumluluk için bu modülü import eder.
 from __future__ import annotations
 
 import logging
-import os
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
@@ -20,16 +19,23 @@ from .data_fetcher import (
     fetch_multi_timeframe,
     prefetch_symbols_multi_timeframe,
 )
-from .execution_policy import execution_contract, exit_profile, position_cap
+from .execution_policy import execution_contract, position_cap
 from .position_sizer import calculate_dynamic_position
-from .risk_engine import calculate_risk_management, calculate_risk_management_yz, daily_dd_breached
+from .risk_engine import (
+    calculate_risk_management,
+    calculate_risk_management_yz,
+    daily_dd_breached,
+)
 from .risk_metrics import calculate_risk_adjusted_metrics
 from .score_engine import (
     compute_legacy_quality_score,
+    compute_recommendation_score,
     compute_recommendation_strength,
     compute_v2_score,
+    decision_telemetry,
     legacy_composite_ranking_enabled,
     regime_gate_mult,
+    score_component_breakdown,
 )
 from .signals import (
     analyze_price_momentum,
@@ -58,27 +64,7 @@ _THIN_EDGE_THRESH: float = 0.003  # net EV < 0.3% → thin edge
 _DECAY_EV_THRESH: float = 0.005  # high-vol + net EV < 0.5% → edge_decay warning
 
 
-def _rejected_result(symbol: str, reason: str) -> dict[str, Any]:
-    """Keep data/portfolio rejections visible to the scan ledger."""
-    return {
-        "symbol": symbol,
-        "entry_ok": False,
-        "selection_eligible": False,
-        "execution_feasible": False,
-        "execution_confidence": "Tier 0",
-        "data_quality_tier": "Tier 0",
-        "data_quality_status": "unavailable",
-        "reject_reason": [reason],
-        "execution_reject_reason": [reason],
-        "strategy_ids": ["legacy_quality", "v2"],
-        "strategy_scores": {},
-        "exit_profiles": {
-            strategy_id: exit_profile(strategy_id) for strategy_id in ("legacy_quality", "v2")
-        },
-    }
-
-
-def _feature_contract(
+def _feature_contract_legacy(
     *,
     df_15m: pd.DataFrame,
     df_1h: pd.DataFrame,
@@ -102,9 +88,6 @@ def _feature_contract(
             latest = latest.tz_localize(None)
         timestamps[name] = latest.isoformat()
         ages[name] = round(max(0.0, (signal_ts - latest).total_seconds() / 60.0), 2)
-    spread_bps = None
-    if "spread_bps" in df_15m.columns and pd.notna(df_15m["spread_bps"].iloc[-1]):
-        spread_bps = float(df_15m["spread_bps"].iloc[-1])
     dollar_adv = None
     if all(column in df_1d.columns for column in ("Close", "Volume")):
         values = (
@@ -117,6 +100,9 @@ def _feature_contract(
         )
         if len(values) >= 5:
             dollar_adv = float(values.mean())
+    spread_bps = None
+    if "spread_bps" in df_15m.columns and pd.notna(df_15m["spread_bps"].iloc[-1]):
+        spread_bps = float(df_15m["spread_bps"].iloc[-1])
     short_timestamp = df_1d.attrs.get("short_interest_timestamp")
     if short_timestamp is not None and hasattr(short_timestamp, "isoformat"):
         short_timestamp = short_timestamp.isoformat()
@@ -126,9 +112,9 @@ def _feature_contract(
         "short_interest_timestamp": short_timestamp is not None,
     }
     return {
-        "spread_bps": spread_bps,
+        "spread_bps": round(spread_bps, 4) if spread_bps is not None else None,
         "spread_source": "spread_bps" if spread_bps is not None else "missing",
-        "dollar_adv": dollar_adv,
+        "dollar_adv": round(dollar_adv, 2) if dollar_adv is not None else None,
         "adv_source": "close_volume_20d" if dollar_adv is not None else "missing",
         "short_interest_timestamp": short_timestamp,
         "feature_timestamps": timestamps,
@@ -136,19 +122,6 @@ def _feature_contract(
         "available": available,
         "missing_fields": [name for name, present in available.items() if not present],
     }
-
-
-def _execution_contract(data_quality: dict[str, Any]) -> dict[str, str]:
-    """Classify execution confidence without treating missing data as zero."""
-    available = data_quality.get("available", {})
-    if all(
-        available.get(field, False)
-        for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
-    ):
-        return {"execution_confidence": "Tier 2", "data_quality_tier": "Tier 2"}
-    if available.get("dollar_adv", False):
-        return {"execution_confidence": "Tier 1", "data_quality_tier": "Tier 1"}
-    return {"execution_confidence": "Tier 0", "data_quality_tier": "Tier 0"}
 
 
 def _compute_cost_labels(
@@ -159,22 +132,19 @@ def _compute_cost_labels(
 ) -> dict[str, object]:
     """Return Faz 6 net-return and edge-decay fields for the signal result dict.
 
-    Uses core.slippage_tracker to estimate round-trip cost when available;
-    falls back to _COST_FLAT_PCT (0.20%) otherwise.
+    Uses core.slippage_tracker's real RealisticBacktestCosts model to estimate
+    round-trip cost; falls back to _COST_FLAT_PCT (0.20%) if the import/call
+    fails for any reason. (Previously imported a non-existent
+    `estimate_round_trip_cost` function — every call silently fell back to
+    the flat 0.20% one-sided assumption; see tests/test_scanner_fixes.py.)
 
     Returns keys: net_expected_return (float %), edge_label (str).
     """
     cost_pct = _COST_FLAT_PCT
     try:
-        # FIX: the previous ``from core.slippage_tracker import
-        # estimate_round_trip_cost`` targeted a function that does NOT exist —
-        # the import raised ImportError on every call and cost_pct silently
-        # fell back to the flat 0.20% assumption (which only counted one side).
-        # Use the real cost model. round_trip_cost_pct() returns a PERCENT, so
-        # divide by 100 to get the fraction _compute_cost_labels works in.
         from core.slippage_tracker import RealisticBacktestCosts  # noqa: PLC0415
 
-        cost_pct = float(RealisticBacktestCosts().round_trip_cost_pct() / 100.0) or _COST_FLAT_PCT
+        cost_pct = RealisticBacktestCosts().round_trip_cost_pct() / 100.0
     except Exception:
         pass
 
@@ -192,6 +162,162 @@ def _compute_cost_labels(
     return {
         "net_expected_return": round(net_ev, 4),
         "edge_label": label,
+    }
+
+
+def _execution_contract(data_quality: dict[str, Any]) -> dict[str, str]:
+    """Return the compact legacy execution classification used by callers."""
+    available = data_quality.get("available", {})
+    if all(
+        available.get(field, False)
+        for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
+    ):
+        return {"execution_confidence": "Tier 2", "data_quality_tier": "Tier 2"}
+    if available.get("dollar_adv", False):
+        return {"execution_confidence": "Tier 1", "data_quality_tier": "Tier 1"}
+    return {"execution_confidence": "Tier 0", "data_quality_tier": "Tier 0"}
+
+
+def _feature_contract_compat(
+    *,
+    df_15m: pd.DataFrame,
+    df_1h: pd.DataFrame,
+    df_4h: pd.DataFrame,
+    df_1d: pd.DataFrame,
+    signal_timestamp: str,
+) -> dict[str, Any]:
+    frames = {"15m": df_15m, "1h": df_1h, "4h": df_4h, "1d": df_1d}
+    feature_timestamps: dict[str, str | None] = {}
+    feature_age_minutes: dict[str, float | None] = {}
+    signal_ts = pd.Timestamp(signal_timestamp)
+    if signal_ts.tzinfo is not None:
+        signal_ts = signal_ts.tz_localize(None)
+    for name, frame in frames.items():
+        if frame.empty:
+            feature_timestamps[name] = None
+            feature_age_minutes[name] = None
+            continue
+        latest = pd.Timestamp(frame.index[-1])
+        if latest.tzinfo is not None:
+            latest = latest.tz_localize(None)
+        feature_timestamps[name] = latest.isoformat()
+        feature_age_minutes[name] = round(max(0.0, (signal_ts - latest).total_seconds() / 60.0), 2)
+    spread_bps = None
+    spread_source = "missing"
+    for column in ("spread_bps", "spread_pct"):
+        if column in df_15m.columns and pd.notna(df_15m[column].iloc[-1]):
+            value = float(df_15m[column].iloc[-1])
+            spread_bps = value if column == "spread_bps" else value * 100.0
+            spread_source = column
+            break
+    if spread_bps is None and all(column in df_15m.columns for column in ("bid", "ask")):
+        bid = float(df_15m["bid"].iloc[-1])
+        ask = float(df_15m["ask"].iloc[-1])
+        mid = (bid + ask) / 2.0
+        if bid > 0 and ask >= bid and mid > 0:
+            spread_bps = (ask - bid) / mid * 10_000.0
+            spread_source = "bid_ask"
+    dollar_adv = None
+    adv_source = "missing"
+    if all(column in df_1d.columns for column in ("Close", "Volume")):
+        dollar_volume = pd.to_numeric(df_1d["Close"], errors="coerce") * pd.to_numeric(
+            df_1d["Volume"], errors="coerce"
+        )
+        dollar_volume = dollar_volume.dropna().tail(20)
+        if len(dollar_volume) >= 5:
+            dollar_adv = float(dollar_volume.mean())
+            adv_source = "close_volume_20d"
+    short_interest_timestamp = df_1d.attrs.get("short_interest_timestamp")
+    if short_interest_timestamp is not None and hasattr(short_interest_timestamp, "isoformat"):
+        short_interest_timestamp = short_interest_timestamp.isoformat()
+    available = {
+        "spread_bps": spread_bps is not None,
+        "dollar_adv": dollar_adv is not None,
+        "short_interest_timestamp": short_interest_timestamp is not None,
+    }
+    return {
+        "spread_bps": round(spread_bps, 4) if spread_bps is not None else None,
+        "spread_source": spread_source,
+        "dollar_adv": round(dollar_adv, 2) if dollar_adv is not None else None,
+        "adv_source": adv_source,
+        "short_interest_timestamp": short_interest_timestamp,
+        "feature_timestamps": feature_timestamps,
+        "feature_age_minutes": feature_age_minutes,
+        "available": available,
+        "missing_fields": [name for name, present in available.items() if not present],
+    }
+
+
+def _feature_contract(
+    *,
+    df_15m: pd.DataFrame,
+    df_1h: pd.DataFrame,
+    df_4h: pd.DataFrame,
+    df_1d: pd.DataFrame,
+    signal_timestamp: str,
+) -> dict[str, Any]:
+    frames = {"15m": df_15m, "1h": df_1h, "4h": df_4h, "1d": df_1d}
+    feature_timestamps: dict[str, str | None] = {}
+    feature_age_minutes: dict[str, float | None] = {}
+    signal_ts = pd.Timestamp(signal_timestamp)
+    if signal_ts.tzinfo is not None:
+        signal_ts = signal_ts.tz_localize(None)
+    for name, frame in frames.items():
+        if frame.empty:
+            feature_timestamps[name] = None
+            feature_age_minutes[name] = None
+            continue
+        latest = pd.Timestamp(frame.index[-1])
+        if latest.tzinfo is not None:
+            latest = latest.tz_localize(None)
+        feature_timestamps[name] = latest.isoformat()
+        feature_age_minutes[name] = round(max(0.0, (signal_ts - latest).total_seconds() / 60.0), 2)
+
+    spread_bps = None
+    spread_source = "missing"
+    for column in ("spread_bps", "spread_pct"):
+        if column in df_15m.columns and pd.notna(df_15m[column].iloc[-1]):
+            value = float(df_15m[column].iloc[-1])
+            spread_bps = value if column == "spread_bps" else value * 100.0
+            spread_source = column
+            break
+    if spread_bps is None and all(column in df_15m.columns for column in ("bid", "ask")):
+        bid = float(df_15m["bid"].iloc[-1])
+        ask = float(df_15m["ask"].iloc[-1])
+        mid = (bid + ask) / 2.0
+        if bid > 0 and ask >= bid and mid > 0:
+            spread_bps = (ask - bid) / mid * 10_000.0
+            spread_source = "bid_ask"
+
+    dollar_adv = None
+    adv_source = "missing"
+    if all(column in df_1d.columns for column in ("Close", "Volume")):
+        dollar_volume = pd.to_numeric(df_1d["Close"], errors="coerce") * pd.to_numeric(
+            df_1d["Volume"], errors="coerce"
+        )
+        dollar_volume = dollar_volume.dropna().tail(20)
+        if len(dollar_volume) >= 5:
+            dollar_adv = float(dollar_volume.mean())
+            adv_source = "close_volume_20d"
+
+    short_interest_timestamp = df_1d.attrs.get("short_interest_timestamp")
+    if short_interest_timestamp is not None and hasattr(short_interest_timestamp, "isoformat"):
+        short_interest_timestamp = short_interest_timestamp.isoformat()
+    available = {
+        "spread_bps": spread_bps is not None,
+        "dollar_adv": dollar_adv is not None,
+        "short_interest_timestamp": short_interest_timestamp is not None,
+    }
+    return {
+        "spread_bps": round(spread_bps, 4) if spread_bps is not None else None,
+        "spread_source": spread_source,
+        "dollar_adv": round(dollar_adv, 2) if dollar_adv is not None else None,
+        "adv_source": adv_source,
+        "short_interest_timestamp": short_interest_timestamp,
+        "feature_timestamps": feature_timestamps,
+        "feature_age_minutes": feature_age_minutes,
+        "available": available,
+        "missing_fields": [name for name, present in available.items() if not present],
     }
 
 
@@ -218,13 +344,8 @@ def evaluate_symbol(
             df_4h = data.get("4h", pd.DataFrame())
             df_1d = data.get("1d", pd.DataFrame())
 
-        # Hard minimum: need at least some data to evaluate.
-        # Thresholds are intentionally low so that thinly-traded small-caps
-        # with limited intraday history are still analysed using whatever data
-        # yfinance can provide.  The downstream stages already guard against
-        # empty series via safe_float / try-except, so sparse intraday data
-        # produces lower scores rather than crashes.
-        if len(df_15m) < 3 or len(df_1h) < 3 or len(df_4h) < 3 or len(df_1d) < 20:
+        # Hard minimum: need at least some data to evaluate
+        if len(df_15m) < 15 or len(df_1h) < 10 or len(df_4h) < 15 or len(df_1d) < 50:
             return None
 
         # Track whether we have enough history for high-quality signals
@@ -324,46 +445,16 @@ def evaluate_symbol(
         momentum_confluence = bool(momentum_confluence)
         momentum_ratio = float(momentum_ratio or 0.0)
 
-        # Alpha-v2 fiyat faktorleri (env-gated, saf/yerel — hot-path guvenli)
-        _alpha_gap = _alpha_rvol = _alpha_ext = _atr_pct_daily = 0.0
-        try:
-            from scanner.features import (  # noqa: PLC0415
-                compute_atr_pct,
-                compute_extension_factor,
-                compute_gap_factor,
-                compute_rvol_factor,
-            )
-
-            _alpha_gap = compute_gap_factor(df_1d)
-            _alpha_rvol = compute_rvol_factor(df_1d)
-            _alpha_ext = compute_extension_factor(df_1d)
-            _atr_pct_daily = compute_atr_pct(df_1d)
-        except Exception:
-            pass
-
         min_score_threshold = 3
+        reject_reasons: list[str] = []
+        if not regime:
+            reject_reasons.append("regime_gate")
+        if not direction:
+            reject_reasons.append("direction_gate")
+        if score < min_score_threshold:
+            reject_reasons.append("momentum_score_gate")
         core_signal = bool(regime and direction and (score >= min_score_threshold))
         entry_ok = bool(score == 3) if core_signal else False
-        # Alpha-v2 giris kapisi: 2026-06 backtest — eski score==3 kapisi bazi
-        # ancak ×1.07 asiyor; gap/RVOL kapisi hem precision hem recall'u artiriyor
-        # (lift 1.49, recall %60). regime+direction korunur, RSI/MACD kapisi
-        # yerine volatilite/gap tetikleyicisi gelir.
-        if os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1":
-            # Sinyal sayisini DUSUR + precision ARTIR (2026-06 backtest):
-            # gevsek 'score>=2' fallback cok sinyal uretiyordu (~150/gun). Tetikleyici
-            # artik volatilite/gap/hacim: ATR>=4 VEYA gap>=%3 VEYA RVOL>=2 — dogrulanmis
-            # yuksek-precision populasyon. FINPILOT_STRICT_ENTRY=0 ile eski gevsek moda donulur.
-            try:
-                from scanner.features import compute_atr_pct  # noqa: PLC0415
-
-                _atr_pct_gate = _atr_pct_daily
-            except Exception:
-                _atr_pct_gate = 0.0
-            _alpha_trigger = (_alpha_gap >= 0.6) or (_alpha_rvol >= 0.5) or (_atr_pct_gate >= 4.0)
-            if os.environ.get("FINPILOT_STRICT_ENTRY", "1") == "1":
-                entry_ok = bool(regime and direction and _alpha_trigger)
-            else:
-                entry_ok = bool(regime and direction and (_alpha_trigger or score >= 2))
 
         # Faz 5: is_premium_symbol removed — subjective hardcoded list had no
         # measurable lift in scoring (score_engine never read the key; it was
@@ -384,6 +475,8 @@ def evaluate_symbol(
         except Exception:
             avg_vol_ok = True
         liquidity_ok = bool(price_ok and avg_vol_ok)
+        if not liquidity_ok:
+            reject_reasons.append("liquidity_gate")
         entry_ok = bool(entry_ok and liquidity_ok)
 
         try:
@@ -410,36 +503,29 @@ def evaluate_symbol(
                 momentum_score=int(momentum_score),
             )
 
-        # Sentiment / on-chain: no live data source is currently wired. The
-        # legacy ``regime_detection`` and ``altdata`` modules live only under
-        # archive/scripts_legacy and are NOT importable, so the previous
-        # per-symbol imports raised ModuleNotFoundError on EVERY symbol of EVERY
-        # scan (swallowed at debug) — burning exception machinery N× per scan
-        # while always yielding 0.0. Market regime is the inline EMA200 signal
-        # computed above; sentiment/on-chain stay neutral until a real provider
-        # is wired. Honest neutral > silent broken import.
-        # EODHD News Sentiment (env-gated, cache-based — hot-path safe, mirrors
-        # scanner.catalyst). Default OFF → _sentiment_score stays None so the
-        # score hook is untouched and behaviour is identical. When enabled, the
-        # 0..1 value (0.5=neutral) is read from the scheduler-populated cache
-        # (NO per-symbol network in the scan) and flows into the composite score
-        # via score_engine's ±0.5 hook + into the `sentiment` output field.
-        _sentiment_score: float | None = None
+        # EODHD news-sentiment factor (env-gated, cache-only — see
+        # scanner/sentiment.py). Honest-neutral: the old `regime_detection` /
+        # `altdata` imports this replaced lived only in archive/scripts_legacy
+        # and were silently failing on every scan (ModuleNotFoundError caught
+        # by a bare except) while the code pretended to use them. This reads a
+        # scheduler-populated cache only — no per-symbol network call, and
+        # `sentiment_score` stays None when the feature is off so scoring is
+        # byte-for-byte unchanged.
         sentiment = 0.0
         onchain_metric = 0.0
-        if os.environ.get("FINPILOT_ENABLE_SENTIMENT", "0") == "1":
-            try:
-                from scanner.sentiment import compute_sentiment_factor  # noqa: PLC0415
+        sentiment_score: float | None = None
+        try:
+            from scanner.sentiment import compute_sentiment_factor, sentiment_enabled
 
-                _sentiment_score = float(compute_sentiment_factor(symbol))
-                sentiment = _sentiment_score
-            except Exception:
-                _sentiment_score = None
+            if sentiment_enabled():
+                sentiment_score = compute_sentiment_factor(symbol)
+                sentiment = sentiment_score
+        except Exception:
+            logger.debug("Sentiment factor unavailable", exc_info=True)
 
-        # Market-safety gate (unchanged). The old ``regime==1 and sentiment<0``
-        # gate was dead — sentiment was always 0.0, so it never fired.
         if entry_ok and not CURRENT_MARKET_STATUS["safe"]:
             entry_ok = False
+            reject_reasons.append("market_safety_gate")
 
         # Sprint 15: Earnings blackout filter
         earnings_blackout = False
@@ -454,6 +540,7 @@ def evaluate_symbol(
             earnings_prox = earnings_proximity(symbol)
             if earnings_blackout and entry_ok:
                 entry_ok = False
+                reject_reasons.append("earnings_blackout")
                 logger.info("[%s] earnings blackout — signal suppressed", symbol)
         except Exception:
             pass
@@ -472,18 +559,27 @@ def evaluate_symbol(
         except Exception:
             pass
 
-        # SEC EDGAR catalyst factor. Reads from a scheduler-populated cache
-        # (hot-path safe), but skip even that per-symbol cache read when the
-        # factor is disabled — its value only affects the score when the flag
-        # is on, so computing it otherwise is pure waste.
-        catalyst_factor = 0.0
-        if os.environ.get("FINPILOT_ENABLE_EDGAR_CATALYST", "0") == "1":
-            try:
-                from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
+        try:
+            from scanner.features import (
+                compute_extension_factor,
+                compute_gap_factor,
+                compute_rvol_factor,
+            )
 
-                catalyst_factor = compute_catalyst_factor(symbol)
-            except Exception:
-                pass
+            alpha_gap = compute_gap_factor(df_1d)
+            alpha_rvol = compute_rvol_factor(df_1d)
+            alpha_ext = compute_extension_factor(df_1d)
+        except Exception:
+            alpha_gap = alpha_rvol = alpha_ext = 0.0
+
+        # SEC EDGAR catalyst factor (env-gated, reads from cache — hot-path safe)
+        catalyst_factor = 0.0
+        try:
+            from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
+
+            catalyst_factor = compute_catalyst_factor(symbol)
+        except Exception:
+            pass
 
         # Faz 1: Lottery/MAX fade factor (pure pandas, no network call)
         lottery_factor = 0.0
@@ -504,35 +600,35 @@ def evaluate_symbol(
             pass
 
         # Regime × score-band gate (2026-06-12 barrier audit findings)
+        _score_input = {
+            "regime": regime,
+            "direction": bool(direction),
+            "score": int(score),
+            "filter_score": int(filter_score),
+            "alignment_ratio": float(alignment_ratio),
+            "momentum_ratio": float(momentum_ratio),
+            "volume_spike": bool(volume_spike),
+            "price_momentum": bool(price_momentum),
+            "trend_strength": bool(trend_strength),
+            "is_premium_symbol": bool(is_premium_symbol),
+            # Faz 3: vol_regime drives momentum weight in score_engine
+            "vol_regime": int(vol_regime_val),
+            "squeeze_factor": float(squeeze_factor),
+            "gap_factor": float(alpha_gap),
+            "rvol_factor": float(alpha_rvol),
+            "extension_factor": float(alpha_ext),
+            "catalyst_factor": float(catalyst_factor),
+            # Faz 1/2: lottery penalty (gated by FINPILOT_ENABLE_LOTTERY_FADE)
+            "lottery_factor": float(lottery_factor),
+            # Faz 4: overnight gap reversal (gated by FINPILOT_ENABLE_OVERNIGHT_GAP)
+            "overnight_gap_factor": float(overnight_gap_factor),
+            # Faz 5: is_premium_symbol removed (was dead code — score_engine
+            # never read it). Kept as False in return dict for UI compat.
+        }
+        _score_raw = compute_recommendation_score(_score_input, sentiment_score=sentiment_score)
+        _score_components = score_component_breakdown(_score_input, sentiment_score=sentiment_score)
         _composite_score = compute_recommendation_strength(
-            {
-                "regime": regime,
-                "direction": bool(direction),
-                "score": int(score),
-                "filter_score": int(filter_score),
-                "alignment_ratio": float(alignment_ratio),
-                "momentum_ratio": float(momentum_ratio),
-                "volume_spike": bool(volume_spike),
-                "price_momentum": bool(price_momentum),
-                "trend_strength": bool(trend_strength),
-                "is_premium_symbol": bool(is_premium_symbol),
-                # Faz 3: vol_regime drives momentum weight in score_engine
-                "vol_regime": int(vol_regime_val),
-                "squeeze_factor": float(squeeze_factor),
-                "gap_factor": float(_alpha_gap),
-                "rvol_factor": float(_alpha_rvol),
-                "extension_factor": float(_alpha_ext),
-                "catalyst_factor": float(catalyst_factor),
-                # Faz 1/2: lottery penalty (gated by FINPILOT_ENABLE_LOTTERY_FADE)
-                "lottery_factor": float(lottery_factor),
-                # Faz 4: overnight gap reversal (gated by FINPILOT_ENABLE_OVERNIGHT_GAP)
-                "overnight_gap_factor": float(overnight_gap_factor),
-                # Faz 5: is_premium_symbol removed (was dead code — score_engine
-                # never read it). Kept as False in return dict for UI compat.
-            },
-            # EODHD sentiment ±0.5 hook (None when FINPILOT_ENABLE_SENTIMENT off
-            # → no effect; 0.5 neutral also no-op). Measured via Edge Report.
-            sentiment_score=_sentiment_score,
+            _score_input, sentiment_score=sentiment_score
         )
         _gate_mult = regime_gate_mult(bool(regime), _composite_score)
 
@@ -550,90 +646,27 @@ def evaluate_symbol(
             ann_vol_pct=_ann_vol_pct,
             kelly_fraction=kelly_fraction,
         )
-
-        # ── Early-detection ladder (env-gated, default OFF) ───────────────
-        # Surfaces WATCH/SETUP/TRIGGER/CONFIRM *before* a name is entry-ready.
-        # Additive ONLY: does not change entry_ok or composite_score. Best-effort.
-        _early_tier = {
-            "tier": "NONE",
-            "tier_score": 0.0,
-            "tier_reasons": [],
-            "suggested_size_fraction": 0.0,
-            "contraction_factor": 0.0,
-            "rvol_acceleration": 0.0,
-            "range_expansion": 0.0,
-        }
-        if os.environ.get("FINPILOT_ENABLE_EARLY_TIER", "0") == "1":
-            try:
-                from scanner.watch_tier import compute_early_tier  # noqa: PLC0415
-
-                _early_tier = compute_early_tier(
-                    df_1d,
-                    catalyst_factor=float(catalyst_factor),
-                    volume_multiple=float(volume_multiple),
-                    entry_ok=bool(entry_ok),
-                )
-            except Exception:
-                pass
-
-        # ── Fundamental enrichment (env-gated, default OFF) ───────────────
-        # EODHD 24-saat cache'i sayesinde yeniden taramalar ek API çağrısı yapmaz.
-        # Additive ONLY — composite_score veya entry_ok'u değiştirmez.
-        _fund: dict = {
-            "fundamental_score": 0,
-            "fundamental_quality": "low",
-            "pe_ratio": None,
-            "forward_pe": None,
-            "eps_growth_yoy": None,
-            "revenue_growth_yoy": None,
-            "profit_margin": None,
-            "return_on_equity": None,
-            "analyst_target": None,
-            "analyst_rating": None,
-        }
-        if os.environ.get("FINPILOT_ENABLE_FUNDAMENTALS", "0") == "1":
-            try:
-                from scanner.features import compute_fundamental_score  # noqa: PLC0415
-
-                _fund = compute_fundamental_score(symbol)
-            except Exception:
-                pass
-
-        # ── Faz 4: EODHD canlı haber katalizörü (env-gated) ─────────────────
-        # FINPILOT_ENABLE_NEWS=1 ile aktif. 30-dk cache → hot path güvenli.
-        _news: dict = {
-            "news_catalyst_score": 0,
-            "news_sentiment": 0.0,
-            "news_count": 0,
-            "top_headlines": [],
-        }
-        if os.environ.get("FINPILOT_ENABLE_NEWS", "0") == "1":
-            try:
-                from scanner.features import compute_news_catalyst  # noqa: PLC0415
-
-                _news = compute_news_catalyst(symbol)
-            except Exception:
-                pass
-
-        # Konviksiyon tier (env-gated): skoru DEGISTIRMEZ, sadece etiketler.
-        # ONEMLI: tier YALNIZCA eyleme gecilebilir AL (entry_ok) sinyallerine atanir.
-        # Boylece 'Tier A ama BEKLE/SAT' tutarsizligi olmaz ve Tier A otomatik
-        # watchlist'e (entry_ok BUY) dusup izlenebilir.
-        _conv_tier, _conv_prob = "", 0.0
+        _atr_pct_daily = 0.0
         try:
-            if entry_ok:
-                from scanner.features import compute_atr_pct, compute_conviction  # noqa: PLC0415
+            from scanner.features import compute_atr_pct, compute_conviction
 
-                _atr_pct_daily = compute_atr_pct(df_1d)
-                _conv_tier, _conv_prob = compute_conviction(
-                    float(squeeze_factor), float(_alpha_gap), float(_alpha_rvol), _atr_pct_daily
+            _atr_pct_daily = compute_atr_pct(df_1d)
+            _conv_tier, _conv_prob = (
+                compute_conviction(
+                    float(squeeze_factor), float(alpha_gap), float(alpha_rvol), _atr_pct_daily
                 )
+                if entry_ok
+                else ("", 0.0)
+            )
         except Exception:
             _conv_tier, _conv_prob = "", 0.0
-
         _signal_timestamp = df_15m.index[-1].strftime("%Y-%m-%d %H:%M")
         _data_quality = _feature_contract(
-            df_15m=df_15m, df_1h=df_1h, df_4h=df_4h, df_1d=df_1d, signal_timestamp=_signal_timestamp
+            df_15m=df_15m,
+            df_1h=df_1h,
+            df_4h=df_4h,
+            df_1d=df_1d,
+            signal_timestamp=_signal_timestamp,
         )
         _execution_contract_data = execution_contract(_data_quality)
         _reject_reasons = list(_execution_contract_data.get("execution_reject_reason", []))
@@ -648,7 +681,7 @@ def evaluate_symbol(
             direction=bool(direction),
             raw_score=float(score),
             atr_pct=_atr_pct_daily,
-            rvol=(1.0 + float(_alpha_rvol) * 2.0 if _alpha_rvol else None),
+            rvol=(1.0 + float(alpha_rvol) * 2.0 if alpha_rvol else None),
             squeeze_factor=float(squeeze_factor),
             lottery_factor=float(lottery_factor),
             overnight_gap_factor=float(overnight_gap_factor),
@@ -657,8 +690,8 @@ def evaluate_symbol(
             _composite_score if legacy_composite_ranking_enabled() else _legacy_quality_score
         )
         _v2_score = compute_v2_score(
-            gap_factor=float(_alpha_gap),
-            rvol_factor=float(_alpha_rvol),
+            gap_factor=float(alpha_gap),
+            rvol_factor=float(alpha_rvol),
             atr_pct=float(_atr_pct_daily),
             squeeze_factor=float(squeeze_factor),
         )
@@ -671,7 +704,6 @@ def evaluate_symbol(
             if safe_float(last_price) > 0
             else 0
         )
-
         return {
             "symbol": symbol,
             "price": round(safe_float(last_price), 4),
@@ -724,53 +756,42 @@ def evaluate_symbol(
             "stop_loss_percent": risk_data["stop_loss_percent"],
             "kelly_fraction": kelly_fraction,
             "sentiment": sentiment,
+            # Edge Report bucketing key (build_edge_report(group_by="sentiment_band")):
+            # None when the sentiment feature is off/uncomputed, so shadow-mode
+            # reports can distinguish "no data" from "measured neutral".
+            "sentiment_band": (
+                None
+                if sentiment_score is None
+                else (
+                    "positive"
+                    if sentiment_score > 0.6
+                    else "negative"
+                    if sentiment_score < 0.4
+                    else "neutral"
+                )
+            ),
             "onchain_metric": onchain_metric,
             "earnings_blackout": bool(earnings_blackout),
             "earnings_proximity": round(earnings_prox, 4),
             "sector_rs": round(sector_rs, 4),
             "vol_regime": vol_regime_val,
-            "atr_pct": round(float(_atr_pct_daily), 4),
-            "gap_factor": round(float(_alpha_gap), 4),
-            "rvol_factor": round(float(_alpha_rvol), 4),
-            "squeeze_factor": round(squeeze_factor, 4),
-            "catalyst_factor": round(catalyst_factor, 4),
             "lottery_factor": round(lottery_factor, 4),
             "overnight_gap_factor": round(overnight_gap_factor, 4),
-            # ── Konviksiyon tier (env-gated; '' + 0.0 disabled) ───────────
+            "composite_score": _composite_score,
             "conviction_tier": _conv_tier,
             "conviction_prob": round(float(_conv_prob), 3),
-            # ── Early-detection ladder (env-gated; NONE when disabled) ────
-            "tier": _early_tier.get("tier", "NONE"),
-            "tier_score": _early_tier.get("tier_score", 0.0),
-            "tier_reasons": _early_tier.get("tier_reasons", []),
-            "tier_size_fraction": _early_tier.get("suggested_size_fraction", 0.0),
-            "contraction_factor": round(float(_early_tier.get("contraction_factor", 0.0)), 4),
-            "rvol_acceleration": round(float(_early_tier.get("rvol_acceleration", 0.0)), 4),
-            "range_expansion": round(float(_early_tier.get("range_expansion", 0.0)), 4),
-            "composite_score": _composite_score,
             "legacy_quality_score": _legacy_quality_score,
             "ranking_score": _ranking_score,
-            "ranking_method": "legacy_composite"
-            if legacy_composite_ranking_enabled()
-            else "legacy_quality",
+            "ranking_method": "legacy_quality",
             "v2_score": _v2_score,
             "strategy_scores": {"legacy_quality": _legacy_quality_score, "v2": _v2_score},
-            "strategy_ids": ["legacy_quality", "v2"],
-            "selected_by_legacy_quality": bool(_execution_contract_data["selection_eligible"]),
-            "selected_by_v2": bool(
-                _execution_contract_data["selection_eligible"] and _v2_score >= 50
-            ),
-            "selected_by_both": bool(
-                _execution_contract_data["selection_eligible"] and _v2_score >= 50
-            ),
-            "legacy_only": bool(_execution_contract_data["selection_eligible"] and _v2_score < 50),
-            "v2_only": False,
-            "regime_policy": "favorable" if regime else "selective",
-            "regime_selectivity": round(float(_gate_mult), 4),
-            "exit_profiles": {
-                strategy_id: exit_profile(strategy_id) for strategy_id in ("legacy_quality", "v2")
-            },
             **_position_cap,
+            **decision_telemetry(
+                reject_reasons=reject_reasons,
+                score=_score_raw,
+                components=_score_components,
+                data_quality=_data_quality,
+            ),
             "regime_gate_mult": _gate_mult,
             "position_size_gated": int(risk_data["position_size"] * _gate_mult),
             # ── Task 2: Risk-adjusted performance metrics ─────────────────
@@ -791,22 +812,6 @@ def evaluate_symbol(
             "dyn_regime_scale": _dyn_pos.get("regime_scale", 1.0),
             "dyn_portfolio_ok": _dyn_pos.get("portfolio_ok", True),
             "dyn_sizing_method": _dyn_pos.get("sizing_method", "fixed-fractional"),
-            # ── Fundamental enrichment (EODHD, env-gated) ─────────────────
-            "fundamental_score": int(_fund.get("fundamental_score", 0)),
-            "fundamental_quality": str(_fund.get("fundamental_quality", "low")),
-            "pe_ratio": _fund.get("pe_ratio"),
-            "forward_pe": _fund.get("forward_pe"),
-            "eps_growth_yoy": _fund.get("eps_growth_yoy"),
-            "revenue_growth_yoy": _fund.get("revenue_growth_yoy"),
-            "profit_margin": _fund.get("profit_margin"),
-            "return_on_equity": _fund.get("return_on_equity"),
-            "analyst_target": _fund.get("analyst_target"),
-            "analyst_rating": _fund.get("analyst_rating"),
-            # ── Faz 4: Haber katalizörü (EODHD, env-gated) ────────────────────
-            "news_catalyst_score": int(_news.get("news_catalyst_score", 0)),
-            "news_sentiment": float(_news.get("news_sentiment", 0.0)),
-            "news_count": int(_news.get("news_count", 0)),
-            "top_headlines": list(_news.get("top_headlines", [])),
             # ── Faz 6: Cost-adjusted expected return + edge decay label ────
             # net_expected_return: ev_per_trade minus estimated round-trip cost
             # (slippage + commission). Uses core.slippage_tracker when available;
@@ -880,10 +885,10 @@ def evaluate_symbols_parallel(
                 sym = future_map[fut]
                 try:
                     result = fut.result()
-                    results.append(result or _rejected_result(sym, "evaluation_unavailable"))
+                    if result:
+                        results.append(result)
                 except Exception as e:
                     logger.warning("Evaluate error for %s: %s", sym, e)
-                    results.append(_rejected_result(sym, "evaluation_error"))
                 total_done += 1
                 if progress_callback:
                     try:
@@ -897,10 +902,10 @@ def evaluate_symbols_parallel(
         for symbol in symbols:
             try:
                 result = evaluate_symbol(symbol, kelly_fraction)
-                results.append(result or _rejected_result(symbol, "evaluation_unavailable"))
+                if result:
+                    results.append(result)
             except Exception as e:
                 logger.warning("Evaluate error for %s: %s", symbol, e)
-                results.append(_rejected_result(symbol, "evaluation_error"))
 
     logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
     return results
