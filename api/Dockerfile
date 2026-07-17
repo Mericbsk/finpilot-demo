@@ -26,12 +26,15 @@ COPY drl/ ./drl/
 COPY models/ ./models/
 COPY distribution/ ./distribution/
 COPY telegram_alerts.py ./
+COPY telegram_bot_runner.py telegram_config.py ./
+COPY api/entrypoint.sh ./
 
 # Non-root user
 RUN groupadd -r finpilot && useradd -r -g finpilot finpilot \
- && chown -R finpilot:finpilot /app
+ && chown -R finpilot:finpilot /app \
+ && chmod +x /app/entrypoint.sh
 USER finpilot
 
 EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/entrypoint.sh"]

@@ -317,10 +317,25 @@ def _cmd_decide(chat_id: str, text: str) -> None:
     approve = parts[0].upper().startswith("ONAY")
     ok = _bq.decide(qid, approve=approve, decided_by=chat_id)
     if ok:
+        publish_result = None
+        if approve:
+            try:
+                from distribution.jobs import job_publish
+
+                publish_result = job_publish()
+            except Exception as exc:
+                publish_result = {"failed": [qid], "error": str(exc)}
+        if approve and publish_result:
+            if qid in publish_result.get("sent", []):
+                outcome = "hemen kanala gönderildi."
+            elif qid in publish_result.get("failed", []):
+                outcome = "onaylandı ancak kanala gönderilemedi; tg_delivery_log kontrol edilmeli."
+            else:
+                outcome = "onaylandı; yayın sonucu alınamadı, loglar kontrol edilmeli."
+        else:
+            outcome = "yayınlanmadı."
         tg_send_message(
-            ("✅ Onaylandı" if approve else "🚫 Reddedildi")
-            + f": #{qid}. "
-            + ("Yayın saati geldiğinde kanala gönderilecek." if approve else ""),
+            ("✅ Onaylandı" if approve else "🚫 Reddedildi") + f": #{qid}. " + outcome,
             chat_id=chat_id,
         )
     else:
