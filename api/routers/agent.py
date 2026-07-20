@@ -618,7 +618,14 @@ def agent_scheduler_status():
     try:
         from core.scheduler import scheduler_status
 
-        return scheduler_status()
+        result = scheduler_status()
+        try:
+            from distribution.jobs import distribution_status
+
+            result["distribution"] = distribution_status()
+        except Exception as exc:
+            result["distribution"] = {"error": str(exc)}
+        return result
     except Exception as exc:
         return {"running": False, "error": str(exc)}
 

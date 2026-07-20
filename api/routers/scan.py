@@ -363,7 +363,6 @@ async def run_scan(
     _persist_shadow_ledger(out, universe=len(req.symbols))
     _auto_add_watchlist(out, drl_cache, drl_valid)
     _persist_distribution_export(out, universe=len(req.symbols))
-    _trigger_distribution_draft(universe=len(req.symbols))
     try:
         from core.analytics import increment_event
 
@@ -400,6 +399,7 @@ async def summarize_scan(
     # distribution layer never publishes the last batch as today's scan.
     if req.scan_complete is not False:
         _persist_distribution_export(req.results, universe=req.universe or len(req.results))
+        _trigger_distribution_draft(universe=req.universe or len(req.results))
 
     loop = asyncio.get_running_loop()
     try:
@@ -710,11 +710,25 @@ def _persist_distribution_export(results: dict, universe: int) -> None:
             "results": list(results.values()) if isinstance(results, dict) else results,
         }
         current_results = payload["results"]
+        expected_universe = int(_os.getenv("FINPILOT_FULL_UNIVERSE_SIZE", "1812"))
         current_symbols = {
             str(row.get("symbol") or row.get("ticker") or "").upper()
             for row in current_results
             if isinstance(row, dict) and (row.get("symbol") or row.get("ticker"))
         }
+        if universe < expected_universe:
+            partial_path = export_dir / (
+                f"scan_export_{payload['date']}_partial_{len(current_symbols)}.json"
+            )
+            partial_path.write_text(
+                json.dumps(payload, ensure_ascii=False, default=str), encoding="utf-8"
+            )
+            logger.info(
+                "distribution partial export saved without replacing latest: universe=%d/%d",
+                universe,
+                expected_universe,
+            )
+            return
         dated_path = export_dir / f"scan_export_{payload['date']}.json"
         if dated_path.exists():
             try:

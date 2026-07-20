@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS tg_delivery_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     queue_id INTEGER,
     chat_id TEXT NOT NULL,
+    telegram_message_id INTEGER,
     ok INTEGER NOT NULL,
     detail TEXT,
     ts INTEGER NOT NULL
@@ -101,6 +102,9 @@ def get_conn() -> sqlite3.Connection:
 def ensure_tables() -> None:
     with get_conn() as conn:
         conn.executescript(_SCHEMA)
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(tg_delivery_log)")}
+        if "telegram_message_id" not in columns:
+            conn.execute("ALTER TABLE tg_delivery_log ADD COLUMN telegram_message_id INTEGER")
 
 
 def now() -> int:
@@ -160,12 +164,19 @@ def log_premium_event(
         )
 
 
-def log_delivery(queue_id: int | None, chat_id: str, ok: bool, detail: str = "") -> None:
+def log_delivery(
+    queue_id: int | None,
+    chat_id: str,
+    ok: bool,
+    detail: str = "",
+    telegram_message_id: int | None = None,
+) -> None:
     ensure_tables()
     with get_conn() as conn:
         conn.execute(
-            "INSERT INTO tg_delivery_log(queue_id, chat_id, ok, detail, ts) VALUES(?,?,?,?,?)",
-            (queue_id, chat_id, 1 if ok else 0, detail[:500], now()),
+            "INSERT INTO tg_delivery_log(queue_id, chat_id, telegram_message_id, ok, detail, ts)"
+            " VALUES(?,?,?,?,?,?)",
+            (queue_id, chat_id, telegram_message_id, 1 if ok else 0, detail[:500], now()),
         )
 
 

@@ -36,6 +36,51 @@ def distribution_enabled() -> bool:
     return os.getenv("FINPILOT_ENABLE_DISTRIBUTION", "0") == "1"
 
 
+def distribution_status() -> dict:
+    """Return lightweight operational state for the daily distribution chain."""
+    from distribution.snapshot_builder import EXPORT_DIR
+    from distribution.store import ensure_tables, get_conn
+
+    status: dict = {
+        "enabled": distribution_enabled(),
+        "snapshot_date": None,
+        "snapshot_universe": None,
+        "queue": {"pending": 0, "approved": 0, "sent": 0},
+        "last_sent": None,
+    }
+    snapshot_path = EXPORT_DIR / "snapshot_latest.json"
+    try:
+        snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+        status["snapshot_date"] = snapshot.get("date")
+        status["snapshot_universe"] = snapshot.get("universe")
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        status["snapshot_error"] = "snapshot_latest unavailable or invalid"
+
+    try:
+        ensure_tables()
+        with get_conn() as conn:
+            rows = conn.execute(
+                "SELECT status, COUNT(*) FROM broadcast_queue GROUP BY status"
+            ).fetchall()
+            for state, count in rows:
+                if state in status["queue"]:
+                    status["queue"][state] = int(count)
+            row = conn.execute(
+                "SELECT id, kind, brief_date, sent_at FROM broadcast_queue "
+                "WHERE status='sent' ORDER BY sent_at DESC LIMIT 1"
+            ).fetchone()
+        if row:
+            status["last_sent"] = {
+                "queue_id": row[0],
+                "kind": row[1],
+                "brief_date": row[2],
+                "sent_at": row[3],
+            }
+    except Exception as exc:  # pragma: no cover - health endpoint boundary
+        status["queue_error"] = str(exc)
+    return status
+
+
 def _fetch_karne() -> dict | None:
     """Best-effort karne from the local API (watchlist performance).
 
@@ -73,7 +118,7 @@ def job_draft() -> dict:
     if not distribution_enabled():
         return {"skipped": "distribution disabled"}
 
-    today = datetime.now(tz=UTC).date()
+    today = _vienna_now().date()
     if not is_trading_day(today):
         reason = holiday_name(today) or "weekend"
         if reason != "weekend":  # holiday note only for real holidays
@@ -220,7 +265,7 @@ def job_weekly() -> dict:
     """Sunday — weekly summary draft into the queue."""
     if not distribution_enabled():
         return {"skipped": "distribution disabled"}
-    today = datetime.now(tz=UTC).date()
+    today = _vienna_now().date()
     karne = _fetch_karne()
     if karne and karne.get("by_grade"):
         lines = []

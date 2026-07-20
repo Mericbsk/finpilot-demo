@@ -69,7 +69,15 @@ export function getLedgerSnapshot(): LedgerSnapshot | null {
   }
   try {
     const raw = fs.readFileSync(file, "utf-8");
-    const snapshot = JSON.parse(raw) as LedgerSnapshot;
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("snapshot must be a single JSON object");
+    }
+    const snapshot = parsed as LedgerSnapshot;
+    if (isSnapshotStale(snapshot)) {
+      cached = { snapshot: null, mtimeMs: stat.mtimeMs };
+      return null;
+    }
     cached = { snapshot, mtimeMs: stat.mtimeMs };
     return snapshot;
   } catch {
@@ -81,6 +89,7 @@ export function getLedgerSnapshot(): LedgerSnapshot | null {
 /** True if the snapshot is missing, or stale (not today / no candidates). */
 export function isSnapshotStale(snap: LedgerSnapshot | null): boolean {
   if (!snap) return true;
-  if (!snap.candidates || snap.candidates.length === 0) return true;
-  return false;
+  const expectedUniverse = Number(process.env.FINPILOT_EXPECTED_UNIVERSE ?? "1812");
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Vienna" }).format(new Date());
+  return snap.date !== today || snap.universe !== expectedUniverse || !Array.isArray(snap.candidates);
 }

@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import json
+import os
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from api.routers.scan import _persist_distribution_export
 from distribution.snapshot_builder import build_snapshot
 from scanner.score_engine import compute_legacy_quality_score, compute_v2_score
 
@@ -61,6 +66,18 @@ class TestScannerContract(unittest.TestCase):
         self.assertEqual([row["ticker"] for row in snapshot["candidates"]], ["GOOD"])
         self.assertEqual(snapshot["scan_result_count"], 3)
         self.assertEqual(snapshot["eligible_candidate_count"], 1)
+
+    def test_partial_export_does_not_replace_latest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            export_dir = Path(tmp)
+            latest = export_dir / "scan_export_latest.json"
+            latest.write_text(
+                json.dumps({"date": "2026-07-17", "universe": 1812}), encoding="utf-8"
+            )
+            with patch.dict(os.environ, {"FINPILOT_DIST_DIR": tmp}, clear=False):
+                _persist_distribution_export({"A": {"symbol": "A"}}, universe=12)
+            self.assertEqual(json.loads(latest.read_text(encoding="utf-8"))["universe"], 1812)
+            self.assertTrue(list(export_dir.glob("scan_export_2026-07-20_partial_*.json")))
 
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@ def _api(method: str, payload: dict) -> dict:
 def send_message(chat_id: str, text: str, queue_id: int | None = None) -> bool:
     """Markdown message with delivery logging. Returns success flag."""
     try:
-        _api(
+        response = _api(
             "sendMessage",
             {
                 "chat_id": chat_id,
@@ -61,7 +61,8 @@ def send_message(chat_id: str, text: str, queue_id: int | None = None) -> bool:
                 "disable_web_page_preview": True,
             },
         )
-        log_delivery(queue_id, str(chat_id), True)
+        message_id = response.get("result", {}).get("message_id")
+        log_delivery(queue_id, str(chat_id), True, telegram_message_id=message_id)
         return True
     except Exception as exc:
         hint = ""
