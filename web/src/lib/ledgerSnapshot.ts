@@ -88,7 +88,8 @@ function getLocalLedgerSnapshot(): LedgerSnapshot | null {
 
 /** Read the Render-owned snapshot first so web and Telegram share one edition. */
 export async function getLedgerSnapshot(): Promise<LedgerSnapshot | null> {
-  const backendUrl = process.env.API_HOST ?? process.env.BACKEND_URL;
+  const backendUrl =
+    process.env.API_HOST ?? process.env.BACKEND_URL ?? "https://finpilot-api-i745.onrender.com";
   if (backendUrl) {
     try {
       const response = await fetch(`${backendUrl}/api/v1/distribution/snapshot`, {
