@@ -1013,9 +1013,9 @@ export default function ScannerPage() {
             `Scan complete — ${Object.keys(results).length} stocks · ${buyCount} buy signals · Top ${topScore}/100`
           );
 
-          // Tarama tamamlandi — TEK kez AI ozeti tetikle (kendi loading state'i var,
-          // burada await edilmez ki tarama akisi/rapor kaydi bloklanmasin).
-          runPostScanSummary(results, symbols.length, failedBatches === 0);
+          // Wait for the aggregate handoff so a completed scan cannot look
+          // successful while /scan/summarize silently fails in the background.
+          await runPostScanSummary(results, symbols.length, failedBatches === 0);
 
           // Build top signals list (BUY + highest composite score)
           const allScanned = Object.values(results)
