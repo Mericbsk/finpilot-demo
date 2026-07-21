@@ -789,8 +789,9 @@ export default function ScannerPage() {
     [presets],
   );
 
-  /* Live prices from Yahoo Finance — only for the active preset to avoid hammering the API */
-  const { data: live } = useStockPrices(currentSymbols);
+  /* Fetch live prices for the symbols currently visible in the scanner. */
+  const quoteSymbols = scanAllMode ? allPresetSymbols : currentSymbols;
+  const { data: live } = useStockPrices(quoteSymbols);
 
   /* Build display stocks: merge API results with live prices */
   const stocks = useMemo(() => {
