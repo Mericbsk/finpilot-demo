@@ -15,8 +15,8 @@ import { C } from "@/components/ledger/_ledgerColors";
 import { getLedgerSnapshot } from "@/lib/ledgerSnapshot";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
-export default function Home() {
-  const snap = getLedgerSnapshot();
+export default async function Home() {
+  const snap = await getLedgerSnapshot();
   const dateLabel = snap
     ? new Date(snap.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })
     : "No edition yet";

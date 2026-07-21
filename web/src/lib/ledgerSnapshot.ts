@@ -56,7 +56,7 @@ let cached: { snapshot: LedgerSnapshot | null; mtimeMs: number } | null = null;
  * missing or malformed — callers MUST handle this with an honest
  * "no edition yet" state, never fabricate data.
  */
-export function getLedgerSnapshot(): LedgerSnapshot | null {
+function getLocalLedgerSnapshot(): LedgerSnapshot | null {
   const file = path.join(process.cwd(), "public", "demo_snapshot.json");
   let stat: fs.Stats;
   try {
@@ -84,6 +84,29 @@ export function getLedgerSnapshot(): LedgerSnapshot | null {
     cached = { snapshot: null, mtimeMs: stat.mtimeMs };
     return null;
   }
+}
+
+/** Read the Render-owned snapshot first so web and Telegram share one edition. */
+export async function getLedgerSnapshot(): Promise<LedgerSnapshot | null> {
+  const backendUrl = process.env.API_HOST ?? process.env.BACKEND_URL;
+  if (backendUrl) {
+    try {
+      const response = await fetch(`${backendUrl}/api/v1/distribution/snapshot`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(8_000),
+      });
+      if (response.ok) {
+        const parsed: unknown = await response.json();
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          const snapshot = parsed as LedgerSnapshot;
+          if (!isSnapshotStale(snapshot)) return snapshot;
+        }
+      }
+    } catch {
+      // The local published file remains a deployment fallback.
+    }
+  }
+  return getLocalLedgerSnapshot();
 }
 
 /** True if the snapshot is missing, or stale (not today / no candidates). */

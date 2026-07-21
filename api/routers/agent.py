@@ -630,6 +630,39 @@ def agent_scheduler_status():
         return {"running": False, "error": str(exc)}
 
 
+@router.get("/distribution/snapshot")
+def distribution_snapshot():
+    """Return today's validated public snapshot for the web edition."""
+    import json
+    import os
+    from datetime import datetime
+    from pathlib import Path
+    from zoneinfo import ZoneInfo
+
+    expected_universe = int(os.getenv("FINPILOT_FULL_UNIVERSE_SIZE", "1812"))
+    path = Path(os.getenv("FINPILOT_DIST_DIR", "data/distribution")) / "snapshot_en_latest.json"
+    if not path.exists():
+        path = Path(os.getenv("FINPILOT_DIST_DIR", "data/distribution")) / "snapshot_latest.json"
+    try:
+        snapshot = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=503, detail=f"snapshot unavailable: {exc}") from exc
+
+    today = datetime.now(tz=ZoneInfo("Europe/Vienna")).date().isoformat()
+    if snapshot.get("date") != today or int(snapshot.get("universe") or 0) < expected_universe:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "snapshot stale_or_incomplete",
+                "snapshot_date": snapshot.get("date"),
+                "snapshot_universe": snapshot.get("universe"),
+                "expected_date": today,
+                "expected_universe": expected_universe,
+            },
+        )
+    return snapshot
+
+
 @router.post("/agent/scheduler/start")
 def agent_scheduler_start(
     symbols: list[str],

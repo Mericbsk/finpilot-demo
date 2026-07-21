@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import math
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
@@ -394,6 +395,23 @@ async def summarize_scan(
     """
     from scanner.scan_summary import summarize_full_scan
 
+    expected_universe = int(os.getenv("FINPILOT_FULL_UNIVERSE_SIZE", "1812"))
+    minimum_results = max(
+        1,
+        int(expected_universe * float(os.getenv("FINPILOT_MIN_FULL_SCAN_RATIO", "0.9"))),
+    )
+    if req.scan_complete is not False and (
+        (req.universe or 0) < expected_universe or len(req.results) < minimum_results
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"Aggregate scan incomplete: universe={req.universe or 0}, "
+                f"results={len(req.results)}, expected universe at least {expected_universe} "
+                f"and results at least {minimum_results}"
+            ),
+        )
+
     # The browser scans the universe in 200-symbol batches and only has the
     # complete result set at this boundary. Persist that aggregate so the
     # distribution layer never publishes the last batch as today's scan.
@@ -414,7 +432,14 @@ async def summarize_scan(
         raise HTTPException(
             status_code=500, detail=f"Summarize error: {type(exc).__name__}: {exc}"
         ) from exc
-    return summary
+    return {
+        **summary,
+        "distribution": {
+            "persisted": True,
+            "universe": req.universe or len(req.results),
+            "result_count": len(req.results),
+        },
+    }
 
 
 class AnalyzeRequest(BaseModel):
@@ -711,12 +736,16 @@ def _persist_distribution_export(results: dict, universe: int) -> None:
         }
         current_results = payload["results"]
         expected_universe = int(_os.getenv("FINPILOT_FULL_UNIVERSE_SIZE", "1812"))
+        minimum_results = max(
+            1,
+            int(expected_universe * float(_os.getenv("FINPILOT_MIN_FULL_SCAN_RATIO", "0.9"))),
+        )
         current_symbols = {
             str(row.get("symbol") or row.get("ticker") or "").upper()
             for row in current_results
             if isinstance(row, dict) and (row.get("symbol") or row.get("ticker"))
         }
-        if universe < expected_universe:
+        if universe < expected_universe or len(current_symbols) < minimum_results:
             partial_path = export_dir / (
                 f"scan_export_{payload['date']}_partial_{len(current_symbols)}.json"
             )
