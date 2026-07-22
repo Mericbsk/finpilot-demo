@@ -28,7 +28,7 @@ import { NextRequest, NextResponse } from "next/server";
 import http from "node:http";
 import https from "node:https";
 
-const API_HOST = process.env.API_HOST ?? "http://localhost:8001";
+const API_HOST = process.env.API_HOST ?? "https://finpilot-api-i745.onrender.com";
 
 async function proxy(req: NextRequest, params: { path: string[] }): Promise<NextResponse> {
   const rest = params.path.join("/");
