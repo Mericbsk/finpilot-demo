@@ -547,6 +547,7 @@ function writeCache(data: Omit<ScannerCache, "savedAt">) {
  * separate follow-up once single-batch throughput is confirmed stable.
  * ─────────────────────────────────────────────────────────────────────── */
 const BATCH_SIZE = 200;       // 200 symbols per batch — Alpaca bulk prefetch issues O(timeframes)
+const FULL_UNIVERSE_SIZE = 1812;
                                // HTTP calls, not O(symbols), so larger batches don't add server-side
                                // cost; cuts a 1812-symbol scan from ~36 sequential requests to ~9.
 const CONCURRENT_BATCHES = 1; // Sequential batches — concurrent scan causes API thread exhaustion
@@ -1015,7 +1016,11 @@ export default function ScannerPage() {
 
           // Wait for the aggregate handoff so a completed scan cannot look
           // successful while /scan/summarize silently fails in the background.
-          await runPostScanSummary(results, symbols.length, failedBatches === 0);
+          // Distribution is only valid for a full-universe scan. Preset scans
+          // still show results locally but must not enter the daily Telegram/web handoff.
+          if (symbols.length >= FULL_UNIVERSE_SIZE) {
+            await runPostScanSummary(results, symbols.length, failedBatches === 0);
+          }
 
           // Build top signals list (BUY + highest composite score)
           const allScanned = Object.values(results)
