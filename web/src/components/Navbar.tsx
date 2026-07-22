@@ -26,6 +26,9 @@ export default function Navbar() {
           <a href="/demo" className="text-xs" style={{ color: "var(--ledger-ink-soft)" }}>
             {t("nav.demo")}
           </a>
+          <a href="/dashboard/scanner" className="text-xs" style={{ color: "var(--ledger-ink-soft)" }}>
+            Scanner
+          </a>
           <LanguageSwitcher />
           <a
             href="/demo"
@@ -61,6 +64,9 @@ export default function Navbar() {
           </a>
           <a href="/demo" onClick={() => setOpen(false)} className="block text-sm" style={{ color: "var(--ledger-ink-soft)" }}>
             {t("nav.demo")}
+          </a>
+          <a href="/dashboard/scanner" onClick={() => setOpen(false)} className="block text-sm" style={{ color: "var(--ledger-ink-soft)" }}>
+            Scanner
           </a>
           <div className="pt-1">
             <LanguageSwitcher />
