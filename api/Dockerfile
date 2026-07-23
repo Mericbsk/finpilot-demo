@@ -22,6 +22,7 @@ COPY core/ ./core/
 COPY llm/ ./llm/
 COPY scanner/ ./scanner/
 COPY auth/ ./auth/
+COPY execution/ ./execution/
 COPY drl/ ./drl/
 COPY models/ ./models/
 COPY distribution/ ./distribution/

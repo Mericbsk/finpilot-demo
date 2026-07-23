@@ -173,6 +173,7 @@ class AlpacaBroker:
         take_profit: float | None = None,
         buy_signal_id: int | None = None,
         time_in_force: str = "day",
+        client_order_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Place a BUY order on Alpaca paper trading.
@@ -200,6 +201,8 @@ class AlpacaBroker:
             "side": OrderSide.BUY,
             "time_in_force": tif,
         }
+        if client_order_id:
+            order_kwargs["client_order_id"] = client_order_id
 
         if use_bracket:
             order_kwargs["order_class"] = OrderClass.BRACKET

@@ -61,6 +61,8 @@ services:
       - FINPILOT_ENABLE_NEWS=${FINPILOT_ENABLE_NEWS:-0}
       # Early detection tier ladder
       - FINPILOT_ENABLE_EARLY_TIER=${FINPILOT_ENABLE_EARLY_TIER:-0}
+      - FINPILOT_EXECUTION_MODE=${FINPILOT_EXECUTION_MODE:-dry_run}
+      - FINPILOT_RECONCILE_INTERVAL_SECONDS=${FINPILOT_RECONCILE_INTERVAL_SECONDS:-60}
       # DATABASE_URL example for PostgreSQL (uncomment after S2-1 auth refactor):
       # - DATABASE_URL=postgresql://finpilot:${POSTGRES_PASSWORD:-finpilot_dev_2026}@postgres:5432/finpilot
     env_file:
@@ -97,6 +99,35 @@ services:
           memory: 2G
         reservations:
           memory: 512M
+
+  # Paper execution reconciliation worker. Disabled unless the execution
+  # profile is explicitly selected; default mode remains dry_run.
+  execution:
+    profiles: [execution]
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: finpilot_execution
+    restart: unless-stopped
+    command: ["python", "-m", "execution.worker"]
+    environment:
+      - TZ=Europe/Istanbul
+      - PYTHONUNBUFFERED=1
+      - FINPILOT_EXECUTION_MODE=${FINPILOT_EXECUTION_MODE:-dry_run}
+      - FINPILOT_RECONCILE_INTERVAL_SECONDS=${FINPILOT_RECONCILE_INTERVAL_SECONDS:-60}
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./core:/app/core:ro
+      - ./auth:/app/auth:ro
+      - ./broker:/app/broker:ro
+      - ./execution:/app/execution:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - finpilot_network
 
   # ============================================
   # 📊 Streamlit Dashboard (Legacy / Optional)

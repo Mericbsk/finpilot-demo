@@ -315,6 +315,68 @@ class Database:
             """
             )
 
+            # Paper execution gateway — durable intent and event state.
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS execution_intents (
+                    intent_id TEXT PRIMARY KEY,
+                    signal_id TEXT NOT NULL,
+                    scanner_run_id TEXT,
+                    idempotency_key TEXT UNIQUE NOT NULL,
+                    environment TEXT NOT NULL CHECK(environment = 'paper'),
+                    symbol TEXT NOT NULL,
+                    side TEXT NOT NULL,
+                    qty REAL NOT NULL,
+                    order_type TEXT NOT NULL,
+                    limit_price REAL,
+                    stop_price REAL,
+                    take_profit REAL,
+                    strategy_id TEXT,
+                    strategy_version TEXT,
+                    status TEXT NOT NULL,
+                    rejection_reason TEXT,
+                    alpaca_order_id TEXT,
+                    client_order_id TEXT,
+                    filled_qty REAL,
+                    filled_price REAL,
+                    last_error TEXT,
+                    payload TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS execution_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    event_type TEXT NOT NULL,
+                    entity_id TEXT NOT NULL,
+                    signal_id TEXT,
+                    payload TEXT NOT NULL,
+                    occurred_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS execution_controls (
+                    control_key TEXT PRIMARY KEY,
+                    enabled INTEGER NOT NULL DEFAULT 0,
+                    reason TEXT NOT NULL DEFAULT '',
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_execution_intents_status "
+                "ON execution_intents(status)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_execution_events_entity "
+                "ON execution_events(entity_id, occurred_at)"
+            )
+
             # Create indexes
             conn.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
             conn.execute(

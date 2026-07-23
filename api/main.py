@@ -47,6 +47,7 @@ from api.routers import (
     demo_feedback,
     distribution,
     ensemble,
+    execution,
     history,
     inference,
     llm,
@@ -379,6 +380,7 @@ app.include_router(waitlist_signup.router, prefix="/api/v1")
 app.include_router(academy.router, prefix="/api/v1")
 app.include_router(demo_feedback.router, prefix="/api/v1")
 app.include_router(distribution.router, prefix="/api/v1")
+app.include_router(execution.router, prefix="/api/v1")
 app.include_router(stripe_webhook.router, prefix="/api/v1")
 
 
