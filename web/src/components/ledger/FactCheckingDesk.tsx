@@ -4,24 +4,22 @@ import { motion } from "framer-motion";
 import { C } from "./_ledgerColors";
 
 /**
- * "Fact-Checking Desk" — merged reskin of the old HeroGrid "Risk Shield"
- * metric cards + "Battle-Tested" backtest bars into one editorial block:
+ * "Fact-Checking Desk" — merged reskin of the old risk and evidence panels
+ * into one editorial block:
  * the newsroom's fact-checkers verifying every call before print.
  */
-// Register (2026-07-14 web review): these are ILLUSTRATIVE research levels
-// that show how the risk model reasons — not a stop/target recommendation.
 const RISK_METRICS = [
-  { label: "Illustrative stop", val: "$168.50", sub: "ATR-based" },
-  { label: "Research target", val: "$198.00", sub: "R/R 1.8" },
-  { label: "Illustrative size", val: "12%", sub: "Kelly-based" },
+  { label: "Volatility range", val: "Elevated", sub: "ATR context" },
+  { label: "Scenario band", val: "Wide", sub: "Historical range" },
+  { label: "Exposure model", val: "Bounded", sub: "Portfolio rule" },
   { label: "Risk Score", val: "Low", sub: "0.3 / 1.0" },
 ];
 
 const BACKTEST_METRICS = [
-  { label: "Sharpe Ratio", val: "1.24", bar: 62 },
-  { label: "Win Rate", val: "68%", bar: 68 },
-  { label: "Max Drawdown", val: "12.4%", bar: 24 },
-  { label: "Profit Factor", val: "2.1×", bar: 70 },
+  { label: "Sample window", val: "2 years", bar: 62 },
+  { label: "Live scorecard", val: "Pending", bar: 18 },
+  { label: "Stress scenarios", val: "Reviewed", bar: 72 },
+  { label: "Evidence status", val: "Research", bar: 54 },
 ];
 
 export default function FactCheckingDesk() {
@@ -29,7 +27,7 @@ export default function FactCheckingDesk() {
     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
       <div>
         <p className="mb-3 font-ledger-mono text-[10px] uppercase tracking-widest" style={{ color: C.gold }}>
-          Risk Shield
+          Risk Model
         </p>
         <div className="grid grid-cols-2 gap-3">
           {RISK_METRICS.map((m, i) => (
@@ -49,13 +47,13 @@ export default function FactCheckingDesk() {
           ))}
         </div>
         <p className="mt-2 text-[9px] italic" style={{ color: C.inkSoft }}>
-          Illustrative levels — a research example of how the risk model reasons, not investment advice.
+          Context for research review, not an instruction to trade. Decisions and risk remain yours.
         </p>
       </div>
 
       <div>
         <p className="mb-3 font-ledger-mono text-[10px] uppercase tracking-widest" style={{ color: C.gold }}>
-          Battle-Tested
+          Evidence Desk
         </p>
         <div className="space-y-3">
           {BACKTEST_METRICS.map((m, i) => (

@@ -34,8 +34,8 @@ export default function Newsroom() {
           Fact-Checking Desk
         </h3>
         <p className="mb-4 text-sm" style={{ color: C.inkSoft }}>
-          Every call is stress-tested before it&apos;s printed — risk shield rules on one side,
-          walk-forward backtest results on the other.
+          Every research read is stress-tested before it&apos;s printed — validation rules on one
+          side, walk-forward evidence on the other.
         </p>
         <FactCheckingDesk />
       </div>

@@ -21,7 +21,7 @@ from distribution.concepts import concept_of_the_day  # noqa: E402
 from distribution.market_calendar import is_trading_day  # noqa: E402
 from distribution.rationale import build_rationale, extract_badges, prob_band  # noqa: E402
 from distribution.schema import SCHEMA_VERSION, free_view, validate_snapshot  # noqa: E402
-from distribution.snapshot_builder import build_snapshot  # noqa: E402
+from distribution.snapshot_builder import build_snapshot, read_json_object  # noqa: E402
 from distribution.store import log_delivery  # noqa: E402
 from distribution.templates import render_daily_free, render_daily_premium  # noqa: E402
 
@@ -86,6 +86,13 @@ class TestRationale(unittest.TestCase):
 
 
 class TestSnapshot(unittest.TestCase):
+    def test_corrupt_json_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "corrupt.json"
+            path.write_bytes(b'{"date":"2026-07-06"}\x00')
+            with self.assertRaises(ValueError):
+                read_json_object(path)
+
     def test_build_and_validate(self):
         rows = [_row("AAA"), _row("BBB", conv="B", prob=0.5), _row("CCC", conv="C", prob=0.3)]
         snap = build_snapshot(rows, universe=1812, date_str="2026-07-06")

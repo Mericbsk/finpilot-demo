@@ -6,12 +6,9 @@ import { C } from "./_ledgerColors";
 /**
  * "The Wire" — the newsroom's raw incoming feed, ledger typography.
  *
- * Register (2026-07-14 web review): this is a RESEARCH GRADE feed, not a
- * trade blotter. It shows a letter grade + a plain-language reason — never
- * BUY/SELL, entry/stop/target, or R/R. Those price levels live only on the
- * logged-in dashboard (with disclaimers + user context), never on the public
- * marketing page. Data below is illustrative/static, same as the original
- * mockup — see plan re: wiring to real snapshot.candidates (deferred).
+ * This is a research-grade feed, not a trade blotter. It shows a letter grade
+ * and a plain-language reason. Data below is illustrative/static until the
+ * newsroom is wired to snapshot candidates.
  */
 const ROWS = [
   { sym: "NVDA", score: 87, grade: "B", why: "volume and momentum point the same way" },

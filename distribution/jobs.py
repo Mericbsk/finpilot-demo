@@ -173,25 +173,22 @@ def job_draft() -> dict:
     # brief above stays Turkish for its existing audience; this is a
     # separate, additive artefact so the web/Telegram pipelines can't
     # interfere with each other.
-    try:
-        from distribution.snapshot_builder import EXPORT_DIR
+    from distribution.snapshot_builder import EXPORT_DIR
 
-        snap_en = build_snapshot(
-            rows,
-            universe=universe,
-            karne=karne,
-            date_str=date_str,
-            lang="en",
-            scan_id=scan_id,
-        )
-        tr_tickers = [candidate["ticker"] for candidate in snap.get("candidates", [])]
-        en_tickers = [candidate["ticker"] for candidate in snap_en.get("candidates", [])]
-        if tr_tickers != en_tickers:
-            raise ValueError("Turkish and English snapshots selected different candidates")
-        EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-        write_snapshot(EXPORT_DIR / "snapshot_en_latest.json", snap_en)
-    except Exception as exc:
-        logger.warning("english web snapshot build failed: %s", exc)
+    snap_en = build_snapshot(
+        rows,
+        universe=universe,
+        karne=karne,
+        date_str=date_str,
+        lang="en",
+        scan_id=scan_id,
+    )
+    tr_tickers = [candidate["ticker"] for candidate in snap.get("candidates", [])]
+    en_tickers = [candidate["ticker"] for candidate in snap_en.get("candidates", [])]
+    if tr_tickers != en_tickers or snap_en["snapshot_id"] != snap["snapshot_id"]:
+        raise ValueError("Turkish and English snapshots do not share identity")
+    EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+    write_snapshot(EXPORT_DIR / "snapshot_en_latest.json", snap_en)
 
     concept = concept_of_the_day(today)
     from distribution.market_context import build_context_line
@@ -267,12 +264,12 @@ def job_publish() -> dict:
 
 
 def _load_current_snapshot() -> dict | None:
-    from distribution.snapshot_builder import EXPORT_DIR
+    from distribution.snapshot_builder import EXPORT_DIR, read_json_object
 
     for path in (EXPORT_DIR / "snapshot_en_latest.json", EXPORT_DIR / "snapshot_latest.json"):
         try:
-            snapshot = json.loads(path.read_text(encoding="utf-8"))
-        except (FileNotFoundError, OSError, json.JSONDecodeError):
+            snapshot = read_json_object(path)
+        except (FileNotFoundError, OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError):
             continue
         if not validate_snapshot(snapshot):
             return snapshot

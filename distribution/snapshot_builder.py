@@ -414,30 +414,24 @@ def build_snapshot(
     return snap
 
 
-def _read_json_resilient(p: Path) -> dict[str, Any]:
-    """Bozuk-kuyruklu JSON'a dayanıklı okuyucu.
-
-    Senkron/AV (OneDrive vb.) bazen dosya kuyruğunu null-dolgu ('\\x00') ya da
-    'Extra data' ile bozar; bu okuyucu ilk geçerli JSON nesnesini kurtarır ki
-    tüm brif/web hattı tek bozuk export yüzünden durmasın.
-    """
-    raw = Path(p).read_bytes().rstrip(b"\x00")
-    text = raw.decode("utf-8", errors="ignore").lstrip()
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        obj, _end = json.JSONDecoder().raw_decode(text)
-        logger.warning("scan export kuyruğu bozuktu; ilk geçerli JSON kurtarıldı: %s", p)
-        return obj
+def read_json_object(p: Path) -> dict[str, Any]:
+    """Read exactly one valid UTF-8 JSON object; reject corruption loudly."""
+    raw = Path(p).read_bytes()
+    if b"\\x00" in raw:
+        raise ValueError(f"JSON contains NUL bytes: {p}")
+    text = raw.decode("utf-8").strip()
+    if not text:
+        raise ValueError(f"JSON is empty: {p}")
+    data = json.loads(text)
+    if not isinstance(data, dict):
+        raise ValueError(f"JSON must be an object: {p}")
+    return data
 
 
 def load_scan_export_record(path: Path | None = None) -> dict[str, Any]:
     """Read the complete export record, including scan completion metadata."""
     p = path or SCAN_EXPORT_LATEST
-    data = _read_json_resilient(Path(p))
-    if not isinstance(data, dict):
-        raise ValueError("scan export must be a JSON object")
-    return data
+    return read_json_object(Path(p))
 
 
 def load_scan_export(path: Path | None = None) -> tuple[list[dict[str, Any]], int, str]:
@@ -478,8 +472,13 @@ def write_snapshot(path: Path, snap: dict[str, Any]) -> None:
 def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(f".{path.name}.tmp")
-    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    with tmp.open("w", encoding="utf-8", newline="\n") as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=1)
+        handle.write("\n")
+        handle.flush()
+        os.fsync(handle.fileno())
     tmp.replace(path)
+    read_json_object(path)
 
 
 # ── Almanca (de) risk havuzları — import anında birleştirilir ────────────────

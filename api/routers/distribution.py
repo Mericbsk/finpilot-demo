@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 from distribution.scan_contract import expected_universe
 from distribution.schema import demo_view, validate_snapshot
+from distribution.snapshot_builder import read_json_object
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter(tags=["distribution"])
@@ -23,8 +24,14 @@ def distribution_snapshot():
     if not path.exists():
         path = dist_dir / "snapshot_latest.json"
     try:
-        snapshot = json.loads(path.read_text(encoding="utf-8"))
-    except (FileNotFoundError, OSError, json.JSONDecodeError) as exc:
+        snapshot = read_json_object(path)
+    except (
+        FileNotFoundError,
+        OSError,
+        UnicodeDecodeError,
+        ValueError,
+        json.JSONDecodeError,
+    ) as exc:
         raise HTTPException(status_code=503, detail=f"snapshot unavailable: {exc}") from exc
 
     problems = validate_snapshot(snapshot)
