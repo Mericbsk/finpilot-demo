@@ -23,7 +23,16 @@ from pathlib import Path
 from distribution import broadcast, templates
 from distribution.concepts import concept_of_the_day
 from distribution.market_calendar import holiday_name, is_trading_day
-from distribution.snapshot_builder import build_snapshot, load_scan_export, save_snapshot
+from distribution.scan_contract import expected_universe
+from distribution.schema import validate_snapshot
+from distribution.snapshot_builder import (
+    build_snapshot,
+    load_scan_export,
+    load_scan_export_record,
+    save_snapshot,
+    validate_scan_export,
+    write_snapshot,
+)
 from distribution.telegram_client import notify_admin, send_to_channel
 
 logger = logging.getLogger(__name__)
@@ -130,7 +139,10 @@ def job_draft() -> dict:
     broadcast.expire_stale()
 
     try:
-        rows, universe, date_str = load_scan_export()
+        export = load_scan_export_record()
+        rows = export.get("results", [])
+        universe = int(export.get("universe") or len(rows))
+        date_str = str(export.get("date") or "")
     except FileNotFoundError:
         notify_admin(
             "⚠️ Bugün için scan export bulunamadı — brif taslağı üretilemedi. Önce bir tarama çalıştır."
@@ -146,8 +158,15 @@ def job_draft() -> dict:
         )
         return {"error": f"stale export {date_str}"}
 
+    export_problems = validate_scan_export(export)
+    if export_problems:
+        reason = "; ".join(export_problems)
+        notify_admin(f"⚠️ Scan export tamamlanmamış ({reason}) — bugünkü brif üretilmedi.")
+        return {"error": "incomplete export", "problems": export_problems}
+
     karne = _fetch_karne()
-    snap = build_snapshot(rows, universe=universe, karne=karne, date_str=date_str)
+    scan_id = export.get("scan_id")
+    snap = build_snapshot(rows, universe=universe, karne=karne, date_str=date_str, scan_id=scan_id)
     save_snapshot(snap)
 
     # English snapshot for the web Ledger (landing + /demo) — the Telegram
@@ -157,15 +176,20 @@ def job_draft() -> dict:
     try:
         from distribution.snapshot_builder import EXPORT_DIR
 
-        snap_en = build_snapshot(rows, universe=universe, karne=karne, date_str=date_str, lang="en")
+        snap_en = build_snapshot(
+            rows,
+            universe=universe,
+            karne=karne,
+            date_str=date_str,
+            lang="en",
+            scan_id=scan_id,
+        )
         tr_tickers = [candidate["ticker"] for candidate in snap.get("candidates", [])]
         en_tickers = [candidate["ticker"] for candidate in snap_en.get("candidates", [])]
         if tr_tickers != en_tickers:
             raise ValueError("Turkish and English snapshots selected different candidates")
         EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-        (EXPORT_DIR / "snapshot_en_latest.json").write_text(
-            json.dumps(snap_en, ensure_ascii=False, indent=1), encoding="utf-8"
-        )
+        write_snapshot(EXPORT_DIR / "snapshot_en_latest.json", snap_en)
     except Exception as exc:
         logger.warning("english web snapshot build failed: %s", exc)
 
@@ -174,13 +198,22 @@ def job_draft() -> dict:
 
     ctx_line = build_context_line("tr")
     free_text = templates.render_daily_free(snap, concept_line=concept, context_line=ctx_line)
-    qid_free = broadcast.queue_draft("daily_free", date_str, free_text)
+    queue_metadata = {
+        "snapshot_id": snap["snapshot_id"],
+        "snapshot_date": snap["date"],
+        "snapshot_universe": snap["universe"],
+        "candidate_hash": snap["candidate_hash"],
+        "scan_id": snap.get("scan_id"),
+    }
+    qid_free = broadcast.queue_draft("daily_free", date_str, free_text, **queue_metadata)
 
     result = {"snapshot": True, "free_queue_id": qid_free, "warnings": snap.get("warnings", [])}
 
     if os.getenv("FINPILOT_ENABLE_PREMIUM_BRIEF", "0") == "1":
         prem_text = templates.render_daily_premium(snap, context_line=ctx_line)
-        result["premium_queue_id"] = broadcast.queue_draft("daily_premium", date_str, prem_text)
+        result["premium_queue_id"] = broadcast.queue_draft(
+            "daily_premium", date_str, prem_text, **queue_metadata
+        )
 
     warn = ("\n⚠️ " + "; ".join(snap["warnings"])) if snap.get("warnings") else ""
     notify_admin(
@@ -196,8 +229,15 @@ def job_publish() -> dict:
     if not distribution_enabled():
         return {"skipped": "distribution disabled"}
 
-    sent, failed = [], []
+    sent, failed, blocked = [], [], []
+    current_snapshot = _load_current_snapshot()
     for item in broadcast.get_approved_unsent():
+        problems = _queue_snapshot_problems(item, current_snapshot)
+        if problems:
+            error = "snapshot mismatch: " + "; ".join(problems)
+            broadcast.mark_sent(item["id"], error=error)
+            blocked.append(item["id"])
+            continue
         premium = item["kind"] == "daily_premium"
         ok = send_to_channel(item["text"], queue_id=item["id"], premium=premium)
         if ok:
@@ -220,9 +260,41 @@ def job_publish() -> dict:
     return {
         "sent": sent,
         "failed": failed,
+        "blocked": blocked,
         "web_pushed": pushed,
         "pending_unapproved": len(pending),
     }
+
+
+def _load_current_snapshot() -> dict | None:
+    from distribution.snapshot_builder import EXPORT_DIR
+
+    for path in (EXPORT_DIR / "snapshot_en_latest.json", EXPORT_DIR / "snapshot_latest.json"):
+        try:
+            snapshot = json.loads(path.read_text(encoding="utf-8"))
+        except (FileNotFoundError, OSError, json.JSONDecodeError):
+            continue
+        if not validate_snapshot(snapshot):
+            return snapshot
+    return None
+
+
+def _queue_snapshot_problems(item: dict, snapshot: dict | None) -> list[str]:
+    if snapshot is None:
+        return ["current snapshot unavailable"]
+    today = _vienna_now().date().isoformat()
+    problems: list[str] = []
+    if item.get("snapshot_id") != snapshot.get("snapshot_id"):
+        problems.append("snapshot_id differs")
+    if item.get("snapshot_date") != today or snapshot.get("date") != today:
+        problems.append("snapshot date is stale")
+    if int(item.get("snapshot_universe") or 0) < expected_universe():
+        problems.append("queue universe is incomplete")
+    if int(snapshot.get("universe") or 0) < expected_universe():
+        problems.append("current universe is incomplete")
+    if item.get("candidate_hash") != snapshot.get("candidate_hash"):
+        problems.append("candidate_hash differs")
+    return problems
 
 
 def _push_snapshot_to_web() -> bool:

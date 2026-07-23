@@ -13,20 +13,48 @@ from distribution import lint
 from distribution.store import ensure_tables, get_conn, now
 
 
-def queue_draft(kind: str, brief_date: str, text: str) -> int:
+def queue_draft(
+    kind: str,
+    brief_date: str,
+    text: str,
+    *,
+    snapshot_id: str | None = None,
+    snapshot_date: str | None = None,
+    snapshot_universe: int | None = None,
+    candidate_hash: str | None = None,
+    scan_id: str | None = None,
+) -> int:
     """Lint-check and enqueue a draft. Raises ValueError if lint fails."""
     lint.assert_publishable(text)
     ensure_tables()
     with get_conn() as conn:
+        if snapshot_id:
+            existing = conn.execute(
+                "SELECT id FROM broadcast_queue WHERE kind=? AND brief_date=? AND snapshot_id=? "
+                "AND status IN ('pending','approved','sent') ORDER BY id DESC LIMIT 1",
+                (kind, brief_date, snapshot_id),
+            ).fetchone()
+            if existing:
+                return int(existing[0])
         conn.execute(
             "UPDATE broadcast_queue SET status='expired', decided_at=?, decided_by=?"
             " WHERE kind=? AND brief_date=? AND status='pending'",
             (now(), "superseded_by_new_draft", kind, brief_date),
         )
         cur = conn.execute(
-            "INSERT INTO broadcast_queue(kind, brief_date, text, status, created_at)"
-            " VALUES(?,?,?,'pending',?)",
-            (kind, brief_date, text, now()),
+            "INSERT INTO broadcast_queue(kind, brief_date, text, status, created_at, snapshot_id, "
+            "snapshot_date, snapshot_universe, candidate_hash, scan_id) VALUES(?,?,?,'pending',?,?,?,?,?,?)",
+            (
+                kind,
+                brief_date,
+                text,
+                now(),
+                snapshot_id,
+                snapshot_date,
+                snapshot_universe,
+                candidate_hash,
+                scan_id,
+            ),
         )
         return int(cur.lastrowid or 0)
 
@@ -35,11 +63,23 @@ def get_pending() -> list[dict[str, Any]]:
     ensure_tables()
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT id, kind, brief_date, text, created_at FROM broadcast_queue"
+            "SELECT id, kind, brief_date, text, created_at, snapshot_id, snapshot_date, "
+            "snapshot_universe, candidate_hash, scan_id FROM broadcast_queue"
             " WHERE status='pending' ORDER BY id"
         ).fetchall()
     return [
-        {"id": r[0], "kind": r[1], "brief_date": r[2], "text": r[3], "created_at": r[4]}
+        {
+            "id": r[0],
+            "kind": r[1],
+            "brief_date": r[2],
+            "text": r[3],
+            "created_at": r[4],
+            "snapshot_id": r[5],
+            "snapshot_date": r[6],
+            "snapshot_universe": r[7],
+            "candidate_hash": r[8],
+            "scan_id": r[9],
+        }
         for r in rows
     ]
 
@@ -48,10 +88,24 @@ def get_approved_unsent() -> list[dict[str, Any]]:
     ensure_tables()
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT id, kind, brief_date, text FROM broadcast_queue"
+            "SELECT id, kind, brief_date, text, snapshot_id, snapshot_date, snapshot_universe, "
+            "candidate_hash, scan_id FROM broadcast_queue"
             " WHERE status='approved' AND sent_at IS NULL ORDER BY id"
         ).fetchall()
-    return [{"id": r[0], "kind": r[1], "brief_date": r[2], "text": r[3]} for r in rows]
+    return [
+        {
+            "id": r[0],
+            "kind": r[1],
+            "brief_date": r[2],
+            "text": r[3],
+            "snapshot_id": r[4],
+            "snapshot_date": r[5],
+            "snapshot_universe": r[6],
+            "candidate_hash": r[7],
+            "scan_id": r[8],
+        }
+        for r in rows
+    ]
 
 
 def decide(queue_id: int, approve: bool, decided_by: str) -> bool:
@@ -72,6 +126,17 @@ def mark_sent(queue_id: int, error: str = "") -> None:
         if error:
             conn.execute("UPDATE broadcast_queue SET error=? WHERE id=?", (error[:500], queue_id))
         else:
+            delivered = conn.execute(
+                "SELECT 1 FROM tg_delivery_log WHERE queue_id=? AND ok=1 "
+                "AND telegram_message_id IS NOT NULL LIMIT 1",
+                (queue_id,),
+            ).fetchone()
+            if not delivered:
+                conn.execute(
+                    "UPDATE broadcast_queue SET error=? WHERE id=?",
+                    ("delivery message_id missing", queue_id),
+                )
+                return
             conn.execute(
                 "UPDATE broadcast_queue SET status='sent', sent_at=? WHERE id=?",
                 (now(), queue_id),

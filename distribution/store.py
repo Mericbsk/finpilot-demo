@@ -26,13 +26,20 @@ CREATE TABLE IF NOT EXISTS broadcast_queue (
     decided_at INTEGER,
     decided_by TEXT,
     sent_at INTEGER,
-    error TEXT
+    error TEXT,
+    snapshot_id TEXT,
+    snapshot_date TEXT,
+    snapshot_universe INTEGER,
+    candidate_hash TEXT,
+    scan_id TEXT
 );
 CREATE TABLE IF NOT EXISTS tg_delivery_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     queue_id INTEGER,
     chat_id TEXT NOT NULL,
     telegram_message_id INTEGER,
+    snapshot_id TEXT,
+    channel TEXT,
     ok INTEGER NOT NULL,
     detail TEXT,
     ts INTEGER NOT NULL
@@ -105,6 +112,21 @@ def ensure_tables() -> None:
         columns = {row[1] for row in conn.execute("PRAGMA table_info(tg_delivery_log)")}
         if "telegram_message_id" not in columns:
             conn.execute("ALTER TABLE tg_delivery_log ADD COLUMN telegram_message_id INTEGER")
+        queue_columns = {row[1] for row in conn.execute("PRAGMA table_info(broadcast_queue)")}
+        for name, sql_type in (
+            ("snapshot_id", "TEXT"),
+            ("snapshot_date", "TEXT"),
+            ("snapshot_universe", "INTEGER"),
+            ("candidate_hash", "TEXT"),
+            ("scan_id", "TEXT"),
+        ):
+            if name not in queue_columns:
+                conn.execute(f"ALTER TABLE broadcast_queue ADD COLUMN {name} {sql_type}")
+        delivery_columns = {row[1] for row in conn.execute("PRAGMA table_info(tg_delivery_log)")}
+        if "snapshot_id" not in delivery_columns:
+            conn.execute("ALTER TABLE tg_delivery_log ADD COLUMN snapshot_id TEXT")
+        if "channel" not in delivery_columns:
+            conn.execute("ALTER TABLE tg_delivery_log ADD COLUMN channel TEXT")
 
 
 def now() -> int:
@@ -170,13 +192,24 @@ def log_delivery(
     ok: bool,
     detail: str = "",
     telegram_message_id: int | None = None,
+    snapshot_id: str | None = None,
+    channel: str = "",
 ) -> None:
     ensure_tables()
     with get_conn() as conn:
         conn.execute(
-            "INSERT INTO tg_delivery_log(queue_id, chat_id, telegram_message_id, ok, detail, ts)"
-            " VALUES(?,?,?,?,?,?)",
-            (queue_id, chat_id, telegram_message_id, 1 if ok else 0, detail[:500], now()),
+            "INSERT INTO tg_delivery_log(queue_id, chat_id, telegram_message_id, snapshot_id, channel, ok, detail, ts)"
+            " VALUES(?,?,?,?,?,?,?,?)",
+            (
+                queue_id,
+                chat_id,
+                telegram_message_id,
+                snapshot_id,
+                channel,
+                1 if ok else 0,
+                detail[:500],
+                now(),
+            ),
         )
 
 

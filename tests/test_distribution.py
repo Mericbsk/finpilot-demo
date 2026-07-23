@@ -22,6 +22,7 @@ from distribution.market_calendar import is_trading_day  # noqa: E402
 from distribution.rationale import build_rationale, extract_badges, prob_band  # noqa: E402
 from distribution.schema import SCHEMA_VERSION, free_view, validate_snapshot  # noqa: E402
 from distribution.snapshot_builder import build_snapshot  # noqa: E402
+from distribution.store import log_delivery  # noqa: E402
 from distribution.templates import render_daily_free, render_daily_premium  # noqa: E402
 
 
@@ -146,8 +147,35 @@ class TestBroadcastQueue(unittest.TestCase):
 
         approved = broadcast.get_approved_unsent()
         self.assertTrue(any(a["id"] == qid for a in approved))
+        log_delivery(qid, "test-channel", True, telegram_message_id=123)
         broadcast.mark_sent(qid)
         self.assertFalse(any(a["id"] == qid for a in broadcast.get_approved_unsent()))
+
+    def test_snapshot_metadata_is_idempotent(self):
+        text = "Test brifi. Yatırım tavsiyesi değildir."
+        first = broadcast.queue_draft(
+            "daily_free",
+            "2026-07-07",
+            text,
+            snapshot_id="snap-1",
+            snapshot_date="2026-07-07",
+            snapshot_universe=1812,
+            candidate_hash="hash-1",
+            scan_id="scan-1",
+        )
+        second = broadcast.queue_draft(
+            "daily_free",
+            "2026-07-07",
+            text,
+            snapshot_id="snap-1",
+            snapshot_date="2026-07-07",
+            snapshot_universe=1812,
+            candidate_hash="hash-1",
+            scan_id="scan-1",
+        )
+        self.assertEqual(first, second)
+        item = next(row for row in broadcast.get_pending() if row["id"] == first)
+        self.assertEqual(item["snapshot_id"], "snap-1")
 
     def test_lint_blocks_queue(self):
         with self.assertRaises(ValueError):

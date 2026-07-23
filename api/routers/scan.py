@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import math
@@ -15,6 +16,7 @@ from typing import Annotated
 
 import pandas as pd
 from auth.tokens import TokenPayload
+from distribution.scan_contract import full_scan_problems
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
@@ -380,6 +382,7 @@ class ScanSummarizeRequest(BaseModel):
     )
     universe: int | None = Field(None, ge=1)
     scan_complete: bool | None = None
+    scan_id: str | None = Field(None, max_length=100)
 
 
 @router.post("/scan/summarize")
@@ -395,28 +398,23 @@ async def summarize_scan(
     """
     from scanner.scan_summary import summarize_full_scan
 
-    expected_universe = int(os.getenv("FINPILOT_FULL_UNIVERSE_SIZE", "1812"))
-    minimum_results = max(
-        1,
-        int(expected_universe * float(os.getenv("FINPILOT_MIN_FULL_SCAN_RATIO", "0.9"))),
-    )
-    if req.scan_complete is not False and (
-        (req.universe or 0) < expected_universe or len(req.results) < minimum_results
-    ):
+    problems = full_scan_problems(req.results, req.universe, req.scan_complete)
+    if problems:
         raise HTTPException(
             status_code=422,
-            detail=(
-                f"Aggregate scan incomplete: universe={req.universe or 0}, "
-                f"results={len(req.results)}, expected universe at least {expected_universe} "
-                f"and results at least {minimum_results}"
-            ),
+            detail=("Aggregate scan incomplete: " + "; ".join(problems)),
         )
 
     # The browser scans the universe in 200-symbol batches and only has the
     # complete result set at this boundary. Persist that aggregate so the
     # distribution layer never publishes the last batch as today's scan.
     if req.scan_complete is not False:
-        _persist_distribution_export(req.results, universe=req.universe or len(req.results))
+        _persist_distribution_export(
+            req.results,
+            universe=req.universe or len(req.results),
+            scan_id=req.scan_id,
+            scan_complete=True,
+        )
         _trigger_distribution_draft(universe=req.universe or len(req.results))
 
     loop = asyncio.get_running_loop()
@@ -715,7 +713,12 @@ def get_daily_report(date: str):
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-def _persist_distribution_export(results: dict, universe: int) -> None:
+def _persist_distribution_export(
+    results: dict,
+    universe: int,
+    scan_id: str | None = None,
+    scan_complete: bool | None = None,
+) -> None:
     """Write full enriched scan results for the distribution layer.
 
     The daily brief / web demo snapshot is built from THIS export (it carries
@@ -732,20 +735,30 @@ def _persist_distribution_export(results: dict, universe: int) -> None:
             "date": datetime.now(tz=UTC).strftime("%Y-%m-%d"),
             "generated_at": datetime.now(tz=UTC).isoformat(),
             "universe": universe,
+            "scan_id": scan_id
+            or hashlib.sha256(
+                "|".join(
+                    sorted(
+                        str(row.get("symbol") or row.get("ticker") or "").upper()
+                        for row in (
+                            list(results.values()) if isinstance(results, dict) else results
+                        )
+                        if isinstance(row, dict) and (row.get("symbol") or row.get("ticker"))
+                    )
+                ).encode()
+            ).hexdigest()[:24],
+            "scan_complete": scan_complete is not False,
+            "result_count": len(results) if isinstance(results, dict) else len(results or []),
             "results": list(results.values()) if isinstance(results, dict) else results,
         }
         current_results = payload["results"]
-        expected_universe = int(_os.getenv("FINPILOT_FULL_UNIVERSE_SIZE", "1812"))
-        minimum_results = max(
-            1,
-            int(expected_universe * float(_os.getenv("FINPILOT_MIN_FULL_SCAN_RATIO", "0.9"))),
-        )
+        problems = full_scan_problems(current_results, universe, scan_complete)
         current_symbols = {
             str(row.get("symbol") or row.get("ticker") or "").upper()
             for row in current_results
             if isinstance(row, dict) and (row.get("symbol") or row.get("ticker"))
         }
-        if universe < expected_universe or len(current_symbols) < minimum_results:
+        if problems:
             partial_path = export_dir / (
                 f"scan_export_{payload['date']}_partial_{len(current_symbols)}.json"
             )
@@ -755,7 +768,7 @@ def _persist_distribution_export(results: dict, universe: int) -> None:
             logger.info(
                 "distribution partial export saved without replacing latest: universe=%d/%d",
                 universe,
-                expected_universe,
+                int(os.getenv("FINPILOT_FULL_UNIVERSE_SIZE", "1812")),
             )
             return
         dated_path = export_dir / f"scan_export_{payload['date']}.json"

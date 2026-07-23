@@ -62,7 +62,15 @@ def send_message(chat_id: str, text: str, queue_id: int | None = None) -> bool:
             },
         )
         message_id = response.get("result", {}).get("message_id")
-        log_delivery(queue_id, str(chat_id), True, telegram_message_id=message_id)
+        if not isinstance(message_id, int):
+            raise RuntimeError("telegram response missing message_id")
+        log_delivery(
+            queue_id,
+            str(chat_id),
+            True,
+            telegram_message_id=message_id,
+            channel=str(chat_id),
+        )
         return True
     except Exception as exc:
         hint = ""

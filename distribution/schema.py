@@ -15,9 +15,12 @@ GRADES = ("A", "B", "C")
 # Required keys, with type checks. ``candidates`` entries validated separately.
 _TOP_LEVEL_REQUIRED: dict[str, type] = {
     "schema": int,
+    "snapshot_id": str,
+    "candidate_hash": str,
     "date": str,  # YYYY-MM-DD
     "generated_at": str,  # ISO timestamp
     "universe": int,
+    "scan_result_count": int,
     "candidates": list,
     "karne": (dict, type(None)),  # type: ignore[dict-item]
 }
@@ -43,6 +46,9 @@ def validate_snapshot(snap: dict[str, Any]) -> list[str]:
 
     if snap.get("schema") != SCHEMA_VERSION:
         errors.append(f"schema version mismatch: {snap.get('schema')} != {SCHEMA_VERSION}")
+
+    if "scan_id" in snap and snap["scan_id"] is not None and not isinstance(snap["scan_id"], str):
+        errors.append(f"bad type for scan_id: {type(snap['scan_id']).__name__}")
 
     for i, cand in enumerate(snap.get("candidates", [])):
         if not isinstance(cand, dict):

@@ -7,6 +7,7 @@ import os
 import sys
 import tempfile
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -77,7 +78,8 @@ class TestScannerContract(unittest.TestCase):
             with patch.dict(os.environ, {"FINPILOT_DIST_DIR": tmp}, clear=False):
                 _persist_distribution_export({"A": {"symbol": "A"}}, universe=12)
             self.assertEqual(json.loads(latest.read_text(encoding="utf-8"))["universe"], 1812)
-            self.assertTrue(list(export_dir.glob("scan_export_2026-07-20_partial_*.json")))
+            today = datetime.now(tz=UTC).strftime("%Y-%m-%d")
+            self.assertTrue(list(export_dir.glob(f"scan_export_{today}_partial_*.json")))
 
 
 if __name__ == "__main__":

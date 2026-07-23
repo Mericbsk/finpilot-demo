@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from distribution.rationale import build_rationale, extract_badges, prob_band
+from distribution.scan_contract import full_scan_problems
 from distribution.schema import SCHEMA_VERSION, validate_snapshot
 
 UTC = UTC
@@ -274,12 +275,22 @@ def build_snapshot(
     karne: dict[str, Any] | None = None,
     date_str: str | None = None,
     lang: str = "tr",
+    scan_id: str | None = None,
 ) -> dict[str, Any]:
     date_str = date_str or datetime.now(tz=UTC).strftime("%Y-%m-%d")
 
     graded = [r for r in scan_rows if _public_candidate(r)]
     graded.sort(key=_sort_key)
     graded = graded[:MAX_CANDIDATES]
+    candidate_tickers = sorted(
+        str(r.get("symbol") or r.get("ticker") or "").upper()
+        for r in graded
+        if r.get("symbol") or r.get("ticker")
+    )
+    candidate_hash = hashlib.sha256("|".join(candidate_tickers).encode()).hexdigest()
+    snapshot_id = hashlib.sha256(
+        f"{date_str}|{int(universe)}|{candidate_hash}".encode()
+    ).hexdigest()[:24]
 
     candidates: list[dict[str, Any]] = []
     grade_totals: dict[str, int] = {}
@@ -354,6 +365,9 @@ def build_snapshot(
 
     snap: dict[str, Any] = {
         "schema": SCHEMA_VERSION,
+        "snapshot_id": snapshot_id,
+        "candidate_hash": candidate_hash,
+        "scan_id": scan_id,
         "date": date_str,
         "generated_at": datetime.now(tz=UTC).isoformat(),
         "config_sha": config_sha(),
@@ -417,28 +431,55 @@ def _read_json_resilient(p: Path) -> dict[str, Any]:
         return obj
 
 
+def load_scan_export_record(path: Path | None = None) -> dict[str, Any]:
+    """Read the complete export record, including scan completion metadata."""
+    p = path or SCAN_EXPORT_LATEST
+    data = _read_json_resilient(Path(p))
+    if not isinstance(data, dict):
+        raise ValueError("scan export must be a JSON object")
+    return data
+
+
 def load_scan_export(path: Path | None = None) -> tuple[list[dict[str, Any]], int, str]:
     """Read the scan export written by the /scan endpoint hook.
 
     Returns (rows, universe, date_str). Raises FileNotFoundError when missing.
     """
-    p = path or SCAN_EXPORT_LATEST
-    data = _read_json_resilient(Path(p))
+    data = load_scan_export_record(path)
     rows = data.get("results", [])
     universe = int(data.get("universe") or len(rows))
     date_str = str(data.get("date") or datetime.now(tz=UTC).strftime("%Y-%m-%d"))
     return rows, universe, date_str
 
 
+def validate_scan_export(data: dict[str, Any]) -> list[str]:
+    """Return reasons why an export cannot become a distribution snapshot."""
+    rows = data.get("results", [])
+    return full_scan_problems(rows, data.get("universe"), data.get("scan_complete"))
+
+
 def save_snapshot(snap: dict[str, Any], out_dir: Path | None = None) -> Path:
     out = out_dir or EXPORT_DIR
     out.mkdir(parents=True, exist_ok=True)
     dated = out / f"snapshot_{snap['date']}.json"
-    dated.write_text(json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8")
-    (out / "snapshot_latest.json").write_text(
-        json.dumps(snap, ensure_ascii=False, indent=1), encoding="utf-8"
-    )
+    _atomic_write_json(dated, snap)
+    _atomic_write_json(out / "snapshot_latest.json", snap)
     return dated
+
+
+def write_snapshot(path: Path, snap: dict[str, Any]) -> None:
+    """Validate and atomically write a snapshot projection."""
+    problems = validate_snapshot(snap)
+    if problems:
+        raise ValueError("snapshot invalid: " + "; ".join(problems))
+    _atomic_write_json(path, snap)
+
+
+def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    tmp.replace(path)
 
 
 # ── Almanca (de) risk havuzları — import anında birleştirilir ────────────────
