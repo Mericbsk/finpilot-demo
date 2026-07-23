@@ -40,13 +40,9 @@ def _build_markdown(
     week_signals = [s for s in recent_signals if s.get("ts", 0) >= week_ago_ms]
     week_resolved = [s for s in week_signals if s.get("outcome") is not None]
     week_wins = [s for s in week_resolved if s.get("outcome") == "win"]
-    week_winrate = (
-        round(len(week_wins) / len(week_resolved) * 100, 2) if week_resolved else None
-    )
+    week_winrate = round(len(week_wins) / len(week_resolved) * 100, 2) if week_resolved else None
 
-    week_pnl = sum(
-        p.get("pnl", 0) for p in equity_curve if p.get("ts", 0) >= week_ago_ms
-    )
+    week_pnl = sum(p.get("pnl", 0) for p in equity_curve if p.get("ts", 0) >= week_ago_ms)
 
     lines: list[str] = []
     lines.append(f"# FinPilot Weekly Report — {now.strftime('%Y-%m-%d')}\n")
@@ -63,19 +59,10 @@ def _build_markdown(
     lines.append("## Headline KPIs (last 7 days)\n")
     lines.append("| Metric | Week | All-time |")
     lines.append("|--------|------|----------|")
-    lines.append(
-        f"| Win rate | {_fmt_pct(week_winrate)} | "
-        f"{_fmt_pct(kpis.get('win_rate'))} |"
-    )
-    lines.append(
-        f"| Resolved signals | {len(week_resolved)} | {kpis.get('resolved_signals', 0)} |"
-    )
-    lines.append(
-        f"| Total signals | {len(week_signals)} | {kpis.get('total_signals', 0)} |"
-    )
-    lines.append(
-        f"| Profit factor | n/a | {kpis.get('profit_factor', 'n/a')} |"
-    )
+    lines.append(f"| Win rate | {_fmt_pct(week_winrate)} | " f"{_fmt_pct(kpis.get('win_rate'))} |")
+    lines.append(f"| Resolved signals | {len(week_resolved)} | {kpis.get('resolved_signals', 0)} |")
+    lines.append(f"| Total signals | {len(week_signals)} | {kpis.get('total_signals', 0)} |")
+    lines.append(f"| Profit factor | n/a | {kpis.get('profit_factor', 'n/a')} |")
     lines.append("")
 
     # Paper portfolio
@@ -83,9 +70,7 @@ def _build_markdown(
     lines.append("| Metric | Value |")
     lines.append("|--------|-------|")
     lines.append(f"| Equity | ${portfolio.get('equity', 0):,.2f} |")
-    lines.append(
-        f"| Total return | {_fmt_pct(portfolio.get('total_return_pct'))} |"
-    )
+    lines.append(f"| Total return | {_fmt_pct(portfolio.get('total_return_pct'))} |")
     lines.append(f"| Week P&L | ${week_pnl:+,.2f} |")
     lines.append(f"| Open positions | {portfolio.get('open_positions', 0)} |")
     lines.append(f"| Closed trades | {portfolio.get('closed_count', 0)} |")
@@ -114,9 +99,7 @@ def _build_markdown(
 
     # Top recent winners / losers
     if week_resolved:
-        sorted_pnl = sorted(
-            week_resolved, key=lambda s: s.get("profit_pct", 0) or 0, reverse=True
-        )
+        sorted_pnl = sorted(week_resolved, key=lambda s: s.get("profit_pct", 0) or 0, reverse=True)
         lines.append("## Best & Worst Trades (week)\n")
         lines.append("**Top 5 winners:**")
         for s in sorted_pnl[:5]:

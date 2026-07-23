@@ -8,7 +8,6 @@ across separate connections in the Database context manager).
 from __future__ import annotations
 
 import pytest
-
 from auth.database import Database, ScanResultRepository, SignalRepository
 
 # ---------------------------------------------------------------------------

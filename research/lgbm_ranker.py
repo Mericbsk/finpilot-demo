@@ -34,6 +34,7 @@ def is_enabled() -> bool:
     """
     return os.getenv("FINPILOT_ENABLE_LGBM_RANKER", "0").lower() in ("1", "true", "yes", "on")
 
+
 _WF_RESULTS_PATH = Path("data/lgbm_ranker_wf.json")
 _MODEL_PATH = Path("data/lgbm_ranker.pkl")
 
@@ -42,18 +43,18 @@ _MODEL_PATH = Path("data/lgbm_ranker.pkl")
 # ─────────────────────────────────────────────
 
 FEATURE_COLS = [
-    "score",           # Layer-1 FinPilot score (0-100)
-    "rsi",             # RSI-14
-    "macd_hist",       # MACD histogram
-    "volume_ratio",    # volume / 20d avg volume
-    "sector_rs",       # sector relative strength vs SPY
-    "vol_regime",      # realised vol regime (0=low, 1=normal, 2=high)
+    "score",  # Layer-1 FinPilot score (0-100)
+    "rsi",  # RSI-14
+    "macd_hist",  # MACD histogram
+    "volume_ratio",  # volume / 20d avg volume
+    "sector_rs",  # sector relative strength vs SPY
+    "vol_regime",  # realised vol regime (0=low, 1=normal, 2=high)
     "regime_encoded",  # market regime (0=bull, 1=range, 2=bear)
-    "p_win_calib",     # calibrated p_win from isotonic model
+    "p_win_calib",  # calibrated p_win from isotonic model
 ]
 
 
-def _signals_to_df(signals: list[dict[str, Any]]) -> "pd.DataFrame":  # type: ignore[name-defined]
+def _signals_to_df(signals: list[dict[str, Any]]) -> pd.DataFrame:  # type: ignore[name-defined]
     """Convert raw signal dicts into a feature DataFrame for the ranker."""
     import pandas as pd  # noqa: PLC0415
 
@@ -74,13 +75,14 @@ def _signals_to_df(signals: list[dict[str, Any]]) -> "pd.DataFrame":  # type: ig
 # Training
 # ─────────────────────────────────────────────
 
+
 class LGBMRanker:
     """Thin wrapper around lightgbm.LGBMClassifier for Layer-2 ranking."""
 
     def __init__(self) -> None:
         self._model: Any = None
 
-    def fit(self, X: "pd.DataFrame", y: "pd.Series") -> None:  # type: ignore[name-defined]
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> None:  # type: ignore[name-defined]
         """Train the ranker on labelled signals."""
         import lightgbm as lgb  # type: ignore[import]
 
@@ -97,7 +99,7 @@ class LGBMRanker:
         )
         self._model.fit(X[FEATURE_COLS], y)
 
-    def predict_proba(self, X: "pd.DataFrame") -> "np.ndarray":  # type: ignore[name-defined]
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:  # type: ignore[name-defined]
         """Return P(win) for each row."""
         if self._model is None:
             raise RuntimeError("LGBMRanker not fitted — call fit() first")
@@ -124,19 +126,20 @@ class LGBMRanker:
 # Walk-forward evaluation
 # ─────────────────────────────────────────────
 
+
 def _auc(y_true: list[int], y_score: list[float]) -> float:
     """Simple trapezoidal AUC without sklearn dependency."""
-    from collections import defaultdict  # noqa: PLC0415
 
     try:
         from sklearn.metrics import roc_auc_score  # type: ignore[import]
+
         return float(roc_auc_score(y_true, y_score))
     except ImportError:
         pass
 
     # Fallback: Wilcoxon-Mann-Whitney estimate
-    pos = [s for s, l in zip(y_score, y_true) if l == 1]
-    neg = [s for s, l in zip(y_score, y_true) if l == 0]
+    pos = [s for s, l in zip(y_score, y_true, strict=False) if l == 1]
+    neg = [s for s, l in zip(y_score, y_true, strict=False) if l == 0]
     if not pos or not neg:
         return float("nan")
     n_correct = sum(1 for p in pos for n in neg if p > n)
@@ -173,8 +176,6 @@ def run_walkforward_eval(
             signals = _load_all_signals()
         except Exception as exc:
             return {"error": str(exc), "fold_aucs": [], "avg_auc": None}
-
-    import pandas as pd  # noqa: PLC0415
 
     df = _signals_to_df(signals)
     # Keep only labelled rows
@@ -264,11 +265,9 @@ def rank_signals(signals: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if ranker._model is None:
             return signals
 
-        import pandas as pd  # noqa: PLC0415
-
         df = _signals_to_df(signals)
         proba = ranker.predict_proba(df)
-        for sig, p in zip(signals, proba):
+        for sig, p in zip(signals, proba, strict=False):
             sig["lgbm_score"] = round(float(p), 4)
         return sorted(signals, key=lambda s: s.get("lgbm_score", 0.0), reverse=True)
     except Exception as exc:

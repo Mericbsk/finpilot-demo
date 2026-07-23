@@ -12,11 +12,11 @@ import logging
 
 from agents.advisory import advisory_agent_for, list_advisory_keys
 from agents.base import AgentContext
+from auth.tokens import TokenPayload
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
 from api.middleware.auth import require_auth
-from auth.tokens import TokenPayload
 from core.advisory_memory import (
     append_message,
     clear_history,

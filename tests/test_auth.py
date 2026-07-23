@@ -9,7 +9,6 @@ import time
 from datetime import datetime, timedelta
 
 import pytest
-
 from auth.core import (
     AccountLockedError,
     AuthConfig,

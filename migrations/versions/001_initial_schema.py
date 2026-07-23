@@ -23,11 +23,17 @@ def upgrade() -> None:
     is_pg = bind.dialect.name == "postgresql"
 
     # Dialect-specific column types
-    pk_int = "INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY" if is_pg else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    pk_int = (
+        "INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY"
+        if is_pg
+        else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    )
     bool_default_true = "BOOLEAN DEFAULT TRUE" if is_pg else "INTEGER DEFAULT 1"
     bool_default_false = "BOOLEAN DEFAULT FALSE" if is_pg else "INTEGER DEFAULT 0"
     bool_zero = "BOOLEAN DEFAULT FALSE" if is_pg else "INTEGER DEFAULT 0"
-    ts_default_now = "TIMESTAMPTZ NOT NULL DEFAULT NOW()" if is_pg else "TEXT NOT NULL DEFAULT (datetime('now'))"
+    ts_default_now = (
+        "TIMESTAMPTZ NOT NULL DEFAULT NOW()" if is_pg else "TEXT NOT NULL DEFAULT (datetime('now'))"
+    )
     ts_optional = "TIMESTAMPTZ" if is_pg else "TEXT"
     ts_required = "TIMESTAMPTZ NOT NULL" if is_pg else "TEXT NOT NULL"
     real_t = "DOUBLE PRECISION" if is_pg else "REAL"

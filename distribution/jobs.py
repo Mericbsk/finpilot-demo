@@ -256,7 +256,12 @@ def job_publish() -> dict:
             blocked.append(item["id"])
             continue
         premium = item["kind"] == "daily_premium"
-        ok = send_to_channel(item["text"], queue_id=item["id"], premium=premium)
+        ok = send_to_channel(
+            item["text"],
+            queue_id=item["id"],
+            premium=premium,
+            snapshot_id=item.get("snapshot_id"),
+        )
         if ok:
             broadcast.mark_sent(item["id"])
             sent.append(item["id"])

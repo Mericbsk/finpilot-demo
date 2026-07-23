@@ -39,6 +39,7 @@ def is_enabled() -> bool:
     """
     return os.getenv("FINPILOT_ENABLE_REGIME_WEIGHTS", "0").lower() in ("1", "true", "yes", "on")
 
+
 _REGIME_WEIGHTS_PATH = Path("data/regime_weights.json")
 _REGIME_SPY_CACHE: dict[str, Any] = {}
 _REGIME_SPY_CACHE_TTL = 3600  # 1 hour
@@ -128,6 +129,7 @@ def get_all_regime_weights() -> dict[str, dict[str, float]]:
 # Regime detection (SPY heuristic)
 # ─────────────────────────────────────────────
 
+
 def detect_current_regime() -> str:
     """Detect market regime using SPY 200-day SMA heuristic.
 
@@ -142,7 +144,6 @@ def detect_current_regime() -> str:
 
     try:
         import yfinance as yf  # type: ignore[import]
-        import pandas as pd  # noqa: PLC0415
 
         spy = yf.download("SPY", period="1y", interval="1d", progress=False, auto_adjust=True)
         if spy.empty or len(spy) < 50:
@@ -152,7 +153,9 @@ def detect_current_regime() -> str:
         sma200 = close.rolling(min(200, len(close))).mean().iloc[-1]
         sma20 = close.rolling(20).mean().iloc[-1]
         price = float(close.iloc[-1])
-        ret_20d = float((close.iloc[-1] - close.iloc[-21]) / close.iloc[-21]) if len(close) >= 21 else 0.0
+        ret_20d = (
+            float((close.iloc[-1] - close.iloc[-21]) / close.iloc[-21]) if len(close) >= 21 else 0.0
+        )
 
         if price > float(sma200):
             regime = "bull"
@@ -162,7 +165,13 @@ def detect_current_regime() -> str:
             regime = "range"
 
         _REGIME_SPY_CACHE = {"regime": regime, "ts": now, "price": price, "sma200": float(sma200)}
-        logger.info("regime_detection: SPY=%.2f SMA200=%.2f ret20d=%.2f%% → %s", price, float(sma200), ret_20d * 100, regime)
+        logger.info(
+            "regime_detection: SPY=%.2f SMA200=%.2f ret20d=%.2f%% → %s",
+            price,
+            float(sma200),
+            ret_20d * 100,
+            regime,
+        )
         return regime
     except Exception as exc:
         logger.debug("regime_detection: failed: %s", exc)

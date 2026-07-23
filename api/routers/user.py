@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
+from auth.tokens import TokenPayload
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
 from api.middleware.auth import optional_auth
-from auth.tokens import TokenPayload
 
 router = APIRouter(tags=["user"])
 

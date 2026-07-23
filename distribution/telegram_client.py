@@ -49,7 +49,12 @@ def _api(method: str, payload: dict) -> dict:
     raise RuntimeError(f"telegram send failed after {_RETRIES} attempts: {last_err}")
 
 
-def send_message(chat_id: str, text: str, queue_id: int | None = None) -> bool:
+def send_message(
+    chat_id: str,
+    text: str,
+    queue_id: int | None = None,
+    snapshot_id: str | None = None,
+) -> bool:
     """Markdown message with delivery logging. Returns success flag."""
     try:
         response = _api(
@@ -69,6 +74,7 @@ def send_message(chat_id: str, text: str, queue_id: int | None = None) -> bool:
             str(chat_id),
             True,
             telegram_message_id=message_id,
+            snapshot_id=snapshot_id,
             channel=str(chat_id),
         )
         return True
@@ -77,16 +83,21 @@ def send_message(chat_id: str, text: str, queue_id: int | None = None) -> bool:
         if "403" in str(exc):
             hint = " — İPUCU: bot bu kanala ADMIN olarak ekli mi ve 'Mesaj gönder' yetkisi açık mı?"
         logger.error("telegram send to %s failed: %s%s", chat_id, exc, hint)
-        log_delivery(queue_id, str(chat_id), False, str(exc) + hint)
+        log_delivery(queue_id, str(chat_id), False, str(exc) + hint, snapshot_id=snapshot_id)
         return False
 
 
-def send_to_channel(text: str, queue_id: int | None = None, premium: bool = False) -> bool:
+def send_to_channel(
+    text: str,
+    queue_id: int | None = None,
+    premium: bool = False,
+    snapshot_id: str | None = None,
+) -> bool:
     chat = PREMIUM_CHANNEL_ID if premium else CHANNEL_ID
     if not chat:
         logger.warning("channel id not configured (premium=%s)", premium)
         return False
-    return send_message(chat, text, queue_id=queue_id)
+    return send_message(chat, text, queue_id=queue_id, snapshot_id=snapshot_id)
 
 
 def notify_admin(text: str) -> bool:

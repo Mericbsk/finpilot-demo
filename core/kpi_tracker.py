@@ -229,20 +229,22 @@ def mark_signal_auto_approved(symbol: str, cycle: int, p_win: float) -> bool:
             logger.debug("KPI mark_signal_auto_approved Redis error: %s", exc)
     else:
         for sig in _mem_signals:
-            if (
-                sig["symbol"] == symbol
-                and sig["cycle"] == cycle
-                and not sig.get("auto_approved")
-            ):
+            if sig["symbol"] == symbol and sig["cycle"] == cycle and not sig.get("auto_approved"):
                 sig["auto_approved"] = True
                 sig["auto_approve_p_win"] = round(float(p_win), 4)
                 updated = True
                 break
 
     if updated:
-        logger.debug("mark_signal_auto_approved: %s cycle=%d p_win=%.4f persisted", symbol, cycle, p_win)
+        logger.debug(
+            "mark_signal_auto_approved: %s cycle=%d p_win=%.4f persisted", symbol, cycle, p_win
+        )
     else:
-        logger.debug("mark_signal_auto_approved: %s cycle=%d — signal not found or already approved", symbol, cycle)
+        logger.debug(
+            "mark_signal_auto_approved: %s cycle=%d — signal not found or already approved",
+            symbol,
+            cycle,
+        )
     return updated
 
 

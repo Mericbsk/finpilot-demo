@@ -15,13 +15,14 @@ Exit codes:
 Run:
     python scripts/smoke_test.py
 """
+
 from __future__ import annotations
 
 import sys
 import time
 import traceback
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
@@ -43,9 +44,10 @@ def _step(name: str, fn: Callable[[], None]) -> bool:
 
 
 def check_imports() -> None:
-    import core.scheduler  # noqa: F401
-    import api.main  # noqa: F401
     import agents.ceo  # noqa: F401
+    import api.main  # noqa: F401
+
+    import core.scheduler  # noqa: F401
 
 
 def check_scheduler_cycle() -> None:
@@ -61,9 +63,8 @@ def check_scheduler_cycle() -> None:
 
 
 def check_fastapi_boot() -> None:
-    from fastapi.testclient import TestClient
-
     from api.main import app
+    from fastapi.testclient import TestClient
 
     with TestClient(app) as client:
         r = client.get("/api/v1/health")
@@ -71,9 +72,8 @@ def check_fastapi_boot() -> None:
 
 
 def check_uptime_endpoint() -> None:
-    from fastapi.testclient import TestClient
-
     from api.main import app
+    from fastapi.testclient import TestClient
 
     with TestClient(app) as client:
         r = client.get("/api/v1/loop/uptime")

@@ -103,9 +103,9 @@ def get_summary() -> dict[str, Any]:
     for key, val in raw.items():
         count = int(val)
         if key.startswith("page_view:"):
-            page_views[key[len("page_view:"):]] = count
+            page_views[key[len("page_view:") :]] = count
         elif key.startswith("event:"):
-            events[key[len("event:"):]] = count
+            events[key[len("event:") :]] = count
 
     return {"page_views": page_views, "events": events}
 
@@ -115,9 +115,10 @@ def _get_raw_counters() -> dict[str, Any]:
     if client is not None:
         try:
             raw = client.hgetall(_REDIS_KEY)
-            return {k.decode() if isinstance(k, bytes) else k:
-                    v.decode() if isinstance(v, bytes) else v
-                    for k, v in raw.items()}
+            return {
+                k.decode() if isinstance(k, bytes) else k: v.decode() if isinstance(v, bytes) else v
+                for k, v in raw.items()
+            }
         except Exception as exc:
             logger.debug("Analytics: Redis HGETALL failed (%s) — using in-memory", exc)
     with _lock:

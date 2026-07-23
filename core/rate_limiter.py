@@ -20,6 +20,7 @@ call sites in the same process::
     from core.rate_limiter import get_bucket
     bucket = get_bucket("llm:groq", rate=5, capacity=10)
 """
+
 from __future__ import annotations
 
 import logging

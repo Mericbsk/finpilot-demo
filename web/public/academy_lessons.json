@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "generated_at": "2026-07-21T13:17:34.981038Z",
+  "count": 1,
+  "status_filter": "published",
+  "domains": [
+    "financial-analysis"
+  ],
+  "disclaimer": "FinSense Academy eğitim içeriğidir; yatırım tavsiyesi değildir. Geçmiş performans gelecek getiriyi garanti etmez.",
+  "lessons": [
+    {
+      "id": "financial-analysis-likidite-guide",
+      "title": "Likidite Oranları: Bir Şirket Borcunu Ödeyebilir mi?",
+      "domain": "financial-analysis",
+      "module": "likidite oranları · guide",
+      "format": "guide",
+      "difficulty": "intermediate",
+      "minutes": 8,
+      "content": "Likidite oranları bir şirketin kısa vadeli yükümlülüklerini karşılama gücünü ölçer...",
+      "key_takeaways": [
+        "Cari oran = Dönen Varlıklar / Kısa Vadeli Borçlar",
+        "Asit-test stoku dışlar"
+      ],
+      "quiz_count": 1,
+      "flashcard_count": 0,
+      "sources": [
+        {
+          "label": "S1",
+          "title": "Damodaran Data",
+          "url": "https://pages.stern.nyu.edu/~adamodar/"
+        }
+      ]
+    }
+  ]
+}

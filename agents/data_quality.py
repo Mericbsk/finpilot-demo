@@ -31,8 +31,8 @@ _REQUIRED_FIELDS = ["finpilot_score", "signal", "close"]
 _OPTIONAL_FIELDS = ["volume", "rsi", "macd", "bb_upper", "bb_lower"]
 
 # Anomaly thresholds
-_MAX_PRICE_CHANGE_PCT = 50.0   # >50% single-day move is suspicious
-_MIN_PRICE = 0.01               # price must be positive
+_MAX_PRICE_CHANGE_PCT = 50.0  # >50% single-day move is suspicious
+_MIN_PRICE = 0.01  # price must be positive
 _MAX_SCORE = 100.0
 _MIN_SCORE = 0.0
 

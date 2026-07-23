@@ -190,9 +190,7 @@ class ModelRegistry:
         with self._conn() as conn:
             conn.execute(_ADD_STRIKE_SQL, (row_id,))
             conn.commit()
-            cur = conn.execute(
-                "SELECT strike_count FROM model_registry WHERE id = ?", (row_id,)
-            )
+            cur = conn.execute("SELECT strike_count FROM model_registry WHERE id = ?", (row_id,))
             row = cur.fetchone()
         new_count = row[0] if row else 1
         logger.info("registry: strike id=%d count=%d", row_id, new_count)
@@ -274,7 +272,10 @@ class ModelRegistry:
         notes["strike_count"] = strikes
         logger.info(
             "registry: gate failed id=%d strikes=%d (brier_ok=%s win_rate_ok=%s)",
-            best["id"], strikes, brier_ok, win_rate_ok,
+            best["id"],
+            strikes,
+            brier_ok,
+            win_rate_ok,
         )
 
         if strikes >= max_strikes_before_retire:

@@ -6,10 +6,7 @@ Does NOT start APScheduler — purely unit tests of the composable wrappers.
 
 from __future__ import annotations
 
-import threading
 import time
-
-import pytest
 
 
 # ---------------------------------------------------------------------------
@@ -115,8 +112,10 @@ class TestComposeJobs:
 
         funcs = []
         for i in range(5):
+
             def make(n):
                 return lambda: log.append(n)
+
             funcs.append(make(i))
 
         composite = _compose_jobs("ordered", *funcs)
@@ -141,12 +140,14 @@ class TestComposeJobs:
 class TestLegacySchedulerFlag:
     def test_legacy_flag_env_var_not_set_by_default(self, monkeypatch):
         import os
+
         monkeypatch.delenv("FINPILOT_SCHEDULER_LEGACY_JOBS", raising=False)
         val = os.getenv("FINPILOT_SCHEDULER_LEGACY_JOBS", "0")
         assert val == "0"
 
     def test_legacy_flag_can_be_enabled(self, monkeypatch):
         import os
+
         monkeypatch.setenv("FINPILOT_SCHEDULER_LEGACY_JOBS", "1")
         val = os.getenv("FINPILOT_SCHEDULER_LEGACY_JOBS", "0")
         assert val == "1"

@@ -4,10 +4,6 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel, Field
-
-from api.middleware.auth import require_auth
 from auth.core import (
     AccountLockedError,
     AuthConfig,
@@ -20,6 +16,10 @@ from auth.core import (
 )
 from auth.database import Database, SessionRepository, UserRepository
 from auth.tokens import TokenPayload
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel, Field
+
+from api.middleware.auth import require_auth
 from core.monitoring import metrics
 
 router = APIRouter(tags=["auth"])

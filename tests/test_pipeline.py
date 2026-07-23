@@ -9,7 +9,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -34,6 +33,7 @@ SCAN_DATA = {
 def _reset_imports():
     """Ensure pipeline module is freshly importable each test."""
     import importlib
+
     import core.pipeline  # noqa: F401  (just ensure it's loadable)
 
     importlib.reload(__import__("core.pipeline", fromlist=["run_cycle"]))
@@ -215,8 +215,16 @@ def test_state_always_has_all_keys():
         MS.return_value.run.return_value = mock_scan
         state = run_cycle(["AAPL"], task="full")
 
-    required_keys = {"task", "symbols", "scan_results", "top_symbols",
-                     "analysis_results", "risk_results", "alerts_sent", "errors"}
+    required_keys = {
+        "task",
+        "symbols",
+        "scan_results",
+        "top_symbols",
+        "analysis_results",
+        "risk_results",
+        "alerts_sent",
+        "errors",
+    }
     assert required_keys.issubset(state.keys())
 
 

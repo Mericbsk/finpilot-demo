@@ -76,6 +76,8 @@ services:
       - ./core:/app/core:ro
       - ./scanner:/app/scanner:ro
       - ./auth:/app/auth:ro
+      - ./execution:/app/execution:ro
+      - ./broker:/app/broker:ro
       - ./distribution:/app/distribution:ro
       - ./telegram_alerts.py:/app/telegram_alerts.py:ro
     extra_hosts:

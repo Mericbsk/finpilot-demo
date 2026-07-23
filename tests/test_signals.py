@@ -180,8 +180,6 @@ class TestSignalScoreRow:
         assert score <= 4
 
 
-
-
 class TestBuildExplanation:
     """Tests for explanation builder."""
 

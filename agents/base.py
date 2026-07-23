@@ -18,10 +18,10 @@ from typing import Any, TypedDict
 class AgentMetadata(TypedDict, total=False):
     """Typed keys for AgentContext.metadata — prevents magic string bugs."""
 
-    market_regime: str          # "bull" | "bear" | "sideways" | "volatile"
+    market_regime: str  # "bull" | "bear" | "sideways" | "volatile"
     market_summary: str
     backtest_results: dict
-    strategy_hint: str          # "trend" | "momentum" | "rsi"
+    strategy_hint: str  # "trend" | "momentum" | "rsi"
     cycle: int
     feedback_applied: bool
 

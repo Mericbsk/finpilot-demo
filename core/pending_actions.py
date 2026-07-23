@@ -14,7 +14,8 @@ import logging
 import threading
 import time
 import uuid
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from core import audit_log
 
@@ -26,9 +27,7 @@ _pending: dict[str, dict[str, Any]] = {}
 _appliers: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {}
 
 
-def register_applier(
-    kind: str, fn: Callable[[dict[str, Any]], dict[str, Any]]
-) -> None:
+def register_applier(kind: str, fn: Callable[[dict[str, Any]], dict[str, Any]]) -> None:
     """Wire a callback that knows how to apply an approved action of `kind`."""
     _appliers[kind] = fn
 
@@ -112,9 +111,7 @@ def approve(pid: str, *, decided_by: str = "user") -> dict[str, Any]:
     return entry
 
 
-def reject(
-    pid: str, *, decided_by: str = "user", reason: str = ""
-) -> dict[str, Any]:
+def reject(pid: str, *, decided_by: str = "user", reason: str = "") -> dict[str, Any]:
     with _lock:
         entry = _pending.get(pid)
         if entry is None:
