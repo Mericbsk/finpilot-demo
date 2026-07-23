@@ -15,10 +15,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from api.routers.scan import _persist_distribution_export
 from distribution.snapshot_builder import build_snapshot
+from scanner import evaluate as scanner_evaluate
 from scanner.score_engine import compute_legacy_quality_score, compute_v2_score
 
 
 class TestScannerContract(unittest.TestCase):
+    def test_unavailable_symbols_remain_in_full_scan_results(self):
+        with patch.object(scanner_evaluate, "daily_dd_breached", return_value=False):
+            results = scanner_evaluate.evaluate_symbols_parallel(["MISSING"], use_prefetch=False)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["symbol"], "MISSING")
+        self.assertEqual(results[0]["scan_status"], "unavailable")
+        self.assertFalse(results[0]["selection_eligible"])
+
     def test_legacy_and_v2_scores_are_available(self):
         legacy = compute_legacy_quality_score(
             regime=True,

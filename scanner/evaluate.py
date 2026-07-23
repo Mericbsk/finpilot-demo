@@ -346,7 +346,7 @@ def evaluate_symbol(
 
         # Hard minimum: need at least some data to evaluate
         if len(df_15m) < 15 or len(df_1h) < 10 or len(df_4h) < 15 or len(df_1d) < 50:
-            return None
+            return _unavailable_result(symbol, "insufficient_history")
 
         # Track whether we have enough history for high-quality signals
         _has_full_history = len(df_1d) >= 200
@@ -830,7 +830,32 @@ def evaluate_symbol(
         }
     except Exception as e:
         logger.error("[%s] evaluation error: %s", symbol, e)
-        return None
+        return _unavailable_result(symbol, "evaluation_error", detail=str(e))
+
+
+def _unavailable_result(symbol: str, reason: str, detail: str | None = None) -> dict[str, Any]:
+    """Keep unavailable symbols in the scan contract without grading them."""
+    result: dict[str, Any] = {
+        "symbol": symbol,
+        "scan_status": "unavailable",
+        "data_quality_tier": "Tier 3",
+        "data_quality_status": "missing",
+        "reject_reason": [reason],
+        "selection_eligible": False,
+        "entry_ok": False,
+        "execution_feasible": False,
+        "selected_by_legacy_quality": False,
+        "selected_by_v2": False,
+        "selected_by_both": False,
+        "legacy_only": False,
+        "v2_only": False,
+        "ranking_method": "legacy_quality",
+        "score": 0,
+        "composite_score": 0,
+    }
+    if detail:
+        result["error_detail"] = detail[:200]
+    return result
 
 
 def evaluate_symbols_parallel(
@@ -889,6 +914,7 @@ def evaluate_symbols_parallel(
                         results.append(result)
                 except Exception as e:
                     logger.warning("Evaluate error for %s: %s", sym, e)
+                    results.append(_unavailable_result(sym, "evaluation_error", detail=str(e)))
                 total_done += 1
                 if progress_callback:
                     try:
@@ -906,6 +932,7 @@ def evaluate_symbols_parallel(
                     results.append(result)
             except Exception as e:
                 logger.warning("Evaluate error for %s: %s", symbol, e)
+                results.append(_unavailable_result(symbol, "evaluation_error", detail=str(e)))
 
     logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
     return results

@@ -7,11 +7,8 @@ Public commands (any user, replies go to the sender's chat):
     /premium   premium ilgi kaydı ("yakında")
     /help      komut listesi
 
-Admin-only (TELEGRAM_ADMIN_ID / legacy CHAT_ID):
-    /scan [aggressive]   taramayı çalıştırır, CSV döner (mevcut davranış)
-    ONAYLA <id>          broadcast kuyruğundaki taslağı onaylar
-    RED <id>             taslağı reddeder
-    /bekleyen            bekleyen taslakları listeler
+Admin-only commands are intentionally disabled in the manual distribution mode.
+Use ``python scripts/publish_now.py --yes`` for the full scan-to-publish path.
 
 Distribution katmanı (kuyruk, kullanıcı kaydı, teslimat logu) için
 ``distribution/`` modülünü kullanır; modül yoksa eski davranışa düşer.
@@ -276,12 +273,7 @@ def _cmd_help(chat_id: str, is_admin: bool) -> None:
         "/premium — premium hakkında",
     ]
     if is_admin:
-        lines += [
-            "— admin —",
-            "/scan [aggressive] — tarama",
-            "/bekleyen — onay bekleyen taslaklar",
-            "ONAYLA <id> / RED <id> — taslak kararı",
-        ]
+        lines.append("Manuel yayın: python scripts/publish_now.py --yes")
     lines.append(f"\nℹ️ {DISCLAIMER}")
     tg_send_message("\n".join(lines), chat_id=chat_id)
 
@@ -372,14 +364,13 @@ def handle_message(chat_id: str, username: str, text: str) -> None:
         _cmd_premium(chat_id)
     elif low.startswith("/help"):
         _cmd_help(chat_id, is_admin)
-    elif low.startswith("/bekleyen"):
+    elif low.startswith("/bekleyen") or text.upper().startswith(("ONAYLA", "RED")):
         if is_admin:
-            _cmd_pending(chat_id)
-        else:
-            tg_send_message("Bu komut yalnız yönetici içindir.", chat_id=chat_id)
-    elif text.upper().startswith(("ONAYLA", "RED")):
-        if is_admin:
-            _cmd_decide(chat_id, text)
+            tg_send_message(
+                "Dağıtım bot üzerinden yönetilmiyor. Manuel yayın komutu: "
+                "python scripts/publish_now.py --yes",
+                chat_id=chat_id,
+            )
         else:
             tg_send_message("Bu komut yalnız yönetici içindir.", chat_id=chat_id)
     elif low.startswith("/scan"):
@@ -388,9 +379,11 @@ def handle_message(chat_id: str, username: str, text: str) -> None:
                 "Bu komut yalnız yönetici içindir. /help ile komutları gör.", chat_id=chat_id
             )
             return
-        tokens = low.split()
-        is_aggr = any(t in ("aggressive", "--aggressive", "aggr", "a") for t in tokens[1:])
-        run_scan_and_report(aggressive=is_aggr)
+        tg_send_message(
+            "Telegram taraması devre dışı. Full-universe akışı için "
+            "python scripts/publish_now.py --yes kullan.",
+            chat_id=chat_id,
+        )
     else:
         tg_send_message("Anlaşılmadı. /help ile komutları görebilirsin.", chat_id=chat_id)
 

@@ -102,24 +102,44 @@ def _fetch_karne() -> dict | None:
         # never user input; scheme is always http(s).
         with urllib.request.urlopen(f"{API_BASE}/watchlist/performance?days=5", timeout=20) as r:  # nosec B310
             data = json.loads(r.read().decode())
-        by_grade: dict[str, dict] = {}
-        for key in ("by_conviction", "by_tier"):
-            for row in data.get(key) or []:
-                grp = str(row.get("group", "")).upper()
-                if grp in ("A", "B", "C") and isinstance(row, dict):
-                    by_grade[grp] = {
-                        "n": int(row.get("count") or 0),
-                        "hit_rate": round(float(row.get("tp_rate") or 0.0) / 100.0, 3),
-                        "avg_pnl": row.get("avg_pnl"),
-                    }
-            if by_grade:
-                break
+        by_grade = _resolve_karne_by_grade(data)
         if not by_grade:
             return None
         return {"by_grade": by_grade, "window": f"last {data.get('days', 5)}d eval", "raw": True}
     except Exception as exc:
         logger.warning("karne fetch failed: %s", exc)
         return None
+
+
+def _resolve_karne_by_grade(data: dict) -> dict[str, dict]:
+    """Resolve honest grade scorecards from closed watchlist outcomes.
+
+    The watchlist report includes open signals in ``count`` and ``tp_rate``.
+    A scorecard must use only decided outcomes so an open position cannot be
+    counted as a failed observation.
+    """
+    for key in ("by_conviction", "by_tier"):
+        rows = data.get(key) or []
+        by_grade: dict[str, dict] = {}
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            grade = str(row.get("group", "")).upper()
+            if grade not in ("A", "B", "C"):
+                continue
+            tp = max(0, int(row.get("tp_count") or 0))
+            stop = max(0, int(row.get("stop_count") or 0))
+            closed = tp + stop
+            if closed == 0:
+                continue
+            by_grade[grade] = {
+                "n": closed,
+                "hit_rate": round(tp / closed, 3),
+                "avg_pnl": row.get("avg_pnl"),
+            }
+        if by_grade:
+            return by_grade
+    return {}
 
 
 def job_draft() -> dict:

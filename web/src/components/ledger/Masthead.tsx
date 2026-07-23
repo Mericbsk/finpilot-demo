@@ -66,7 +66,7 @@ export default function Masthead({ dateLabel, editionNo, universe, byGrade }: Ma
 
   const winRateStat = liveWinRate != null
     ? { num: `${Math.round(liveWinRate * 100)}%`, label: t("masthead.statWinRateLive") }
-    : { num: "68%", label: t("masthead.statWinRateBacktest") };
+    : { num: "—", label: t("masthead.statWinRatePending") };
 
   const stats = [
     { num: universe > 0 ? `${universe.toLocaleString("en-US")}+` : "—", label: t("masthead.statScanned") },
@@ -106,11 +106,8 @@ export default function Masthead({ dateLabel, editionNo, universe, byGrade }: Ma
         </a>
       </div>
 
-      {/* Circulation numbers. `universe` and (when compiled) the win-rate are
-          real snapshot data; DRL-model/agent counts are fixed architecture
-          facts, not claims. If the scorecard hasn't compiled yet, the
-          win-rate is explicitly labelled "Backtested" (research result) —
-          never presented as if it were a live production metric. */}
+        {/* Circulation numbers. The win-rate stays empty until the snapshot
+          carries a compiled scorecard with a real sample count. */}
       <div className="mt-10 flex flex-wrap justify-center gap-x-10 gap-y-4 border-t pt-8" style={{ borderColor: C.rule }}>
         {stats.map((s) => (
           <div key={s.label} className="text-center">

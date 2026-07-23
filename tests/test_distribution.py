@@ -18,6 +18,7 @@ os.environ["FINPILOT_DIST_DB"] = str(
 
 from distribution import broadcast, lint  # noqa: E402
 from distribution.concepts import concept_of_the_day  # noqa: E402
+from distribution.jobs import _resolve_karne_by_grade  # noqa: E402
 from distribution.market_calendar import is_trading_day  # noqa: E402
 from distribution.rationale import build_rationale, extract_badges, prob_band  # noqa: E402
 from distribution.schema import SCHEMA_VERSION, free_view, validate_snapshot  # noqa: E402
@@ -78,6 +79,10 @@ class TestRationale(unittest.TestCase):
         self.assertIn("ABC", r)
         self.assertEqual(lint.check_text(r), [])
 
+    def test_english_rationale_does_not_use_turkish_i_casing(self):
+        rationale = build_rationale("ABC", "A", [], lang="en", context={"date": "2026-07-06"})
+        self.assertNotIn("İts ", rationale)
+
     def test_prob_band_rounding(self):
         self.assertEqual(prob_band(0.63), "~65%")
         self.assertEqual(prob_band(0.61), "~60%")
@@ -116,6 +121,27 @@ class TestSnapshot(unittest.TestCase):
         self.assertEqual(len(fv["candidates"]), 2)
         self.assertNotIn("risk_note", fv["candidates"][0])
         self.assertNotIn("factor_detail", fv["candidates"][0])
+
+
+class TestKarneResolver(unittest.TestCase):
+    def test_scorecard_uses_closed_outcomes_only(self):
+        result = _resolve_karne_by_grade(
+            {
+                "by_conviction": [
+                    {"group": "A", "count": 5, "tp_count": 2, "stop_count": 1, "open_count": 2},
+                    {"group": "B", "count": 3, "tp_count": 0, "stop_count": 0, "open_count": 3},
+                ]
+            }
+        )
+        self.assertEqual(result["A"], {"n": 3, "hit_rate": 0.667, "avg_pnl": None})
+        self.assertNotIn("B", result)
+
+    def test_resolver_falls_back_to_tier_groups(self):
+        result = _resolve_karne_by_grade(
+            {"by_conviction": [], "by_tier": [{"group": "C", "tp_count": 1, "stop_count": 2}]}
+        )
+        self.assertEqual(result["C"]["n"], 3)
+        self.assertEqual(result["C"]["hit_rate"], 0.333)
 
 
 class TestTemplates(unittest.TestCase):

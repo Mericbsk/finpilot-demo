@@ -276,14 +276,14 @@ def _pick(seq: list[str], seed: int) -> str:
     return seq[seed % len(seq)]
 
 
-def _cap(s: str) -> str:
-    """Cümle başı büyük harf — Türkçe i/ı kuralına saygılı."""
+def _cap(s: str, lang: str = "tr") -> str:
+    """Capitalize a sentence using Turkish casing only for Turkish text."""
     if not s:
         return s
     first = s[0]
-    if first == "i":
+    if lang == "tr" and first == "i":
         return "İ" + s[1:]
-    if first == "ı":
+    if lang == "tr" and first == "ı":
         return "I" + s[1:]
     return first.upper() + s[1:]
 
@@ -340,13 +340,13 @@ def _fragments_for(badges: list[str], lang: str, date_str: str, ticker: str) -> 
 def _render_reasons(frags: list[str], lang: str, seed: int) -> str:
     """Tam cümlelerden akıcı bir gerekçe paragrafı kur (noktalı virgül zinciri yok)."""
     if not frags:
-        return _cap(_pick(_DEFAULT_BODY[lang], seed)) + "."
+        return _cap(_pick(_DEFAULT_BODY[lang], seed), lang=lang) + "."
 
     leadin = _pick(_LEADINS[lang], seed)
     if leadin:
         sentences = [f"{leadin} {frags[0]}."]
     else:
-        sentences = [_cap(frags[0]) + "."]
+        sentences = [_cap(frags[0], lang=lang) + "."]
 
     connectors = _CONNECTORS[lang]
     for i, frag in enumerate(frags[1:]):
