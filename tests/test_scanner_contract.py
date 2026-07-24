@@ -74,6 +74,11 @@ class TestScannerContract(unittest.TestCase):
                 "symbol": "GOOD",
                 "conviction_tier": "B",
                 "conviction_prob": 0.55,
+                "price": 12.5,
+                "risk_reward": 1.8,
+                "data_quality_tier": "Tier 1",
+                "ranking_method": "legacy_quality",
+                "volume_multiple": 2.1,
                 "selection_eligible": True,
                 "execution_feasible": True,
                 "position_cap_reject_reason": None,
@@ -98,6 +103,8 @@ class TestScannerContract(unittest.TestCase):
         self.assertEqual([row["ticker"] for row in snapshot["candidates"]], ["GOOD"])
         self.assertEqual(snapshot["scan_result_count"], 3)
         self.assertEqual(snapshot["eligible_candidate_count"], 1)
+        self.assertEqual(snapshot["candidates"][0]["metrics"]["price"], 12.5)
+        self.assertEqual(snapshot["candidates"][0]["metrics"]["ranking_method"], "legacy_quality")
 
     def test_partial_export_does_not_replace_latest(self):
         with tempfile.TemporaryDirectory() as tmp:

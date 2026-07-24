@@ -343,6 +343,26 @@ def build_snapshot(
                 )
                 if row.get(k) is not None
             },
+            "metrics": {
+                k: row.get(k)
+                for k in (
+                    "price",
+                    "risk_reward",
+                    "stop_loss",
+                    "take_profit",
+                    "stop_loss_percent",
+                    "conviction_prob",
+                    "execution_confidence",
+                    "data_quality_tier",
+                    "ranking_method",
+                    "momentum_bias",
+                    "momentum_3d_pct",
+                    "atr_pct",
+                    "volume_multiple",
+                    "ema_gap_pct",
+                )
+                if row.get(k) is not None
+            },
         }
         _ctx = {"date": date_str, "atr_pct": row.get("atr_pct"), "price": row.get("price")}
         cand["rationale_i18n"] = {
