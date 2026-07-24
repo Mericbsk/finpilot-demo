@@ -149,6 +149,36 @@ class TestDraftTrigger(unittest.TestCase):
             jobs.is_trading_day = orig_trading
             jobs.job_draft = orig_draft
 
+
+class TestPublishApprovalGate(unittest.TestCase):
+    def test_pending_draft_does_not_push_web_snapshot(self):
+        original = {
+            "enabled": os.environ.get("FINPILOT_ENABLE_DISTRIBUTION"),
+            "push": jobs._push_snapshot_to_web,
+            "current": jobs._load_current_snapshot,
+            "approved": jobs.broadcast.get_approved_unsent,
+            "pending": jobs.broadcast.get_pending,
+            "notify": jobs.notify_admin,
+        }
+        pushed: list[dict | None] = []
+        jobs._load_current_snapshot = lambda: {"snapshot_id": "snap-1"}
+        jobs._push_snapshot_to_web = lambda snapshot=None: pushed.append(snapshot) or True
+        jobs.broadcast.get_approved_unsent = lambda: []
+        jobs.broadcast.get_pending = lambda: [{"id": 42}]
+        jobs.notify_admin = lambda _text: True
+        try:
+            result = jobs.job_publish()
+            self.assertEqual(result["sent"], [])
+            self.assertFalse(result["web_pushed"])
+            self.assertEqual(pushed, [])
+            self.assertEqual(result["pending_unapproved"], 1)
+        finally:
+            jobs._push_snapshot_to_web = original["push"]
+            jobs._load_current_snapshot = original["current"]
+            jobs.broadcast.get_approved_unsent = original["approved"]
+            jobs.broadcast.get_pending = original["pending"]
+            jobs.notify_admin = original["notify"]
+
     def test_triggers_job_draft_when_no_draft_yet(self):
         orig_trading, orig_draft = jobs.is_trading_day, jobs.job_draft
         jobs.is_trading_day = lambda d: True

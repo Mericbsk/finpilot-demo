@@ -276,7 +276,14 @@ def job_publish() -> dict:
             + ", ".join(f"#{p['id']}" for p in pending)
         )
 
-    pushed = _push_snapshot_to_web()
+    # Web publication is coupled to an approved, successfully delivered
+    # edition. Never expose a newly generated snapshot merely because the
+    # scheduled publisher ran while approval was still pending.
+    pushed = False
+    if sent and not failed and not blocked:
+        pushed = _push_snapshot_to_web(current_snapshot)
+    elif pending:
+        logger.info("web snapshot held: %d draft(s) still await approval", len(pending))
     if failed:
         notify_admin(f"❌ Gönderim hatası: {failed} — tg_delivery_log'a bak.")
     return {
@@ -319,7 +326,7 @@ def _queue_snapshot_problems(item: dict, snapshot: dict | None) -> list[str]:
     return problems
 
 
-def _push_snapshot_to_web() -> bool:
+def _push_snapshot_to_web(snapshot: dict | None = None) -> bool:
     """Copy the FREE view of the latest snapshot to web/public for the demo."""
     from distribution.schema import demo_view
     from distribution.snapshot_builder import EXPORT_DIR
@@ -333,6 +340,9 @@ def _push_snapshot_to_web() -> bool:
         return False
     try:
         snap = json.loads(src.read_text(encoding="utf-8"))
+        if snapshot and snap.get("snapshot_id") != snapshot.get("snapshot_id"):
+            logger.error("web snapshot push refused: source snapshot differs from current snapshot")
+            return False
         # Public file: yesterday's top-3 (premium fields stripped) + full karne.
         public = demo_view(snap, max_candidates=len(snap.get("candidates", [])))
         WEB_PUBLIC_SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
@@ -349,6 +359,16 @@ def _push_snapshot_to_web() -> bool:
             import subprocess
 
             subprocess.run(shlex.split(hook), timeout=120, check=False)
+        deploy_hook = os.getenv("FINPILOT_VERCEL_DEPLOY_HOOK_URL", "").strip()
+        if deploy_hook:
+            request = urllib.request.Request(deploy_hook, data=b"", method="POST")
+            with urllib.request.urlopen(request, timeout=30) as response:  # nosec B310
+                if response.status < 200 or response.status >= 300:
+                    logger.error("Vercel deploy hook returned HTTP %s", response.status)
+                    return False
+        elif os.getenv("FINPILOT_REQUIRE_VERCEL_DEPLOY", "1") == "1":
+            logger.error("web snapshot written locally but Vercel deploy hook is not configured")
+            return False
         return True
     except Exception as exc:
         logger.error("web snapshot push failed: %s", exc)

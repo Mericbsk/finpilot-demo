@@ -990,7 +990,7 @@ def run_cycle_once(
                 "ops",
             )
 
-            # S3-3: Telegram alert for symbols with entry_ok=True
+            # Legacy signal alerts are diagnostic-only and bypass approval.
             try:
                 from telegram_alerts import TelegramNotifier
 
@@ -1007,6 +1007,7 @@ def run_cycle_once(
                 entries = (
                     []
                     if _gate_degraded
+                    or os.environ.get("FINPILOT_ENABLE_LEGACY_SIGNAL_ALERTS", "0") != "1"
                     else [
                         (sym, sig)
                         for sym, sig in scan_for_report.items()

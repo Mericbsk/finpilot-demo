@@ -237,6 +237,11 @@ def format_telegram_digest(summary: dict, top: list[dict]) -> str:
 
 
 def send_final_alert(summary: dict, top: list[dict], out: dict) -> bool:
+    # The distribution queue is the only publication path that carries the
+    # snapshot identity and human approval. Keep the legacy direct alert off
+    # unless it is explicitly enabled for diagnostics.
+    if os.environ.get("FINPILOT_ENABLE_SCAN_SUMMARY_ALERT", "0") != "1":
+        return False
     if os.environ.get("FINPILOT_ALERT_ON_SCAN", "1") != "1":
         return False
     try:

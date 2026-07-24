@@ -20,6 +20,28 @@ from scanner.score_engine import compute_legacy_quality_score, compute_v2_score
 
 
 class TestScannerContract(unittest.TestCase):
+    def test_scan_export_rows_keep_distribution_contract_fields(self):
+        export_path = Path("data/distribution/scan_export_latest.json")
+        if not export_path.exists():
+            self.skipTest("latest full scan export is unavailable")
+        payload = json.loads(export_path.read_text(encoding="utf-8"))
+        rows = payload.get("results", {})
+        row = next(iter(rows.values())) if isinstance(rows, dict) else rows[0]
+        required = {
+            "symbol",
+            "selection_eligible",
+            "entry_ok",
+            "execution_feasible",
+            "data_quality_tier",
+            "ranking_method",
+            "legacy_quality_score",
+            "v2_score",
+            "strategy_scores",
+        }
+        self.assertTrue(required.issubset(row), sorted(required - set(row)))
+        self.assertEqual(row["ranking_method"], "legacy_quality")
+        self.assertEqual(set(row["strategy_scores"]), {"legacy_quality", "v2"})
+
     def test_unavailable_symbols_remain_in_full_scan_results(self):
         with patch.object(scanner_evaluate, "daily_dd_breached", return_value=False):
             results = scanner_evaluate.evaluate_symbols_parallel(["MISSING"], use_prefetch=False)
