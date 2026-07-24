@@ -1,23 +1,113 @@
 {
  "schema": 2,
- "snapshot_id": "0dfba805ac437dc77eb92f61",
- "candidate_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "snapshot_id": "4467524635e31a6041d4f524",
+ "candidate_hash": "ef8778efbe695fcef71ef9405d93fd04daa922141d4fe3f3c544931c06146814",
  "scan_id": "b4c000d97cad89c1f67db8ec",
- "date": "2026-07-23",
- "generated_at": "2026-07-23T16:36:12.485789+00:00",
- "config_sha": "20b5cb728a4f@7221455",
+ "date": "2026-07-24",
+ "generated_at": "2026-07-24T12:59:26.095266+00:00",
+ "config_sha": "68bfed1ee680@2bb9235",
  "universe": 1812,
  "scan_result_count": 1801,
- "eligible_candidate_count": 0,
- "candidates": [],
- "karne": null,
+ "eligible_candidate_count": 2,
+ "candidates": [
+  {
+   "ticker": "RIOT",
+   "company": "",
+   "grade": "B",
+   "prob_band": "~60%",
+   "badges": [
+    "regime"
+   ],
+   "rationale": "RIOT bugün güçlü bir profille listede. Piyasa geneli yükseliş tarafında; tekil sinyal, destekleyici bir arka planla birleşiyor. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+   "premium_only": false,
+   "risk_note": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+   "factor_detail": {
+    "conviction_prob": 0.59,
+    "price": 23.88
+   },
+   "metrics": {
+    "price": 23.88,
+    "risk_reward": 3.33,
+    "stop_loss": 21.74,
+    "take_profit": 31,
+    "stop_loss_percent": 8.94,
+    "conviction_prob": 0.59,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 20,
+    "volume_multiple": 1.39,
+    "ema_gap_pct": 14.11
+   },
+   "rationale_i18n": {
+    "tr": "RIOT bugün güçlü bir profille listede. Piyasa geneli yükseliş tarafında; tekil sinyal, destekleyici bir arka planla birleşiyor. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+    "en": "RIOT makes today's list with a strong profile. The broad market leans bullish; the individual signal combines with a supportive backdrop. This is a watch candidate; decisions and risk management remain yours.",
+    "de": "RIOT steht mit einem starken Profil auf der heutigen Liste. Der Gesamtmarkt neigt nach oben; das Einzelsignal verbindet sich mit einem unterstützenden Umfeld. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+   },
+   "risk_note_i18n": {
+    "tr": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
+    "en": "usual market risk applies — set your monitoring pace to your own plan",
+    "de": "übliches Marktrisiko gilt — richte dein Beobachtungstempo nach deinem eigenen Plan"
+   }
+  },
+  {
+   "ticker": "DVN",
+   "company": "",
+   "grade": "C",
+   "prob_band": "~50%",
+   "badges": [
+    "rvol",
+    "regime"
+   ],
+   "rationale": "DVN bugün radara girdi. Nedeni şu: hacim, hissenin kendi ortalamasına göre yükselmiş durumda; fiyat hareketinin arkasında gerçek işlem akışı var. Buna ek olarak piyasa rejimi destekleyici okunuyor; aynı sinyal zayıf bir piyasada çok daha az anlam taşırdı. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+   "premium_only": false,
+   "risk_note": "erken aşama profili: sinyal henüz olgunlaşmamış olabilir",
+   "factor_detail": {
+    "conviction_prob": 0.52,
+    "price": 45.29
+   },
+   "metrics": {
+    "price": 45.29,
+    "risk_reward": 3.33,
+    "stop_loss": 43.96,
+    "take_profit": 49.73,
+    "stop_loss_percent": 2.94,
+    "conviction_prob": 0.52,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 3.43,
+    "volume_multiple": 1.82,
+    "ema_gap_pct": 4.02
+   },
+   "rationale_i18n": {
+    "tr": "DVN bugün radara girdi. Nedeni şu: hacim, hissenin kendi ortalamasına göre yükselmiş durumda; fiyat hareketinin arkasında gerçek işlem akışı var. Buna ek olarak piyasa rejimi destekleyici okunuyor; aynı sinyal zayıf bir piyasada çok daha az anlam taşırdı. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+    "en": "DVN entered the radar today. The reason: volume is elevated versus the stock's own average; there is real order flow behind the price move. Adding to the picture, the market regime reads as supportive; the same signal would mean far less in a weak market. This is a watch candidate; decisions and risk management remain yours.",
+    "de": "DVN tauchte heute auf dem Radar auf. Der Grund: das Volumen ist gegenüber dem eigenen Durchschnitt der Aktie erhöht; hinter der Kursbewegung steht echter Orderfluss. Darüber hinaus: das Marktregime liest sich unterstützend; dasselbe Signal würde in einem schwachen Markt weit weniger bedeuten. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+   },
+   "risk_note_i18n": {
+    "tr": "erken aşama profili: sinyal henüz olgunlaşmamış olabilir",
+    "en": "an early-stage profile: the signal may not be mature yet",
+    "de": "ein Profil im Frühstadium: das Signal ist womöglich noch nicht ausgereift"
+   }
+  }
+ ],
+ "karne": {
+  "toplam_aday_bugun": {
+   "B": 1,
+   "C": 1
+  },
+  "by_grade": {},
+  "window": ""
+ },
  "warnings": [
-  "no graded candidates today",
   "karne unavailable — using daily totals only"
  ],
  "concept": {
-  "name": "Sektör Rotasyonu",
-  "line": "Paranın sektörler arasında dönüşümlü gezmesi; bugünün gözde sektörü yarının unutulanı olabilir."
+  "name": "Kırılım (Breakout)",
+  "line": "Fiyatın uzun süre aşamadığı seviyeyi hacimle geçmesi; hacimsiz kırılım şüpheyle karşılanmalıdır."
  },
- "edition_no": 3
+ "edition_no": 5
 }

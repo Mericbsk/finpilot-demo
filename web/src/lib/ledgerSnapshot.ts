@@ -19,14 +19,19 @@ export interface LedgerCandidate {
   prob_band?: string;
   badges?: string[];
   rationale?: string;
+  rationale_i18n?: Record<string, string>;
   premium_only?: boolean;
   risk_note?: string;
+  risk_note_i18n?: Record<string, string>;
 }
+
 
 export interface LedgerKarne {
   toplam_aday_bugun?: Record<string, number>;
   by_grade?: Record<string, { n?: number; count?: number; hit_rate?: number; success_rate?: number; hit5?: number }>;
   window?: string;
+  /** Total picks ever archived & publicly tracked (Karar B, 2026-07-24). */
+  tracked_total?: number;
 }
 
 export interface LedgerConcept {

@@ -14,6 +14,43 @@ from __future__ import annotations
 
 # key, slug, name_tr, name_en, line_tr, line_en, card_en
 GLOSSARY: list[dict[str, str]] = [
+    # ── Ürün terimleri (Temmuz 2026 — Ledger yüzeyinde görünen kavramlar) ──
+    {
+        "key": "prob_band",
+        "slug": "probability-band",
+        "name_tr": "Olasılık Bandı",
+        "name_en": "Probability Band",
+        "line_tr": "Benzer geçmiş kurulumların kabaca hangi sıklıkla hedefine ulaştığını gösteren kalibre aralık — bir garanti değil, tarihsel bir taban oranı.",
+        "line_en": "A calibrated range showing roughly how often similar past setups reached their target — a historical base rate, not a guarantee.",
+        "card_en": "When a candidate shows ~60%, it means setups with a similar statistical profile historically worked out at about that frequency over the evaluation window. It is derived from past data, recalibrated as outcomes accumulate, and can be wrong for any single case — which is why it is a band, not a promise.",
+    },
+    {
+        "key": "conviction",
+        "slug": "conviction",
+        "name_tr": "Konviksiyon",
+        "name_en": "Conviction",
+        "line_tr": "Modelin bir adaydaki istatistiksel güven derecesi — A/B/C grade'inin ana girdisi.",
+        "line_en": "The model's statistical confidence in a candidate — the main input behind the A/B/C grade.",
+        "card_en": "Conviction blends signal strength, data quality and historical calibration into a single confidence measure. It is then bucketed into the public Grade (A/B/C) so readers compare candidates on one scale instead of raw model internals.",
+    },
+    {
+        "key": "scorecard",
+        "slug": "scorecard",
+        "name_tr": "Karne",
+        "name_en": "Scorecard",
+        "line_tr": "Yayınlanmış adayların KAPANMIŞ sonuçlarından hesaplanan grade bazlı isabet tablosu — açık pozisyon asla gözlem sayılmaz.",
+        "line_en": "The grade-level hit-rate table computed only from CLOSED outcomes of published picks — open positions are never counted.",
+        "card_en": "Every published candidate is tracked to resolution (target, stop or expiry). The scorecard aggregates those decided outcomes per grade over a stated window. Publishing it — good or bad — is the product's honesty contract.",
+    },
+    {
+        "key": "edition",
+        "slug": "edition",
+        "name_tr": "Sayı (Edisyon)",
+        "name_en": "Edition",
+        "line_tr": "Günlük brifin yayın numarası — her işlem günü en fazla bir sayı yayınlanır.",
+        "line_en": "The daily brief's publication number — at most one edition per trading day.",
+        "card_en": "The Ledger is published like a newspaper: one numbered edition per trading day, produced from a single full-universe scan. The edition number makes the publication trail auditable end to end.",
+    },
     # ── Rozet terimleri (rationale badge id'leriyle birebir) ──
     {
         "key": "squeeze",

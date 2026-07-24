@@ -2,12 +2,12 @@
  * Lightweight i18n dictionary for the Morning Ledger landing + /demo.
  *
  * Scope: static UI chrome (nav, headings, CTAs, disclaimers) only — NOT the
- * dynamic candidate rationale/badges, which come pre-generated in the
- * snapshot's own language (see distribution/snapshot_builder.py `lang`
- * param; English snapshot is published for the web Ledger separately from
- * the Turkish Telegram brief). Deeper illustrative copy (Newsroom, How It's
- * Made paragraphs, Classroom lesson cards) is English-only for now — a
- * follow-up to extend once these key strings are validated.
+ * dynamic candidate rationale/risk notes: those ship inside the snapshot as
+ * per-candidate `rationale_i18n` / `risk_note_i18n` (tr/en/de) and are picked
+ * per active language via lib/ledgerSnapshot.candidateRationale(). Deeper
+ * illustrative copy (Newsroom, How It's Made paragraphs, Classroom lesson
+ * cards) is English-only for now — a follow-up to extend once these key
+ * strings are validated. (Comment realigned with code 2026-07-24.)
  */
 
 export type Lang = "en" | "de" | "tr";
@@ -37,6 +37,7 @@ export const TRANSLATIONS: Record<Lang, Dict> = {
     "masthead.statWinRateLive": "Live hit rate",
     "masthead.statWinRateBacktest": "Backtested win rate*",
     "masthead.statWinRatePending": "Scorecard pending",
+    "masthead.statTracked": "Picks publicly tracked",
     "masthead.winRateFootnote": "*From walk-forward backtests, not yet a live production statistic — the live figure will replace it as the scorecard compiles.",
     "section.yesterdaysEdition": "Yesterday's Edition",
     "section.dailyDouble": "The Daily Double",
@@ -77,6 +78,7 @@ export const TRANSLATIONS: Record<Lang, Dict> = {
     "masthead.statWinRateLive": "Live-Trefferquote",
     "masthead.statWinRateBacktest": "Backtest-Trefferquote*",
     "masthead.statWinRatePending": "Scorecard ausstehend",
+    "masthead.statTracked": "Öffentlich verfolgte Picks",
     "masthead.winRateFootnote": "*Aus Walk-Forward-Backtests, noch keine Live-Produktionsstatistik — die echte Zahl ersetzt diese, sobald die Bewertungstabelle vorliegt.",
     "section.yesterdaysEdition": "Gestrige Ausgabe",
     "section.dailyDouble": "Das Tagesduo",
@@ -117,6 +119,7 @@ export const TRANSLATIONS: Record<Lang, Dict> = {
     "masthead.statWinRateLive": "Canlı isabet oranı",
     "masthead.statWinRateBacktest": "Backtest kazanma oranı*",
     "masthead.statWinRatePending": "Karne bekleniyor",
+    "masthead.statTracked": "Halka açık izlenen sinyal",
     "masthead.winRateFootnote": "*Walk-forward backtest'lerinden — henüz canlı bir üretim istatistiği değil; karne oluştukça gerçek rakam bunun yerini alacak.",
     "section.yesterdaysEdition": "Dünkü Sayı",
     "section.dailyDouble": "Günün İkilisi",

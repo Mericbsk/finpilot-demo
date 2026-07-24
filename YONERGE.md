@@ -1,8 +1,8 @@
 # FinPilot — Çalışma Yönergesi (Operations Charter)
 
 > Amaç: tekrar eden kırılmaları **net sınırlar** ve **tanımlı görevlerle** en aza indirmek.
-> Bu doküman tek doğruluk kaynağıdır. Her Pazartesi birlikte gözden geçirilir.
-> Sürüm: 1.0 · Son güncelleme: 2026-07-17
+> ROL: Bu doküman OPERASYONUN tek otoritesidir (nasıl çalışırız). AI çalışma kuralları `_instructions/00-core.md`'de, güncel durum `LAUNCH_CHECKLIST.md`'de, kararlar `docs/governance/decision-log.md`'dedir (bkz. `docs/INDEX.md` otorite haritası). Her Pazartesi birlikte gözden geçirilir.
+> Sürüm: 1.1 · Son güncelleme: 2026-07-24 (rol netleştirme — ReAudit R1)
 
 ---
 

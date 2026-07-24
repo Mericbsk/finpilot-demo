@@ -51,6 +51,37 @@ def config_sha() -> str:
     return hashlib.sha256(f"{git}|{base}".encode()).hexdigest()[:12] + (f"@{git}" if git else "")
 
 
+_COMPANY_CACHE: dict[str, str] = {}
+
+
+def _company_from_db(ticker: str) -> str:
+    """Best-effort company name from the symbols table (export rows carry None)."""
+    if ticker in _COMPANY_CACHE:
+        return _COMPANY_CACHE[ticker]
+    name = ""
+    try:
+        import sqlite3
+
+        db = Path(os.getenv("FINPILOT_DB", "data/finpilot.db"))
+        if db.exists():
+            con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+            try:
+                row = con.execute("SELECT name FROM symbols WHERE ticker=?", (ticker,)).fetchone()
+            finally:
+                con.close()
+            if row and row[0]:
+                name = str(row[0])
+                # Trim exchange boilerplate ("... Common Stock", "... Inc. Class A")
+                for suffix in (" Common Stock", " Class A Common Stock", " Ordinary Shares"):
+                    if name.endswith(suffix):
+                        name = name[: -len(suffix)]
+                        break
+    except Exception as exc:  # never break snapshot building over a nicety
+        logger.debug("company lookup failed for %s: %s", ticker, exc)
+    _COMPANY_CACHE[ticker] = name
+    return name
+
+
 def _grade_of(row: dict[str, Any]) -> str | None:
     """Map a scan row to a public Grade — the SINGLE user-facing label."""
     conv = str(row.get("conviction_tier") or "").strip().upper()
@@ -309,7 +340,7 @@ def build_snapshot(
         badges = extract_badges(row)
         cand: dict[str, Any] = {
             "ticker": ticker,
-            "company": str(row.get("company") or row.get("name") or ""),
+            "company": str(row.get("company") or row.get("name") or _company_from_db(ticker)),
             "grade": grade,
             "prob_band": prob_band(float(row.get("conviction_prob") or 0.0)),
             "badges": badges,
@@ -437,7 +468,7 @@ def build_snapshot(
 def read_json_object(p: Path) -> dict[str, Any]:
     """Read exactly one valid UTF-8 JSON object; reject corruption loudly."""
     raw = Path(p).read_bytes()
-    if b"\\x00" in raw:
+    if b"\x00" in raw:
         raise ValueError(f"JSON contains NUL bytes: {p}")
     text = raw.decode("utf-8").strip()
     if not text:

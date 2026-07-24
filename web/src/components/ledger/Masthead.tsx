@@ -8,8 +8,8 @@ interface MastheadProps {
   dateLabel: string;
   editionNo?: number;
   universe: number;
-  /** Grade -> {n, hit_rate} from snapshot.karne.by_grade, when compiled. */
-  byGrade?: Record<string, { n?: number; hit_rate?: number | string }>;
+  /** Total picks publicly tracked (snapshot.karne.tracked_total) — Karar B. */
+  trackedTotal?: number;
 }
 
 function useMarketCountdown() {
@@ -41,38 +41,28 @@ function useMarketCountdown() {
 }
 
 /** S1 masthead: serif banner, dateline, live market-hours line, circulation stats. */
-export default function Masthead({ dateLabel, editionNo, universe, byGrade }: MastheadProps) {
+export default function Masthead({ dateLabel, editionNo, universe, trackedTotal }: MastheadProps) {
   const marketLabel = useMarketCountdown();
   const { t } = useLanguage();
 
-  // Live weighted hit-rate across graded candidates, when the scorecard has
-  // actually compiled (see Masthead's win-rate stat below). Falls back to a
-  // clearly-labelled backtest figure — never presented as a live claim
-  // unless it's backed by real karne.by_grade data.
-  let liveWinRate: number | null = null;
-  if (byGrade && Object.keys(byGrade).length > 0) {
-    let weightedSum = 0;
-    let totalN = 0;
-    for (const stats of Object.values(byGrade)) {
-      const n = Number(stats.n) || 0;
-      const hr = typeof stats.hit_rate === "number" ? stats.hit_rate : Number(stats.hit_rate);
-      if (n > 0 && Number.isFinite(hr)) {
-        weightedSum += hr * n;
-        totalN += n;
+  // Karar B (2026-07-24, decision-log): the masthead headline stat is a
+  // TRANSPARENCY count — how many picks we have publicly tracked — never a
+  // naked win-rate. Grade-level hit rates live in the LedgerStrip scorecard,
+  // with their evaluation window, where they carry context.
+  const trackedStat = trackedTotal && trackedTotal > 0
+    ? {
+        num: `${Math.floor(trackedTotal / 100) * 100 >= 100
+          ? (Math.floor(trackedTotal / 100) * 100).toLocaleString("en-US")
+          : trackedTotal}+`,
+        label: t("masthead.statTracked"),
       }
-    }
-    if (totalN > 0) liveWinRate = weightedSum / totalN;
-  }
-
-  const winRateStat = liveWinRate != null
-    ? { num: `${Math.round(liveWinRate * 100)}%`, label: t("masthead.statWinRateLive") }
-    : { num: "—", label: t("masthead.statWinRatePending") };
+    : { num: "—", label: t("masthead.statTracked") };
 
   const stats = [
     { num: universe > 0 ? `${universe.toLocaleString("en-US")}+` : "—", label: t("masthead.statScanned") },
     { num: "12", label: t("masthead.statModels") },
     { num: "3", label: t("masthead.statAgents") },
-    winRateStat,
+    trackedStat,
   ];
 
   return (
@@ -120,11 +110,6 @@ export default function Masthead({ dateLabel, editionNo, universe, byGrade }: Ma
           </div>
         ))}
       </div>
-      {liveWinRate == null && (
-        <p className="mt-3 text-[10px] italic" style={{ color: C.inkSoft }}>
-          {t("masthead.winRateFootnote")}
-        </p>
-      )}
     </header>
   );
 }

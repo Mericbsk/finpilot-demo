@@ -1,6 +1,10 @@
+"use client";
+
 import { C } from "./_ledgerColors";
 import GradeSeal from "./GradeSeal";
 import type { LedgerCandidate, LedgerConcept } from "@/lib/ledgerSnapshot";
+import { candidateRationale } from "@/lib/candidateText";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface DailyDoubleProps {
   concept?: LedgerConcept;
@@ -10,6 +14,7 @@ interface DailyDoubleProps {
 /** S3 "Daily Double" — bridges the day's glossary concept (lesson card) with
  * the case-study candidate it best explains (vaka kartı). */
 export default function DailyDouble({ concept, candidate }: DailyDoubleProps) {
+  const { lang } = useLanguage();
   if (!concept && !candidate) return null;
 
   return (
@@ -38,7 +43,7 @@ export default function DailyDouble({ concept, candidate }: DailyDoubleProps) {
               <span className="font-semibold" style={{ color: C.ink }}>
                 {candidate.ticker}
               </span>{" "}
-              {candidate.rationale}
+              {candidateRationale(candidate, lang)}
             </p>
           </div>
         </div>

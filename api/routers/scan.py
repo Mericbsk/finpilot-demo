@@ -734,6 +734,9 @@ def _persist_distribution_export(
         payload = {
             "date": datetime.now(tz=UTC).strftime("%Y-%m-%d"),
             "generated_at": datetime.now(tz=UTC).isoformat(),
+            # scan_id identifies the SYMBOL SET (identical across same-universe
+            # runs); run_id identifies THIS run — never confuse the two.
+            "run_id": datetime.now(tz=UTC).strftime("%Y%m%dT%H%M%S"),
             "universe": universe,
             "scan_id": scan_id
             or hashlib.sha256(
@@ -798,6 +801,37 @@ def _persist_distribution_export(
                         len(existing_results),
                         len(current_symbols),
                         len(existing_symbols),
+                    )
+                    return
+                # Degraded-run guard (2026-07-24): an equal-size run whose
+                # enrichment produced ZERO graded/eligible rows must not
+                # overwrite an existing enriched export — last-writer-wins
+                # destroyed the published evidence once already.
+                from distribution.prepublish_gate import _grade_like
+
+                def _enriched_count(rows: list) -> int:
+                    return sum(
+                        1
+                        for row in rows
+                        if isinstance(row, dict)
+                        and (_grade_like(row) or row.get("selection_eligible") is True)
+                    )
+
+                if _enriched_count(current_results) == 0 and _enriched_count(existing_results) > 0:
+                    degraded_path = export_dir / (
+                        f"scan_export_{payload['date']}_degraded_"
+                        f"{datetime.now(tz=UTC).strftime('%H%M%S')}.json"
+                    )
+                    degraded_path.write_text(
+                        json.dumps(payload, ensure_ascii=False, default=str),
+                        encoding="utf-8",
+                    )
+                    logger.warning(
+                        "distribution export DIVERTED to %s: new run has 0 enriched "
+                        "rows while existing export for %s has %d — latest kept intact",
+                        degraded_path.name,
+                        payload["date"],
+                        _enriched_count(existing_results),
                     )
                     return
             except (OSError, TypeError, ValueError, json.JSONDecodeError):

@@ -11,6 +11,30 @@ export interface Term {
 }
 
 export const TERMS: Record<string, Term> = {
+  "prob_band": {
+    slug: "probability-band",
+    name: "Probability Band",
+    short:
+      "When a candidate shows ~60%, it means setups with a similar statistical profile historically worked out at about that frequency over the evaluation window. It is derived from past data, recalibrated as outcomes accumulate, and can be wrong for any single case — which is why it is a band, not a promise.",
+  },
+  "conviction": {
+    slug: "conviction",
+    name: "Conviction",
+    short:
+      "Conviction blends signal strength, data quality and historical calibration into a single confidence measure. It is then bucketed into the public Grade (A/B/C) so readers compare candidates on one scale instead of raw model internals.",
+  },
+  "scorecard": {
+    slug: "scorecard",
+    name: "Scorecard",
+    short:
+      "Every published candidate is tracked to resolution (target, stop or expiry). The scorecard aggregates those decided outcomes per grade over a stated window. Publishing it — good or bad — is the product's honesty contract.",
+  },
+  "edition": {
+    slug: "edition",
+    name: "Edition",
+    short:
+      "The Ledger is published like a newspaper: one numbered edition per trading day, produced from a single full-universe scan. The edition number makes the publication trail auditable end to end.",
+  },
   "squeeze": {
     slug: "short-squeeze",
     name: "Short Squeeze",

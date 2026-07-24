@@ -1,230 +1,34 @@
-# 🚀 FinPilot - AI-Powered Stock Analysis Platform
-
-[![CI/CD](https://github.com/yourusername/finpilot/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/finpilot/actions/workflows/ci.yml)
-[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-**FinPilot** is an intelligent stock scanning and analysis platform that combines technical analysis with AI-powered insights. Built for traders who want data-driven decisions.
-
-![Dashboard Preview](docs/dashboard-preview.png)
-
-## ✨ Features
-
-- 📊 **Multi-Timeframe Analysis** - 15m, 1h, 4h, and daily trend alignment
-- 🤖 **AI Financial Agent** - LLM-powered trading recommendations with master prompt system
-- 🧠 **DRL Integration** - Deep Reinforcement Learning for adaptive strategies
-- 📈 **Technical Indicators** - RSI, MACD, Bollinger Bands, EMA, ATR
-- 🎯 **Signal Generation** - Automated entry/exit signals with risk management
-- 📱 **Telegram Alerts** - Real-time notifications for trading signals
-- 🛡️ **PilotShield Risk Controls** - Multi-layer risk management and position sizing
-
-## 🏗️ Architecture
-
-```
-finpilot/
-├── scanner/              # Modular scanning system
-│   ├── indicators.py     # Technical indicators (EMA, RSI, MACD, etc.)
-│   ├── signals.py        # Signal detection and scoring
-│   ├── data_fetcher.py   # Market data retrieval
-│   └── config.py         # Configuration management
-├── drl/                  # Deep Reinforcement Learning
-│   ├── market_env.py     # Gymnasium trading environment
-│   ├── training.py       # Model training pipeline
-│   └── data_loader.py    # Feature engineering
-├── views/                # Streamlit dashboard views
-├── tests/                # Unit and integration tests
-└── scripts/              # Utility scripts
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.11+
-- pip or conda
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/finpilot.git
-cd finpilot
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your API keys
-```
-
-### Running the Application
-
-```bash
-# Start Streamlit dashboard
-streamlit run streamlit_app.py
-
-# Run scanner
-python scanner.py
-
-# Run with aggressive mode
-python scanner.py --aggressive
-```
-
-## 🐳 Docker Deployment
-
-### Quick Start with Docker
-
-```bash
-# Build and run
-docker-compose up -d
-
-# View logs
-docker-compose logs -f finpilot
-
-# Stop
-docker-compose down
-```
-
-### Available Profiles
-
-```bash
-# Main app only
-docker-compose up -d
-
-# With scanner service
-docker-compose --profile scanner up -d
-
-# With Telegram bot
-docker-compose --profile telegram up -d
-
-# Full stack with Redis cache
-docker-compose --profile scanner --profile telegram --profile cache up -d
-```
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-Create a `.env` file based on `.env.example`:
-
-```env
-# Required
-GROQ_API_KEY=your_groq_api_key
-
-# Optional - Telegram
-TELEGRAM_BOT_TOKEN=your_bot_token
-TELEGRAM_CHAT_ID=your_chat_id
-
-# Optional - Data providers
-POLYGON_API_KEY=your_polygon_key
-```
-
-### Scanner Settings
-
-Edit `user_settings.json` for personalized settings:
-
-```json
-{
-  "risk_score": 5,
-  "portfolio_size": 10000,
-  "strategy": "Normal",
-  "market": "US"
-}
-```
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-make test
-
-# Run with coverage
-pytest tests/ --cov=scanner --cov=drl -v
-
-# Run specific test file
-pytest tests/test_indicators.py -v
-```
-
-## 📊 Scanner Module Usage
-
-```python
-from scanner import (
-    add_indicators, fetch, load_symbols,
-    check_volume_spike, analyze_price_momentum
-)
-
-# Fetch data with indicators
-df = add_indicators(fetch('AAPL', '1d', 30))
-
-# Check for signals
-volume_spike = check_volume_spike(df)
-momentum = analyze_price_momentum(df)
-
-print(f"Volume Spike: {volume_spike}")
-print(f"Momentum Bias: {momentum['momentum_bias']}")
-```
-
-## 🔧 Development
-
-### Pre-commit Hooks
-
-```bash
-# Install pre-commit
-pip install pre-commit
-pre-commit install
-
-# Run manually
-pre-commit run --all-files
-```
-
-### Code Style
-
-- **Formatter**: Black (line-length: 100)
-- **Linter**: Ruff
-- **Import Sorting**: isort
-
-### Adding New Indicators
-
-1. Add function to `scanner/indicators.py`
-2. Export in `scanner/__init__.py`
-3. Add tests to `tests/test_indicators.py`
-
-## 📈 Roadmap
-
-- [x] Modular scanner architecture
-- [x] CI/CD pipeline
-- [x] Docker deployment
-- [x] Unit test coverage
-- [ ] WebSocket real-time data
-- [ ] Portfolio backtesting
-- [ ] Mobile app
-- [ ] Cloud deployment (AWS/Azure)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [yfinance](https://github.com/ranaroussi/yfinance) - Yahoo Finance data
-- [Streamlit](https://streamlit.io/) - Dashboard framework
-- [Stable-Baselines3](https://github.com/DLR-RM/stable-baselines3) - RL algorithms
-- [Groq](https://groq.com/) - Fast LLM inference
-
----
-
-**Made with ❤️ for traders who code**
+# FinPilot Doküman İndeksi — "Hangi soruya hangi doküman?"
+Durum: AKTİF · Sürüm: 1.0 · Güncelleme: 2026-07-24
+_Bu dosya eski bir README kopyasıydı; 2026-07-24'te gerçek indekse dönüştürüldü (Bölüm 5). Kural: aynı soruya iki otorite gösteren her satır bir P0 çelişkidir._
+
+## Otorite haritası
+
+| Soru | Tek otorite doküman | Rol |
+|---|---|---|
+| AI ajanları hangi kurallarla çalışır? | `_instructions/00-core.md` | GLOBAL kural seti (CORE-001…012) |
+| Ajan açılış sırası / hangi dosyalar okunur? | `AGENTS.md` (kökte) | Bootstrap |
+| Günlük operasyon nasıl yürür? (yayın ritüeli, sözleşme, kırmızı çizgiler) | `YONERGE.md` | OPS anayasası |
+| Şu an neredeyiz? (DoD, kapılar, seri sayacı) | `LAUNCH_CHECKLIST.md` | DURUM panosu |
+| Hangi karar ne zaman, neden verildi? | `docs/governance/decision-log.md` | Karar sicili |
+| Bölüm kapıları ve kanıtları | `docs/reports/BOLUM-*_raporu_*.md` | Kapı kayıtları |
+| Genel sağlık / audit geçmişi | `docs/audits/` + kökteki tarihli audit dosyaları | Tarihsel denetim |
+| Uygulama sırası (0→6 bölüm planı) | `FinPilot_UcaUca_Uygulama_Plani_2026-07-24.md` | Aktif plan |
+| Lansmana kadar dokunulmayacak fikirler | `PARKING_LOT.md` | Kapsam kilidi |
+| Sözlük içeriği (landing/Telegram) | `distribution/glossary.py` | TEK kaynak — `terms.ts` ve concepts türevdir (`python scripts/gen_terms_ts.py`) |
+| Akademi ders içeriği | FinSense repo (`academy/`) → `web/public/academy_lessons.json` | Üretici → türev |
+| Eski dashboard sözlüğü | `web/public/dictionary.json` | LEGACY — yalnız dashboard/finsense sayfaları; landing BUNU KULLANMAZ |
+| Strateji/GTM | `docs/strategy/` + kök GTM/Funnel dosyaları (taşınacak) | Yön |
+
+## Emekli / bayat kayıtlar
+- DB tabloları `signals`, `scan_results`, `buy_signals`, `execution_*` → **EMEKLİ** (Karar C, 2026-07-24, decision-log). Şema durur, yeni kod kullanmaz.
+- `FinPilot_Hafta1_Yonerge_2026-07-05.md` cron bölümü → SUPERSEDED (07-17 manuel karar; YONERGE geçerli).
+- `FinPilot_Tam_Sistem_Audit_2026-07-03.md`, `YAYIN_P0_ADIM_PLANI.md`, MorningLedger/Master-Tasarım/WebMVP/TgBot/3x-şablon planları → tarihî değer, arşive taşınacak (taşıma listesi: BOLUM-5 raporu).
+
+## Audit log formatı
+`tarih · ne denetlendi · bulgu (P0/P1) · ne değişti · onaylayan` — her kapı raporunun sonunda.
+
+| Tarih | Denetim | P0/P1 | Sonuç |
+|---|---|---|---|
+| 2026-07-23 | Tam sistem ReAudit | 5 P0 | Skor 54/100 |
+| 2026-07-24 | Ön-tarama + teşhis paketi | 2 yeni P0 (NUL, degraded-run) | Skor ~60/100; Bölüm 0-1-3-4 kapıları |

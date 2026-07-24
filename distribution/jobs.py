@@ -104,10 +104,21 @@ def _fetch_karne() -> dict | None:
             data = json.loads(r.read().decode())
         by_grade = _resolve_karne_by_grade(data)
         if not by_grade:
-            return None
+            return _fetch_karne_db_fallback("api returned no closed outcomes")
         return {"by_grade": by_grade, "window": f"last {data.get('days', 5)}d eval", "raw": True}
     except Exception as exc:
-        logger.warning("karne fetch failed: %s", exc)
+        return _fetch_karne_db_fallback(f"api unreachable: {exc}")
+
+
+def _fetch_karne_db_fallback(reason: str) -> dict | None:
+    """Direct-from-DB karne so manual morning publishes work with the API down."""
+    logger.warning("karne API path failed (%s) — falling back to DB", reason)
+    try:
+        from distribution.karne import compute_karne_db
+
+        return compute_karne_db()
+    except Exception as exc:
+        logger.warning("karne db fallback failed: %s", exc)
         return None
 
 

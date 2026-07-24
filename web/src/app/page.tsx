@@ -30,7 +30,7 @@ export default async function Home() {
             dateLabel={dateLabel}
             editionNo={snap?.edition_no}
             universe={snap?.universe ?? 0}
-            byGrade={snap?.karne?.by_grade}
+            trackedTotal={snap?.karne?.tracked_total}
           />
 
           <section className="py-14">
