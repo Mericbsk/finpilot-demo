@@ -15,6 +15,10 @@ export default function LedgerStrip({ karne }: LedgerStripProps) {
   const grades = GRADE_ORDER.filter((g) => totals[g] != null);
   const max = Math.max(1, ...grades.map((g) => totals[g] ?? 0));
   const hasScorecard = !!karne?.by_grade && Object.keys(karne.by_grade).length > 0;
+  const overall = karne?.overall;
+  const hasOverall = !!overall && (overall.n ?? 0) > 0;
+  const fmtPct = (v?: number) => (v == null ? "—" : `${(v * 100).toFixed(0)}%`);
+  const fmtSigned = (v?: number) => (v == null ? "—" : `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`);
 
   if (grades.length === 0) {
     return (
@@ -45,6 +49,34 @@ export default function LedgerStrip({ karne }: LedgerStripProps) {
           );
         })}
       </div>
+
+      {hasOverall && (
+        <div className="border-t pt-4" style={{ borderColor: C.rule }}>
+          <div className="mb-2 font-ledger-mono text-xs uppercase tracking-wide" style={{ color: C.inkSoft }}>
+            Track record — all closed picks
+          </div>
+          <div className="flex flex-wrap gap-x-8 gap-y-2">
+            <div>
+              <div className="font-ledger-mono text-lg" style={{ color: C.ink }}>{overall?.n}</div>
+              <div className="text-xs" style={{ color: C.inkSoft }}>closed picks</div>
+            </div>
+            <div>
+              <div className="font-ledger-mono text-lg" style={{ color: C.ink }}>{fmtPct(overall?.hit_rate)}</div>
+              <div className="text-xs" style={{ color: C.inkSoft }}>hit rate</div>
+            </div>
+            <div>
+              <div className="font-ledger-mono text-lg" style={{ color: (overall?.avg_pnl ?? 0) >= 0 ? C.steel : C.brick }}>
+                {fmtSigned(overall?.avg_pnl)}
+              </div>
+              <div className="text-xs" style={{ color: C.inkSoft }}>expectancy / pick</div>
+            </div>
+          </div>
+          <p className="mt-2 text-xs italic" style={{ color: C.inkSoft }}>
+            A low hit rate is by design: winners run to a far take-profit while losers cut at a
+            near stop, so the average pick is still positive.
+          </p>
+        </div>
+      )}
 
       {hasScorecard ? (
         <div className="border-l-4 pl-4 italic" style={{ borderColor: C.brick, color: C.inkSoft }}>

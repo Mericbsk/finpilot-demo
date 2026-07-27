@@ -38,6 +38,16 @@ from .indicators import add_indicators
 # Configure module logger
 logger = logging.getLogger(__name__)
 
+# yfinance is the per-symbol FALLBACK (Alpaca is the bulk primary). Its internal
+# logger emits an ERROR line for every expected per-symbol 404 (delisted/invalid
+# ticker), which floods api.log (874 ERROR lines on 2026-07-24) and masks real
+# failures. The scanner already handles missing data gracefully — fetch() returns
+# an empty frame and the caller skips the symbol — so silence yfinance's own
+# logger. Genuine failures are still logged at the call site below.
+# Set FINPILOT_YF_VERBOSE=1 to restore yfinance's native logging for debugging.
+if os.getenv("FINPILOT_YF_VERBOSE") != "1":
+    logging.getLogger("yfinance").setLevel(logging.CRITICAL)
+
 
 # ============================================
 # 🧠 Cache Configuration

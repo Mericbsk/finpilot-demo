@@ -101,7 +101,11 @@ CREATE TABLE IF NOT EXISTS premium_events (
 def get_conn() -> sqlite3.Connection:
     _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(_DB_PATH, timeout=10)
-    conn.execute("PRAGMA journal_mode=WAL")
+    # DELETE (rollback) journal, NOT WAL: WAL's -wal/-shm sidecars desync under
+    # OneDrive sync / antivirus locks and corrupt the DB (07-03, 07-15 events).
+    # The manual single-writer flow does not need WAL concurrency. See
+    # scripts/harden_db.py and FinPilot_Bolum3_StabiliteAudit_2026-07-24.md.
+    conn.execute("PRAGMA journal_mode=DELETE")
     conn.execute("PRAGMA busy_timeout=5000")
     return conn
 

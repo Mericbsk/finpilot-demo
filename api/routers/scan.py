@@ -365,7 +365,16 @@ async def run_scan(
     _persist_shortlist(out)
     _persist_shadow_ledger(out, universe=len(req.symbols))
     _auto_add_watchlist(out, drl_cache, drl_valid)
-    _persist_distribution_export(out, universe=len(req.symbols))
+    _persist_distribution_export(
+        out,
+        universe=len(req.symbols),
+        timing={
+            "eval_s": round(_t_eval_done - _t_start, 2),
+            "enrich_s": round(_t_scoring_done - _t_eval_done, 2),
+            "total_s": round(_t_scoring_done - _t_start, 2),
+            "symbols": len(req.symbols),
+        },
+    )
     try:
         from core.analytics import increment_event
 
@@ -718,6 +727,7 @@ def _persist_distribution_export(
     universe: int,
     scan_id: str | None = None,
     scan_complete: bool | None = None,
+    timing: dict | None = None,
 ) -> None:
     """Write full enriched scan results for the distribution layer.
 
@@ -751,6 +761,9 @@ def _persist_distribution_export(
                 ).encode()
             ).hexdigest()[:24],
             "scan_complete": scan_complete is not False,
+            # Per-run performance (P0 instrumentation): eval/enrich/total seconds
+            # so scan duration is queryable history, not a file-mtime guess.
+            "timing": timing or {},
             "result_count": len(results) if isinstance(results, dict) else len(results or []),
             "results": list(results.values()) if isinstance(results, dict) else results,
         }

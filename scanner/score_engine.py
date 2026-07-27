@@ -259,7 +259,7 @@ def score_component_breakdown(
         "lottery_penalty": 0.0,
         "overnight_penalty": 0.0,
     }
-    vol_regime = int(float(row.get("vol_regime") or 1))
+    vol_regime = int(row.get("vol_regime")) if row.get("vol_regime") is not None else 1
     components["momentum"] = float(row.get("momentum_ratio", 0.0)) * _VOL_REGIME_MOM_WEIGHTS.get(
         vol_regime, 2.0
     )

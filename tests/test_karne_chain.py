@@ -57,17 +57,34 @@ def _add_signal(path, symbol, tier, status, day=TODAY, tier_legacy=""):
 
 
 def test_karne_counts_only_decided_outcomes(db):
+    # maturity_days=0 → same-day fixtures count (gate tested separately below)
     _add_signal(db, "AAA", "B", "resolved_win")
     _add_signal(db, "BBB", "B", "resolved_loss")
     _add_signal(db, "CCC", "B", "watching")  # open — must NOT count
-    karne = compute_karne_db(db_path=db, days=5)
-    assert karne["by_grade"]["B"] == {"n": 2, "hit_rate": 0.5, "avg_pnl": None}
+    karne = compute_karne_db(db_path=db, days=5, maturity_days=0)
+    # entry 10 / sl 9 / tp 12 → win +20%, loss -10% → avg_pnl = +5.0
+    assert karne["by_grade"]["B"] == {"n": 2, "hit_rate": 0.5, "avg_pnl": 5.0}
 
 
 def test_karne_maps_legacy_confirm_tier_to_b(db):
     _add_signal(db, "AAA", "", "resolved_win", tier_legacy="CONFIRM")
-    karne = compute_karne_db(db_path=db, days=5)
+    karne = compute_karne_db(db_path=db, days=5, maturity_days=0)
     assert karne["by_grade"]["B"]["n"] == 1
+
+
+def test_karne_maturity_gate_excludes_fresh_signals(db):
+    # A same-day resolved signal must NOT count under the default maturity gate
+    _add_signal(db, "FRESH", "B", "resolved_win")
+    assert compute_karne_db(db_path=db, days=365) is None
+    # …but counts once the gate is disabled
+    assert compute_karne_db(db_path=db, days=5, maturity_days=0)["by_grade"]["B"]["n"] == 1
+
+
+def test_karne_matured_signal_counts_with_expectancy(db):
+    old = (date.today() - timedelta(days=40)).isoformat()
+    _add_signal(db, "MAT", "C", "resolved_loss", day=old)  # -10% barrier loss
+    karne = compute_karne_db(db_path=db, days=365)  # maturity default 30 → 40d counts
+    assert karne["by_grade"]["C"] == {"n": 1, "hit_rate": 0.0, "avg_pnl": -10.0}
 
 
 def test_karne_respects_window(db):

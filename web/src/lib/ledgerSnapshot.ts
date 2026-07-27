@@ -32,6 +32,15 @@ export interface LedgerKarne {
   window?: string;
   /** Total picks ever archived & publicly tracked (Karar B, 2026-07-24). */
   tracked_total?: number;
+  /** All-time ungraded track record (karne.overall) — the real, positive
+   * baseline that exists today, independent of the still-maturing by_grade. */
+  overall?: {
+    n?: number;
+    hit_rate?: number;
+    avg_win?: number;
+    avg_loss?: number;
+    avg_pnl?: number;
+  };
 }
 
 export interface LedgerConcept {

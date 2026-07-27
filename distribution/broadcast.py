@@ -145,7 +145,12 @@ def mark_sent(queue_id: int, error: str = "") -> None:
 
 def expire_stale(older_than_hours: int = 20) -> int:
     """Expire pending drafts older than N hours (yesterday's unapproved brief
-    must never be published today)."""
+    must never be published today).
+
+    Expiry is a SILENT-FAILURE class: a missed publish window used to go
+    unnoticed. When anything expires we alert the admin loudly and report the
+    current publish streak so the broken series is impossible to miss.
+    """
     ensure_tables()
     cutoff = now() - older_than_hours * 3600
     with get_conn() as conn:
@@ -153,7 +158,57 @@ def expire_stale(older_than_hours: int = 20) -> int:
             "UPDATE broadcast_queue SET status='expired' WHERE status='pending' AND created_at<?",
             (cutoff,),
         )
-    return cur.rowcount
+    expired = cur.rowcount
+    if expired:
+        try:
+            from distribution.telegram_client import notify_admin
+
+            notify_admin(
+                f"⚠️ {expired} taslak YAYINLANMADAN süresi doldu (expired). "
+                f"Yayın penceresi kaçırıldı — kesintisiz yayın serisi şu an {publish_streak()} gün."
+            )
+        except Exception:  # noqa: BLE001 — alerting must never break expiry
+            pass
+    return expired
+
+
+def publish_streak() -> int:
+    """Consecutive most-recent TRADING days with a 'sent' daily edition.
+
+    Today counts if already published; an as-yet-unpublished today is allowed
+    (skipped) rather than breaking the streak. Weekends/holidays are skipped
+    via the market calendar so a normal Fri→Mon gap does not reset the count.
+    """
+    from datetime import date, timedelta
+
+    ensure_tables()
+    with get_conn() as conn:
+        sent = {
+            r[0]
+            for r in conn.execute(
+                "SELECT DISTINCT brief_date FROM broadcast_queue "
+                "WHERE status='sent' AND kind LIKE 'daily%'"
+            ).fetchall()
+        }
+    try:
+        from distribution.market_calendar import is_trading_day
+    except Exception:  # noqa: BLE001 — degrade to calendar days if calendar missing
+
+        def is_trading_day(_d):  # type: ignore
+            return True
+
+    streak = 0
+    today = date.today()
+    d = today
+    for _ in range(90):  # safety bound
+        if is_trading_day(d):
+            if d.isoformat() in sent:
+                streak += 1
+            elif d != today:  # a missed past trading day breaks the streak
+                break
+            # today, still unpublished → allowed, keep counting back
+        d -= timedelta(days=1)
+    return streak
 
 
 def get_last_sent(kind_prefix: str = "daily") -> dict[str, Any] | None:

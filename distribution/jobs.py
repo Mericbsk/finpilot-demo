@@ -195,10 +195,28 @@ def job_draft() -> dict:
         notify_admin(f"⚠️ Scan export tamamlanmamış ({reason}) — bugünkü brif üretilmedi.")
         return {"error": "incomplete export", "problems": export_problems}
 
+    # P0.3 — manual latency: time between scan finish (export.generated_at) and
+    # this draft build. The 55-min "gap" in the 2026-07-24 audit was human
+    # approval wait, not compute — make it explicit so it is never a mystery.
+    import time as _time
+    from datetime import datetime as _dt
+
+    _gen_at = str(export.get("generated_at") or "")
+    try:
+        _scan_fin = _dt.fromisoformat(_gen_at.replace("Z", "+00:00"))
+        _lat_min = (_dt.now(tz=_scan_fin.tzinfo) - _scan_fin).total_seconds() / 60.0
+        logger.info(
+            "pipeline timing: scan→draft manual latency = %.1f min (export %s)", _lat_min, _gen_at
+        )
+    except Exception:  # noqa: BLE001
+        pass
+
     karne = _fetch_karne()
     scan_id = export.get("scan_id")
+    _t_snap = _time.perf_counter()
     snap = build_snapshot(rows, universe=universe, karne=karne, date_str=date_str, scan_id=scan_id)
     save_snapshot(snap)
+    logger.info("pipeline timing: snapshot build+save = %.2fs", _time.perf_counter() - _t_snap)
 
     # English snapshot for the web Ledger (landing + /demo) — the Telegram
     # brief above stays Turkish for its existing audience; this is a

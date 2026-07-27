@@ -51,7 +51,9 @@ logger = logging.getLogger(__name__)
 def _open_db(db_path: Path) -> sqlite3.Connection:
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
+    # DELETE journal (not WAL): avoid -wal/-shm sidecar corruption under
+    # OneDrive/AV. This resolver is what put finpilot.db into WAL mode.
+    conn.execute("PRAGMA journal_mode=DELETE")
     # Ensure dual-label columns exist (idempotent ALTER TABLE)
     for col, ctype in [
         ("resolved_pct_t5", "REAL"),

@@ -64,7 +64,32 @@ _THIN_EDGE_THRESH: float = 0.003  # net EV < 0.3% → thin edge
 _DECAY_EV_THRESH: float = 0.005  # high-vol + net EV < 0.5% → edge_decay warning
 
 
-def _feature_contract_legacy(
+def _unavailable_result(symbol: str, reason: str, detail: str | None = None) -> dict[str, Any]:
+    """Keep unavailable symbols in the full-scan contract without grading them."""
+    result: dict[str, Any] = {
+        "symbol": symbol,
+        "scan_status": "unavailable",
+        "data_quality_tier": "Tier 3",
+        "data_quality_status": "missing",
+        "reject_reason": [reason],
+        "selection_eligible": False,
+        "entry_ok": False,
+        "execution_feasible": False,
+        "selected_by_legacy_quality": False,
+        "selected_by_v2": False,
+        "selected_by_both": False,
+        "legacy_only": False,
+        "v2_only": False,
+        "ranking_method": "legacy_quality",
+        "score": 0,
+        "composite_score": 0,
+    }
+    if detail:
+        result["error_detail"] = detail[:200]
+    return result
+
+
+def _feature_contract(
     *,
     df_15m: pd.DataFrame,
     df_1h: pd.DataFrame,
@@ -165,20 +190,7 @@ def _compute_cost_labels(
     }
 
 
-def _execution_contract(data_quality: dict[str, Any]) -> dict[str, str]:
-    """Return the compact legacy execution classification used by callers."""
-    available = data_quality.get("available", {})
-    if all(
-        available.get(field, False)
-        for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
-    ):
-        return {"execution_confidence": "Tier 2", "data_quality_tier": "Tier 2"}
-    if available.get("dollar_adv", False):
-        return {"execution_confidence": "Tier 1", "data_quality_tier": "Tier 1"}
-    return {"execution_confidence": "Tier 0", "data_quality_tier": "Tier 0"}
-
-
-def _feature_contract_compat(
+def _feature_contract(
     *,
     df_15m: pd.DataFrame,
     df_1h: pd.DataFrame,
@@ -559,6 +571,18 @@ def evaluate_symbol(
         except Exception:
             pass
 
+        # SEC EDGAR catalyst factor (env-gated, reads from cache — hot-path safe)
+        catalyst_factor = 0.0
+        try:
+            from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
+
+            catalyst_factor = compute_catalyst_factor(symbol)
+        except Exception:
+            pass
+
+        alpha_gap = 0.0
+        alpha_rvol = 0.0
+        alpha_ext = 0.0
         try:
             from scanner.features import (
                 compute_extension_factor,
@@ -569,15 +593,6 @@ def evaluate_symbol(
             alpha_gap = compute_gap_factor(df_1d)
             alpha_rvol = compute_rvol_factor(df_1d)
             alpha_ext = compute_extension_factor(df_1d)
-        except Exception:
-            alpha_gap = alpha_rvol = alpha_ext = 0.0
-
-        # SEC EDGAR catalyst factor (env-gated, reads from cache — hot-path safe)
-        catalyst_factor = 0.0
-        try:
-            from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
-
-            catalyst_factor = compute_catalyst_factor(symbol)
         except Exception:
             pass
 
@@ -704,6 +719,7 @@ def evaluate_symbol(
             if safe_float(last_price) > 0
             else 0
         )
+
         return {
             "symbol": symbol,
             "price": round(safe_float(last_price), 4),
@@ -833,31 +849,6 @@ def evaluate_symbol(
         return _unavailable_result(symbol, "evaluation_error", detail=str(e))
 
 
-def _unavailable_result(symbol: str, reason: str, detail: str | None = None) -> dict[str, Any]:
-    """Keep unavailable symbols in the scan contract without grading them."""
-    result: dict[str, Any] = {
-        "symbol": symbol,
-        "scan_status": "unavailable",
-        "data_quality_tier": "Tier 3",
-        "data_quality_status": "missing",
-        "reject_reason": [reason],
-        "selection_eligible": False,
-        "entry_ok": False,
-        "execution_feasible": False,
-        "selected_by_legacy_quality": False,
-        "selected_by_v2": False,
-        "selected_by_both": False,
-        "legacy_only": False,
-        "v2_only": False,
-        "ranking_method": "legacy_quality",
-        "score": 0,
-        "composite_score": 0,
-    }
-    if detail:
-        result["error_detail"] = detail[:200]
-    return result
-
-
 def evaluate_symbols_parallel(
     symbols: list[str],
     kelly_fraction: float = 0.5,
@@ -914,7 +905,6 @@ def evaluate_symbols_parallel(
                         results.append(result)
                 except Exception as e:
                     logger.warning("Evaluate error for %s: %s", sym, e)
-                    results.append(_unavailable_result(sym, "evaluation_error", detail=str(e)))
                 total_done += 1
                 if progress_callback:
                     try:
@@ -932,7 +922,6 @@ def evaluate_symbols_parallel(
                     results.append(result)
             except Exception as e:
                 logger.warning("Evaluate error for %s: %s", symbol, e)
-                results.append(_unavailable_result(symbol, "evaluation_error", detail=str(e)))
 
     logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
     return results

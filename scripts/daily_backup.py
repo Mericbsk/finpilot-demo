@@ -7,8 +7,10 @@ Called automatically at the end of a successful publish_now run, or manually:
 - Copies latest snapshot/export JSONs.
 - Verifies integrity of every copied DB; a failed check exits non-zero (loud).
 - Prunes backup folders older than KEEP_DAYS.
-- If FINPILOT_BACKUP_EXTERNAL_DIR is set (a folder OUTSIDE OneDrive), Mondays
-  also mirror the day's backup there.
+- If FINPILOT_BACKUP_EXTERNAL_DIR is set (a folder OUTSIDE OneDrive), the day's
+  backup is also mirrored there. Cadence: weekly (Mondays) by default, or every
+  run when FINPILOT_BACKUP_EXTERNAL_EVERY_RUN=1 (recommended — a single-disk
+  copy is not a copy).
 """
 
 from __future__ import annotations
@@ -111,8 +113,9 @@ def run_backup() -> Path:
     removed = _prune(BACKUP_ROOT, KEEP_DAYS)
 
     external = os.environ.get("FINPILOT_BACKUP_EXTERNAL_DIR", "").strip()
+    mirror_every = os.environ.get("FINPILOT_BACKUP_EXTERNAL_EVERY_RUN", "0") == "1"
     mirrored = False
-    if external and dt.date.today().weekday() == 0:  # Monday
+    if external and (mirror_every or dt.date.today().weekday() == 0):  # every run (opt) or Monday
         ext_dir = Path(external) / today
         ext_dir.mkdir(parents=True, exist_ok=True)
         for f in dest_dir.iterdir():
