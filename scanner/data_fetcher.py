@@ -48,6 +48,30 @@ logger = logging.getLogger(__name__)
 if os.getenv("FINPILOT_YF_VERBOSE") != "1":
     logging.getLogger("yfinance").setLevel(logging.CRITICAL)
 
+# P1 (S4 audit) — yfinance fallback visibility. Counts ACTUAL yfinance network
+# fetches (cache misses reaching fetch()'s body), so a scan can report how much
+# it leaned on the slow per-symbol fallback vs the Alpaca bulk primary. This was
+# a blind spot: high fallback ratio = slower scan + more 404 noise.
+_YF_FETCH_COUNT = 0
+_YF_FETCH_LOCK = threading.Lock()
+
+
+def yf_fetch_count() -> int:
+    """yfinance network fetches (cache misses) since the last reset."""
+    return _YF_FETCH_COUNT
+
+
+def reset_yf_fetch_count() -> None:
+    global _YF_FETCH_COUNT
+    with _YF_FETCH_LOCK:
+        _YF_FETCH_COUNT = 0
+
+
+def _note_yf_fetch() -> None:
+    global _YF_FETCH_COUNT
+    with _YF_FETCH_LOCK:
+        _YF_FETCH_COUNT += 1
+
 
 # ============================================
 # 🧠 Cache Configuration
@@ -264,6 +288,7 @@ def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
     except Exception:  # noqa: BLE001
         pass
 
+    _note_yf_fetch()  # P1: this is a real yfinance fallback fetch (cache miss)
     try:
         tkr = yf.Ticker(symbol)
 
