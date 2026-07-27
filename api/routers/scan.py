@@ -324,6 +324,12 @@ async def run_scan(
         raise HTTPException(status_code=503, detail="Scanner module is not available.") from exc
 
     loop = asyncio.get_running_loop()
+    try:
+        from scanner.data_fetcher import reset_yf_fetch_count
+
+        reset_yf_fetch_count()  # P1: measure yfinance fallback usage for THIS scan
+    except Exception:  # noqa: BLE001
+        pass
     _t_start = time.perf_counter()
 
     try:
@@ -355,9 +361,16 @@ async def run_scan(
     drl_cache, drl_valid = _load_drl_cache()
     out = _enrich_results(results, drl_cache, drl_valid)
     _t_scoring_done = time.perf_counter()
+    try:
+        from scanner.data_fetcher import yf_fetch_count
+
+        _yf_fb = yf_fetch_count()  # P1: symbols that hit the slow yfinance fallback
+    except Exception:  # noqa: BLE001
+        _yf_fb = -1
     logger.info(
-        "scan timing: symbols=%d eval=%.2fs enrich=%.2fs total=%.2fs",
+        "scan timing: symbols=%d yf_fallback=%d eval=%.2fs enrich=%.2fs total=%.2fs",
         len(req.symbols),
+        _yf_fb,
         _t_eval_done - _t_start,
         _t_scoring_done - _t_eval_done,
         _t_scoring_done - _t_start,
@@ -373,6 +386,7 @@ async def run_scan(
             "enrich_s": round(_t_scoring_done - _t_eval_done, 2),
             "total_s": round(_t_scoring_done - _t_start, 2),
             "symbols": len(req.symbols),
+            "yf_fallback": _yf_fb,
         },
     )
     try:
