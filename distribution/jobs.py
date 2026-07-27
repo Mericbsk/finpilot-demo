@@ -310,7 +310,15 @@ def job_publish() -> dict:
     # scheduled publisher ran while approval was still pending.
     pushed = False
     if sent and not failed and not blocked:
+        import time as _time
+
+        _t_web = _time.perf_counter()
         pushed = _push_snapshot_to_web(current_snapshot)
+        logger.info(
+            "pipeline timing: web snapshot push = %.2fs (ok=%s)",
+            _time.perf_counter() - _t_web,
+            pushed,
+        )
     elif pending:
         logger.info("web snapshot held: %d draft(s) still await approval", len(pending))
     if failed:
