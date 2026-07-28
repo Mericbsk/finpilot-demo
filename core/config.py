@@ -249,16 +249,24 @@ class DatabaseConfig(BaseModel):
 
 
 class APIConfig(BaseModel):
-    """External API konfigürasyonları."""
+    """External API konfigürasyonları.
 
-    # Polygon.io
+    NOTE (2026-07-24 bağlantı audit): Aktif veri kaynağı YALNIZCA Alpaca (toplu
+    bulk) + yfinance (per-symbol fallback). Aşağıdaki Polygon/Alpha Vantage/
+    Finnhub anahtarları tanımlı ama HİÇBİR kod tarafından tüketilmiyor (Polygon
+    yalnız archive/ altında). "Çok kaynaklı" izlenimi vermesinler diye
+    kullanılmıyor olarak işaretlendi — ileride bir sağlayıcı gerçekten
+    bağlanınca bu notu güncelle.
+    """
+
+    # Polygon.io — UNUSED (planned; not wired)
     polygon_api_key: str = ""
     polygon_base_url: str = "https://api.polygon.io"
 
-    # Alpha Vantage
+    # Alpha Vantage — UNUSED (planned; not wired)
     alpha_vantage_api_key: str = ""
 
-    # Finnhub
+    # Finnhub — UNUSED (planned; not wired)
     finnhub_api_key: str = ""
 
     # Request Settings

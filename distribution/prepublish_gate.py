@@ -18,6 +18,8 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
+from distribution.scan_contract import minimum_results, minimum_usable_results, usable_result_count
+
 # Contract fields every scan row must carry (mirrors tests/test_scanner_contract.py)
 REQUIRED_ROW_FIELDS = frozenset(
     {
@@ -68,6 +70,13 @@ def check_export_health(
     # 0-candidate brief while looking perfectly healthy.
     graded = sum(1 for r in rows if isinstance(r, dict) and _grade_like(r))
     eligible = sum(1 for r in rows if isinstance(r, dict) and r.get("selection_eligible") is True)
+    if len(rows) >= minimum_results():
+        usable = usable_result_count(rows)
+        if usable < minimum_usable_results():
+            problems.append(
+                f"usable/graded oranı düşük: {usable}/{len(rows)} < "
+                f"{minimum_usable_results()}/{minimum_results()} minimum"
+            )
     if graded == 0 and eligible == 0:
         problems.append(
             f"zenginleştirme boş görünüyor: {len(rows)} satırda 0 grade'li ve "

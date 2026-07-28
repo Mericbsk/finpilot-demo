@@ -32,6 +32,7 @@ _GRADE_ORDER = {"A": 0, "B": 1, "C": 2}
 _EXECUTION_ORDER = {"Tier 2": 0, "Tier 1": 1, "Tier 0": 2}
 FREE_CANDIDATES = 2  # first N candidates are visible in the free tier
 MAX_CANDIDATES = 50
+WEB_CONTEXT_CANDIDATES = 10
 
 
 def config_sha() -> str:
@@ -128,6 +129,99 @@ def _public_candidate(row: dict[str, Any]) -> bool:
     if "execution_feasible" in row and not _is_true(row.get("execution_feasible")):
         return False
     return not row.get("position_cap_reject_reason")
+
+
+def _web_context_comment(row: dict[str, Any], lang: str = "en") -> str:
+    """Explain a ranked scan row without presenting it as a graded candidate."""
+    ticker = str(row.get("symbol") or row.get("ticker") or "").upper()
+    momentum = str(row.get("momentum_bias") or "neutral").lower()
+    try:
+        momentum_3d = float(row.get("momentum_3d_pct") or 0.0)
+    except (TypeError, ValueError):
+        momentum_3d = 0.0
+    try:
+        volume = float(row.get("volume_multiple") or 0.0)
+    except (TypeError, ValueError):
+        volume = 0.0
+
+    if lang == "tr":
+        direction = (
+            "yukarı" if momentum == "bullish" else "aşağı" if momentum == "bearish" else "yatay"
+        )
+        return (
+            f"{ticker}, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum {direction}"
+            f" ({momentum_3d:+.2f}%) ve hacim kendi ortalamasının {volume:.2f} katı."
+            " Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir."
+        )
+    direction = (
+        "upward" if momentum == "bullish" else "downward" if momentum == "bearish" else "mixed"
+    )
+    return (
+        f"{ticker} sits near the top of today's scan. Three-day momentum is {direction}"
+        f" ({momentum_3d:+.2f}%) and volume is {volume:.2f}x its own average."
+        " This is scan context, not a Grade A/B/C candidate."
+    )
+
+
+def _build_web_context(
+    scan_rows: list[dict[str, Any]], graded_tickers: set[str]
+) -> list[dict[str, Any]]:
+    """Return measurable ranked rows for the web, separate from graded candidates."""
+    measurable = [
+        row
+        for row in scan_rows
+        if str(row.get("symbol") or row.get("ticker") or "").upper() not in graded_tickers
+        and row.get("price") is not None
+        and any(
+            row.get(key) is not None for key in ("ranking_score", "legacy_quality_score", "score")
+        )
+    ]
+    measurable.sort(key=_sort_key)
+    context_rows = measurable[:WEB_CONTEXT_CANDIDATES]
+    out: list[dict[str, Any]] = []
+    for index, row in enumerate(context_rows, start=1):
+        ticker = str(row.get("symbol") or row.get("ticker") or "").upper()
+        badges = extract_badges(row)
+        metrics = {
+            key: row.get(key)
+            for key in (
+                "price",
+                "risk_reward",
+                "stop_loss",
+                "take_profit",
+                "stop_loss_percent",
+                "conviction_prob",
+                "execution_confidence",
+                "data_quality_tier",
+                "ranking_method",
+                "ranking_score",
+                "legacy_quality_score",
+                "momentum_bias",
+                "momentum_3d_pct",
+                "atr_pct",
+                "volume_multiple",
+                "ema_gap_pct",
+            )
+            if row.get(key) is not None
+        }
+        out.append(
+            {
+                "ticker": ticker,
+                "company": str(row.get("company") or row.get("name") or _company_from_db(ticker)),
+                "public_status": "scan_context",
+                "rank": index,
+                "prob_band": "—",
+                "badges": badges,
+                "rationale": _web_context_comment(row, lang="en"),
+                "rationale_i18n": {
+                    "tr": _web_context_comment(row, lang="tr"),
+                    "en": _web_context_comment(row, lang="en"),
+                },
+                "premium_only": False,
+                "metrics": metrics,
+            }
+        )
+    return out
 
 
 # ── E3: Risk notu havuzu — koşul-öncelikli, deterministik, brif içi tekrarsız ──
@@ -406,6 +500,11 @@ def build_snapshot(
         }
         candidates.append(cand)
 
+    web_context = _build_web_context(
+        scan_rows,
+        graded_tickers={str(c["ticker"]).upper() for c in candidates},
+    )
+
     if karne is None:
         karne_out: dict[str, Any] | None = None
     else:
@@ -426,6 +525,7 @@ def build_snapshot(
         "scan_result_count": len(scan_rows),
         "eligible_candidate_count": len(graded),
         "candidates": candidates,
+        "web_context": web_context,
         "karne": karne_out,
         "warnings": [],
     }

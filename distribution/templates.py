@@ -52,8 +52,8 @@ def _candidate_line(c: dict[str, Any], with_risk: bool = False) -> str:
         stat = "olasılık bandı için veri birikiyor (yeni faktör seti)"
     line = (
         f"{emoji} <b>{_esc(c['ticker'])}</b> — Grade {_esc(c['grade'])} · {stat}\n"
-        f"<b>Öne çıkaran nedenler:</b> {_esc(c['rationale'])}\n"
-        f"🔎 <i>Sinyal bileşenleri:</i> {badges or 'çoklu faktör değerlendirmesi'}"
+        f"<b>Bugün neden burada? Öne çıkaran nedenler:</b> {_esc(c['rationale'])}\n"
+        f"🔎 <i>İzlemeye değer ayrıntı:</i> {badges or 'çoklu faktör değerlendirmesi'}"
     )
     if with_risk and c.get("risk_note"):
         line += f"\n⚠️ {_esc(c['risk_note'])}"

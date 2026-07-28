@@ -73,6 +73,13 @@ def test_degraded_run_blocks():
     assert any("zenginleştirme boş" in p for p in problems)
 
 
+def test_low_usable_ratio_blocks_full_scan():
+    rows = [_row(symbol="GOOD", scan_status="graded")]
+    rows.extend(_row(symbol=f"MISSING{i}", scan_status="unavailable") for i in range(1800))
+    problems = check_export_health(_export(rows=rows))
+    assert any("usable/graded oranı düşük" in p for p in problems)
+
+
 def test_graded_but_ineligible_rows_do_not_trip_quality_gate():
     """A day where grades exist but nothing passes selection is legitimate."""
     rows = [_row(selection_eligible=False)]  # still has conviction_tier=B

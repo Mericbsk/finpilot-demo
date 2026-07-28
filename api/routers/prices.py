@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 import os
 import re
 from datetime import UTC, datetime
@@ -30,6 +31,18 @@ import time as _time
 
 _QUOTE_CACHE: dict[str, dict] = {}
 _QUOTE_TTL = 30  # seconds
+
+
+def _sanitize_json_values(value):
+    """Convert non-finite numeric values to JSON-safe nulls."""
+    if isinstance(value, dict):
+        return {key: _sanitize_json_values(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_sanitize_json_values(item) for item in value]
+    if isinstance(value, float | int) and not isinstance(value, bool):
+        return value if math.isfinite(value) else None
+    return value
+
 
 # ── Alpaca client singleton ───────────────────────────────────────────────────
 _alpaca_client = None
@@ -226,12 +239,13 @@ async def get_quotes(
                 timeout=15.0,
             )
             for sym, data in fresh.items():
-                _QUOTE_CACHE[sym] = {**data, "_ts": now}
-                result[sym] = data
+                safe_data = _sanitize_json_values(data)
+                _QUOTE_CACHE[sym] = {**safe_data, "_ts": now}
+                result[sym] = safe_data
         except TimeoutError:
             logger.warning("quotes: batch fetch timed out for %d symbols", len(to_fetch))
 
-    return JSONResponse(result)
+    return JSONResponse(_sanitize_json_values(result))
 
 
 @router.get("/prices/stream/{symbol}")

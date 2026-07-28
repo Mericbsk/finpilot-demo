@@ -1205,7 +1205,10 @@ def start_scheduler(
             )
             _scheduler_instance.add_job(
                 _make_watchdog_job("calibration", _run_calibration_job),
-                trigger=CronTrigger(hour=23, minute=30, timezone="UTC"),
+                # Tek bakım-penceresi: 12:00–12:55 Europe/Vienna (DST-güvenli),
+                # kademeli, çakışmasız. US açılışından (15:30 Viyana) ve manuel
+                # yayından önce.
+                trigger=CronTrigger(hour=12, minute=0, timezone="Europe/Vienna"),
                 id="finpilot_calibration_job",
                 name="FinPilot Score Calibration",
             )
@@ -1217,7 +1220,9 @@ def start_scheduler(
             )
             _scheduler_instance.add_job(
                 _make_watchdog_job("research_pipeline", _run_research_pipeline_job),
-                trigger=CronTrigger(day_of_week="sun", hour=2, minute=0, timezone="UTC"),
+                trigger=CronTrigger(
+                    day_of_week="sun", hour=12, minute=20, timezone="Europe/Vienna"
+                ),
                 id="finpilot_research_pipeline_job",
                 name="FinPilot Research Pipeline (WF + Sweep + Champion)",
             )
@@ -1229,7 +1234,9 @@ def start_scheduler(
             )
             _scheduler_instance.add_job(
                 _make_watchdog_job("ceo_report", _run_ceo_report_job),
-                trigger=CronTrigger(day_of_week="sun", hour=8, minute=0, timezone="UTC"),
+                trigger=CronTrigger(
+                    day_of_week="sun", hour=12, minute=40, timezone="Europe/Vienna"
+                ),
                 id="finpilot_ceo_report_job",
                 name="FinPilot CEO Weekly Report",
             )
@@ -1279,7 +1286,7 @@ def start_scheduler(
 
             _scheduler_instance.add_job(
                 _daily_ops_wrapper,
-                trigger=CronTrigger(hour=23, minute=30, timezone="UTC"),
+                trigger=CronTrigger(hour=12, minute=10, timezone="Europe/Vienna"),
                 id="finpilot_daily_ops",
                 name="FinPilot Daily Ops (calibration + weekly Sun: report/research/ceo)",
             )
@@ -1287,7 +1294,7 @@ def start_scheduler(
         # Always-on: weekly full calibration retrain, Mondays 02:00 UTC.
         _scheduler_instance.add_job(
             _make_watchdog_job("weekly_calibration_retrain", _run_weekly_calibration_retrain_job),
-            trigger=CronTrigger(day_of_week="mon", hour=2, minute=0, timezone="UTC"),
+            trigger=CronTrigger(day_of_week="mon", hour=12, minute=20, timezone="Europe/Vienna"),
             id="finpilot_weekly_calibration_retrain",
             name="FinPilot Weekly Calibration Retrain (Mon 02:00 UTC)",
         )
@@ -1296,7 +1303,7 @@ def start_scheduler(
         # Runs after calibration retrain so freshly resolved signals feed the refit.
         _scheduler_instance.add_job(
             _make_watchdog_job("resolve_open_signals", _run_resolve_open_signals_job),
-            trigger=CronTrigger(day_of_week="mon", hour=3, minute=0, timezone="UTC"),
+            trigger=CronTrigger(day_of_week="mon", hour=12, minute=35, timezone="Europe/Vienna"),
             id="finpilot_resolve_open_signals",
             name="FinPilot Resolve Open Signals (Mon 03:00 UTC)",
         )
@@ -1305,7 +1312,7 @@ def start_scheduler(
         # Runs after resolve so the report reflects the freshest resolved outcomes.
         _scheduler_instance.add_job(
             _make_watchdog_job("edge_report", _run_edge_report_job),
-            trigger=CronTrigger(day_of_week="mon", hour=4, minute=0, timezone="UTC"),
+            trigger=CronTrigger(day_of_week="mon", hour=12, minute=55, timezone="Europe/Vienna"),
             id="finpilot_edge_report",
             name="FinPilot Edge Report (Mon 04:00 UTC)",
         )

@@ -16,6 +16,11 @@ def minimum_results() -> int:
     return max(1, int(expected_universe() * ratio))
 
 
+def minimum_usable_results() -> int:
+    ratio = float(os.getenv("FINPILOT_MIN_USABLE_SCAN_RATIO", "0.5"))
+    return max(1, int(expected_universe() * ratio))
+
+
 def result_symbols(results: Mapping[str, Any] | Sequence[Mapping[str, Any]]) -> set[str]:
     rows = results.keys() if isinstance(results, Mapping) else results
     symbols: set[str] = set()
@@ -29,6 +34,13 @@ def result_symbols(results: Mapping[str, Any] | Sequence[Mapping[str, Any]]) -> 
         if symbol:
             symbols.add(str(symbol).strip().upper())
     return symbols
+
+
+def usable_result_count(results: Mapping[str, Any] | Sequence[Mapping[str, Any]]) -> int:
+    rows = results.values() if isinstance(results, Mapping) else results
+    return sum(
+        1 for row in rows if isinstance(row, Mapping) and row.get("scan_status") != "unavailable"
+    )
 
 
 def full_scan_problems(
@@ -47,6 +59,10 @@ def full_scan_problems(
         problems.append(f"universe={declared_universe} < expected={expected_universe()}")
     if unique_results < minimum_results():
         problems.append(f"unique_results={unique_results} < minimum={minimum_results()}")
+    if unique_results >= minimum_results():
+        usable_results = usable_result_count(results)
+        if usable_results < minimum_usable_results():
+            problems.append(f"usable_results={usable_results} < minimum={minimum_usable_results()}")
     return problems
 
 

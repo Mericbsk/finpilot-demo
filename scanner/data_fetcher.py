@@ -432,9 +432,11 @@ def fetch_with_indicators(symbol: str, interval: str, days: int) -> pd.DataFrame
 # inside fetch_multi_timeframe(), saving one network round-trip per symbol.
 DEFAULT_TIMEFRAMES: list[tuple[str, int]] = [
     ("15m", 10),  # 15-minute, 10 days
-    ("1h", 10),  # 1-hour, 10 days — enough for EMA50/RSI; 4h derived via resample
+    ("1h", 15),  # 1-hour, 15 days — enough for the derived 4h minimum history
     ("1d", 300),  # Daily, 300 days (~210 trading bars — enough for EMA200)
 ]
+
+MIN_HISTORY_BARS = {"15m": 15, "1h": 10, "4h": 15, "1d": 50}
 
 
 def _resample_4h(df_1h: pd.DataFrame) -> pd.DataFrame:
@@ -455,6 +457,17 @@ def _resample_4h(df_1h: pd.DataFrame) -> pd.DataFrame:
         return df4
     except Exception:
         return pd.DataFrame()
+
+
+def _has_sufficient_history(
+    data: dict[str, pd.DataFrame], timeframes: list[tuple[str, int]]
+) -> bool:
+    """Return whether all evaluator-required timeframe minimums are present."""
+    required = {interval for interval, _ in timeframes} | {"4h"}
+    return all(
+        len(data.get(interval, pd.DataFrame())) >= MIN_HISTORY_BARS[interval]
+        for interval in required
+    )
 
 
 def fetch_multi_timeframe(
@@ -711,7 +724,7 @@ def _prefetch_alpaca_bulk(
                     else:
                         df = full_df.copy()
 
-                    if not df.empty:
+                    if df is not None and not df.empty:
                         df = df.rename(columns=_COL_RENAME)
                         if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is not None:
                             df.index = df.index.tz_convert(None)
@@ -831,6 +844,75 @@ def _bulk_yf_download(
     return results
 
 
+def _repair_partial_alpaca_result(
+    symbols: list[str],
+    timeframes: list[tuple[str, int]],
+    result: dict[str, dict[str, pd.DataFrame]],
+    with_indicators: bool,
+) -> dict[str, dict[str, pd.DataFrame]]:
+    """Fill only insufficient Alpaca symbol/timeframe results with yfinance."""
+    real_tfs = [(interval, days) for interval, days in timeframes if interval != "4h"]
+    missing_by_tf: dict[str, list[str]] = {interval: [] for interval, _ in real_tfs}
+
+    for symbol in symbols:
+        frames = result.setdefault(symbol, {})
+        for interval, _ in real_tfs:
+            if len(frames.get(interval, pd.DataFrame())) < MIN_HISTORY_BARS[interval]:
+                missing_by_tf[interval].append(symbol)
+
+    for interval, days in real_tfs:
+        missing_symbols = missing_by_tf[interval]
+        if not missing_symbols:
+            continue
+        fallback = _bulk_yf_download(missing_symbols, interval, days, with_indicators)
+        for symbol in missing_symbols:
+            fallback_df = fallback.get(symbol, pd.DataFrame())
+            if isinstance(fallback_df, pd.DataFrame) and not fallback_df.empty:
+                result[symbol][interval] = fallback_df
+
+    # Rebuild 4h only for symbols whose 1h result was repaired.
+    for symbol in missing_by_tf.get("1h", []):
+        df_4h_raw = _resample_4h(result[symbol].get("1h", pd.DataFrame()))
+        result[symbol]["4h"] = (
+            add_indicators(df_4h_raw) if with_indicators and not df_4h_raw.empty else df_4h_raw
+        )
+
+    remaining = [
+        symbol
+        for symbol in symbols
+        if not _has_sufficient_history(result.get(symbol, {}), timeframes)
+    ]
+    for symbol in remaining:
+        try:
+            fallback = fetch_multi_timeframe(
+                symbol,
+                timeframes=timeframes,
+                with_indicators=with_indicators,
+                max_workers=min(4, len(timeframes)),
+            )
+            for interval, _ in timeframes:
+                current = result[symbol].get(interval, pd.DataFrame())
+                candidate = fallback.get(interval, pd.DataFrame())
+                if (
+                    len(current) < MIN_HISTORY_BARS[interval]
+                    and isinstance(candidate, pd.DataFrame)
+                    and not candidate.empty
+                ):
+                    result[symbol][interval] = candidate
+        except Exception:
+            logger.debug("Selective yfinance repair failed for %s", symbol, exc_info=True)
+
+    repaired = sum(
+        _has_sufficient_history(result.get(symbol, {}), timeframes) for symbol in symbols
+    )
+    logger.info(
+        "Alpaca partial repair: %d/%d symbols meet minimum history",
+        repaired,
+        len(symbols),
+    )
+    return result
+
+
 def prefetch_symbols_multi_timeframe(
     symbols: list[str],
     timeframes: list[tuple[str, int]] | None = None,
@@ -856,6 +938,12 @@ def prefetch_symbols_multi_timeframe(
     # ── Fast path 1: Alpaca bulk ──────────────────────────────────────────────
     alpaca_result = _prefetch_alpaca_bulk(symbols, timeframes, with_indicators)
     if alpaca_result is not None:
+        alpaca_result = _repair_partial_alpaca_result(
+            symbols,
+            timeframes,
+            alpaca_result,
+            with_indicators,
+        )
         if progress_callback:
             try:
                 progress_callback(total, total)

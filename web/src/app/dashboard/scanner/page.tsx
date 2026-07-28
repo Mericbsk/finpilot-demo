@@ -73,6 +73,9 @@ interface ScanResult {
   ranking_method?: string;
   execution_confidence?: string;
   execution_feasible?: boolean;
+  scan_status?: string;
+  data_quality_status?: string;
+  reject_reason?: string[];
   dollar_adv?: number | null;
   spread_bps?: number | null;
   position_cap_reject_reason?: string | null;
@@ -133,6 +136,7 @@ interface DisplayStock {
   rankingMethod: string;
   executionConfidence: string;
   executionFeasible: boolean;
+  dataMissing: boolean;
   dollarAdv: number | null;
   spreadBps: number | null;
   positionCapRejected: boolean;
@@ -281,6 +285,10 @@ function apiResultToStock(r: ScanResult, liveChange: number): DisplayStock {
     rankingMethod: r.ranking_method ?? "unknown",
     executionConfidence: r.execution_confidence ?? "Tier 0",
     executionFeasible: r.execution_feasible ?? true,
+    dataMissing:
+      r.scan_status === "unavailable" ||
+      r.data_quality_status === "missing" ||
+      Boolean(r.reject_reason?.includes("insufficient_history")),
     dollarAdv: r.dollar_adv ?? null,
     spreadBps: r.spread_bps ?? null,
     positionCapRejected: Boolean(r.position_cap_reject_reason),
@@ -362,6 +370,7 @@ function mockToStock(ticker: string): DisplayStock {
     rankingMethod: "unknown",
     executionConfidence: "Tier 0",
     executionFeasible: true,
+    dataMissing: false,
     dollarAdv: null,
     spreadBps: null,
     positionCapRejected: false,
@@ -2043,8 +2052,8 @@ export default function ScannerPage() {
                             </div>
                           </td>
                           <td className="px-4 py-2.5">
-                            <span title={s.spreadBps != null ? `Spread ${s.spreadBps.toFixed(1)} bps` : "ADV/spread verisi"} className="rounded-full px-2 py-1 text-[10px] font-semibold" style={{ color: s.executionConfidence === "Tier 2" ? C.green : s.executionConfidence === "Tier 1" ? C.yellow : C.red, backgroundColor: s.executionFeasible ? "rgba(48,209,88,0.10)" : "rgba(255,69,58,0.12)" }}>
-                              {s.executionConfidence.replace("Tier ", "T")}{s.executionFeasible ? " ✓" : " · BLOCKED"}
+                            <span title={s.dataMissing ? "Yeterli tarihsel veri alınamadı" : s.spreadBps != null ? `Spread ${s.spreadBps.toFixed(1)} bps` : "ADV/spread verisi"} className="rounded-full px-2 py-1 text-[10px] font-semibold" style={{ color: s.dataMissing ? C.yellow : s.executionConfidence === "Tier 2" ? C.green : s.executionConfidence === "Tier 1" ? C.yellow : C.red, backgroundColor: s.dataMissing ? "rgba(255,214,10,0.12)" : s.executionFeasible ? "rgba(48,209,88,0.10)" : "rgba(255,69,58,0.12)" }}>
+                              {s.dataMissing ? "DATA MISSING" : `${s.executionConfidence.replace("Tier ", "T")}${s.executionFeasible ? " ✓" : " · BLOCKED"}`}
                             </span>
                           </td>
                           <td className="px-4 py-2.5">

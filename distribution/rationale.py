@@ -242,14 +242,14 @@ _CONNECTORS = {
 
 _CLOSERS = {
     "tr": [
-        "Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-        "İzleme amaçlıdır — değerlendirme ve risk tamamen senin kontrolünde.",
-        "Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+        "Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+        "Asıl merak noktası bundan sonra: bu ilgi devam edecek mi, yoksa kısa bir hareket olarak mı kalacak? İzleme amaçlıdır; değerlendirme ve risk tamamen senin kontrolünde.",
+        "Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
     ],
     "en": [
-        "This is a watch candidate; decisions and risk management remain yours.",
-        "For monitoring only — judgement and risk stay fully in your hands.",
-        "Candidate status only; what to do with it is always the reader's call.",
+        "The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
+        "The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
+        "The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
     ],
 }
 

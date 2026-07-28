@@ -1,81 +1,45 @@
 {
  "schema": 2,
- "snapshot_id": "4467524635e31a6041d4f524",
- "candidate_hash": "ef8778efbe695fcef71ef9405d93fd04daa922141d4fe3f3c544931c06146814",
+ "snapshot_id": "32ada82fc7d8c97d28b6ad7b",
+ "candidate_hash": "b3910ba413cc702465f0a0fdc946f2a2cffc67f143a4f854eaa3273f941d44bb",
  "scan_id": "b4c000d97cad89c1f67db8ec",
- "date": "2026-07-24",
- "generated_at": "2026-07-24T12:59:26.233027+00:00",
- "config_sha": "68bfed1ee680@2bb9235",
+ "date": "2026-07-28",
+ "generated_at": "2026-07-28T13:59:43.548865+00:00",
+ "config_sha": "deab34f82ad7@b987a6b",
  "universe": 1812,
  "scan_result_count": 1801,
- "eligible_candidate_count": 2,
+ "eligible_candidate_count": 1,
  "candidates": [
   {
-   "ticker": "RIOT",
-   "company": "",
-   "grade": "B",
-   "prob_band": "~60%",
-   "badges": [
-    "regime"
-   ],
-   "rationale": "RIOT makes today's list with a strong profile. The broad market leans bullish; the individual signal combines with a supportive backdrop. This is a watch candidate; decisions and risk management remain yours.",
-   "premium_only": false,
-   "metrics": {
-    "price": 23.88,
-    "risk_reward": 3.33,
-    "stop_loss": 21.74,
-    "take_profit": 31,
-    "stop_loss_percent": 8.94,
-    "conviction_prob": 0.59,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "momentum_bias": "neutral",
-    "momentum_3d_pct": 20,
-    "volume_multiple": 1.39,
-    "ema_gap_pct": 14.11
-   },
-   "rationale_i18n": {
-    "tr": "RIOT bugün güçlü bir profille listede. Piyasa geneli yükseliş tarafında; tekil sinyal, destekleyici bir arka planla birleşiyor. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-    "en": "RIOT makes today's list with a strong profile. The broad market leans bullish; the individual signal combines with a supportive backdrop. This is a watch candidate; decisions and risk management remain yours.",
-    "de": "RIOT steht mit einem starken Profil auf der heutigen Liste. Der Gesamtmarkt neigt nach oben; das Einzelsignal verbindet sich mit einem unterstützenden Umfeld. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
-   },
-   "risk_note_i18n": {
-    "tr": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
-    "en": "usual market risk applies — set your monitoring pace to your own plan",
-    "de": "übliches Marktrisiko gilt — richte dein Beobachtungstempo nach deinem eigenen Plan"
-   }
-  },
-  {
-   "ticker": "DVN",
-   "company": "",
+   "ticker": "GM",
+   "company": "General Motors Company",
    "grade": "C",
    "prob_band": "~50%",
    "badges": [
-    "rvol",
+    "momentum",
     "regime"
    ],
-   "rationale": "DVN entered the radar today. The reason: volume is elevated versus the stock's own average; there is real order flow behind the price move. Adding to the picture, the market regime reads as supportive; the same signal would mean far less in a weak market. This is a watch candidate; decisions and risk management remain yours.",
+   "rationale": "GM entered the radar today. The reason: recent sessions point upward — price looks driven by demand rather than selling pressure. Also, market-wide conditions are favourable: this is a friendly stretch for stocks with a similar profile. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
    "premium_only": false,
    "metrics": {
-    "price": 45.29,
+    "price": 87.04,
     "risk_reward": 3.33,
-    "stop_loss": 43.96,
-    "take_profit": 49.73,
-    "stop_loss_percent": 2.94,
+    "stop_loss": 84.36,
+    "take_profit": 95.98,
+    "stop_loss_percent": 3.08,
     "conviction_prob": 0.52,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "momentum_bias": "neutral",
-    "momentum_3d_pct": 3.43,
-    "volume_multiple": 1.82,
-    "ema_gap_pct": 4.02
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": 5.99,
+    "volume_multiple": 1.3,
+    "ema_gap_pct": 4.65
    },
    "rationale_i18n": {
-    "tr": "DVN bugün radara girdi. Nedeni şu: hacim, hissenin kendi ortalamasına göre yükselmiş durumda; fiyat hareketinin arkasında gerçek işlem akışı var. Buna ek olarak piyasa rejimi destekleyici okunuyor; aynı sinyal zayıf bir piyasada çok daha az anlam taşırdı. Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-    "en": "DVN entered the radar today. The reason: volume is elevated versus the stock's own average; there is real order flow behind the price move. Adding to the picture, the market regime reads as supportive; the same signal would mean far less in a weak market. This is a watch candidate; decisions and risk management remain yours.",
-    "de": "DVN tauchte heute auf dem Radar auf. Der Grund: das Volumen ist gegenüber dem eigenen Durchschnitt der Aktie erhöht; hinter der Kursbewegung steht echter Orderfluss. Darüber hinaus: das Marktregime liest sich unterstützend; dasselbe Signal würde in einem schwachen Markt weit weniger bedeuten. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+    "tr": "GM bugün radara girdi. Nedeni şu: son seansların yönü yukarı — fiyat, satış baskısından çok talebin kontrolünde görünüyor. Ayrıca geniş piyasa koşulları olumlu: benzer profildeki hisseler için elverişli bir dönemdeyiz. Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+    "en": "GM entered the radar today. The reason: recent sessions point upward — price looks driven by demand rather than selling pressure. Also, market-wide conditions are favourable: this is a friendly stretch for stocks with a similar profile. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
+    "de": "GM tauchte heute auf dem Radar auf. Der Grund: die letzten Sitzungen weisen nach oben — der Kurs wirkt eher von Nachfrage als von Verkaufsdruck getragen. Außerdem: die marktweiten Bedingungen sind günstig: eine freundliche Phase für Aktien mit ähnlichem Profil. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
    },
    "risk_note_i18n": {
     "tr": "erken aşama profili: sinyal henüz olgunlaşmamış olabilir",
@@ -84,20 +48,372 @@
    }
   }
  ],
- "karne": {
-  "toplam_aday_bugun": {
-   "B": 1,
-   "C": 1
+ "web_context": [
+  {
+   "ticker": "MNTK",
+   "company": "Montauk Renewables, Inc.",
+   "public_status": "scan_context",
+   "rank": 1,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "momentum",
+    "regime"
+   ],
+   "rationale": "MNTK sits near the top of today's scan. Three-day momentum is upward (+9.77%) and volume is 2.07x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "MNTK, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+9.77%) ve hacim kendi ortalamasının 2.07 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "MNTK sits near the top of today's scan. Three-day momentum is upward (+9.77%) and volume is 2.07x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 1.91,
+    "risk_reward": 3.33,
+    "stop_loss": 1.81,
+    "take_profit": 2.23,
+    "stop_loss_percent": 5.07,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 73.223,
+    "legacy_quality_score": 73.223,
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": 9.77,
+    "volume_multiple": 2.07,
+    "ema_gap_pct": -0.98
+   }
   },
-  "by_grade": {},
-  "window": ""
- },
- "warnings": [
-  "karne unavailable — using daily totals only"
+  {
+   "ticker": "FNKO",
+   "company": "Funko, Inc. Class A",
+   "public_status": "scan_context",
+   "rank": 2,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "regime"
+   ],
+   "rationale": "FNKO sits near the top of today's scan. Three-day momentum is mixed (+2.52%) and volume is 2.40x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "FNKO, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+2.52%) ve hacim kendi ortalamasının 2.40 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "FNKO sits near the top of today's scan. Three-day momentum is mixed (+2.52%) and volume is 2.40x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 6.11,
+    "risk_reward": 3.33,
+    "stop_loss": 5.82,
+    "take_profit": 7.07,
+    "stop_loss_percent": 4.69,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 70.494,
+    "legacy_quality_score": 70.494,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 2.52,
+    "volume_multiple": 2.4,
+    "ema_gap_pct": 22.23
+   }
+  },
+  {
+   "ticker": "TIGO",
+   "company": "Millicom International Cellular S.A.",
+   "public_status": "scan_context",
+   "rank": 3,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "regime"
+   ],
+   "rationale": "TIGO sits near the top of today's scan. Three-day momentum is mixed (-2.54%) and volume is 2.28x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "TIGO, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-2.54%) ve hacim kendi ortalamasının 2.28 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "TIGO sits near the top of today's scan. Three-day momentum is mixed (-2.54%) and volume is 2.28x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 95.41,
+    "risk_reward": 4.33,
+    "stop_loss": 92.31,
+    "take_profit": 108.83,
+    "stop_loss_percent": 3.25,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 68.587,
+    "legacy_quality_score": 68.587,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": -2.54,
+    "volume_multiple": 2.28,
+    "ema_gap_pct": 21.87
+   }
+  },
+  {
+   "ticker": "KRYS",
+   "company": "Krystal Biotech, Inc.",
+   "public_status": "scan_context",
+   "rank": 4,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "momentum",
+    "regime"
+   ],
+   "rationale": "KRYS sits near the top of today's scan. Three-day momentum is upward (+4.49%) and volume is 1.57x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "KRYS, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+4.49%) ve hacim kendi ortalamasının 1.57 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "KRYS sits near the top of today's scan. Three-day momentum is upward (+4.49%) and volume is 1.57x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 351.92,
+    "risk_reward": 4.33,
+    "stop_loss": 337.45,
+    "take_profit": 414.64,
+    "stop_loss_percent": 4.11,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 67.898,
+    "legacy_quality_score": 67.898,
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": 4.49,
+    "volume_multiple": 1.57,
+    "ema_gap_pct": 19.79
+   }
+  },
+  {
+   "ticker": "KNSL",
+   "company": "Kinsale Capital Group, Inc.",
+   "public_status": "scan_context",
+   "rank": 5,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "momentum",
+    "regime"
+   ],
+   "rationale": "KNSL sits near the top of today's scan. Three-day momentum is upward (+11.11%) and volume is 1.67x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "KNSL, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+11.11%) ve hacim kendi ortalamasının 1.67 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "KNSL sits near the top of today's scan. Three-day momentum is upward (+11.11%) and volume is 1.67x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 361.67,
+    "risk_reward": 3.33,
+    "stop_loss": 348.23,
+    "take_profit": 406.47,
+    "stop_loss_percent": 3.72,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 67.793,
+    "legacy_quality_score": 67.793,
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": 11.11,
+    "volume_multiple": 1.67,
+    "ema_gap_pct": -8.18
+   }
+  },
+  {
+   "ticker": "GSHD",
+   "company": "Goosehead Insurance, Inc. Class A",
+   "public_status": "scan_context",
+   "rank": 6,
+   "prob_band": "—",
+   "badges": [
+    "momentum",
+    "regime"
+   ],
+   "rationale": "GSHD sits near the top of today's scan. Three-day momentum is upward (+20.86%) and volume is 1.48x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "GSHD, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+20.86%) ve hacim kendi ortalamasının 1.48 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "GSHD sits near the top of today's scan. Three-day momentum is upward (+20.86%) and volume is 1.48x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 62.06,
+    "risk_reward": 3.33,
+    "stop_loss": 58.42,
+    "take_profit": 74.19,
+    "stop_loss_percent": 5.87,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 67.736,
+    "legacy_quality_score": 67.736,
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": 20.86,
+    "volume_multiple": 1.48,
+    "ema_gap_pct": -9.73
+   }
+  },
+  {
+   "ticker": "FFIV",
+   "company": "F5, Inc.",
+   "public_status": "scan_context",
+   "rank": 7,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "momentum",
+    "regime"
+   ],
+   "rationale": "FFIV sits near the top of today's scan. Three-day momentum is upward (+2.26%) and volume is 2.76x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "FFIV, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+2.26%) ve hacim kendi ortalamasının 2.76 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "FFIV sits near the top of today's scan. Three-day momentum is upward (+2.26%) and volume is 2.76x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 409.54,
+    "risk_reward": 4.33,
+    "stop_loss": 396.46,
+    "take_profit": 466.24,
+    "stop_loss_percent": 3.19,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 67.588,
+    "legacy_quality_score": 67.588,
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": 2.26,
+    "volume_multiple": 2.76,
+    "ema_gap_pct": 15.98
+   }
+  },
+  {
+   "ticker": "AAP",
+   "company": "ADVANCE AUTO PARTS INC",
+   "public_status": "scan_context",
+   "rank": 8,
+   "prob_band": "—",
+   "badges": [
+    "regime"
+   ],
+   "rationale": "AAP sits near the top of today's scan. Three-day momentum is mixed (+4.04%) and volume is 1.26x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "AAP, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+4.04%) ve hacim kendi ortalamasının 1.26 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "AAP sits near the top of today's scan. Three-day momentum is mixed (+4.04%) and volume is 1.26x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 57.77,
+    "risk_reward": 3.33,
+    "stop_loss": 54.87,
+    "take_profit": 67.44,
+    "stop_loss_percent": 5.02,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 67.565,
+    "legacy_quality_score": 67.565,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 4.04,
+    "volume_multiple": 1.26,
+    "ema_gap_pct": 2.04
+   }
+  },
+  {
+   "ticker": "BANF",
+   "company": "BancFirst Corporation",
+   "public_status": "scan_context",
+   "rank": 9,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "regime"
+   ],
+   "rationale": "BANF sits near the top of today's scan. Three-day momentum is mixed (+0.29%) and volume is 2.69x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "BANF, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+0.29%) ve hacim kendi ortalamasının 2.69 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "BANF sits near the top of today's scan. Three-day momentum is mixed (+0.29%) and volume is 2.69x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 115.96,
+    "risk_reward": 4.33,
+    "stop_loss": 113.56,
+    "take_profit": 126.38,
+    "stop_loss_percent": 2.07,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 66.982,
+    "legacy_quality_score": 66.982,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 0.29,
+    "volume_multiple": 2.69,
+    "ema_gap_pct": -0.29
+   }
+  },
+  {
+   "ticker": "RDWR",
+   "company": "Radware Ltd.",
+   "public_status": "scan_context",
+   "rank": 10,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "regime"
+   ],
+   "rationale": "RDWR sits near the top of today's scan. Three-day momentum is mixed (-0.24%) and volume is 2.62x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "RDWR, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-0.24%) ve hacim kendi ortalamasının 2.62 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "RDWR sits near the top of today's scan. Three-day momentum is mixed (-0.24%) and volume is 2.62x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 29.35,
+    "risk_reward": 4.33,
+    "stop_loss": 28.3,
+    "take_profit": 33.89,
+    "stop_loss_percent": 3.57,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 66.415,
+    "legacy_quality_score": 66.415,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": -0.24,
+    "volume_multiple": 2.62,
+    "ema_gap_pct": 7.39
+   }
+  }
  ],
+ "karne": {
+  "by_grade": {},
+  "window": "last 30d, matured ≥30d",
+  "raw": true,
+  "source": "db",
+  "tracked_total": 5719,
+  "overall": {
+   "n": 5206,
+   "hit_rate": 0.301,
+   "avg_win": 4.282,
+   "avg_loss": -1.271,
+   "avg_pnl": 0.398
+  },
+  "toplam_aday_bugun": {
+   "C": 1
+  }
+ },
+ "warnings": [],
  "concept": {
-  "name": "Breakout",
-  "line": "Price clearing a long-held level on volume; a breakout without volume deserves suspicion."
+  "name": "Volume Spike",
+  "line": "A sudden jump in shares traded; confirms real participation behind a move."
  },
  "edition_no": 5
 }
