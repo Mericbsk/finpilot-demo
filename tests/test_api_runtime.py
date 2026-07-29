@@ -12,7 +12,17 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
-    monkeypatch.setenv("FINPILOT_DB_PATH", str(tmp_path / "finpilot-test.db"))
+    db_path = tmp_path / "finpilot-test.db"
+    monkeypatch.setenv("FINPILOT_DB_PATH", str(db_path))
+    # core.config.DB_PATH is a module-level constant computed once at first
+    # import of core.config (which happens during collection, before this
+    # fixture runs) — setenv alone does NOT re-point it. auth.database.Database()
+    # (used with no args by api.main/api.routers.*) reads core.config.DB_PATH,
+    # so without this patch every test run here would write to the real,
+    # persistent data/finpilot.db and accumulate state across sessions (this
+    # caused a 409 Conflict re-registering "alice@example.com" on 2026-07-29
+    # after a prior session's run had already created that user there).
+    monkeypatch.setattr("core.config.DB_PATH", db_path)
     monkeypatch.setenv(
         "FINPILOT_SECRET_KEY",
         "test-secret-key-not-for-production-1234567890",

@@ -20,8 +20,8 @@ GLOSSARY: list[dict[str, str]] = [
         "slug": "probability-band",
         "name_tr": "Olasılık Bandı",
         "name_en": "Probability Band",
-        "line_tr": "Benzer geçmiş kurulumların kabaca hangi sıklıkla hedefine ulaştığını gösteren kalibre aralık — bir garanti değil, tarihsel bir taban oranı.",
-        "line_en": "A calibrated range showing roughly how often similar past setups reached their target — a historical base rate, not a guarantee.",
+        "line_tr": "Benzer geçmiş kurulumların kabaca hangi sıklıkla hedefine ulaştığını gösteren kalibre aralık — kesinlik iddiası taşımaz, tarihsel bir taban oranıdır.",
+        "line_en": "A calibrated range showing roughly how often similar past setups reached their target — a historical base rate, not a certainty.",
         "card_en": "When a candidate shows ~60%, it means setups with a similar statistical profile historically worked out at about that frequency over the evaluation window. It is derived from past data, recalibrated as outcomes accumulate, and can be wrong for any single case — which is why it is a band, not a promise.",
     },
     {

@@ -16,6 +16,16 @@ import scanner.features as features
 import scanner.score_engine as se
 
 
+@pytest.fixture(autouse=True)
+def _isolate_alpha_v2(monkeypatch):
+    """Ensure FINPILOT_ENABLE_ALPHA_V2 (set in the repo's local .env for real
+    scans) never leaks into these unit tests — alpha-v2 changes the squeeze
+    short/float weighting (0.7/0.3 vs 0.5/0.5) and bundles squeeze computation
+    in regardless of FINPILOT_ENABLE_SQUEEZE_FACTOR, which these tests don't
+    account for."""
+    monkeypatch.delenv("FINPILOT_ENABLE_ALPHA_V2", raising=False)
+
+
 def _install_fake_yfinance(monkeypatch, info: dict) -> None:
     """Install a fake ``yfinance`` module returning ``info`` from Ticker().info."""
 
@@ -84,7 +94,9 @@ def test_get_alpha_features_computes_squeeze_when_enabled(monkeypatch):
 def test_score_engine_squeeze_off_by_default(monkeypatch):
     monkeypatch.delenv("FINPILOT_ENABLE_SQUEEZE_FACTOR", raising=False)
     row = {"score": 3, "squeeze_factor": 1.0}
-    assert se.compute_recommendation_score(row) == 3.0
+    # Faz 5 (2026-06-20, b2bdba0): raw `score` weight demoted x1.0 -> x0.5, so a
+    # raw score of 3 now contributes 1.5, not 3.0. Squeeze is disabled here.
+    assert se.compute_recommendation_score(row) == 1.5
     assert se.effective_max_reco_score() == se.MAX_RECO_SCORE
 
 

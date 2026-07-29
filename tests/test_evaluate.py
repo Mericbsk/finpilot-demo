@@ -35,8 +35,12 @@ class TestCalculateRiskManagement:
         assert result["take_profit"] == result["tp2"]
         assert result["risk_reward_ratio"] > 0
 
-    def test_defensive_strategy(self):
+    def test_defensive_strategy(self, monkeypatch):
         """Low momentum (<50) → Defensive strategy, no TP3."""
+        # FINPILOT_ENABLE_ALPHA_V2 (set in the repo's local .env for real scans)
+        # tightens the Defansif stop_mult to 1.5; isolate so this test always
+        # exercises the base-case 2.5x multiplier it asserts below.
+        monkeypatch.delenv("FINPILOT_ENABLE_ALPHA_V2", raising=False)
         result = calculate_risk_management(price=50.0, atr_val=1.0, momentum_score=30)
         assert result["strategy_tag"] == "Defansif 🛡️"
         assert result["tp3"] is None
@@ -142,10 +146,18 @@ class TestEvaluateSymbol:
         assert result["symbol"] == "TEST"
 
     def test_returns_none_on_insufficient_data(self):
-        """Should return None when any timeframe has too few rows."""
+        """Should return an ineligible Tier-3 placeholder (not None) when any
+        timeframe has too few rows. Contract changed 2026-07-15 (commit 2c60744,
+        `_unavailable_result`) so unavailable symbols stay visible in the
+        full-scan contract instead of silently disappearing."""
         data = self._make_mock_data(n_15m=5, n_1h=5, n_4h=5, n_1d=10)
         result = evaluate_symbol("TINY", prefetched_data=data)
-        assert result is None
+        assert result is not None
+        assert result["symbol"] == "TINY"
+        assert result["scan_status"] == "unavailable"
+        assert result["data_quality_tier"] == "Tier 3"
+        assert result["entry_ok"] is False
+        assert result["execution_feasible"] is False
 
     def test_result_contains_key_fields(self):
         """Result dict should contain critical trading fields."""

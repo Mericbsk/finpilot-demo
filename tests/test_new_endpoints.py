@@ -28,18 +28,21 @@ def api_client():
 
 
 class TestFetchPriceSync:
-    def test_returns_expected_keys(self):
-        from api.routers.prices import _fetch_price_sync
+    def test_returns_expected_keys(self, monkeypatch):
+        import api.routers.prices as prices_mod
 
-        mock_info = MagicMock()
-        mock_info.last_price = 150.0
-        mock_info.previous_close = 148.0
+        # 2026: _fetch_price_sync was refactored to try Alpaca first, falling
+        # back to a yfinance *batch* download (`_fetch_batch_yfinance`, using
+        # `yf.download`, not `yf.Ticker(...).fast_info`). Mock at that boundary
+        # instead of the old yfinance.Ticker patch target.
+        monkeypatch.setattr(prices_mod, "_get_alpaca_client", lambda: None)
+        monkeypatch.setattr(
+            prices_mod,
+            "_fetch_batch_yfinance",
+            lambda symbols: {"MSFT": {"price": 150.0, "change": 1.35}},
+        )
 
-        mock_ticker = MagicMock()
-        mock_ticker.fast_info = mock_info
-
-        with patch("yfinance.Ticker", return_value=mock_ticker):
-            result = _fetch_price_sync("MSFT")
+        result = prices_mod._fetch_price_sync("MSFT")
 
         assert result["symbol"] == "MSFT"
         assert result["price"] == 150.0
@@ -61,18 +64,17 @@ class TestFetchPriceSync:
 
         assert result["change_pct"] == 0.0
 
-    def test_rounds_price_to_four_decimals(self):
-        from api.routers.prices import _fetch_price_sync
+    def test_rounds_price_to_four_decimals(self, monkeypatch):
+        import api.routers.prices as prices_mod
 
-        mock_info = MagicMock()
-        mock_info.last_price = 123.456789
-        mock_info.previous_close = 123.0
+        monkeypatch.setattr(prices_mod, "_get_alpaca_client", lambda: None)
+        monkeypatch.setattr(
+            prices_mod,
+            "_fetch_batch_yfinance",
+            lambda symbols: {"AAPL": {"price": 123.4568, "change": 0.46}},
+        )
 
-        mock_ticker = MagicMock()
-        mock_ticker.fast_info = mock_info
-
-        with patch("yfinance.Ticker", return_value=mock_ticker):
-            result = _fetch_price_sync("AAPL")
+        result = prices_mod._fetch_price_sync("AAPL")
 
         assert result["price"] == 123.4568
 

@@ -96,7 +96,9 @@ def test_refresh_catalyst_cache_writes_file(monkeypatch, tmp_path):
 
 def test_score_engine_catalyst_off_by_default(monkeypatch):
     monkeypatch.delenv("FINPILOT_ENABLE_EDGAR_CATALYST", raising=False)
-    assert se.compute_recommendation_score({"score": 3, "catalyst_factor": 1.0}) == 3.0
+    # Faz 5 (2026-06-20, b2bdba0): raw `score` weight demoted x1.0 -> x0.5, so a
+    # raw score of 3 now contributes 1.5, not 3.0. Catalyst is disabled here.
+    assert se.compute_recommendation_score({"score": 3, "catalyst_factor": 1.0}) == 1.5
 
 
 def test_score_engine_catalyst_signed_when_enabled(monkeypatch):
