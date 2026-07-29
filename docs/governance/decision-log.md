@@ -4,6 +4,72 @@ _Not (düzeltildi 2026-07-29): docs/INDEX.md 2026-07-24'te zaten gerçek indekse
 
 ---
 
+[2026-07-29] - Scanner 15-hata triyaji tamamlandi (10 Level A duzeltildi, 5 Level B/C flagged) + render.yaml/.env bulgusu genisletildi
+Baglam: Onceki 07-29 kayitlarindaki dogrulama kosusunda (734 passed, 15 failed)
+bulunan 15 test hatasi tek tek incelendi (kullanicinin "onayliyorum" onayi
+uzerine, kullanici oturumda musait degildi, "otonom calis, iyi kararlar ver"
+talimati verildi).
+Sonuc: 10/15 duzeltildi (Level A, sadece test katmani, production kodu
+degismedi):
+(1-2) test_score_engine_catalyst/squeeze_off_by_default: Faz 5 (2026-06-20,
+b2bdba0) skor x0.5 dususu icin test beklentisi guncellenmemisti (3.0->1.5).
+(3-5) test_defensive_strategy, test_squeeze_factor_high_short_low_float,
+test_get_alpha_features_skips_squeeze_when_disabled: yerel .env'deki
+FINPILOT_ENABLE_ALPHA_V2=1 testlere sizip squeeze agirligini (0.5/0.5->0.7/0.3)
+ve gate'i degistiriyordu; testlere izolasyon eklendi.
+(6) test_returns_none_on_insufficient_data: 2026-07-15 (2c60744)
+_unavailable_result sozlesmesi icin test bayikti (None bekliyordu, artik
+Tier-3 dict donuyor - kasitli, dokumante degisiklik).
+(7-8) test_returns_expected_keys, test_rounds_price_to_four_decimals:
+_fetch_price_sync Alpaca-once + yf.download() fallback mimarisine tasinmis,
+test eski yfinance.Ticker mock hedefini kullaniyordu.
+(9) test_auth_register_login_and_me_flow: KRITIK BULGU - core.config.DB_PATH
+modul-seviyesi sabit, core.config ilk import edildiginde (collection
+sirasinda, fixture'lardan once) donuyor. monkeypatch.setenv("FINPILOT_DB_PATH")
+tek basina auth.database.Database()'e ulasmiyor (Database() no-arg cagrisi
+donmus DB_PATH'i okuyor) - gercek kalici data/finpilot.db dosyasina yaziyordu,
+oturumlar arasi kullanici birikip 409 Conflict'e neden oluyordu. Fix:
+monkeypatch.setattr("core.config.DB_PATH", ...) eklendi.
+(10) test_all_fields_present_and_lint_clean: glossary prob_band metni
+"bir garanti degil" / "not a guarantee" iceriyordu - distribution/lint.py'nin
+guarantee kurali negation-aware degil, "degil" ile olumsuzlanmis olsa bile
+yakaliyor. Icerik 2026-07-24'te eklenmis, 07-15 collection hatasi yuzunden
+gorunmezdi. FIX: icerik yeniden yazildi (linter kurali GEVSETILMEDI - CORE-002
+risk&compliance kurali korundu).
+5/15 kasitli duzeltilmedi: 2'si tests/test_full_universe_robustness.py
+icinde (bu dosya untracked/uncommitted, baska bir es zamanli oturumun WIP'i,
+dokunulmadi); 1'i test_prometheus.py port-bind zamanlamasina dayanan
+environment-bagimli flaky test; 2'si scanner_rollout/test_runtime_baseline.py
+- entry_ok icin score==2 + alignment_ratio>=0.66 durumunda gecerli olmasi
+beklenen bir gevsetilmis giris kapisi bekliyor ama scanner/evaluate.py'de
+entry_ok = bool(score == 3) sabit kodlanmis. Git log bu test dosyasinin
+sadece 2026-05-05'teki dev bir "thanks" commit'inde eklendigini gosteriyor,
+ilgili evaluate.py degisikligi izlenemedi - ya hic uygulanmamis planli bir
+ozellik ya da gecmiste kaldirilmis bir davranis. Canli sinyal uretim
+mantigini etkiledigi icin urun/quant karari gerekiyor, DOKUNULMADI.
+Dogrulama: 744 passed, 5 failed, 6 skipped (once: 734/15/6), 0 collection
+hatasi, 0 yeni regresyon.
+3E.7 bulgusu genisletildi: yerel .env'de 18 FINPILOT_ENABLE_*/FRED_*/
+SEC_EDGAR_* anahtari var (hepsi kisisel arastirma icin ACIK), .env.example
+bunlarin hicbirini belgelemiyor, render.yaml sadece 1 tanesini iceriyor.
+.env.example yorumlari bu faktorlerin coğunun "Default OFF, once shadow modda
+olc" seklinde tasarlandigini gosteriyor - yani production'in bunlari
+ACMAMASI kasitli/guvenli olabilir. render.yaml'a DOKUNULMADI (canli sinyal
+davranisini etkileme riski, tek tarafli karar verilemez).
+3E.8 (dry-run zorunlulugu) ve 3E.9 (erken uyari sistemi) incelendi ama
+uygulanmadi - ikisi de canli yayin/scan pipeline'ini etkileyen, gozden
+gecirme gerektiren degisiklikler.
+Etki alani: tests/test_catalyst.py, tests/test_squeeze_factor.py,
+tests/test_evaluate.py, tests/test_new_endpoints.py, tests/test_api_runtime.py,
+distribution/glossary.py (icerik, politika degil). Commit 068f2aa, push edildi.
+Not (guvenlik, bilgi amacli): render.yaml/.env karsilastirmasi sirasinda
+.env icinde gercek bir FRED_API_KEY degeri goruldu; .gitignore (.env*) ve
+`git log --all -- .env` ile dogrulandi - bu dosya HICBIR ZAMAN git'e commit
+edilmemis, sizinti yok. Deger bu kayda veya baska hicbir committed dosyaya
+yazilmadi.
+Durum: 10/15 tamamlandi ve dogrulandi; 5/15 + 3E.7/3E.8/3E.9 Meric karari
+bekliyor.
+
 [2026-07-29] - Otorite-haritasi gocu: lint guard (Level A uygulandi) + INDEX.md manifest / .github rewrite (Level B pending)
 Baglam: Kullanici `docs/2026-07-29-otorite-haritasi-gocu-plani.md` planini
 onayladi ve "neler olusturmamiz gerekiyor" diye sordu. Uygulamadan once repo'nun
