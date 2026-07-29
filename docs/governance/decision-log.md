@@ -132,3 +132,27 @@ Statü: AÇIK — her biri sorumlu+tarih atanana dek açık kalır.
   P0-d) Premium/Stripe hiç test edilmedi (gelir=0). Sahip: —, Tarih: —
   P0-e) Site mesajı "AI stock" (compliance+repositioning riski) → literacy çerçevesi. Sahip: —, Tarih: —
 Nihai değerlendirme: kamuya lansman HENÜZ DEĞİL; soft-launch koşullu.
+
+[2026-07-28] — Yayın hattı kararları (Telegram+Web ön-taraması sonrası)
+- Web deploy: git commit+push (publish_web.py → WEB_PUBLISH_CMD; REQUIRE_VERCEL_DEPLOY=0). Snapshot git'te izlenir, Vercel push'ta deploy eder.
+- Scan: her sabah elle scan + publish_now (oto-taslak + insan onayı). DISTRIBUTION=0 kalır.
+- Kanal adı @Finpilot_Breif ("Brief" yazım hatası) ŞİMDİLİK KORUNUR — lansmana kadar takipçi sıfırlamamak için; lansman öncesi yeniden değerlendir.
+Durum: uygulandı (Meriç kararı, 2026-07-28); publish_web.py eklendi.
+
+[2026-07-29] — Tek-dokunuşla yayın DOĞRULAMA (Faz 1): plan devrede DEĞİL — KOVA C açıldı (pending, P0)
+Faz 1 bulgusu: web-deploy kancası ayarsız, bot-süpervizör dosyaları eksikti, waitlist aynası/admin-key/akademi-export ayarsız, hiçbir uçtan-uca tur doğrulanmadı.
+KOVA C (kapanana dek AÇIK, Faz 3 kilitli):
+  C1) FINPILOT_WEB_PUBLISH_CMD ayarsız → web yayını çalışmaz. Sahip: —, Tarih: —
+  C2) Bot-süpervizör dosyaları eksikti → run_bot.py+start_bot.bat YENİDEN OLUŞTURULDU (bu oturum); startup+gözlem: —
+  C3) WAITLIST_WEBHOOK_URL ayarsız → veri kaybı riski. Sahip: —, Tarih: —
+  C4) SMTP rotasyonu doğrulanamadı (güvenlik P0). Sahip: —, Tarih: —
+  C5) Uçtan-uca tam tur doğrulanmadı → kabul kriteri karşılanmadı. Sahip: —, Tarih: —
+
+[2026-07-29] — Gerçek-makine doğrulama bulguları (kullanıcı denetimi) + kararlar
+Bulgular: (1) .env'de FINPILOT_REQUIRE_VERCEL_DEPLOY İKİ KEZ (=1 ve =0) — çelişki; (2) bot süreçleri zaten çalışıyor (run_bot + telegram_bot_runner) → startup çift-bot/409 riski; (3) DB'ler journal_mode kontrolü yapılmadan hardening YAPILMADI (doğru); (4) komut satırında bir kimlik görüldü → rotasyon önerildi.
+KARARLAR:
+  - REQUIRE_VERCEL_DEPLOY = **0** (tek satır; =1 SİLİNECEK). Neden: git-push deploy tetikler, ayrı hook yok; =1 publish'i "başarısız" sayar. (kod: _push_snapshot_to_web)
+  - Bot: startup'a eklemeden önce TEK poller garanti edilecek (Telegram 409 riski).
+  - DB hardening: yalnız journal_mode=wal ise + süreçler durdurulunca (aksi halde atla; büyük olasılıkla zaten delete).
+  - Kullanıcı Level B/C kapılarında (git push, gerçek yayın, SMTP, Sheet) açık onay olmadan İLERLEMEDİ — governance'a uygun, onaylandı.
+Durum: kararlar kayıtlı; uygulama kullanıcının açık onayıyla, kendi makinesinde.
