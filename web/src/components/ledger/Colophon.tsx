@@ -24,8 +24,10 @@ export default function Colophon() {
           >
             {t("colophon.telegram")}
           </a>
-          {/* TODO: link to /methodology once that page ships (LAUNCH_CHECKLIST
-              Week-2 item) — no dead link in the meantime. */}
+          {" · "}
+          <a href="/methodology" className="font-semibold underline" style={{ color: C.gold }}>
+            Methodology
+          </a>
         </p>
         <p className="mt-4 text-xs" style={{ color: C.inkSoft }}>
           {t("colophon.disclaimer")}
