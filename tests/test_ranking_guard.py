@@ -1,5 +1,4 @@
 from api.routers import scan as scan_router
-from scanner.evaluate import _execution_contract
 from scanner.execution_policy import (
     execution_contract,
     exit_profile,
@@ -106,15 +105,21 @@ def test_conviction_probabilities_are_calibrated(monkeypatch):
 
 
 def test_execution_contract_does_not_fabricate_missing_data():
-    assert _execution_contract(
+    tier1 = execution_contract(
         {"available": {"dollar_adv": True, "spread_bps": False, "short_interest_timestamp": False}}
-    ) == {"execution_confidence": "Tier 1", "data_quality_tier": "Tier 1"}
-    assert _execution_contract(
+    )
+    assert tier1["execution_confidence"] == "Tier 1"
+    assert tier1["data_quality_tier"] == "Tier 1"
+    tier0 = execution_contract(
         {"available": {"dollar_adv": False, "spread_bps": False, "short_interest_timestamp": False}}
-    ) == {"execution_confidence": "Tier 0", "data_quality_tier": "Tier 0"}
-    assert _execution_contract(
+    )
+    assert tier0["execution_confidence"] == "Tier 0"
+    assert tier0["data_quality_tier"] == "Tier 0"
+    tier2 = execution_contract(
         {"available": {"dollar_adv": True, "spread_bps": True, "short_interest_timestamp": True}}
-    ) == {"execution_confidence": "Tier 2", "data_quality_tier": "Tier 2"}
+    )
+    assert tier2["execution_confidence"] == "Tier 2"
+    assert tier2["data_quality_tier"] == "Tier 2"
 
 
 def test_execution_policy_rejects_missing_adv_without_zero_fill(monkeypatch):

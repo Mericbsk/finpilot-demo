@@ -36,7 +36,7 @@ jobs:
         run: |
           python -m pytest tests/ --ignore=tests/test_views_integration.py -v \
             --cov=scanner --cov=drl --cov=core --cov=auth --cov=api \
-            --cov=broker --cov=llm --cov=views \
+            --cov=broker --cov=llm --cov=views --cov=distribution \
             --cov-report=xml --cov-report=term-missing \
             --cov-fail-under=70
         env:

@@ -23,7 +23,11 @@ class TestScannerContract(unittest.TestCase):
     def test_scan_export_rows_keep_distribution_contract_fields(self):
         export_path = Path("data/distribution/scan_export_latest.json")
         if not export_path.exists():
-            self.skipTest("latest full scan export is unavailable")
+            self.fail(
+                "data/distribution/scan_export_latest.json is missing — this is a "
+                "required regression fixture for the scanner-to-distribution contract, "
+                "not an optional one. Regenerate it via a scan run before re-running tests."
+            )
         payload = json.loads(export_path.read_text(encoding="utf-8"))
         rows = payload.get("results", {})
         row = next(iter(rows.values())) if isinstance(rows, dict) else rows[0]

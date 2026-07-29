@@ -4,6 +4,79 @@ _Not: docs/INDEX.md şu an eski bir README kopyası — gerçek "tek doğru kayn
 
 ---
 
+[2026-07-29] - Scanner kirilma/regresyon kok neden forensic analizi + Bolum 3-Ek (Level A uygulandi + Level B pending)
+Baglam: Kullanici talebiyle scanner/distribution yayin zincirinin tekrar tekrar
+"harden/restore/repair" commit'i almasinin (07-17, 07-23, 07-24, 07-27x2, 07-28)
+yapisal kok nedeni arastirildi (git log, requirements.txt, render.yaml/.env,
+ci.yml, tests/ incelemesi).
+Dogrulanan bulgular: (1) main dalina dogrudan push, CI kapi degil sonradan
+dogrulama; (2) render.yaml ile .env.example arasinda iki bagimsiz elle
+senkronize env kaynagi (9 FINPILOT_ENABLE_*/FRED_*/SEC_EDGAR_* bayragindan
+render.yaml'da sadece 1'i var); (3) yfinance pinlenmemis (bilinen kirilgan
+veri-kaynagi bagimliligi) + duckduckgo-search cakisan cift satir; (4)
+scanner/data_fetcher.py'de genis kapsamli sessiz exception yutma; (5)
+tests/test_scanner_contract.py fixture yoksa skipTest ile sessizce geciyordu;
+(6) EN KRITIK: tests/test_ranking_guard.py, scanner.evaluate._execution_contract
+import ediyordu — bu fonksiyon 07-15'te (2c60744) scanner.execution_policy.
+execution_contract'a tasinmis ama test guncellenmemis; ImportError butun pytest
+collection'ini 14 gundur (6+ sonraki commit boyunca) durduruyordu.
+Karar: FinPilot_UcaUca_Uygulama_Plani_2026-07-24.md'ye "BOLUM 3-EK" eklendi
+(Bolum 3 yeniden acilmadan, bulgular kayda gecirildi). Level A kalemleri
+UYGULANDI: (a) test_ranking_guard.py import+assertion duzeltildi (davranis
+degismedi, sadece dogru sembole baglandi — tier siniflandirmasi elle
+dogrulandi), (b) test_scanner_contract.py skipTest -> fail, (c) ci.yml
+--cov=distribution eklendi, (d) requirements.txt yfinance==1.4.1 pinlendi +
+yinelenen duckduckgo-search satiri silindi.
+Etki alani: tests/test_ranking_guard.py, tests/test_scanner_contract.py,
+.github/workflows/ci.yml, requirements.txt. Scanner/distribution PRODUCTION
+kodu davranissal olarak degismedi — sadece test/CI/bagimlilik katmani.
+Sinir: render.yaml/.env birlestirme (3E.7), dry-run zorunlulugu (3E.8), erken
+uyari sistemi (3E.9) Level B — Merric onayi bekliyor, henuz uygulanmadi.
+Kanit: bu oturumdaki forensic analiz + pytest tam-suit calistirma sonucu
+(asagida ayri girdi olarak eklenecek).
+Durum: Level A kismi uygulandi; Level B kismi pending.
+
+[2026-07-29] - Scanner kirilma/regresyon kok neden forensic analizi + Bolum 3-Ek DOGRULAMA sonucu (Level A dogrulandi, 2 yeni Level B/C bulgu)
+Baglam: Bir onceki 07-29 kaydindaki 4 Level A degisiklikten sonra tam pytest
+suit calistirildi (734 passed, 15 failed, 6 skipped, 380.81s,
+--cov-fail-under=70 uygulanarak).
+Dogrulanan sonuclar:
+(1) test_ranking_guard.py fix ONAYLANDI — collection artik 0 hata (once: 1
+collection error, tum suit durmustu). Hedeflenen 4 dosyanin (test_ranking_guard,
+test_scanner_contract, test_distribution, test_prepublish_gate) 47 testi ayrica
+izole calistirildi: 47 passed.
+(2) YENI BULGU — 15 test kirmizi, hicbiri bu oturumda degistirilen 4 dosyayla
+ilgili degil (test_evaluate.py, test_catalyst.py, test_squeeze_factor.py,
+test_full_universe_robustness.py, test_new_endpoints.py, test_content_layer.py,
+test_api_runtime.py, test_prometheus.py, scanner_rollout/test_runtime_baseline.py).
+Dogrulandi: bunlar 07-15'ten beri collection hatasi yuzunden gorunmez olan,
+onceden var olan olasi regresyonlar (orn. compute_recommendation_score beklenen
+disi skor, dedup_symbol_day() policy kwarg'i kabul etmiyor). Olasi, test
+edilmeli: her biri ayri kok-neden gerektirir — bu oturumda DUZELTILMEDI (kapsam
+disi, tek tek incelenmeden production kodu degistirilmedi).
+(3) YENI BULGU — --cov-fail-under=70 esigi FAIL (gercek: 43.47%). Esik
+2026-03-30'da (a9f65923) 30'dan 70'e cikarilmis. Dogrulandi (hesaplandi):
+distribution/ modulu kendi icinde ~63% kapsaniyor, ortalamayi dusuren o degil —
+drl/ altinda binlerce satir %0 kapsanan modul (data_loader.py, ensemble_router.py,
+inference.py, specialists.py vb.) asil neden. Yani bu oturumdaki --cov=distribution
+eklemesi (3E.3) bu FAIL'e neden OLMADI — hesaplama distribution dahil/haric
+karsilastirmasi ile dogrulandi (~%42 -> ~%43, iyilesme yonunde). Olasi, test
+edilmeli: gercek CI ortaminda (GitHub Actions) bu esik hic gecmis mi yoksa
+yakinda mi bozulmus — bu ortamdan GitHub Actions calisma gecmisine erisilemedi
+(repo'da PR yok, direkt main'e push), dogrulanamadi.
+Karar: FinPilot_UcaUca_Uygulama_Plani_2026-07-24.md Bolum 3-Ek tablosuna 3E.11
+(15 test hatasi triyaji, Level B, onay bekliyor) ve 3E.12 (coverage esigi
+politika karari, Level B/C, karar bekliyor) eklendi. 3E.5 gercek sonucla
+guncellendi. 3E.6 (git tag) notu: 15 kirmizi test varken "stable" etiketi
+yaniltici olur, 3E.11 triyaj edilmeden atilmamali.
+Etki alani: sadece dokumantasyon (plan + decision-log). Hicbir production veya
+test kodu bu adimda degistirilmedi.
+Sinir: 3E.7 (render/env), 3E.8 (dry-run), 3E.9 (erken uyari), 3E.11 (15 test
+triyaji), 3E.12 (coverage esigi karari) hepsi Level B/C — Meric onayi bekliyor.
+git add/commit/push YAPILMADI — bu da ayri onay gerektirir.
+Durum: Level A bolumu dogrulanarak kapatildi; 5 Level B/C kalemi (3E.7-3E.9,
+3E.11, 3E.12) pending.
+
 [2026-07-28] - Donanim arastirmasi gereksinim fazi (Level B/C, pending)
 Baglam: FinPilot icin 7/24 yerel AI ve agent altyapisi donanim arastirmasi
 baslatildi. Repository incelemesi, API/scheduler/veri akisi CPU-I/O agirlikli;
@@ -156,3 +229,9 @@ KARARLAR:
   - DB hardening: yalnız journal_mode=wal ise + süreçler durdurulunca (aksi halde atla; büyük olasılıkla zaten delete).
   - Kullanıcı Level B/C kapılarında (git push, gerçek yayın, SMTP, Sheet) açık onay olmadan İLERLEMEDİ — governance'a uygun, onaylandı.
 Durum: kararlar kayıtlı; uygulama kullanıcının açık onayıyla, kendi makinesinde.
+
+[2026-07-29] — İçerik/kalite doğrulama (Faz 1): gerçek sayılar + pending Level B/C
+Gerçek sayılar: akademi 6 published/73 draft (rapor 5/39 = bayat); expired=11 (8 tarih); title hâlâ "AI-Powered Stock Intelligence"; yasal sayfalar HÂLÂ YOK (persist etmemiş); metodoloji route yok; bot anketi yok.
+META: sandbox'ta oluşturulan bazı dosyalar diske ulaşmadı → her değişiklik git commit gerektirir.
+Pending (Level B/C): metodoloji sayfası(B) · akademi yayın hattı(B) · positioning/title(B) · karşı-görüş satırı(B) · yasal sayfalar(C, yeniden oluştur+commit+avukat) · içerik takvimi(B) · evergreen SEO(B).
+Bağımsız görüş: 1 numaralı kalite hamlesi = kesintisiz teslim (tutarlılık); akademi darboğazı yayınlama; okuyucu yokken içerik-zenginliği erken optimizasyon.
