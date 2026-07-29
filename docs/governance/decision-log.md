@@ -1,8 +1,60 @@
 # FinPilot — Merkezi Karar Logu
 _CLAUDE.md Bölüm 3 formatı: her önemli karar buraya, dağınık dosyalara gömülmez._
-_Not: docs/INDEX.md şu an eski bir README kopyası — gerçek "tek doğru kaynak" indeksi Bölüm 5'te kurulacak ve bu loga bağlanacak._
+_Not (düzeltildi 2026-07-29): docs/INDEX.md 2026-07-24'te zaten gerçek indekse dönüştürülmüştü; bu satır o tarihten sonra güncellenmemiş bayat bir notu tekrarlıyordu. 2026-07-29'da INDEX.md'ye ayrıca makine-okunur bir manifest eklendi (bkz. aşağıdaki girdi)._
 
 ---
+
+[2026-07-29] - Otorite-haritasi gocu: lint guard (Level A uygulandi) + INDEX.md manifest / .github rewrite (Level B pending)
+Baglam: Kullanici `docs/2026-07-29-otorite-haritasi-gocu-plani.md` planini
+onayladi ve "neler olusturmamiz gerekiyor" diye sordu. Uygulamadan once repo'nun
+gercek governance yuzeyi okundu (varsayimla degil): `docs/INDEX.md` VE
+`docs/governance/decision-log.md` zaten VARDI (plan taslaginin "ikisi de yok"
+iddiasi yanlisti); INDEX.md 2026-07-24'te zaten gercek otorite haritasina
+donusturulmustu, ama bu logun ust notu bunu yansitmiyordu (yukarida duzeltildi).
+`_instructions/01-governance.md`, `05-escalation.md`, `08-security.md` hala
+Status: DRAFT (CORE-006 onayi bekliyor); yalniz `00-core.md` ACTIVE. Kok
+klasorler `00-strategy…06-releases` ve `_instructions/core-rules.yaml`
+dogrulandi — gercekten yok. `.github/instructions/*.md` (7 dosya) sadece
+`applyTo` degil, govde metninde de (mission.md, composite-score.md,
+entry-exit-rules.md, architecture.md, glossary.md, risk-policy.md) hic var
+olmamis dosyalara atif veriyordu; bunlar ICAT EDILMEDI (CORE-004), gercek
+yollara veya acik "gap" notuna cevrildi.
+Karar (Level A — uygulandi, otonom, izole, salt-okunur guard):
+`scripts/lint_authority_map.py` olusturuldu; `docs/INDEX.md`'deki manifesti ve
+`.github/instructions/*.md` applyTo alanlarini gercek agacla karsilastirir.
+Calistirildi: 7/7 hayalet applyTo hatasi tespit etti, duzeltme sonrasi
+`lint_authority_map: OK (0 errors, 0 warnings)`.
+Karar (Level B — uygulandi, Merric onayi bekliyor, KAPANMADI):
+(a) `docs/INDEX.md`'ye JSON manifest eklendi (15 entry; strategy,
+product-rules, engineering-architecture, risk-policy, releases acikca
+`status: gap` isaretlendi — icat edilmedi); (b) bu logun ust notu duzeltildi;
+(c) `.github/copilot-instructions.md` yeniden yazildi — hayalet klasor
+haritasi silindi, `docs/INDEX.md`'ye referans verildi, `core-rules.yaml`
+referansi kaldirildi (CORE-003: 00-core.md'yi kopyalamak yerine referans);
+(d) 7 `.github/instructions/*.md` dosyasinin `applyTo` + govde referanslari
+gercek yollara veya acik gap notlarina cevrildi; (e) `CLAUDE.md` v3.0→v3.1:
+Startup Sequence'e docs/INDEX.md + decision-log adimlari eklendi, Governance
+bolumundeki dosya referanslari tam yola cevrildi (changelog eklendi).
+Etki alani: yalnizca dokumantasyon/AI-talimat dosyalari
+(`.github/**`, `CLAUDE.md`, `docs/INDEX.md`, bu log, yeni `scripts/
+lint_authority_map.py`). Scanner/distribution/api/web PRODUCTION kodu
+davranissal olarak DEGISMEDI.
+Sinir: `AGENTS.md` DRAFT→APPROVED degisikligi yapilmadi (Level C, yalniz
+Merric). `_instructions/01-governance.md/05-escalation.md/08-security.md`
+DRAFT durumu degistirilmedi. `core-rules.yaml` OLUSTURULMADI (CORE-003:
+00-core.md'yi tekrar etmemek icin referans kaldirmayi tercih ettik; alternatif
+"olustur" secenegi Merric onayina birakildi). Yeni "gap" olarak isaretlenen
+otorite dokumanlari (mission.md, composite-score.md, entry-exit-rules.md,
+architecture.md, risk-policy.md) bu kararla OLUSTURULMADI/ONAYLANMADI.
+Operasyonel bulgu: bu oturumda `.github/copilot-instructions.md`, `CLAUDE.md`
+ve bu logun kendisi, diskteki degisiklik dogrulandiktan SONRA, editorde acik
+eski-icerikli sekme/otokaydetme kaynakli goruntu ile SESSIZCE eski haline
+donduruldu; ayni edit ikinci kez uygulanarak kurtarildi. Kok neden dogrulanamadi
+ama YONERGE.md M1 (OneDrive/AV dosya guvenligi riski) ile tutarli — izlenmesi
+gereken acik bir operasyonel risk olarak buraya kaydedildi.
+Kanit: `python scripts/lint_authority_map.py` -> `OK (0 errors, 0 warnings)`.
+Durum: Level A uygulandi ve dogrulandi; Level B degisiklikler diskte hazir
+ancak commit/push edilmedi, Merric onayi olmadan "kapandi" sayilmaz.
 
 [2026-07-29] - Scanner kirilma/regresyon kok neden forensic analizi + Bolum 3-Ek (Level A uygulandi + Level B pending)
 Baglam: Kullanici talebiyle scanner/distribution yayin zincirinin tekrar tekrar

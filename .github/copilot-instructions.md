@@ -4,37 +4,53 @@ description: FinPilot repository-wide operating rules — always active for ever
 
 # FinPilot — Workspace Instructions (Global)
 
-This repository is governed by `/00-core.md` (v3.0), the immutable
-constitution for every AI agent working here — Claude Code, GitHub
-Copilot, Cursor, Windsurf, VS Code Agent Mode, or any future FinPilot
-internal agent. Read `/00-core.md` and `/_instructions/core-rules.yaml`
-before starting any task, even if this file seems sufficient on its own.
+This repository is governed by `_instructions/00-core.md` (v3.0), the
+immutable global rule set for every AI agent working here — Claude
+Code, GitHub Copilot, Cursor, Windsurf, VS Code Agent Mode, or any
+future FinPilot internal agent. Read `AGENTS.md` first (fixed boot
+anchor, same for every agent), then `_instructions/00-core.md`, before
+starting any task, even if this file seems sufficient on its own.
 
-## Repository map
+## Repository map — do NOT assume folder names
 
-```
-/00-strategy      → mission, roadmap, growth/grant strategy
-/01-product       → scanner logic, composite score, entry/exit rules
-/02-engineering    → architecture, execution system, event flow
-/03-research      → backtests, academic/GitHub evidence research
-/04-content        → Finance Academy, glossary, user-facing docs
-/05-governance     → audits, decision-log.md, risk-policy.md
-/06-releases       → release notes, test results, rollout logs
-/_instructions      → 00-core.md, core-rules.yaml, this folder
-```
+There is no fixed `/00-strategy … /06-releases` folder scheme in this
+repository. **Do not assume it.** The single authority map is
+`docs/INDEX.md` — it lists, per concept, which real file/folder is the
+authority, and (since 2026-07-29) carries a machine-readable manifest
+that `scripts/lint_authority_map.py` validates against the actual tree.
+If `docs/INDEX.md` and the real tree disagree, STOP and report it
+(CORE-005) — do not guess a path.
+
+Known authority-document gaps (concepts with no single standalone file
+yet — see `docs/INDEX.md` manifest `status: gap` entries): strategy
+(mission/roadmap), product rules (composite score, entry/exit),
+engineering architecture, and risk policy. For these, the rule lives in
+code (`scanner/`, `distribution/`, `api/`, `core/`) and in `YONERGE.md`
+until a dedicated document is created — never invent one (CORE-004).
 
 ## Authority hierarchy (never violate the order)
 
-1. Mission / Vision — `/00-strategy/mission.md`
-2. Risk & Compliance — `/05-governance/risk-policy.md` (holds VETO over all layers)
-3. Roadmap / Strategy — `/00-strategy/roadmap-*.md`
-4. Product rules — `/01-product/*`
-5. Engineering / architecture — `/02-engineering/*`
-6. Content / documentation — `/04-content/*`
-7. Tactical / release decisions — `/06-releases/*`
+1. Mission / Vision — GAP, no standalone file (`docs/INDEX.md` id `strategy`)
+2. Risk & Compliance — GAP, no standalone file (`docs/INDEX.md` id
+   `risk-policy`; closest real authority: `YONERGE.md` §12 + `_instructions/
+   00-core.md` CORE-002). Holds VETO over all layers.
+3. Roadmap / Strategy — same gap as (1); see `docs/strategy/*` for
+   historical reference only.
+4. Product rules — GAP, no standalone file (`docs/INDEX.md` id
+   `product-rules`); lives in `scanner/`, `distribution/` code + `YONERGE.md` §2.
+5. Engineering / architecture — GAP, no standalone file (`docs/INDEX.md`
+   id `engineering-architecture`); lives in `api/`, `core/`, `web/src/` code
+   + `YONERGE.md` §2.
+6. Content / documentation — `distribution/glossary.py` (glossary),
+   `academy/` (Finance Academy).
+7. Tactical / release decisions — GAP, no standalone file (`docs/INDEX.md`
+   id `releases`); closest real artifact: `docs/reports/BOLUM-*_raporu_*.md`.
 
 A lower layer can never override a higher layer. Layer 2 (Risk &
-Compliance) can override anything, including Mission.
+Compliance) can override anything, including Mission. Where a layer is
+a documented `gap`, apply the same precedence to its closest real
+artifact listed above — do not treat the absence of a file as absence
+of the rule.
 
 ## Mandatory sequence for every task (no exceptions)
 
@@ -56,7 +72,7 @@ Compliance) can override anything, including Mission.
 3. Locate the single authority document for the concept in question.
    Never duplicate business rules, formulas, or policy text across
    files — reference the authority file instead of copying it.
-4. Check `/05-governance/decision-log.md` for prior decisions on the
+4. Check `docs/governance/decision-log.md` for prior decisions on the
    same topic before proposing anything new.
 5. If a conflict is found between two documents or between a new
    request and an existing decision, STOP and report it explicitly.
@@ -65,10 +81,10 @@ Compliance) can override anything, including Mission.
 6. Produce the output, explicitly stating: the layer, the level
    (A/B/C), and the target file/folder/version where it belongs.
 7. For Level A actions, add an entry to
-   `/05-governance/decision-log.md` immediately. For Level B/C, add an
+   `docs/governance/decision-log.md` immediately. For Level B/C, add an
    entry marked "pending" until human approval is recorded.
 
-## Non-negotiable rules (from `/00-core.md`, always enforced)
+## Non-negotiable rules (from `_instructions/00-core.md`, always enforced)
 
 - Never fabricate information. If data, metrics or evidence are
   missing, say so explicitly and ask for clarification instead of
@@ -107,4 +123,4 @@ Compliance) can override anything, including Mission.
 
 For domain-specific rules, see the path-specific files in
 `.github/instructions/`. Those files add detail — they never
-override this file or `/00-core.md`.
+override this file or `_instructions/00-core.md`.

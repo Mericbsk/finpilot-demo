@@ -1,9 +1,12 @@
 ---
-applyTo: "03-research/**"
+applyTo: "research/**,reports/**"
 description: Backtests, academic and GitHub evidence research
 ---
 
 # Research Instructions
+
+Authority reference: see `docs/INDEX.md` manifest id `research` — real paths
+are `research/` (scripts) and `reports/` (findings), status `active`.
 
 - Every claim about strategy performance must cite a specific
   backtest run, dataset, and date range. Never state a performance
@@ -15,8 +18,9 @@ description: Backtests, academic and GitHub evidence research
   (b) third-party GitHub implementations, (c) FinPilot's own backtests.
   Never blend these into a single unlabeled claim.
 - If a research finding contradicts an existing product rule in
-  `/01-product/*`, do not resolve the contradiction yourself — report
-  it and let the Product layer own the resolution (per authority
-  hierarchy, product rules only change via Level B/C process).
+  `scanner/` or `distribution/`, do not resolve the contradiction
+  yourself — report it and let the Product layer own the resolution
+  (per authority hierarchy, product rules only change via Level B/C
+  process).
 - Research conclusions that would change a live rule are **Level B**
-  proposals, never direct edits to `/01-product/*`.
+  proposals, never direct edits to `scanner/` or `distribution/`.

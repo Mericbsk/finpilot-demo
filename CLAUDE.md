@@ -1,10 +1,17 @@
 # CLAUDE.md
 # FinPilot AI Bootstrap for Claude Code
 
-Version: 3.0
+Version: 3.1
 Status: ACTIVE
 Owner: Governance
 Applies To: Claude Code
+
+Changelog:
+- v3.1 (2026-07-29): Startup Sequence now explicitly reads `docs/INDEX.md`
+  (authority map) and `docs/governance/decision-log.md` (prior decisions)
+  before locating an authority document, matching `AGENTS.md`'s boot chain.
+  Governance section file references made explicit (`_instructions/` prefix).
+  See `docs/2026-07-29-otorite-haritasi-gocu-plani.md`.
 
 ---
 
@@ -29,12 +36,16 @@ Before making any recommendation or modification:
 
 1. Read AGENTS.md
 2. Read _instructions/00-core.md
-3. Identify the affected authority layer.
-4. Determine the escalation level.
-5. Locate the relevant authority document.
-6. Perform the requested task.
-7. Produce the final output.
-8. Record decisions if required.
+3. Read docs/INDEX.md to locate the authority map for the concept in scope.
+   Do not assume folder names — if the map and the real tree disagree, stop
+   and report it (CORE-005).
+4. Check docs/governance/decision-log.md for prior decisions on the same topic.
+5. Identify the affected authority layer.
+6. Determine the escalation level.
+7. Locate the relevant authority document (per the map from step 3).
+8. Perform the requested task.
+9. Produce the final output.
+10. Record decisions if required.
 
 Never skip this sequence.
 
@@ -108,13 +119,15 @@ Governance rules are never duplicated here.
 
 Always defer to:
 
-00-core.md
+_instructions/00-core.md
 
-01-governance.md
+_instructions/01-governance.md
 
-05-escalation.md
+_instructions/05-escalation.md
 
-08-security.md
+_instructions/08-security.md
+
+docs/INDEX.md (authority map)
 
 If a conflict exists,
 

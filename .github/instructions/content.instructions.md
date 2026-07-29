@@ -1,16 +1,21 @@
 ---
-applyTo: "04-content/**"
+applyTo: "distribution/glossary.py,academy/**,web/src/app/academy/**"
 description: Finance Academy, glossary, and user-facing documentation
 ---
 
 # Content Instructions
 
-Authority reference: `/04-content/glossary.md` is the single source
-of truth for all terminology used across the entire repository.
+Authority reference: `distribution/glossary.py` is the single source of
+truth for glossary terminology (see `docs/INDEX.md` manifest id
+`content-glossary`, status `active`). `web/public/dictionary.json` is
+LEGACY — dashboard/finsense pages only, the landing page never reads it.
+Academy lesson content is authored under `academy/` and exported to
+`web/public/academy_lessons.json` (manifest id `academy-content`).
 
 - Never define a financial or product term differently than it's
-  defined in `/01-product/*` or `/03-research/*`. If a mismatch is
-  found, flag it — do not silently pick one definition.
+  defined in `scanner/`, `distribution/` (product) or `research/`,
+  `reports/` (research). If a mismatch is found, flag it — do not
+  silently pick one definition.
 - Educational content (Finance Academy) must be accurate and
   evidence-based; never simplify a concept in a way that
   misrepresents risk or performance.

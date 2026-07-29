@@ -1,11 +1,14 @@
 ---
-applyTo: "02-engineering/**"
+applyTo: "api/**,core/**,web/src/**"
 description: Architecture, execution system, event flow
 ---
 
 # Engineering Instructions
 
-Authority reference: `/02-engineering/architecture.md`.
+Authority reference: **GAP** — no standalone `architecture.md` exists (see
+`docs/INDEX.md` manifest id `engineering-architecture`, status `gap`). The
+closest real authority is `YONERGE.md` §2 (the scanner↔distribution hard
+contract) plus the code itself.
 
 - Preserve the existing event-driven architecture. Introducing a new
   execution pattern, queueing model, or data flow is **Level B** —
@@ -13,9 +16,9 @@ Authority reference: `/02-engineering/architecture.md`.
 - Any change touching live execution, order routing, or position
   sizing logic is automatically **Level C** — analysis only.
 - If a change requires modifying composite score or entry/exit logic,
-  stop and check `/01-product/*` first — that layer owns the rule,
-  this layer only owns the implementation. Do not silently reinterpret
-  a product rule while implementing it.
+  stop and check `scanner/` and `distribution/` first — that layer owns
+  the rule, this layer only owns the implementation. Do not silently
+  reinterpret a product rule while implementing it.
 - Apply the Minimal Change Principle strictly: no drive-by refactors,
   no renaming unrelated to the task, no dependency upgrades unless
   explicitly requested.
@@ -23,7 +26,7 @@ Authority reference: `/02-engineering/architecture.md`.
   data model) must get a decision-log.md entry, tagged Layer 5.
 - Write code that matches existing style/conventions in the same
   module. If no convention exists, default to the most common pattern
-  already present in `/02-engineering/`.
+  already present in `api/`, `core/` or `web/src/`.
 - Never hardcode secrets, API keys, or credentials. If one is found in
   existing code, flag it as a **Level C security issue** immediately,
   do not attempt to fix it yourself without approval.

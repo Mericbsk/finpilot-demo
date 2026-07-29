@@ -1,13 +1,18 @@
 ---
-applyTo: "06-releases/**"
+applyTo: "docs/reports/BOLUM-*"
 description: Release notes, rollout logs, test results
 ---
 
 # Releases Instructions
 
+Authority reference: **GAP** — there is no standalone releases concept (see
+`docs/INDEX.md` manifest id `releases`, status `gap`); the closest real
+artifact is `docs/reports/BOLUM-*_raporu_*.md`.
+
 - Any content implying a production/live rollout is **Level C** —
   drafting release notes is fine, but marking a release as "shipped"
-  or "live" requires recorded human approval in decision-log.md.
+  or "live" requires recorded human approval in
+  `docs/governance/decision-log.md`.
 - Release notes must reference the specific decision-log.md entries
   and authority documents (product/engineering) that the release
   implements — never describe a change without linking its origin.
