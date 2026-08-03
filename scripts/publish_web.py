@@ -20,6 +20,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ["web/public/demo_snapshot.json", "web/public/academy_lessons.json"]
 
+# Windows consoles often default stdout to cp1252, which cannot encode the
+# "\u2192" used below. That crashed this script with UnicodeEncodeError AFTER
+# the git push had already succeeded (2026-08-03 finding) — the caller then saw
+# a non-zero exit code for what was actually a successful publish, which is
+# indistinguishable from a real failure once callers start checking the exit
+# code. Force UTF-8 stdout so the success message never crashes the process.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 
 def _git(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, text=True)

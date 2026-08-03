@@ -262,9 +262,19 @@ def job_draft() -> dict:
         )
 
     warn = ("\n⚠️ " + "; ".join(snap["warnings"])) if snap.get("warnings") else ""
+    # Admin preview only (not the published text): strip HTML tags before
+    # truncating. A raw character-index slice of HTML can cut a tag in half
+    # (e.g. "<b>GOO" with no closing "</b>"), which Telegram's HTML parse_mode
+    # rejects outright with "400 Bad Request: can't parse entities" — this
+    # silently dropped the admin ONAYLA/RED prompt once free_text grew past
+    # 1500 chars. Stripping tags first makes the preview length-safe
+    # regardless of where the cut lands.
+    import re as _re
+
+    _preview_plain = _re.sub(r"<[^>]+>", "", free_text)[:1500]
     notify_admin(
         f"📝 <b>{date_str} brif taslağı hazır.</b>{warn}\n\n"
-        f"— ÜCRETSİZ (#{qid_free}) —\n{free_text[:1500]}\n\n"
+        f"— ÜCRETSİZ (#{qid_free}) —\n{_preview_plain}\n\n"
         f"Yayınlamak için: ONAYLA {qid_free}  ·  Reddetmek için: RED {qid_free}"
     )
     return result
@@ -395,7 +405,15 @@ def _push_snapshot_to_web(snapshot: dict | None = None) -> bool:
             import shlex
             import subprocess
 
-            subprocess.run(shlex.split(hook), timeout=120, check=False)
+            hook_result = subprocess.run(shlex.split(hook), timeout=120, check=False)
+            if hook_result.returncode != 0:
+                # 2026-08-03 finding: this return code used to be discarded
+                # entirely (check=False with no inspection), so a failed
+                # git commit/push (e.g. a dirty working tree blocking the
+                # commit) still made _push_snapshot_to_web report success —
+                # Telegram and the web silently went out of sync.
+                logger.error("web publish hook failed (exit %d): %s", hook_result.returncode, hook)
+                return False
         deploy_hook = os.getenv("FINPILOT_VERCEL_DEPLOY_HOOK_URL", "").strip()
         if deploy_hook:
             request = urllib.request.Request(deploy_hook, data=b"", method="POST")
@@ -431,8 +449,12 @@ def job_weekly() -> dict:
     lesson = concept_of_the_day(today)
     text = templates.render_weekly(karne_summary, lesson, date_range=f"{today.isoformat()} haftası")
     qid = broadcast.queue_draft("weekly", today.isoformat(), text)
+    # Same tag-safe truncation as job_draft's admin preview — see comment there.
+    import re as _re
+
+    _weekly_preview = _re.sub(r"<[^>]+>", "", text)[:1200]
     notify_admin(
-        f"🗓 Haftalık özet taslağı hazır (#{qid}).\n\n{text[:1200]}\n\nONAYLA {qid} / RED {qid}"
+        f"🗓 Haftalık özet taslağı hazır (#{qid}).\n\n{_weekly_preview}\n\nONAYLA {qid} / RED {qid}"
     )
     return {"weekly_queue_id": qid}
 
@@ -582,6 +604,38 @@ def maybe_trigger_draft_after_scan(universe: int) -> dict:
         return job_draft()
     except Exception as exc:  # pragma: no cover - defensive, never break the caller
         logger.warning("maybe_trigger_draft_after_scan failed (non-fatal): %s", exc)
+        return {"error": str(exc)}
+
+
+def maybe_run_shadow_scorecard_after_scan(universe: int) -> dict:
+    """Best-effort: tarama sonrası gölge skor kartını arka planda güncelle.
+
+    daily_shadow_update.py'yi ayrı süreçte (fire-and-forget) başlatır:
+    price_cache tazele → shadow_scorecard (çoklu benchmark) → çok-pencere geçmişi.
+    Env-gated (FINPILOT_ENABLE_SHADOW_SCORECARD=1). Hiçbir başarısızlık çağıranı bozmaz;
+    scan HTTP yanıtını bloklamaz (ayrı süreç).
+    """
+    try:
+        if os.getenv("FINPILOT_ENABLE_SHADOW_SCORECARD", "0") != "1":
+            return {"skipped": "disabled"}
+        min_universe = int(os.getenv("FINPILOT_DIST_MIN_UNIVERSE_FOR_DRAFT", "100"))
+        if universe < min_universe:
+            return {"skipped": f"universe {universe} < {min_universe}"}
+
+        import subprocess  # noqa: PLC0415
+        import sys  # noqa: PLC0415
+
+        script = Path("daily_shadow_update.py")
+        if not script.exists():
+            return {"skipped": "daily_shadow_update.py not found"}
+        log_path = Path("data/shadow/daily_update.log")
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        logf = open(log_path, "a", encoding="utf-8")  # noqa: SIM115 - Popen'a devrediliyor
+        subprocess.Popen([sys.executable, str(script)], stdout=logf, stderr=logf)  # noqa: S603
+        logger.info("shadow scorecard update launched (universe=%d)", universe)
+        return {"launched": True}
+    except Exception as exc:  # pragma: no cover - defensive, never break the caller
+        logger.warning("maybe_run_shadow_scorecard_after_scan failed (non-fatal): %s", exc)
         return {"error": str(exc)}
 
 
