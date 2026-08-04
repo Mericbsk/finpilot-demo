@@ -37,8 +37,12 @@ import csv
 import glob
 import json
 import os
+import sys
 import time
 from datetime import datetime, timedelta
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SHORTLIST_DIR = os.path.join(ROOT, "data", "shortlists")
@@ -238,11 +242,11 @@ def fetch_alpaca(sym, start, end):
     return out
 
 
-def get_bars(sym, provider):
+def get_bars(sym, provider, refresh_stale=False):
     """Tum gerekli araligi tek seferde cek, cache'le (fetch_and_retest.py ile PAYLASILAN
     cache dizini — ayni sembol daha once cekilmisse tekrar cekilmez)."""
     cf = os.path.join(CACHE, f"{sym}.json")
-    if os.path.exists(cf):
+    if os.path.exists(cf) and not refresh_stale:
         try:
             return json.load(open(cf, encoding="utf-8"))
         except Exception:
@@ -323,6 +327,21 @@ def main():
         help="EODHD fundamentals'tan float + short interest cek (yavas, opsiyonel).",
     )
     ap.add_argument("--limit", type=int, default=0, help="test icin sembol sayisini sinirla")
+    ap.add_argument(
+        "--refresh-cache",
+        action="store_true",
+        help="Mevcut price_cache dosyalarini da veri kaynağından yenile",
+    )
+    ap.add_argument(
+        "--cache-only",
+        action="store_true",
+        help="Sembollerin fiyat cache'ini yenile, backtest CSV'si üretme",
+    )
+    ap.add_argument(
+        "--extra-symbols",
+        default="SPY,QQQ,XLK,XLF,XLE,XLV,XLY,IWM",
+        help="Cache'e ayrıca alınacak benchmark sembolleri",
+    )
     args = ap.parse_args()
 
     rows, files = collect_universe_rows()
@@ -348,12 +367,14 @@ def main():
         print(f"  python fetch_full_universe_and_retest.py --provider {args.provider}")
         return
 
+    extra_symbols = [s.strip().upper() for s in args.extra_symbols.split(",") if s.strip()]
+    syms_all = sorted(set(syms_all).union(extra_symbols))
     syms = syms_all[: args.limit] if args.limit else syms_all
     print(f"\nFiyat cekiliyor: {len(syms)} sembol, saglayici={args.provider} ...")
     bars_cache = {}
     for i, s in enumerate(syms, 1):
         try:
-            bars_cache[s] = get_bars(s, args.provider)
+            bars_cache[s] = get_bars(s, args.provider, refresh_stale=args.refresh_cache)
         except SystemExit:
             raise
         except Exception as exc:
@@ -361,6 +382,10 @@ def main():
             bars_cache[s] = []
         if i % 50 == 0:
             print(f"  {i}/{len(syms)} sembol cekildi...")
+
+    if args.cache_only:
+        print("\n--cache-only: fiyat cache yenilendi; backtest zenginlestirmesi atlandi.")
+        return
 
     # (symbol, scan_date) basina BIR KEZ resolve et, tum kopya satirlara join'le
     resolved_cache: dict[tuple[str, str], dict | None] = {}
