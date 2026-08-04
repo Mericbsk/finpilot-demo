@@ -96,6 +96,7 @@ def demo_view(snap: dict[str, Any], max_candidates: int = 3) -> dict[str, Any]:
     for c in cands:
         c["premium_only"] = False
     out["candidates"] = cands
+    out["web_context"] = [_strip_premium_fields(item) for item in snap.get("web_context", [])]
     return out
 
 
@@ -103,4 +104,11 @@ def _strip_premium_fields(cand: dict[str, Any]) -> dict[str, Any]:
     c = dict(cand)
     c.pop("risk_note", None)
     c.pop("factor_detail", None)
+    metrics = c.get("metrics")
+    if isinstance(metrics, dict):
+        c["metrics"] = {
+            key: value
+            for key, value in metrics.items()
+            if key not in {"risk_reward", "stop_loss", "take_profit", "stop_loss_percent"}
+        }
     return c

@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from distribution.glossary import get_entry
 from distribution.lint import DISCLAIMER_TR
 from distribution.schema import free_view
 
@@ -35,6 +36,60 @@ def _esc(t: str) -> str:
     return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _grade_prob_explainer(lang: str = "tr") -> str:
+    """One-line Grade + probability-band explainer for first-time readers.
+
+    Text is NOT re-authored here — it quotes distribution.glossary's own
+    ``line_tr``/``line_en`` fields (CORE-003: single source of truth for
+    terminology; this only references it, never redefines it).
+    """
+    key = "line_tr" if lang == "tr" else "line_en"
+    grade_entry = get_entry("grade")
+    band_entry = get_entry("prob_band")
+    parts = [e[key] for e in (grade_entry, band_entry) if e]
+    return " ".join(parts)
+
+
+def _fmt_metric_pct(value: Any) -> str | None:
+    try:
+        return f"{float(value):+.1f}%"
+    except (TypeError, ValueError):
+        return None
+
+
+def _metrics_footer(c: dict[str, Any], lang: str = "tr") -> str:
+    """Compact, data-only footer (price / momentum / volume) for a candidate.
+
+    Every value is read directly from the scan-result metrics already on the
+    candidate — no number is invented here, matching rationale.py's hard
+    rule that text never generates numbers of its own.
+    """
+    m = c.get("metrics") or {}
+    parts: list[str] = []
+    price = m.get("price")
+    if price is not None:
+        try:
+            label = "Fiyat" if lang == "tr" else "Price"
+            parts.append(f"{label} ${float(price):,.2f}")
+        except (TypeError, ValueError):
+            pass
+    mom = _fmt_metric_pct(m.get("momentum_3d_pct"))
+    if mom:
+        label = "3g momentum" if lang == "tr" else "3d momentum"
+        parts.append(f"{label} {mom}")
+    vol = m.get("volume_multiple")
+    if vol is not None:
+        try:
+            vol_num = float(vol)
+            if lang == "tr":
+                parts.append(f"hacim ortalamanın {vol_num:.1f} katı")
+            else:
+                parts.append(f"volume {vol_num:.1f}x average")
+        except (TypeError, ValueError):
+            pass
+    return " · ".join(parts)
+
+
 MAX_FREE_LEN = 1200
 MAX_PREMIUM_LEN = 2600
 
@@ -55,6 +110,9 @@ def _candidate_line(c: dict[str, Any], with_risk: bool = False) -> str:
         f"<b>Bugün neden burada? Öne çıkaran nedenler:</b> {_esc(c['rationale'])}\n"
         f"🔎 <i>İzlemeye değer ayrıntı:</i> {badges or 'çoklu faktör değerlendirmesi'}"
     )
+    metrics_line = _metrics_footer(c)
+    if metrics_line:
+        line += f"\n📌 <i>Veriler:</i> {_esc(metrics_line)}"
     if with_risk and c.get("risk_note"):
         line += f"\n⚠️ {_esc(c['risk_note'])}"
     return line
@@ -82,6 +140,8 @@ def render_daily_free(snap: dict[str, Any], concept_line: str = "", context_line
     lines.append(f"<i>Bu sabah {snap.get('universe', 0)} hisse tarandı.</i>")
     if context_line:
         lines.append(f"<i>{_esc(context_line)}</i>")
+    if cands:
+        lines.append(f"ℹ️ <i>{_esc(_grade_prob_explainer('tr'))}</i>")
     lines.append("")
     if cands:
         lines += [_candidate_line(c) for c in cands]
@@ -106,6 +166,8 @@ def render_daily_premium(
     lines.append(f"<i>Tam liste: {len(cands)} aday · {snap.get('universe', 0)} hisse tarandı.</i>")
     if context_line:
         lines.append(f"<i>{_esc(context_line)}</i>")
+    if cands:
+        lines.append(f"ℹ️ <i>{_esc(_grade_prob_explainer('tr'))}</i>")
     lines.append("")
     for c in cands:
         lines.append(_candidate_line(c, with_risk=True))

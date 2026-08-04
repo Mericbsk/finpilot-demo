@@ -240,6 +240,33 @@ _CONNECTORS = {
     "en": ["Also,", "On top of that,", "Adding to the picture,", "Another detail:"],
 }
 
+_SYNTHESIS = {
+    "tr": {
+        "rvol_momentum_regime": "Bu üç işaret birlikte, fiyat hareketinin yalnızca tek günlük bir sıçrama olmadığını ve destekleyici piyasa arka planında artan katılımla izlendiğini düşündürüyor; devamlılık ise henüz doğrulanmış değil.",
+        "rvol_gap_momentum": "Hacim, açılış ve momentumun aynı tabloda buluşması, ilginin seans dışında başlayıp işlem aktivitesiyle sürdüğünü düşündürüyor; gap'in kalıcılığı henüz açık soru.",
+        "contraction_momentum": "Daralan banttan çıkan fiyat davranışı momentumla birleşiyor; bu, hareketin yeni bir aşamaya geçtiğini düşündürüyor ancak çözülmenin kalıcılığı henüz kanıtlanmış değil.",
+        "early_tier": "Aşamalı teyit ile faktörlerin aynı yönde toplanması, sinyalin tek bir ölçüme dayanmadığını gösteriyor; yine de sonraki seanslar bu tabloyu doğrulamak zorunda.",
+        "regime": "Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir.",
+        "default": "Faktörlerin birlikte görünmesi, tek bir göstergeden daha kapsamlı bir tablo sunuyor; bunun sonraki seanslarda korunup korunmayacağı henüz açık.",
+    },
+    "en": {
+        "rvol_momentum_regime": "Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet.",
+        "rvol_gap_momentum": "Volume, the open and momentum appearing together suggest interest began outside the session and continued through trading activity; whether the gap holds remains open.",
+        "contraction_momentum": "The price emerging from a narrow range is meeting momentum; that suggests a new phase may be starting, but the release has not proved durable yet.",
+        "early_tier": "Staged confirmation lining up with the factors shows the signal is not resting on one measure; the next sessions still have to validate the picture.",
+        "regime": "The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime.",
+        "default": "The factors appearing together give a broader picture than any single indicator; whether it holds over the next sessions remains open.",
+    },
+    "de": {
+        "rvol_momentum_regime": "Zusammen deuten diese drei Signale darauf hin, dass die Bewegung mehr als ein Sprung an einem Tag ist und bei steigender Beteiligung in einem unterstützenden Marktumfeld beobachtet wird; ihre Dauer ist noch nicht bestätigt.",
+        "rvol_gap_momentum": "Dass Volumen, Eröffnung und Momentum zusammen auftreten, deutet darauf hin, dass das Interesse außerhalb der Sitzung begann und sich im Handel fortsetzte; ob das Gap hält, bleibt offen.",
+        "contraction_momentum": "Das Verlassen der engen Spanne trifft auf Momentum; das kann auf eine neue Phase hindeuten, doch die Dauerhaftigkeit ist noch nicht bewiesen.",
+        "early_tier": "Die gestufte Bestätigung zusammen mit den Faktoren zeigt, dass das Signal nicht auf einem einzigen Maß beruht; die nächsten Sitzungen müssen das Bild noch bestätigen.",
+        "regime": "Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden.",
+        "default": "Die Faktoren zusammen ergeben ein breiteres Bild als ein einzelner Indikator; ob es in den nächsten Sitzungen anhält, bleibt offen.",
+    },
+}
+
 _CLOSERS = {
     "tr": [
         "Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
@@ -358,6 +385,23 @@ def _render_reasons(frags: list[str], lang: str, seed: int) -> str:
     return " ".join(sentences)
 
 
+def _render_synthesis(badges: list[str], lang: str) -> str:
+    present = set(badges)
+    if {"rvol", "momentum", "regime"}.issubset(present):
+        key = "rvol_momentum_regime"
+    elif {"rvol", "gap", "momentum"}.issubset(present):
+        key = "rvol_gap_momentum"
+    elif {"contraction", "momentum"}.issubset(present):
+        key = "contraction_momentum"
+    elif "early_tier" in present and len(present) >= 2:
+        key = "early_tier"
+    elif "regime" in present and len(present) >= 2:
+        key = "regime"
+    else:
+        key = "default"
+    return _SYNTHESIS[lang].get(key, _SYNTHESIS[lang]["default"])
+
+
 def build_rationale_parts(
     ticker: str,
     grade: str,
@@ -389,10 +433,11 @@ def build_rationale_parts(
 
     frags = _fragments_for(badges, lang, date_str, ticker)
     reasons = _render_reasons(frags, lang, seed)
+    synthesis = _render_synthesis(badges, lang)
 
     return {
-        "full": f"{opener} {reasons} {closer}",
-        "body": f"{reasons} {closer}",
+        "full": f"{opener} {reasons} {synthesis} {closer}",
+        "body": f"{reasons} {synthesis} {closer}",
     }
 
 

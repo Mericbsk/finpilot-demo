@@ -21,7 +21,12 @@ from distribution.concepts import concept_of_the_day  # noqa: E402
 from distribution.jobs import _resolve_karne_by_grade  # noqa: E402
 from distribution.market_calendar import is_trading_day  # noqa: E402
 from distribution.rationale import build_rationale, extract_badges, prob_band  # noqa: E402
-from distribution.schema import SCHEMA_VERSION, free_view, validate_snapshot  # noqa: E402
+from distribution.schema import (  # noqa: E402
+    SCHEMA_VERSION,
+    demo_view,
+    free_view,
+    validate_snapshot,
+)
 from distribution.snapshot_builder import build_snapshot, read_json_object  # noqa: E402
 from distribution.store import log_delivery  # noqa: E402
 from distribution.templates import render_daily_free, render_daily_premium  # noqa: E402
@@ -79,6 +84,18 @@ class TestRationale(unittest.TestCase):
         self.assertIn("ABC", r)
         self.assertEqual(lint.check_text(r), [])
 
+    def test_rationale_explains_factor_combination_and_open_question(self):
+        rationale = build_rationale(
+            "ABC",
+            "C",
+            ["rvol", "momentum", "regime"],
+            lang="tr",
+            context={"date": "2026-07-29"},
+        )
+        self.assertIn("Bu üç işaret birlikte", rationale)
+        self.assertIn("henüz doğrulanmış değil", rationale)
+        self.assertEqual(lint.check_text(rationale), [])
+
     def test_english_rationale_does_not_use_turkish_i_casing(self):
         rationale = build_rationale("ABC", "A", [], lang="en", context={"date": "2026-07-06"})
         self.assertNotIn("İts ", rationale)
@@ -121,6 +138,24 @@ class TestSnapshot(unittest.TestCase):
         self.assertEqual(len(fv["candidates"]), 2)
         self.assertNotIn("risk_note", fv["candidates"][0])
         self.assertNotIn("factor_detail", fv["candidates"][0])
+
+    def test_public_view_strips_internal_risk_metrics(self):
+        snap = build_snapshot([_row("AAA")], universe=100, date_str="2026-07-06")
+        public = demo_view(snap, max_candidates=1)
+        metrics = public["candidates"][0]["metrics"]
+        self.assertIn("price", metrics)
+        self.assertNotIn("risk_reward", metrics)
+        self.assertNotIn("stop_loss", metrics)
+        self.assertNotIn("take_profit", metrics)
+        self.assertNotIn("stop_loss_percent", metrics)
+
+    def test_public_view_strips_internal_risk_metrics_from_context(self):
+        snap = build_snapshot([_row("AAA")], universe=100, date_str="2026-07-06")
+        snap["web_context"] = [{"ticker": "CTX", "metrics": {"stop_loss": 10.0, "price": 12.0}}]
+        public = demo_view(snap, max_candidates=1)
+        metrics = public["web_context"][0]["metrics"]
+        self.assertIn("price", metrics)
+        self.assertNotIn("stop_loss", metrics)
 
 
 class TestKarneResolver(unittest.TestCase):
