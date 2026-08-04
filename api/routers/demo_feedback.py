@@ -33,6 +33,24 @@ def submit_demo_feedback(body: DemoFeedbackRequest):
         return {"status": "ignored", "reason": "empty"}
     fid = add_demo_feedback(body.model_dump())
     logger.info("demo feedback saved id=%s q3=%s source=%s", fid, body.q3, body.source)
+
+    # Best-effort Telegram admin ping (never breaks the request) — so new
+    # feedback is noticed immediately instead of sitting unseen in the DB.
+    # notify_admin() returns False (no raise) when the bot is unconfigured.
+    try:
+        from distribution.telegram_client import notify_admin
+
+        pay = {"yes": "✅ öder", "maybe": "🤔 belki", "no": "❌ ödemez"}.get(
+            body.q3.strip().lower(), body.q3 or "-"
+        )
+        snippet = (body.q1 or body.q2 or "").strip().replace("\n", " ")[:180]
+        notify_admin(
+            f"📝 Yeni demo yorumu (#{fid})\nÖdeme niyeti: {pay}\nKaynak: {body.source}\n"
+            f"“{snippet}”"
+        )
+    except Exception as exc:  # pragma: no cover - notification must not break feedback
+        logger.warning("demo feedback admin notify failed: %s", exc)
+
     return {"status": "ok", "id": fid}
 
 

@@ -71,6 +71,21 @@ def _notify_waitlist_signup(email: str, source: str) -> None:
             server.send_message(message)
 
 
+def _notify_admin_telegram(summary: str) -> None:
+    """Best-effort Telegram admin ping via the existing distribution bot.
+
+    Never raises — a failed notification must not break the sign-up request.
+    notify_admin() itself returns False (no raise) when the bot/admin is
+    unconfigured, so this is safe even without Telegram set up.
+    """
+    try:
+        from distribution.telegram_client import notify_admin
+
+        notify_admin(summary)
+    except Exception as exc:  # pragma: no cover - notification must not break signup
+        logger.warning("waitlist admin telegram notify failed: %s", exc)
+
+
 @router.post("/waitlist", status_code=201)
 def join_waitlist(body: WaitlistRequest):
     """Add an email to the waitlist. Idempotent — re-joining returns 200."""
@@ -120,6 +135,12 @@ def join_waitlist(body: WaitlistRequest):
         _notify_waitlist_signup(email, body.source)
     except Exception as exc:  # pragma: no cover - notification must not break signup
         logger.warning("waitlist email notification failed: %s", exc)
+
+    # Telegram admin ping (best-effort) — so a new signup is noticed immediately
+    # even when SMTP is not configured. Uses the existing distribution bot.
+    _notify_admin_telegram(
+        f"📧 Yeni waitlist kaydı\nE-posta: {email}\nKaynak: {body.source}\nToplam: {len(entries)}"
+    )
 
     logger.info("Waitlist signup: email=<redacted> source=%s total=%d", body.source, len(entries))
     return {"status": "ok", "position": len(entries)}
