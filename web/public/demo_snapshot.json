@@ -1,43 +1,42 @@
 {
  "schema": 2,
- "snapshot_id": "f2cf65fe95fc9304b656fb80",
- "candidate_hash": "a60e5265bade25ff17c71f862b15cc59f6fb06e73182899f60127308ab15b645",
+ "snapshot_id": "8590ec156121d930192f8239",
+ "candidate_hash": "4bc883e7263ddc9b562155d9ed8053bf682d31c0415327aad7f569d65d7778cf",
  "scan_id": "b4c000d97cad89c1f67db8ec",
- "date": "2026-08-03",
- "generated_at": "2026-08-03T12:52:41.214700+00:00",
- "config_sha": "02083976983a@717f97c",
+ "date": "2026-08-04",
+ "generated_at": "2026-08-04T11:06:02.020406+00:00",
+ "config_sha": "25a6450e5211@ff17249",
  "universe": 1812,
  "scan_result_count": 1801,
- "eligible_candidate_count": 4,
+ "eligible_candidate_count": 2,
  "candidates": [
   {
-   "ticker": "DXCM",
-   "company": "DexCom, Inc.",
-   "grade": "C",
-   "prob_band": "~50%",
+   "ticker": "NBIS",
+   "company": "Nebius Group N.V. Class A",
+   "grade": "B",
+   "prob_band": "~60%",
    "badges": [
-    "rvol",
     "gap",
     "momentum",
     "regime"
    ],
-   "rationale": "DXCM was newly added to the watch list. Trading activity sits above average; growing interest usually shows up in volume before it shows up in price. Also, overnight developments carried the price up at the open; openings like this can indicate growing interest. On top of that, recent sessions point upward — price looks driven by demand rather than selling pressure. Adding to the picture, the broad market leans bullish; the individual signal combines with a supportive backdrop. Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
+   "rationale": "NBIS stood out in today's scan. The reason: it opened well above the prior close — a sign of demand that built up overnight. Also, price has been trending steadily higher in recent days — short-term momentum works in the signal's favour. On top of that, the market regime reads as supportive; the same signal would mean far less in a weak market. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
    "premium_only": false,
    "metrics": {
-    "price": 83.46,
-    "conviction_prob": 0.52,
+    "price": 212.16,
+    "conviction_prob": 0.59,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
     "momentum_bias": "bullish",
-    "momentum_3d_pct": 11.49,
-    "volume_multiple": 3.17,
-    "ema_gap_pct": 4.92
+    "momentum_3d_pct": 43.55,
+    "volume_multiple": 1.19,
+    "ema_gap_pct": 25.34
    },
    "rationale_i18n": {
-    "tr": "DXCM izleme listesine yeni eklendi. İşlem aktivitesi ortalamanın üstünde seyrediyor; artan ilgi çoğu zaman fiyattan önce hacimde görünür. Ayrıca seans dışı gelişmeler fiyatı açılışta yukarı taşıdı; bu tür açılışlar artan ilginin göstergesi olabilir. Üstelik son seansların yönü yukarı — fiyat, satış baskısından çok talebin kontrolünde görünüyor. Buna ek olarak piyasa geneli yükseliş tarafında; tekil sinyal, destekleyici bir arka planla birleşiyor. Bu üç işaret birlikte, fiyat hareketinin yalnızca tek günlük bir sıçrama olmadığını ve destekleyici piyasa arka planında artan katılımla izlendiğini düşündürüyor; devamlılık ise henüz doğrulanmış değil. Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-    "en": "DXCM was newly added to the watch list. Trading activity sits above average; growing interest usually shows up in volume before it shows up in price. Also, overnight developments carried the price up at the open; openings like this can indicate growing interest. On top of that, recent sessions point upward — price looks driven by demand rather than selling pressure. Adding to the picture, the broad market leans bullish; the individual signal combines with a supportive backdrop. Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
-    "de": "DXCM wurde neu zur Beobachtungsliste hinzugefügt. Die Handelsaktivität liegt über dem Durchschnitt; wachsendes Interesse zeigt sich meist zuerst im Volumen, dann im Kurs. Außerdem: Entwicklungen außerhalb der Handelszeit trugen den Kurs zur Eröffnung nach oben; solche Eröffnungen können auf wachsendes Interesse hindeuten. Zudem: die letzten Sitzungen weisen nach oben — der Kurs wirkt eher von Nachfrage als von Verkaufsdruck getragen. Darüber hinaus: der Gesamtmarkt neigt nach oben; das Einzelsignal verbindet sich mit einem unterstützenden Umfeld. Zusammen deuten diese drei Signale darauf hin, dass die Bewegung mehr als ein Sprung an einem Tag ist und bei steigender Beteiligung in einem unterstützenden Marktumfeld beobachtet wird; ihre Dauer ist noch nicht bestätigt. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+    "tr": "NBIS bugünkü taramada öne çıktı. Nedeni şu: güne önceki kapanışın belirgin üzerinde başladı — gece boyunca biriken talebin işareti. Ayrıca fiyat son günlerde istikrarlı biçimde yukarı eğilimli — kısa vadeli ivme sinyalin lehine. Üstelik piyasa rejimi destekleyici okunuyor; aynı sinyal zayıf bir piyasada çok daha az anlam taşırdı. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+    "en": "NBIS stood out in today's scan. The reason: it opened well above the prior close — a sign of demand that built up overnight. Also, price has been trending steadily higher in recent days — short-term momentum works in the signal's favour. On top of that, the market regime reads as supportive; the same signal would mean far less in a weak market. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
+    "de": "NBIS stach im heutigen Scan hervor. Der Grund: die Aktie eröffnete deutlich über dem Vortagesschluss — ein Zeichen für über Nacht aufgebaute Nachfrage. Außerdem: der Kurs tendiert in den letzten Tagen stetig aufwärts — das kurzfristige Momentum spricht für das Signal. Zudem: das Marktregime liest sich unterstützend; dasselbe Signal würde in einem schwachen Markt weit weniger bedeuten. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
    },
    "risk_note_i18n": {
     "tr": "gapli açılışlar kısmen geri dolabilir — ilk saatler yanıltıcı olabilir",
@@ -46,111 +45,43 @@
    }
   },
   {
-   "ticker": "GOOG",
-   "company": "Alphabet Inc. Class C Capital Stock",
+   "ticker": "BA",
+   "company": "Boeing Company",
    "grade": "C",
    "prob_band": "~50%",
    "badges": [
     "momentum",
     "regime"
    ],
-   "rationale": "GOOG was newly added to the watch list. The short-term price trend is lively; whether the momentum holds will become clear over the coming days. Adding to the picture, the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
+   "rationale": "BA is on the list as an early-stage candidate. What puts it there is clear: short-term momentum is positive; the move is an ongoing trend, not a one-day spike. Another detail: the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
    "premium_only": false,
    "metrics": {
-    "price": 355.7,
+    "price": 233.41,
     "conviction_prob": 0.52,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
     "momentum_bias": "bullish",
-    "momentum_3d_pct": 7.24,
-    "volume_multiple": 1.39,
-    "ema_gap_pct": 7.39
+    "momentum_3d_pct": 9.06,
+    "volume_multiple": 1.22,
+    "ema_gap_pct": -0.17
    },
    "rationale_i18n": {
-    "tr": "GOOG izleme listesine yeni eklendi. Fiyat eğilimi kısa vadede diri; ivmenin korunup korunmadığı önümüzdeki günlerde netleşecek. Buna ek olarak makro ortam sinyalle aynı yönde — bu, tekil hisse hareketlerinin devam etme olasılığını artıran bir etken. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Asıl merak noktası bundan sonra: bu ilgi devam edecek mi, yoksa kısa bir hareket olarak mı kalacak? İzleme amaçlıdır; değerlendirme ve risk tamamen senin kontrolünde.",
-    "en": "GOOG was newly added to the watch list. The short-term price trend is lively; whether the momentum holds will become clear over the coming days. Adding to the picture, the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
-    "de": "GOOG wurde neu zur Beobachtungsliste hinzugefügt. Der kurzfristige Kurstrend ist lebhaft; ob das Momentum hält, zeigt sich in den kommenden Tagen. Darüber hinaus: das Makroumfeld weist in dieselbe Richtung wie das Signal — ein Faktor, der die Chance auf Fortsetzung erhöht. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
+    "tr": "BA, erken aşamada bir aday olarak listede. Öne çıkaran etkenler açık: kısa vadeli momentum pozitif; hareket tek günlük bir sıçrama değil, süregelen bir eğilim. Bir başka detay: makro ortam sinyalle aynı yönde — bu, tekil hisse hareketlerinin devam etme olasılığını artıran bir etken. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+    "en": "BA is on the list as an early-stage candidate. What puts it there is clear: short-term momentum is positive; the move is an ongoing trend, not a one-day spike. Another detail: the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
+    "de": "BA steht als Kandidat im Frühstadium auf der Liste. Was es dorthin bringt, ist klar: das kurzfristige Momentum ist positiv; die Bewegung ist ein anhaltender Trend, kein Ein-Tages-Sprung. Ein weiteres Detail: das Makroumfeld weist in dieselbe Richtung wie das Signal — ein Faktor, der die Chance auf Fortsetzung erhöht. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
    },
    "risk_note_i18n": {
     "tr": "erken aşama profili: sinyal henüz olgunlaşmamış olabilir",
     "en": "an early-stage profile: the signal may not be mature yet",
     "de": "ein Profil im Frühstadium: das Signal ist womöglich noch nicht ausgereift"
    }
-  },
-  {
-   "ticker": "GOOGL",
-   "company": "Alphabet Inc. Class A",
-   "grade": "C",
-   "prob_band": "~50%",
-   "badges": [
-    "momentum",
-    "regime"
-   ],
-   "rationale": "GOOGL was newly added to the watch list. Recent sessions point upward — price looks driven by demand rather than selling pressure. On top of that, the broad market environment supports setups like this — the stock is moving with the wind, not against it. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
-   "premium_only": false,
-   "metrics": {
-    "price": 355.13,
-    "conviction_prob": 0.52,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": 6.68,
-    "volume_multiple": 1.29,
-    "ema_gap_pct": 7.52
-   },
-   "rationale_i18n": {
-    "tr": "GOOGL izleme listesine yeni eklendi. Son seansların yönü yukarı — fiyat, satış baskısından çok talebin kontrolünde görünüyor. Üstelik genel piyasa ortamı bu tür kurulumları destekliyor — hisse rüzgara karşı değil, rüzgarla birlikte hareket ediyor. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
-    "en": "GOOGL was newly added to the watch list. Recent sessions point upward — price looks driven by demand rather than selling pressure. On top of that, the broad market environment supports setups like this — the stock is moving with the wind, not against it. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
-    "de": "GOOGL wurde neu zur Beobachtungsliste hinzugefügt. Die letzten Sitzungen weisen nach oben — der Kurs wirkt eher von Nachfrage als von Verkaufsdruck getragen. Zudem: das breite Marktumfeld stützt solche Konstellationen — die Aktie bewegt sich mit dem Wind, nicht dagegen. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
-   },
-   "risk_note_i18n": {
-    "tr": "izleme-aşaması adayı — teyit basamakları henüz tamamlanmadı",
-    "en": "a watch-stage candidate — confirmation rungs are not complete",
-    "de": "ein Kandidat in der Beobachtungsphase — die Bestätigungsstufen sind noch nicht abgeschlossen"
-   }
-  },
-  {
-   "ticker": "AMZN",
-   "company": "Amazon.com, Inc.",
-   "grade": "C",
-   "prob_band": "~50%",
-   "badges": [
-    "rvol",
-    "gap",
-    "momentum",
-    "regime"
-   ],
-   "rationale": "AMZN entered the radar today. The reason: money flow has quickened compared with recent days — a sign the signal is more than a price wiggle. Another detail: the opening price broke clearly away from the previous day; intraday behaviour is worth watching closely because of it. Also, recent sessions point upward — price looks driven by demand rather than selling pressure. On top of that, the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
-   "premium_only": false,
-   "metrics": {
-    "price": 271.465,
-    "conviction_prob": 0.52,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": 17.65,
-    "volume_multiple": 2.35,
-    "ema_gap_pct": 2.89
-   },
-   "rationale_i18n": {
-    "tr": "AMZN bugün radara girdi. Nedeni şu: para akışı son günlere göre hızlanmış — bu, sinyalin yalnızca fiyat oynaması olmadığını gösteriyor. Bir başka detay: açılış fiyatı önceki günden belirgin şekilde ayrıştı; gün içi davranış bu yüzden yakından izlenmeye değer. Ayrıca son seansların yönü yukarı — fiyat, satış baskısından çok talebin kontrolünde görünüyor. Üstelik makro ortam sinyalle aynı yönde — bu, tekil hisse hareketlerinin devam etme olasılığını artıran bir etken. Bu üç işaret birlikte, fiyat hareketinin yalnızca tek günlük bir sıçrama olmadığını ve destekleyici piyasa arka planında artan katılımla izlendiğini düşündürüyor; devamlılık ise henüz doğrulanmış değil. Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-    "en": "AMZN entered the radar today. The reason: money flow has quickened compared with recent days — a sign the signal is more than a price wiggle. Another detail: the opening price broke clearly away from the previous day; intraday behaviour is worth watching closely because of it. Also, recent sessions point upward — price looks driven by demand rather than selling pressure. On top of that, the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
-    "de": "AMZN tauchte heute auf dem Radar auf. Der Grund: der Geldfluss hat sich gegenüber den letzten Tagen beschleunigt — ein Zeichen, dass das Signal mehr ist als ein Kurszucken. Ein weiteres Detail: der Eröffnungskurs setzte sich deutlich vom Vortag ab; das Intraday-Verhalten ist deshalb genau zu beobachten. Außerdem: die letzten Sitzungen weisen nach oben — der Kurs wirkt eher von Nachfrage als von Verkaufsdruck getragen. Zudem: das Makroumfeld weist in dieselbe Richtung wie das Signal — ein Faktor, der die Chance auf Fortsetzung erhöht. Zusammen deuten diese drei Signale darauf hin, dass die Bewegung mehr als ein Sprung an einem Tag ist und bei steigender Beteiligung in einem unterstützenden Marktumfeld beobachtet wird; ihre Dauer ist noch nicht bestätigt. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
-   },
-   "risk_note_i18n": {
-    "tr": "açılış boşluğu her zaman kalıcı değildir; gün içi geri çekilme olağandır",
-    "en": "opening gaps are not always durable; intraday give-backs are common",
-    "de": "Eröffnungslücken sind nicht immer beständig; Rücksetzer im Tagesverlauf sind normal"
-   }
   }
  ],
  "web_context": [
   {
-   "ticker": "FIVN",
-   "company": "Five9, Inc.",
+   "ticker": "JACK",
+   "company": "Jack In The Box Inc.",
    "public_status": "scan_context",
    "rank": 1,
    "prob_band": "—",
@@ -158,24 +89,24 @@
     "rvol",
     "regime"
    ],
-   "rationale": "FIVN sits near the top of today's scan. Three-day momentum is mixed (+1.35%) and volume is 2.19x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "JACK sits near the top of today's scan. Three-day momentum is mixed (+3.35%) and volume is 2.00x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "FIVN, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+1.35%) ve hacim kendi ortalamasının 2.19 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "FIVN sits near the top of today's scan. Three-day momentum is mixed (+1.35%) and volume is 2.19x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "JACK, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+3.35%) ve hacim kendi ortalamasının 2.00 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "JACK sits near the top of today's scan. Three-day momentum is mixed (+3.35%) and volume is 2.00x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 27.49,
+    "price": 16.97,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 74.513,
-    "legacy_quality_score": 74.513,
+    "ranking_score": 72.948,
+    "legacy_quality_score": 72.948,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 1.35,
-    "volume_multiple": 2.19,
-    "ema_gap_pct": 11.59
+    "momentum_3d_pct": 3.35,
+    "volume_multiple": 2,
+    "ema_gap_pct": -5.29
    }
   },
   {
@@ -188,61 +119,60 @@
     "rvol",
     "regime"
    ],
-   "rationale": "FATN sits near the top of today's scan. Three-day momentum is mixed (+19.48%) and volume is 2.90x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "FATN sits near the top of today's scan. Three-day momentum is mixed (+32.75%) and volume is 2.33x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "FATN, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+19.48%) ve hacim kendi ortalamasının 2.90 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "FATN sits near the top of today's scan. Three-day momentum is mixed (+19.48%) and volume is 2.90x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "FATN, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+32.75%) ve hacim kendi ortalamasının 2.33 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "FATN sits near the top of today's scan. Three-day momentum is mixed (+32.75%) and volume is 2.33x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 6.165,
+    "price": 6.85,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 72.999,
-    "legacy_quality_score": 72.999,
+    "ranking_score": 70.195,
+    "legacy_quality_score": 70.195,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 19.48,
-    "volume_multiple": 2.9,
-    "ema_gap_pct": 19.99
+    "momentum_3d_pct": 32.75,
+    "volume_multiple": 2.33,
+    "ema_gap_pct": 22.31
    }
   },
   {
-   "ticker": "AMBA",
-   "company": "Ambarella, Inc.",
+   "ticker": "APPF",
+   "company": "AppFolio, Inc. Class A",
    "public_status": "scan_context",
    "rank": 3,
    "prob_band": "—",
    "badges": [
     "rvol",
-    "gap",
     "momentum",
     "regime"
    ],
-   "rationale": "AMBA sits near the top of today's scan. Three-day momentum is upward (+24.60%) and volume is 3.64x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "APPF sits near the top of today's scan. Three-day momentum is upward (+2.73%) and volume is 1.80x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "AMBA, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+24.60%) ve hacim kendi ortalamasının 3.64 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "AMBA sits near the top of today's scan. Three-day momentum is upward (+24.60%) and volume is 3.64x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "APPF, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+2.73%) ve hacim kendi ortalamasının 1.80 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "APPF sits near the top of today's scan. Three-day momentum is upward (+2.73%) and volume is 1.80x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 85.91,
+    "price": 191.75,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 71.103,
-    "legacy_quality_score": 71.103,
+    "ranking_score": 70.149,
+    "legacy_quality_score": 70.149,
     "momentum_bias": "bullish",
-    "momentum_3d_pct": 24.6,
-    "volume_multiple": 3.64,
-    "ema_gap_pct": -0.5
+    "momentum_3d_pct": 2.73,
+    "volume_multiple": 1.8,
+    "ema_gap_pct": -8.26
    }
   },
   {
-   "ticker": "ILMN",
-   "company": "Illumina, Inc.",
+   "ticker": "ROK",
+   "company": "Rockwell Automation, Inc.",
    "public_status": "scan_context",
    "rank": 4,
    "prob_band": "—",
@@ -250,119 +180,120 @@
     "rvol",
     "regime"
    ],
-   "rationale": "ILMN sits near the top of today's scan. Three-day momentum is mixed (+6.27%) and volume is 2.12x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "ROK sits near the top of today's scan. Three-day momentum is mixed (+4.73%) and volume is 2.21x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "ILMN, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+6.27%) ve hacim kendi ortalamasının 2.12 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "ILMN sits near the top of today's scan. Three-day momentum is mixed (+6.27%) and volume is 2.12x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "ROK, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+4.73%) ve hacim kendi ortalamasının 2.21 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "ROK sits near the top of today's scan. Three-day momentum is mixed (+4.73%) and volume is 2.21x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 205.1,
+    "price": 480.985,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 70.37,
-    "legacy_quality_score": 70.37,
+    "ranking_score": 69.757,
+    "legacy_quality_score": 69.757,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 6.27,
-    "volume_multiple": 2.12,
-    "ema_gap_pct": 22.66
+    "momentum_3d_pct": 4.73,
+    "volume_multiple": 2.21,
+    "ema_gap_pct": 10.06
    }
   },
   {
-   "ticker": "TIGO",
-   "company": "Millicom International Cellular S.A.",
+   "ticker": "ONL",
+   "company": "Orion Properties Inc.",
    "public_status": "scan_context",
    "rank": 5,
-   "prob_band": "—",
-   "badges": [
-    "rvol",
-    "regime"
-   ],
-   "rationale": "TIGO sits near the top of today's scan. Three-day momentum is mixed (-0.19%) and volume is 2.06x its own average. This is scan context, not a Grade A/B/C candidate.",
-   "rationale_i18n": {
-    "tr": "TIGO, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-0.19%) ve hacim kendi ortalamasının 2.06 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "TIGO sits near the top of today's scan. Three-day momentum is mixed (-0.19%) and volume is 2.06x its own average. This is scan context, not a Grade A/B/C candidate."
-   },
-   "premium_only": false,
-   "metrics": {
-    "price": 95.48,
-    "conviction_prob": 0,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "ranking_score": 69.969,
-    "legacy_quality_score": 69.969,
-    "momentum_bias": "neutral",
-    "momentum_3d_pct": -0.19,
-    "volume_multiple": 2.06,
-    "ema_gap_pct": 21.49
-   }
-  },
-  {
-   "ticker": "AMCX",
-   "company": "AMC Global Media Inc. Class A",
-   "public_status": "scan_context",
-   "rank": 6,
    "prob_band": "—",
    "badges": [
     "rvol",
     "momentum",
     "regime"
    ],
-   "rationale": "AMCX sits near the top of today's scan. Three-day momentum is upward (+9.21%) and volume is 4.58x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "ONL sits near the top of today's scan. Three-day momentum is upward (+3.40%) and volume is 2.08x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "AMCX, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+9.21%) ve hacim kendi ortalamasının 4.58 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "AMCX sits near the top of today's scan. Three-day momentum is upward (+9.21%) and volume is 4.58x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "ONL, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+3.40%) ve hacim kendi ortalamasının 2.08 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "ONL sits near the top of today's scan. Three-day momentum is upward (+3.40%) and volume is 2.08x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 11.21,
+    "price": 2.74,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 68.753,
-    "legacy_quality_score": 68.753,
+    "ranking_score": 69.609,
+    "legacy_quality_score": 69.609,
     "momentum_bias": "bullish",
-    "momentum_3d_pct": 9.21,
-    "volume_multiple": 4.58,
-    "ema_gap_pct": 11.38
+    "momentum_3d_pct": 3.4,
+    "volume_multiple": 2.08,
+    "ema_gap_pct": 5.35
    }
   },
   {
-   "ticker": "KRYS",
-   "company": "Krystal Biotech, Inc.",
+   "ticker": "SYY",
+   "company": "Sysco Corporation",
+   "public_status": "scan_context",
+   "rank": 6,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "regime"
+   ],
+   "rationale": "SYY sits near the top of today's scan. Three-day momentum is mixed (-0.46%) and volume is 3.07x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "SYY, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-0.46%) ve hacim kendi ortalamasının 3.07 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "SYY sits near the top of today's scan. Three-day momentum is mixed (-0.46%) and volume is 3.07x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 84.89,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 69.076,
+    "legacy_quality_score": 69.076,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": -0.46,
+    "volume_multiple": 3.07,
+    "ema_gap_pct": 2.62
+   }
+  },
+  {
+   "ticker": "ICUI",
+   "company": "ICU Medical, Inc.",
    "public_status": "scan_context",
    "rank": 7,
    "prob_band": "—",
    "badges": [
+    "rvol",
     "regime"
    ],
-   "rationale": "KRYS sits near the top of today's scan. Three-day momentum is downward (-6.35%) and volume is 1.37x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "ICUI sits near the top of today's scan. Three-day momentum is mixed (+3.92%) and volume is 2.43x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "KRYS, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum aşağı (-6.35%) ve hacim kendi ortalamasının 1.37 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "KRYS sits near the top of today's scan. Three-day momentum is downward (-6.35%) and volume is 1.37x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "ICUI, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+3.92%) ve hacim kendi ortalamasının 2.43 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "ICUI sits near the top of today's scan. Three-day momentum is mixed (+3.92%) and volume is 2.43x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 341.08,
+    "price": 172.97,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 67.916,
-    "legacy_quality_score": 67.916,
-    "momentum_bias": "bearish",
-    "momentum_3d_pct": -6.35,
-    "volume_multiple": 1.37,
-    "ema_gap_pct": 19.46
+    "ranking_score": 68.773,
+    "legacy_quality_score": 68.773,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 3.92,
+    "volume_multiple": 2.43,
+    "ema_gap_pct": 9.06
    }
   },
   {
-   "ticker": "HQI",
-   "company": "HireQuest, Inc. Common Stock (DE)",
+   "ticker": "SELF",
+   "company": "Global Self Storage, Inc.",
    "public_status": "scan_context",
    "rank": 8,
    "prob_band": "—",
@@ -370,29 +301,29 @@
     "rvol",
     "regime"
    ],
-   "rationale": "HQI sits near the top of today's scan. Three-day momentum is mixed (+1.20%) and volume is 3.80x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "SELF sits near the top of today's scan. Three-day momentum is mixed (+2.49%) and volume is 5.64x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "HQI, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+1.20%) ve hacim kendi ortalamasının 3.80 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "HQI sits near the top of today's scan. Three-day momentum is mixed (+1.20%) and volume is 3.80x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "SELF, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+2.49%) ve hacim kendi ortalamasının 5.64 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "SELF sits near the top of today's scan. Three-day momentum is mixed (+2.49%) and volume is 5.64x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 13.26,
+    "price": 5.19,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 67.798,
-    "legacy_quality_score": 67.798,
+    "ranking_score": 67.608,
+    "legacy_quality_score": 67.608,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 1.2,
-    "volume_multiple": 3.8,
-    "ema_gap_pct": 12.19
+    "momentum_3d_pct": 2.49,
+    "volume_multiple": 5.64,
+    "ema_gap_pct": 0.28
    }
   },
   {
-   "ticker": "IEP",
-   "company": "Icahn Enterprises, L.P.",
+   "ticker": "ARTV",
+   "company": "Artiva Biotherapeutics, Inc.",
    "public_status": "scan_context",
    "rank": 9,
    "prob_band": "—",
@@ -400,29 +331,29 @@
     "rvol",
     "regime"
    ],
-   "rationale": "IEP sits near the top of today's scan. Three-day momentum is mixed (-0.45%) and volume is 2.23x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "ARTV sits near the top of today's scan. Three-day momentum is mixed (+7.50%) and volume is 1.61x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "IEP, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-0.45%) ve hacim kendi ortalamasının 2.23 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "IEP sits near the top of today's scan. Three-day momentum is mixed (-0.45%) and volume is 2.23x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "ARTV, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+7.50%) ve hacim kendi ortalamasının 1.61 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "ARTV sits near the top of today's scan. Three-day momentum is mixed (+7.50%) and volume is 1.61x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 7.785,
+    "price": 10.75,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 66.871,
-    "legacy_quality_score": 66.871,
+    "ranking_score": 67.427,
+    "legacy_quality_score": 67.427,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": -0.45,
-    "volume_multiple": 2.23,
-    "ema_gap_pct": -2.83
+    "momentum_3d_pct": 7.5,
+    "volume_multiple": 1.61,
+    "ema_gap_pct": 31.91
    }
   },
   {
-   "ticker": "CURV",
-   "company": "Torrid Holdings Inc.",
+   "ticker": "ACNT",
+   "company": "Ascent Industries Co.",
    "public_status": "scan_context",
    "rank": 10,
    "prob_band": "—",
@@ -430,33 +361,39 @@
     "rvol",
     "regime"
    ],
-   "rationale": "CURV sits near the top of today's scan. Three-day momentum is mixed (-5.93%) and volume is 1.64x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "ACNT sits near the top of today's scan. Three-day momentum is mixed (+0.74%) and volume is 2.83x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "CURV, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-5.93%) ve hacim kendi ortalamasının 1.64 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "CURV sits near the top of today's scan. Three-day momentum is mixed (-5.93%) and volume is 1.64x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "ACNT, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+0.74%) ve hacim kendi ortalamasının 2.83 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "ACNT sits near the top of today's scan. Three-day momentum is mixed (+0.74%) and volume is 2.83x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 2.54,
+    "price": 15.56,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 66.665,
-    "legacy_quality_score": 66.665,
+    "ranking_score": 66.355,
+    "legacy_quality_score": 66.355,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": -5.93,
-    "volume_multiple": 1.64,
-    "ema_gap_pct": 23.23
+    "momentum_3d_pct": 0.74,
+    "volume_multiple": 2.83,
+    "ema_gap_pct": 3.66
    }
   }
  ],
  "karne": {
-  "by_grade": {},
+  "by_grade": {
+   "C": {
+    "n": 2,
+    "hit_rate": 0.0,
+    "avg_pnl": -6.628
+   }
+  },
   "window": "last 30d, matured ≥30d",
   "raw": true,
   "source": "db",
-  "tracked_total": 5727,
+  "tracked_total": 5731,
   "overall": {
    "n": 5206,
    "hit_rate": 0.301,
@@ -465,14 +402,15 @@
    "avg_pnl": 0.398
   },
   "toplam_aday_bugun": {
-   "C": 4
+   "B": 1,
+   "C": 1
   }
  },
  "warnings": [],
  "concept": {
-  "name": "Base Rate",
-  "line": "How often an event happens with no filtering at all; every signal is judged against this baseline."
+  "name": "Lift",
+  "line": "A signal's hit rate divided by the base rate; above 1 means the filter genuinely adds something."
  },
  "context_line": "Regime: neutral (VIX 17)",
- "edition_no": 8
+ "edition_no": 9
 }
