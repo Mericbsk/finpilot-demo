@@ -1,6 +1,47 @@
 # FinPilot — Merkezi Karar Logu
+
 _CLAUDE.md Bölüm 3 formatı: her önemli karar buraya, dağınık dosyalara gömülmez._
 _Not (düzeltildi 2026-07-29): docs/INDEX.md 2026-07-24'te zaten gerçek indekse dönüştürülmüştü; bu satır o tarihten sonra güncellenmemiş bayat bir notu tekrarlıyordu. 2026-07-29'da INDEX.md'ye ayrıca makine-okunur bir manifest eklendi (bkz. aşağıdaki girdi)._
+
+[2026-07-31] — Edge araştırması: dürüst-metrikte tradeable alfa yok + resolved_pct_t5 P0-bozuk (Level A, bulgu)
+Layer: Research / quant
+Level: A
+Bağlam: FINPILOT RESEARCH master prompt — "skor gerçekte neyi ölçüyor?" bilimsel olarak araştırıldı.
+Bulgular (hepsi kanıtlı, IS/OOS ve dürüst metrikle):
+- `edge_recheck.py` (yeni, izole) tüm evreni (53.754 satır) price_cache'ten GERÇEKLEŞEN kapanış-kapanış + triple-barrier (cost'lu) ile yeniden hesapladı.
+- METRİK DENETİMİ: ATR↔resolved_pct_t5(enriched) +0.40 vs ATR↔gerçekleşen c2c +0.01. `resolved_pct_t5` MFE (en-iyi-durum) izliyor, gerçekleşen getiriyi değil → "ATR edge" %100 metrik artefaktı.
+- SKOR TESTİ (dürüst): composite_score IC −0.03 (kırık), finpilot_score +0.03 (ihmal, rejim-kararsız: bull +0.055/bear −0.093), ATR ~0/negatif. Cost sonrası evren medyanı ≈0; triple-barrier −0.95.
+- ARAMA: 2-faktör 74 kombo (0 stabil) + 4000-konfig ağırlık optimizasyonu (add/remove/invert/reweight, IS/OOS) → hiçbir konfig baseline'ı stabil geçmedi; IS-en iyi OOS'ta şans (%44).
+Etki: Üretim skoru/scanner/entry-exit/risk/canlı yüzey DEĞİŞMEDİ (yalnız analiz). İKİ P0 SONUÇ: (1) `resolved_pct_t5` MFE-bozuk → bu metriğe dayanan TÜM geçmiş "edge" iddiaları yeniden temellenmeli; (2) mevcut günlük-bar faktör setinde doğrulanmış tradeable alfa YOK → ilerlemek recombination değil YENİ veri/faktör ya da değer önermesini karar-destek/eğitime kaydırma gerektirir.
+Durum: uygulandı — Level A (araştırma bulgusu). Kanıt: `docs/2026-07-31-FinPilot-Research-skorun-anlami-RAPOR.md`, `edge_recheck.py`, `data/backtest_out/edge_recheck.csv`.
+
+---
+
+[2026-07-30] - Sinyal izleme shadow scorecard altyapısı (Level A, uygulandı)
+Layer: Research / engineering
+Level: A
+Bağlam: `docs/2026-07-29-sinyal-izleme-gelistirme-UCTAN-UCA-plan.md` offline kontrol grubu, horizon sweep, dağılım yüzdelikleri, SPY excess return, ATR-normalize getiri, segment alanları ve risk-ayarlı özetler öngörüyor. Faz 0 kontrolünde `data/price_cache` benchmark dahil `2026-06-30` tarihinde bitiyor; mevcut 107 dedup sinyalin tamamı olgunlaşmamış kaldı.
+Değişiklik (önce/sonra): Önce `shadow_scorecard.py` yalnız seçilmiş satırları ve model bariyer sonuçlarını özetliyordu; sonra kontrol satırlarını opsiyonel dahil eden, model-bağımsız ileri getiri/MFE, horizon sweep, red nedeni, ADV/veri kalite segmentleri, SPY excess return, p10/medyan/p90, Sharpe-benzeri metrik ve deterministik bootstrap aralığı üreten izole altyapı eklendi. `tests/test_shadow_scorecard.py` sentetik sözleşmeleri doğruluyor.
+Etki: Scanner skorları, filtreler, entry/exit kuralları, risk boyutlandırması ve canlı Karne/web yüzeyi değişmedi. Cache yenilenene kadar gerçek performans sonucu üretilmemeli; mevcut çalışma yalnız altyapı ve veri-yeterlilik bulgusudur. Faz 4b Level B olarak bu kaydın kapsamında değildir.
+Durum: uygulandı — Level A. Kanıt: `python -m pytest tests/test_shadow_scorecard.py -q` (3 passed); baseline CLI (`--dedup`) 107/107 pending.
+
+---
+
+[2026-07-29] — Waitlist + demo feedback endpoint'lerine Telegram admin bildirimi (Level B, uygulandı)
+Layer: Engineering / product distribution
+Bağlam: Web yüzü denetimi (`docs/2026-07-29-web-yuzu-DENETIM-raporu.md`) waitlist ve demo feedback formlarının gerçek ve uçtan uca bağlı olduğunu, ama yeni kayıt/yorum geldiğinde hiçbir bildirim gitmediğini kanıtladı: waitlist SMTP yapılandırılmamış (`_notify_waitlist_signup` "skipped" logluyor), feedback yalnız SQLite'a yazıyor. Sonuç: gönderimler fark edilmeden birikiyordu.
+Değişiklik: `api/routers/waitlist_signup.py` (yeni `_notify_admin_telegram` helper + signup sonrası ping: e-posta/kaynak/toplam) ve `api/routers/demo_feedback.py` (feedback kaydı sonrası ping: ödeme niyeti + yorum özeti) mevcut `distribution.telegram_client.notify_admin` altyapısına bağlandı. İkisi de try/except best-effort — bildirim hatası isteği bozmaz; `notify_admin` yapılandırma yoksa False döner (raise etmez). Scanner/skor/veri saklama/mevcut SMTP akışı değişmedi (yalnız ekleme — CORE-009).
+Etki: Yeni waitlist kaydı / demo yorumu anında Telegram admin'e düşer (`TELEGRAM_BOT_TOKEN`+`TELEGRAM_ADMIN_ID` gerektirir; `.env`'de mevcut). 4/4 birim testi geçti: ping içeriği doğru, boş feedback ping atmıyor, `notify_admin` patlasa bile istek OK. `py_compile` temiz. Canlı deploy yapılmadı.
+Durum: uygulandı — Level B; Meriç onayı alındı (2026-07-29). Canlı deploy kararı bu kaydın kapsamında değildir.
+
+---
+
+[2026-07-29] — Telegram gerekçe katmanına bağlam ve izlenecek sonuç açıklaması (Level B, pending)
+Layer: Content / product distribution
+Bağlam: Günlük Telegram taslağı mevcut faktörleri tek tek açıklıyordu; faktörlerin birlikte neyi düşündürdüğü ve hangi gözlenebilir sonucun izleneceği yeterince açık değildi.
+Değişiklik: `distribution/rationale.py` içindeki deterministik rationale üretimine rozet kombinasyonlarına dayalı sentez cümlesi eklendi. Metin sırasıyla gözlenen nedenleri, bağlamsal birleşimi ve doğrulanmamış açık soruyu ifade ediyor; TR/EN/DE çıktıları korunuyor. Scanner skoru, eşikler, risk, entry/exit ve yayın akışı değişmedi.
+Etki: Telegram ve snapshot rationale metinleri daha açıklayıcı ve bağlamlı oldu; bugünkü önizleme lint'ten geçti. Web public projection artık graded adaylar ve scan-context kayıtlarında `risk_reward`, `stop_loss`, `take_profit` ve `stop_loss_percent` alanlarını dışarıda bırakıyor. Karne API'si HTTP 401 olduğunda mevcut DB fallback notu korunuyor. Canlı Telegram/web yayını yapılmadı.
+Durum: uygulandı — Level B; Meriç onayı alındı (2026-07-29). Canlı yayın kararı bu kaydın kapsamında değildir.
 
 ---
 
@@ -40,7 +81,7 @@ risk&compliance kurali korundu).
 icinde (bu dosya untracked/uncommitted, baska bir es zamanli oturumun WIP'i,
 dokunulmadi); 1'i test_prometheus.py port-bind zamanlamasina dayanan
 environment-bagimli flaky test; 2'si scanner_rollout/test_runtime_baseline.py
-- entry_ok icin score==2 + alignment_ratio>=0.66 durumunda gecerli olmasi
+: entry_ok icin score==2 + alignment_ratio>=0.66 durumunda gecerli olmasi
 beklenen bir gevsetilmis giris kapisi bekliyor ama scanner/evaluate.py'de
 entry_ok = bool(score == 3) sabit kodlanmis. Git log bu test dosyasinin
 sadece 2026-05-05'teki dev bir "thanks" commit'inde eklendigini gosteriyor,
@@ -49,8 +90,8 @@ ozellik ya da gecmiste kaldirilmis bir davranis. Canli sinyal uretim
 mantigini etkiledigi icin urun/quant karari gerekiyor, DOKUNULMADI.
 Dogrulama: 744 passed, 5 failed, 6 skipped (once: 734/15/6), 0 collection
 hatasi, 0 yeni regresyon.
-3E.7 bulgusu genisletildi: yerel .env'de 18 FINPILOT_ENABLE_*/FRED_*/
-SEC_EDGAR_* anahtari var (hepsi kisisel arastirma icin ACIK), .env.example
+3E.7 bulgusu genisletildi: yerel .env'de 18 `FINPILOT_ENABLE_*`/`FRED_*`/
+`SEC_EDGAR_*` anahtari var (hepsi kisisel arastirma icin ACIK), .env.example
 bunlarin hicbirini belgelemiyor, render.yaml sadece 1 tanesini iceriyor.
 .env.example yorumlari bu faktorlerin coğunun "Default OFF, once shadow modda
 olc" seklinde tasarlandigini gosteriyor - yani production'in bunlari
@@ -299,9 +340,11 @@ Durum: uygulandı (Meriç onayı, 2026-07-24) — kod değişikliği gerekmiyor,
 [2026-07-24] — Otomatik bakım işleri erken tek pencereye toplandı (Karar E)
 Bağlam: Zamanlanmış cron işleri gün içine dağılmıştı ve calibration + daily_ops İKİSİ de 23:30 UTC'deydi (çakışma). Manuel yayın (~14:00) ve piyasa (13:30) ile de zamansal yakınlık riski.
 Değişiklik: Tüm sabit-saatli bakım işleri erken sessiz pencereye (UTC 05:00–05:55, Viyana ~07:00) alındı ve kademelendi:
-  - Günlük: calibration 05:00 · daily_ops 05:10
-  - Pazar: research_pipeline 05:20 · ceo_report 05:40
-  - Pazartesi: calibration_retrain 05:20 · resolve_open_signals 05:35 · edge_report 05:55
+
+- Günlük: calibration 05:00 · daily_ops 05:10
+- Pazar: research_pipeline 05:20 · ceo_report 05:40
+- Pazartesi: calibration_retrain 05:20 · resolve_open_signals 05:35 · edge_report 05:55
+
 Aynı gün içinde iki iş aynı dakikada değil; 23:30 çakışması yok; hepsi piyasa+manuel yayından çok önce. Interval işleri (main_cycle/eval/reconcile/drift/auto_approve) coalesce+max_instances=1 ile korunuyor, dokunulmadı.
 Etki alanı: core/scheduler.py CronTrigger saatleri.
 Durum: uygulandı (Meriç onayı, 2026-07-24; py_compile geçti).
@@ -317,35 +360,42 @@ Durum: uygulandı (Meriç onayı, 2026-07-28; py_compile geçti).
 [2026-07-28] — Level-B denetim: 5 KIRMIZI BAYRAK açıldı (pending, P0)
 Kaynak: docs/audits/FinPilot_LevelB_IsPlani_Yayin_Audit_2026-07-28.md
 Statü: AÇIK — her biri sorumlu+tarih atanana dek açık kalır.
-  P0-a) Yasal sayfalar (Impressum + Datenschutz + AGB) YOK — Avusturya yasal zorunluluğu. Sahip: —, Tarih: —
-  P0-b) SMTP sızan şifre rotate edilmedi (güvenlik). Sahip: —, Tarih: —
-  P0-c) Traction ~0 (tg_users=1, feedback=0) — gerçek davet + teslim serisi. Sahip: —, Tarih: —
-  P0-d) Premium/Stripe hiç test edilmedi (gelir=0). Sahip: —, Tarih: —
-  P0-e) Site mesajı "AI stock" (compliance+repositioning riski) → literacy çerçevesi. Sahip: —, Tarih: —
+
+- P0-a) Yasal sayfalar (Impressum + Datenschutz + AGB) YOK — Avusturya yasal zorunluluğu. Sahip: —, Tarih: —
+- P0-b) SMTP sızan şifre rotate edilmedi (güvenlik). Sahip: —, Tarih: —
+- P0-c) Traction ~0 (tg_users=1, feedback=0) — gerçek davet + teslim serisi. Sahip: —, Tarih: —
+- P0-d) Premium/Stripe hiç test edilmedi (gelir=0). Sahip: —, Tarih: —
+- P0-e) Site mesajı "AI stock" (compliance+repositioning riski) → literacy çerçevesi. Sahip: —, Tarih: —
+
 Nihai değerlendirme: kamuya lansman HENÜZ DEĞİL; soft-launch koşullu.
 
 [2026-07-28] — Yayın hattı kararları (Telegram+Web ön-taraması sonrası)
+
 - Web deploy: git commit+push (publish_web.py → WEB_PUBLISH_CMD; REQUIRE_VERCEL_DEPLOY=0). Snapshot git'te izlenir, Vercel push'ta deploy eder.
 - Scan: her sabah elle scan + publish_now (oto-taslak + insan onayı). DISTRIBUTION=0 kalır.
 - Kanal adı @Finpilot_Breif ("Brief" yazım hatası) ŞİMDİLİK KORUNUR — lansmana kadar takipçi sıfırlamamak için; lansman öncesi yeniden değerlendir.
+
 Durum: uygulandı (Meriç kararı, 2026-07-28); publish_web.py eklendi.
 
 [2026-07-29] — Tek-dokunuşla yayın DOĞRULAMA (Faz 1): plan devrede DEĞİL — KOVA C açıldı (pending, P0)
 Faz 1 bulgusu: web-deploy kancası ayarsız, bot-süpervizör dosyaları eksikti, waitlist aynası/admin-key/akademi-export ayarsız, hiçbir uçtan-uca tur doğrulanmadı.
 KOVA C (kapanana dek AÇIK, Faz 3 kilitli):
-  C1) FINPILOT_WEB_PUBLISH_CMD ayarsız → web yayını çalışmaz. Sahip: —, Tarih: —
-  C2) Bot-süpervizör dosyaları eksikti → run_bot.py+start_bot.bat YENİDEN OLUŞTURULDU (bu oturum); startup+gözlem: —
-  C3) WAITLIST_WEBHOOK_URL ayarsız → veri kaybı riski. Sahip: —, Tarih: —
-  C4) SMTP rotasyonu doğrulanamadı (güvenlik P0). Sahip: —, Tarih: —
-  C5) Uçtan-uca tam tur doğrulanmadı → kabul kriteri karşılanmadı. Sahip: —, Tarih: —
+
+- C1) FINPILOT_WEB_PUBLISH_CMD ayarsız → web yayını çalışmaz. Sahip: —, Tarih: —
+- C2) Bot-süpervizör dosyaları eksikti → run_bot.py+start_bot.bat YENİDEN OLUŞTURULDU (bu oturum); startup+gözlem: —
+- C3) WAITLIST_WEBHOOK_URL ayarsız → veri kaybı riski. Sahip: —, Tarih: —
+- C4) SMTP rotasyonu doğrulanamadı (güvenlik P0). Sahip: —, Tarih: —
+- C5) Uçtan-uca tam tur doğrulanmadı → kabul kriteri karşılanmadı. Sahip: —, Tarih: —
 
 [2026-07-29] — Gerçek-makine doğrulama bulguları (kullanıcı denetimi) + kararlar
 Bulgular: (1) .env'de FINPILOT_REQUIRE_VERCEL_DEPLOY İKİ KEZ (=1 ve =0) — çelişki; (2) bot süreçleri zaten çalışıyor (run_bot + telegram_bot_runner) → startup çift-bot/409 riski; (3) DB'ler journal_mode kontrolü yapılmadan hardening YAPILMADI (doğru); (4) komut satırında bir kimlik görüldü → rotasyon önerildi.
 KARARLAR:
-  - REQUIRE_VERCEL_DEPLOY = **0** (tek satır; =1 SİLİNECEK). Neden: git-push deploy tetikler, ayrı hook yok; =1 publish'i "başarısız" sayar. (kod: _push_snapshot_to_web)
-  - Bot: startup'a eklemeden önce TEK poller garanti edilecek (Telegram 409 riski).
-  - DB hardening: yalnız journal_mode=wal ise + süreçler durdurulunca (aksi halde atla; büyük olasılıkla zaten delete).
-  - Kullanıcı Level B/C kapılarında (git push, gerçek yayın, SMTP, Sheet) açık onay olmadan İLERLEMEDİ — governance'a uygun, onaylandı.
+
+- REQUIRE_VERCEL_DEPLOY = **0** (tek satır; =1 SİLİNECEK). Neden: git-push deploy tetikler, ayrı hook yok; =1 publish'i "başarısız" sayar. (kod: _push_snapshot_to_web)
+- Bot: startup'a eklemeden önce TEK poller garanti edilecek (Telegram 409 riski).
+- DB hardening: yalnız journal_mode=wal ise + süreçler durdurulunca (aksi halde atla; büyük olasılıkla zaten delete).
+- Kullanıcı Level B/C kapılarında (git push, gerçek yayın, SMTP, Sheet) açık onay olmadan İLERLEMEDİ — governance'a uygun, onaylandı.
+
 Durum: kararlar kayıtlı; uygulama kullanıcının açık onayıyla, kendi makinesinde.
 
 [2026-07-29] — İçerik/kalite doğrulama (Faz 1): gerçek sayılar + pending Level B/C
@@ -353,3 +403,13 @@ Gerçek sayılar: akademi 6 published/73 draft (rapor 5/39 = bayat); expired=11 
 META: sandbox'ta oluşturulan bazı dosyalar diske ulaşmadı → her değişiklik git commit gerektirir.
 Pending (Level B/C): metodoloji sayfası(B) · akademi yayın hattı(B) · positioning/title(B) · karşı-görüş satırı(B) · yasal sayfalar(C, yeniden oluştur+commit+avukat) · içerik takvimi(B) · evergreen SEO(B).
 Bağımsız görüş: 1 numaralı kalite hamlesi = kesintisiz teslim (tutarlılık); akademi darboğazı yayınlama; okuyucu yokken içerik-zenginliği erken optimizasyon.
+
+---
+
+[2026-08-02] — FinPilot-native Control Center, Claude Cowork ve repo-native ortak beyin önerisi
+Layer: Engineering / Operations / Agent Coordination
+Level: B
+Bağlam: Meriç'in ajanların ne yaptığını, blokajları, bekleyen onayları ve kanıt özetlerini tek yüzeyde izleyeceği bir yönetim kokpiti bulunmuyor. VS Code ana mühendislik ortamı olmasına rağmen ortak Work Item/Handoff task yüzeyi ve workspace konfigürasyonu da yok. GitHub Copilot, Claude Code, Claude Cowork ve FinPilot ürün ajanları aynı proje üzerinde çalışsa da geliştirme ve araştırma işi için ortak `work_item_id`, sahiplik, devir, kanıt ve onay geçişi sözleşmesi bulunmuyor. Mevcut Redis agent state/events kısa ömürlü; signal events ise finansal sinyal yaşam döngüsüne özel. Mevcut Next.js dashboard, auth context, otonomi onay/audit yüzeyi ve FastAPI admin endpoint kalıpları FinPilot-native bir kontrol merkezi için yeniden kullanılabilir.
+Değişiklik (önce/sonra): v0.3 taslağında Buzz Meriç'in Control Cockpit'i olarak önerilmişti. Önerilen v0.4 modelinde FinPilot web uygulamasındaki ayrı ve default-deny `/ops` alanı Meriç'in Control Center'ı; VS Code Engineering Workbench; repo kalıcı Shared Brain / Source of Truth; GitHub Copilot ve Claude Code tek-owner kurallı kod yürütücüleri; Claude Cowork kaynaklı araştırma, doküman/korpus ve operasyon yürütücüsüdür. Work Item + Handoff + Evidence araç-bağımsız sözleşmedir. Control Center önce read-only projeksiyon ve raporlarla açılır; geri yazma yalnız temiz pilot ve ayrı onay sonrasında kimlik doğrulanmış, allowlist'li intent olarak değerlendirilir. Buzz ana cockpit değildir; yalnız ihtiyaç kanıtlanırsa bildirim adaptörü olabilir. Ayrıntılı taslak ve fazlar `docs/2026-08-02-ortak-beyin-handoff-buzz-claude-yol-plani.md` içindedir. Bu kayıt uygulama veya mimari onay değildir.
+Etki: Onaylanırsa yeni şema/CLI, `/ops` layout ve ekranları, Control API/projector/reconciler, kontrol panoları ve raporlar, `.vscode/tasks.json`, sınırlı extension önerileri, Copilot/Claude Code/Claude Cowork protokolü ve CI evidence köprüsü eklenir. Controlled intent ve Local Agent Bridge ayrı ve ayrıca onaylanan kapılardır. Scanner, distribution, publish, risk, secrets, deploy ve broker/emir davranışı bu öneriyle değişmez; bu alanlar mevcut insan kapılarında kalır ve Control Center tarafından çağrılamaz.
+Durum: pending — Level B; Meriç mimari onayı bekleniyor. Uygulama yapılmadı.

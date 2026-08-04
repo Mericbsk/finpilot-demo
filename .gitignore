@@ -54,10 +54,24 @@ _*.txt
 # Credential fragments
 1.txt
 
+data/distribution/preview_*.html
+data/distribution/preview_*.md
+data/distribution/scan_timing.jsonl
 # Model training artifacts (weights tracked externally)
 models/*/
 models/best/
 models/checkpoints/
+
+# Local scorecard and handoff runtime artefacts
+.coverage
+.finpilot/
+data/shadow/scan_shadow.jsonl
+data/shadow/scorecard_history.jsonl
+data/shadow/shadow_scored.csv
+data/shadow/shadow_scorecard.md
+data/shadow/regime_panel.csv
+data/shadow/research_dataset.csv
+data/golden/
 !models/registry.json
 
 # Archive bloat
