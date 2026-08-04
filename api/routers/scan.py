@@ -208,6 +208,17 @@ def _trigger_distribution_draft(universe: int) -> None:
             daemon=True,
             name="dist-draft-trigger",
         ).start()
+
+        # Gölge skor kartını da arka planda güncelle (env-gated, best-effort).
+        # Ayrı süreçte fire-and-forget; scan yanıtını bloklamaz.
+        from distribution.jobs import maybe_run_shadow_scorecard_after_scan
+
+        threading.Thread(
+            target=maybe_run_shadow_scorecard_after_scan,
+            args=(universe,),
+            daemon=True,
+            name="shadow-scorecard-trigger",
+        ).start()
     except Exception as exc:
         logger.debug("Distribution draft trigger skipped: %s", exc)
 
