@@ -65,12 +65,37 @@ def reset_yf_fetch_count() -> None:
     global _YF_FETCH_COUNT
     with _YF_FETCH_LOCK:
         _YF_FETCH_COUNT = 0
+    # P0.1: also clear the per-timeframe Alpaca-miss counter for this scan.
+    global _ALPACA_MISS_BY_TF
+    with _ALPACA_MISS_LOCK:
+        _ALPACA_MISS_BY_TF = {}
 
 
 def _note_yf_fetch() -> None:
     global _YF_FETCH_COUNT
     with _YF_FETCH_LOCK:
         _YF_FETCH_COUNT += 1
+
+
+# P0.1 (2026-07-31 scanner audit) — Alpaca-miss visibility. Records, per real
+# timeframe, how many symbols had INSUFFICIENT Alpaca(IEX) history and thus fell
+# to the yfinance repair path. This pinpoints WHICH timeframe drives fallback
+# (IEX intraday coverage is thin for small caps), turning "scan is slow" into a
+# measurable, per-timeframe cause. Observation only — never changes scan output.
+_ALPACA_MISS_BY_TF: dict[str, int] = {}
+_ALPACA_MISS_LOCK = threading.Lock()
+
+
+def alpaca_miss_by_tf() -> dict[str, int]:
+    """Symbols with insufficient Alpaca history per timeframe, since last reset."""
+    with _ALPACA_MISS_LOCK:
+        return dict(_ALPACA_MISS_BY_TF)
+
+
+def _note_alpaca_miss(missing_by_tf: dict[str, list]) -> None:
+    global _ALPACA_MISS_BY_TF
+    with _ALPACA_MISS_LOCK:
+        _ALPACA_MISS_BY_TF = {tf: len(syms) for tf, syms in missing_by_tf.items()}
 
 
 # ============================================
@@ -859,6 +884,10 @@ def _repair_partial_alpaca_result(
         for interval, _ in real_tfs:
             if len(frames.get(interval, pd.DataFrame())) < MIN_HISTORY_BARS[interval]:
                 missing_by_tf[interval].append(symbol)
+
+    # P0.1: record per-timeframe Alpaca(IEX) miss counts BEFORE repair, so a scan
+    # can report which timeframe drove the yfinance fallback (observation only).
+    _note_alpaca_miss(missing_by_tf)
 
     for interval, days in real_tfs:
         missing_symbols = missing_by_tf[interval]

@@ -367,27 +367,38 @@ async def run_scan(
         _yf_fb = yf_fetch_count()  # P1: symbols that hit the slow yfinance fallback
     except Exception:  # noqa: BLE001
         _yf_fb = -1
+    # P0.1: per-timeframe Alpaca(IEX) miss counts — which timeframe drove fallback.
+    try:
+        from scanner.data_fetcher import alpaca_miss_by_tf
+
+        _alpaca_miss = alpaca_miss_by_tf()
+    except Exception:  # noqa: BLE001
+        _alpaca_miss = {}
     logger.info(
-        "scan timing: symbols=%d yf_fallback=%d eval=%.2fs enrich=%.2fs total=%.2fs",
+        "scan timing: symbols=%d yf_fallback=%d alpaca_miss=%s eval=%.2fs enrich=%.2fs total=%.2fs",
         len(req.symbols),
         _yf_fb,
+        _alpaca_miss,
         _t_eval_done - _t_start,
         _t_scoring_done - _t_eval_done,
         _t_scoring_done - _t_start,
     )
+    _timing = {
+        "eval_s": round(_t_eval_done - _t_start, 2),
+        "enrich_s": round(_t_scoring_done - _t_eval_done, 2),
+        "total_s": round(_t_scoring_done - _t_start, 2),
+        "symbols": len(req.symbols),
+        "yf_fallback": _yf_fb,
+        "alpaca_miss": _alpaca_miss,
+    }
+    _append_scan_timing_log(_timing, universe=len(req.symbols))
     _persist_shortlist(out)
     _persist_shadow_ledger(out, universe=len(req.symbols))
     _auto_add_watchlist(out, drl_cache, drl_valid)
     _persist_distribution_export(
         out,
         universe=len(req.symbols),
-        timing={
-            "eval_s": round(_t_eval_done - _t_start, 2),
-            "enrich_s": round(_t_scoring_done - _t_eval_done, 2),
-            "total_s": round(_t_scoring_done - _t_start, 2),
-            "symbols": len(req.symbols),
-            "yf_fallback": _yf_fb,
-        },
+        timing=_timing,
     )
     try:
         from core.analytics import increment_event
@@ -734,6 +745,34 @@ def get_daily_report(date: str):
             return json.load(fh)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+def _append_scan_timing_log(timing: dict, universe: int) -> None:
+    """Append one line per /scan call to a persistent timing history (JSONL).
+
+    P0.1 (2026-07-31 scanner audit): per-batch timing was only kept in the latest
+    scan_export (overwritten each batch), so full-universe wall-clock and fallback
+    history were unqueryable. This append-only log closes that blind spot without
+    touching scan output. Best-effort — must never break the scan.
+    """
+    try:
+        export_dir = Path(os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
+        export_dir.mkdir(parents=True, exist_ok=True)
+        rec = {
+            "ts": datetime.now(tz=UTC).isoformat(),
+            "date": datetime.now(tz=UTC).strftime("%Y-%m-%d"),
+            "universe": universe,
+            "symbols": timing.get("symbols"),
+            "eval_s": timing.get("eval_s"),
+            "enrich_s": timing.get("enrich_s"),
+            "total_s": timing.get("total_s"),
+            "yf_fallback": timing.get("yf_fallback"),
+            "alpaca_miss": timing.get("alpaca_miss", {}),
+        }
+        with (export_dir / "scan_timing.jsonl").open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False, default=str) + "\n")
+    except Exception as exc:  # pragma: no cover - observation must never break scan
+        logger.debug("scan timing log skipped: %s", exc)
 
 
 def _persist_distribution_export(
