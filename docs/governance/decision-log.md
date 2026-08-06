@@ -3,6 +3,15 @@
 _CLAUDE.md Bölüm 3 formatı: her önemli karar buraya, dağınık dosyalara gömülmez._
 _Not (düzeltildi 2026-07-29): docs/INDEX.md 2026-07-24'te zaten gerçek indekse dönüştürülmüştü; bu satır o tarihten sonra güncellenmemiş bayat bir notu tekrarlıyordu. 2026-07-29'da INDEX.md'ye ayrıca makine-okunur bir manifest eklendi (bkz. aşağıdaki girdi)._
 
+[2026-07-31] — Opsiyon-faktörü pilotu (yeni-bilgi) hattı kuruldu (Level A, local-run bekliyor)
+Layer: Research / data
+Level: A
+Bağlam: Roadmap v2 P1 — teknik faktörler dürüst-metrikte tükendi (IC~0); tek yeni-bilgi yolu opsiyon positioning/IV (fiyat-hacimden türetilemez). EODHD UnicornBay opsiyon geçmişi Q4-2023'ten 2.5+ yıl EOD (Greeks/IV/OI/put-call), 6.600+ ABD hissesi → sinyal penceresini (Eyl'25–Tem'26) kapsıyor.
+Değişiklik: `data/eodhd_client.py`'ye `options_eod()` metodu + modül wrapper eklendi (`mp/unicornbay/options/eod`, JSON:API, 24s cache). Yeni `options_factor_pilot.py`: 6 faktör türetir (put/call OI & hacim, ATM IV, IV skew, toplam OI/hacim) → `edge_recheck` dürüst-metrik + IS/OOS rank-IC testi; modlar: `--probe` (canlı şema+plan teyidi), `--build` (resumable), `--analyze`. Üretim skoru/scanner/entry-exit/risk/canlı yüzey DEĞİŞMEDİ.
+Etki/Durum: uygulandı ve AĞSIZ test edildi — `py_compile` temiz; `derive_factors` sentetik kontratla doğrulandı (put/call OI 1.625, ATM IV 0.35, skew 0.09); `analyze` harness'i gerçek symbol/date + sentetik faktörle çalıştı ve rastgeleyi doğru "tutarsız" işaretledi (IS/OOS disiplini). LOCAL-RUN bekliyor (ağ + EODHD UnicornBay opsiyon eklentisi gerekir). Ön koşullar: (1) opsiyon eklentisi plan kapsamı `--probe` ile teyit; (2) alan adları ilk yanıtla doğrulanıp gerekirse `FIELD_MAP` güncellenmeli. Bir faktör IS+OOS aynı işaret & |IC|>~0.03 verirse projenin ilk gerçek lead'i olur; vermezse kolay-erişilebilir veri de tükenmiş sayılır.
+
+---
+
 [2026-07-31] — Edge araştırması: dürüst-metrikte tradeable alfa yok + resolved_pct_t5 P0-bozuk (Level A, bulgu)
 Layer: Research / quant
 Level: A

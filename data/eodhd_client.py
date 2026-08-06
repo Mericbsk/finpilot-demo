@@ -307,6 +307,41 @@ class EODHDClient:
 
     # ── Kazanç takvimi ─────────────────────────────────────────────────────────
 
+    def options_eod(
+        self,
+        symbol: str,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        limit: int = 1000,
+    ) -> list[dict]:
+        """UnicornBay US opsiyon EOD verisi (Greeks/IV/OI/hacim, put/call).
+
+        Endpoint: mp/unicornbay/options/eod (marketplace eklentisi — plan kapsamı
+        TEYİT edilmeli; erişim yoksa _get None döner → [] dönülür).
+        JSON:API: {"data":[{"attributes":{...}}]}. attributes düz liste olarak döner.
+        Alan adları ilk gerçek yanıtla doğrulanmalı (options_factor_pilot.py --probe).
+        Tarihsel EOD statik → uzun TTL (24s) cache.
+        """
+        params: dict = {"filter[underlying_symbol]": symbol, "page[limit]": limit}
+        if date_from:
+            params["filter[tradetime_from]"] = date_from
+        if date_to:
+            params["filter[tradetime_to]"] = date_to
+        data = self._get(
+            "mp/unicornbay/options/eod",
+            params,
+            cache_key=f"opt:{symbol}:{date_from}:{date_to}",
+            ttl=86400,
+        )
+        if not data:
+            return []
+        rows = data.get("data", data) if isinstance(data, dict) else data
+        out: list[dict] = []
+        for it in rows or []:
+            if isinstance(it, dict):
+                out.append(it.get("attributes", it))
+        return out
+
     def earnings_calendar(
         self,
         symbols: list[str] | None = None,
@@ -497,3 +532,7 @@ def sentiment(symbol: str, days: int = 14, **kw) -> list[dict]:
 
 def earnings_calendar(symbols: list[str] | None = None, **kw) -> list[dict]:
     return get_client().earnings_calendar(symbols, **kw)
+
+
+def options_eod(symbol: str, **kw) -> list[dict]:
+    return get_client().options_eod(symbol, **kw)
