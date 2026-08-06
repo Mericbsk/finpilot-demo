@@ -6,6 +6,8 @@ Extracted from scanner.py for modularity and reusability.
 
 import pandas as pd
 
+from .performance import timer
+
 
 def ema(series: pd.Series, window: int) -> pd.Series:
     """
@@ -128,6 +130,11 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
         - vol_med20: 20-day median volume
         - vol_avg10: 10-day average volume
     """
+    with timer("indicator.compute", count=len(df), path="pandas"):
+        return _add_indicators(df)
+
+
+def _add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
     # Validate required columns

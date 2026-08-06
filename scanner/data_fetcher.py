@@ -34,6 +34,7 @@ except ImportError:  # pragma: no cover
 
 from .config import SETTINGS
 from .indicators import add_indicators
+from .performance import timer
 
 # Configure module logger
 logger = logging.getLogger(__name__)
@@ -69,6 +70,12 @@ def reset_yf_fetch_count() -> None:
     global _ALPACA_MISS_BY_TF
     with _ALPACA_MISS_LOCK:
         _ALPACA_MISS_BY_TF = {}
+    try:
+        from .performance import reset
+
+        reset()
+    except Exception:  # pragma: no cover - observation must never break a scan
+        pass
 
 
 def _note_yf_fetch() -> None:
@@ -180,7 +187,8 @@ def _get_stock_bars_with_retry(client: Any, req: Any, interval: str, days: int) 
     last_exc: Exception | None = None
     for attempt in range(_ALPACA_MAX_RETRIES):
         try:
-            return client.get_stock_bars(req)
+            with timer("retry.attempt", count=attempt + 1, timeframe=interval, path="alpaca"):
+                return client.get_stock_bars(req)
         except Exception as exc:  # noqa: BLE001
             last_exc = exc
             if attempt < _ALPACA_MAX_RETRIES - 1:
@@ -194,7 +202,8 @@ def _get_stock_bars_with_retry(client: Any, req: Any, interval: str, days: int) 
                     exc,
                     backoff,
                 )
-                time.sleep(backoff)
+                with timer("retry.backoff", timeframe=interval, path="alpaca"):
+                    time.sleep(backoff)
     logger.warning(
         "Alpaca bulk bars failed for %s/%dd after %d attempts: %s",
         interval,
@@ -309,7 +318,8 @@ def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
 
         rate = float(os.environ.get("YFINANCE_RATE", "4"))
         burst = float(os.environ.get("YFINANCE_BURST", "8"))
-        get_bucket("yfinance", rate=rate, capacity=burst).wait(timeout=5.0)
+        with timer("rate_limit.wait", path="yfinance"):
+            get_bucket("yfinance", rate=rate, capacity=burst).wait(timeout=5.0)
     except Exception:  # noqa: BLE001
         pass
 
@@ -800,15 +810,21 @@ def _bulk_yf_download(
 
     period = f"{days}d"
     try:
-        raw = yf.download(
-            symbols,
-            period=period,
-            interval=interval,
-            auto_adjust=True,
-            progress=False,
-            group_by="ticker",
-            threads=True,
-        )
+        with timer(
+            "fetch.request",
+            count=len(symbols),
+            timeframe=interval,
+            path="bulk_yfinance",
+        ):
+            raw = yf.download(
+                symbols,
+                period=period,
+                interval=interval,
+                auto_adjust=True,
+                progress=False,
+                group_by="ticker",
+                threads=True,
+            )
     except Exception as exc:
         logger.warning("yf.download bulk failed for interval=%s: %s", interval, exc)
         return {}
@@ -819,41 +835,14 @@ def _bulk_yf_download(
     results: dict[str, pd.DataFrame] = {}
 
     # Single-symbol download: yfinance returns flat (non-MultiIndex) columns
-    if len(symbols) == 1 or not isinstance(raw.columns, pd.MultiIndex):
-        df = raw.copy()
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.droplevel(1)
-        df = df.dropna(how="all")
-        if "Close" not in df.columns and "Adj Close" in df.columns:
-            df = df.rename(columns={"Adj Close": "Close"})
-        if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is not None:
-            df.index = df.index.tz_convert(None)
-        if with_indicators and not df.empty:
-            try:
-                df = add_indicators(df)
-            except Exception:
-                pass
-        results[symbols[0]] = df
-        return results
-
-    # Multi-symbol: outer level of MultiIndex is the ticker
-    try:
-        tickers_in_df = raw.columns.get_level_values(0).unique().tolist()
-    except Exception as exc:
-        logger.warning("yf.download MultiIndex parse error: %s", exc)
-        return {}
-
-    for sym in symbols:
-        try:
-            if sym not in tickers_in_df:
-                results[sym] = pd.DataFrame()
-                continue
-            df = raw[sym].copy()
+    with timer("fetch.parse", count=len(symbols), timeframe=interval, path="bulk_yfinance"):
+        if len(symbols) == 1 or not isinstance(raw.columns, pd.MultiIndex):
+            df = raw.copy()
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.droplevel(1)
             df = df.dropna(how="all")
             if "Close" not in df.columns and "Adj Close" in df.columns:
                 df = df.rename(columns={"Adj Close": "Close"})
-            if "Close" in df.columns:
-                df = df.dropna(subset=["Close"])
             if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is not None:
                 df.index = df.index.tz_convert(None)
             if with_indicators and not df.empty:
@@ -861,10 +850,38 @@ def _bulk_yf_download(
                     df = add_indicators(df)
                 except Exception:
                     pass
-            results[sym] = df
+            results[symbols[0]] = df
+            return results
+
+        # Multi-symbol: outer level of MultiIndex is the ticker
+        try:
+            tickers_in_df = raw.columns.get_level_values(0).unique().tolist()
         except Exception as exc:
-            logger.debug("bulk_yf_download extract failed for %s: %s", sym, exc)
-            results[sym] = pd.DataFrame()
+            logger.warning("yf.download MultiIndex parse error: %s", exc)
+            return {}
+
+        for sym in symbols:
+            try:
+                if sym not in tickers_in_df:
+                    results[sym] = pd.DataFrame()
+                    continue
+                df = raw[sym].copy()
+                df = df.dropna(how="all")
+                if "Close" not in df.columns and "Adj Close" in df.columns:
+                    df = df.rename(columns={"Adj Close": "Close"})
+                if "Close" in df.columns:
+                    df = df.dropna(subset=["Close"])
+                if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is not None:
+                    df.index = df.index.tz_convert(None)
+                if with_indicators and not df.empty:
+                    try:
+                        df = add_indicators(df)
+                    except Exception:
+                        pass
+                results[sym] = df
+            except Exception as exc:
+                logger.debug("bulk_yf_download extract failed for %s: %s", sym, exc)
+                results[sym] = pd.DataFrame()
 
     return results
 
@@ -965,14 +982,16 @@ def prefetch_symbols_multi_timeframe(
     total = len(symbols)
 
     # ── Fast path 1: Alpaca bulk ──────────────────────────────────────────────
-    alpaca_result = _prefetch_alpaca_bulk(symbols, timeframes, with_indicators)
+    with timer("prefetch.alpaca", count=total, path="alpaca"):
+        alpaca_result = _prefetch_alpaca_bulk(symbols, timeframes, with_indicators)
     if alpaca_result is not None:
-        alpaca_result = _repair_partial_alpaca_result(
-            symbols,
-            timeframes,
-            alpaca_result,
-            with_indicators,
-        )
+        with timer("prefetch.repair", count=total, path="alpaca_repair"):
+            alpaca_result = _repair_partial_alpaca_result(
+                symbols,
+                timeframes,
+                alpaca_result,
+                with_indicators,
+            )
         if progress_callback:
             try:
                 progress_callback(total, total)
@@ -989,24 +1008,26 @@ def prefetch_symbols_multi_timeframe(
         bulk_result: dict[str, dict[str, pd.DataFrame]] = {s: {} for s in symbols}
         all_ok = True
 
-        for interval, days in real_tfs:
-            per_tf = _bulk_yf_download(symbols, interval, days, with_indicators)
-            if not per_tf:
-                # Empty result — bulk download failed for this timeframe; fall back
-                all_ok = False
-                break
-            for sym in symbols:
-                bulk_result[sym][interval] = per_tf.get(sym, pd.DataFrame())
+        with timer("prefetch.bulk_yfinance", count=total, path="bulk_yfinance"):
+            for interval, days in real_tfs:
+                per_tf = _bulk_yf_download(symbols, interval, days, with_indicators)
+                if not per_tf:
+                    # Empty result — bulk download failed for this timeframe; fall back
+                    all_ok = False
+                    break
+                for sym in symbols:
+                    bulk_result[sym][interval] = per_tf.get(sym, pd.DataFrame())
 
         if all_ok:
             # Derive 4h from 1h (no extra HTTP call needed)
-            for sym in symbols:
-                df_4h_raw = _resample_4h(bulk_result[sym].get("1h", pd.DataFrame()))
-                bulk_result[sym]["4h"] = (
-                    add_indicators(df_4h_raw)
-                    if with_indicators and not df_4h_raw.empty
-                    else df_4h_raw
-                )
+            with timer("prefetch.resample_4h", count=total, timeframe="4h", path="derived"):
+                for sym in symbols:
+                    df_4h_raw = _resample_4h(bulk_result[sym].get("1h", pd.DataFrame()))
+                    bulk_result[sym]["4h"] = (
+                        add_indicators(df_4h_raw)
+                        if with_indicators and not df_4h_raw.empty
+                        else df_4h_raw
+                    )
             logger.info(
                 "prefetch bulk yf.download: %d symbols × %d timeframes OK",
                 len(symbols),
@@ -1036,27 +1057,28 @@ def prefetch_symbols_multi_timeframe(
         )
         return symbol, data
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(_fetch_all_timeframes, symbol): symbol for symbol in symbols}
+    with timer("prefetch.symbol_yfinance", count=total, path="symbol_yfinance"):
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(_fetch_all_timeframes, symbol): symbol for symbol in symbols}
 
-        for future in as_completed(futures, timeout=180):
-            symbol = futures[future]
-            try:
-                _, data = future.result(timeout=30)
-                results[symbol] = data
-            except TimeoutError:
-                logger.warning("Prefetch timeout: %s — atlanıyor", symbol)
-                results[symbol] = {tf[0]: pd.DataFrame() for tf in timeframes}
-            except Exception as e:
-                logger.warning("Multi-timeframe prefetch hatası: %s - %s", symbol, e)
-                results[symbol] = {tf[0]: pd.DataFrame() for tf in timeframes}
-
-            completed += 1
-            if progress_callback:
+            for future in as_completed(futures, timeout=180):
+                symbol = futures[future]
                 try:
-                    progress_callback(completed, total)
-                except Exception:
-                    logger.debug("Progress callback failed", exc_info=True)
+                    _, data = future.result(timeout=30)
+                    results[symbol] = data
+                except TimeoutError:
+                    logger.warning("Prefetch timeout: %s — atlanıyor", symbol)
+                    results[symbol] = {tf[0]: pd.DataFrame() for tf in timeframes}
+                except Exception as e:
+                    logger.warning("Multi-timeframe prefetch hatası: %s - %s", symbol, e)
+                    results[symbol] = {tf[0]: pd.DataFrame() for tf in timeframes}
+
+                completed += 1
+                if progress_callback:
+                    try:
+                        progress_callback(completed, total)
+                    except Exception:
+                        logger.debug("Progress callback failed", exc_info=True)
 
     for sym in symbols:
         if sym not in results:

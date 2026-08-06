@@ -385,6 +385,12 @@ async def run_scan(
         _alpaca_miss = alpaca_miss_by_tf()
     except Exception:  # noqa: BLE001
         _alpaca_miss = {}
+    try:
+        from scanner.performance import snapshot as stage_timing
+
+        _stage_timing = stage_timing()
+    except Exception:  # noqa: BLE001
+        _stage_timing = []
     logger.info(
         "scan timing: symbols=%d yf_fallback=%d alpaca_miss=%s eval=%.2fs enrich=%.2fs total=%.2fs",
         len(req.symbols),
@@ -401,6 +407,7 @@ async def run_scan(
         "symbols": len(req.symbols),
         "yf_fallback": _yf_fb,
         "alpaca_miss": _alpaca_miss,
+        "stage_timing": _stage_timing,
     }
     _append_scan_timing_log(_timing, universe=len(req.symbols))
     _persist_shortlist(out)
@@ -779,6 +786,7 @@ def _append_scan_timing_log(timing: dict, universe: int) -> None:
             "total_s": timing.get("total_s"),
             "yf_fallback": timing.get("yf_fallback"),
             "alpaca_miss": timing.get("alpaca_miss", {}),
+            "stage_timing": timing.get("stage_timing", []),
         }
         with (export_dir / "scan_timing.jsonl").open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(rec, ensure_ascii=False, default=str) + "\n")

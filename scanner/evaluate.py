@@ -20,6 +20,7 @@ from .data_fetcher import (
     prefetch_symbols_multi_timeframe,
 )
 from .execution_policy import execution_contract, position_cap
+from .performance import timer
 from .position_sizer import calculate_dynamic_position
 from .risk_engine import (
     calculate_risk_management,
@@ -893,7 +894,8 @@ def evaluate_symbols_parallel(
 
         def _eval_one(symbol: str) -> dict[str, Any] | None:
             symbol_data = all_data.get(symbol, {})
-            return evaluate_symbol(symbol, kelly_fraction, prefetched_data=symbol_data)
+            with timer("evaluation.symbol", count=1, path="prefetched"):
+                return evaluate_symbol(symbol, kelly_fraction, prefetched_data=symbol_data)
 
         with ThreadPoolExecutor(max_workers=_eval_workers) as pool:
             future_map = {pool.submit(_eval_one, sym): sym for sym in symbols}

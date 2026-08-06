@@ -73,11 +73,23 @@ def load_rows(path):
     return rows
 
 
-def dedup_symbol_day(rows):
-    seen = {}
+def dedup_symbol_day(rows, policy="earliest"):
+    if policy not in {"earliest", "latest"}:
+        raise ValueError("policy must be 'earliest' or 'latest'")
+    selected = {}
     for row in rows:
-        seen.setdefault((row["symbol"], row["scan_date"]), row)
-    return list(seen.values())
+        key = (row["symbol"], row["scan_date"])
+        current = selected.get(key)
+        if current is None:
+            selected[key] = row
+            continue
+        earlier = policy == "earliest" and row.get("scan_ts", "") < current.get("scan_ts", "")
+        later = policy == "latest" and row.get("scan_ts", "") > current.get("scan_ts", "")
+        if earlier or later:
+            selected[key] = row
+    return sorted(
+        selected.values(), key=lambda row: (row["symbol"], row["scan_date"], row.get("scan_ts", ""))
+    )
 
 
 def wilson(successes, total, z=1.96):
