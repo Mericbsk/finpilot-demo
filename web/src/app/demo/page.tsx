@@ -53,7 +53,7 @@ interface Snapshot {
   sample?: boolean;
 }
 
-const TELEGRAM_URL = process.env.NEXT_PUBLIC_TELEGRAM_URL || "https://t.me/finpilot";
+const TELEGRAM_URL = process.env.NEXT_PUBLIC_TELEGRAM_URL || "https://t.me/Finpilot_Breif";
 const DISCLAIMER =
   "FinPilot is a research and education tool; it does not provide investment advice. Past performance does not guarantee future results.";
 
