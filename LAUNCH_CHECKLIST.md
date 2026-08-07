@@ -3,11 +3,11 @@ _ROL: yalnız durum; kural koymaz (otorite haritası: docs/INDEX.md) · Kaynak p
 _Gerçekleme 2026-07-24 (Bölüm 5): retroaktif Hafta-1 kapı notu aşağıda; seri sayacı publish_now çıktısına bağlanacak (Bölüm 2)._
 
 ## Lansman Tanımı (10/10 şart)
-- [ ] 1. 10 ardışık işlem günü kesintisiz brif yayını — SAYAÇ SIFIRLANDI 23 Tem (20-22 Tem "expired"); mevcut seri: 2 gün (23-24 Tem)
+- [ ] 1. 10 ardışık işlem günü kesintisiz brif yayını — SAYAÇ SIFIRLANDI 31 Tem (o gün için broadcast_queue'da hiç kayıt yok, 20-22 Tem de "expired" olmuştu); mevcut seri: 4 gün (3-6 Ağu, doğrulama 7 Ağu: `publish_streak()` DB sorgusu)
 - [ ] 2. Sabah operasyonu ≤15 dk/gün — ölçüm Bölüm 2 süre loguyla başlıyor
 - [~] 3. finpilot.at yeni landing + demo CANLI ✓ (13 Tem) · mobil 3-cihaz testi bekliyor
 - [~] 4. Demo her gün otomatik taze snapshot — köprü ONARILDI 24 Tem (publish_now→web, kanıt: demo_snapshot date=2026-07-24); "her gün" kanıtı seri ile birlikte işlenir
-- [~] 5. Karne verisi gerçek ve webde (by_grade dolu) — zincir 24 Tem'de yeniden kuruldu (DB-karne + arşiv köprüsü + resolver koşuldu); ilk dolu yayın bekleniyor (25 Tem sabah)
+- [~] 5. Karne verisi gerçek ve webde (by_grade dolu) — `overall` bloğu (bariyer-tabanlı beklenti +%0.40, %30.1 isabet, 3.36x asimetri, n=5206) 28 Tem'den beri her yayında dolu ✓; `by_grade` 3 Ağu'ya kadar boştu, 4-6 Ağu'da B/C'de küçük örneklemle dolmaya başladı (6 Ağu: B n=4, C n=2, henüz A yok) — olgunlaşma sürüyor, kesin hüküm için erken
 - [ ] 6. Brif içeriği "insan yazmış" kalitesinde (variety raporu + 3 dış okuyucu)
 - [ ] 7. ≥25 kanal takipçisi + ≥10 beta dashboard kullanıcısı
 - [ ] 8. ≥15 feedback + 2 Cuma ritüeli

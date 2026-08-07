@@ -17,7 +17,7 @@ from datetime import UTC, datetime
 
 from scanner.labeling import triple_barrier_label
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_CSV = os.path.join(ROOT, "data", "backtest_out", "full_universe_enriched.csv")
 DEFAULT_CACHE = os.path.join(ROOT, "data", "price_cache")
 DEFAULT_OUT = os.path.join(ROOT, "data", "backtest_out")

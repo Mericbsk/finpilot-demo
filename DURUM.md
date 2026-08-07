@@ -5,11 +5,27 @@ _Kural: bu dosya kafamın dışındaki tek "neredeyim" haritasıdır. Her sabah 
 ---
 
 ## ⭐ Bu 6 haftanın TEK önceliği: LANSMAN
-Kaynak: `LAUNCH_CHECKLIST.md` · Kritik metrik: **10 ardışık işlem günü kesintisiz brif** → şu an **~2/10**.
+Kaynak: `LAUNCH_CHECKLIST.md` · Kritik metrik: **10 ardışık işlem günü kesintisiz brif** → şu an **4/10**
+(7 Ağu doğrulama: `distribution.db` broadcast_queue'dan `publish_streak()` ile hesaplandı; 3-6 Ağu
+ardışık `sent`; seri en son 31 Tem'de kırıldı — o gün için hiç taslak/kayıt yok).
 Başka her şey bunun önüne geçemez. "Bunu yapmak lansmanı bugün ilerletiyor mu?" — hayırsa park.
 
 ### Bu haftanın tek işi (her Pazartesi doldur)
-> _(örn: "3 işlem günü otomatik taslak + DM, müdahale=0" — Hafta 1 Kapısı)_
+> **LANSMAN — brif serisini kırmadan büyüt ve iki açık şartı kapat.**
+>
+> Ürün vaadi edge kanıtı değil; dürüst karneli, öğreten sabah bültenidir. Edge
+> kanıtlanmış gibi ima edilmez. Bu haftanın sırası:
+> 1. Yayın boru hattını sağlamlaştır: tek-poller / `publish_now` akışını temiz,
+>    güvenli ve her işlem gününde tekrarlanabilir tut.
+> 2. Karne zincirini ilk kez gerçekten dolu yayınla; kaçırılanları da göster,
+>    abartısız geçmiş olarak sun.
+> 3. Gerçek kullanıcı davetinden önce landing'i üç mobil cihazda doğrula;
+>    Impressum ve Datenschutz sayfalarını Level C hukuk kapısı olarak koru.
+> 4. Her işlem günü brif yayınını sürdür ve seriyi ~2/10'dan 10 ardışık güne
+>    taşı.
+
+> Edge ölçümü arka planda pasif olarak birikmeye devam eder. Evren büyütme,
+> donanım ve ağır web yatırımı edge kanıtına kadar parktadır.
 
 ---
 
