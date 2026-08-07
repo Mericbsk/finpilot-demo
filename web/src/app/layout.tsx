@@ -19,10 +19,9 @@ const ledgerMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "FinPilot — AI-Powered Stock Intelligence",
   description:
-    "Scans 1,500+ stocks daily with 12 trained reinforcement learning models. Clear buy/hold/sell signals, built-in risk management, and walk-forward backtesting. Not an LLM wrapper — real AI.",
+    "Every trading morning FinPilot reads 1,800+ US stocks and prints a research Grade (A, B or C) with a plain-language reason for each — calibrated and walk-forward verified, with a publicly published scorecard. Education and research, not investment advice.",
   keywords: [
     "stock scanner",
-    "AI trading",
     "reinforcement learning",
     "DRL",
     "risk management",
@@ -30,8 +29,6 @@ export const metadata: Metadata = {
     "backtest",
     "ensemble voting",
     "stock analysis",
-    "AI stock picks",
-    "algorithmic trading",
   ],
   metadataBase: new URL("https://finpilot.at"),
   alternates: {
@@ -55,7 +52,7 @@ export const metadata: Metadata = {
     siteName: "FinPilot",
     title: "FinPilot — AI-Powered Stock Intelligence",
     description:
-      "Scans 1,500+ stocks daily with 12 trained reinforcement learning models. Clear buy/hold/sell signals, built-in risk management, and walk-forward backtesting.",
+      "Every trading morning FinPilot reads 1,800+ US stocks and prints a research Grade (A, B or C) with a plain-language reason for each — calibrated and walk-forward verified, with a publicly published scorecard. Education and research, not investment advice.",
     images: [
       {
         url: "/og-image.png",
@@ -69,7 +66,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "FinPilot — AI-Powered Stock Intelligence",
     description:
-      "Scans 1,500+ stocks daily with 12 trained reinforcement learning models. Clear buy/hold/sell signals, built-in risk management.",
+      "Every trading morning FinPilot reads 1,800+ US stocks and prints a research Grade (A, B or C) with a plain-language reason for each — calibrated and walk-forward verified, with a publicly published scorecard. Education and research, not investment advice.",
     images: ["/og-image.png"],
   },
 };
@@ -80,7 +77,7 @@ const jsonLd = {
   name: "FinPilot",
   url: "https://finpilot.at",
   description:
-    "AI-powered stock scanner that analyzes 1,500+ stocks daily using 12 trained reinforcement learning models.",
+    "AI research tool that reads 1,800+ US stocks each trading day and publishes calibrated research grades (A, B, C) with plain-language reasons. Education and research, not investment advice.",
   applicationCategory: "FinanceApplication",
   operatingSystem: "Web",
   offers: {
@@ -97,11 +94,6 @@ const jsonLd = {
       addressLocality: "Vienna",
       addressCountry: "AT",
     },
-  },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.8",
-    ratingCount: "120",
   },
 };
 
