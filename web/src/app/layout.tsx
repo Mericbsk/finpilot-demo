@@ -17,18 +17,16 @@ const ledgerMono = JetBrains_Mono({
 
 
 export const metadata: Metadata = {
-  title: "FinPilot — AI-Powered Stock Intelligence",
+  title: "FinPilot — Daily Market Reasoning",
   description:
-    "Every trading morning FinPilot reads 1,800+ US stocks and prints a research Grade (A, B or C) with a plain-language reason for each — calibrated and walk-forward verified, with a publicly published scorecard. Education and research, not investment advice.",
+    "A daily market research edition explaining what stood out, why it mattered, and what happened next. Education and research, not investment advice.",
   keywords: [
-    "stock scanner",
-    "reinforcement learning",
-    "DRL",
-    "risk management",
-    "fintech",
-    "backtest",
-    "ensemble voting",
-    "stock analysis",
+    "daily market research",
+    "market reasoning",
+    "financial research",
+    "open scorecard",
+    "financial education",
+    "research methodology",
   ],
   metadataBase: new URL("https://finpilot.at"),
   alternates: {
@@ -50,23 +48,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://finpilot.at",
     siteName: "FinPilot",
-    title: "FinPilot — AI-Powered Stock Intelligence",
+    title: "FinPilot — Daily Market Reasoning",
     description:
-      "Every trading morning FinPilot reads 1,800+ US stocks and prints a research Grade (A, B or C) with a plain-language reason for each — calibrated and walk-forward verified, with a publicly published scorecard. Education and research, not investment advice.",
+      "A daily market research edition explaining what stood out, why it mattered, and what happened next. Education and research, not investment advice.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "FinPilot — AI-Powered Stock Intelligence",
+        alt: "FinPilot — Daily Market Reasoning",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FinPilot — AI-Powered Stock Intelligence",
+    title: "FinPilot — Daily Market Reasoning",
     description:
-      "Every trading morning FinPilot reads 1,800+ US stocks and prints a research Grade (A, B or C) with a plain-language reason for each — calibrated and walk-forward verified, with a publicly published scorecard. Education and research, not investment advice.",
+      "A daily market research edition explaining what stood out, why it mattered, and what happened next. Education and research, not investment advice.",
     images: ["/og-image.png"],
   },
 };
@@ -77,7 +75,7 @@ const jsonLd = {
   name: "FinPilot",
   url: "https://finpilot.at",
   description:
-    "AI research tool that reads 1,800+ US stocks each trading day and publishes calibrated research grades (A, B, C) with plain-language reasons. Education and research, not investment advice.",
+    "Daily market research edition explaining what stood out, why it mattered, and what happened next. Education and research, not investment advice.",
   applicationCategory: "FinanceApplication",
   operatingSystem: "Web",
   offers: {

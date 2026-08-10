@@ -4,12 +4,12 @@ import { C } from "./_ledgerColors";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const CREDENTIALS = [
-  "Trained on real market data",
-  "Reads market mood",
-  "Independent votes, no single point of failure",
-  "Smart position sizing",
-  "Stress-tested before publishing",
-  "Daily Telegram alerts",
+  "Real market data",
+  "Plain-language reasons",
+  "Open scorecard",
+  "Daily research edition",
+  "Published methodology",
+  "Daily Telegram edition",
 ];
 
 /** Editorial Stance band (between S6 and S7) — reskin of the old HeroGrid
@@ -22,10 +22,11 @@ export default function EditorialStance() {
         {t("editorial.eyebrow")}
       </p>
       <h2 className="mx-auto max-w-3xl font-ledger-serif text-2xl font-bold leading-snug sm:text-3xl" style={{ color: C.ink }}>
-        FinPilot isn&apos;t a chatbot wearing a trading costume.
+        FinPilot is a daily market research edition, not a blind signal.
         <br />
         <span className="italic" style={{ color: C.inkSoft }}>
-          It runs its own trained models that learn from real market data — not from prompts.
+          The daily Grade comes from the published scanner rules and eligibility checks. Separate PPO
+          models are maintained as research artifacts and validated before any future use.
         </span>
       </h2>
       <div className="mt-8 flex flex-wrap justify-center gap-3">

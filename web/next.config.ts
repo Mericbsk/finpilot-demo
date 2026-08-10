@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+const connectSrc = [
+  "'self'",
+  "https://www.google-analytics.com",
+  "https://plausible.io",
+  "https:",
+  ...(isDev ? ["http://localhost:8000", "http://localhost:8001", "ws://localhost:8001"] : []),
+].join(" ");
+
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
@@ -18,7 +27,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://www.google-analytics.com https://plausible.io https: http://localhost:8000 http://localhost:8001 ws://localhost:8001",
+      `connect-src ${connectSrc}`,
       "frame-ancestors 'none'",
     ].join("; "),
   },

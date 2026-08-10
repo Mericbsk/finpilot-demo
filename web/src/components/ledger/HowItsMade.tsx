@@ -13,7 +13,7 @@ const COLUMNS = [
   {
     step: "02",
     title: "Grade",
-    desc: "Three independent computer models look at the same stock and vote separately. When they agree, that agreement becomes the grade — A, B, or C.",
+    desc: "The daily Grade comes from the published scanner rules and eligibility checks. It gives readers one compact research label — A, B, or C — to compare candidates.",
   },
   {
     step: "03",
@@ -46,6 +46,9 @@ export default function HowItsMade({ configSha }: HowItsMadeProps) {
             </p>
           </div>
         ))}
+        <p className="mt-8 text-center text-xs italic" style={{ color: C.inkSoft }}>
+          Separate PPO models are maintained as research artifacts and validated before any future use.
+        </p>
       </div>
       {configSha && (
         <p className="mt-8 text-center font-ledger-mono text-[10px] uppercase tracking-widest" style={{ color: C.inkSoft }}>

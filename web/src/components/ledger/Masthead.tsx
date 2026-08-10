@@ -60,8 +60,7 @@ export default function Masthead({ dateLabel, editionNo, universe, trackedTotal 
 
   const stats = [
     { num: universe > 0 ? `${universe.toLocaleString("en-US")}+` : "—", label: t("masthead.statScanned") },
-    { num: "12", label: t("masthead.statModels") },
-    { num: "3", label: t("masthead.statAgents") },
+    { num: "4", label: t("masthead.statProcess") },
     trackedStat,
   ];
 

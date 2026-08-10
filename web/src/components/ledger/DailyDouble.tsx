@@ -35,7 +35,7 @@ export default function DailyDouble({ concept, candidate }: DailyDoubleProps) {
       {candidate && (
         <div className="border p-6" style={{ borderColor: C.rule }}>
           <p className="mb-2 font-ledger-mono text-[10px] uppercase tracking-widest" style={{ color: C.gold }}>
-            Today&apos;s Case
+            What to question
           </p>
           <div className="flex items-start gap-3">
             <GradeSeal grade={candidate.grade} size="sm" />
@@ -43,7 +43,7 @@ export default function DailyDouble({ concept, candidate }: DailyDoubleProps) {
               <span className="font-semibold" style={{ color: C.ink }}>
                 {candidate.ticker}
               </span>{" "}
-              {candidateRationale(candidate, lang)}
+              {candidate.risk_note_i18n?.[lang] ?? candidate.risk_note ?? candidateRationale(candidate, lang)}
             </p>
           </div>
         </div>

@@ -23,8 +23,8 @@ function P({ children }: { children: ReactNode }) {
 // Level B — kamuya açık metodoloji iddiası. Tavsiye-dili YOK; "past performance" uyarısı zorunlu.
 export default function Methodology() {
   return (
-    <main className="mx-auto max-w-[780px] px-6 py-16 leading-relaxed"
-      style={{ color: "var(--ledger-ink, #1a1a1a)" }}>
+    <main className="ledger">
+      <div className="mx-auto max-w-[780px] px-6 py-16 leading-relaxed">
       <h1 className="mb-2 text-3xl font-bold">How FinPilot works</h1>
       <p className="mb-8 text-sm italic" style={{ color: "var(--ledger-ink-soft, #666)" }}>
         Transparency is the product. This page explains how we scan, grade, verify and score —
@@ -45,13 +45,18 @@ export default function Methodology() {
       <P>A Grade is an <strong>educational conviction label, not a recommendation</strong>. We publish
       research context only: no transaction instructions and no performance claims.</P>
 
-      <H2>3 · How we verify</H2>
+      <H2>3 · Research models</H2>
+      <P>Three PPO research models explore momentum, trend and conservative scenarios. They are
+      maintained as research artifacts, validated before use, and are not represented as active inputs
+      to the current daily Grade.</P>
+
+      <H2>4 · How we verify</H2>
       <P><strong>Locked out-of-sample:</strong> parameters are frozen before evaluation — no hindsight
       fitting. <strong>Triple-barrier resolution:</strong> outcomes are decided by predefined upper,
       lower and time barriers, not naïve returns. <strong>Precision ≠ P&amp;L:</strong> we
       measure expectancy and calibration, not vanity hit-rates.</P>
 
-      <H2>4 · The open scorecard</H2>
+      <H2>5 · The open scorecard</H2>
       <P>Every published pick is tracked — <strong>including the misses</strong>. We report expectancy
       (the average outcome per pick), not a cherry-picked win-rate. A maturity gate means a pick only
       counts once its barrier window has had time to resolve, so fresh, still-open picks never
@@ -60,7 +65,7 @@ export default function Methodology() {
       outcomes, so the average pick can still be positive. See the live scorecard on the{" "}
       <a href="/demo" className="underline">demo page</a>.</P>
 
-      <H2>5 · Education, not advice</H2>
+      <H2>6 · Education, not advice</H2>
       <P>FinPilot provides education and analysis only — it is not investment advice and not portfolio
       management. Our lessons are generated from cited sources and passed through a
       factual-consistency and compliance check before publishing.</P>
@@ -69,6 +74,7 @@ export default function Methodology() {
         Past performance does not guarantee future results. FinPilot is a research and education tool
         and does not provide investment advice.
       </p>
+      </div>
     </main>
   );
 }

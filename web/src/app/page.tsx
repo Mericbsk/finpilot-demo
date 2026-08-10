@@ -66,7 +66,7 @@ export default async function Home() {
 
           <section className="border-t py-14" style={{ borderColor: C.rule }}>
             <SectionHeading textKey="section.classroom" />
-            <ClassroomPreview />
+            <ClassroomPreview concept={snap?.concept} candidate={snap?.candidates?.[0]} />
           </section>
         </div>
 

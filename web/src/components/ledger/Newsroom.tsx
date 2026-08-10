@@ -12,8 +12,11 @@ export default function Newsroom() {
         <h3 className="mb-4 font-ledger-serif text-xl font-bold" style={{ color: C.ink }}>
           The Wire
         </h3>
+        <p className="mb-3 border-l-2 pl-3 font-ledger-mono text-[10px] uppercase tracking-widest" style={{ color: C.gold, borderColor: C.gold }}>
+          Illustrative process example — not today&apos;s live scan
+        </p>
         <p className="mb-4 text-sm" style={{ color: C.inkSoft }}>
-          A sample of the daily scan feed — every symbol, scored and priced before the open.
+          A visual example of how a research feed can be read: what stood out, the Grade, and the reason.
         </p>
         <TheWire />
       </div>
@@ -23,8 +26,8 @@ export default function Newsroom() {
           The Editorial Board
         </h3>
         <p className="mb-4 text-sm" style={{ color: C.inkSoft }}>
-          Three specialised agents vote independently before a grade goes to print — no single
-          point of failure.
+          The production Grade comes from published scanner rules and eligibility checks. Separate PPO
+          models are research artifacts, validated before any future use.
         </p>
         <EditorialBoard />
       </div>
@@ -34,8 +37,8 @@ export default function Newsroom() {
           Fact-Checking Desk
         </h3>
         <p className="mb-4 text-sm" style={{ color: C.inkSoft }}>
-          Every research read is stress-tested before it&apos;s printed — validation rules on one
-          side, walk-forward evidence on the other.
+          The methodology explains how published research is checked, what the scorecard can show,
+          and where evidence is still insufficient.
         </p>
         <FactCheckingDesk />
       </div>

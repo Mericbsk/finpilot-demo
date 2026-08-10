@@ -30,6 +30,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // A11y/SEO: keep <html lang> in sync with the actually displayed language.
+  // SSR default stays "en" (correct for the default render); this updates the
+  // attribute client-side when a saved/selected TR/DE preference is applied.
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = lang;
+    }
+  }, [lang]);
+
   const setLang = (l: Lang) => {
     setLangState(l);
     try {
