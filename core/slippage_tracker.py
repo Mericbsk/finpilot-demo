@@ -139,7 +139,7 @@ class SlippageTracker:
         logger.debug(
             f"Fill kaydedildi: {symbol} {direction} "
             f"signal={signal_price:.2f} fill={fill_price:.2f} "
-            f"slip={rec.slippage_pct*100:.3f}%"
+            f"slip={rec.slippage_pct * 100:.3f}%"
         )
         return rec
 
@@ -197,8 +197,8 @@ class SlippageTracker:
 
         logger.info(
             f"Kalibrasyon tamamlandı ({len(df)} kayıt): "
-            f"buy_mean={result['buy_slip']['mean']*100:.3f}% "
-            f"sell_mean={result['sell_slip']['mean']*100:.3f}%"
+            f"buy_mean={result['buy_slip']['mean'] * 100:.3f}% "
+            f"sell_mean={result['sell_slip']['mean'] * 100:.3f}%"
         )
         return result
 
@@ -224,14 +224,14 @@ class SlippageTracker:
             f"Tarih: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
             f"Toplam kayıt: {cal['n_records']}",
             "=" * 55,
-            f"Alış slippage  — ort: {cal['buy_slip']['mean']*100:.3f}%  "
-            f"p75: {cal['buy_slip']['p75']*100:.3f}%  "
-            f"p95: {cal['buy_slip']['p95']*100:.3f}%",
-            f"Satış slippage — ort: {cal['sell_slip']['mean']*100:.3f}%  "
-            f"p75: {cal['sell_slip']['p75']*100:.3f}%  "
-            f"p95: {cal['sell_slip']['p95']*100:.3f}%",
+            f"Alış slippage  — ort: {cal['buy_slip']['mean'] * 100:.3f}%  "
+            f"p75: {cal['buy_slip']['p75'] * 100:.3f}%  "
+            f"p95: {cal['buy_slip']['p95'] * 100:.3f}%",
+            f"Satış slippage — ort: {cal['sell_slip']['mean'] * 100:.3f}%  "
+            f"p75: {cal['sell_slip']['p75'] * 100:.3f}%  "
+            f"p95: {cal['sell_slip']['p95'] * 100:.3f}%",
             f"Kyle λ (piyasa etkisi): {cal['kyle_lambda']:.4f}",
-            f"Ortalama gap: {cal['avg_gap_pct']*100:.3f}%",
+            f"Ortalama gap: {cal['avg_gap_pct'] * 100:.3f}%",
             "=" * 55,
             "Backtest haircut tahmini (1 işlem başına, $3K pozisyon):",
         ]
@@ -243,7 +243,7 @@ class SlippageTracker:
             f"  Slippage:   ${slip:.2f}",
             f"  Komisyon:   ${comm:.2f}",
             f"  Gap risk:   ${gap:.2f}",
-            f"  Toplam:     ${slip+comm+gap:.2f}  ({(slip+comm+gap)/pos*100:.2f}%)",
+            f"  Toplam:     ${slip + comm + gap:.2f}  ({(slip + comm + gap) / pos * 100:.2f}%)",
         ]
         return "\n".join(lines)
 
@@ -421,8 +421,8 @@ if __name__ == "__main__":
     # Mevcut backtest sonuçlarına haircut uygula
     costs = RealisticBacktestCosts.from_tracker(tracker)
     print("\nGerçekçi maliyet modeli:")
-    print(f"  Alış slippage:  {costs.buy_slippage_pct*100:.3f}%")
-    print(f"  Satış slippage: {costs.sell_slippage_pct*100:.3f}%")
+    print(f"  Alış slippage:  {costs.buy_slippage_pct * 100:.3f}%")
+    print(f"  Satış slippage: {costs.sell_slippage_pct * 100:.3f}%")
     print(f"  Gidiş-dönüş maliyet: {costs.round_trip_cost_pct():.3f}%")
 
     print("\n--- Backtest Haircut (Eski Strateji) ---")

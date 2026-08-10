@@ -112,7 +112,7 @@ def llm_select_top(cands: list[tuple[str, dict]], n: int = 10) -> dict:
         from llm.base import LLMMessage, LLMRole  # noqa: PLC0415
 
         lines = [
-            f"{b['symbol']}: tier={b['tier'] or '-'} guven≈%{int(b['conviction_prob']*100)} "
+            f"{b['symbol']}: tier={b['tier'] or '-'} guven≈%{int(b['conviction_prob'] * 100)} "
             f"skor={b['score']} fiyat={b['price']} R/R={b['risk_reward']} "
             f"3g_momentum={b['momentum_3d_pct']}% squeeze={b['squeeze_factor']} "
             f"haber_katalizor={b['news_catalyst_score']} sentiment={b['news_sentiment']} "

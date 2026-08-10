@@ -370,7 +370,7 @@ class WalkForwardTrainer:
             return EvaluationMetrics(0.0, 0.0, 0.0, 0.0)
         pnl = np.array(
             [
-                float(entry.get("pnl", 0.0)) if isinstance(entry.get("pnl"), (int, float)) else 0.0
+                float(entry.get("pnl", 0.0)) if isinstance(entry.get("pnl"), int | float) else 0.0
                 for entry in history
             ]
         )
@@ -378,7 +378,7 @@ class WalkForwardTrainer:
             [
                 (
                     float(entry.get("reward", 0.0))
-                    if isinstance(entry.get("reward"), (int, float))
+                    if isinstance(entry.get("reward"), int | float)
                     else 0.0
                 )
                 for entry in history
@@ -388,7 +388,7 @@ class WalkForwardTrainer:
             [
                 (
                     float(entry.get("equity", 1.0))
-                    if isinstance(entry.get("equity"), (int, float))
+                    if isinstance(entry.get("equity"), int | float)
                     else 1.0
                 )
                 for entry in history

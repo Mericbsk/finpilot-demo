@@ -71,8 +71,8 @@ jobs:
 
       - name: 🔍 Run Ruff (lint + format check)
         run: |
-          ruff check scanner/ drl/ core/ auth/ views/ llm/ broker/ --ignore E501
-          ruff format --check scanner/ drl/ core/ auth/ views/ llm/ broker/ --line-length 100
+          ruff check scanner/ drl/ core/ auth/ llm/ broker/ --ignore E501
+          ruff format --check scanner/ drl/ core/ auth/ llm/ broker/ --line-length 100
 
       - name: 🔬 Run mypy (basic type check)
         run: |

@@ -15,6 +15,10 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+_W_SCAN = 0.40
+_W_ANALYSIS = 0.35
+_W_BACKTEST = 0.25
+
 
 def run_auto_pipeline(
     symbols: list[str],

@@ -134,7 +134,7 @@ def mlflow_log_artifact(path: Path, artifact_path: str | None = None) -> None:
 def _coerce_params(params: Mapping[str, Any]) -> dict[str, Any]:
     coerced: dict[str, Any] = {}
     for key, value in params.items():
-        if isinstance(value, (str, int, float)) or value is None:
+        if isinstance(value, str | int | float) or value is None:
             coerced[key] = value
         else:
             coerced[key] = str(value)

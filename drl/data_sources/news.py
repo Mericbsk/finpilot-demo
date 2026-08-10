@@ -30,7 +30,7 @@ class NewsRecord:
 def _coerce_float(value: object, default: float) -> float:
     if value is None:
         return default
-    if isinstance(value, (int, float)):
+    if isinstance(value, int | float):
         return float(value)
     if isinstance(value, str):
         try:
@@ -46,7 +46,7 @@ def normalize_news_rows(rows: Iterable[Mapping[str, object]]) -> pd.DataFrame:
         timestamp_raw = row.get("timestamp")
         if timestamp_raw is None:
             continue
-        if isinstance(timestamp_raw, (pd.Timestamp, datetime, str, int, float)):
+        if isinstance(timestamp_raw, pd.Timestamp | datetime | str | int | float):
             ts = pd.to_datetime(timestamp_raw, utc=True)
         else:
             continue

@@ -260,7 +260,7 @@ class MultiAssetMarketEnv(BaseEnv):
 
     def _action_to_weights(self, action) -> np.ndarray:
         """Convert raw action [-1, 1]^n to valid portfolio weights."""
-        if isinstance(action, (list, tuple)):
+        if isinstance(action, list | tuple):
             action = np.array(action, dtype=np.float32)
         action = np.asarray(action, dtype=np.float32).flatten()
 

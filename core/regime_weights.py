@@ -151,7 +151,6 @@ def detect_current_regime() -> str:
 
         close = spy["Close"].squeeze()
         sma200 = close.rolling(min(200, len(close))).mean().iloc[-1]
-        sma20 = close.rolling(20).mean().iloc[-1]
         price = float(close.iloc[-1])
         ret_20d = (
             float((close.iloc[-1] - close.iloc[-21]) / close.iloc[-21]) if len(close) >= 21 else 0.0

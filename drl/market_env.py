@@ -302,7 +302,7 @@ class MarketEnv(BaseEnv):
                     (
                         h.get("drawdown", 0.0)
                         for h in self._history
-                        if isinstance(h.get("drawdown"), (int, float))
+                        if isinstance(h.get("drawdown"), int | float)
                     ),
                     default=0.0,
                 )

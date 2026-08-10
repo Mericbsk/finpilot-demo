@@ -212,7 +212,7 @@ def portfolio_risk_summary(
         return {}
 
     def _avg(key: str) -> float:
-        vals = [m[key] for m in metrics if isinstance(m.get(key), (int, float))]
+        vals = [m[key] for m in metrics if isinstance(m.get(key), int | float)]
         return round(sum(vals) / len(vals), 3) if vals else 0.0
 
     hq = sum(1 for m in metrics if m.get("data_quality") == "high")

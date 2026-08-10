@@ -890,8 +890,7 @@ def run_cycle_once(
                                     else 0,
                                 )
                                 worst_sym = (
-                                    f"\nEn kötü: {worst[0]} "
-                                    f"DD={worst[1].get('drawdown_pct', '?')}%"
+                                    f"\nEn kötü: {worst[0]} DD={worst[1].get('drawdown_pct', '?')}%"
                                 )
                         except Exception:  # noqa: BLE001, S110
                             pass

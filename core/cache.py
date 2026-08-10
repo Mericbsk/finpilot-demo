@@ -82,10 +82,10 @@ class SafeSerializer:
     @staticmethod
     def _to_serializable(obj: Any) -> Any:
         """Convert object to JSON-serializable format."""
-        if obj is None or isinstance(obj, (str, int, float, bool)):
+        if obj is None or isinstance(obj, str | int | float | bool):
             return obj
 
-        if isinstance(obj, (list, tuple)):
+        if isinstance(obj, list | tuple):
             return {
                 "__type__": "list" if isinstance(obj, list) else "tuple",
                 "data": [SafeSerializer._to_serializable(item) for item in obj],
@@ -127,7 +127,7 @@ class SafeSerializer:
 
             if isinstance(obj, np.ndarray):
                 return {"__type__": "ndarray", "data": obj.tolist(), "dtype": str(obj.dtype)}
-            if isinstance(obj, (np.integer, np.floating)):
+            if isinstance(obj, np.integer | np.floating):
                 return float(obj)
         except ImportError:
             pass
@@ -145,7 +145,7 @@ class SafeSerializer:
     @staticmethod
     def _from_serializable(obj: Any) -> Any:
         """Convert JSON-parsed object back to original type."""
-        if obj is None or isinstance(obj, (str, int, float, bool)):
+        if obj is None or isinstance(obj, str | int | float | bool):
             return obj
 
         if not isinstance(obj, dict):

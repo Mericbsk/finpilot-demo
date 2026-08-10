@@ -95,7 +95,7 @@ class PredictionResult:
             "action": self.action.name,
             "raw_action": (
                 float(self.raw_action)
-                if isinstance(self.raw_action, (np.ndarray, np.floating))
+                if isinstance(self.raw_action, np.ndarray | np.floating)
                 else self.raw_action
             ),
             "confidence": self.confidence,

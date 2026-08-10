@@ -170,7 +170,7 @@ def optimize(
     syms = list(returns.columns)
     eq = round(1.0 / len(syms), 6)
     return OptimResult(
-        weights={s: eq for s in syms},
+        weights=dict.fromkeys(syms, eq),
         method=f"{method}_fallback_equal",
         metrics={},
         error="Riskfolio-Lib not installed — returning equal weights.",

@@ -766,7 +766,7 @@ class MetricsRegistry:
         """Collect all metrics for export."""
         result = {}
         for name, metric in self._metrics.items():
-            if isinstance(metric, (Counter, Gauge, Histogram)):
+            if isinstance(metric, Counter | Gauge | Histogram):
                 result[name] = metric.collect()
         return result
 
