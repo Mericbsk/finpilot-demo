@@ -173,6 +173,7 @@ def fetch_eod(sym: str, key: str, start: str, end: str) -> list[dict] | None:
                 "high": b.get("high"),
                 "low": b.get("low"),
                 "close": b.get("close"),
+                "adjusted_close": b.get("adjusted_close"),
                 "volume": b.get("volume"),
             }
         )
