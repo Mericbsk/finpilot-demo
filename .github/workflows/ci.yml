@@ -67,7 +67,7 @@ jobs:
 
       - name: 📦 Install linters
         run: |
-          pip install ruff mypy
+          pip install ruff==0.12.7 mypy
 
       - name: 🔍 Run Ruff (lint + format check)
         run: |
