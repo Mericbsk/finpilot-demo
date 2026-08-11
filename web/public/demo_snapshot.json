@@ -1,222 +1,53 @@
 {
  "schema": 2,
- "snapshot_id": "1f98dd1e19103d4158d006a4",
- "candidate_hash": "3ea2a65a819f4b13df7c1ada2c9e3f0d00ac9d9e661cb394d56cc1949e2938e3",
+ "snapshot_id": "6410aedda6597522bbfbfe80",
+ "candidate_hash": "21c257e67bb5dff2211394c2378d6458bb265504f5f3158722d358cc29dd3bb2",
  "scan_id": "b4c000d97cad89c1f67db8ec",
- "date": "2026-08-10",
- "generated_at": "2026-08-10T10:49:45.013922+00:00",
- "config_sha": "748be7e98bb0@1d0d311",
+ "date": "2026-08-11",
+ "generated_at": "2026-08-11T12:22:38.508265+00:00",
+ "config_sha": "bc39762e1bad@d65a740",
  "universe": 1812,
  "scan_result_count": 1801,
- "eligible_candidate_count": 6,
+ "eligible_candidate_count": 1,
  "candidates": [
-  {
-   "ticker": "LYFT",
-   "company": "Lyft, Inc. Class A",
-   "grade": "A",
-   "prob_band": "~75%",
-   "badges": [
-    "rvol",
-    "momentum",
-    "regime"
-   ],
-   "rationale": "LYFT sits at the top of this morning's sweep. What puts it there is clear: volume is elevated versus the stock's own average; there is real order flow behind the price move. On top of that, the short-term price trend is lively; whether the momentum holds will become clear over the coming days. Adding to the picture, the broad market environment supports setups like this — the stock is moving with the wind, not against it. Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
-   "premium_only": false,
-   "metrics": {
-    "price": 17.47,
-    "conviction_prob": 0.73,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": 4.42,
-    "volume_multiple": 1.98,
-    "ema_gap_pct": -5.22
-   },
-   "rationale_i18n": {
-    "tr": "Sabah taramasının zirvesinde LYFT var. Öne çıkaran etkenler açık: hacim, hissenin kendi ortalamasına göre yükselmiş durumda; fiyat hareketinin arkasında gerçek işlem akışı var. Üstelik fiyat eğilimi kısa vadede diri; ivmenin korunup korunmadığı önümüzdeki günlerde netleşecek. Buna ek olarak genel piyasa ortamı bu tür kurulumları destekliyor — hisse rüzgara karşı değil, rüzgarla birlikte hareket ediyor. Bu üç işaret birlikte, fiyat hareketinin yalnızca tek günlük bir sıçrama olmadığını ve destekleyici piyasa arka planında artan katılımla izlendiğini düşündürüyor; devamlılık ise henüz doğrulanmış değil. Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-    "en": "LYFT sits at the top of this morning's sweep. What puts it there is clear: volume is elevated versus the stock's own average; there is real order flow behind the price move. On top of that, the short-term price trend is lively; whether the momentum holds will become clear over the coming days. Adding to the picture, the broad market environment supports setups like this — the stock is moving with the wind, not against it. Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
-    "de": "LYFT steht an der Spitze des heutigen Scans. Was es dorthin bringt, ist klar: das Volumen ist gegenüber dem eigenen Durchschnitt der Aktie erhöht; hinter der Kursbewegung steht echter Orderfluss. Zudem: der kurzfristige Kurstrend ist lebhaft; ob das Momentum hält, zeigt sich in den kommenden Tagen. Darüber hinaus: das breite Marktumfeld stützt solche Konstellationen — die Aktie bewegt sich mit dem Wind, nicht dagegen. Zusammen deuten diese drei Signale darauf hin, dass die Bewegung mehr als ein Sprung an einem Tag ist und bei steigender Beteiligung in einem unterstützenden Marktumfeld beobachtet wird; ihre Dauer ist noch nicht bestätigt. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
-   },
-   "risk_note_i18n": {
-    "tr": "olağan piyasa riski geçerli — izleme temposunu kendi planına göre kur",
-    "en": "usual market risk applies — set your monitoring pace to your own plan",
-    "de": "übliches Marktrisiko gilt — richte dein Beobachtungstempo nach deinem eigenen Plan"
-   }
-  },
-  {
-   "ticker": "RDW",
-   "company": "Redwire Corporation",
-   "grade": "A",
-   "prob_band": "~75%",
-   "badges": [
-    "rvol",
-    "gap",
-    "momentum",
-    "regime"
-   ],
-   "rationale": "Today's strongest candidate is RDW. The reason: trading volume is running clearly above its norm — the interest comes from broad participation, not a few stray orders. On top of that, it opened detached from and above the prior close — suggesting demand accumulated through the night. Adding to the picture, recent price behaviour is strong: pullbacks stay shallow and gains are being held. Another detail: the market regime reads as supportive; the same signal would mean far less in a weak market. Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
-   "premium_only": false,
-   "metrics": {
-    "price": 13.59,
-    "conviction_prob": 0.73,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": 27.85,
-    "volume_multiple": 1.89,
-    "ema_gap_pct": 4.42
-   },
-   "rationale_i18n": {
-    "tr": "Bugünün en güçlü adayı RDW. Nedeni şu: işlem hacmi normalinin belirgin üzerinde akıyor — ilgiyi tek tük emirler değil, geniş bir katılım oluşturuyor. Üstelik önceki kapanıştan kopuk, yukarıda bir açılış yaptı — talebin gece boyunca biriktiğini düşündürüyor. Buna ek olarak yakın dönem fiyat davranışı güçlü: geri çekilmeler sığ kalıyor, yükselişler korunuyor. Bir başka detay: piyasa rejimi destekleyici okunuyor; aynı sinyal zayıf bir piyasada çok daha az anlam taşırdı. Bu üç işaret birlikte, fiyat hareketinin yalnızca tek günlük bir sıçrama olmadığını ve destekleyici piyasa arka planında artan katılımla izlendiğini düşündürüyor; devamlılık ise henüz doğrulanmış değil. Asıl merak noktası bundan sonra: bu ilgi devam edecek mi, yoksa kısa bir hareket olarak mı kalacak? İzleme amaçlıdır; değerlendirme ve risk tamamen senin kontrolünde.",
-    "en": "Today's strongest candidate is RDW. The reason: trading volume is running clearly above its norm — the interest comes from broad participation, not a few stray orders. On top of that, it opened detached from and above the prior close — suggesting demand accumulated through the night. Adding to the picture, recent price behaviour is strong: pullbacks stay shallow and gains are being held. Another detail: the market regime reads as supportive; the same signal would mean far less in a weak market. Together, these three signals suggest the move is more than a one-day jump and is being watched with rising participation in a supportive market backdrop; persistence is not confirmed yet. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
-    "de": "Der heute stärkste Kandidat ist RDW. Der Grund: das Handelsvolumen liegt deutlich über seinem Normalwert — das Interesse kommt aus breiter Beteiligung, nicht aus wenigen Einzelorders. Zudem: die Eröffnung löste sich nach oben vom Vortagesschluss — das deutet auf über Nacht angesammelte Nachfrage hin. Darüber hinaus: das jüngste Kursverhalten ist stark: Rücksetzer bleiben flach, Gewinne werden gehalten. Ein weiteres Detail: das Marktregime liest sich unterstützend; dasselbe Signal würde in einem schwachen Markt weit weniger bedeuten. Zusammen deuten diese drei Signale darauf hin, dass die Bewegung mehr als ein Sprung an einem Tag ist und bei steigender Beteiligung in einem unterstützenden Marktumfeld beobachtet wird; ihre Dauer ist noch nicht bestätigt. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
-   },
-   "risk_note_i18n": {
-    "tr": "açılış boşluğu her zaman kalıcı değildir; gün içi geri çekilme olağandır",
-    "en": "opening gaps are not always durable; intraday give-backs are common",
-    "de": "Eröffnungslücken sind nicht immer beständig; Rücksetzer im Tagesverlauf sind normal"
-   }
-  },
   {
    "ticker": "SATL",
    "company": "Satellogic Inc. Class A",
-   "grade": "A",
-   "prob_band": "~75%",
+   "grade": "B",
+   "prob_band": "~60%",
    "badges": [
     "gap",
-    "momentum",
     "regime"
    ],
-   "rationale": "Today's strongest candidate is SATL. The reason: a price gap formed at the open — the market started trading higher without waiting around the previous closing level. Also, the short-term price trend is lively; whether the momentum holds will become clear over the coming days. On top of that, the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
+   "rationale": "SATL is one of the day's notable candidates. What puts it there is clear: overnight developments carried the price up at the open; openings like this can indicate growing interest. Also, the broad market leans bullish; the individual signal combines with a supportive backdrop. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
    "premium_only": false,
    "metrics": {
-    "price": 5.52,
-    "conviction_prob": 0.73,
+    "price": 5.325,
+    "conviction_prob": 0.59,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": 22.67,
-    "volume_multiple": 1.42,
-    "ema_gap_pct": 1.68
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 10.25,
+    "volume_multiple": 1.33,
+    "ema_gap_pct": 5.27
    },
    "rationale_i18n": {
-    "tr": "Bugünün en güçlü adayı SATL. Nedeni şu: açılışta bir fiyat boşluğu (gap) oluştu — piyasa, önceki kapanış seviyesini beklemeden yukarıda işlem görmeye başladı. Ayrıca fiyat eğilimi kısa vadede diri; ivmenin korunup korunmadığı önümüzdeki günlerde netleşecek. Üstelik makro ortam sinyalle aynı yönde — bu, tekil hisse hareketlerinin devam etme olasılığını artıran bir etken. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-    "en": "Today's strongest candidate is SATL. The reason: a price gap formed at the open — the market started trading higher without waiting around the previous closing level. Also, the short-term price trend is lively; whether the momentum holds will become clear over the coming days. On top of that, the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
-    "de": "Der heute stärkste Kandidat ist SATL. Der Grund: zur Eröffnung entstand eine Kurslücke (Gap) — der Markt handelte höher, ohne am vorherigen Schlussniveau zu verweilen. Außerdem: der kurzfristige Kurstrend ist lebhaft; ob das Momentum hält, zeigt sich in den kommenden Tagen. Zudem: das Makroumfeld weist in dieselbe Richtung wie das Signal — ein Faktor, der die Chance auf Fortsetzung erhöht. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+    "tr": "SATL, günün dikkat çeken adaylarından. Öne çıkaran etkenler açık: seans dışı gelişmeler fiyatı açılışta yukarı taşıdı; bu tür açılışlar artan ilginin göstergesi olabilir. Ayrıca piyasa geneli yükseliş tarafında; tekil sinyal, destekleyici bir arka planla birleşiyor. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+    "en": "SATL is one of the day's notable candidates. What puts it there is clear: overnight developments carried the price up at the open; openings like this can indicate growing interest. Also, the broad market leans bullish; the individual signal combines with a supportive backdrop. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
+    "de": "SATL ist einer der bemerkenswerten Kandidaten des Tages. Was es dorthin bringt, ist klar: Entwicklungen außerhalb der Handelszeit trugen den Kurs zur Eröffnung nach oben; solche Eröffnungen können auf wachsendes Interesse hindeuten. Außerdem: der Gesamtmarkt neigt nach oben; das Einzelsignal verbindet sich mit einem unterstützenden Umfeld. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
    },
    "risk_note_i18n": {
     "tr": "gapli açılışlar kısmen geri dolabilir — ilk saatler yanıltıcı olabilir",
     "en": "gapped opens can partially fill — the first hours may mislead",
     "de": "Gap-Eröffnungen können sich teilweise schließen — die ersten Stunden können täuschen"
    }
-  },
-  {
-   "ticker": "IBRX",
-   "company": "ImmunityBio, Inc.",
-   "grade": "B",
-   "prob_band": "~60%",
-   "badges": [
-    "regime"
-   ],
-   "rationale": "IBRX is one of the day's notable candidates. What puts it there is clear: market-wide conditions are favourable: this is a friendly stretch for stocks with a similar profile. The factors appearing together give a broader picture than any single indicator; whether it holds over the next sessions remains open. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
-   "premium_only": false,
-   "metrics": {
-    "price": 7.635,
-    "conviction_prob": 0.59,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "momentum_bias": "neutral",
-    "momentum_3d_pct": 9.86,
-    "volume_multiple": 1.21,
-    "ema_gap_pct": 18.96
-   },
-   "rationale_i18n": {
-    "tr": "IBRX, günün dikkat çeken adaylarından. Öne çıkaran etkenler açık: geniş piyasa koşulları olumlu: benzer profildeki hisseler için elverişli bir dönemdeyiz. Faktörlerin birlikte görünmesi, tek bir göstergeden daha kapsamlı bir tablo sunuyor; bunun sonraki seanslarda korunup korunmayacağı henüz açık. Asıl merak noktası bundan sonra: bu ilgi devam edecek mi, yoksa kısa bir hareket olarak mı kalacak? İzleme amaçlıdır; değerlendirme ve risk tamamen senin kontrolünde.",
-    "en": "IBRX is one of the day's notable candidates. What puts it there is clear: market-wide conditions are favourable: this is a friendly stretch for stocks with a similar profile. The factors appearing together give a broader picture than any single indicator; whether it holds over the next sessions remains open. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
-    "de": "IBRX ist einer der bemerkenswerten Kandidaten des Tages. Was es dorthin bringt, ist klar: die marktweiten Bedingungen sind günstig: eine freundliche Phase für Aktien mit ähnlichem Profil. Die Faktoren zusammen ergeben ein breiteres Bild als ein einzelner Indikator; ob es in den nächsten Sitzungen anhält, bleibt offen. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
-   },
-   "risk_note_i18n": {
-    "tr": "belirgin ek risk işareti yok; yine de karar ve risk okuyana aittir",
-    "en": "no salient extra risk flag; judgement and risk still rest with the reader",
-    "de": "kein auffälliges Zusatzrisiko; Urteil und Risiko liegen dennoch beim Leser"
-   }
-  },
-  {
-   "ticker": "MCHP",
-   "company": "Microchip Technology Incorporated",
-   "grade": "B",
-   "prob_band": "~60%",
-   "badges": [
-    "gap",
-    "momentum",
-    "regime"
-   ],
-   "rationale": "MCHP makes today's list with a strong profile. The opening price broke clearly away from the previous day; intraday behaviour is worth watching closely because of it. Another detail: the short-term price trend is lively; whether the momentum holds will become clear over the coming days. Also, the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
-   "premium_only": false,
-   "metrics": {
-    "price": 84.7,
-    "conviction_prob": 0.59,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": 5,
-    "volume_multiple": 1.47,
-    "ema_gap_pct": 6.72
-   },
-   "rationale_i18n": {
-    "tr": "MCHP bugün güçlü bir profille listede. Açılış fiyatı önceki günden belirgin şekilde ayrıştı; gün içi davranış bu yüzden yakından izlenmeye değer. Bir başka detay: fiyat eğilimi kısa vadede diri; ivmenin korunup korunmadığı önümüzdeki günlerde netleşecek. Ayrıca makro ortam sinyalle aynı yönde — bu, tekil hisse hareketlerinin devam etme olasılığını artıran bir etken. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
-    "en": "MCHP makes today's list with a strong profile. The opening price broke clearly away from the previous day; intraday behaviour is worth watching closely because of it. Another detail: the short-term price trend is lively; whether the momentum holds will become clear over the coming days. Also, the macro environment points the same way as the signal — a factor that improves the odds of single-stock moves carrying on. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
-    "de": "MCHP steht mit einem starken Profil auf der heutigen Liste. Der Eröffnungskurs setzte sich deutlich vom Vortag ab; das Intraday-Verhalten ist deshalb genau zu beobachten. Ein weiteres Detail: der kurzfristige Kurstrend ist lebhaft; ob das Momentum hält, zeigt sich in den kommenden Tagen. Außerdem: das Makroumfeld weist in dieselbe Richtung wie das Signal — ein Faktor, der die Chance auf Fortsetzung erhöht. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
-   },
-   "risk_note_i18n": {
-    "tr": "standart izleme riski; pozisyon disiplini okuyucuya aittir",
-    "en": "standard monitoring risk; position discipline rests with the reader",
-    "de": "Standard-Beobachtungsrisiko; Positionsdisziplin liegt beim Leser"
-   }
-  },
-  {
-   "ticker": "GEN",
-   "company": "Gen Digital Inc.",
-   "grade": "C",
-   "prob_band": "~50%",
-   "badges": [
-    "rvol",
-    "regime"
-   ],
-   "rationale": "GEN is on the list as an early-stage candidate. What puts it there is clear: volume is elevated versus the stock's own average; there is real order flow behind the price move. Adding to the picture, market-wide conditions are favourable: this is a friendly stretch for stocks with a similar profile. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
-   "premium_only": false,
-   "metrics": {
-    "price": 29.16,
-    "conviction_prob": 0.52,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "momentum_bias": "neutral",
-    "momentum_3d_pct": 3.15,
-    "volume_multiple": 1.53,
-    "ema_gap_pct": 4.83
-   },
-   "rationale_i18n": {
-    "tr": "GEN, erken aşamada bir aday olarak listede. Öne çıkaran etkenler açık: hacim, hissenin kendi ortalamasına göre yükselmiş durumda; fiyat hareketinin arkasında gerçek işlem akışı var. Buna ek olarak geniş piyasa koşulları olumlu: benzer profildeki hisseler için elverişli bir dönemdeyiz. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Asıl merak noktası bundan sonra: bu ilgi devam edecek mi, yoksa kısa bir hareket olarak mı kalacak? İzleme amaçlıdır; değerlendirme ve risk tamamen senin kontrolünde.",
-    "en": "GEN is on the list as an early-stage candidate. What puts it there is clear: volume is elevated versus the stock's own average; there is real order flow behind the price move. Adding to the picture, market-wide conditions are favourable: this is a friendly stretch for stocks with a similar profile. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
-    "de": "GEN steht als Kandidat im Frühstadium auf der Liste. Was es dorthin bringt, ist klar: das Volumen ist gegenüber dem eigenen Durchschnitt der Aktie erhöht; hinter der Kursbewegung steht echter Orderfluss. Darüber hinaus: die marktweiten Bedingungen sind günstig: eine freundliche Phase für Aktien mit ähnlichem Profil. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
-   },
-   "risk_note_i18n": {
-    "tr": "izleme-aşaması adayı — teyit basamakları henüz tamamlanmadı",
-    "en": "a watch-stage candidate — confirmation rungs are not complete",
-    "de": "ein Kandidat in der Beobachtungsphase — die Bestätigungsstufen sind noch nicht abgeschlossen"
-   }
   }
  ],
  "web_context": [
   {
-   "ticker": "RDNT",
-   "company": "RadNet, Inc.",
+   "ticker": "OPAL",
+   "company": "OPAL Fuels Inc. Class A",
    "public_status": "scan_context",
    "rank": 1,
    "prob_band": "—",
@@ -225,91 +56,90 @@
     "momentum",
     "regime"
    ],
-   "rationale": "RDNT sits near the top of today's scan. Three-day momentum is upward (+4.35%) and volume is 1.98x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "OPAL sits near the top of today's scan. Three-day momentum is upward (+9.73%) and volume is 2.07x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "RDNT, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+4.35%) ve hacim kendi ortalamasının 1.98 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "RDNT sits near the top of today's scan. Three-day momentum is upward (+4.35%) and volume is 1.98x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "OPAL, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+9.73%) ve hacim kendi ortalamasının 2.07 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "OPAL sits near the top of today's scan. Three-day momentum is upward (+9.73%) and volume is 2.07x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 72.26,
+    "price": 2.595,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 73.604,
-    "legacy_quality_score": 73.604,
+    "ranking_score": 73.751,
+    "legacy_quality_score": 73.751,
     "momentum_bias": "bullish",
-    "momentum_3d_pct": 4.35,
-    "volume_multiple": 1.98,
-    "ema_gap_pct": -4.23
+    "momentum_3d_pct": 9.73,
+    "volume_multiple": 2.07,
+    "ema_gap_pct": -2.11
    }
   },
   {
-   "ticker": "NUTX",
-   "company": "Nutex Health Inc.",
+   "ticker": "PCYO",
+   "company": "Pure Cycle Corporation",
    "public_status": "scan_context",
    "rank": 2,
-   "prob_band": "—",
-   "badges": [
-    "rvol",
-    "gap",
-    "regime"
-   ],
-   "rationale": "NUTX sits near the top of today's scan. Three-day momentum is mixed (+3.70%) and volume is 2.66x its own average. This is scan context, not a Grade A/B/C candidate.",
-   "rationale_i18n": {
-    "tr": "NUTX, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+3.70%) ve hacim kendi ortalamasının 2.66 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "NUTX sits near the top of today's scan. Three-day momentum is mixed (+3.70%) and volume is 2.66x its own average. This is scan context, not a Grade A/B/C candidate."
-   },
-   "premium_only": false,
-   "metrics": {
-    "price": 163.4,
-    "conviction_prob": 0,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "ranking_score": 73.131,
-    "legacy_quality_score": 73.131,
-    "momentum_bias": "neutral",
-    "momentum_3d_pct": 3.7,
-    "volume_multiple": 2.66,
-    "ema_gap_pct": 14.5
-   }
-  },
-  {
-   "ticker": "XHLD",
-   "company": "TEN Holdings, Inc.",
-   "public_status": "scan_context",
-   "rank": 3,
    "prob_band": "—",
    "badges": [
     "rvol",
     "momentum",
     "regime"
    ],
-   "rationale": "XHLD sits near the top of today's scan. Three-day momentum is upward (+122.40%) and volume is 2.38x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "PCYO sits near the top of today's scan. Three-day momentum is upward (+5.77%) and volume is 2.19x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "XHLD, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+122.40%) ve hacim kendi ortalamasının 2.38 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "XHLD sits near the top of today's scan. Three-day momentum is upward (+122.40%) and volume is 2.38x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "PCYO, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+5.77%) ve hacim kendi ortalamasının 2.19 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "PCYO sits near the top of today's scan. Three-day momentum is upward (+5.77%) and volume is 2.19x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 2.035,
+    "price": 11.18,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 71.564,
-    "legacy_quality_score": 71.564,
+    "ranking_score": 70.642,
+    "legacy_quality_score": 70.642,
     "momentum_bias": "bullish",
-    "momentum_3d_pct": 122.4,
-    "volume_multiple": 2.38,
-    "ema_gap_pct": 18.98
+    "momentum_3d_pct": 5.77,
+    "volume_multiple": 2.19,
+    "ema_gap_pct": -1.16
    }
   },
   {
-   "ticker": "AMPG",
-   "company": "Amplitech Group, Inc.",
+   "ticker": "AZ",
+   "company": "A2Z Cust2Mate Solutions Corp. Common Shares",
+   "public_status": "scan_context",
+   "rank": 3,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "regime"
+   ],
+   "rationale": "AZ sits near the top of today's scan. Three-day momentum is mixed (+7.46%) and volume is 1.79x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "AZ, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+7.46%) ve hacim kendi ortalamasının 1.79 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "AZ sits near the top of today's scan. Three-day momentum is mixed (+7.46%) and volume is 1.79x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": 6.48,
+    "conviction_prob": 0,
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": 67.75,
+    "legacy_quality_score": 67.75,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 7.46,
+    "volume_multiple": 1.79,
+    "ema_gap_pct": -5.89
+   }
+  },
+  {
+   "ticker": "SENEA",
+   "company": "Seneca Foods Corp. Class A",
    "public_status": "scan_context",
    "rank": 4,
    "prob_band": "—",
@@ -317,29 +147,29 @@
     "rvol",
     "regime"
    ],
-   "rationale": "AMPG sits near the top of today's scan. Three-day momentum is mixed (+5.25%) and volume is 2.99x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "SENEA sits near the top of today's scan. Three-day momentum is mixed (+4.28%) and volume is 1.89x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "AMPG, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+5.25%) ve hacim kendi ortalamasının 2.99 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "AMPG sits near the top of today's scan. Three-day momentum is mixed (+5.25%) and volume is 2.99x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "SENEA, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+4.28%) ve hacim kendi ortalamasının 1.89 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "SENEA sits near the top of today's scan. Three-day momentum is mixed (+4.28%) and volume is 1.89x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 5.81,
+    "price": 179.03,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 71.438,
-    "legacy_quality_score": 71.438,
+    "ranking_score": 65.041,
+    "legacy_quality_score": 65.041,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 5.25,
-    "volume_multiple": 2.99,
-    "ema_gap_pct": 28.65
+    "momentum_3d_pct": 4.28,
+    "volume_multiple": 1.89,
+    "ema_gap_pct": 14.2
    }
   },
   {
-   "ticker": "AXON",
-   "company": "Axon Enterprise, Inc.",
+   "ticker": "MHH",
+   "company": "Mastech Digital, Inc.",
    "public_status": "scan_context",
    "rank": 5,
    "prob_band": "—",
@@ -347,91 +177,88 @@
     "rvol",
     "regime"
    ],
-   "rationale": "AXON sits near the top of today's scan. Three-day momentum is mixed (-5.85%) and volume is 1.80x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "MHH sits near the top of today's scan. Three-day momentum is mixed (-3.27%) and volume is 6.91x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "AXON, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-5.85%) ve hacim kendi ortalamasının 1.80 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "AXON sits near the top of today's scan. Three-day momentum is mixed (-5.85%) and volume is 1.80x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "MHH, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-3.27%) ve hacim kendi ortalamasının 6.91 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "MHH sits near the top of today's scan. Three-day momentum is mixed (-3.27%) and volume is 6.91x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 571.76,
+    "price": 7.685,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 71.238,
-    "legacy_quality_score": 71.238,
+    "ranking_score": 64.671,
+    "legacy_quality_score": 64.671,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": -5.85,
-    "volume_multiple": 1.8,
-    "ema_gap_pct": -0.21
+    "momentum_3d_pct": -3.27,
+    "volume_multiple": 6.91,
+    "ema_gap_pct": 6.44
    }
   },
   {
-   "ticker": "CLMT",
-   "company": "Calumet, Inc.",
+   "ticker": "ASTL",
+   "company": "Algoma Steel Group Inc. Common Shares",
    "public_status": "scan_context",
    "rank": 6,
    "prob_band": "—",
    "badges": [
-    "rvol",
+    "momentum",
     "regime"
    ],
-   "rationale": "CLMT sits near the top of today's scan. Three-day momentum is downward (-5.03%) and volume is 2.64x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "ASTL sits near the top of today's scan. Three-day momentum is upward (-0.45%) and volume is 1.29x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "CLMT, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum aşağı (-5.03%) ve hacim kendi ortalamasının 2.64 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "CLMT sits near the top of today's scan. Three-day momentum is downward (-5.03%) and volume is 2.64x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "ASTL, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (-0.45%) ve hacim kendi ortalamasının 1.29 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "ASTL sits near the top of today's scan. Three-day momentum is upward (-0.45%) and volume is 1.29x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 39.47,
+    "price": 4.43,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 70.391,
-    "legacy_quality_score": 70.391,
-    "momentum_bias": "bearish",
-    "momentum_3d_pct": -5.03,
-    "volume_multiple": 2.64,
-    "ema_gap_pct": 25.19
+    "ranking_score": 64.523,
+    "legacy_quality_score": 64.523,
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": -0.45,
+    "volume_multiple": 1.29,
+    "ema_gap_pct": -1.94
    }
   },
   {
-   "ticker": "TBCH",
-   "company": "Turtle Beach Corporation",
+   "ticker": "AXON",
+   "company": "Axon Enterprise, Inc.",
    "public_status": "scan_context",
    "rank": 7,
    "prob_band": "—",
    "badges": [
-    "rvol",
-    "gap",
-    "momentum",
     "regime"
    ],
-   "rationale": "TBCH sits near the top of today's scan. Three-day momentum is upward (-0.07%) and volume is 3.40x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "AXON sits near the top of today's scan. Three-day momentum is mixed (-2.15%) and volume is 1.09x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "TBCH, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (-0.07%) ve hacim kendi ortalamasının 3.40 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "TBCH sits near the top of today's scan. Three-day momentum is upward (-0.07%) and volume is 3.40x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "AXON, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-2.15%) ve hacim kendi ortalamasının 1.09 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "AXON sits near the top of today's scan. Three-day momentum is mixed (-2.15%) and volume is 1.09x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 13.93,
+    "price": 596.56,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 69.997,
-    "legacy_quality_score": 69.997,
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": -0.07,
-    "volume_multiple": 3.4,
-    "ema_gap_pct": -2.38
+    "ranking_score": 64.143,
+    "legacy_quality_score": 64.143,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": -2.15,
+    "volume_multiple": 1.09,
+    "ema_gap_pct": 0.09
    }
   },
   {
-   "ticker": "VSA",
-   "company": "VisionSys AI Inc. American Depositary Shares",
+   "ticker": "LAKE",
+   "company": "Lakeland Industries, Inc.",
    "public_status": "scan_context",
    "rank": 8,
    "prob_band": "—",
@@ -439,84 +266,86 @@
     "rvol",
     "regime"
    ],
-   "rationale": "VSA sits near the top of today's scan. Three-day momentum is mixed (+21.09%) and volume is 9.46x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "LAKE sits near the top of today's scan. Three-day momentum is mixed (-2.62%) and volume is 1.84x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "VSA, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+21.09%) ve hacim kendi ortalamasının 9.46 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "VSA sits near the top of today's scan. Three-day momentum is mixed (+21.09%) and volume is 9.46x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "LAKE, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-2.62%) ve hacim kendi ortalamasının 1.84 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "LAKE sits near the top of today's scan. Three-day momentum is mixed (-2.62%) and volume is 1.84x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 3.81,
+    "price": 12.065,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 69.047,
-    "legacy_quality_score": 69.047,
+    "ranking_score": 63.831,
+    "legacy_quality_score": 63.831,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 21.09,
-    "volume_multiple": 9.46,
-    "ema_gap_pct": 30.83
+    "momentum_3d_pct": -2.62,
+    "volume_multiple": 1.84,
+    "ema_gap_pct": -2.07
    }
   },
   {
-   "ticker": "WEST",
-   "company": "Westrock Coffee Company",
+   "ticker": "MDV",
+   "company": "Modiv Industrial, Inc.",
    "public_status": "scan_context",
    "rank": 9,
    "prob_band": "—",
    "badges": [
     "rvol",
+    "momentum",
     "regime"
    ],
-   "rationale": "WEST sits near the top of today's scan. Three-day momentum is mixed (+3.20%) and volume is 2.02x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "MDV sits near the top of today's scan. Three-day momentum is upward (+6.99%) and volume is 2.40x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "WEST, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+3.20%) ve hacim kendi ortalamasının 2.02 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "WEST sits near the top of today's scan. Three-day momentum is mixed (+3.20%) and volume is 2.02x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "MDV, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+6.99%) ve hacim kendi ortalamasının 2.40 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "MDV sits near the top of today's scan. Three-day momentum is upward (+6.99%) and volume is 2.40x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 8.23,
+    "price": 18.28,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 67.844,
-    "legacy_quality_score": 67.844,
-    "momentum_bias": "neutral",
-    "momentum_3d_pct": 3.2,
-    "volume_multiple": 2.02,
-    "ema_gap_pct": 23.54
+    "ranking_score": 63.485,
+    "legacy_quality_score": 63.485,
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": 6.99,
+    "volume_multiple": 2.4,
+    "ema_gap_pct": 7.94
    }
   },
   {
-   "ticker": "GLO",
-   "company": "Clough Global Opportunities Fund",
+   "ticker": "GCTS",
+   "company": "GCT Semiconductor Holding, Inc.",
    "public_status": "scan_context",
    "rank": 10,
    "prob_band": "—",
    "badges": [
     "rvol",
+    "gap",
     "regime"
    ],
-   "rationale": "GLO sits near the top of today's scan. Three-day momentum is mixed (+0.17%) and volume is 4.03x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "GCTS sits near the top of today's scan. Three-day momentum is mixed (+8.13%) and volume is 1.58x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "GLO, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+0.17%) ve hacim kendi ortalamasının 4.03 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "GLO sits near the top of today's scan. Three-day momentum is mixed (+0.17%) and volume is 4.03x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "GCTS, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+8.13%) ve hacim kendi ortalamasının 1.58 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "GCTS sits near the top of today's scan. Three-day momentum is mixed (+8.13%) and volume is 1.58x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 6,
+    "price": 2.46,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 67.807,
-    "legacy_quality_score": 67.807,
+    "ranking_score": 63.477,
+    "legacy_quality_score": 63.477,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 0.17,
-    "volume_multiple": 4.03,
-    "ema_gap_pct": 1
+    "momentum_3d_pct": 8.13,
+    "volume_multiple": 1.58,
+    "ema_gap_pct": 22.21
    }
   }
  ],
@@ -534,16 +363,14 @@
    "avg_pnl": 0.398
   },
   "toplam_aday_bugun": {
-   "B": 2,
-   "C": 1,
-   "A": 3
+   "B": 1
   }
  },
  "warnings": [],
  "concept": {
-  "name": "Liquidity",
-  "line": "How easily a stock trades without moving its own price; low liquidity means wide spreads and slippage."
+  "name": "Bid-Ask Spread",
+  "line": "The gap between buyer and seller prices; a real cost silently paid on every trade."
  },
- "context_line": "Regime: risk-on (VIX 16) · SPY -0.2% yesterday",
- "edition_no": 13
+ "context_line": "Regime: neutral",
+ "edition_no": 14
 }
