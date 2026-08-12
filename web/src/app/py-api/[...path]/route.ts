@@ -66,6 +66,11 @@ async function proxy(req: NextRequest, params: { path: string[] }): Promise<Next
         timeout: timeoutMs,
       },
       (upstreamRes) => {
+        if (upstreamRes.statusCode === 204) {
+          upstreamRes.resume();
+          resolve(new NextResponse(null, { status: 204 }));
+          return;
+        }
         const chunks: Buffer[] = [];
         upstreamRes.on("data", (chunk: Buffer) => chunks.push(chunk));
         upstreamRes.on("end", () => {
