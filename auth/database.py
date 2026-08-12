@@ -458,12 +458,8 @@ class Database:
             # Seed the committed VS-01 artifact when a deployment starts with
             # an empty persistent database. INSERT OR IGNORE keeps this
             # idempotent and preserves any user predictions.
-            seed_path = (
-                Path(__file__).resolve().parents[1]
-                / "finsense_cases"
-                / "case-001-gs-2026-05-22.json"
-            )
-            if seed_path.exists():
+            seed_dir = Path(__file__).resolve().parents[1] / "finsense_cases"
+            for seed_path in sorted(seed_dir.glob("*.json")):
                 with seed_path.open(encoding="utf-8") as seed_file:
                     seed = json.load(seed_file)
                 case = seed["case"]

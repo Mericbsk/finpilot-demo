@@ -95,33 +95,9 @@ class OutcomeOut(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GET /finsense/case/today
+# Shared case-row -> CaseOut builder (used by /case/today, /cases, /case/{id})
 # ─────────────────────────────────────────────────────────────────────────────
-@router.get("/case/today", response_model=CaseOut | None)
-def get_case_today(response: Response, anonymous_user_id: str | None = None) -> CaseOut | None:
-    """Returns the open case, if any. No outcome/grade field is ever included
-    here — outcome only exists behind GET /case/{id}/outcome, after resolution.
-
-    `anonymous_user_id` is optional and purely additive: when supplied, the
-    response also carries `my_prediction` (this caller's own prediction on
-    this case, if one already exists) so the client can render the locked
-    state immediately after a refresh instead of re-showing the form and
-    then hitting 409 on submit."""
-    db = _get_db()
-    try:
-        with db.connection() as conn:
-            row = conn.execute(
-                "SELECT id, asset, event_timestamp, snapshot, context, horizon_days "
-                "FROM fs_cases WHERE status = 'open' ORDER BY created_at DESC LIMIT 1"
-            ).fetchone()
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("[finsense] case/today failed: %s", exc)
-        raise HTTPException(status_code=500, detail=f"case lookup error: {exc}") from exc
-
-    if row is None:
-        response.status_code = status.HTTP_204_NO_CONTENT
-        return None
-
+def _case_out_from_row(db, row, anonymous_user_id: str | None) -> CaseOut:
     my_prediction: PredictionOut | None = None
     if anonymous_user_id:
         with db.connection() as conn:
@@ -149,6 +125,79 @@ def get_case_today(response: Response, anonymous_user_id: str | None = None) -> 
         horizon_days=row["horizon_days"],
         my_prediction=my_prediction,
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GET /finsense/case/today
+# ─────────────────────────────────────────────────────────────────────────────
+@router.get("/case/today", response_model=CaseOut | None)
+def get_case_today(response: Response, anonymous_user_id: str | None = None) -> CaseOut | None:
+    """Returns the single most-recently-created open case, if any. Kept for
+    backward compatibility with the original single-case VS-01 deploy; the
+    Classroom UI now uses GET /cases (list) + GET /case/{id} instead (Phase 8
+    content expansion — multiple open cases at once). No outcome/grade field
+    is ever included here — outcome only exists behind GET /case/{id}/outcome,
+    after resolution."""
+    db = _get_db()
+    try:
+        with db.connection() as conn:
+            row = conn.execute(
+                "SELECT id, asset, event_timestamp, snapshot, context, horizon_days "
+                "FROM fs_cases WHERE status = 'open' ORDER BY created_at DESC LIMIT 1"
+            ).fetchone()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[finsense] case/today failed: %s", exc)
+        raise HTTPException(status_code=500, detail=f"case lookup error: {exc}") from exc
+
+    if row is None:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return None
+
+    return _case_out_from_row(db, row, anonymous_user_id)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GET /finsense/cases — list all open cases (Phase 8 content expansion)
+# ─────────────────────────────────────────────────────────────────────────────
+@router.get("/cases", response_model=list[CaseOut])
+def list_cases(anonymous_user_id: str | None = None) -> list[CaseOut]:
+    """Returns every open case, oldest first. Same no-outcome-field guarantee
+    as /case/today and /case/{id} — this just lets the Classroom landing page
+    offer a choice instead of assuming a single 'today' case."""
+    db = _get_db()
+    try:
+        with db.connection() as conn:
+            rows = conn.execute(
+                "SELECT id, asset, event_timestamp, snapshot, context, horizon_days "
+                "FROM fs_cases WHERE status = 'open' ORDER BY created_at ASC"
+            ).fetchall()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[finsense] cases list failed: %s", exc)
+        raise HTTPException(status_code=500, detail=f"cases lookup error: {exc}") from exc
+
+    return [_case_out_from_row(db, row, anonymous_user_id) for row in rows]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GET /finsense/case/{case_id} — fetch one case by id (Phase 8 content expansion)
+# ─────────────────────────────────────────────────────────────────────────────
+@router.get("/case/{case_id}", response_model=CaseOut)
+def get_case(case_id: str, anonymous_user_id: str | None = None) -> CaseOut:
+    """Fetch a specific case regardless of whether it's the most recently
+    created one — needed once more than one case can be open at a time.
+    404 if the case doesn't exist OR isn't open (a closed/retired case isn't
+    exposed here; it would only ever be reachable via its outcome once
+    resolved, not via this case-detail view)."""
+    db = _get_db()
+    with db.connection() as conn:
+        row = conn.execute(
+            "SELECT id, asset, event_timestamp, snapshot, context, horizon_days "
+            "FROM fs_cases WHERE id = ? AND status = 'open'",
+            (case_id,),
+        ).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="case not found")
+    return _case_out_from_row(db, row, anonymous_user_id)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

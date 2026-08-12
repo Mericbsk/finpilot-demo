@@ -1,0 +1,40 @@
+{
+  "case": {
+    "id": "case-002-v-2026-05-22",
+    "source_signal_id": "sig_129fa1c99101",
+    "asset": "V",
+    "event_timestamp": "2026-05-22T14:32:37.646410+00:00",
+    "snapshot": {
+      "asset": "V",
+      "event_timestamp": "2026-05-22T14:32:37.646410+00:00",
+      "price_at_event": 330.79,
+      "signal_score": 56.0,
+      "signal_type": "BUY",
+      "regime": "Range",
+      "sentiment": "Neutral",
+      "risk_reward": 3.33,
+      "technical_context": "Trend Up | Uyum Z100%/M67% | Filtre 0/3",
+      "stop_loss": 329.54,
+      "take_profit": 334.95
+    },
+    "context": "On 2026-05-22, FinPilot's scanner flagged V with a BUY signal. The read was a Range regime with neutral sentiment, a risk/reward ratio of 3.33 (stop-loss $329.54, take-profit $334.95 against an entry near $330.79). Technical read: Trend Up | Uyum Z100%/M67% | Filtre 0/3. No specific news catalyst was recorded — this was a technical, trend-following read.",
+    "horizon_days": 21,
+    "outcome_rule": {
+      "type": "finpilot_barrier",
+      "entry_price": 330.79,
+      "stop_loss": 329.54,
+      "take_profit": 334.95,
+      "expiry_trading_days": 21
+    },
+    "resolution_method": "finpilot_barrier",
+    "status": "open"
+  },
+  "outcome": {
+    "case_id": "case-002-v-2026-05-22",
+    "actual_direction": "DOWN",
+    "actual_return_pct": -0.3779,
+    "resolution_method": "finpilot_barrier",
+    "resolved_at": "2026-06-12T14:32:37.646410+00:00",
+    "resolved_at_is_approximate": true
+  }
+}

@@ -88,6 +88,38 @@ export async function getCaseToday(): Promise<FinSenseCase | null> {
 }
 
 /**
+ * GET /finsense/cases — every open case (Phase 8 content expansion). Used by
+ * the Classroom landing page instead of assuming a single "today" case.
+ */
+export async function listCases(): Promise<FinSenseCase[]> {
+  const anonymousUserId = getAnonymousUserId();
+  const qs = anonymousUserId
+    ? `?anonymous_user_id=${encodeURIComponent(anonymousUserId)}`
+    : "";
+  return apiJson<FinSenseCase[]>(`/api/v1/finsense/cases${qs}`);
+}
+
+/**
+ * GET /finsense/case/{id} — fetch one specific case by id, regardless of
+ * whether it's the most recently created one. Null on 404 (not open / not
+ * found) rather than throwing, since "this case isn't available" is a normal
+ * state for the case detail page to render (not an error).
+ */
+export async function getCase(caseId: string): Promise<FinSenseCase | null> {
+  const anonymousUserId = getAnonymousUserId();
+  const qs = anonymousUserId
+    ? `?anonymous_user_id=${encodeURIComponent(anonymousUserId)}`
+    : "";
+  const r = await apiFetch(`/api/v1/finsense/case/${encodeURIComponent(caseId)}${qs}`);
+  if (r.status === 404) return null;
+  if (!r.ok) {
+    const text = await r.text().catch(() => "");
+    throw new Error(`case/${caseId} ${r.status}: ${text}`);
+  }
+  return (await r.json()) as FinSenseCase;
+}
+
+/**
  * POST /finsense/case/{id}/predict — commits this browser's prediction.
  * Throws on 409 (already predicted on this case) so the caller can show a
  * "you already predicted" state rather than a generic error.

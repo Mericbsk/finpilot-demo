@@ -1,0 +1,40 @@
+{
+  "case": {
+    "id": "case-003-wmt-2026-05-19",
+    "source_signal_id": "sig_a3127cfe2567",
+    "asset": "WMT",
+    "event_timestamp": "2026-05-19T13:57:49.491588+00:00",
+    "snapshot": {
+      "asset": "WMT",
+      "event_timestamp": "2026-05-19T13:57:49.491588+00:00",
+      "price_at_event": 133.36,
+      "signal_score": 64.0,
+      "signal_type": "BUY",
+      "regime": "Trend",
+      "sentiment": "Neutral",
+      "risk_reward": 3.33,
+      "technical_context": "Trend Up | Uyum Z100%/M83% | Filtre 1/3",
+      "stop_loss": 132.82,
+      "take_profit": 135.16
+    },
+    "context": "On 2026-05-19, FinPilot's scanner flagged WMT with a BUY signal. The read was a Trend regime with neutral sentiment, a risk/reward ratio of 3.33 (stop-loss $132.82, take-profit $135.16 against an entry near $133.36). Technical read: Trend Up | Uyum Z100%/M83% | Filtre 1/3. No specific news catalyst was recorded — this was a technical, trend-following read.",
+    "horizon_days": 21,
+    "outcome_rule": {
+      "type": "finpilot_barrier",
+      "entry_price": 133.36,
+      "stop_loss": 132.82,
+      "take_profit": 135.16,
+      "expiry_trading_days": 21
+    },
+    "resolution_method": "finpilot_barrier",
+    "status": "open"
+  },
+  "outcome": {
+    "case_id": "case-003-wmt-2026-05-19",
+    "actual_direction": "DOWN",
+    "actual_return_pct": -0.4049,
+    "resolution_method": "finpilot_barrier",
+    "resolved_at": "2026-06-09T13:57:49.491588+00:00",
+    "resolved_at_is_approximate": true
+  }
+}

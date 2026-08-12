@@ -10,13 +10,11 @@
  * to a direction, and later see what actually happened against exactly that
  * commitment. N=1 here; nothing is aggregated or judged.
  *
- * Implementation note on the route param: VS-01 only ever exposes ONE open
- * case via GET /finsense/case/today — there is no GET /case/{id} endpoint
- * (deliberately not added, to avoid growing the API surface before it's
- * needed). So this page fetches "today's" case and cross-checks that its id
- * matches the URL param; if it doesn't (stale link, case rotated), it shows
- * the same empty state as "no case today" rather than silently loading the
- * wrong case.
+ * Route param: fetches the case directly via GET /finsense/case/{id} (Phase 8
+ * content expansion — multiple cases can be open at once now, so this no
+ * longer assumes "today's" case is the only one). Null/404 renders the same
+ * empty state as "no case available" rather than silently loading a
+ * different case.
  *
  * Outcome reveal (Phase 6): checked once when the locked state loads and once
  * after a fresh commit — deliberately no polling (§ Phase 6 spec). If the
@@ -28,7 +26,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
-  getCaseToday,
+  getCase,
   predictCase,
   getOutcome,
   type FinSenseCase,
@@ -51,6 +49,12 @@ type Step =
 
 const PROBABILITY_OPTIONS = [50, 60, 70, 80, 90];
 const REASON_MIN_LENGTH = 20; // matches PredictRequest.reason min_length on the server
+
+/** "case-003-wmt-2026-05-19" -> "003" — display label only, mirrors /classroom's helper. */
+function caseNumberLabel(caseId: string): string {
+  const parts = caseId.split("-");
+  return parts[1] ?? "";
+}
 
 function StepLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -105,10 +109,14 @@ export default function ClassroomCasePage() {
 
   useEffect(() => {
     let cancelled = false;
-    getCaseToday()
+    if (!routeCaseId) {
+      setStep("empty");
+      return;
+    }
+    getCase(routeCaseId)
       .then((c) => {
         if (cancelled) return;
-        if (!c || c.id !== routeCaseId) {
+        if (!c) {
           setStep("empty");
           return;
         }
@@ -209,7 +217,7 @@ export default function ClassroomCasePage() {
         {/* ── CONTEXT ── */}
         {step === "context" && caseData && (
           <div className="mt-10">
-            <StepLabel>Case #001 — {caseData.asset}</StepLabel>
+            <StepLabel>Case #{caseNumberLabel(caseData.id)} — {caseData.asset}</StepLabel>
             <h1
               className="mt-3 font-ledger-serif text-2xl font-bold"
               style={{ color: C.ink }}
@@ -232,7 +240,7 @@ export default function ClassroomCasePage() {
         {/* ── DIRECTION ── */}
         {step === "direction" && caseData && (
           <div className="mt-10">
-            <StepLabel>Case #001 — {caseData.asset}</StepLabel>
+            <StepLabel>Case #{caseNumberLabel(caseData.id)} — {caseData.asset}</StepLabel>
             <h1
               className="mt-3 font-ledger-serif text-2xl font-bold"
               style={{ color: C.ink }}
@@ -266,7 +274,7 @@ export default function ClassroomCasePage() {
         {/* ── PROBABILITY ── */}
         {step === "probability" && caseData && (
           <div className="mt-10">
-            <StepLabel>Case #001 — {caseData.asset}</StepLabel>
+            <StepLabel>Case #{caseNumberLabel(caseData.id)} — {caseData.asset}</StepLabel>
             <h1
               className="mt-3 font-ledger-serif text-2xl font-bold"
               style={{ color: C.ink }}
@@ -300,7 +308,7 @@ export default function ClassroomCasePage() {
         {/* ── REASON ── */}
         {step === "reason" && caseData && (
           <div className="mt-10">
-            <StepLabel>Case #001 — {caseData.asset}</StepLabel>
+            <StepLabel>Case #{caseNumberLabel(caseData.id)} — {caseData.asset}</StepLabel>
             <h1
               className="mt-3 font-ledger-serif text-2xl font-bold"
               style={{ color: C.ink }}
@@ -331,7 +339,7 @@ export default function ClassroomCasePage() {
         {/* ── REVIEW ── */}
         {step === "review" && caseData && direction && probability !== null && (
           <div className="mt-10">
-            <StepLabel>Case #001 — {caseData.asset}</StepLabel>
+            <StepLabel>Case #{caseNumberLabel(caseData.id)} — {caseData.asset}</StepLabel>
             <h1
               className="mt-3 font-ledger-serif text-2xl font-bold"
               style={{ color: C.ink }}
@@ -371,7 +379,7 @@ export default function ClassroomCasePage() {
         {/* ── LOCKED ── */}
         {step === "locked" && caseData && committed && (
           <div className="mt-10">
-            <StepLabel>Case #001 — {caseData.asset}</StepLabel>
+            <StepLabel>Case #{caseNumberLabel(caseData.id)} — {caseData.asset}</StepLabel>
             <h1
               className="mt-3 font-ledger-serif text-2xl font-bold"
               style={{ color: C.ink }}
