@@ -377,6 +377,84 @@ class Database:
                 "ON execution_events(entity_id, occurred_at)"
             )
 
+            # FinSense reasoning layer — VS-01 (2026-08-11).
+            # `fs_` prefix: deliberately separate from `signals`/`quiz_scores` above,
+            # and from Finsense's own (diverged) academy.db — see
+            # docs/strategy/FinSense_Vertical_Slice_Specification_v1_2026-08-11.md §0.
+            # FinSense never independently resolves a FinPilot-originated outcome
+            # (LOCK-02): fs_outcomes is always copied from FinPilot's own barrier
+            # resolver, never recomputed here.
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS fs_cases (
+                    id                   TEXT PRIMARY KEY,
+                    source_signal_id     TEXT,
+                    asset                TEXT NOT NULL,
+                    event_timestamp      TEXT NOT NULL,
+                    snapshot             TEXT NOT NULL,
+                    context              TEXT NOT NULL,
+                    horizon_days         INTEGER NOT NULL,
+                    outcome_rule         TEXT NOT NULL,
+                    resolution_method    TEXT NOT NULL DEFAULT 'finpilot_barrier',
+                    status               TEXT NOT NULL DEFAULT 'open',
+                    created_at           TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS fs_predictions (
+                    id                    TEXT PRIMARY KEY,
+                    case_id               TEXT NOT NULL,
+                    anonymous_user_id     TEXT NOT NULL,
+                    direction             TEXT NOT NULL CHECK(direction IN ('UP','DOWN','FLAT')),
+                    probability           REAL NOT NULL CHECK(probability >= 0.0 AND probability <= 1.0),
+                    reason                TEXT NOT NULL,
+                    status                TEXT NOT NULL DEFAULT 'committed',
+                    committed_at          TEXT NOT NULL,
+                    created_at            TEXT NOT NULL,
+                    FOREIGN KEY (case_id) REFERENCES fs_cases(id),
+                    UNIQUE(anonymous_user_id, case_id)
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS fs_outcomes (
+                    case_id            TEXT PRIMARY KEY,
+                    actual_direction   TEXT NOT NULL CHECK(actual_direction IN ('UP','DOWN','FLAT')),
+                    actual_return_pct  REAL,
+                    resolution_method  TEXT NOT NULL DEFAULT 'finpilot_barrier',
+                    resolved_at        TEXT NOT NULL,
+                    FOREIGN KEY (case_id) REFERENCES fs_cases(id)
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS fs_evaluations (
+                    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                    prediction_id        TEXT NOT NULL,
+                    direction_correct    INTEGER NOT NULL,
+                    binary_outcome       INTEGER NOT NULL,
+                    probability_error    REAL NOT NULL,
+                    evaluation_version   TEXT NOT NULL DEFAULT 'eval_v1',
+                    created_at           TEXT NOT NULL,
+                    FOREIGN KEY (prediction_id) REFERENCES fs_predictions(id)
+                )
+                """
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_fs_predictions_user ON fs_predictions(anonymous_user_id)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_fs_predictions_case ON fs_predictions(case_id)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_fs_evaluations_prediction ON fs_evaluations(prediction_id)"
+            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_fs_cases_status ON fs_cases(status)")
+
             # Create indexes
             conn.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
             conn.execute(
@@ -404,6 +482,10 @@ class Database:
     def drop_all(self) -> None:
         """Drop all tables (for testing)."""
         with self.connection() as conn:
+            conn.execute("DROP TABLE IF EXISTS fs_evaluations")
+            conn.execute("DROP TABLE IF EXISTS fs_outcomes")
+            conn.execute("DROP TABLE IF EXISTS fs_predictions")
+            conn.execute("DROP TABLE IF EXISTS fs_cases")
             conn.execute("DROP TABLE IF EXISTS alpaca_orders")
             conn.execute("DROP TABLE IF EXISTS buy_signals")
             conn.execute("DROP TABLE IF EXISTS scan_results")

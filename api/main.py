@@ -56,6 +56,7 @@ from api.routers import (
     optuna,
     prices,
     profitcore,
+    reasoning,
     research,
     scan,
     stripe_webhook,
@@ -376,6 +377,7 @@ app.include_router(market_data.router, prefix="/api/v1")
 app.include_router(closed_loop.router, prefix="/api/v1")
 app.include_router(research.router, prefix="/api/v1")
 app.include_router(profitcore.router, prefix="/api/v1")
+app.include_router(reasoning.router, prefix="/api/v1")
 app.include_router(waitlist_signup.router, prefix="/api/v1")
 app.include_router(academy.router, prefix="/api/v1")
 app.include_router(demo_feedback.router, prefix="/api/v1")
