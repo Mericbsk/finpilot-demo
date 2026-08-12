@@ -18,11 +18,10 @@
  * the same empty state as "no case today" rather than silently loading the
  * wrong case.
  *
- * Outcome reveal (Phase 6): checked once when the locked state loads —
- * deliberately no polling (§ Phase 6 spec). If the case isn't resolved yet,
- * GET /outcome 404s and the UI shows "Waiting for outcome"; the user finds
- * out it resolved by coming back and refreshing, same as the refresh test
- * for the prediction itself.
+ * Outcome reveal (Phase 6): checked once when the locked state loads and once
+ * after a fresh commit — deliberately no polling (§ Phase 6 spec). If the
+ * case isn't resolved yet, GET /outcome 404s and the UI shows "Waiting for
+ * outcome"; a later refresh checks again.
  */
 
 import { useEffect, useState } from "react";
@@ -118,10 +117,8 @@ export default function ClassroomCasePage() {
           // Refresh-safe: already committed, skip straight to locked.
           setCommitted(c.my_prediction);
           setStep("locked");
-          // Outcome is checked here — on a real page load/refresh of an
-          // already-committed case — and deliberately NOT right after a
-          // fresh commit in the same session (see handleCommit). No
-          // polling: one check per load, per the Phase 6 spec.
+          // Outcome is checked here on a real page load/refresh of an
+          // already-committed case. No polling: one check per load.
           getOutcome(c.id)
             .then((o) => {
               if (!cancelled) setOutcome(o);
@@ -157,12 +154,15 @@ export default function ClassroomCasePage() {
       });
       setCommitted(prediction);
       setStep("locked");
-      // No outcome check right after a fresh commit in this same session —
-      // deliberately (§ Phase 6: "refresh yeterli", no polling). Mark as
-      // "checked" so the UI reads "Waiting for outcome" immediately instead
-      // of an indefinite "Checking…"; the real check happens next time this
-      // page loads (see the getCaseToday effect above).
-      setOutcomeChecked(true);
+      // Check once after committing so already-resolved cases reveal the
+      // result without requiring a manual refresh. A pending outcome still
+      // falls back to the normal waiting state.
+      getOutcome(caseData.id)
+        .then((resolvedOutcome) => setOutcome(resolvedOutcome))
+        .catch(() => {
+          /* a failed outcome check must not hide the committed prediction */
+        })
+        .finally(() => setOutcomeChecked(true));
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       if (message.includes("409")) {
