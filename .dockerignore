@@ -59,6 +59,10 @@ docs/_build/
 
 # Data & Logs (will be mounted as volumes)
 data/
+!data/
+data/*
+!data/finsense_cases/
+!data/finsense_cases/*.json
 logs/
 *.log
 *.csv
