@@ -29,6 +29,8 @@ COPY distribution/ ./distribution/
 COPY telegram_alerts.py ./
 COPY telegram_bot_runner.py telegram_config.py ./
 COPY api/entrypoint.sh ./
+# FinSense VS-01 seed artifact; kept outside the mounted /app/data disk.
+COPY data/finsense_cases/ ./finsense_cases/
 
 # Non-root user
 RUN groupadd -r finpilot && useradd -r -g finpilot finpilot \

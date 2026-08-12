@@ -455,6 +455,50 @@ class Database:
             )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_fs_cases_status ON fs_cases(status)")
 
+            # Seed the committed VS-01 artifact when a deployment starts with
+            # an empty persistent database. INSERT OR IGNORE keeps this
+            # idempotent and preserves any user predictions.
+            seed_path = (
+                Path(__file__).resolve().parents[1]
+                / "finsense_cases"
+                / "case-001-gs-2026-05-22.json"
+            )
+            if seed_path.exists():
+                with seed_path.open(encoding="utf-8") as seed_file:
+                    seed = json.load(seed_file)
+                case = seed["case"]
+                outcome = seed["outcome"]
+                created_at = datetime.now(UTC).isoformat()
+                conn.execute(
+                    "INSERT OR IGNORE INTO fs_cases (id, source_signal_id, asset, event_timestamp, "
+                    "snapshot, context, horizon_days, outcome_rule, resolution_method, status, created_at) "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    (
+                        case["id"],
+                        case.get("source_signal_id"),
+                        case["asset"],
+                        case["event_timestamp"],
+                        json.dumps(case["snapshot"]),
+                        case["context"],
+                        case["horizon_days"],
+                        json.dumps(case["outcome_rule"]),
+                        case["resolution_method"],
+                        case["status"],
+                        created_at,
+                    ),
+                )
+                conn.execute(
+                    "INSERT OR IGNORE INTO fs_outcomes (case_id, actual_direction, actual_return_pct, "
+                    "resolution_method, resolved_at) VALUES (?,?,?,?,?)",
+                    (
+                        outcome["case_id"],
+                        outcome["actual_direction"],
+                        outcome["actual_return_pct"],
+                        outcome["resolution_method"],
+                        outcome["resolved_at"],
+                    ),
+                )
+
             # Create indexes
             conn.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
             conn.execute(
