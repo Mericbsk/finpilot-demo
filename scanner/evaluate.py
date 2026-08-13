@@ -37,6 +37,7 @@ from .score_engine import (
     legacy_composite_ranking_enabled,
     regime_gate_mult,
     score_component_breakdown,
+    score_feature_flags,
 )
 from .signals import (
     analyze_price_momentum,
@@ -67,21 +68,37 @@ _DECAY_EV_THRESH: float = 0.005  # high-vol + net EV < 0.5% → edge_decay warni
 
 def _unavailable_result(symbol: str, reason: str, detail: str | None = None) -> dict[str, Any]:
     """Keep unavailable symbols in the full-scan contract without grading them."""
+    data_quality = {
+        "available": {},
+        "missing_fields": [reason],
+    }
     result: dict[str, Any] = {
         "symbol": symbol,
         "scan_status": "unavailable",
         "data_quality_tier": "Tier 3",
         "data_quality_status": "missing",
+        "data_quality": data_quality,
         "reject_reason": [reason],
+        "execution_reject_reason": [reason],
         "selection_eligible": False,
         "entry_ok": False,
         "execution_feasible": False,
+        "execution_confidence": "Tier 0",
         "selected_by_legacy_quality": False,
         "selected_by_v2": False,
         "selected_by_both": False,
         "legacy_only": False,
         "v2_only": False,
         "ranking_method": "legacy_quality",
+        "legacy_quality_score": 0.0,
+        "ranking_score": 0.0,
+        "v2_score": 0.0,
+        "strategy_scores": {"legacy_quality": 0.0, "v2": 0.0},
+        "conviction_tier": "",
+        "conviction_prob": 0.0,
+        "position_cap_notional": None,
+        "position_cap_applied": False,
+        "position_cap_reject_reason": None,
         "score": 0,
         "composite_score": 0,
     }
@@ -808,6 +825,8 @@ def evaluate_symbol(
                 score=_score_raw,
                 components=_score_components,
                 data_quality=_data_quality,
+                score_input=_score_input,
+                feature_flags=score_feature_flags(),
             ),
             "regime_gate_mult": _gate_mult,
             "position_size_gated": int(risk_data["position_size"] * _gate_mult),

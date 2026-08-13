@@ -1,0 +1,1137 @@
+{
+  "benchmark": "phase1-30-symbol-cold-warm-20260804",
+  "created_at": "2026-08-04T12:50:18.585170+00:00",
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "GOOGL",
+    "META",
+    "TSLA",
+    "AMD",
+    "NFLX",
+    "AVGO",
+    "JPM",
+    "BAC",
+    "XOM",
+    "PFE",
+    "KO",
+    "INTC",
+    "CSCO",
+    "ABNB",
+    "SOFI",
+    "PLTR",
+    "MCD",
+    "WMT",
+    "COST",
+    "ORCL",
+    "ADBE",
+    "QCOM",
+    "TXN",
+    "C",
+    "GS",
+    "DIS"
+  ],
+  "cache_note": "data_fetcher._memory_cache cleared",
+  "cache_scope": "process-cold; external cache state not forcibly cleared",
+  "stage_timing_enabled": true,
+  "cold": {
+    "label": "process_cold",
+    "symbols_requested": 30,
+    "results": 30,
+    "wall_s": 32.835087,
+    "cpu_process_s": 34.703125,
+    "cpu_wall_ratio": 1.056892,
+    "peak_tracemalloc_bytes": 8593810,
+    "rss_before_bytes": 141955072,
+    "rss_after_bytes": 182497280,
+    "rss_delta_bytes": 40542208,
+    "yf_fallback": 0,
+    "alpaca_miss": {},
+    "stage_timing": [
+      {
+        "stage": "prefetch.alpaca",
+        "elapsed_s": 5.1e-05,
+        "count": 30,
+        "path": "alpaca",
+        "outcome": "ok"
+      },
+      {
+        "stage": "fetch.request",
+        "elapsed_s": 7.649289,
+        "count": 30,
+        "timeframe": "15m",
+        "path": "bulk_yfinance",
+        "outcome": "ok"
+      },
+      {
+        "stage": "fetch.request",
+        "elapsed_s": 6.302837,
+        "count": 30,
+        "timeframe": "1h",
+        "path": "bulk_yfinance",
+        "outcome": "ok"
+      },
+      {
+        "stage": "fetch.request",
+        "elapsed_s": 5.231066,
+        "count": 30,
+        "timeframe": "1d",
+        "path": "bulk_yfinance",
+        "outcome": "ok"
+      },
+      {
+        "stage": "prefetch.bulk_yfinance",
+        "elapsed_s": 25.951093,
+        "count": 30,
+        "path": "bulk_yfinance",
+        "outcome": "ok"
+      },
+      {
+        "stage": "prefetch.resample_4h",
+        "elapsed_s": 2.150368,
+        "count": 30,
+        "timeframe": "4h",
+        "path": "derived",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.16027,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.340444,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.636551,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.635105,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.846819,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.312988,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.387901,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.423511,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.306476,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.15706,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.210141,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.686229,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.611079,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.583416,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.375591,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.554039,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.126867,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.711108,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.042876,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.613202,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.473897,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.720777,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.378276,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.948288,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.528675,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.471346,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.116127,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.661156,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.495142,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 3.272145,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      }
+    ],
+    "decision_snapshot": {
+      "by_symbol": {
+        "CSCO": {
+          "composite_score": 64,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "MSFT": {
+          "composite_score": 59,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "XOM": {
+          "composite_score": 52,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "PFE": {
+          "composite_score": 49,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "JPM": {
+          "composite_score": 60,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "ABNB": {
+          "composite_score": 48,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "TSLA": {
+          "composite_score": 14,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "GOOGL": {
+          "composite_score": 74,
+          "filter_score": 2,
+          "selection_eligible": true,
+          "entry_ok": true,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "AMD": {
+          "composite_score": 45,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "AVGO": {
+          "composite_score": 64,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "MCD": {
+          "composite_score": 18,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "AAPL": {
+          "composite_score": 36,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "NVDA": {
+          "composite_score": 58,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "AMZN": {
+          "composite_score": 83,
+          "filter_score": 3,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "NFLX": {
+          "composite_score": 21,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "META": {
+          "composite_score": 18,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "BAC": {
+          "composite_score": 60,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "GS": {
+          "composite_score": 48,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "KO": {
+          "composite_score": 57,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "ORCL": {
+          "composite_score": 32,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "ADBE": {
+          "composite_score": 24,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "COST": {
+          "composite_score": 17,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "C": {
+          "composite_score": 59,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "WMT": {
+          "composite_score": 9,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "TXN": {
+          "composite_score": 38,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "INTC": {
+          "composite_score": 48,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "PLTR": {
+          "composite_score": 32,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "QCOM": {
+          "composite_score": 27,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "DIS": {
+          "composite_score": 20,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "SOFI": {
+          "composite_score": 39,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        }
+      },
+      "top_n": [
+        "AMZN",
+        "GOOGL",
+        "AVGO",
+        "CSCO",
+        "BAC",
+        "JPM",
+        "C",
+        "MSFT",
+        "NVDA",
+        "KO",
+        "XOM",
+        "PFE",
+        "ABNB",
+        "GS",
+        "INTC",
+        "AMD",
+        "SOFI",
+        "TXN",
+        "AAPL",
+        "ORCL",
+        "PLTR",
+        "QCOM",
+        "ADBE",
+        "NFLX",
+        "DIS",
+        "MCD",
+        "META",
+        "COST",
+        "TSLA",
+        "WMT"
+      ]
+    }
+  },
+  "warm": {
+    "label": "warm",
+    "symbols_requested": 30,
+    "results": 30,
+    "wall_s": 38.729914,
+    "cpu_process_s": 35.140625,
+    "cpu_wall_ratio": 0.907325,
+    "peak_tracemalloc_bytes": 7115344,
+    "rss_before_bytes": 171667456,
+    "rss_after_bytes": 183885824,
+    "rss_delta_bytes": 12218368,
+    "yf_fallback": 0,
+    "alpaca_miss": {},
+    "stage_timing": [
+      {
+        "stage": "prefetch.alpaca",
+        "elapsed_s": 6.5e-05,
+        "count": 30,
+        "path": "alpaca",
+        "outcome": "ok"
+      },
+      {
+        "stage": "fetch.request",
+        "elapsed_s": 6.383364,
+        "count": 30,
+        "timeframe": "15m",
+        "path": "bulk_yfinance",
+        "outcome": "ok"
+      },
+      {
+        "stage": "fetch.request",
+        "elapsed_s": 6.684048,
+        "count": 30,
+        "timeframe": "1h",
+        "path": "bulk_yfinance",
+        "outcome": "ok"
+      },
+      {
+        "stage": "fetch.request",
+        "elapsed_s": 6.640011,
+        "count": 30,
+        "timeframe": "1d",
+        "path": "bulk_yfinance",
+        "outcome": "ok"
+      },
+      {
+        "stage": "prefetch.bulk_yfinance",
+        "elapsed_s": 29.756981,
+        "count": 30,
+        "path": "bulk_yfinance",
+        "outcome": "ok"
+      },
+      {
+        "stage": "prefetch.resample_4h",
+        "elapsed_s": 4.831828,
+        "count": 30,
+        "timeframe": "4h",
+        "path": "derived",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.245225,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.462544,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.778476,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.472925,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.428181,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.670354,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.434596,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.591573,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.766523,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.130866,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.702084,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.372037,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.866137,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.849488,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.062534,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.04108,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.602783,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.67342,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.48993,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.7134,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.659903,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.305706,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.104883,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.590103,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 2.220981,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.645261,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.967824,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.278595,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 0.841851,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      },
+      {
+        "stage": "evaluation.symbol",
+        "elapsed_s": 1.38889,
+        "count": 1,
+        "path": "prefetched",
+        "outcome": "ok"
+      }
+    ],
+    "decision_snapshot": {
+      "by_symbol": {
+        "JPM": {
+          "composite_score": 60,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "GOOGL": {
+          "composite_score": 74,
+          "filter_score": 2,
+          "selection_eligible": true,
+          "entry_ok": true,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "MSFT": {
+          "composite_score": 59,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "TSLA": {
+          "composite_score": 14,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "AAPL": {
+          "composite_score": 36,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "MCD": {
+          "composite_score": 18,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "BAC": {
+          "composite_score": 60,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "NFLX": {
+          "composite_score": 21,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "META": {
+          "composite_score": 18,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "AMZN": {
+          "composite_score": 83,
+          "filter_score": 3,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "AVGO": {
+          "composite_score": 64,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "NVDA": {
+          "composite_score": 58,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "SOFI": {
+          "composite_score": 39,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "PFE": {
+          "composite_score": 49,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "KO": {
+          "composite_score": 57,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "COST": {
+          "composite_score": 17,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "CSCO": {
+          "composite_score": 64,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "TXN": {
+          "composite_score": 38,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "AMD": {
+          "composite_score": 45,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "PLTR": {
+          "composite_score": 32,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "WMT": {
+          "composite_score": 9,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "ADBE": {
+          "composite_score": 24,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "INTC": {
+          "composite_score": 48,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "XOM": {
+          "composite_score": 52,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "ABNB": {
+          "composite_score": 48,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "ORCL": {
+          "composite_score": 32,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "GS": {
+          "composite_score": 48,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "C": {
+          "composite_score": 59,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": true
+        },
+        "DIS": {
+          "composite_score": 20,
+          "filter_score": 0,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        },
+        "QCOM": {
+          "composite_score": 27,
+          "filter_score": 1,
+          "selection_eligible": false,
+          "entry_ok": false,
+          "conviction_tier": "",
+          "direction": false
+        }
+      },
+      "top_n": [
+        "AMZN",
+        "GOOGL",
+        "AVGO",
+        "CSCO",
+        "BAC",
+        "JPM",
+        "C",
+        "MSFT",
+        "NVDA",
+        "KO",
+        "XOM",
+        "PFE",
+        "ABNB",
+        "GS",
+        "INTC",
+        "AMD",
+        "SOFI",
+        "TXN",
+        "AAPL",
+        "ORCL",
+        "PLTR",
+        "QCOM",
+        "ADBE",
+        "NFLX",
+        "DIS",
+        "MCD",
+        "META",
+        "COST",
+        "TSLA",
+        "WMT"
+      ]
+    }
+  },
+  "golden_equal": true,
+  "golden_diffs": []
+}

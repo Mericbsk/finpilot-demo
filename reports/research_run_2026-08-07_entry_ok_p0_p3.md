@@ -41,6 +41,39 @@ The canonical dataset does not contain these required production score fields:
 
 The replay therefore did not infer or reconstruct score values. This gate is not a pass.
 
+Follow-up telemetry recovery was attempted from 63 historical suggestion CSV
+exports. The deterministic builder selected the latest intraday record for each
+of 303 unique symbol-day keys from 602 rows, recorded 115 duplicate keys and 57
+keys with conflicting intraday score values, and joined the nearest canonical
+intraday record by timestamp. The seven non-volatility score fields were
+present, but all 303 selected rows lacked a historical `vol_regime` value after
+the timestamp-aligned join. Strict replay therefore remained
+`INSUFFICIENT_DATA` (`compared=0`, `invalid_rows=303`); no default volatility
+regime was invented. Artifacts: `research/build_score_replay_input.py`,
+`data/backtest_out/score_replay_input_2026-08-07.csv`,
+`data/backtest_out/score_replay_input_2026-08-07.json` and
+`data/backtest_out/research_run_2026-08-07_score_replay_telemetry.json`.
+
+The current JSON scan export was then replayed after adding support for its
+`results` payload and `score_component_total` alias. It contains 1,801 rows;
+1,570 rows have complete required component fields and persisted breakdowns,
+while 231 rows are invalid because telemetry fields are missing. Persisted
+breakdown accounting has four strict `0.001` total discrepancies (EMR, MGEE,
+LOW and SYY), all consistent with one-decimal-in-the-third-place rounding
+differences but retained as mismatches under the strict tolerance. Independent
+bridge recomputation mismatched all 1,570 comparable rows because the export
+does not preserve every feature-flag/input alias used to reconstruct squeeze,
+catalyst, lottery and overnight score paths. Current replay artifact:
+`data/backtest_out/research_run_2026-08-07_score_replay_current.json`.
+
+The export-contract fix is now implemented for future evaluator rows, but has
+not been applied retroactively to this immutable export. New rows persist
+`recommendation_score`, the exact `score_input` mapping, and the
+`score_feature_flags` snapshot used by the production score engine. Strict
+replay consumes those nested fields and restores the recorded flags while
+recomputing. This is a Level B scanner/export contract proposal and requires
+human approval before it is treated as an approved production change.
+
 ### P1: matched-null controls
 
 All three families completed with 1,000 permutations:
@@ -102,7 +135,9 @@ This run is a Level A research-only implementation and diagnostic execution. It 
 
 ## Validation
 
-Focused tests: `6 passed`.
+Focused telemetry and replay tests: `11 passed`. The research pipeline
+regression subset also passed `4 tests`. The pre-existing
+`datetime.utcnow()` deprecation warning in `scanner/data_fetcher.py` remains.
 
 Validated modules:
 
@@ -116,3 +151,19 @@ Validated modules:
 - `tests/test_candidate_pipeline.py`
 
 Syntax compilation and `git diff --check` completed. The only observed test warning was the pre-existing `datetime.utcnow()` deprecation in `scanner/data_fetcher.py`.
+
+## End-to-end conclusion
+
+The research sequence is complete for the frozen `entry_ok` candidate. P1 is
+fully recorded as a diagnostic null-distribution run, while P2 is negative at
+all three cost assumptions and deteriorates in the later validation period.
+P3 does not contain sufficient historical spread, impact, or capacity
+evidence. P0 is not closed: the immutable historical export fails strict
+independent score equivalence because telemetry and score-contract context are
+missing.
+
+No locked OOS, shadow run, paper order, live order, broker action, risk change,
+product-rule change, publication promotion, or production release occurred.
+The next evidence-producing action is a new export generated after Level B
+approval of the telemetry contract, followed by a fresh P0 replay with a new
+input hash and separately labelled P1-P3 rerun.

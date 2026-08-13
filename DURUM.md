@@ -5,9 +5,9 @@ _Kural: bu dosya kafamın dışındaki tek "neredeyim" haritasıdır. Her sabah 
 ---
 
 ## ⭐ Bu 6 haftanın TEK önceliği: LANSMAN
-Kaynak: `LAUNCH_CHECKLIST.md` · Kritik metrik: **10 ardışık işlem günü kesintisiz brif** → şu an **4/10**
-(7 Ağu doğrulama: `distribution.db` broadcast_queue'dan `publish_streak()` ile hesaplandı; 3-6 Ağu
-ardışık `sent`; seri en son 31 Tem'de kırıldı — o gün için hiç taslak/kayıt yok).
+Kaynak: `LAUNCH_CHECKLIST.md` · Kritik metrik: **10 ardışık işlem günü kesintisiz brif** → şu an **7/10**
+(11 Ağu doğrulama: `distribution.db` broadcast_queue'dan `publish_streak()` ile hesaplandı; 3-7 ve
+10-11 Ağu ardışık `sent` — 8-9 Ağu haftasonu, seri kırılmadı; seri en son 31 Tem'de kırılmıştı).
 Başka her şey bunun önüne geçemez. "Bunu yapmak lansmanı bugün ilerletiyor mu?" — hayırsa park.
 
 ### Bu haftanın tek işi (her Pazartesi doldur)

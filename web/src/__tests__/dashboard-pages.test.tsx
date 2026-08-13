@@ -32,12 +32,15 @@ beforeEach(() => {
         ? input.toString()
         : input.url;
 
-    const jsonResponse = (body: unknown, init?: { ok?: boolean; status?: number }) =>
+    const jsonResponse = (
+      body: unknown,
+      init?: { ok?: boolean; status?: number },
+    ): Promise<Response> =>
       Promise.resolve({
         ok: init?.ok ?? true,
         status: init?.status ?? 200,
         json: () => Promise.resolve(body),
-      });
+      } as unknown as Response);
 
     if (url.includes("/stock_presets.json")) {
       return jsonResponse({

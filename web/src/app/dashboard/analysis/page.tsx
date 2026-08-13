@@ -27,6 +27,20 @@ import { toast } from "sonner";
 import StockChart from "@/components/dashboard/StockChart";
 import { ExplainPanel } from "@/components/ExplainPanel";
 
+/**
+ * Fires a Plausible custom event, same fire-and-forget pattern as
+ * demo/page.tsx's local track() helper (no shared lib for this yet).
+ * No-op if Plausible hasn't loaded (ad blockers, etc.) — never throws.
+ */
+function track(event: string, props?: Record<string, string>) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).plausible?.(event, props ? { props } : undefined);
+  } catch {
+    /* noop */
+  }
+}
+
 /* ── Pools for generating realistic text ───────────────────── */
 const macdStates = ["Bullish Crossover", "Bearish Crossover", "Neutral", "Divergence", "Strong Bullish", "Weak Bearish"];
 const regimes = ["Trend", "Volatile", "Range", "Breakout", "Mean-Revert"];
@@ -270,6 +284,65 @@ function ScoreRing({ score }: { score: number }) {
         {score}
       </span>
       <span style={{ fontSize: 10, color: C.text3 }}>AI Score</span>
+    </div>
+  );
+}
+
+/**
+ * Indicator-translation probe (cheap experiment, no recruitment needed —
+ * see finsense-validate-before-expanding memory). Only renders when RSI is
+ * in the overbought/oversold zone, i.e. exactly where a raw number is most
+ * likely to be misread as "sell now" / "buy now". Tests whether a one-line
+ * plain-language caveat changes how useful users find the indicator — not
+ * whether RSI itself predicts anything. Measured via existing Plausible
+ * events, no new backend.
+ */
+function RsiCaveat({ rsi }: { rsi: number }) {
+  const [feedback, setFeedback] = useState<"yes" | "no" | null>(null);
+  const overbought = rsi > 70;
+  const text = overbought
+    ? "Momentum güçlü — tek başına düşüş sinyali değil."
+    : "Satış baskısı yüksek — tek başına dönüş kanıtı değil.";
+
+  useEffect(() => {
+    track("indicator_caveat_shown", { indicator: "RSI" });
+  }, []);
+
+  function sendFeedback(v: "yes" | "no") {
+    if (feedback) return; // one vote per view
+    setFeedback(v);
+    track("indicator_caveat_feedback", { indicator: "RSI", helpful: v });
+  }
+
+  return (
+    <div
+      className="mt-3 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-xs"
+      style={{ backgroundColor: "rgba(255,214,10,0.06)", border: `1px solid rgba(255,214,10,0.2)` }}
+    >
+      <span style={{ color: C.text2 }}>{text}</span>
+      {feedback === null ? (
+        <div className="flex shrink-0 items-center gap-2">
+          <span style={{ color: C.text3, fontSize: 10 }}>Faydalı mı?</span>
+          <button
+            type="button"
+            onClick={() => sendFeedback("yes")}
+            className="rounded px-1.5 py-0.5 transition-colors"
+            style={{ color: C.text2 }}
+          >
+            👍
+          </button>
+          <button
+            type="button"
+            onClick={() => sendFeedback("no")}
+            className="rounded px-1.5 py-0.5 transition-colors"
+            style={{ color: C.text2 }}
+          >
+            👎
+          </button>
+        </div>
+      ) : (
+        <span className="shrink-0" style={{ color: C.text3, fontSize: 10 }}>Teşekkürler</span>
+      )}
     </div>
   );
 }
@@ -968,6 +1041,7 @@ function AnalysisInner() {
                     </div>
                   ))}
                 </div>
+                {(data.rsi > 70 || data.rsi < 30) && <RsiCaveat rsi={data.rsi} />}
               </div>
             </div>
           )}

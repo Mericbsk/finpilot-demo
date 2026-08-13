@@ -3,7 +3,7 @@ _ROL: yalnız durum; kural koymaz (otorite haritası: docs/INDEX.md) · Kaynak p
 _Gerçekleme 2026-07-24 (Bölüm 5): retroaktif Hafta-1 kapı notu aşağıda; seri sayacı publish_now çıktısına bağlanacak (Bölüm 2)._
 
 ## Lansman Tanımı (10/10 şart)
-- [ ] 1. 10 ardışık işlem günü kesintisiz brif yayını — SAYAÇ SIFIRLANDI 31 Tem (o gün için broadcast_queue'da hiç kayıt yok, 20-22 Tem de "expired" olmuştu); mevcut seri: 4 gün (3-6 Ağu, doğrulama 7 Ağu: `publish_streak()` DB sorgusu)
+- [ ] 1. 10 ardışık işlem günü kesintisiz brif yayını — SAYAÇ SIFIRLANDI 31 Tem (o gün için broadcast_queue'da hiç kayıt yok, 20-22 Tem de "expired" olmuştu); mevcut seri: 7 gün (3-7, 10-11 Ağu, doğrulama 11 Ağu: `publish_streak()` DB sorgusu) — 3 gün kaldı
 - [ ] 2. Sabah operasyonu ≤15 dk/gün — ölçüm Bölüm 2 süre loguyla başlıyor
 - [~] 3. finpilot.at yeni landing + demo CANLI ✓ (13 Tem) · mobil 3-cihaz testi bekliyor
 - [~] 4. Demo her gün otomatik taze snapshot — köprü ONARILDI 24 Tem (publish_now→web, kanıt: demo_snapshot date=2026-07-24); "her gün" kanıtı seri ile birlikte işlenir

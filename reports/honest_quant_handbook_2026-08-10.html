@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>The Honest Quant Research Handbook</title>
+<style>
+@page { margin: 2.2cm; size: A4; }
+body { font-family: Georgia, 'Times New Roman', serif; color: #1a1a1a; line-height: 1.65; max-width: 680px; margin: 0 auto; padding: 40px 20px; font-size: 11.5pt; }
+h1 { font-size: 22pt; border-bottom: 2px solid #1a1a1a; padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 15pt; margin-top: 36px; border-bottom: 1px solid #999; padding-bottom: 4px; page-break-after: avoid; }
+h3 { font-size: 12pt; margin-top: 24px; page-break-after: avoid; }
+blockquote { border-left: 3px solid #888; margin: 16px 0; padding: 8px 16px; color: #444; font-style: italic; background: #f7f5f0; }
+table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 10.5pt; }
+th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+th { background: #f0ede6; }
+code { font-family: 'Courier New', monospace; background: #f4f4f4; padding: 1px 4px; font-size: 10pt; }
+pre { background: #f4f4f4; padding: 12px; overflow-x: auto; font-size: 9.5pt; page-break-inside: avoid; }
+hr { border: none; border-top: 1px solid #ccc; margin: 32px 0; }
+ul, ol { padding-left: 24px; }
+li { margin-bottom: 4px; }
+strong { color: #000; }
+</style></head><body>
+<h1 id="the-honest-quant-research-handbook">The Honest Quant Research Handbook</h1>
+<h2 id="backtestiniz-neden-yalan-soyluyor-40-deneyin-anatomisi">Backtest'iniz Neden Yalan Söylüyor: 40 Deneyin Anatomisi</h2>
+<p><strong>FinPilot Research Team · 2026-08-10</strong>
+<strong>Version 1.0 · DRAFT</strong></p>
+<hr />
+<blockquote>
+<p>Bu el kitabı, iki yıllık bir quant araştırma programının en acı verici — ve en
+öğretici — bulgularını toplar. Tek bir strateji önermez. Tek bir "edge"
+iddia etmez. Bunun yerine, kendi sistemimizi 40+ deneyden geçirerek
+öğrendiğimiz şeyi paylaşır: <strong>bir backtest'in size yalan söylemesinin kaç
+yolu olduğunu ve her birini nasıl yakalayacağınızı.</strong></p>
+<p>Her bölüm gerçek bir hatayı, onu yakalayan testi ve çıkan dersi anlatır.
+Hiçbir sayı "kanıtlanmış edge" olarak sunulmaz; hepsi "bu tuzağa düşmeyin"
+olarak sunulur.</p>
+</blockquote>
+<hr />
+<h2 id="bolum-1-etiket-yalan-mfe-getiri">Bölüm 1 — Etiket Yalanı: MFE ≠ Getiri</h2>
+<p><strong>Hata:</strong> İki yıl boyunca <code>resolved_pct_t5</code> alanını "5 günlük getiri" olarak
+kullandık. Kaynak koddan doğruladık: bu alan 5 gün içindeki <strong>maksimum HIGH</strong>
+(MFE — maximum favorable excursion), kapanış-kapanış getiri değil.</p>
+<p><strong>Kanıt:</strong> Aynı 27,386 sembol-günde yalnızca etiketi değiştirdik:</p>
+<table>
+<thead>
+<tr>
+<th>Kohort</th>
+<th>MFE medyan</th>
+<th>Gerçek getiri (c2c_5d) medyan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seçilen</td>
+<td>+4.08%</td>
+<td><strong>-0.19%</strong></td>
+</tr>
+<tr>
+<td>Reddedilen</td>
+<td>+3.58%</td>
+<td><strong>+0.41%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>MFE ile seçim "kazanıyor" görünüyordu; dürüst getiri ile <strong>kaybediyor</strong>.
+İşaret tamamen tersine döndü.</p>
+<p><strong>Ders:</strong> Her etiketin semantiğini kaynak koddan doğrulayın. "resolved"
+kelimesi "gerçekleşen getiri" demek değildir. MFE "bir noktada yukarı gitti
+mi?"yi ölçer; "5 gün sonra nerede?"yi değil. İkisi farklı sorular; birini
+diğerinin yerine kullanmak tüm analizi geçersiz kılar.</p>
+<p><strong>Kontrol:</strong> <code>fetch_full_universe_and_retest.py:286</code> — etiketin ne ürettiğini
+kaynak koddan okuyun, dokümantasyondan değil.</p>
+<hr />
+<h2 id="bolum-2-orneklem-yalan-27000-satr-620-gozlem">Bölüm 2 — Örneklem Yalanı: 27,000 Satır ≈ 620 Gözlem</h2>
+<p><strong>Hata:</strong> 27,361 satırlık bir veri setini "büyük örneklem" sandık.</p>
+<p><strong>Kanıt:</strong> Aynı gün taranan semboller birbirinden bağımsız değil — aynı piyasa
+gününü paylaşıyorlar. Tarih-blok bootstrap ile etkin örneklem büyüklüğünü
+ölçtük: <strong>27,361 satır ≈ 620 etkin gözlem.</strong> Naive güven aralıkları ~44x
+düşük belirsizlik gösteriyordu.</p>
+<p><strong>Ders:</strong> Satır sayısı ≠ bilgi. Gün-içi korelasyon, aynı sembolün ardışık
+sinyalleri ve rejim yoğunlaşması etkin örneklemi dramatik biçimde küçültür.
+Her istatistiksel iddianın yanına "kaç <strong>bağımsız</strong> gözlem?" yazın.</p>
+<p><strong>Kontrol:</strong> Tarih-blok bootstrap (satırları değil, günleri yeniden örnekle).
+Etkin örneklem oranını raporlayın.</p>
+<hr />
+<h2 id="bolum-3-skor-yalan-tahminci-degil-ayna">Bölüm 3 — Skor Yalanı: Tahminci Değil, Ayna</h2>
+<p><strong>Hata:</strong> Composite score'un ileriye dönük bilgi taşıdığını varsaydık.</p>
+<p><strong>Kanıt:</strong> Beş bağımsız test:
+- Score geçmiş 5 günle ρ=0.376, gelecek 5 günle ρ=0.013 (geriye bakıyor).
+- En güçlü kodladığı feature: 52-hafta-yükseğe uzaklık (ρ=0.667) — yani
+  "ne kadar uzamış olduğu".
+- Olasılığa çevrilince base rate'ten <strong>kötü</strong> (negatif Brier skill).
+- Tersine çevirmek (fade) kaybediyor — ayna bile değil.
+- En iyi score bandı içinde seçim katmanı <strong>tersine seçim</strong> yapıyor.</p>
+<p><strong>Ders:</strong> Bir skor "ne olacak?"ı değil "ne oldu?"yu ölçüyor olabilir — ve
+bunu anlamanın tek yolu, skoru geçmiş ve gelecek getiriyle ayrı ayrı
+korele etmektir. Yüksek skor ≠ yüksek gelecek getiri.</p>
+<p><strong>Kontrol:</strong> Spearman(score, past_return) vs Spearman(score, forward_return).
+İlki ikincisinden büyükse, skorunuz bir ayna.</p>
+<hr />
+<h2 id="bolum-4-secim-yalan-counterfactual-yenemeyen-secim">Bölüm 4 — Seçim Yalanı: Counterfactual'ı Yenemeyen Seçim</h2>
+<p><strong>Hata:</strong> "Seçici" olduğumuzu varsaydık — en iyi adayları seçtiğimizi.</p>
+<p><strong>Kanıt:</strong> Seçilen kohortu, aynı gün rastgele reddedilen adaylardan oluşan
+portföylerle karşılaştırdık (counterfactual portfolio). Seçim, rastgele
+seçimden <strong>daha kötü</strong> çıktı (medyan fark -2.01pp, günlerin %31'inde önde).</p>
+<p><strong>Ders:</strong> Seçim katmanınızın değerini ancak counterfactual ile ölçebilirsiniz.
+"Seçtiklerim iyi performans gösterdi" yeterli değil — "seçmediklerimden daha
+iyi mi?" sorusu gerekli.</p>
+<p><strong>Kontrol:</strong> Her gün, seçilen N aday yerine reddedilenlerden rastgele N aday
+seçin. 200 tekrar. Seçiminiz rastgeleyi yenemiyorsa, seçim katmanınız değer
+üretmiyor.</p>
+<hr />
+<h2 id="bolum-5-kalibrasyon-yalan-base-rateten-kotu">Bölüm 5 — Kalibrasyon Yalanı: Base Rate'ten Kötü</h2>
+<p><strong>Hata:</strong> Skoru olasılığa çevirip "kalibre" dedik.</p>
+<p><strong>Kanıt:</strong> Out-of-sample Brier skill vs sabit base-rate tahmincisi: <strong>-0.019</strong>
+(P(positive)) ve <strong>-0.030</strong> (P(beats cost)). Negatif skill = model, hiçbir
+şey bilmeyen base rate'ten daha kötü.</p>
+<p><strong>Ders:</strong> Kalibrasyon eğrisi çizmek yeterli değil; modelinizin base rate'i
+geçip geçmediğini ölçün. Brier skill score bunu tek sayıda verir.</p>
+<p><strong>Kontrol:</strong> Brier(model) vs Brier(base_rate). Skill = 1 - model/base.
+Negatifse model zararlı.</p>
+<hr />
+<h2 id="bolum-6-coklu-test-yalan-5640-konfigurasyonun-sans">Bölüm 6 — Çoklu-Test Yalanı: 5,640 Konfigürasyonun Şansı</h2>
+<p><strong>Hata:</strong> 2,520 barrier + 3,120 fixed-target konfigürasyonu koşup "en iyi"
+sonucu raporladık.</p>
+<p><strong>Kanıt:</strong> En yüksek ortalamalı profillerde medyan negatif (örn. %94.7
+ortalama / -%7.66 medyan) — outlier-driven. Hiçbir konfigürasyon hem
+dönem-stabil hem maliyet-sonrası pozitif çıkmadı.</p>
+<p><strong>Ders:</strong> N konfigürasyon koşuyorsanız, en iyi sonucun şans eseri çıkma
+olasılığı artar. Deney bütçesi tutun: toplam kaç konfigürasyon koşuldu,
+kaçı anlamlı çıktı, beklenen şans oranı ne?</p>
+<p><strong>Kontrol:</strong> Deney bütçesi defteri (experiment registry). Her bulguya
+"bu, N denemenin kaçıncısı?" etiketi.</p>
+<hr />
+<h2 id="bolum-7-execution-yalan-sinyal-var-yakalanabilir-mi">Bölüm 7 — Execution Yalanı: Sinyal Var, Yakalanabilir mi?</h2>
+<p><strong>Hata:</strong> Daily-bar backtest'te "sinyal vardı" dedik.</p>
+<p><strong>Kanıt:</strong> Observed spread rate %0 — hiç spread verisi yok. Entry drift
+medyan %0.55, p95 %5.33 — çoğu adayın beklenen edge'inden büyük. İntraday
+OHLCV yok; fill ordering kanıtlanamaz.</p>
+<p><strong>Ders:</strong> Backtest'te sinyal olması, gerçek piyasada yakalanabilir olduğu
+anlamına gelmez. Spread, slippage, market impact ve sinyal ömrü ayrı
+katmanlar — ve hepsi sinyal katmanından önce gelmeli.</p>
+<p><strong>Kontrol:</strong> Sinyal → executable fiyat arasındaki drift'i ölçün. Drift &gt;
+beklenen edge ise, sinyal yok demektir.</p>
+<hr />
+<h2 id="bolum-8-dogru-sra-veri-olcum-execution-sinyal">Bölüm 8 — Doğru Sıra: Veri → Ölçüm → Execution → Sinyal</h2>
+<p><strong>Sentez:</strong> Tüm bu yalanlar aynı kökten geliyor — sırayı ters kurduk.</p>
+<pre><code>Yanlış:  score → entry → exit → portfolio → (sonra) veri → (sonra) execution
+Doğru:   veri → ölçüm → execution → sinyal
+</code></pre>
+<p>Her katman bir kapıdır. Alt kapı açıksa, üst katmandaki hiçbir sonuç "bulgu"
+sayılmaz — yalnızca "keşif sinyali" (discovery signal).</p>
+<p><strong>Dört kapı:</strong>
+1. <strong>Veri:</strong> Etiket semantiği, fiyat sürekliliği, feature lineage, restatement.
+2. <strong>Ölçüm:</strong> Etkin örneklem, deney bütçesi, null-relative preflight, replay.
+3. <strong>Execution:</strong> Spread/impact, signal half-life, intraday path, capacity.
+4. <strong>Sinyal:</strong> Ancak 1+2+3 kapalıysa confirmatory koşu.</p>
+<hr />
+<h2 id="ek-a-arac-seti-ack-kaynak">Ek A — Araç Seti (açık kaynak)</h2>
+<p>Bu el kitabındaki her kontrol, çalışan kod olarak mevcut:
+- <code>feature_lineage.py</code> — feature provenance + leakage denetimi
+- <code>restatement_detector.py</code> — sessiz tarihsel revizyon tespiti
+- <code>null_preflight_gate.py</code> — finding vs discovery signal verdicti
+- <code>experiment_registry.py::budget_report</code> — deney bütçesi defteri
+- <code>signal_half_life.py</code> — sinyal ömrü ölçümü</p>
+<h2 id="ek-b-kontrol-listesi">Ek B — Kontrol Listesi</h2>
+<p>Yeni bir backtest sonucu görmeden önce sorun:
+- [ ] Etiketin semantiği kaynak koddan doğrulandı mı?
+- [ ] Etkin örneklem büyüklüğü raporlandı mı?
+- [ ] Skor geçmiş mi yoksa gelecek mi ölçüyor?
+- [ ] Seçim counterfactual'ı yeniyor mu?
+- [ ] Model base rate'i geçiyor mu (Brier skill)?
+- [ ] Deney bütçesi biliniyor mu?
+- [ ] Execution (spread/drift) ölçüldü mü?</p>
+<hr />
+<p><em>Bu el kitabı FinPilot Research Team'in 2025–2026 araştırma programından
+derlenmiştir. Hiçbir yatırım tavsiyesi içermez. Tüm sayılar araştırma
+bağlamında ve kendi veri setimizde geçerlidir; genelleştirilemez.</em></p>
+</body></html>

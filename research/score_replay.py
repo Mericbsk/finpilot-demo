@@ -6,6 +6,8 @@ import argparse
 import csv
 import hashlib
 import json
+import os
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +26,32 @@ REQUIRED_FIELDS = {
     "trend_strength",
     "recommendation_score",
 }
+FIELD_ALIASES = {"recommendation_score": "score_component_total"}
+FLAG_ENV_NAMES = {
+    "squeeze_factor": "FINPILOT_ENABLE_SQUEEZE_FACTOR",
+    "edgar_catalyst": "FINPILOT_ENABLE_EDGAR_CATALYST",
+    "lottery_fade": "FINPILOT_ENABLE_LOTTERY_FADE",
+    "overnight_gap": "FINPILOT_ENABLE_OVERNIGHT_GAP",
+}
+
+
+@contextmanager
+def _score_flags(flags: dict[str, Any] | None):
+    if not isinstance(flags, dict):
+        yield
+        return
+    previous = {name: os.environ.get(name) for name in FLAG_ENV_NAMES.values()}
+    try:
+        for key, env_name in FLAG_ENV_NAMES.items():
+            if key in flags:
+                os.environ[env_name] = "1" if bool(flags[key]) else "0"
+        yield
+    finally:
+        for name, value in previous.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
 
 
 def _bool(value: object) -> bool:
@@ -49,11 +77,28 @@ def _row(data: dict[str, str]) -> dict[str, Any]:
 
 
 def replay(path: Path, *, tolerance: float = 1e-6) -> dict[str, Any]:
-    with path.open(encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
-        fields = set(reader.fieldnames or [])
-        missing_fields = sorted(REQUIRED_FIELDS - fields)
-        rows = list(reader)
+    if path.suffix.lower() == ".json":
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        rows = payload.get("results", payload) if isinstance(payload, dict) else payload
+        rows = [dict(row) for row in rows]
+        fields = set(rows[0]) if rows else set()
+    else:
+        with path.open(encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            fields = set(reader.fieldnames or [])
+            rows = list(reader)
+    for row in rows:
+        nested_input = row.get("score_input")
+        if isinstance(nested_input, dict):
+            for key, value in nested_input.items():
+                row.setdefault(key, value)
+    if rows:
+        fields.update(key for row in rows for key in row)
+    missing_fields = sorted(
+        field
+        for field in REQUIRED_FIELDS
+        if field not in fields and FIELD_ALIASES.get(field) not in fields
+    )
     input_hash = hashlib.sha256(path.read_bytes()).hexdigest()
     if missing_fields:
         return {
@@ -64,8 +109,35 @@ def replay(path: Path, *, tolerance: float = 1e-6) -> dict[str, Any]:
             "input_sha256": input_hash,
         }
     mismatches: list[dict[str, Any]] = []
+    persisted_breakdown_mismatches: list[dict[str, Any]] = []
     invalid_rows = 0
     for index, data in enumerate(rows):
+        if "recommendation_score" not in data and "score_component_total" in data:
+            data["recommendation_score"] = data["score_component_total"]
+        persisted = data.get("score_component_breakdown")
+        if isinstance(persisted, dict) and data.get("score_component_total") is not None:
+            try:
+                persisted_delta = abs(
+                    float(persisted.get("total")) - float(data["score_component_total"])
+                )
+                if persisted_delta > tolerance:
+                    persisted_breakdown_mismatches.append(
+                        {
+                            "row": index,
+                            "symbol": data.get("symbol"),
+                            "persisted_total": data.get("score_component_total"),
+                            "breakdown_total": persisted.get("total"),
+                            "delta": persisted_delta,
+                        }
+                    )
+            except (TypeError, ValueError):
+                persisted_breakdown_mismatches.append(
+                    {
+                        "row": index,
+                        "symbol": data.get("symbol"),
+                        "reason": "invalid persisted total",
+                    }
+                )
         values = _row(data)
         if any(
             values[key] is None
@@ -75,7 +147,8 @@ def replay(path: Path, *, tolerance: float = 1e-6) -> dict[str, Any]:
         ):
             invalid_rows += 1
             continue
-        bridge = build_score_bridge(values, research_score=values["recommendation_score"])
+        with _score_flags(data.get("score_feature_flags")):
+            bridge = build_score_bridge(values, research_score=values["recommendation_score"])
         delta = abs(float(bridge["score_delta"] or 0.0))
         if delta > tolerance:
             mismatches.append(
@@ -102,9 +175,14 @@ def replay(path: Path, *, tolerance: float = 1e-6) -> dict[str, Any]:
         "compared": compared,
         "invalid_rows": invalid_rows,
         "mismatch_count": len(mismatches),
+        "persisted_breakdown_compared": sum(
+            isinstance(row.get("score_component_breakdown"), dict) for row in rows
+        ),
+        "persisted_breakdown_mismatch_count": len(persisted_breakdown_mismatches),
         "tolerance": tolerance,
         "input_sha256": input_hash,
         "mismatches": mismatches[:25],
+        "persisted_breakdown_mismatches": persisted_breakdown_mismatches[:25],
     }
 
 

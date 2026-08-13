@@ -25,6 +25,9 @@ export default function Newsroom() {
         <h3 className="mb-4 font-ledger-serif text-xl font-bold" style={{ color: C.ink }}>
           The Editorial Board
         </h3>
+        <p className="mb-3 border-l-2 pl-3 font-ledger-mono text-[10px] uppercase tracking-widest" style={{ color: C.gold, borderColor: C.gold }}>
+          Illustrative process example — not live data
+        </p>
         <p className="mb-4 text-sm" style={{ color: C.inkSoft }}>
           The production Grade comes from published scanner rules and eligibility checks. Separate PPO
           models are research artifacts, validated before any future use.
@@ -36,6 +39,9 @@ export default function Newsroom() {
         <h3 className="mb-4 font-ledger-serif text-xl font-bold" style={{ color: C.ink }}>
           Fact-Checking Desk
         </h3>
+        <p className="mb-3 border-l-2 pl-3 font-ledger-mono text-[10px] uppercase tracking-widest" style={{ color: C.gold, borderColor: C.gold }}>
+          Illustrative process example — not live data
+        </p>
         <p className="mb-4 text-sm" style={{ color: C.inkSoft }}>
           The methodology explains how published research is checked, what the scorecard can show,
           and where evidence is still insufficient.

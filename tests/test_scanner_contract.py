@@ -54,6 +54,22 @@ class TestScannerContract(unittest.TestCase):
         self.assertEqual(results[0]["scan_status"], "unavailable")
         self.assertFalse(results[0]["selection_eligible"])
 
+        required = {
+            "execution_confidence",
+            "data_quality",
+            "execution_reject_reason",
+            "legacy_quality_score",
+            "ranking_score",
+            "v2_score",
+            "strategy_scores",
+            "conviction_tier",
+            "conviction_prob",
+            "position_cap_notional",
+            "position_cap_applied",
+            "position_cap_reject_reason",
+        }
+        self.assertTrue(required.issubset(results[0]), sorted(required - set(results[0])))
+
     def test_legacy_and_v2_scores_are_available(self):
         legacy = compute_legacy_quality_score(
             regime=True,

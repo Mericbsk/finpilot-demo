@@ -240,6 +240,16 @@ def legacy_composite_ranking_enabled() -> bool:
     return os.environ.get("FINPILOT_ENABLE_LEGACY_COMPOSITE_RANKING", "0") == "1"
 
 
+def score_feature_flags() -> dict[str, bool]:
+    """Return feature flags that can alter recommendation score accounting."""
+    return {
+        "squeeze_factor": _squeeze_enabled(),
+        "edgar_catalyst": _catalyst_enabled(),
+        "lottery_fade": _lottery_enabled(),
+        "overnight_gap": _overnight_enabled(),
+    }
+
+
 def score_component_breakdown(
     row: dict[str, Any], sentiment_score: float | None = None
 ) -> dict[str, float]:
@@ -299,6 +309,8 @@ def decision_telemetry(
     components: dict[str, float],
     point_in_time: bool = True,
     data_quality: dict[str, Any] | None = None,
+    score_input: dict[str, Any] | None = None,
+    feature_flags: dict[str, bool] | None = None,
 ) -> dict[str, Any]:
     """Build the stable P0 decision telemetry envelope."""
     return {
@@ -307,6 +319,9 @@ def decision_telemetry(
         "reject_reason": list(dict.fromkeys(reject_reasons)),
         "score_component_breakdown": dict(components),
         "score_component_total": round(float(score), 3),
+        "recommendation_score": round(float(score), 3),
+        "score_input": dict(score_input or {}),
+        "score_feature_flags": dict(feature_flags or {}),
         "data_quality": dict(data_quality or {}),
     }
 

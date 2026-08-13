@@ -813,6 +813,23 @@ def _persist_distribution_export(
 
         export_dir = Path(_os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
         export_dir.mkdir(parents=True, exist_ok=True)
+        rows = list(results.values()) if isinstance(results, dict) else list(results or [])
+        for row in rows:
+            if not isinstance(row, dict) or row.get("scan_status") != "unavailable":
+                continue
+            reason = str((row.get("reject_reason") or ["unavailable"])[0])
+            row.setdefault("data_quality", {"available": {}, "missing_fields": [reason]})
+            row.setdefault("execution_reject_reason", [reason])
+            row.setdefault("execution_confidence", "Tier 0")
+            row.setdefault("legacy_quality_score", 0.0)
+            row.setdefault("ranking_score", 0.0)
+            row.setdefault("v2_score", 0.0)
+            row.setdefault("strategy_scores", {"legacy_quality": 0.0, "v2": 0.0})
+            row.setdefault("conviction_tier", "")
+            row.setdefault("conviction_prob", 0.0)
+            row.setdefault("position_cap_notional", None)
+            row.setdefault("position_cap_applied", False)
+            row.setdefault("position_cap_reject_reason", None)
         payload = {
             "date": datetime.now(tz=UTC).strftime("%Y-%m-%d"),
             "generated_at": datetime.now(tz=UTC).isoformat(),
@@ -836,8 +853,8 @@ def _persist_distribution_export(
             # Per-run performance (P0 instrumentation): eval/enrich/total seconds
             # so scan duration is queryable history, not a file-mtime guess.
             "timing": timing or {},
-            "result_count": len(results) if isinstance(results, dict) else len(results or []),
-            "results": list(results.values()) if isinstance(results, dict) else results,
+            "result_count": len(rows),
+            "results": rows,
         }
         current_results = payload["results"]
         problems = full_scan_problems(current_results, universe, scan_complete)

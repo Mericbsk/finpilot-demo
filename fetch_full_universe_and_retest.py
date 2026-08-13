@@ -87,6 +87,9 @@ ENRICHED_KEYS = RAW_KEYS + [
     "rvol",
     "atr_pct_real",
     "dist_52w_high",
+    "c2c_1d",
+    "c2c_5d",
+    "mae_t5",
 ]
 
 
@@ -267,6 +270,11 @@ def resolve_and_features(entry, scan_date, bars):
     BIR KEZ cagrilir (cagiran taraf memoize eder)."""
     if not scan_date:
         return None
+    # Defensive: drop bars missing a date or close (dirty cache rows must not
+    # crash the export; they are skipped, not fatal).
+    bars = [b for b in bars if isinstance(b, dict) and b.get("date") and b.get("close")]
+    if not bars:
+        return None
     idx = {b["date"]: i for i, b in enumerate(bars)}
     di = idx.get(scan_date)
     if di is None:
@@ -303,9 +311,21 @@ def resolve_and_features(entry, scan_date, bars):
     )
     hh = [b["high"] for b in bars[max(0, di - 252) : di + 1] if b.get("high")]
     dist52 = bars[di]["close"] / max(hh) if hh else None
+    # Close-to-close realized returns (the honest outcome measure). The existing
+    # resolved_pct_t5 is MFE (max HIGH over T+1..T+5), NOT a close-to-close
+    # return — see decision-log 2026-08-10. These add realized close-to-close
+    # returns and MAE so downstream analysis stops reading MFE as return.
+    closes = [b["close"] for b in fwd if b.get("close")]
+    c2c_1d = ((closes[0] - e) / e * 100) if len(closes) >= 1 else None
+    c2c_5d = ((closes[4] - e) / e * 100) if len(closes) >= 5 else None
+    lows = [b["low"] for b in fwd if b.get("low")]
+    mae_t5 = (min(lows) - e) / e * 100 if lows else None
     return {
         "resolved_pct_t5": t5_max,
         "resolved_pct_1d": r1,
+        "c2c_1d": c2c_1d,
+        "c2c_5d": c2c_5d,
+        "mae_t5": mae_t5,
         "gap_pct": gap,
         "rvol": rvol,
         "atr_pct_real": atr_pct,

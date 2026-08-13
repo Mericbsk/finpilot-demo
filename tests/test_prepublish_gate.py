@@ -17,8 +17,20 @@ def _row(**overrides):
         "entry_ok": True,
         "execution_feasible": True,
         "data_quality_tier": "Tier 1",
+        "data_quality_status": "complete",
+        "data_quality": {},
+        "execution_confidence": "Tier 1",
+        "execution_reject_reason": [],
         "ranking_method": "legacy_quality",
+        "legacy_quality_score": 1.0,
+        "ranking_score": 1.0,
+        "v2_score": 1.0,
+        "strategy_scores": {"legacy_quality": 1.0, "v2": 1.0},
         "conviction_tier": "B",
+        "conviction_prob": 0.55,
+        "position_cap_notional": None,
+        "position_cap_applied": False,
+        "position_cap_reject_reason": None,
         "tier": "",
     }
     base.update(overrides)
@@ -56,6 +68,16 @@ def test_missing_contract_fields_block():
     del row["ranking_method"]
     problems = check_export_health(_export(rows=[row]))
     assert any("sözleşme alanları eksik" in p for p in problems)
+
+
+def test_missing_contract_fields_on_later_row_block():
+    later = _row(symbol="LATER")
+    del later["strategy_scores"]
+    problems = check_export_health(_export(rows=[_row(), later]))
+    assert any(
+        "LATER" not in problem and "sözleşme alanları eksik" in problem for problem in problems
+    )
+    assert any("strategy_scores" in problem for problem in problems)
 
 
 def test_incomplete_scan_blocks():

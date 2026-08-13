@@ -20,7 +20,7 @@ from typing import Any
 
 from distribution.scan_contract import minimum_results, minimum_usable_results, usable_result_count
 
-# Contract fields every scan row must carry (mirrors tests/test_scanner_contract.py)
+# Contract fields every scan row must carry (mirrors scanner/evaluate.py).
 REQUIRED_ROW_FIELDS = frozenset(
     {
         "symbol",
@@ -28,7 +28,20 @@ REQUIRED_ROW_FIELDS = frozenset(
         "entry_ok",
         "execution_feasible",
         "data_quality_tier",
+        "data_quality_status",
+        "data_quality",
+        "execution_confidence",
+        "execution_reject_reason",
         "ranking_method",
+        "legacy_quality_score",
+        "ranking_score",
+        "v2_score",
+        "strategy_scores",
+        "conviction_tier",
+        "conviction_prob",
+        "position_cap_notional",
+        "position_cap_applied",
+        "position_cap_reject_reason",
     }
 )
 
@@ -57,10 +70,16 @@ def check_export_health(
         problems.append("export'ta results yok/boş")
         return problems  # row-level checks are meaningless now
 
-    sample = rows[0]
-    missing = REQUIRED_ROW_FIELDS - set(sample)
-    if missing:
-        problems.append(f"sözleşme alanları eksik: {sorted(missing)}")
+    malformed_rows = [index for index, row in enumerate(rows) if not isinstance(row, dict)]
+    if malformed_rows:
+        problems.append(f"sözleşme satırları geçersiz: index={malformed_rows[:10]}")
+    missing_by_row = {
+        index: sorted(REQUIRED_ROW_FIELDS - set(row))
+        for index, row in enumerate(rows)
+        if isinstance(row, dict) and REQUIRED_ROW_FIELDS - set(row)
+    }
+    if missing_by_row:
+        problems.append(f"sözleşme alanları eksik: {missing_by_row}")
 
     if export.get("scan_complete") is False:
         problems.append("scan_complete=False (tamamlanmamış tarama)")

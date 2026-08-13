@@ -105,7 +105,7 @@ export const TERMS: Record<string, Term> = {
     slug: "calibration",
     name: "Calibration",
     short:
-      "A probability is calibrated when it matches reality: of all candidates we mark '~60%', about 60% should actually move. FinPilot publishes its scorecard so you can check this yourself.",
+      "A probability is calibrated when it matches reality: if a forecaster marks a group of candidates '~70%', close to 70% of them should actually move, over a large enough sample. That is the bar any research process should be held to — FinPilot's own current number is on the published scorecard, not assumed here.",
   },
   "base-rate": {
     slug: "base-rate",

@@ -1,5 +1,5 @@
 from scanner.labeling import triple_barrier_label
-from scanner.score_engine import compute_recommendation_score
+from scanner.score_engine import compute_recommendation_score, score_feature_flags
 from scanner.telemetry import decision_telemetry, score_component_breakdown
 
 
@@ -53,6 +53,22 @@ def test_decision_telemetry_preserves_data_quality_contract():
     )
     assert telemetry["data_quality"]["spread_bps"] == 12.5
     assert telemetry["data_quality"]["missing_fields"] == ["short_interest_timestamp"]
+
+
+def test_decision_telemetry_persists_score_replay_contract(monkeypatch):
+    monkeypatch.setenv("FINPILOT_ENABLE_SQUEEZE_FACTOR", "1")
+    score_input = {"score": 3, "vol_regime": 2, "squeeze_factor": 0.4}
+    telemetry = decision_telemetry(
+        reject_reasons=[],
+        score=5.25,
+        components={"total": 5.25},
+        score_input=score_input,
+        feature_flags=score_feature_flags(),
+    )
+
+    assert telemetry["recommendation_score"] == 5.25
+    assert telemetry["score_input"] == score_input
+    assert telemetry["score_feature_flags"]["squeeze_factor"] is True
 
 
 def test_barrier_execution_has_path_dependent_result():

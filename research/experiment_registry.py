@@ -180,3 +180,30 @@ class ExperimentRegistry:
             "created_at": row[6],
             "record_hash": row[7],
         }
+
+    def budget_report(self) -> dict[str, Any]:
+        """Gate 2.2 — experiment budget ledger.
+
+        Reports total configurations run and per-family spend, so the
+        multiple-testing budget is visible instead of implicit. A family that
+        has consumed many runs without a confirmatory pass is a selection-bias
+        risk; this report makes that explicit.
+        """
+        with self._connect() as connection:
+            total_experiments = connection.execute("SELECT COUNT(*) FROM experiments").fetchone()[0]
+            total_runs = connection.execute("SELECT COUNT(*) FROM experiment_runs").fetchone()[0]
+            per_family = connection.execute(
+                "SELECT e.family_id, COUNT(DISTINCT e.experiment_id), COUNT(r.run_id) "
+                "FROM experiments e LEFT JOIN experiment_runs r "
+                "ON e.experiment_id = r.experiment_id GROUP BY e.family_id"
+            ).fetchall()
+            status_counts = connection.execute(
+                "SELECT status, COUNT(*) FROM experiment_runs GROUP BY status"
+            ).fetchall()
+        return {
+            "total_experiments": total_experiments,
+            "total_runs": total_runs,
+            "per_family": {row[0]: {"experiments": row[1], "runs": row[2]} for row in per_family},
+            "run_status_counts": {row[0]: row[1] for row in status_counts},
+            "note": "high run counts without a confirmatory pass indicate selection-bias exposure",
+        }

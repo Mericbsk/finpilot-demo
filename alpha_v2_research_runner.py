@@ -50,11 +50,12 @@ def load_rows(path):
             target = number(raw.get("resolved_pct_t5"))
             if target is None:
                 continue
+            signal_date = raw.get("signal_date") or raw.get("scan_date") or raw.get("scan_ts") or ""
             row = {
-                "id": f"{raw.get('symbol')}_{raw.get('signal_date')}_{index}",
+                "id": f"{raw.get('symbol')}_{signal_date}_{index}",
                 "symbol": (raw.get("symbol") or "").strip(),
-                "scan_ts": (raw.get("signal_date") or "").strip(),
-                "scan_date": (raw.get("signal_date") or "")[:10],
+                "scan_ts": signal_date.strip(),
+                "scan_date": signal_date[:10],
                 "price": number(raw.get("entry")),
                 "short": number(raw.get("short_pit"))
                 if raw.get("short_pit") not in (None, "")
