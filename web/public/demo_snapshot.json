@@ -1,115 +1,80 @@
 {
  "schema": 2,
- "snapshot_id": "bc9db7e6d4fe39b578d63661",
- "candidate_hash": "dd3155642dd016a1c48a71d7addd72ba38babb324746505615daeeab4f167efe",
+ "snapshot_id": "8ecd1bc5e43e8343d3120475",
+ "candidate_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
  "scan_id": "b4c000d97cad89c1f67db8ec",
- "date": "2026-08-27",
- "generated_at": "2026-08-27T10:29:23.675799+00:00",
- "config_sha": "e20108890673@545612f",
+ "date": "2026-09-02",
+ "generated_at": "2026-09-02T11:57:45.157324+00:00",
+ "config_sha": "f47af0f6612f@fd118ba",
  "universe": 1812,
  "scan_result_count": 1801,
- "eligible_candidate_count": 1,
- "candidates": [
+ "eligible_candidate_count": 0,
+ "candidates": [],
+ "web_context": [
   {
-   "ticker": "IBRX",
-   "company": "ImmunityBio, Inc.",
-   "grade": "B",
-   "prob_band": "~60%",
+   "ticker": "CNTB",
+   "company": "Connect Biopharma Holdings Limited",
+   "public_status": "scan_context",
+   "rank": 1,
+   "prob_band": "—",
    "badges": [
-    "squeeze",
     "rvol",
     "regime"
    ],
-   "rationale": "IBRX makes today's list with a strong profile. There is a heavy build-up of bets against this stock — in sharp upside moves that can act as extra fuel. Adding to the picture, volume is elevated versus the stock's own average; there is real order flow behind the price move. Another detail: market-wide conditions are favourable: this is a friendly stretch for stocks with a similar profile. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
+   "rationale": "CNTB sits near the top of today's scan. Three-day momentum is mixed (+3.95%) and volume is 3.74x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "CNTB, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+3.95%) ve hacim kendi ortalamasının 3.74 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "CNTB sits near the top of today's scan. Three-day momentum is mixed (+3.95%) and volume is 3.74x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
    "premium_only": false,
    "metrics": {
-    "price": 8.245,
-    "conviction_prob": 0.59,
+    "price": 2.37,
+    "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
+    "ranking_score": 70.591,
+    "legacy_quality_score": 70.591,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 5.77,
-    "volume_multiple": 1.73,
-    "ema_gap_pct": 18.02
-   },
-   "rationale_i18n": {
-    "tr": "IBRX bugün güçlü bir profille listede. Piyasada bu hisseye karşı yüklü bir kısa pozisyon birikimi var — ani yukarı hareketlerde ek yakıt anlamına gelebilir. Buna ek olarak hacim, hissenin kendi ortalamasına göre yükselmiş durumda; fiyat hareketinin arkasında gerçek işlem akışı var. Bir başka detay: geniş piyasa koşulları olumlu: benzer profildeki hisseler için elverişli bir dönemdeyiz. Faktörlerin destekleyici rejimle birleşmesi, sinyalin piyasa arka planına karşı çalışmadığını gösteriyor; zayıf bir rejimde aynı tablo farklı okunabilir. Asıl merak noktası bundan sonra: bu ilgi devam edecek mi, yoksa kısa bir hareket olarak mı kalacak? İzleme amaçlıdır; değerlendirme ve risk tamamen senin kontrolünde.",
-    "en": "IBRX makes today's list with a strong profile. There is a heavy build-up of bets against this stock — in sharp upside moves that can act as extra fuel. Adding to the picture, volume is elevated versus the stock's own average; there is real order flow behind the price move. Another detail: market-wide conditions are favourable: this is a friendly stretch for stocks with a similar profile. The factors lining up with a supportive regime means the signal is not working against the market backdrop; the same picture may read differently in a weak regime. The open question is what happens next: will the interest continue, or prove brief? For monitoring only — judgement and risk stay fully in your hands.",
-    "de": "IBRX steht mit einem starken Profil auf der heutigen Liste. Es gibt einen hohen Bestand an Wetten gegen diese Aktie — bei kräftigen Aufwärtsbewegungen kann das als zusätzlicher Treibstoff wirken. Darüber hinaus: das Volumen ist gegenüber dem eigenen Durchschnitt der Aktie erhöht; hinter der Kursbewegung steht echter Orderfluss. Ein weiteres Detail: die marktweiten Bedingungen sind günstig: eine freundliche Phase für Aktien mit ähnlichem Profil. Dass die Faktoren mit einem unterstützenden Regime zusammenfallen, zeigt, dass das Signal nicht gegen den Markthintergrund arbeitet; in einem schwachen Regime könnte dasselbe Bild anders gelesen werden. Nur zur Beobachtung — Bewertung und Risiko liegen ganz in deiner Hand."
-   },
-   "risk_note_i18n": {
-    "tr": "short kapanışları kadar short baskısı da mümkün — iki yöne de hazırlıklı izle",
-    "en": "short-covering and renewed shorting are both possible — watch both ways",
-    "de": "Short-Eindeckung und erneute Leerverkäufe sind beide möglich — beobachte beide Richtungen"
+    "momentum_3d_pct": 3.95,
+    "volume_multiple": 3.74,
+    "ema_gap_pct": 0.04
    }
-  }
- ],
- "web_context": [
+  },
   {
-   "ticker": "SMTC",
-   "company": "Semtech Corporation",
+   "ticker": "USBC",
+   "company": "USBC, Inc.",
    "public_status": "scan_context",
-   "rank": 1,
+   "rank": 2,
    "prob_band": "—",
    "badges": [
     "rvol",
     "gap",
     "regime"
    ],
-   "rationale": "SMTC sits near the top of today's scan. Three-day momentum is mixed (+13.49%) and volume is 2.51x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "USBC sits near the top of today's scan. Three-day momentum is mixed (+7.23%) and volume is 2.99x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "SMTC, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+13.49%) ve hacim kendi ortalamasının 2.51 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "SMTC sits near the top of today's scan. Three-day momentum is mixed (+13.49%) and volume is 2.51x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "USBC, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+7.23%) ve hacim kendi ortalamasının 2.99 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "USBC sits near the top of today's scan. Three-day momentum is mixed (+7.23%) and volume is 2.99x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 140.88,
+    "price": 0.4804,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 73.498,
-    "legacy_quality_score": 73.498,
+    "ranking_score": 69.61,
+    "legacy_quality_score": 69.61,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 13.49,
-    "volume_multiple": 2.51,
-    "ema_gap_pct": 18.43
+    "momentum_3d_pct": 7.23,
+    "volume_multiple": 2.99,
+    "ema_gap_pct": -18.1
    }
   },
   {
-   "ticker": "TRMD",
-   "company": "TORM plc Class A",
-   "public_status": "scan_context",
-   "rank": 2,
-   "prob_band": "—",
-   "badges": [
-    "rvol",
-    "regime"
-   ],
-   "rationale": "TRMD sits near the top of today's scan. Three-day momentum is downward (-5.63%) and volume is 3.82x its own average. This is scan context, not a Grade A/B/C candidate.",
-   "rationale_i18n": {
-    "tr": "TRMD, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum aşağı (-5.63%) ve hacim kendi ortalamasının 3.82 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "TRMD sits near the top of today's scan. Three-day momentum is downward (-5.63%) and volume is 3.82x its own average. This is scan context, not a Grade A/B/C candidate."
-   },
-   "premium_only": false,
-   "metrics": {
-    "price": 30.01,
-    "conviction_prob": 0,
-    "execution_confidence": "Tier 1",
-    "data_quality_tier": "Tier 1",
-    "ranking_method": "legacy_quality",
-    "ranking_score": 68.43,
-    "legacy_quality_score": 68.43,
-    "momentum_bias": "bearish",
-    "momentum_3d_pct": -5.63,
-    "volume_multiple": 3.82,
-    "ema_gap_pct": 8.02
-   }
-  },
-  {
-   "ticker": "JAZZ",
-   "company": "Jazz Pharmaceuticals plc Common Stock (Ireland)",
+   "ticker": "LPLA",
+   "company": "LPL Financial Holdings Inc.",
    "public_status": "scan_context",
    "rank": 3,
    "prob_band": "—",
@@ -117,29 +82,29 @@
     "rvol",
     "regime"
    ],
-   "rationale": "JAZZ sits near the top of today's scan. Three-day momentum is downward (-1.91%) and volume is 3.00x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "LPLA sits near the top of today's scan. Three-day momentum is mixed (-0.98%) and volume is 2.51x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "JAZZ, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum aşağı (-1.91%) ve hacim kendi ortalamasının 3.00 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "JAZZ sits near the top of today's scan. Three-day momentum is downward (-1.91%) and volume is 3.00x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "LPLA, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-0.98%) ve hacim kendi ortalamasının 2.51 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "LPLA sits near the top of today's scan. Three-day momentum is mixed (-0.98%) and volume is 2.51x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 249.42,
+    "price": 357.66,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 67.257,
-    "legacy_quality_score": 67.257,
-    "momentum_bias": "bearish",
-    "momentum_3d_pct": -1.91,
-    "volume_multiple": 3,
-    "ema_gap_pct": 17.59
+    "ranking_score": 69.201,
+    "legacy_quality_score": 69.201,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": -0.98,
+    "volume_multiple": 2.51,
+    "ema_gap_pct": 2.72
    }
   },
   {
-   "ticker": "GEN",
-   "company": "Gen Digital Inc.",
+   "ticker": "PMVP",
+   "company": "PMV Pharmaceuticals, Inc.",
    "public_status": "scan_context",
    "rank": 4,
    "prob_band": "—",
@@ -147,184 +112,183 @@
     "rvol",
     "regime"
    ],
-   "rationale": "GEN sits near the top of today's scan. Three-day momentum is mixed (+2.49%) and volume is 1.91x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "PMVP sits near the top of today's scan. Three-day momentum is mixed (+1.60%) and volume is 6.55x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "GEN, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+2.49%) ve hacim kendi ortalamasının 1.91 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "GEN sits near the top of today's scan. Three-day momentum is mixed (+2.49%) and volume is 1.91x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "PMVP, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+1.60%) ve hacim kendi ortalamasının 6.55 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "PMVP sits near the top of today's scan. Three-day momentum is mixed (+1.60%) and volume is 6.55x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 29.65,
+    "price": 1.27,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 66.815,
-    "legacy_quality_score": 66.815,
+    "ranking_score": 69.022,
+    "legacy_quality_score": 69.022,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 2.49,
-    "volume_multiple": 1.91,
-    "ema_gap_pct": 7.75
+    "momentum_3d_pct": 1.6,
+    "volume_multiple": 6.55,
+    "ema_gap_pct": -1.96
    }
   },
   {
-   "ticker": "URBN",
-   "company": "Urban Outfitters, Inc.",
+   "ticker": "TGTX",
+   "company": "TG Therapeutics, Inc.",
    "public_status": "scan_context",
    "rank": 5,
    "prob_band": "—",
    "badges": [
-    "rvol",
-    "gap",
-    "momentum",
+    "squeeze",
     "regime"
    ],
-   "rationale": "URBN sits near the top of today's scan. Three-day momentum is upward (+11.72%) and volume is 2.83x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "TGTX sits near the top of today's scan. Three-day momentum is mixed (+0.85%) and volume is 1.40x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "URBN, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+11.72%) ve hacim kendi ortalamasının 2.83 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "URBN sits near the top of today's scan. Three-day momentum is upward (+11.72%) and volume is 2.83x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "TGTX, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+0.85%) ve hacim kendi ortalamasının 1.40 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "TGTX sits near the top of today's scan. Three-day momentum is mixed (+0.85%) and volume is 1.40x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 82.975,
+    "price": 56.185,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 66.706,
-    "legacy_quality_score": 66.706,
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": 11.72,
-    "volume_multiple": 2.83,
-    "ema_gap_pct": 5.41
+    "ranking_score": 68.688,
+    "legacy_quality_score": 68.688,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 0.85,
+    "volume_multiple": 1.4,
+    "ema_gap_pct": 21.94
    }
   },
   {
-   "ticker": "SRRK",
-   "company": "Scholar Rock Holding Corporation",
+   "ticker": "CURR",
+   "company": "Currenc Group Inc.",
    "public_status": "scan_context",
    "rank": 6,
    "prob_band": "—",
    "badges": [
-    "squeeze",
     "rvol",
     "regime"
    ],
-   "rationale": "SRRK sits near the top of today's scan. Three-day momentum is mixed (+6.26%) and volume is 1.74x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "CURR sits near the top of today's scan. Three-day momentum is mixed (-2.31%) and volume is 3.51x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "SRRK, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+6.26%) ve hacim kendi ortalamasının 1.74 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "SRRK sits near the top of today's scan. Three-day momentum is mixed (+6.26%) and volume is 1.74x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "CURR, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-2.31%) ve hacim kendi ortalamasının 3.51 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "CURR sits near the top of today's scan. Three-day momentum is mixed (-2.31%) and volume is 3.51x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 60.09,
+    "price": 3.39,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 66.048,
-    "legacy_quality_score": 66.048,
+    "ranking_score": 67.736,
+    "legacy_quality_score": 67.736,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 6.26,
-    "volume_multiple": 1.74,
-    "ema_gap_pct": 13.04
+    "momentum_3d_pct": -2.31,
+    "volume_multiple": 3.51,
+    "ema_gap_pct": 10.14
    }
   },
   {
-   "ticker": "VLGEA",
-   "company": "Village Super Market, Inc. Class A",
+   "ticker": "NWGL",
+   "company": "CL Workshop Group Limited American Depositary Shares",
    "public_status": "scan_context",
    "rank": 7,
    "prob_band": "—",
    "badges": [
+    "squeeze",
     "rvol",
+    "momentum",
     "regime"
    ],
-   "rationale": "VLGEA sits near the top of today's scan. Three-day momentum is mixed (-1.01%) and volume is 2.05x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "NWGL sits near the top of today's scan. Three-day momentum is upward (+43.27%) and volume is 1.69x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "VLGEA, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-1.01%) ve hacim kendi ortalamasının 2.05 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "VLGEA sits near the top of today's scan. Three-day momentum is mixed (-1.01%) and volume is 2.05x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "NWGL, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+43.27%) ve hacim kendi ortalamasının 1.69 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "NWGL sits near the top of today's scan. Three-day momentum is upward (+43.27%) and volume is 1.69x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 43.89,
+    "price": 1.2,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 65.619,
-    "legacy_quality_score": 65.619,
-    "momentum_bias": "neutral",
-    "momentum_3d_pct": -1.01,
-    "volume_multiple": 2.05,
-    "ema_gap_pct": 6.74
+    "ranking_score": 67.305,
+    "legacy_quality_score": 67.305,
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": 43.27,
+    "volume_multiple": 1.69,
+    "ema_gap_pct": -33.02
    }
   },
   {
-   "ticker": "WSHP",
-   "company": "WeShop Holdings Limited Class A",
+   "ticker": "EDU",
+   "company": "New Oriental Education and Technology Group, Inc. American Depositary Shares (each representing ten (10) Common Shares)",
    "public_status": "scan_context",
    "rank": 8,
    "prob_band": "—",
    "badges": [
-    "squeeze",
     "rvol",
     "gap",
-    "momentum"
+    "regime"
    ],
-   "rationale": "WSHP sits near the top of today's scan. Three-day momentum is upward (+32.69%) and volume is 8.95x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "EDU sits near the top of today's scan. Three-day momentum is mixed (+1.84%) and volume is 2.35x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "WSHP, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+32.69%) ve hacim kendi ortalamasının 8.95 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "WSHP sits near the top of today's scan. Three-day momentum is upward (+32.69%) and volume is 8.95x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "EDU, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+1.84%) ve hacim kendi ortalamasının 2.35 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "EDU sits near the top of today's scan. Three-day momentum is mixed (+1.84%) and volume is 2.35x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 6.17,
+    "price": 59.005,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 65.314,
-    "legacy_quality_score": 65.314,
-    "momentum_bias": "bullish",
-    "momentum_3d_pct": 32.69,
-    "volume_multiple": 8.95,
-    "ema_gap_pct": -76.06
+    "ranking_score": 66.501,
+    "legacy_quality_score": 66.501,
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": 1.84,
+    "volume_multiple": 2.35,
+    "ema_gap_pct": 0.98
    }
   },
   {
-   "ticker": "ORMP",
-   "company": "Oramed Pharmaceuticals Inc.",
+   "ticker": "CSTE",
+   "company": "Caesarstone Ltd.",
    "public_status": "scan_context",
    "rank": 9,
    "prob_band": "—",
    "badges": [
     "rvol",
+    "gap",
     "regime"
    ],
-   "rationale": "ORMP sits near the top of today's scan. Three-day momentum is mixed (+11.51%) and volume is 2.63x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "CSTE sits near the top of today's scan. Three-day momentum is mixed (-4.19%) and volume is 2.97x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "ORMP, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+11.51%) ve hacim kendi ortalamasının 2.63 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "ORMP sits near the top of today's scan. Three-day momentum is mixed (+11.51%) and volume is 2.63x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "CSTE, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-4.19%) ve hacim kendi ortalamasının 2.97 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "CSTE sits near the top of today's scan. Three-day momentum is mixed (-4.19%) and volume is 2.97x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 5.33,
+    "price": 3.09,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 65.25,
-    "legacy_quality_score": 65.25,
+    "ranking_score": 66.202,
+    "legacy_quality_score": 66.202,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 11.51,
-    "volume_multiple": 2.63,
-    "ema_gap_pct": 17.16
+    "momentum_3d_pct": -4.19,
+    "volume_multiple": 2.97,
+    "ema_gap_pct": 37.93
    }
   },
   {
-   "ticker": "RVMD",
-   "company": "Revolution Medicines, Inc.",
+   "ticker": "CUB",
+   "company": "Lionheart Holdings Class A",
    "public_status": "scan_context",
    "rank": 10,
    "prob_band": "—",
@@ -332,29 +296,35 @@
     "rvol",
     "regime"
    ],
-   "rationale": "RVMD sits near the top of today's scan. Three-day momentum is mixed (+2.71%) and volume is 1.90x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale": "CUB sits near the top of today's scan. Three-day momentum is mixed (-0.14%) and volume is 5.24x its own average. This is scan context, not a Grade A/B/C candidate.",
    "rationale_i18n": {
-    "tr": "RVMD, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+2.71%) ve hacim kendi ortalamasının 1.90 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
-    "en": "RVMD sits near the top of today's scan. Three-day momentum is mixed (+2.71%) and volume is 1.90x its own average. This is scan context, not a Grade A/B/C candidate."
+    "tr": "CUB, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-0.14%) ve hacim kendi ortalamasının 5.24 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "CUB sits near the top of today's scan. Three-day momentum is mixed (-0.14%) and volume is 5.24x its own average. This is scan context, not a Grade A/B/C candidate."
    },
    "premium_only": false,
    "metrics": {
-    "price": 215.16,
+    "price": 10.87,
     "conviction_prob": 0,
     "execution_confidence": "Tier 1",
     "data_quality_tier": "Tier 1",
     "ranking_method": "legacy_quality",
-    "ranking_score": 64.151,
-    "legacy_quality_score": 64.151,
+    "ranking_score": 64.229,
+    "legacy_quality_score": 64.229,
     "momentum_bias": "neutral",
-    "momentum_3d_pct": 2.71,
-    "volume_multiple": 1.9,
-    "ema_gap_pct": 35.71
+    "momentum_3d_pct": -0.14,
+    "volume_multiple": 5.24,
+    "ema_gap_pct": 0.72
    }
   }
  ],
  "karne": {
-  "by_grade": {},
+  "by_grade": {
+   "C": {
+    "n": 1,
+    "hit_rate": 0.0,
+    "avg_pnl": -5.488
+   }
+  },
   "window": "last 30d, matured ≥30d",
   "raw": true,
   "source": "db",
@@ -366,14 +336,15 @@
    "avg_loss": -1.271,
    "avg_pnl": 0.398
   },
-  "toplam_aday_bugun": {
-   "B": 1
-  }
+  "toplam_aday_bugun": {}
  },
- "warnings": [],
+ "warnings": [
+  "no graded candidates today"
+ ],
  "concept": {
-  "name": "Unusualness",
-  "line": "How far a stock's current behavior deviates from its own historical norm; direction-free — it captures only the size of the deviation."
+  "name": "Conviction",
+  "line": "The model's statistical confidence in a candidate — the main input behind the A/B/C grade."
  },
- "edition_no": 19
+ "context_line": "Regime: risk-on (VIX 14)",
+ "edition_no": 20
 }
