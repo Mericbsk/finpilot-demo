@@ -2564,3 +2564,12 @@ Context: After controller self-audit (7/7 regression PASS), the controller-deriv
 Result: 9/9 PASS. Controller state matches locked artifacts: NS-1 overall=NO_SCREEN_SUPPORTED + verification=VERIFICATION_PASS; RX-CAPTURE-1 E1_t3/E1_t5=CAPTURE_SUPPORTED, E0=CAPTURE_NOT_SUPPORTED, verification=VERIFICATION_PASS; H4C=INFORMATION_LOSS_NOT_SUPPORTED; H4A=COMPRESSION_SUPPORTED; production_impact=NONE across all result artifacts. The controller's derived state is consistent with the authoritative locked evidence; no conflict, no fabrication, no production change.
 Status: applied - Level A validation recorded.
 Evidence: controller `scripts/research_governance_controller.py`; locked artifacts under `data/backtest_out/` (SHA references in prior entries).
+
+---
+[2026-09-23] - RX-CAPTURE-1-ECON economic and robustness preregistration draft (Level B, pending)
+Layer: Governance / Research process
+Level: B. This is a Level B decision, awaiting Meric approval. The draft is recorded for review only and is not locked.
+Change: Added `reports/research_x_capture_1_economic_review_preregistration_2026-09-23.md` as a new economic/robustness evaluation line for the already closed and independently verified RX-CAPTURE-1 result. The proposed line covers cost/slippage sensitivity, temporal robustness, liquidity/ capacity measurability, and tail behavior; it does not reopen RX-CAPTURE-1, alter H4, define a production exit rule, or authorize a runner.
+Impact: production_impact = NONE. No scanner, score, ranking, configuration, database, scheduler, publication, or user-facing surface changed.
+Status: pending - Level B draft awaiting approval; no execution or production change.
+Evidence: `reports/research_x_capture_1_economic_review_preregistration_2026-09-23.md` (v0.1-DRAFT).
