@@ -70,6 +70,17 @@ def reset_yf_fetch_count() -> None:
     global _ALPACA_MISS_BY_TF
     with _ALPACA_MISS_LOCK:
         _ALPACA_MISS_BY_TF = {}
+    global _ALPACA_TOTAL_FAILURE
+    with _ALPACA_FAILURE_LOCK:
+        _ALPACA_TOTAL_FAILURE = False
+    # 2026-09-21: toplu yfinance sayaclari da her taramanin basinda sifirlanir.
+    global _YF_BULK_REQUESTS, _YF_BULK_SYMBOLS
+    with _YF_BULK_LOCK:
+        _YF_BULK_REQUESTS = 0
+        _YF_BULK_SYMBOLS = 0
+    global _INTRADAY_COVERAGE
+    with _INTRADAY_COVERAGE_LOCK:
+        _INTRADAY_COVERAGE = {}
     try:
         from .performance import reset
 
@@ -84,6 +95,60 @@ def _note_yf_fetch() -> None:
         _YF_FETCH_COUNT += 1
 
 
+# ── TOPLU yfinance gorunurlugu (2026-09-21) ──────────────────────────────────
+# SORUN: `_note_yf_fetch()` yalnizca SEMBOL-BASINA yolda (fetch() govdesi)
+# cagriliyordu. `_bulk_yf_download()` (yf.download ile N sembol tek cagrida)
+# hic saymiyordu. Sonuc: `yf_fallback=0` olan bir tarama, 200 sembolun
+# TAMAMINI yfinance'ten toplu indirmis olabiliyordu ve log bunu "yfinance
+# kullanilmadi" gibi gosteriyordu.
+# Kanit: scan_timing.jsonl'de yf_fallback=0 olan kayitlarda sure 37 sn ile
+# 354 sn arasinda degisiyor — sayac ayrim gucunu tamamen kaybetmis durumda.
+#
+# TASARIM KARARI: mevcut `_YF_FETCH_COUNT` (dolayisiyla `yf_fallback` alani)
+# DEGISTIRILMEDI. 315 gecmis kayitla karsilastirilabilirlik korunuyor.
+# Toplu yol icin AYRI sayaclar eklendi. Ayni kural `total_s` icin de gecerli
+# (bkz. docs/2026-09-21-tarama-hizlandirma-plani.md, FAZ 0 tasarim kurali).
+#
+# Iki ayri sayi tutuluyor cunku ikisi farkli soruyu cevapliyor:
+#   _YF_BULK_REQUESTS — kac HTTP istegi atildi (ag turu sayisi)
+#   _YF_BULK_SYMBOLS  — bu isteklerde kac sembol-timeframe yfinance'ten geldi
+_YF_BULK_REQUESTS = 0
+_YF_BULK_SYMBOLS = 0
+_YF_BULK_LOCK = threading.Lock()
+
+
+def yf_bulk_counts() -> dict[str, int]:
+    """Son reset'ten bu yana TOPLU yfinance kullanimi."""
+    with _YF_BULK_LOCK:
+        return {"requests": _YF_BULK_REQUESTS, "symbols": _YF_BULK_SYMBOLS}
+
+
+def _note_yf_bulk(symbol_count: int) -> None:
+    global _YF_BULK_REQUESTS, _YF_BULK_SYMBOLS
+    with _YF_BULK_LOCK:
+        _YF_BULK_REQUESTS += 1
+        _YF_BULK_SYMBOLS += symbol_count
+
+
+def alpaca_total_failure() -> bool:
+    """Whether the Alpaca bulk path failed completely since the last reset."""
+    with _ALPACA_FAILURE_LOCK:
+        return _ALPACA_TOTAL_FAILURE
+
+
+# NOT (2026-09-22): gun ici kapsam sayaci BURAYA DEGIL, asagida
+# `_note_intraday_coverage()` olarak uygulandi (paralel surec). O surum
+# `prefetch_symbols_multi_timeframe`'in UC donus yolunun hepsinde cagriliyor,
+# bu yuzden hangi yol kosarsa kossun olcum aliniyor. Claude ayni ozelligi
+# burada ikinci kez tanimlamisti; golgeleme hatasi yaratiyordu, kaldirildi.
+
+
+def _note_alpaca_total_failure() -> None:
+    global _ALPACA_TOTAL_FAILURE
+    with _ALPACA_FAILURE_LOCK:
+        _ALPACA_TOTAL_FAILURE = True
+
+
 # P0.1 (2026-07-31 scanner audit) — Alpaca-miss visibility. Records, per real
 # timeframe, how many symbols had INSUFFICIENT Alpaca(IEX) history and thus fell
 # to the yfinance repair path. This pinpoints WHICH timeframe drives fallback
@@ -91,6 +156,10 @@ def _note_yf_fetch() -> None:
 # measurable, per-timeframe cause. Observation only — never changes scan output.
 _ALPACA_MISS_BY_TF: dict[str, int] = {}
 _ALPACA_MISS_LOCK = threading.Lock()
+_ALPACA_TOTAL_FAILURE = False
+_ALPACA_FAILURE_LOCK = threading.Lock()
+_INTRADAY_COVERAGE: dict[str, int] = {}
+_INTRADAY_COVERAGE_LOCK = threading.Lock()
 
 
 def alpaca_miss_by_tf() -> dict[str, int]:
@@ -103,6 +172,12 @@ def _note_alpaca_miss(missing_by_tf: dict[str, list]) -> None:
     global _ALPACA_MISS_BY_TF
     with _ALPACA_MISS_LOCK:
         _ALPACA_MISS_BY_TF = {tf: len(syms) for tf, syms in missing_by_tf.items()}
+
+
+def intraday_coverage() -> dict[str, int]:
+    """Symbols meeting minimum intraday history, since the last reset."""
+    with _INTRADAY_COVERAGE_LOCK:
+        return dict(_INTRADAY_COVERAGE)
 
 
 # ============================================
@@ -151,20 +226,52 @@ _alpaca_client_lock = threading.Lock()
 _alpaca_client: Any | None = None
 
 
+# ── A/B deney anahtari: Alpaca yolunu tamamen atla (2026-09-21) ──────────────
+# FAZ 3R (docs/2026-09-21-tarama-hizlandirma-plani.md) icin. Kol B'yi kurar.
+#
+# BAGLAYICI KISITLAR (Meric, 2026-09-21):
+#   1. Varsayilan davranis korunur — bayrak yoksa Alpaca ACIK
+#   2. YALNIZCA os.environ'dan okunur
+#   3. .env icine EKLENMEZ
+#   4. Surec baslatilirken acikca verilir
+#      (docker-compose env_file .env'i tasiyor; `if _key not in os.environ`
+#       semantigi sayesinde kabuktan/compose `environment:` ile verilen deger
+#       .env'i ezer — ek koda gerek yok)
+#   5. Deney kolu sonuc metadata'sina yazilir (api/routers/scan.py)
+#   6. Sure yaninda cikti esdegerligi + saglayici kapsami kaydedilir
+#
+# NEDEN ORTAK YARDIMCI: `ALPACA_API_KEY` UC ayri yerde kapi olarak kullaniliyor
+# (_get_alpaca_client, fetch_symbols_batch auto-detect, _prefetch_alpaca_bulk).
+# Bayrak yalnizca birine konsaydi Kol B "kismen Alpaca acik" kosar ve A/B
+# gecersiz olurdu. Uc kapi da asagidaki tek fonksiyondan gecer.
+
+
+def alpaca_disabled() -> bool:
+    """FINPILOT_DISABLE_ALPACA=1 ise Alpaca yolu tamamen atlanir (deney Kol B)."""
+    return os.environ.get("FINPILOT_DISABLE_ALPACA", "0") == "1"
+
+
+def _alpaca_available() -> bool:
+    """Alpaca yolu bu kosuda kullanilabilir mi? UC kapinin da tek kaynagi."""
+    if alpaca_disabled():
+        return False
+    return bool(os.environ.get("ALPACA_API_KEY"))
+
+
 def _get_alpaca_client() -> Any | None:
     """Return a process-wide singleton StockHistoricalDataClient, or None
-    when ALPACA_API_KEY is not configured.
+    when Alpaca is unavailable (no key, or disabled for the A/B experiment).
     """
     global _alpaca_client  # noqa: PLW0603
+    if not _alpaca_available():
+        return None
     if _alpaca_client is not None:
         return _alpaca_client
-    api_key = os.environ.get("ALPACA_API_KEY")
-    if not api_key:
-        return None
     with _alpaca_client_lock:
         if _alpaca_client is None:
             from alpaca.data.historical import StockHistoricalDataClient
 
+            api_key = os.environ.get("ALPACA_API_KEY", "")
             secret_key = os.environ.get("ALPACA_SECRET_KEY", "")
             _alpaca_client = StockHistoricalDataClient(api_key, secret_key)
     return _alpaca_client
@@ -505,6 +612,20 @@ def _has_sufficient_history(
     )
 
 
+def _note_intraday_coverage(result: dict[str, dict[str, pd.DataFrame]], symbols: list[str]) -> None:
+    """Record final 15m/1h coverage without changing fetched data."""
+    coverage = {
+        interval: sum(
+            len(result.get(symbol, {}).get(interval, pd.DataFrame())) >= MIN_HISTORY_BARS[interval]
+            for symbol in symbols
+        )
+        for interval in ("15m", "1h")
+    }
+    global _INTRADAY_COVERAGE
+    with _INTRADAY_COVERAGE_LOCK:
+        _INTRADAY_COVERAGE = coverage
+
+
 def fetch_multi_timeframe(
     symbol: str,
     timeframes: list[tuple[str, int]] | None = None,
@@ -606,7 +727,11 @@ def fetch_symbols_batch(
 
     # --- Auto-detect Alpaca availability ---
     if use_alpaca is None:
-        use_alpaca = bool(os.environ.get("ALPACA_API_KEY"))
+        use_alpaca = _alpaca_available()
+    elif use_alpaca and alpaca_disabled():
+        # Deney Kol B mutlaktir: cagiran acikca use_alpaca=True gecse bile
+        # bayrak bunu EZER. Aksi halde A/B kismen Alpaca-acik kosardi.
+        use_alpaca = False
 
     results: dict[str, pd.DataFrame] = {}
 
@@ -684,7 +809,7 @@ def _prefetch_alpaca_bulk(
     The fetch_bars_bulk wrapper returns integer-indexed columns when the Alpaca SDK
     converts Pydantic Bar objects via pd.DataFrame(), so we bypass it here.
     """
-    if not os.environ.get("ALPACA_API_KEY"):
+    if not _alpaca_available():
         return None
     try:
         from datetime import UTC
@@ -751,26 +876,34 @@ def _prefetch_alpaca_bulk(
                 logger.warning("Alpaca bulk bars failed for %s/%dd: %s", interval, days, exc)
                 return None  # Fall back entirely to yfinance
 
-            for sym in symbols:
-                try:
-                    if isinstance(full_df.index, pd.MultiIndex):
-                        lvl0 = full_df.index.get_level_values(0)
-                        df = full_df.loc[sym].copy() if sym in lvl0 else pd.DataFrame()
-                    else:
-                        df = full_df.copy()
+            extracted: dict[str, pd.DataFrame] = {}
+            with timer(
+                "prefetch.alpaca.extract", count=len(symbols), timeframe=interval, path="alpaca"
+            ):
+                for sym in symbols:
+                    try:
+                        if isinstance(full_df.index, pd.MultiIndex):
+                            lvl0 = full_df.index.get_level_values(0)
+                            df = full_df.loc[sym].copy() if sym in lvl0 else pd.DataFrame()
+                        else:
+                            df = full_df.copy()
 
-                    if df is not None and not df.empty:
-                        df = df.rename(columns=_COL_RENAME)
-                        if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is not None:
-                            df.index = df.index.tz_convert(None)
-                        if with_indicators:
-                            try:
-                                df = add_indicators(df)
-                            except Exception:
-                                pass
-                    result[sym][interval] = df
-                except KeyError:
-                    result[sym][interval] = pd.DataFrame()
+                        if df is not None and not df.empty:
+                            df = df.rename(columns=_COL_RENAME)
+                            if isinstance(df.index, pd.DatetimeIndex) and df.index.tz is not None:
+                                df.index = df.index.tz_convert(None)
+                        extracted[sym] = df
+                    except KeyError:
+                        extracted[sym] = pd.DataFrame()
+
+            for sym in symbols:
+                df = extracted[sym]
+                if df is not None and not df.empty and with_indicators:
+                    try:
+                        df = add_indicators(df)
+                    except Exception:
+                        pass
+                result[sym][interval] = df
 
         # Derive 4h from 1h
         for sym in symbols:
@@ -809,6 +942,9 @@ def _bulk_yf_download(
         return {}
 
     period = f"{days}d"
+    # 2026-09-21: bu YOL DA yfinance'tir. Onceden sayilmiyordu; `yf_fallback=0`
+    # olan taramalarin bir kismi aslinda tum sembolleri buradan cekiyordu.
+    _note_yf_bulk(len(symbols))
     try:
         with timer(
             "fetch.request",
@@ -886,6 +1022,123 @@ def _bulk_yf_download(
     return results
 
 
+# ── EODHD intraday sağlayıcısı ───────────────────────────────────────────────
+# Neden: Alpaca'nın ücretsiz IEX beslemesi 15m/1h barlarını küçük/orta likiditeli
+# isimlerde vermiyor (ölçüm: data/distribution/scan_timing.jsonl — alpaca_miss
+# her taramada 15m/1h'te onlarca, 1d'de ~0). Eksikler bugüne kadar yfinance'ten
+# tek tek toplanıyordu: sembol başına ~2.5 sn, 200 sembolde 50sn → 500sn.
+# EODHD ücretli aboneliği bu barları sunuyor; bu katman onu zincire sokar.
+#
+# EODHD'de 15m aralığı YOKTUR (1m/5m/1h) — 15m, 5m'den türetilir.
+# Bayrak: FINPILOT_ENABLE_EODHD_BARS=1 (varsayılan KAPALI — açılmadan davranış
+# birebir eskisi gibi kalır).
+
+_EODHD_NATIVE_INTERVALS = {"1h": "1h", "5m": "5m", "1m": "1m"}
+# scanner 15m ister, EODHD 5m verir → 3 bar birleştir.
+_EODHD_DERIVED = {"15m": ("5m", "15min")}
+
+
+def eodhd_bars_enabled() -> bool:
+    """True yalnızca bayrak açık VE EODHD anahtarı mevcutsa."""
+    return os.environ.get("FINPILOT_ENABLE_EODHD_BARS", "0") == "1" and bool(
+        os.environ.get("EODHD_API_KEY", "").strip()
+    )
+
+
+def _resample_intraday(df: pd.DataFrame, rule: str) -> pd.DataFrame:
+    """5m → 15m gibi gün içi yeniden örnekleme (OHLCV doğru agregasyonla)."""
+    if df.empty:
+        return df
+    try:
+        out = (
+            df[["Open", "High", "Low", "Close", "Volume"]]
+            .resample(rule)
+            .agg({"Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"})
+        )
+        return out.dropna(subset=["Close"])
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("intraday resample (%s) failed: %s", rule, exc)
+        return pd.DataFrame()
+
+
+def _eodhd_one(symbol: str, interval: str, days: int, with_indicators: bool) -> pd.DataFrame:
+    """Tek sembol için EODHD intraday barlarını DataFrame'e çevir."""
+    from data.eodhd_client import get_client  # noqa: PLC0415 — geç import
+
+    native, rule = interval, None
+    if interval in _EODHD_DERIVED:
+        native, rule = _EODHD_DERIVED[interval]
+    elif interval not in _EODHD_NATIVE_INTERVALS:
+        return pd.DataFrame()
+
+    rows = get_client().intraday(symbol, interval=native, days=days)
+    if not rows:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(rows)
+    if df.empty or "close" not in df.columns:
+        return pd.DataFrame()
+
+    # EODHD "datetime" alanı UTC string; tz-naive index (repo geneli sözleşme).
+    df["_dt"] = pd.to_datetime(df.get("datetime"), errors="coerce", utc=True)
+    df = df.dropna(subset=["_dt"]).set_index("_dt")
+    df.index = df.index.tz_convert(None)
+    df = df.rename(
+        columns={
+            "open": "Open",
+            "high": "High",
+            "low": "Low",
+            "close": "Close",
+            "volume": "Volume",
+        }
+    )
+    keep = [c for c in ("Open", "High", "Low", "Close", "Volume") if c in df.columns]
+    df = df[keep].apply(pd.to_numeric, errors="coerce").dropna(subset=["Close"]).sort_index()
+
+    if rule:
+        df = _resample_intraday(df, rule)
+
+    if with_indicators and not df.empty:
+        try:
+            df = add_indicators(df)
+        except Exception:  # noqa: BLE001
+            pass
+    return df
+
+
+def _bulk_eodhd_intraday(
+    symbols: list[str],
+    interval: str,
+    days: int,
+    with_indicators: bool,
+    max_workers: int = 16,
+) -> dict[str, pd.DataFrame]:
+    """EODHD intraday barlarını paralel çeker.
+
+    EODHD'nin intraday endpoint'i çoklu-sembol desteklemez (sembol başına 1
+    çağrı), ama gerçek bir ücretli API olduğu için yfinance'in aksine
+    paralelleştirilebilir ve throttle edilmez.
+    """
+    if not symbols:
+        return {}
+
+    results: dict[str, pd.DataFrame] = {}
+    with timer("fetch.request", count=len(symbols), timeframe=interval, path="eodhd"):
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = {
+                pool.submit(_eodhd_one, sym, interval, days, with_indicators): sym
+                for sym in symbols
+            }
+            for fut in as_completed(futures):
+                sym = futures[fut]
+                try:
+                    results[sym] = fut.result()
+                except Exception as exc:  # noqa: BLE001
+                    logger.debug("eodhd intraday failed for %s: %s", sym, exc)
+                    results[sym] = pd.DataFrame()
+    return results
+
+
 def _repair_partial_alpaca_result(
     symbols: list[str],
     timeframes: list[tuple[str, int]],
@@ -906,10 +1159,39 @@ def _repair_partial_alpaca_result(
     # can report which timeframe drove the yfinance fallback (observation only).
     _note_alpaca_miss(missing_by_tf)
 
+    _use_eodhd = eodhd_bars_enabled()
+
     for interval, days in real_tfs:
         missing_symbols = missing_by_tf[interval]
         if not missing_symbols:
             continue
+
+        # 1) EODHD (ücretli, paralel, gün içi barları kapsar) — bayrak açıksa.
+        #    Günlük barda Alpaca zaten ~hiç ıskalamıyor, bu yüzden EODHD'yi
+        #    yalnızca gün içi aralıklar için deniyoruz (kota israfını önler).
+        if _use_eodhd and interval != "1d":
+            eod_frames = _bulk_eodhd_intraday(missing_symbols, interval, days, with_indicators)
+            still_missing: list[str] = []
+            filled = 0
+            for symbol in missing_symbols:
+                df = eod_frames.get(symbol, pd.DataFrame())
+                if isinstance(df, pd.DataFrame) and len(df) >= MIN_HISTORY_BARS[interval]:
+                    result[symbol][interval] = df
+                    filled += 1
+                else:
+                    still_missing.append(symbol)
+            logger.info(
+                "eodhd intraday repair %s: %d/%d dolduruldu, %d yfinance'e kaldı",
+                interval,
+                filled,
+                len(missing_symbols),
+                len(still_missing),
+            )
+            missing_symbols = still_missing
+            if not missing_symbols:
+                continue
+
+        # 2) yfinance — EODHD kapalıysa veya hâlâ eksik kalan semboller için.
         fallback = _bulk_yf_download(missing_symbols, interval, days, with_indicators)
         for symbol in missing_symbols:
             fallback_df = fallback.get(symbol, pd.DataFrame())
@@ -997,7 +1279,18 @@ def prefetch_symbols_multi_timeframe(
                 progress_callback(total, total)
             except Exception:
                 pass
+        _note_intraday_coverage(alpaca_result, symbols)
         return alpaca_result
+
+    # Alpaca yolu TAMAMEN basarisiz (None dondu) — bu satira gelinmesi bunun
+    # kendisidir. _prefetch_alpaca_bulk'un BES ayri `return None` cikisi var
+    # (anahtar yok / client yok / retry tukendi / bars hatasi / genel exception);
+    # bayragi cagiran tarafta isaretlemek besini birden kapsar.
+    # DUZELTME 2026-09-21: bu cagri onceden `return alpaca_result`'in ALTINDA
+    # duruyordu, yani ULASILAMAZ olu koddu — bayrak hicbir zaman True olmuyordu.
+    # Birim testi `_note_alpaca_total_failure()`'i dogrudan cagirdigi icin gecmis,
+    # ama uretim yolu hic calismamisti (IMPLEMENTED != ACTIVE).
+    _note_alpaca_total_failure()
 
     # ── Fast path 2: yf.download() bulk (avoids per-symbol HTTP overhead) ────
     # Issues 1 request per real timeframe (3 requests total for the default set),
@@ -1038,6 +1331,7 @@ def prefetch_symbols_multi_timeframe(
                     progress_callback(total, total)
                 except Exception:
                     pass
+            _note_intraday_coverage(bulk_result, symbols)
             return bulk_result
 
         logger.warning("prefetch bulk yf.download partial failure — falling back to per-symbol")
@@ -1085,6 +1379,7 @@ def prefetch_symbols_multi_timeframe(
             logger.warning("Prefetch incomplete: %s — boş veri", sym)
             results[sym] = {tf[0]: pd.DataFrame() for tf in timeframes}
 
+    _note_intraday_coverage(results, symbols)
     return results
 
 

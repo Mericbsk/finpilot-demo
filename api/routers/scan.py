@@ -233,7 +233,7 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
     if not out:
         return
     try:
-        from routers.watchlist import _load, _save, _upsert
+        from api.routers.watchlist import _load, _save, _upsert
 
         # Alpha Tracker'dan gelen dinamik score floor (sadece flag için)
         score_floor: int | None = None
@@ -386,15 +386,49 @@ async def run_scan(
     except Exception:  # noqa: BLE001
         _alpaca_miss = {}
     try:
+        from scanner.data_fetcher import alpaca_total_failure
+
+        _alpaca_total_failure = alpaca_total_failure()
+    except Exception:  # noqa: BLE001
+        _alpaca_total_failure = False
+    # 2026-09-21: TOPLU yfinance kullanimi. `yf_fallback` yalnizca sembol-basina
+    # yolu sayiyor; toplu yol (yf.download) gorunmezdi — bir tarama tum sembolleri
+    # yfinance'ten toplu cekip yine yf_fallback=0 raporlayabiliyordu.
+    try:
+        from scanner.data_fetcher import yf_bulk_counts
+
+        _yf_bulk = yf_bulk_counts()
+    except Exception:  # noqa: BLE001
+        _yf_bulk = {"requests": -1, "symbols": -1}
+    try:
+        from scanner.data_fetcher import intraday_coverage
+
+        _intraday_coverage = intraday_coverage()
+    except Exception:  # noqa: BLE001
+        _intraday_coverage = {}
+    # FAZ 3R kisit 5: deney kolu her kayitta acikca yazilir, boylece hangi kolun
+    # urettigi sonradan kaydin kendisinden anlasilir (log arkeolojisi gerekmez).
+    try:
+        from scanner.data_fetcher import alpaca_disabled
+
+        _alpaca_disabled = alpaca_disabled()
+    except Exception:  # noqa: BLE001
+        _alpaca_disabled = False
+    _experiment_arm = "B_alpaca_disabled" if _alpaca_disabled else "A_baseline"
+    try:
         from scanner.performance import snapshot as stage_timing
 
         _stage_timing = stage_timing()
     except Exception:  # noqa: BLE001
         _stage_timing = []
     logger.info(
-        "scan timing: symbols=%d yf_fallback=%d alpaca_miss=%s eval=%.2fs enrich=%.2fs total=%.2fs",
+        "scan timing: symbols=%d yf_perSymbol=%d yf_bulkReq=%s yf_bulkSyms=%s "
+        "alpaca_total_failure=%s alpaca_miss=%s eval=%.2fs enrich=%.2fs total=%.2fs",
         len(req.symbols),
         _yf_fb,
+        _yf_bulk.get("requests"),
+        _yf_bulk.get("symbols"),
+        _alpaca_total_failure,
         _alpaca_miss,
         _t_eval_done - _t_start,
         _t_scoring_done - _t_eval_done,
@@ -406,10 +440,17 @@ async def run_scan(
         "total_s": round(_t_scoring_done - _t_start, 2),
         "symbols": len(req.symbols),
         "yf_fallback": _yf_fb,
+        "yf_bulk_requests": _yf_bulk.get("requests"),
+        "yf_bulk_symbols": _yf_bulk.get("symbols"),
+        "intraday_coverage": _intraday_coverage,
         "alpaca_miss": _alpaca_miss,
+        "alpaca_total_failure": _alpaca_total_failure,
+        "alpaca_disabled": _alpaca_disabled,
+        "experiment_arm": _experiment_arm,
+        "result_symbols": len(out),
         "stage_timing": _stage_timing,
     }
-    _append_scan_timing_log(_timing, universe=len(req.symbols))
+    _persist_start = time.perf_counter()
     _persist_shortlist(out)
     _persist_shadow_ledger(out, universe=len(req.symbols))
     _auto_add_watchlist(out, drl_cache, drl_valid)
@@ -418,6 +459,8 @@ async def run_scan(
         universe=len(req.symbols),
         timing=_timing,
     )
+    _timing["persist_s"] = round(time.perf_counter() - _persist_start, 2)
+    _append_scan_timing_log(_timing, universe=len(req.symbols))
     try:
         from core.analytics import increment_event
 
@@ -786,6 +829,14 @@ def _append_scan_timing_log(timing: dict, universe: int) -> None:
             "total_s": timing.get("total_s"),
             "yf_fallback": timing.get("yf_fallback"),
             "alpaca_miss": timing.get("alpaca_miss", {}),
+            "alpaca_total_failure": timing.get("alpaca_total_failure", False),
+            "yf_bulk_requests": timing.get("yf_bulk_requests"),
+            "yf_bulk_symbols": timing.get("yf_bulk_symbols"),
+            "intraday_coverage": timing.get("intraday_coverage", {}),
+            "alpaca_disabled": timing.get("alpaca_disabled", False),
+            "experiment_arm": timing.get("experiment_arm", "A_baseline"),
+            "result_symbols": timing.get("result_symbols"),
+            "persist_s": timing.get("persist_s"),
             "stage_timing": timing.get("stage_timing", []),
         }
         with (export_dir / "scan_timing.jsonl").open("a", encoding="utf-8") as fh:
