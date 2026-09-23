@@ -1,0 +1,10 @@
+{
+  "dataset_sha256": "87541cc54eb7c360b865ca5df6141fcd84ddb089d5d461b6e40dda74d8b073ad",
+  "reconstruction_fidelity": {
+    "exact_match_rate_pct": 1.16,
+    "correlation": 0.8636,
+    "rank_correlation": 0.8576,
+    "status": "NOT_FULLY_RECONSTRUCTED",
+    "mismatch_reason": "missing_input"
+  }
+}

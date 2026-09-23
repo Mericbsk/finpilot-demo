@@ -14,7 +14,7 @@ services:
     container_name: finpilot_web
     restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "127.0.0.1:3001:3000"
     environment:
       - API_HOST=http://api:8000
       - NODE_ENV=production
@@ -40,7 +40,7 @@ services:
     container_name: finpilot_api
     restart: unless-stopped
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     environment:
       - TZ=Europe/Istanbul
       - PYTHONUNBUFFERED=1

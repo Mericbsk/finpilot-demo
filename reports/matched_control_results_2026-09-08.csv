@@ -1,0 +1,17 @@
+error,n,component,window
+insufficient,1.0,squeeze,W1
+insufficient,1.0,lottery,W1
+insufficient,1.0,overnight,W1
+insufficient,1.0,catalyst,W1
+few treated,0.0,squeeze,W2
+few treated,0.0,lottery,W2
+few treated,0.0,overnight,W2
+few treated,0.0,catalyst,W2
+few treated,0.0,squeeze,W3
+few treated,0.0,lottery,W3
+few treated,0.0,overnight,W3
+few treated,0.0,catalyst,W3
+no matched dates,,squeeze,W4
+no matched dates,,lottery,W4
+no matched dates,,overnight,W4
+few treated,0.0,catalyst,W4

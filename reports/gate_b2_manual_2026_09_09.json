@@ -1,0 +1,131 @@
+{
+  "gate": "B2",
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "TSLA",
+    "AMZN",
+    "GOOGL",
+    "META",
+    "AMD"
+  ],
+  "git_commit": "a242b06",
+  "env_flag_before": "ABSENT(OFF)",
+  "instrumentation_version": "1.0",
+  "prior_artifacts": {
+    "baseline_inputs_2026-09-09T14-41-39Z.jsonl": "5f4025349d840738",
+    "baseline_inputs_2026-09-09T14-59-27Z.jsonl": "5e9c267d758a20b0",
+    "baseline_inputs_2026-09-09T15-01-15Z.jsonl": "3dcacc26942bfdcb"
+  },
+  "phaseA_off_new_artifacts": 0,
+  "env_flag_after": "<OFF/unset>",
+  "new_artifacts": [
+    "baseline_inputs_2026-09-21T07-06-12Z.jsonl"
+  ],
+  "overwrite_detected": false,
+  "overwrite_detail": {
+    "baseline_inputs_2026-09-09T14-41-39Z.jsonl": false,
+    "baseline_inputs_2026-09-09T14-59-27Z.jsonl": false,
+    "baseline_inputs_2026-09-09T15-01-15Z.jsonl": false
+  },
+  "non_regression": {
+    "common": 8,
+    "score_changed": 0,
+    "composite_changed": 0,
+    "reco_changed": 0
+  },
+  "records": 8,
+  "run_id": "2026-09-21T07-06-12Z",
+  "schema_ok": true,
+  "field_null": {
+    "run_id": 0,
+    "scan_basis": 0,
+    "scan_ts_utc": 0,
+    "scan_date": 0,
+    "symbol": 0,
+    "regime": 0,
+    "direction": 0,
+    "score": 0,
+    "filter_score": 0,
+    "alignment_ratio": 0,
+    "momentum_ratio": 0,
+    "volume_spike": 0,
+    "price_momentum": 0,
+    "trend_strength": 0,
+    "vol_regime": 0,
+    "composite_score": 0,
+    "recommendation_score": 0,
+    "score_input": 0,
+    "score_component_breakdown": 0,
+    "score_feature_flags": 0,
+    "instrumentation_version": 0,
+    "git_commit": 0
+  },
+  "duplicates": 0,
+  "raw_fidelity_failures": [],
+  "reconstruction_tolerance": 0.01,
+  "reconstruction_detail": [
+    {
+      "symbol": "AAPL",
+      "reco": 12.3333,
+      "prod": 12.333,
+      "abs_diff": 0.0003333333333337407
+    },
+    {
+      "symbol": "MSFT",
+      "reco": 10.6667,
+      "prod": 10.667,
+      "abs_diff": 0.0003333333333337407
+    },
+    {
+      "symbol": "TSLA",
+      "reco": 5.25,
+      "prod": 5.25,
+      "abs_diff": 0.0
+    },
+    {
+      "symbol": "NVDA",
+      "reco": 12.25,
+      "prod": 12.25,
+      "abs_diff": 0.0
+    },
+    {
+      "symbol": "AMZN",
+      "reco": 10.3333,
+      "prod": 10.333,
+      "abs_diff": 0.0003333333333337407
+    },
+    {
+      "symbol": "GOOGL",
+      "reco": 12.5,
+      "prod": 12.5,
+      "abs_diff": 0.0
+    },
+    {
+      "symbol": "AMD",
+      "reco": 10.5,
+      "prod": 10.5,
+      "abs_diff": 0.0
+    },
+    {
+      "symbol": "META",
+      "reco": 6.0,
+      "prod": 6.0,
+      "abs_diff": 0.0
+    }
+  ],
+  "reconstruction_exact": "8/8",
+  "component_sum_exact": "8/8",
+  "synthetic_count": 0,
+  "imputation_count": 0,
+  "scan_basis_ok": true,
+  "flag_snapshot": {
+    "squeeze_factor": false,
+    "edgar_catalyst": false,
+    "lottery_fade": false,
+    "overnight_gap": false
+  },
+  "status": "PASS",
+  "total_accumulated_observations": 32
+}

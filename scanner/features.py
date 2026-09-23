@@ -263,6 +263,60 @@ def compute_gap_factor(df: Any) -> float:
         return 0.0
 
 
+def compute_dist_52w_high(df_1d: Any) -> float:
+    """Return the latest close divided by the maximum high in 252 bars."""
+    try:
+        if (
+            not hasattr(df_1d, "iloc")
+            or len(df_1d) == 0
+            or "High" not in df_1d.columns
+            or "Close" not in df_1d.columns
+        ):
+            return 0.0
+        high_52w = float(df_1d["High"].iloc[-252:].max())
+        close = float(df_1d["Close"].iloc[-1])
+        if high_52w <= 0:
+            return 0.0
+        return round(close / high_52w, 4)
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
+def compute_gap_pct(df_1d: Any) -> float:
+    """Return the latest daily opening gap percentage."""
+    try:
+        if (
+            not hasattr(df_1d, "iloc")
+            or len(df_1d) < 2
+            or "Open" not in df_1d.columns
+            or "Close" not in df_1d.columns
+        ):
+            return 0.0
+        previous_close = float(df_1d["Close"].iloc[-2])
+        if previous_close <= 0:
+            return 0.0
+        opening_price = float(df_1d["Open"].iloc[-1])
+        return round((opening_price - previous_close) / previous_close * 100.0, 4)
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
+def compute_rvol_daily(df_1d: Any) -> float:
+    """Return latest volume divided by the preceding 20-day average volume."""
+    try:
+        if not hasattr(df_1d, "iloc") or len(df_1d) < 2 or "Volume" not in df_1d.columns:
+            return 0.0
+        volume = df_1d["Volume"]
+        current_volume = float(volume.iloc[-1])
+        baseline = volume.iloc[-21:-1] if len(volume) >= 21 else volume.iloc[:-1]
+        average_volume = float(baseline.mean())
+        if current_volume <= 0 or average_volume <= 0:
+            return 0.0
+        return round(current_volume / average_volume, 4)
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
 def compute_rvol_factor(df: Any) -> float:
     """Return 0.0-1.0 relative-volume strength from a daily OHLC DataFrame.
 

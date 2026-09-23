@@ -421,6 +421,302 @@ Duygusal kararları yok etmenin tek yolu: **önceden belirlenmiş kurallar.**
             },
         ],
     },
+    # ──────────────────────────────────────────────────────────────────
+    # 4. TEMEL ANALİZ
+    # ──────────────────────────────────────────────────────────────────
+    {
+        "id": "FA-001-degerleme-yontemleri",
+        "domain": "fundamental-analysis",
+        "domain_id": 4,
+        "module": "Değerleme Yöntemleri (P/E, DCF)",
+        "title": "P/E Oranı: Bir Hisse Pahalı mı Ucuz mu?",
+        "difficulty": "beginner",
+        "estimated_minutes": 11,
+        "content": """## P/E Oranı Nedir?
+
+Fiyat/Kazanç oranı (Price/Earnings, P/E), bir hissenin fiyatının şirketin kârına
+göre "kaç kat" olduğunu gösterir.
+
+```
+P/E = Hisse Fiyatı ÷ Hisse Başına Kâr (EPS)
+```
+
+Örnek: Hisse 100 dolar, EPS 5 dolar → P/E = 20. Yani yatırımcı, şirketin yıllık
+kârının 20 katını ödüyor.
+
+### P/E Tek Başına Ne Anlatır, Ne Anlatmaz?
+
+P/E yüksekse iki farklı hikâye olabilir: piyasa şirketin hızlı büyüyeceğine
+inanıyor (büyüme primi) YA DA hisse gerçekten pahalı fiyatlanmış. P/E düşükse
+de iki hikâye olabilir: hisse ucuz kalmış bir fırsat YA DA şirketin gerçek bir
+sorunu var ve piyasa bunu fiyatlıyor. P/E sayısı tek başına hangisi olduğunu
+söylemez — bağlam gerekir.
+
+### Karşılaştırma Olmadan P/E Anlamsızdır
+
+| Şirket | P/E | Sektör Ortalaması |
+|--------|-----|--------------------|
+| Yazılım şirketi | 35 | 30 (normal) |
+| Bankacılık şirketi | 35 | 10 (aşırı yüksek) |
+
+Aynı P/E, farklı sektörlerde farklı anlam taşır. Büyüme sektörleri (yazılım,
+teknoloji) yapısal olarak daha yüksek P/E ile işlem görür; olgun sektörler
+(bankacılık, enerji) daha düşük P/E'yi normal karşılar.
+
+### DCF (İndirgenmiş Nakit Akışı) — Kısaca
+
+DCF, bir şirketin gelecekte üreteceği tahmini nakit akışlarını bugünkü değere
+indirger. Mantık: "Bu şirket önümüzdeki 10 yılda ne kadar nakit üretecek, ve
+bu nakit bugün ne kadar eder?"
+
+DCF'in zayıf noktası: girdileri (büyüme oranı, iskonto oranı) tahminden
+ibarettir. Küçük bir varsayım değişikliği, sonucu büyük ölçüde değiştirebilir
+— bu yüzden DCF tek başına değil, diğer yöntemlerle birlikte kullanılır.
+
+### FinPilot'ta Temel Analiz
+
+FinPilot'un tarama motoru fiyat/hacim davranışına odaklanır; P/E veya DCF gibi
+temel değerleme metriklerini sinyal üretiminde kullanmaz. Bu ayrım kasıtlıdır:
+teknik tarama "şu an ne oluyor"yu, temel analiz "bu şirket gerçekte ne değer"i
+yanıtlar — ikisi farklı sorulara cevap verir ve birbirinin yerine geçmez.""",
+        "key_takeaways": [
+            "P/E = Hisse Fiyatı ÷ Hisse Başına Kâr — 'kaç kat ödüyorsun' sorusuna cevap verir",
+            "Yüksek/düşük P/E tek başına 'pahalı/ucuz' anlamına gelmez — sektör karşılaştırması şart",
+            "DCF, gelecekteki nakit akışlarını bugüne indirger; varsayımlara aşırı duyarlıdır",
+            "Temel analiz 'ne değer' sorusuna, teknik tarama 'şu an ne oluyor' sorusuna cevap verir",
+        ],
+        "misconceptions": [
+            "Yanlış: 'Düşük P/E her zaman ucuz demektir' — Düşük P/E bazen gerçek bir sorunun fiyatlanmasıdır",
+            "Yanlış: 'DCF kesin bir değer üretir' — DCF sonucu, girilen varsayımlar kadar güvenilirdir",
+        ],
+        "real_example": {
+            "ticker": "NVDA",
+            "context": "NVDA 2023-2024'te yüksek P/E ile işlem gördü; piyasa büyüme beklentisini fiyatlıyordu",
+        },
+        "quizzes": [
+            {
+                "question": "Bir yazılım şirketinin P/E'si 35, sektör ortalaması 30. Bir bankacılık şirketinin P/E'si de 35, sektör ortalaması 10. Bu ikisi hakkında ne söylenebilir?",
+                "options": [
+                    "A) İkisi de aynı derecede 'normal' fiyatlanmış",
+                    "B) Yazılım şirketi sektörüne göre hafif yüksek, banka aşırı yüksek fiyatlanmış olabilir",
+                    "C) İkisi de aşırı ucuz",
+                    "D) P/E bu şirketler için karşılaştırılamaz",
+                ],
+                "correct": "B",
+                "explanation": "P/E'nin anlamı sektöre göre değişir. Aynı P/E değeri, kendi sektör ortalamasına göre çok farklı bir sinyal taşıyabilir.",
+            }
+        ],
+        "flashcards": [
+            {"front": "P/E oranı formülü?", "back": "Hisse Fiyatı ÷ Hisse Başına Kâr (EPS)"},
+            {
+                "front": "DCF nedir?",
+                "back": "Bir şirketin gelecekteki nakit akışlarını bugünkü değere indirgeyen değerleme yöntemi.",
+            },
+            {
+                "front": "P/E'yi tek başına yorumlamak neden risklidir?",
+                "back": "Sektör bağlamı olmadan yüksek/düşük P/E'nin 'büyüme primi' mi yoksa 'gerçek sorun' mu olduğu ayırt edilemez.",
+            },
+        ],
+    },
+    # ──────────────────────────────────────────────────────────────────
+    # 5. PORTFÖY YÖNETİMİ
+    # ──────────────────────────────────────────────────────────────────
+    {
+        "id": "PM-001-diversifikasyon",
+        "domain": "portfolio-management",
+        "domain_id": 5,
+        "module": "Diversifikasyon Nedir",
+        "title": "Diversifikasyon: Tüm Yumurtaları Aynı Sepete Koymamak",
+        "difficulty": "beginner",
+        "estimated_minutes": 10,
+        "content": """## Diversifikasyon Neden İşe Yarar?
+
+Diversifikasyon, farklı varlıklara yatırım yaparak tek bir varlığın kötü
+performansının tüm portföyü batırmasını engellemektir. Matematiksel temeli:
+farklı varlıklar aynı anda, aynı yönde hareket etmediği (düşük korelasyon)
+sürece, portföyün toplam dalgalanması tek tek varlıkların ortalamasından
+daha düşük olur.
+
+### Basit Bir Örnek
+
+10.000 doları tek bir hisseye koyarsan ve o şirket %40 düşerse, portföyün
+%40 düşer. Aynı 10.000 doları birbiriyle düşük korelasyonlu 10 farklı
+hisseye eşit dağıtırsan, bir hissenin %40 düşmesi portföyü sadece ~%4
+etkiler (diğerleri sabit kalırsa).
+
+### Diversifikasyon Neyi Çözer, Neyi Çözmez
+
+Çözer: **şirkete özgü risk** (tek bir şirketin skandal, iflas, ürün
+başarısızlığı yaşaması). Bir hisseye ne kadar çok para bağlarsan, o şirkete
+özgü bir olay seni o kadar çok etkiler.
+
+Çözmez: **piyasa riski** (sistematik risk). 2008 veya 2020'de neredeyse tüm
+hisseler aynı anda düştü — çünkü kriz anlarında korelasyonlar birbirine
+yaklaşır. Diversifikasyon dalgalanmayı azaltır ama piyasa çapında bir düşüşü
+tamamen ortadan kaldırmaz.
+
+### Ne Kadar Diversifikasyon Yeterli?
+
+Akademik araştırmalar, rastgele seçilmiş ~20-30 hisseden oluşan bir
+portföyün, şirkete-özgü riskin büyük kısmını ortadan kaldırdığını gösteriyor.
+Bunun ötesinde eklenen her yeni hisse, azalan getiriler sağlar — 20 hisseden
+100 hisseye çıkmak, riski önemli ölçüde daha fazla azaltmaz ama takip etmeyi
+zorlaştırır.
+
+### Diversifikasyon Sadece "Çok Hisse" Değildir
+
+Gerçek diversifikasyon; farklı sektörler, farklı varlık sınıfları (hisse,
+tahvil, emtia), farklı coğrafyalar arasında dağılımı içerir. 15 farklı
+teknoloji hissesi tutmak, "diversifiye" hissettirir ama hepsi aynı sektör
+şokuna (örn. faiz artışı, regülasyon) aynı anda maruz kalır — bu sahte
+diversifikasyondur.
+
+### FinPilot'ta Diversifikasyon
+
+FinPilot'un günlük taraması, birden fazla sektörden aday üretebilir; ama
+hangi adayların portföyde birlikte tutulacağına, hangi ağırlıkla, hangi
+toplam risk bütçesiyle — bu tamamen kullanıcının kararıdır. Tarama motoru
+bir portföy inşa etmez, adayları listeler.""",
+        "key_takeaways": [
+            "Diversifikasyon, düşük korelasyonlu varlıklar bir araya geldiğinde toplam dalgalanmayı azaltır",
+            "Şirkete-özgü riski azaltır; piyasa çapında (sistematik) riski ortadan kaldırmaz",
+            "~20-30 hisseden sonra ek çeşitlendirmenin getirisi hızla azalır",
+            "Aynı sektörden çok sayıda hisse tutmak 'sahte diversifikasyon' olabilir",
+        ],
+        "misconceptions": [
+            "Yanlış: 'Ne kadar çok hisse o kadar güvenli' — 20-30'dan sonra ek fayda azalır, takip zorlaşır",
+            "Yanlış: 'Diversifikasyon her türlü kayıptan korur' — Kriz anlarında korelasyonlar birbirine yaklaşır, koruma azalır",
+        ],
+        "real_example": {
+            "ticker": "SPY",
+            "context": "Mart 2020: S&P 500'ün 500 hissesi neredeyse aynı anda düştü — diversifikasyon dalgalanmayı azalttı ama düşüşü önlemedi",
+        },
+        "quizzes": [
+            {
+                "question": "Bir yatırımcı 15 farklı teknoloji hissesi tutuyor ve bunu 'iyi diversifiye' olarak görüyor. Bu doğru mu?",
+                "options": [
+                    "A) Evet, 15 farklı şirket yeterlidir",
+                    "B) Hayır, hepsi aynı sektör şokuna maruz kalabileceğinden bu sahte diversifikasyon olabilir",
+                    "C) Evet, çünkü 20'den az hisse tutmak zaten önerilir",
+                    "D) Hayır, çünkü tek hisseye yoğunlaşmak her zaman daha güvenlidir",
+                ],
+                "correct": "B",
+                "explanation": "Diversifikasyon sadece hisse sayısıyla değil, sektör/varlık sınıfı çeşitliliğiyle ölçülür. Aynı sektördeki hisseler genelde birlikte hareket eder.",
+            }
+        ],
+        "flashcards": [
+            {
+                "front": "Diversifikasyon hangi riski azaltır?",
+                "back": "Şirkete-özgü riski. Piyasa çapında sistematik riski tam olarak ortadan kaldırmaz.",
+            },
+            {
+                "front": "Kaç hisseden sonra diversifikasyonun ek faydası azalır?",
+                "back": "Akademik araştırmalara göre yaklaşık 20-30 hisseden sonra.",
+            },
+            {
+                "front": "Sahte diversifikasyon nedir?",
+                "back": "Çok sayıda hisse tutmak ama hepsinin aynı sektöre/riske maruz kalması — sayı çok ama gerçek çeşitlilik az.",
+            },
+        ],
+    },
+    # ──────────────────────────────────────────────────────────────────
+    # 7. MAKROEKONOMİK ANALİZ
+    # ──────────────────────────────────────────────────────────────────
+    {
+        "id": "MA-001-faiz-kararlari",
+        "domain": "macro-analysis",
+        "domain_id": 7,
+        "module": "Faiz Kararları ve Piyasalar",
+        "title": "Fed Faiz Kararları Neden Tüm Piyasayı Hareket Ettirir?",
+        "difficulty": "beginner",
+        "estimated_minutes": 10,
+        "content": """## Faiz Oranı Neyi Değiştirir?
+
+Merkez bankası (ABD'de Fed) politika faizini belirler. Bu tek sayı, ekonomideki
+hemen her varlığın fiyatlamasını dolaylı olarak etkiler — çünkü faiz, "paranın
+zaman içindeki maliyeti"dir.
+
+### Yüksek Faiz Neden Hisseleri Baskılar?
+
+İki ana kanal vardır:
+
+1. **İskonto etkisi**: Bir hissenin "gerçek değeri", gelecekteki kârların
+   bugünkü değere indirgenmesiyle hesaplanır (bkz. DCF). Faiz yükselince
+   iskonto oranı yükselir, gelecekteki kârların bugünkü değeri düşer.
+2. **Alternatif maliyet**: Faiz yüksekken risksiz tahvil/mevduat getirisi
+   cazipleşir. Yatırımcılar riskli hisselerden risksiz araçlara kayabilir.
+
+### Faiz Artışına En Duyarlı Şirketler
+
+Büyüme şirketleri (kârın büyük kısmı uzak gelecekte bekleniyor) faiz
+artışından, olgun/değer şirketlerine (kâr şimdiki zamanda) göre daha çok
+etkilenir — çünkü uzak gelecekteki nakit akışları, iskonto oranı artışından
+orantısız şekilde daha çok değer kaybeder.
+
+### Fed Toplantıları Neden "Event" Sayılır?
+
+Fed, yaklaşık her 6 haftada bir (FOMC toplantıları) faiz kararını açıklar.
+Piyasa genellikle kararı önceden fiyatlar (beklenti); asıl hareket, kararın
+kendisinden çok **beklenenle gerçekleşen arasındaki fark** ile **Fed
+Başkanı'nın basın toplantısındaki dil tonundan (şahin/güvercin)** gelir.
+
+### Enflasyon ile Faiz İlişkisi
+
+Fed'in iki ana görevi (mandate): fiyat istikrarı (düşük enflasyon) ve tam
+istihdam. Enflasyon hedefin üzerindeyken Fed genelde faizi yükseltir
+(talebi soğutmak için); ekonomi zayıflarken faizi düşürür (büyümeyi
+desteklemek için). Bu ikisi arasındaki denge, her FOMC toplantısının
+merkezindedir.
+
+### FinPilot'ta Makro Bağlam
+
+FinPilot'un günlük tarama motoru şirket-seviyesi fiyat/hacim davranışına
+odaklanır; makro takvimi (FOMC tarihleri, enflasyon verisi çıkış günleri)
+doğrudan sinyal üretimine dahil etmez. Bu, kullanıcının kendi başına takip
+etmesi gereken ayrı bir bağlam katmanıdır — özellikle FOMC günlerinde piyasa
+çapında oynaklık normalden yüksek olabilir.""",
+        "key_takeaways": [
+            "Faiz artışı, gelecekteki kârların bugünkü değerini düşürür (iskonto etkisi)",
+            "Yüksek faiz, risksiz alternatiflerin (tahvil/mevduat) cazibesini artırır",
+            "Büyüme şirketleri faiz artışına, olgun/değer şirketlerinden daha duyarlıdır",
+            "Piyasa tepkisi genelde kararın kendisinden çok 'beklenenle fark'tan gelir",
+        ],
+        "misconceptions": [
+            "Yanlış: 'Faiz artışı her zaman hisseleri düşürür' — Beklenenden az bir artış bazen ralliye yol açar",
+            "Yanlış: 'Fed kararı önceden tamamen bilinemez, o yüzden önemsizdir' — Piyasa genelde büyük ölçüde fiyatlar; sürpriz kısmı hareket yaratır",
+        ],
+        "real_example": {
+            "ticker": "QQQ",
+            "context": "2022 faiz artış döngüsünde büyüme ağırlıklı QQQ, değer ağırlıklı endekslere göre daha sert düştü",
+        },
+        "quizzes": [
+            {
+                "question": "Fed faizi beklenenden az artırdığında piyasalar genelde nasıl tepki verir?",
+                "options": [
+                    "A) Her zaman düşer, çünkü faiz arttı",
+                    "B) Genelde yükselebilir, çünkü gerçekleşen beklenenden 'daha az sıkı' oldu",
+                    "C) Hiçbir etkisi olmaz",
+                    "D) Sadece tahvil piyasasını etkiler, hisseleri etkilemez",
+                ],
+                "correct": "B",
+                "explanation": "Piyasa fiyatlaması büyük ölçüde beklentiye dayanır. Gerçekleşen karar beklenenden 'gevşekse', bu genelde olumlu karşılanır — kararın mutlak yönünden bağımsız olarak.",
+            }
+        ],
+        "flashcards": [
+            {
+                "front": "Faiz artışı hisse değerlemesini hangi kanalla düşürür?",
+                "back": "İskonto etkisi: gelecekteki kârların bugünkü değeri, yükselen iskonto oranıyla düşer.",
+            },
+            {
+                "front": "Faiz artışına daha duyarlı olan şirket tipi hangisi?",
+                "back": "Büyüme şirketleri — kârın büyük kısmı uzak gelecekte beklendiği için iskonto etkisinden orantısız etkilenirler.",
+            },
+            {
+                "front": "FOMC nedir?",
+                "back": "Federal Open Market Committee — Fed'in faiz kararını aldığı, yaklaşık 6 haftada bir toplanan komite.",
+            },
+        ],
+    },
 ]
 
 

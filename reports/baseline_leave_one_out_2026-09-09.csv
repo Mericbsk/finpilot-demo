@@ -1,0 +1,9 @@
+excluded_term,corr_with_stored_without_term,full_r2_corr,delta
+regime,0.7402,0.8821,0.1419
+direction,0.8318,0.8821,0.0503
+score,0.8585,0.8821,0.0236
+squeeze_factor,0.8812,0.8821,0.0008
+catalyst_factor,0.8831,0.8821,-0.001
+lottery_factor,0.8578,0.8821,0.0242
+overnight_gap_factor,0.8883,0.8821,-0.0063
+sentiment,0.8831,0.8821,-0.001

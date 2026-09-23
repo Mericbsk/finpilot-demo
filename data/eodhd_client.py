@@ -5,6 +5,7 @@ FinPilot'un tüm EODHD veri ihtiyaçlarını karşılayan merkezi istemci.
 
 Desteklenen endpoint'ler:
   • real_time(symbols)          – Anlık fiyat (15-20 dk gecikme), OHLCV
+  • intraday(symbol, interval)  – Gün içi OHLCV barları (1m/5m/1h — 15m YOK)
   • eod_history(symbol, days)   – Günlük OHLCV geçmişi (sınırsız)
   • fundamentals(symbol)        – PE, EPS, gelir, bilanço, analist hedefleri
   • news(symbol, limit)         – Haber başlıkları + sentiment skoru
@@ -82,6 +83,8 @@ class EODHDClient:
         self._ttl_eod = int(os.getenv("EODHD_CACHE_TTL_EOD", "3600"))  # 1 saat
         self._ttl_fund = int(os.getenv("EODHD_CACHE_TTL_FUND", "86400"))  # 1 gün
         self._ttl_news = int(os.getenv("EODHD_CACHE_TTL_NEWS", "1800"))  # 30 dk
+        # Intraday barlar hızlı bayatlar — kısa TTL (canlı taramada 5 dk yeterli).
+        self._ttl_intraday = int(os.getenv("EODHD_CACHE_TTL_INTRADAY", "300"))  # 5 dk
 
         self._timeout = int(os.getenv("EODHD_TIMEOUT", "15"))
         self._cache: dict[str, _CacheEntry] = {}
@@ -208,6 +211,59 @@ class EODHDClient:
             ttl=self._ttl_eod,
         )
         return data or []
+
+    # ── Intraday barlar ───────────────────────────────────────────────────────
+
+    # EODHD intraday endpoint'i YALNIZCA şu aralıkları destekler: 1m, 5m, 1h.
+    # 15m YOKTUR — scanner'ın 15m timeframe'i 5m'den türetilir (bkz.
+    # scanner/data_fetcher.py::_resample_intraday). Bu, scripts/probe_eodhd.py
+    # dosyasındaki not ile aynı: "possible 15m substitute (EODHD has NO 15m)".
+    _INTRADAY_INTERVALS = ("1m", "5m", "1h")
+
+    def intraday(
+        self,
+        symbol: str,
+        interval: str = "1h",
+        days: int = 10,
+        exchange: str = _DEFAULT_EXCHANGE,
+    ) -> list[dict]:
+        """Gün içi OHLCV barları (1m / 5m / 1h).
+
+        Endpoint: /api/intraday/{SYMBOL}.US?interval=...&from=...&to=...
+        `from`/`to` UNIX timestamp bekler (saniye).
+
+        Args:
+            symbol:   "AAPL" veya "AAPL.US"
+            interval: "1m" | "5m" | "1h"  — EODHD'de 15m YOK
+            days:     kaç gün geriye
+
+        Returns:
+            [{"timestamp": int, "datetime": "YYYY-MM-DD HH:MM:SS",
+              "open": float, "high": float, "low": float,
+              "close": float, "volume": int}, ...]
+            Plan intraday içermiyorsa (HTTP 402/403) _get None döner → [] dönülür.
+        """
+        if interval not in self._INTRADAY_INTERVALS:
+            logger.warning(
+                "eodhd: desteklenmeyen intraday aralığı %r (geçerli: %s)",
+                interval,
+                ", ".join(self._INTRADAY_INTERVALS),
+            )
+            return []
+
+        sym = _fmt(symbol, exchange)
+        now = datetime.utcnow()
+        to_ts = int(now.timestamp())
+        from_ts = int((now - timedelta(days=days)).timestamp())
+
+        cache_key = f"intraday:{sym}:{interval}:{days}"
+        data = self._get(
+            f"intraday/{sym}",
+            params={"interval": interval, "from": from_ts, "to": to_ts},
+            cache_key=cache_key,
+            ttl=self._ttl_intraday,
+        )
+        return data if isinstance(data, list) else []
 
     # ── Fundamental veriler ───────────────────────────────────────────────────
 
@@ -512,6 +568,10 @@ def real_time(symbols: list[str], **kw) -> dict[str, dict]:
 
 def eod_history(symbol: str, days: int = 365, **kw) -> list[dict]:
     return get_client().eod_history(symbol, days, **kw)
+
+
+def intraday(symbol: str, interval: str = "1h", days: int = 10, **kw) -> list[dict]:
+    return get_client().intraday(symbol, interval, days, **kw)
 
 
 def fundamentals(symbol: str, **kw) -> dict:

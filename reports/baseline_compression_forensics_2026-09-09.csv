@@ -1,0 +1,7 @@
+metric,value
+n_rows_eod_dedup,40014
+unique_composite_score_values,90
+tie_ratio_pct,99.7751
+r2_correlation_with_stored,0.8821
+r2_rank_correlation_with_stored,0.8851
+r2_exact_match_pct,10.58

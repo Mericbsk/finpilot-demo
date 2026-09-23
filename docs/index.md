@@ -149,7 +149,8 @@ verilen otorite dokümanı repoda yok — icat edilmedi, açıkça işaretlendi,
       "authority_path": "reports",
       "status": "active",
       "owner": "research",
-      "applies_to": ["research/**/*", "reports/**/*"]
+      "applies_to": ["research/**/*", "reports/**/*"],
+      "note": "Canonical referans envanteri: reports/MASTER_RESEARCH_INVENTORY_2026-09-10.md (kavram->karar->kanit haritasi). Klasor otoritesi degismez; bu dosya yalnizca gecmis arastirmanin tek giris noktasidir. (Level B, Meric onayi 2026-09-10)"
     },
     {
       "id": "content-glossary",

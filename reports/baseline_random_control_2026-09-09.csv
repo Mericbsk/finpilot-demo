@@ -1,0 +1,7 @@
+metric,value
+real_pearson_composite_vs_c2c1d,-0.0136
+null_mean,-0.0
+null_std,0.005
+permutation_p,0.0
+n_null_replications,150
+n_pairs,40014

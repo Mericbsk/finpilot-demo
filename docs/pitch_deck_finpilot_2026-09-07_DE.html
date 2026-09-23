@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinPilot — Investorenpräsentation (2026-09-07)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg-dark:#0b0f1a; --bg-card:#141b2e; --bg-card2:#101728;
+    --accent:#38bdf8; --accent2:#34d399; --warn:#fbbf24; --danger:#f87171;
+    --text:#eef2ff; --text2:#8ea0c0; --line:#24304a;
+    --grad:linear-gradient(135deg,#38bdf8,#34d399);
+  }
+  body{font-family:'Inter',sans-serif;background:var(--bg-dark);color:var(--text);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .slide{width:100%;min-height:100vh;padding:64px 84px;display:flex;flex-direction:column;justify-content:center;page-break-after:always;position:relative;overflow:hidden;background:linear-gradient(180deg,#0b0f1a 0%,#101728 100%);}
+  .slide::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad);}
+  .slide-number{position:absolute;bottom:28px;right:60px;font-size:13px;color:var(--text2);font-weight:500;}
+  .footer{position:absolute;bottom:26px;left:60px;font-size:13px;color:#4b5566;font-weight:600;letter-spacing:.06em;}
+  .kicker{font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  h1{font-size:56px;font-weight:800;letter-spacing:-.02em;line-height:1.05;margin-bottom:14px;}
+  h2{font-size:36px;font-weight:800;letter-spacing:-.01em;line-height:1.1;margin-bottom:18px;}
+  .sub{font-size:20px;color:var(--text2);font-weight:400;line-height:1.5;max-width:900px;margin-bottom:28px;}
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:16px;padding:28px 30px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  table{width:100%;border-collapse:collapse;font-size:16px;}
+  th{text-align:left;font-weight:600;color:var(--text2);font-size:13px;text-transform:uppercase;letter-spacing:.08em;padding:10px 14px;border-bottom:1px solid var(--line);}
+  td{padding:10px 14px;border-bottom:1px solid #1a2338;color:var(--text);}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;vertical-align:middle;margin-left:8px;letter-spacing:.04em;}
+  .tag-v{background:rgba(52,211,153,.14);color:#34d399;border:1px solid rgba(52,211,153,.35);}
+  .tag-s{background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.35);}
+  .tag-c{background:rgba(56,189,248,.14);color:#38bdf8;border:1px solid rgba(56,189,248,.35);}
+  .tag-a{background:rgba(167,139,250,.14);color:#a78bfa;border:1px solid rgba(167,139,250,.35);}
+  .big{font-size:52px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+  .metric-label{font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-top:6px;}
+  .callout{border-left:4px solid var(--accent);background:var(--bg-card2);padding:20px 24px;border-radius:0 12px 12px 0;font-size:17px;line-height:1.55;color:var(--text);}
+  .callout.warn{border-color:var(--warn);}
+  .callout.danger{border-color:var(--danger);}
+  .callout.good{border-color:var(--accent2);}
+  .note{font-size:13px;color:var(--text2);margin-top:22px;line-height:1.5;}
+  .arrow{font-size:44px;color:var(--accent);font-weight:300;text-align:center;}
+  .divider{height:1px;background:var(--line);margin:26px 0;}
+  .pill{display:inline-block;background:var(--bg-card2);border:1px solid var(--line);border-radius:999px;padding:8px 18px;font-size:14px;color:var(--text2);margin:4px 6px 4px 0;}
+  ul.clean{list-style:none;}
+  ul.clean li{padding:9px 0 9px 26px;position:relative;font-size:16.5px;line-height:1.5;color:var(--text);}
+  ul.clean li::before{content:'';position:absolute;left:0;top:16px;width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  ul.clean li.bad::before{background:var(--danger);}
+  .mono{font-variant-numeric:tabular-nums;}
+  .src{font-size:12px;color:#55617a;margin-top:18px;}
+  .spine{font-size:19px;font-style:italic;color:var(--text);border-left:4px solid var(--accent2);padding:18px 24px;background:var(--bg-card2);border-radius:0 12px 12px 0;line-height:1.55;max-width:920px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ FOLIE 1 — TITEL ═══════════ -->
+<section class="slide" style="text-align:center;justify-content:center;align-items:center;background:radial-gradient(ellipse at 70% 25%,rgba(56,189,248,.10) 0%,transparent 55%),radial-gradient(ellipse at 25% 80%,rgba(52,211,153,.07) 0%,transparent 50%),linear-gradient(180deg,#0b0f1a,#101728);">
+  <div style="font-size:84px;font-weight:900;letter-spacing:-.03em;background:linear-gradient(135deg,#fff 30%,#38bdf8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">FinPilot</div>
+  <div style="font-size:26px;color:var(--text2);font-weight:400;margin-top:10px;">Wir bauen die KI-Trading-Engine der Zukunft</div>
+  <div class="divider" style="width:120px;margin:36px auto;background:var(--accent);height:3px;border-radius:2px;"></div>
+  <div style="font-size:16px;color:#667;">Sitz in Wien · Einzelgründer · Unternehmen für Finanzintelligenz</div>
+  <div style="font-size:16px;color:#667;margin-top:6px;">Meriç Başak · 2026</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">1 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 2 — WARUM JETZT ═══════════ -->
+<section class="slide">
+  <div class="kicker">Warum Jetzt</div>
+  <h1>Die Zukunft des Tradings</h1>
+  <div class="sub">Die Märkte werden zunehmend algorithmischer. Die nächste Stufe ist nicht die automatische Orderausführung — sondern ein System, das den Markt wahrnimmt → versteht → auswählt → das Risiko berechnet → die Order ausführt → aus dem Ergebnis lernt.</div>
+  <div class="card" style="margin-bottom:26px;">
+    <div style="font-size:19px;font-weight:600;line-height:1.6;letter-spacing:.01em;">
+      Marktdaten &nbsp;→&nbsp; KI-Schlussfolgerung &nbsp;→&nbsp; Strategieauswahl &nbsp;→&nbsp; Risiko-Engine &nbsp;→&nbsp; Ausführung &nbsp;→&nbsp; Lernen
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card"><div style="font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px;">Künstliche Intelligenz</div><div style="font-size:15.5px;color:var(--text2);line-height:1.5;">Schlussfolgerung, Agenten und autonome Workflows sind jetzt möglich.</div></div>
+    <div class="card"><div style="font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px;">Märkte</div><div style="font-size:15.5px;color:var(--text2);line-height:1.5;">Schneller, datenintensiver, algorithmischer.</div></div>
+    <div class="card"><div style="font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px;">Infrastruktur</div><div style="font-size:15.5px;color:var(--text2);line-height:1.5;">Die Daten- und Compute-Infrastruktur großer Fonds ist jetzt für kleine Teams zugänglich.</div></div>
+  </div>
+  <div class="callout" style="margin-top:26px;">Einzelgründer ≠ Ein-Personen-Unternehmen. <strong>Schlank per Design, nicht allein aus Notwendigkeit.</strong><br><span style="color:var(--text2);font-size:14.5px;">Carta 2025: Anteil der Einzelgründer %23,7 → %36,3 <span class="tag tag-v">V</span></span></div>
+  <div class="src">Quelle: fi.co „The One-Person Unicorn" (2026); Carta 2025 Solo Founders Report</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">2 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 3 — WAS WIR HABEN ═══════════ -->
+<section class="slide">
+  <div class="kicker">Vergangenheit · Was wir beobachtet haben</div>
+  <h1>5.216 historische Signale</h1>
+  <div class="sub">Eine gemessene Signalhypothese — keine bewiesene Strategie.</div>
+  <div class="card">
+    <table>
+      <tr><th>Metrik</th><th class="num">Wert</th><th></th></tr>
+      <tr><td>Trefferquote</td><td class="num"><strong>%30,16</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Historischer Durchschnitt (barriere-basierte Erwartung)</td><td class="num"><strong>+%0,40</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Median-Rendite</td><td class="num"><strong>-%0,64</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Durchschnittlicher Gewinn</td><td class="num"><strong>+%4,28</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Durchschnittlicher Verlust</td><td class="num"><strong>-%1,27</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Gewinn/Verlust-Asymmetrie</td><td class="num"><strong>3,36×</strong></td><td><span class="tag tag-v">V</span></td></tr>
+    </table>
+  </div>
+  <div class="callout" style="margin-top:24px;"><strong>Warum ist der Durchschnitt positiv, während der Median negativ ist?</strong> Weil der Median <strong>unsere aktuelle Exit-Architektur</strong> widerspiegelt, nicht die Obergrenze des Marktes. Die Renditestruktur ist per Design asymmetrisch — kleine kontrollierte Verluste, gelegentlich große Gewinne. Die Differenz zwischen dem, was wir erfassen, und dem, was der Markt bietet, ist die Forschungschance (nächste Folie).</div>
+  <div class="callout danger" style="margin-top:16px;"><strong>Was dies NICHT bedeutet:</strong> keine realisierte Anlagerendite · kein Handel mit echtem Geld · unabhängige Out-of-Sample-Validierung steht noch aus.</div>
+  <div class="src">Quelle: data/finpilot.db · signals_archive.resolved_pct_barrier · Live-Abfrage 02.09.2026</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">3 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 4 — CAPTURE vs MFE ═══════════ -->
+<section class="slide">
+  <div class="kicker">Vergangenheit · Was wir entdeckt haben</div>
+  <h1>Erfassung vs. Chance</h1>
+  <div class="sub">Zwei getrennte Datensätze — werden nie zusammengeführt.</div>
+  <div class="grid2">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.06em;margin-bottom:10px;">① VOM SYSTEM ERFASST <span class="tag tag-v">V</span> <span style="color:var(--text2);font-weight:400;">(5.216 Signale)</span></div>
+      <div class="card">
+        <table style="font-size:14.5px;">
+          <tr><th>Renditebereich</th><th class="num">Anzahl</th><th class="num">Anteil</th></tr>
+          <tr><td>&lt; −10%</td><td class="num">5</td><td class="num">0.10%</td></tr>
+          <tr><td>−10% bis −5%</td><td class="num">48</td><td class="num">0.92%</td></tr>
+          <tr><td>−5% bis 0%</td><td class="num">3,590</td><td class="num">68.83%</td></tr>
+          <tr><td>0% bis +2%</td><td class="num">446</td><td class="num">8.55%</td></tr>
+          <tr><td>+2% bis +5%</td><td class="num">699</td><td class="num">13.40%</td></tr>
+          <tr><td>+5% bis +10%</td><td class="num">329</td><td class="num">6.31%</td></tr>
+          <tr><td>+10% bis +20%</td><td class="num">79</td><td class="num">1.51%</td></tr>
+          <tr><td>≥ +20%</td><td class="num">20</td><td class="num">0.38%</td></tr>
+        </table>
+        <div style="margin-top:12px;font-size:13.5px;color:var(--text2);">Maximal erfasst: <strong style="color:var(--text);">+%49,29</strong> — kein Datensatz überschreitet +%50 (strukturelle Grenze durch Barriere/TP-SL).</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:700;color:var(--accent2);letter-spacing:.06em;margin-bottom:10px;">② VOM MARKT GEBOTEN <span class="tag tag-v">V</span> <span style="color:var(--text2);font-weight:400;">(separate Studie, 46.581)</span></div>
+      <div class="card">
+        <div class="big" style="color:var(--accent2);">4.83%</div>
+        <div class="metric-label">Durchschnittliche MFE (maximale günstige Kursbewegung)</div>
+        <div class="divider"></div>
+        <div class="big" style="color:var(--warn);">+%0,37</div>
+        <div class="metric-label">Tatsächlich erfasster Durchschnitt</div>
+        <div class="divider"></div>
+        <div style="font-size:15px;line-height:1.55;color:var(--text);"><strong>111</strong> Beobachtungen erreichten <strong>≥%100 MFE</strong> <span style="color:var(--text2);">(0,24 % der gelabelten Zeilen)</span> <span class="tag tag-v">V</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="arrow" style="margin:18px 0 6px;">Marktchance &nbsp;⟶&nbsp; Aktuelle Erfassung</div>
+  <div class="callout warn">111 Beobachtungen überschritten am Höhepunkt +%100 — aber da das System an der Barriere aussteigt, liegt der erfasste Durchschnitt bei +%0,37. <strong>Die Differenz ist unsere Roadmap.</strong></div>
+  <div class="callout" style="margin-top:14px;"><strong>Unser Ziel:</strong> solche großen Ausschläge <strong>häufiger und präziser</strong> zu erfassen. Wenn unsere Pläne aufgehen, könnte nach einem Jahr eine Trading-Anwendung mit hohem Renditepotenzial entstehen. <span style="color:var(--text2);font-size:13.5px;">(Ziel, kein Versprechen — abhängig vom GO/NO-GO-Tor.)</span></div>
+  <div class="note">MFE ≠ erfasste Rendite. Beide Panels sind getrennte Datensätze; werden nicht zusammengeführt. Ausreißer bereinigt (Split-/Datenartefakte ausgeschlossen).</div>
+  <div class="src">Sources: data/finpilot.db (live query 2026-09-02) · data/backtest_out/full_universe_barrier_results.json</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">4 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 5 — WAS NICHT FUNKTIONIERT ═══════════ -->
+<section class="slide">
+  <div class="kicker">Vergangenheit · Red-Team-Ergebnisse</div>
+  <h1>Was nicht funktioniert</h1>
+  <div class="sub">Wir veröffentlichen negative Ergebnisse. Das ist das Fundament des Produkts.</div>
+  <div class="card">
+    <ul class="clean">
+      <li class="bad">Score ↔ zukünftige Rendite: <strong>ρ = 0,013–0,019</strong> — nahezu unkorreliert <span class="tag tag-v">V</span></li>
+      <li class="bad">Brier-Skill <strong>-0,019 / -0,030</strong> — in einigen Tests schlechter als Zufall <span class="tag tag-v">V</span></li>
+      <li class="bad">Adverse Selektion: geeignet <strong>-%0,35/-%0,49</strong> vs. abgelehnt <strong>+%1,45/+%0,07</strong> <span class="tag tag-v">V</span></li>
+      <li class="bad">Ausreißerabhängigkeit: nach Entfernen des oberen 1 % <strong>+%1,40 → -%0,37</strong> <span class="tag tag-v">V</span></li>
+      <li class="bad">Kein globaler Nachweis über 3.120 TP/SL-Konfigurationen; <strong>gesperrtes OOS bewusst verschlossen gehalten (by design)</strong> <span class="tag tag-v">V</span></li>
+    </ul>
+  </div>
+  <div class="callout danger" style="margin-top:24px;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--danger);margin-bottom:8px;">RED TEAM</div>
+    <div style="font-size:18px;font-weight:600;">Wir haben aktiv versucht, unser eigenes Signal zu widerlegen.</div>
+    <div style="font-size:22px;font-weight:800;margin-top:6px;">8 unabhängige Richtungsprognose-Ansätze sind gescheitert.</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:10px;">Source: docs/governance/decision-log.md (2026-09-03) · reports/experiment_review_board_exp1_2026-09-03.md</div>
+  </div>
+  <div class="src">Source: reports/scanner_research_synthesis_10_perspectives_2026-08-11.md · 48,727 resolved paths · CPCV / PBO / White Reality Check / Hansen SPA</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">5 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 6 — CHANCE ═══════════ -->
+<section class="slide">
+  <div class="kicker">Jetzt · Das nächste Problem</div>
+  <h1>Die Chance liegt nicht in mehr Signalen —<br>sondern in besseren Entscheidungen</h1>
+  <div class="card" style="margin:10px 0 26px;">
+    <div style="font-size:19px;font-weight:600;line-height:1.7;">Signal → Einstieg → Regime → Position → Ausstieg → Ausführung</div>
+  </div>
+  <div class="callout">Der Markt bewegt sich manchmal deutlich zu unseren Gunsten. Die aktuelle Architektur erfasst diese Bewegung nicht konsistent.<br><span style="color:var(--text2);font-size:14.5px;">MFE %4,83 vs. erfasst +%0,37 — das Problem ist nicht die Signalfindung, sondern die <strong>Entscheidungsarchitektur</strong>.</span></div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">6 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 7 — WOHIN DAS KAPITAL FLIESST ═══════════ -->
+<section class="slide">
+  <div class="kicker">Jetzt · Wohin das Kapital fließt</div>
+  <h1>€20.000 → Kapazitäten <span class="tag tag-s">S</span></h1>
+  <div class="sub">„Wir kaufen keine Hardware. Wir kaufen Kapazität."</div>
+  <div class="card">
+    <table style="font-size:15px;">
+      <tr><th>Position</th><th>Was</th><th class="num">Kosten</th></tr>
+      <tr><td>Lokale Hardware</td><td>NVIDIA DGX Spark / ASUS GX10 (GB10, 128GB) — einmalig</td><td class="num">~€4.700</td></tr>
+      <tr><td>Live-Marktdaten</td><td>Polygon.io Advanced — 12 Monate</td><td class="num">~€2.200</td></tr>
+      <tr><td>Tick-/L2-Datenebene</td><td>Polygon/Databento Tick-Pilot — 6 Monate</td><td class="num">~€2.200</td></tr>
+      <tr><td>Cloud-Compute</td><td>RunPod Burst/Reserve — 12 Monate</td><td class="num">~€600</td></tr>
+      <tr><td>Ausführungs-/Überwachungsserver</td><td>Hetzner VPS — 12 Monate</td><td class="num">~€240</td></tr>
+      <tr><td>Broker-Datenzusatz</td><td>IBKR — 12 Monate</td><td class="num">~€300</td></tr>
+      <tr><td>Firmengründung + Buchhaltung</td><td>Einzelunternehmen (WKO) — einmalig + 1 Jahr</td><td class="num">~€800</td></tr>
+      <tr><td>Software-/Tool-Lizenzen</td><td>— 12 Monate</td><td class="num">~€300</td></tr>
+      <tr><td>Runway/Puffer</td><td>—</td><td class="num">~€8.660</td></tr>
+      <tr style="border-top:2px solid var(--line);"><td><strong>GESAMT</strong></td><td></td><td class="num"><strong>€20.000</strong></td></tr>
+    </table>
+  </div>
+  <div class="grid3" style="margin-top:22px;">
+    <div class="card" style="padding:18px;"><div style="font-weight:700;color:var(--accent);">Compute</div><div style="font-size:13.5px;color:var(--text2);margin-top:4px;">Schnellere Forschung · größere Simulationen · lokale KI-Inferenz</div></div>
+    <div class="card" style="padding:18px;"><div style="font-weight:700;color:var(--accent);">Daten</div><div style="font-size:13.5px;color:var(--text2);margin-top:4px;">Echtzeit-Validierung · realistische Ausführungsmodellierung</div></div>
+    <div class="card" style="padding:18px;"><div style="font-weight:700;color:var(--accent);">Cloud</div><div style="font-size:13.5px;color:var(--text2);margin-top:4px;">Skalierbare Experimente · unterbrechungsfreies Paper-Trading</div></div>
+  </div>
+  <div class="callout good" style="margin-top:22px;">„Wir kaufen bessere Daten — um zu erfahren, ob das Signal echt ist, <strong>bevor irgendjemandes Kapital davon abhängt.</strong>"</div>
+  <div class="note">Illustrative Aufteilung — keine endgültige Finanzierungsrunde. Quelle: Polygon.io-, Databento-, RunPod-, NVIDIA-, Hetzner-, IBKR-Preise (2026).</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">7 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 8 — DATENVORTEIL ═══════════ -->
+<section class="slide">
+  <div class="kicker">Jetzt · Datenvorteil</div>
+  <h1>Weniger Unbekannte, nicht mehr Daten</h1>
+  <div class="sub">Das Ziel ist nicht „mehr Daten". Das Ziel sind weniger Unbekannte.</div>
+  <div class="grid2">
+    <div class="card">
+      <div style="font-weight:700;color:var(--accent);margin-bottom:12px;letter-spacing:.05em;">AKTUELLER STACK <span class="tag tag-v">V</span></div>
+      <ul class="clean">
+        <li>yfinance — kostenlose, verzögerte Kursdaten</li>
+        <li>EODHD — Fundamentaldaten (per Flag gesteuert, nicht immer aktiv)</li>
+        <li>SEC EDGAR — Katalysator-Pipeline (pilotvalidiert; vollständige Universumsaktualisierung läuft)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;color:var(--accent2);margin-bottom:12px;letter-spacing:.05em;">ZIEL — DREI EBENEN</div>
+      <div style="margin-bottom:12px;"><span class="pill">EBENE 1 · Marktrealität</span><div style="font-size:14px;color:var(--text2);margin-top:6px;">Tick · Intraday · Kapitalmaßnahmen · Volumen/Liquidität</div></div>
+      <div style="margin-bottom:12px;"><span class="pill">EBENE 2 · Marktkontext</span><div style="font-size:14px;color:var(--text2);margin-top:6px;">Nachrichten · Fundamentaldaten · Analystenrevisionen · Volatilität</div></div>
+      <div><span class="pill">EBENE 3 · Ausführungsrealität</span><div style="font-size:14px;color:var(--text2);margin-top:6px;">Spread · Slippage · Latenz · Fills · Transaktionskosten</div></div>
+    </div>
+  </div>
+  <div class="src">Quelle: scanner/features.py · .env-Konfiguration (repo-verifiziert)</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">8 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 9 — VOM SIGNAL ZUR AUTONOMIE ═══════════ -->
+<section class="slide">
+  <div class="kicker">Jetzt · Pipeline</div>
+  <h1>Vom Signal zum autonomen Trading</h1>
+  <div class="card" style="margin-bottom:26px;">
+    <div style="font-size:20px;font-weight:600;line-height:1.7;text-align:center;">Daten → Regime → Strategie → Meta-Ranker → Risiko → Ausführung → Lernen</div>
+  </div>
+  <div class="callout warn">Backtest-Performance gewinnt erst dann an Aussagekraft, wenn Transaktionskosten, Slippage und Out-of-Sample-Verhalten validiert sind.</div>
+  <div class="sub" style="margin-top:22px;">Jede Stufe schreibt ein Audit-Artefakt. Jeder beliebige Tag kann End-to-End über die Kette Signal→Beweis→Entscheidung→Ergebnis rekonstruiert werden.</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">9 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 10 — GO/NO-GO ROADMAP ═══════════ -->
+<section class="slide">
+  <div class="kicker">Zukunft · 12-Monats-Roadmap</div>
+  <h1>Ein objektives Tor — und ein sichtbares NO-GO</h1>
+  <div class="grid2" style="margin-bottom:24px;">
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:6px;">Monat 0–3</div><div style="color:var(--text2);font-size:15px;line-height:1.5;">Infrastruktur + Forschung: Daten, Hardware, Backtesting, Ausführungs-Engine</div></div>
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:6px;">Monat 3–6</div><div style="color:var(--text2);font-size:15px;line-height:1.5;">Validierung: Walk-Forward, Out-of-Sample, Kosten + Slippage, Paper-Trading</div></div>
+  </div>
+  <div class="grid2">
+    <div class="callout good" style="margin:0;"><div style="font-weight:800;font-size:18px;margin-bottom:8px;">🟢 GO</div><div style="font-size:14.5px;line-height:1.6;">positive Nettoerwartung (nach Kosten) · akzeptabler maximaler Drawdown · OOS bestanden · Stabilität über Regime hinweg · Paper-/Live-Konsistenz</div></div>
+    <div class="callout danger" style="margin:0;"><div style="font-weight:800;font-size:18px;margin-bottom:8px;">🔴 NO-GO</div><div style="font-size:14.5px;line-height:1.6;">Edge verschwindet im OOS · Kosten löschen die Erwartung aus · Instabilität hält an · inakzeptabler Drawdown</div></div>
+  </div>
+  <div class="callout danger" style="margin-top:18px;text-align:center;font-weight:700;">Kein zusätzliches Trading-Kapital wird eingesetzt.</div>
+  <div class="grid2" style="margin-top:22px;">
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:6px;">Monat 6–9</div><div style="color:var(--text2);font-size:15px;line-height:1.5;">Beaufsichtigt live: kleines Kapital, menschliche Freigabe, echte Ausführungsdaten</div></div>
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:6px;">Monat 9–12</div><div style="color:var(--text2);font-size:15px;line-height:1.5;">Graduelle Autonomie — <em>„Auf dem Weg zur Autonomie — nicht blinde Autonomie."</em></div></div>
+  </div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">10 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 11 — FINSENSE ═══════════ -->
+<section class="slide">
+  <div class="kicker">Zukunft · Paralleler Strang — nicht Teil dieser Runde</div>
+  <h1>FinSense: Die langfristige Plattform</h1>
+  <div class="sub">Zwei Produkte, eine Technologie. Ein paralleler Strang, unabhängig von der Trading-Finanzierung.</div>
+  <div class="grid3" style="align-items:stretch;">
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:8px;">FinPilot Trading Intelligence</div><div style="font-size:14.5px;color:var(--text2);line-height:1.55;">Kurzfristig: Forschung · Validierung · Trading-Engine · Cashflow-Potenzial</div></div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;text-align:center;"><div style="font-size:14px;color:var(--text2);line-height:1.7;"><strong style="color:var(--text);">Gemeinsame Technologie</strong><br>KI-Schlussfolgerung · Finanzintelligenz · Agentenarchitektur · Kalibrierung / Lernen</div></div>
+    <div class="card"><div style="font-weight:700;color:var(--accent2);margin-bottom:8px;">FinSense</div><div style="font-size:14.5px;color:var(--text2);line-height:1.55;">Langfristig: Finanzielles Denken für Verbraucher · Finanzbildung · skalierbares SaaS</div></div>
+  </div>
+  <div class="card" style="margin-top:24px;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--warn);margin-bottom:10px;">ILLUSTRATIVES SZENARIO <span class="tag tag-s">S</span></div>
+    <div style="font-size:15.5px;line-height:1.6;">Jahr 1: Pilot + Early Adopters · Jahr 2: Product-Market-Fit · Jahr 3 (Szenario): 40–50K zahlende Nutzer → 50.000 × €12 × 12 = <strong>€7,2 Mio. ARR-Potenzial</strong></div>
+    <div class="note" style="margin-top:12px;"><strong>Dies ist ein Szenario, keine Prognose.</strong> Median-Abo ~€13/Monat; Jahr-1-Retention <%30; oberstes Quartil wächst jährlich um %80, während unterstes Quartil um %33 schrumpft (RevenueCat 2026).</div>
+  </div>
+  <div class="src">Quelle: RevenueCat „State of Subscription Apps 2026"</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">11 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 12 — WIR WISSEN / WISSEN WIR NICHT ═══════════ -->
+<section class="slide">
+  <div class="kicker">Zukunft · Wissenslandkarte</div>
+  <h1>Was wir wissen / Was wir noch nicht wissen</h1>
+  <div class="card">
+    <table style="font-size:15.5px;">
+      <tr><th style="color:var(--accent2);">Wir wissen</th><th style="color:var(--warn);">Wissen wir noch nicht</th></tr>
+      <tr><td>5.216 historische Signale getestet <span class="tag tag-v">V</span></td><td>Live-Profitabilität <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Historische Asymmetrie beobachtet <span class="tag tag-v">V</span></td><td>Echter Ausführungs-Edge <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Große MFE-Ereignisse vorhanden (separate Studie) <span class="tag tag-v">V</span></td><td>Wie viel der MFE realistisch erfassbar ist <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Mehrere Ansätze sind gescheitert <span class="tag tag-v">V</span></td><td>Welcher regimespezifische Ansatz gewinnt <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Aktuelles Scoring hat Schwächen <span class="tag tag-v">V</span></td><td>Robuste OOS-Performance <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Forschungsinfrastruktur vorhanden <span class="tag tag-v">V</span></td><td>Langfristige autonome Performance <span class="tag tag-c">C</span></td></tr>
+    </table>
+  </div>
+  <div class="callout" style="margin-top:24px;font-weight:600;">Der Zweck dieser Investition ist es, die rechte Spalte zu beantworten.</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">12 / 13</div>
+</section>
+
+<!-- ═══════════ FOLIE 13 — CHANCE ═══════════ -->
+<section class="slide" style="text-align:center;justify-content:center;align-items:center;background:radial-gradient(ellipse at 70% 25%,rgba(56,189,248,.08) 0%,transparent 55%),linear-gradient(180deg,#0b0f1a,#101728);">
+  <div class="kicker" style="text-align:center;">Vision · Chance</div>
+  <div class="spine" style="text-align:left;max-width:900px;margin-bottom:34px;">„Wir versuchen nicht, einen weiteren Aktien-Screener zu bauen. Wir bauen ein KI-System, das Märkte beobachten, über Chancen nachdenken, Risiko managen, Entscheidungen umsetzen und aus Ergebnissen lernen kann."</div>
+  <div style="font-size:30px;font-weight:800;letter-spacing:-.01em;">FinPilot</div>
+  <div style="font-size:18px;color:var(--text2);margin-top:8px;margin-bottom:34px;">Von Finanzdaten zu autonomer Finanzintelligenz.</div>
+  <div class="callout" style="text-align:left;max-width:900px;">Wenn wir Erfolg haben: gewinnen wir eine validierte, kleine Einnahmequelle. Wenn nicht: haben wir diszipliniert experimentiert, gelernt und das Kapital geschützt. Jeder Schritt erfolgt mit transparenter Berichterstattung.</div>
+  <div class="divider" style="width:120px;margin:40px auto;background:var(--accent);height:3px;border-radius:2px;"></div>
+  <div class="spine" style="text-align:left;max-width:900px;">„Wir bitten das Kapital nicht zu beweisen, dass unser System funktioniert. Wir nutzen das Kapital, um herauszufinden, ob es unter echten Marktbedingungen tatsächlich funktioniert."</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">13 / 13</div>
+</section>
+
+</body>
+</html>

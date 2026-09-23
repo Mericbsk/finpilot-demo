@@ -1,0 +1,132 @@
+{
+  "symbols_requested": 8,
+  "results_off": 8,
+  "results_on": 8,
+  "artifact": "data/backtest_out/production_instrumentation\\baseline_inputs_2026-09-09T14-41-39Z.jsonl",
+  "non_regression": {
+    "common_symbols": 8,
+    "score_changed": 0,
+    "composite_changed": 0
+  },
+  "records": 8,
+  "schema_ok": true,
+  "field_null_counts": {
+    "run_id": 0,
+    "scan_basis": 0,
+    "scan_ts_utc": 0,
+    "scan_date": 0,
+    "symbol": 0,
+    "regime": 0,
+    "direction": 0,
+    "score": 0,
+    "filter_score": 0,
+    "alignment_ratio": 0,
+    "momentum_ratio": 0,
+    "volume_spike": 0,
+    "price_momentum": 0,
+    "trend_strength": 0,
+    "vol_regime": 0,
+    "composite_score": 0,
+    "score_input": 0,
+    "instrumentation_version": 0
+  },
+  "scan_basis_ok": true,
+  "flag_snapshot_sample": {
+    "squeeze_factor": false,
+    "edgar_catalyst": false,
+    "lottery_fade": false,
+    "overnight_gap": false
+  },
+  "reconstruction": [
+    {
+      "symbol": "MSFT",
+      "reco": 8.5,
+      "prod_reco": 8.5,
+      "reco_match": true,
+      "component_sum": 8.5,
+      "comp_sum_match": true,
+      "recon_composite": 52,
+      "prod_composite": 52,
+      "composite_match": true
+    },
+    {
+      "symbol": "AAPL",
+      "reco": 7.5,
+      "prod_reco": 7.5,
+      "reco_match": true,
+      "component_sum": 7.5,
+      "comp_sum_match": true,
+      "recon_composite": 45,
+      "prod_composite": 45,
+      "composite_match": true
+    },
+    {
+      "symbol": "TSLA",
+      "reco": 5.25,
+      "prod_reco": 5.25,
+      "reco_match": true,
+      "component_sum": 5.25,
+      "comp_sum_match": true,
+      "recon_composite": 32,
+      "prod_composite": 32,
+      "composite_match": true
+    },
+    {
+      "symbol": "NVDA",
+      "reco": 8.25,
+      "prod_reco": 8.25,
+      "reco_match": true,
+      "component_sum": 8.25,
+      "comp_sum_match": true,
+      "recon_composite": 50,
+      "prod_composite": 50,
+      "composite_match": true
+    },
+    {
+      "symbol": "GOOGL",
+      "reco": 5.5,
+      "prod_reco": 5.5,
+      "reco_match": true,
+      "component_sum": 5.5,
+      "comp_sum_match": true,
+      "recon_composite": 33,
+      "prod_composite": 33,
+      "composite_match": true
+    },
+    {
+      "symbol": "AMD",
+      "reco": 10.0,
+      "prod_reco": 10.0,
+      "reco_match": true,
+      "component_sum": 10.0,
+      "comp_sum_match": true,
+      "recon_composite": 61,
+      "prod_composite": 61,
+      "composite_match": true
+    },
+    {
+      "symbol": "META",
+      "reco": 8.0,
+      "prod_reco": 8.0,
+      "reco_match": true,
+      "component_sum": 8.0,
+      "comp_sum_match": true,
+      "recon_composite": 48,
+      "prod_composite": 48,
+      "composite_match": true
+    },
+    {
+      "symbol": "AMZN",
+      "reco": 5.5,
+      "prod_reco": 5.5,
+      "reco_match": true,
+      "component_sum": 5.5,
+      "comp_sum_match": true,
+      "recon_composite": 33,
+      "prod_composite": 33,
+      "composite_match": true
+    }
+  ],
+  "recon_exact_rate": 1.0,
+  "composite_exact_rate": 1.0
+}

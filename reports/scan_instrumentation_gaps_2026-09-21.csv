@@ -1,0 +1,17 @@
+stage,status,reason,how_to_measure
+prefetch.alpaca,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+prefetch.repair,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+prefetch.bulk_yfinance,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+prefetch.resample_4h,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+prefetch.symbol_yfinance,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+fetch.request,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+fetch.parse,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+retry.attempt,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+retry.backoff,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+rate_limit.wait,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+indicator.compute,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+evaluation.symbol,UNKNOWN,stage_timing disabled in all log records,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+persist.shortlist,UNKNOWN,called after _t_scoring_done; no timer exists,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+persist.shadow_ledger,UNKNOWN,called after _t_scoring_done; no timer exists,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+persist.watchlist,UNKNOWN,called after _t_scoring_done; no timer exists,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.
+persist.distribution_export,UNKNOWN,called after _t_scoring_done; no timer exists,Enable FINPILOT_SCAN_STAGE_TIMING for an approved controlled run; add outer wall-clock timers for persistence.

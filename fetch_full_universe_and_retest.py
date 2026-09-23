@@ -90,7 +90,25 @@ ENRICHED_KEYS = RAW_KEYS + [
     "c2c_1d",
     "c2c_5d",
     "mae_t5",
+    "label_entry_basis",
 ]
+
+# EOD-only etiket esigi (decision-log 2026-09-03 DATA_REPAIR teshisi ile ayni esik):
+# scan_ts >= 15:30 olan taramalarda entry fiyati gun kapanisina yakin (rho=0.9829),
+# < 15:30 olanlarda intraday bir fiyat olabiliyor (rho=0.9173, >5pp sapma %5.70).
+# Bu yalnizca PROVENANCE etiketidir; mevcut c2c_5d/c2c_1d degerleri DEGISTIRILMEZ,
+# hangi satirlarin "temiz" (eod_close) sayilmasi gerektigini isaretler.
+LABEL_EOD_HOUR_MIN = "15:30"
+
+
+def label_entry_basis(scan_ts: str) -> str:
+    """scan_ts'nin saat:dakika kismina gore 'eod_close' / 'intraday' / 'unknown'."""
+    if not scan_ts or " " not in scan_ts:
+        return "unknown"
+    hhmm = scan_ts.split(" ", 1)[1][:5]
+    if len(hhmm) != 5 or hhmm[2] != ":":
+        return "unknown"
+    return "eod_close" if hhmm >= LABEL_EOD_HOUR_MIN else "intraday"
 
 
 # ---------------------------------------------------------------- env
@@ -425,6 +443,7 @@ def main():
             continue
         row = dict(r)
         row.update(rf)
+        row["label_entry_basis"] = label_entry_basis(r.get("scan_ts", ""))
         enriched.append(row)
 
     print(f"\nCozulen + zenginlestirilen satir: {len(enriched)} (cozulemeyen: {skipped_no_bars})")

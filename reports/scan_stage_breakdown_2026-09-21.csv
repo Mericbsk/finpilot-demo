@@ -1,0 +1,19 @@
+stage,source,median_s,p95_s,share_percent,bottleneck_type,per_symbol,theoretical_max_gain_percent,measurement_scope
+evaluation.window,LOGGED,300.43,496.65,100.00,UNKNOWN,UNKNOWN,100.00,200-symbol logged batches; not full universe
+enrichment.window,LOGGED,0.00,0.02,0.00,UNKNOWN,UNKNOWN,0.00,200-symbol logged batches; not full universe
+prefetch.alpaca,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+prefetch.repair,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+prefetch.bulk_yfinance,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+prefetch.resample_4h,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+prefetch.symbol_yfinance,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+fetch.request,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+fetch.parse,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+retry.attempt,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+retry.backoff,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+rate_limit.wait,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+indicator.compute,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+evaluation.symbol,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,stage_timing disabled in all log records
+persist.shortlist,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,called after _t_scoring_done; no timer exists
+persist.shadow_ledger,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,called after _t_scoring_done; no timer exists
+persist.watchlist,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,called after _t_scoring_done; no timer exists
+persist.distribution_export,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,called after _t_scoring_done; no timer exists

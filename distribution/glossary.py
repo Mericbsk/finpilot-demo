@@ -352,6 +352,76 @@ GLOSSARY: list[dict[str, str]] = [
         "line_en": "Deciding how much capital a single idea deserves; the key to long-term survival.",
         "card_en": "Deciding how much of your capital a single idea deserves. Sizing — not entry timing — is what usually separates accounts that survive from accounts that don't.",
     },
+    # ── Dikkat Haritası (Attention Map) terimleri ──────────────────────
+    # Taslak: 2026-08-24'te eklendi, Attention Map pivotunun (bkz.
+    # docs/2026-08-15-master-prompt-finpilot-attention-map.md) içerik
+    # sözlüğü olarak. Henüz hiçbir canlı yüzeye (Telegram, web) bağlı
+    # değil — sadece sözlük şemasına eklenmiş taslak metin. squeeze ve
+    # volume flag'leri için mevcut "squeeze"/"volume" girdileri
+    # yeniden kullanılır, burada tekrar tanımlanmaz.
+    {
+        "key": "attention_score",
+        "slug": "attention-score",
+        "name_tr": "Dikkat Skoru",
+        "name_en": "Attention Score",
+        "line_tr": "Bir hissenin şu anki davranışının kendi geçmiş normaline göre ne kadar olağan dışı olduğunu ölçen birleşik gösterge — yön tahmini değildir.",
+        "line_en": "A composite measure of how unusual a stock's current behavior is relative to its own history — not a direction forecast.",
+        "card_en": 'Attention Score combines several behavior signals (gap size, volatility, relative volume, distance from recent highs, and others) into one number. A high score means "this is behaving unusually right now" — it does not mean "this will go up." It measures the magnitude of unusualness, not the direction of the next move.',
+    },
+    {
+        "key": "attention_tier",
+        "slug": "attention-tier",
+        "name_tr": "Dikkat Katmanı",
+        "name_en": "Attention Tier",
+        "line_tr": "Adayların Dikkat Skoruna göre gruplandığı basamak; üst katman daha fazla olağan dışı sinyalin aynı anda hizalandığını gösterir.",
+        "line_en": "The tier candidates are grouped into by Attention Score; a higher tier means more unusual signals aligned at once.",
+        "card_en": "Candidates are grouped into tiers by Attention Score so readers can compare unusualness on one scale. A higher tier is not a forecast of a bigger move — it reflects more independent unusual-behavior signals lining up on the same name at the same time.",
+    },
+    {
+        "key": "unusualness",
+        "slug": "unusualness",
+        "name_tr": "Olağan Dışılık",
+        "name_en": "Unusualness",
+        "line_tr": "Bir hissenin davranışının kendi tarihsel normaline göre ne kadar saptığı; yön içermez, yalnızca sapmanın büyüklüğünü ifade eder.",
+        "line_en": "How far a stock's current behavior deviates from its own historical norm; direction-free — it captures only the size of the deviation.",
+        "card_en": "Unusualness is deliberately direction-free. A stock can be flagged as unusual while moving up, down, or sideways with unusually wide swings. The scanner flags the deviation; what happens next is left open, and the published scorecard tracks how that plays out over time.",
+    },
+    {
+        "key": "big_gap",
+        "slug": "big-gap",
+        "name_tr": "Büyük Gap",
+        "name_en": "Big Gap",
+        "line_tr": "Önceki kapanışa göre, hissenin kendi normaline kıyasla olağan dışı büyüklükte bir açılış sıçraması.",
+        "line_en": "An open that jumps from the previous close by an unusually large amount relative to that stock's own norm.",
+        "card_en": "Flags when a stock opens far from where it closed the session before — farther than is typical for that specific name. This is a magnitude flag: it says a jump happened, not which way the rest of the session will go.",
+    },
+    {
+        "key": "volatility_spike",
+        "slug": "volatility-spike",
+        "name_tr": "Volatilite Sıçraması",
+        "name_en": "Volatility Spike",
+        "line_tr": "Hissenin günlük fiyat aralığının kendi tarihsel normaline göre olağan dışı genişlemesi.",
+        "line_en": "An unusual widening of a stock's daily price range relative to its own historical norm.",
+        "card_en": "Flags when a stock's realized daily range stretches well beyond what is typical for that specific name. Some stocks are naturally choppier than others; this flag triggers on the deviation from each stock's own baseline, not on volatility level alone.",
+    },
+    {
+        "key": "far_from_high",
+        "slug": "distance-from-52-week-high",
+        "name_tr": "52 Haftalık Zirveden Uzaklık",
+        "name_en": "Distance From 52-Week High",
+        "line_tr": "Fiyatın kendi 52 haftalık zirvesine olan yüzdesel uzaklığı; olağan dışı derecede uzaksa bir dikkat işareti sayılır.",
+        "line_en": "How far, in percentage terms, price sits from its own 52-week high; an unusually large distance is treated as an attention flag.",
+        "card_en": "Measures the percentage gap between the current price and the highest price the stock reached over the trailing 52 weeks. An unusually wide distance is flagged as noteworthy — it says nothing by itself about whether that gap will close or widen further.",
+    },
+    {
+        "key": "high_lottery",
+        "slug": "lottery-factor",
+        "name_tr": "Lotarya Faktörü",
+        "name_en": "Lottery Factor",
+        "line_tr": "Küçük, ucuz ve yüksek oynaklıklı hisselere yönelik davranışsal aşırı-talebi yakalayan gösterge; araştırmada diğer bayraklardan ayrı ele alınır.",
+        "line_en": "A measure capturing behavioral overdemand for small, cheap, high-volatility stocks; tracked separately in research from the other flags.",
+        "card_en": 'Some stocks attract demand less for their fundamentals and more for a "lottery ticket" profile — small, cheap, volatile, capable of a fast large move. This flag identifies that profile. It is tracked as its own research line because internal testing found it behaves differently from the scanner\'s other unusualness flags; that testing is ongoing, not a settled result.',
+    },
 ]
 
 _BY_KEY = {e["key"]: e for e in GLOSSARY}

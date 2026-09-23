@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinPilot — Yatırımcı Sunumu (2026-09-07)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg-dark:#0b0f1a; --bg-card:#141b2e; --bg-card2:#101728;
+    --accent:#38bdf8; --accent2:#34d399; --warn:#fbbf24; --danger:#f87171;
+    --text:#eef2ff; --text2:#8ea0c0; --line:#24304a;
+    --grad:linear-gradient(135deg,#38bdf8,#34d399);
+  }
+  body{font-family:'Inter',sans-serif;background:var(--bg-dark);color:var(--text);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .slide{width:100%;min-height:100vh;padding:64px 84px;display:flex;flex-direction:column;justify-content:center;page-break-after:always;position:relative;overflow:hidden;background:linear-gradient(180deg,#0b0f1a 0%,#101728 100%);}
+  .slide::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad);}
+  .slide-number{position:absolute;bottom:28px;right:60px;font-size:13px;color:var(--text2);font-weight:500;}
+  .footer{position:absolute;bottom:26px;left:60px;font-size:13px;color:#4b5566;font-weight:600;letter-spacing:.06em;}
+  .kicker{font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  h1{font-size:56px;font-weight:800;letter-spacing:-.02em;line-height:1.05;margin-bottom:14px;}
+  h2{font-size:36px;font-weight:800;letter-spacing:-.01em;line-height:1.1;margin-bottom:18px;}
+  .sub{font-size:20px;color:var(--text2);font-weight:400;line-height:1.5;max-width:900px;margin-bottom:28px;}
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:16px;padding:28px 30px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  table{width:100%;border-collapse:collapse;font-size:16px;}
+  th{text-align:left;font-weight:600;color:var(--text2);font-size:13px;text-transform:uppercase;letter-spacing:.08em;padding:10px 14px;border-bottom:1px solid var(--line);}
+  td{padding:10px 14px;border-bottom:1px solid #1a2338;color:var(--text);}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;vertical-align:middle;margin-left:8px;letter-spacing:.04em;}
+  .tag-v{background:rgba(52,211,153,.14);color:#34d399;border:1px solid rgba(52,211,153,.35);}
+  .tag-s{background:rgba(251,191,36,.14);color:#fbbf24;border:1px solid rgba(251,191,36,.35);}
+  .tag-c{background:rgba(56,189,248,.14);color:#38bdf8;border:1px solid rgba(56,189,248,.35);}
+  .tag-a{background:rgba(167,139,250,.14);color:#a78bfa;border:1px solid rgba(167,139,250,.35);}
+  .big{font-size:52px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+  .metric-label{font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-top:6px;}
+  .callout{border-left:4px solid var(--accent);background:var(--bg-card2);padding:20px 24px;border-radius:0 12px 12px 0;font-size:17px;line-height:1.55;color:var(--text);}
+  .callout.warn{border-color:var(--warn);}
+  .callout.danger{border-color:var(--danger);}
+  .callout.good{border-color:var(--accent2);}
+  .note{font-size:13px;color:var(--text2);margin-top:22px;line-height:1.5;}
+  .arrow{font-size:44px;color:var(--accent);font-weight:300;text-align:center;}
+  .divider{height:1px;background:var(--line);margin:26px 0;}
+  .pill{display:inline-block;background:var(--bg-card2);border:1px solid var(--line);border-radius:999px;padding:8px 18px;font-size:14px;color:var(--text2);margin:4px 6px 4px 0;}
+  ul.clean{list-style:none;}
+  ul.clean li{padding:9px 0 9px 26px;position:relative;font-size:16.5px;line-height:1.5;color:var(--text);}
+  ul.clean li::before{content:'';position:absolute;left:0;top:16px;width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  ul.clean li.bad::before{background:var(--danger);}
+  .mono{font-variant-numeric:tabular-nums;}
+  .src{font-size:12px;color:#55617a;margin-top:18px;}
+  .spine{font-size:19px;font-style:italic;color:var(--text);border-left:4px solid var(--accent2);padding:18px 24px;background:var(--bg-card2);border-radius:0 12px 12px 0;line-height:1.55;max-width:920px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SLIDE 1 — KAPAK ═══════════ -->
+<section class="slide" style="text-align:center;justify-content:center;align-items:center;background:radial-gradient(ellipse at 70% 25%,rgba(56,189,248,.10) 0%,transparent 55%),radial-gradient(ellipse at 25% 80%,rgba(52,211,153,.07) 0%,transparent 50%),linear-gradient(180deg,#0b0f1a,#101728);">
+  <div style="font-size:84px;font-weight:900;letter-spacing:-.03em;background:linear-gradient(135deg,#fff 30%,#38bdf8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">FinPilot</div>
+  <div style="font-size:26px;color:var(--text2);font-weight:400;margin-top:10px;">Geleceğin Yapay Zekâ Trading Motorunu İnşa Ediyoruz</div>
+  <div class="divider" style="width:120px;margin:36px auto;background:var(--accent);height:3px;border-radius:2px;"></div>
+  <div style="font-size:16px;color:#667;">Viyana merkezli · Tek kurucu · Finansal zekâ şirketi</div>
+  <div style="font-size:16px;color:#667;margin-top:6px;">Meriç Başak · 2026</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">1 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 2 — NEDEN ŞİMDİ ═══════════ -->
+<section class="slide">
+  <div class="kicker">Neden Şimdi</div>
+  <h1>Trading'in Geleceği</h1>
+  <div class="sub">Piyasalar giderek daha algoritmik hale geliyor. Bir sonraki aşama otomatik emir vermek değil — piyasayı algılayan → anlayan → seçen → riski hesaplayan → işlemi gerçekleştiren → sonucundan öğrenen bir sistem.</div>
+  <div class="card" style="margin-bottom:26px;">
+    <div style="font-size:19px;font-weight:600;line-height:1.6;letter-spacing:.01em;">
+      Piyasa Verisi &nbsp;→&nbsp; Yapay Zekâ Muhakemesi &nbsp;→&nbsp; Strateji Seçimi &nbsp;→&nbsp; Risk Motoru &nbsp;→&nbsp; Gerçekleştirme &nbsp;→&nbsp; Öğrenme
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card"><div style="font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px;">Yapay Zekâ</div><div style="font-size:15.5px;color:var(--text2);line-height:1.5;">Muhakeme, ajanlar ve otonom iş akışları artık mümkün.</div></div>
+    <div class="card"><div style="font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px;">Piyasalar</div><div style="font-size:15.5px;color:var(--text2);line-height:1.5;">Daha hızlı, daha veri yoğun, daha algoritmik.</div></div>
+    <div class="card"><div style="font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px;">Altyapı</div><div style="font-size:15.5px;color:var(--text2);line-height:1.5;">Büyük fonların veri+compute altyapısı artık küçük ekiplerin erişiminde.</div></div>
+  </div>
+  <div class="callout" style="margin-top:26px;">Tek kurucu ≠ tek kişilik şirket. <strong>Tasarım gereği yalın, mecburiyetten yalnız değil.</strong><br><span style="color:var(--text2);font-size:14.5px;">Carta 2025: tek-kurucu oranı %23,7 → %36,3 <span class="tag tag-v">V</span></span></div>
+  <div class="src">Kaynak: fi.co "The One-Person Unicorn" (2026); Carta 2025 Solo Founders Report</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">2 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 3 — ELİMİZDE NE VAR ═══════════ -->
+<section class="slide">
+  <div class="kicker">Geçmiş · Ne gözlemledik</div>
+  <h1>5.216 Tarihsel Sinyal</h1>
+  <div class="sub">Ölçülmüş bir sinyal hipotezi — kanıtlanmış bir strateji değil.</div>
+  <div class="card">
+    <table>
+      <tr><th>Metrik</th><th class="num">Değer</th><th></th></tr>
+      <tr><td>İsabet oranı</td><td class="num"><strong>%30,16</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Tarihsel ortalama (barrier-tabanlı beklenti)</td><td class="num"><strong>+%0,40</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Medyan getiri</td><td class="num"><strong>-%0,64</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Ortalama kazanç</td><td class="num"><strong>+%4,28</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Ortalama kayıp</td><td class="num"><strong>-%1,27</strong></td><td><span class="tag tag-v">V</span></td></tr>
+      <tr><td>Kazanç/kayıp asimetrisi</td><td class="num"><strong>3,36×</strong></td><td><span class="tag tag-v">V</span></td></tr>
+    </table>
+  </div>
+  <div class="callout" style="margin-top:24px;"><strong>Ortalama neden pozitifken medyan negatif?</strong> Çünkü medyan <strong>mevcut çıkış mimarimizi</strong> yansıtıyor, piyasanın tavanını değil. Getiri yapısı tasarım gereği asimetrik — küçük kontrollü kayıplar, zaman zaman büyük kazançlar. Yakaladığımız ile piyasanın sunduğu arasındaki fark, araştırma fırsatıdır (sonraki slayt).</div>
+  <div class="callout danger" style="margin-top:16px;"><strong>Bunun anlamadığı:</strong> gerçekleşmiş yatırım getirisi değildir · gerçek para ile işlem yapılmamıştır · bağımsız out-of-sample doğrulama bekliyor.</div>
+  <div class="src">Kaynak: data/finpilot.db · signals_archive.resolved_pct_barrier · canlı sorgu 2026-09-02</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">3 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 4 — CAPTURE vs MFE ═══════════ -->
+<section class="slide">
+  <div class="kicker">Geçmiş · Ne keşfettik</div>
+  <h1>Yakalama vs. Fırsat</h1>
+  <div class="sub">İki ayrı dataset — asla birleştirilmez.</div>
+  <div class="grid2">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.06em;margin-bottom:10px;">① SİSTEMİN YAKALADIĞI <span class="tag tag-v">V</span> <span style="color:var(--text2);font-weight:400;">(5.216 sinyal)</span></div>
+      <div class="card">
+        <table style="font-size:14.5px;">
+          <tr><th>Getiri aralığı</th><th class="num">Sayı</th><th class="num">Oran</th></tr>
+          <tr><td>&lt; −10%</td><td class="num">5</td><td class="num">0.10%</td></tr>
+          <tr><td>−10% to −5%</td><td class="num">48</td><td class="num">0.92%</td></tr>
+          <tr><td>−5% to 0%</td><td class="num">3,590</td><td class="num">68.83%</td></tr>
+          <tr><td>0% to +2%</td><td class="num">446</td><td class="num">8.55%</td></tr>
+          <tr><td>+2% to +5%</td><td class="num">699</td><td class="num">13.40%</td></tr>
+          <tr><td>+5% to +10%</td><td class="num">329</td><td class="num">6.31%</td></tr>
+          <tr><td>+10% to +20%</td><td class="num">79</td><td class="num">1.51%</td></tr>
+          <tr><td>≥ +20%</td><td class="num">20</td><td class="num">0.38%</td></tr>
+        </table>
+        <div style="margin-top:12px;font-size:13.5px;color:var(--text2);">Maksimum yakalanan: <strong style="color:var(--text);">+%49,29</strong> — hiçbir kayıt +%50'yi geçmiyor (barrier/TP-SL yapısal sınırı).</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:700;color:var(--accent2);letter-spacing:.06em;margin-bottom:10px;">② PİYASANIN SUNDUĞU <span class="tag tag-v">V</span> <span style="color:var(--text2);font-weight:400;">(ayrı çalışma, 46.581)</span></div>
+      <div class="card">
+        <div class="big" style="color:var(--accent2);">4.83%</div>
+        <div class="metric-label">Ortalama MFE (tepe lehte hareket)</div>
+        <div class="divider"></div>
+        <div class="big" style="color:var(--warn);">+%0,37</div>
+        <div class="metric-label">Gerçekte yakalanan ortalama</div>
+        <div class="divider"></div>
+        <div style="font-size:15px;line-height:1.55;color:var(--text);"><strong>111</strong> gözlem <strong>≥%100 MFE</strong>'ye ulaştı <span style="color:var(--text2);">(etiketli satırların %0,24'ü)</span> <span class="tag tag-v">V</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="arrow" style="margin:18px 0 6px;">Piyasa fırsatı &nbsp;⟶&nbsp; Mevcut yakalama</div>
+  <div class="callout warn">111 gözlem tepe noktasında +%100'ü aştı — ama sistem barrier'da çıktığı için yakalanan ortalama +%0,37. <strong>Aradaki fark bizim roadmap'imiz.</strong></div>
+  <div class="callout" style="margin-top:14px;"><strong>Hedefimiz:</strong> bu tür büyük tepeleri <strong>daha sık ve daha doğru yakalamak</strong>. Planlarımız doğru giderse, 1 yılın sonunda getiri imkânı yüksek bir trading uygulaması ortaya çıkabilir. <span style="color:var(--text2);font-size:13.5px;">(Hedef, vaat değil — GO/NO-GO kapısına bağlı.)</span></div>
+  <div class="note">MFE ≠ yakalanan getiri. İki panel ayrı dataset; birleştirilmez. Kuyruk temizlendi (split/veri artefaktları hariç).</div>
+  <div class="src">Sources: data/finpilot.db (live query 2026-09-02) · data/backtest_out/full_universe_barrier_results.json</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">4 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 5 — NE İŞE YARAMIYOR ═══════════ -->
+<section class="slide">
+  <div class="kicker">Geçmiş · Red team sonuçları</div>
+  <h1>Ne İşe Yaramıyor</h1>
+  <div class="sub">Negatif sonuçları yayınlıyoruz. Ürünün temeli bu.</div>
+  <div class="card">
+    <ul class="clean">
+      <li class="bad">Skor ↔ ileri getiri: <strong>ρ = 0,013–0,019</strong> — neredeyse ilişkisiz <span class="tag tag-v">V</span></li>
+      <li class="bad">Brier skill <strong>-0,019 / -0,030</strong> — bazı testlerde rastgeleden kötü <span class="tag tag-v">V</span></li>
+      <li class="bad">Ters seçim: eligible <strong>-%0,35/-%0,49</strong> vs rejected <strong>+%1,45/+%0,07</strong> <span class="tag tag-v">V</span></li>
+      <li class="bad">Uç-değer bağımlılığı: üst %1 çıkarılınca <strong>+%1,40 → -%0,37</strong> <span class="tag tag-v">V</span></li>
+      <li class="bad">3.120 TP/SL konfigürasyonunda küresel kanıt yok; <strong>locked OOS kasıtlı olarak kapalı tutuldu (by design)</strong> <span class="tag tag-v">V</span></li>
+    </ul>
+  </div>
+  <div class="callout danger" style="margin-top:24px;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--danger);margin-bottom:8px;">RED TEAM</div>
+    <div style="font-size:18px;font-weight:600;">Kendi sinyalimizi aktif olarak çürütmeye çalıştık.</div>
+    <div style="font-size:22px;font-weight:800;margin-top:6px;">8 bağımsız yön-tahmini yaklaşımı başarısız oldu.</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:10px;">Source: docs/governance/decision-log.md (2026-09-03) · reports/experiment_review_board_exp1_2026-09-03.md</div>
+  </div>
+  <div class="src">Source: reports/scanner_research_synthesis_10_perspectives_2026-08-11.md · 48,727 resolved paths · CPCV / PBO / White Reality Check / Hansen SPA</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">5 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 6 — FIRSAT ═══════════ -->
+<section class="slide">
+  <div class="kicker">Şimdi · Sıradaki problem</div>
+  <h1>Fırsat Daha Fazla Sinyalde Değil —<br>Daha İyi Kararlarda</h1>
+  <div class="card" style="margin:10px 0 26px;">
+    <div style="font-size:19px;font-weight:600;line-height:1.7;">Sinyal → Giriş → Rejim → Pozisyon → Çıkış → Gerçekleştirme</div>
+  </div>
+  <div class="callout">Piyasa bazen lehimize önemli ölçüde hareket ediyor. Mevcut mimari bu hareketi tutarlı biçimde yakalayamıyor.<br><span style="color:var(--text2);font-size:14.5px;">MFE %4,83 vs. yakalanan +%0,37 — sorun sinyal keşfi değil; <strong>karar mimarisi</strong>.</span></div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">6 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 7 — WHERE FUNDING GOES ═══════════ -->
+<section class="slide">
+  <div class="kicker">Şimdi · Fonlama nereye gidiyor</div>
+  <h1>€20.000 → Kapasiteler <span class="tag tag-s">S</span></h1>
+  <div class="sub">"Donanım satın almıyoruz. Kapasite satın alıyoruz."</div>
+  <div class="card">
+    <table style="font-size:15px;">
+      <tr><th>Kalem</th><th>Ne</th><th class="num">Maliyet</th></tr>
+      <tr><td>Yerel donanım</td><td>NVIDIA DGX Spark / ASUS GX10 (GB10, 128GB) — tek seferlik</td><td class="num">~€4.700</td></tr>
+      <tr><td>Canlı piyasa verisi</td><td>Polygon.io Advanced — 12 ay</td><td class="num">~€2.200</td></tr>
+      <tr><td>Tick/L2 veri katmanı</td><td>Polygon/Databento tick pilot — 6 ay</td><td class="num">~€2.200</td></tr>
+      <tr><td>Bulut compute</td><td>RunPod burst/yedek — 12 ay</td><td class="num">~€600</td></tr>
+      <tr><td>Execution/izleme sunucusu</td><td>Hetzner VPS — 12 ay</td><td class="num">~€240</td></tr>
+      <tr><td>Broker veri eklentisi</td><td>IBKR — 12 ay</td><td class="num">~€300</td></tr>
+      <tr><td>Şirket kaydı + muhasebe</td><td>Eizelunternehmen (WKO) — tek seferlik + 1 yıl</td><td class="num">~€800</td></tr>
+      <tr><td>Yazılım/araç lisansları</td><td>— 12 ay</td><td class="num">~€300</td></tr>
+      <tr><td>Runway/tampon</td><td>—</td><td class="num">~€8.660</td></tr>
+      <tr style="border-top:2px solid var(--line);"><td><strong>TOPLAM</strong></td><td></td><td class="num"><strong>€20.000</strong></td></tr>
+    </table>
+  </div>
+  <div class="grid3" style="margin-top:22px;">
+    <div class="card" style="padding:18px;"><div style="font-weight:700;color:var(--accent);">Compute</div><div style="font-size:13.5px;color:var(--text2);margin-top:4px;">Daha hızlı araştırma · daha büyük simülasyonlar · yerel AI çıkarımı</div></div>
+    <div class="card" style="padding:18px;"><div style="font-weight:700;color:var(--accent);">Veri</div><div style="font-size:13.5px;color:var(--text2);margin-top:4px;">Gerçek zamanlı doğrulama · gerçekçi execution modellemesi</div></div>
+    <div class="card" style="padding:18px;"><div style="font-weight:700;color:var(--accent);">Bulut</div><div style="font-size:13.5px;color:var(--text2);margin-top:4px;">Ölçeklenebilir deneyler · kesintisiz paper trading</div></div>
+  </div>
+  <div class="callout good" style="margin-top:22px;">"Daha iyi veri satın alıyoruz — sinyalin gerçek olup olmadığını öğrenmek için, <strong>kimsenin sermayesi buna bağlı olmadan önce.</strong>"</div>
+  <div class="note">İllüstratif dağılım — kesin tur değil. Kaynak: Polygon.io, Databento, RunPod, NVIDIA, Hetzner, IBKR fiyatlandırma (2026).</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">7 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 8 — VERİ AVANTAJI ═══════════ -->
+<section class="slide">
+  <div class="kicker">Şimdi · Veri avantajı</div>
+  <h1>Daha Az Bilinmeyen, Daha Fazla Veri Değil</h1>
+  <div class="sub">Amaç "daha fazla veri" değil. Amaç daha az bilinmeyen.</div>
+  <div class="grid2">
+    <div class="card">
+      <div style="font-weight:700;color:var(--accent);margin-bottom:12px;letter-spacing:.05em;">BUGÜNKÜ STACK <span class="tag tag-v">V</span></div>
+      <ul class="clean">
+        <li>yfinance — ücretsiz, gecikmeli fiyat verisi</li>
+        <li>EODHD — fundamentals (flag-gated, her zaman aktif değil)</li>
+        <li>SEC EDGAR — catalyst pipeline (pilot-doğrulanmış; tam-evren yenileme sürüyor)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;color:var(--accent2);margin-bottom:12px;letter-spacing:.05em;">HEDEF — ÜÇ SEVİYE</div>
+      <div style="margin-bottom:12px;"><span class="pill">SEVİYE 1 · Piyasa Gerçeği</span><div style="font-size:14px;color:var(--text2);margin-top:6px;">tick · gün içi · kurumsal aksiyonlar · hacim/likidite</div></div>
+      <div style="margin-bottom:12px;"><span class="pill">SEVİYE 2 · Piyasa Bağlamı</span><div style="font-size:14px;color:var(--text2);margin-top:6px;">haber · temel veri · analist revizyonları · volatilite</div></div>
+      <div><span class="pill">SEVİYE 3 · Gerçekleştirme Gerçeği</span><div style="font-size:14px;color:var(--text2);margin-top:6px;">spread · slippage · gecikme · fill'ler · işlem maliyetleri</div></div>
+    </div>
+  </div>
+  <div class="src">Kaynak: scanner/features.py · .env konfigürasyonu (repo-doğrulanmış)</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">8 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 9 — SİNYALDEN OTONOMİYE ═══════════ -->
+<section class="slide">
+  <div class="kicker">Şimdi · Pipeline</div>
+  <h1>Sinyalden Otonom Trading'e</h1>
+  <div class="card" style="margin-bottom:26px;">
+    <div style="font-size:20px;font-weight:600;line-height:1.7;text-align:center;">Veri → Rejim → Strateji → Meta-Sıralayıcı → Risk → Gerçekleştirme → Öğrenme</div>
+  </div>
+  <div class="callout warn">Backtest performansı ancak işlem maliyetleri, slippage ve out-of-sample davranış doğrulandıktan sonra anlam kazanır.</div>
+  <div class="sub" style="margin-top:22px;">Her aşama bir audit artifact yazar. Herhangi bir gün, sinyal→kanıt→karar→sonuç zinciriyle uçtan uca tekrar oynatılabilir.</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">9 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 10 — GO/NO-GO YOL HARİTASI ═══════════ -->
+<section class="slide">
+  <div class="kicker">Gelecek · 12 aylık yol haritası</div>
+  <h1>Objektif Bir Kapı — ve Görünür Bir NO-GO</h1>
+  <div class="grid2" style="margin-bottom:24px;">
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:6px;">Ay 0–3</div><div style="color:var(--text2);font-size:15px;line-height:1.5;">Altyapı + araştırma: veri, donanım, backtesting, execution engine</div></div>
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:6px;">Ay 3–6</div><div style="color:var(--text2);font-size:15px;line-height:1.5;">Doğrulama: walk-forward, out-of-sample, maliyet + slippage, paper trading</div></div>
+  </div>
+  <div class="grid2">
+    <div class="callout good" style="margin:0;"><div style="font-weight:800;font-size:18px;margin-bottom:8px;">🟢 GO</div><div style="font-size:14.5px;line-height:1.6;">pozitif net beklenti (maliyet sonrası) · kabul edilebilir maksimum düşüş · OOS geçti · rejimler arası istikrar · paper/live tutarlılık</div></div>
+    <div class="callout danger" style="margin:0;"><div style="font-weight:800;font-size:18px;margin-bottom:8px;">🔴 NO-GO</div><div style="font-size:14.5px;line-height:1.6;">edge OOS'ta kaybolur · maliyetler beklentiyi siler · istikrarsızlık sürer · kabul edilemez düşüş</div></div>
+  </div>
+  <div class="callout danger" style="margin-top:18px;text-align:center;font-weight:700;">Ek trading sermayesi konuşlandırılmaz.</div>
+  <div class="grid2" style="margin-top:22px;">
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:6px;">Ay 6–9</div><div style="color:var(--text2);font-size:15px;line-height:1.5;">Gözetimli canlı: küçük sermaye, insan onayı, gerçek execution verisi</div></div>
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:6px;">Ay 9–12</div><div style="color:var(--text2);font-size:15px;line-height:1.5;">Kademeli otonomi — <em>"Otonomiye doğru — kör otonomi değil."</em></div></div>
+  </div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">10 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 11 — FINSENSE ═══════════ -->
+<section class="slide">
+  <div class="kicker">Gelecek · Paralel hat — bu turun parçası değil</div>
+  <h1>FinSense: Uzun Vadeli Platform</h1>
+  <div class="sub">İki ürün, tek teknoloji. Trading finansmanından bağımsız paralel bir hat.</div>
+  <div class="grid3" style="align-items:stretch;">
+    <div class="card"><div style="font-weight:700;color:var(--accent);margin-bottom:8px;">FinPilot Trading Intelligence</div><div style="font-size:14.5px;color:var(--text2);line-height:1.55;">Yakın vade: araştırma · doğrulama · trading motoru · nakit akışı potansiyeli</div></div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;text-align:center;"><div style="font-size:14px;color:var(--text2);line-height:1.7;"><strong style="color:var(--text);">Ortak teknoloji</strong><br>Yapay zekâ muhakemesi · finansal zekâ · ajan mimarisi · kalibrasyon / öğrenme</div></div>
+    <div class="card"><div style="font-weight:700;color:var(--accent2);margin-bottom:8px;">FinSense</div><div style="font-size:14.5px;color:var(--text2);line-height:1.55;">Uzun vade: tüketici finansal muhakemesi · finansal eğitim · ölçeklenebilir SaaS</div></div>
+  </div>
+  <div class="card" style="margin-top:24px;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--warn);margin-bottom:10px;">İLLÜSTRATİF SENARYO <span class="tag tag-s">S</span></div>
+    <div style="font-size:15.5px;line-height:1.6;">Yıl 1: pilot + erken benimseyenler · Yıl 2: ürün-pazar uyumu · Yıl 3 (senaryo): 40–50K ödeyen kullanıcı → 50.000 × €12 × 12 = <strong>€7,2M ARR potansiyeli</strong></div>
+    <div class="note" style="margin-top:12px;"><strong>Bu bir senaryo, tahmin değil.</strong> Medyan abonelik ~€13/ay; yıl-1 elde tutma <%30; üst çeyrek yılda %80 büyürken alt çeyrek %33 küçülüyor (RevenueCat 2026).</div>
+  </div>
+  <div class="src">Kaynak: RevenueCat "State of Subscription Apps 2026"</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">11 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 12 — BİLİYORUZ / BİLMİYORUZ ═══════════ -->
+<section class="slide">
+  <div class="kicker">Gelecek · Bilgi haritası</div>
+  <h1>Ne Biliyoruz / Henüz Ne Bilmiyoruz</h1>
+  <div class="card">
+    <table style="font-size:15.5px;">
+      <tr><th style="color:var(--accent2);">Biliyoruz</th><th style="color:var(--warn);">Henüz Bilmiyoruz</th></tr>
+      <tr><td>5.216 tarihsel sinyal test edildi <span class="tag tag-v">V</span></td><td>Canlı kârlılık <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Tarihsel asimetri gözlemlendi <span class="tag tag-v">V</span></td><td>Gerçek execution edge <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Büyük MFE olayları var (ayrı çalışma) <span class="tag tag-v">V</span></td><td>MFE'nin ne kadarı gerçekçi yakalanabilir <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Birkaç yaklaşım başarısız oldu <span class="tag tag-v">V</span></td><td>Hangi rejim-spesifik yaklaşım kazanır <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Mevcut skorlamanın zayıflıkları var <span class="tag tag-v">V</span></td><td>Sağlam OOS performansı <span class="tag tag-c">C</span></td></tr>
+      <tr><td>Araştırma altyapısı mevcut <span class="tag tag-v">V</span></td><td>Uzun vadeli otonom performans <span class="tag tag-c">C</span></td></tr>
+    </table>
+  </div>
+  <div class="callout" style="margin-top:24px;font-weight:600;">Bu yatırımın amacı sağ sütunu cevaplamak.</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">12 / 13</div>
+</section>
+
+<!-- ═══════════ SLIDE 13 — FIRSAT ═══════════ -->
+<section class="slide" style="text-align:center;justify-content:center;align-items:center;background:radial-gradient(ellipse at 70% 25%,rgba(56,189,248,.08) 0%,transparent 55%),linear-gradient(180deg,#0b0f1a,#101728);">
+  <div class="kicker" style="text-align:center;">Vizyon · Fırsat</div>
+  <div class="spine" style="text-align:left;max-width:900px;margin-bottom:34px;">"Başka bir hisse tarayıcısı yapmaya çalışmıyoruz. Piyasaları gözlemleyebilen, fırsatlar hakkında muhakeme edebilen, riski yönetebilen, kararları uygulayabilen ve sonuçlardan öğrenen bir yapay zekâ sistemi inşa ediyoruz."</div>
+  <div style="font-size:30px;font-weight:800;letter-spacing:-.01em;">FinPilot</div>
+  <div style="font-size:18px;color:var(--text2);margin-top:8px;margin-bottom:34px;">Finansal veriden otonom finansal zekâya.</div>
+  <div class="callout" style="text-align:left;max-width:900px;">Başarılı olursak: doğrulanmış, küçük ölçekli bir gelir kalemi kazanırız. Olmazsa: disiplinli şekilde denemiş, öğrenmiş ve sermayeyi korumuş oluruz. Her adım, açık raporlamayla ilerler.</div>
+  <div class="divider" style="width:120px;margin:40px auto;background:var(--accent);height:3px;border-radius:2px;"></div>
+  <div class="spine" style="text-align:left;max-width:900px;">"Sermayeden sistemimizin çalıştığını kanıtlamasını istemiyoruz. Sermayeyi, gerçek piyasa koşullarında gerçekten çalışıp çalışmadığını öğrenmek için kullanıyoruz."</div>
+  <div class="footer">FINPILOT × FINSENSE</div><div class="slide-number">13 / 13</div>
+</section>
+
+</body>
+</html>
