@@ -273,6 +273,23 @@ def get_outcome(case_id: str, anonymous_user_id: str | None = None) -> OutcomeOu
     db = _get_db()
 
     with db.connection() as conn:
+        pred_row = None
+        if anonymous_user_id:
+            pred_row = conn.execute(
+                "SELECT id, direction, probability, reason, committed_at FROM fs_predictions "
+                "WHERE case_id = ? AND anonymous_user_id = ?",
+                (case_id, anonymous_user_id),
+            ).fetchone()
+
+        # The case outcome is revealed only to a browser identity that has
+        # committed a prediction for this case. Do this check before reading
+        # the outcome so callers cannot use the endpoint to look ahead.
+        if pred_row is None:
+            raise HTTPException(
+                status_code=404,
+                detail="a committed prediction is required before outcome reveal",
+            )
+
         outcome_row = conn.execute(
             "SELECT case_id, actual_direction, actual_return_pct, resolved_at "
             "FROM fs_outcomes WHERE case_id = ?",
@@ -288,18 +305,6 @@ def get_outcome(case_id: str, anonymous_user_id: str | None = None) -> OutcomeOu
         actual_return_pct=outcome_row["actual_return_pct"],
         resolved_at=outcome_row["resolved_at"],
     )
-
-    if not anonymous_user_id:
-        return result
-
-    with db.connection() as conn:
-        pred_row = conn.execute(
-            "SELECT id, direction, probability, reason, committed_at FROM fs_predictions "
-            "WHERE case_id = ? AND anonymous_user_id = ?",
-            (case_id, anonymous_user_id),
-        ).fetchone()
-    if pred_row is None:
-        return result  # user never predicted on this case — outcome still shown, no evaluation
 
     result.your_prediction = PredictionOut(
         id=pred_row["id"],

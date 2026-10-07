@@ -366,23 +366,19 @@ class TestOutcomeAndIsolation:
         # Cross-user isolation: user 1 must never see user 2's prediction id and vice versa.
         assert body1["your_prediction"]["id"] != body2["your_prediction"]["id"]
 
-    def test_no_id_call_gets_outcome_without_any_prediction(self, client, db):
+    def test_no_id_call_cannot_reveal_outcome(self, client, db):
         _seed_case(db)
         _seed_outcome(db)
         r = client.get(f"/api/v1/finsense/case/{CASE_ID}/outcome")
-        assert r.status_code == 200
-        body = r.json()
-        assert body["your_prediction"] is None
-        assert body["evaluation"] is None
+        assert r.status_code == 404
+        assert "prediction is required" in r.json()["detail"]
 
-    def test_unseen_user_gets_outcome_without_prediction(self, client, db):
+    def test_unseen_user_cannot_reveal_outcome(self, client, db):
         _seed_case(db)
         _seed_outcome(db)
         r = client.get(
             f"/api/v1/finsense/case/{CASE_ID}/outcome",
             params={"anonymous_user_id": "someone-who-never-predicted"},
         )
-        assert r.status_code == 200
-        body = r.json()
-        assert body["your_prediction"] is None
-        assert body["evaluation"] is None
+        assert r.status_code == 404
+        assert "prediction is required" in r.json()["detail"]
