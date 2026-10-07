@@ -1,5 +1,7 @@
 # Scan Performance Audit — 2026-09-21
 
+> **TARİHSEL SNAPSHOT (2026-09-23 notu).** Bu rapor yazıldığında aşama zamanlaması hiç açılmamıştı, bu yüzden "NOT MEASURED" statüsü **o tarih için doğruydu**. 2026-09-22'de stage timing açık 5 koşuluk kampanya yapıldı ve aşama kırılımı ölçüldü: `prefetch.repair` toplam sürenin medyanlar-oranıyla %81.6'sı, koşu-başına medyanla %86.5'i. Güncel durum için: `docs/2026-09-23-neden-yavas-ve-cozum-uzayi.md` ve `docs/governance/decision-log.md` (2026-09-22 girdileri). Bu rapor içeriği değiştirilmeden bırakıldı.
+
 ## 1. Executive Summary
 
 **PRIMARY STATUS = NOT MEASURED.** The requested full-universe stage breakdown cannot be established from the available evidence. The timing log contains 315 records, including 279 logged 200-symbol batches and 5 records dated 2026-09-21; none contains stage events. The reported `total_s` is measured only through `_t_scoring_done`, before four persistence calls. No production code, flag, cache, database, scheduler, scan, queue, or publication was changed or run by this audit.
