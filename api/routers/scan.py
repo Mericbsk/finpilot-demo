@@ -17,10 +17,11 @@ from typing import Annotated
 import pandas as pd
 from auth.tokens import TokenPayload
 from distribution.scan_contract import full_scan_problems
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from api.middleware.auth import require_auth
+from core import scan_observability
 
 router = APIRouter(tags=["scan"])
 logger = logging.getLogger(__name__)
@@ -321,6 +322,54 @@ def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
 async def run_scan(
     req: ScanRequest,
     _auth: Annotated[TokenPayload, Depends(require_auth)],
+    request: Request,
+):
+    """Use opt-in job coordination or retain the observation-only path."""
+    if not scan_observability.enabled():
+        return await _run_scan(req, _auth)
+    from uuid import uuid4
+
+    observation = scan_observability.ScanObservation("api_scan", len(req.symbols), uuid4().hex)
+    outcome = "ok"
+    error_type = None
+
+    async def watch_disconnect() -> None:
+        try:
+            while True:
+                if await request.is_disconnected():
+                    observation.mark_client_gone()
+                    return
+                await asyncio.sleep(0.25)
+        except Exception as exc:
+            logger.debug("Scan disconnect observation skipped: %s", type(exc).__name__)
+
+    watcher = asyncio.create_task(watch_disconnect())
+    try:
+        with scan_observability.scan_context(observation):
+            return await _run_scan(req, _auth)
+    except asyncio.CancelledError:
+        outcome = "client_gone"
+        raise
+    except HTTPException as exc:
+        outcome = "timeout" if exc.status_code == 504 else "error"
+        error_type = type(exc).__name__
+        raise
+    except BaseException as exc:
+        outcome = "error"
+        error_type = type(exc).__name__
+        raise
+    finally:
+        watcher.cancel()
+        try:
+            await watcher
+        except asyncio.CancelledError:
+            pass
+        observation.finish_request(outcome, error_type)
+
+
+async def _run_scan(
+    req: ScanRequest,
+    _auth: TokenPayload,
 ):
     """Run the scanner's evaluate_symbols_parallel on the given symbols.
 
@@ -342,12 +391,15 @@ async def run_scan(
     except Exception:  # noqa: BLE001
         pass
     _t_start = time.perf_counter()
+    observation = scan_observability.current_scan()
 
     try:
         results = await asyncio.wait_for(
             loop.run_in_executor(
                 _executor,
-                lambda: evaluate_symbols_parallel(
+                lambda: scan_observability.call_with_context(
+                    observation,
+                    evaluate_symbols_parallel,
                     symbols=req.symbols,
                     kelly_fraction=req.kelly_fraction,
                 ),
@@ -367,6 +419,10 @@ async def run_scan(
             status_code=500, detail=f"Scan error: {type(exc).__name__}: {exc}"
         ) from exc
 
+    return _complete_scan(req, results, _t_start, observation)
+
+
+def _complete_scan(req, results, _t_start, observation):
     _t_eval_done = time.perf_counter()
 
     drl_cache, drl_valid = _load_drl_cache()
@@ -460,7 +516,10 @@ async def run_scan(
         timing=_timing,
     )
     _timing["persist_s"] = round(time.perf_counter() - _persist_start, 2)
-    _append_scan_timing_log(_timing, universe=len(req.symbols))
+    if observation is None:
+        _append_scan_timing_log(_timing, universe=len(req.symbols))
+    else:
+        observation.timing = _timing
     try:
         from core.analytics import increment_event
 
@@ -839,8 +898,7 @@ def _append_scan_timing_log(timing: dict, universe: int) -> None:
             "persist_s": timing.get("persist_s"),
             "stage_timing": timing.get("stage_timing", []),
         }
-        with (export_dir / "scan_timing.jsonl").open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(rec, ensure_ascii=False, default=str) + "\n")
+        scan_observability.append_scan_timing_log(rec, universe)
     except Exception as exc:  # pragma: no cover - observation must never break scan
         logger.debug("scan timing log skipped: %s", exc)
 
