@@ -23,27 +23,35 @@ def queue_draft(
     snapshot_universe: int | None = None,
     candidate_hash: str | None = None,
     scan_id: str | None = None,
+    snapshot_scope: str = "full",
+    snapshot_requested_universe: int | None = None,
+    snapshot_result_count: int | None = None,
 ) -> int:
     """Lint-check and enqueue a draft. Raises ValueError if lint fails."""
     lint.assert_publishable(text)
+    if snapshot_scope not in {"full", "partial"}:
+        raise ValueError("snapshot_scope must be 'full' or 'partial'")
     ensure_tables()
     with get_conn() as conn:
         if snapshot_id:
             existing = conn.execute(
                 "SELECT id FROM broadcast_queue WHERE kind=? AND brief_date=? AND snapshot_id=? "
+                "AND snapshot_scope=? "
                 "AND status IN ('pending','approved','sent') ORDER BY id DESC LIMIT 1",
-                (kind, brief_date, snapshot_id),
+                (kind, brief_date, snapshot_id, snapshot_scope),
             ).fetchone()
             if existing:
                 return int(existing[0])
         conn.execute(
             "UPDATE broadcast_queue SET status='expired', decided_at=?, decided_by=?"
-            " WHERE kind=? AND brief_date=? AND status='pending'",
-            (now(), "superseded_by_new_draft", kind, brief_date),
+            " WHERE kind=? AND brief_date=? AND snapshot_scope=? AND status='pending'",
+            (now(), "superseded_by_new_draft", kind, brief_date, snapshot_scope),
         )
         cur = conn.execute(
             "INSERT INTO broadcast_queue(kind, brief_date, text, status, created_at, snapshot_id, "
-            "snapshot_date, snapshot_universe, candidate_hash, scan_id) VALUES(?,?,?,'pending',?,?,?,?,?,?)",
+            "snapshot_date, snapshot_universe, candidate_hash, scan_id, snapshot_scope, "
+            "snapshot_requested_universe, snapshot_result_count) "
+            "VALUES(?,?,?,'pending',?,?,?,?,?,?,?,?,?)",
             (
                 kind,
                 brief_date,
@@ -54,6 +62,9 @@ def queue_draft(
                 snapshot_universe,
                 candidate_hash,
                 scan_id,
+                snapshot_scope,
+                snapshot_requested_universe,
+                snapshot_result_count,
             ),
         )
         return int(cur.lastrowid or 0)
@@ -64,7 +75,8 @@ def get_pending() -> list[dict[str, Any]]:
     with get_conn() as conn:
         rows = conn.execute(
             "SELECT id, kind, brief_date, text, created_at, snapshot_id, snapshot_date, "
-            "snapshot_universe, candidate_hash, scan_id FROM broadcast_queue"
+            "snapshot_universe, candidate_hash, scan_id, snapshot_scope, "
+            "snapshot_requested_universe, snapshot_result_count FROM broadcast_queue"
             " WHERE status='pending' ORDER BY id"
         ).fetchall()
     return [
@@ -79,6 +91,9 @@ def get_pending() -> list[dict[str, Any]]:
             "snapshot_universe": r[7],
             "candidate_hash": r[8],
             "scan_id": r[9],
+            "snapshot_scope": r[10],
+            "snapshot_requested_universe": r[11],
+            "snapshot_result_count": r[12],
         }
         for r in rows
     ]
@@ -89,7 +104,8 @@ def get_approved_unsent() -> list[dict[str, Any]]:
     with get_conn() as conn:
         rows = conn.execute(
             "SELECT id, kind, brief_date, text, snapshot_id, snapshot_date, snapshot_universe, "
-            "candidate_hash, scan_id FROM broadcast_queue"
+            "candidate_hash, scan_id, snapshot_scope, snapshot_requested_universe, "
+            "snapshot_result_count FROM broadcast_queue"
             " WHERE status='approved' AND sent_at IS NULL ORDER BY id"
         ).fetchall()
     return [
@@ -103,6 +119,9 @@ def get_approved_unsent() -> list[dict[str, Any]]:
             "snapshot_universe": r[6],
             "candidate_hash": r[7],
             "scan_id": r[8],
+            "snapshot_scope": r[9],
+            "snapshot_requested_universe": r[10],
+            "snapshot_result_count": r[11],
         }
         for r in rows
     ]
@@ -187,7 +206,7 @@ def publish_streak() -> int:
             r[0]
             for r in conn.execute(
                 "SELECT DISTINCT brief_date FROM broadcast_queue "
-                "WHERE status='sent' AND kind LIKE 'daily%'"
+                "WHERE status='sent' AND kind LIKE 'daily%' AND snapshot_scope='full'"
             ).fetchall()
         }
     try:
@@ -216,7 +235,8 @@ def get_last_sent(kind_prefix: str = "daily") -> dict[str, Any] | None:
     with get_conn() as conn:
         row = conn.execute(
             "SELECT id, kind, brief_date, text, sent_at FROM broadcast_queue"
-            " WHERE status='sent' AND kind LIKE ? ORDER BY sent_at DESC LIMIT 1",
+            " WHERE status='sent' AND kind LIKE ? AND snapshot_scope='full'"
+            " ORDER BY sent_at DESC LIMIT 1",
             (kind_prefix + "%",),
         ).fetchone()
     if not row:
@@ -234,7 +254,7 @@ def count_sent_editions(kind_prefix: str = "daily") -> int:
     with get_conn() as conn:
         row = conn.execute(
             "SELECT COUNT(DISTINCT brief_date) FROM broadcast_queue"
-            " WHERE status='sent' AND kind LIKE ?",
+            " WHERE status='sent' AND kind LIKE ? AND snapshot_scope='full'",
             (kind_prefix + "%",),
         ).fetchone()
     return int(row[0] or 0)

@@ -171,7 +171,7 @@ def job_archive_check() -> dict:
         with get_conn() as conn:
             row = conn.execute(
                 "SELECT COUNT(*) FROM broadcast_queue WHERE brief_date=? "
-                "AND kind LIKE 'daily%' AND status='sent'",
+                "AND kind LIKE 'daily%' AND status='sent' AND snapshot_scope='full'",
                 (today.isoformat(),),
             ).fetchone()
         if row[0] == 0:
