@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 
 from agents.base import AgentContext, AgentResult, BaseAgent
-from core import scan_observability
+from core import scan_coordinator, scan_observability
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +25,34 @@ class ScannerAgent(BaseAgent):
     name = "scanner"
 
     def run(self, context: AgentContext, kelly_fraction: float = 0.5) -> AgentResult:  # noqa: D102
+        if scan_coordinator.enabled():
+            from uuid import uuid4
+
+            observation = (
+                scan_observability.ScanObservation("scanner_agent", len(context.symbols))
+                if scan_observability.enabled()
+                else None
+            )
+            outcome = "error"
+            error_type = None
+            try:
+                key = scan_coordinator.make_key(
+                    "scanner_agent",
+                    context.symbols,
+                    {"kelly_fraction": kelly_fraction},
+                    (uuid4().hex,),
+                )
+                result = scan_coordinator.submit_scan(
+                    key, lambda: self._run(context, kelly_fraction), observation
+                ).result(timeout=600)
+                outcome = "ok" if result.success else "error"
+                return result
+            except Exception as exc:
+                error_type = type(exc).__name__
+                return AgentResult(agent=self.name, success=False, error=str(exc))
+            finally:
+                if observation is not None:
+                    observation.finish_request(outcome, error_type, event="caller_finished")
         if not scan_observability.enabled():
             return self._run(context, kelly_fraction)
         observation = scan_observability.ScanObservation("scanner_agent", len(context.symbols))

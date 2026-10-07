@@ -10,6 +10,7 @@ import math
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated
@@ -21,7 +22,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from api.middleware.auth import require_auth
-from core import scan_observability
+from core import scan_coordinator, scan_observability
 
 router = APIRouter(tags=["scan"])
 logger = logging.getLogger(__name__)
@@ -325,6 +326,8 @@ async def run_scan(
     request: Request,
 ):
     """Use opt-in job coordination or retain the observation-only path."""
+    if scan_coordinator.enabled():
+        return await _run_coordinated_scan(req, _auth, request)
     if not scan_observability.enabled():
         return await _run_scan(req, _auth)
     from uuid import uuid4
@@ -365,6 +368,94 @@ async def run_scan(
         except asyncio.CancelledError:
             pass
         observation.finish_request(outcome, error_type)
+
+
+async def _run_coordinated_scan(req: ScanRequest, auth: TokenPayload, request: Request):
+    from uuid import uuid4
+
+    observation = (
+        scan_observability.ScanObservation("api_scan", len(req.symbols), uuid4().hex)
+        if scan_observability.enabled()
+        else None
+    )
+    outcome = "error"
+    error_type = None
+    handle = None
+    watcher = None
+    deadline = time.monotonic() + _SCAN_TIMEOUT_SECONDS
+    try:
+        scope = (auth.sub, auth.role, auth.type) if auth is not None else (uuid4().hex,)
+        key = scan_coordinator.make_key(
+            "api_scan", req.symbols, {"kelly_fraction": req.kelly_fraction}, scope
+        )
+        handle = scan_coordinator.submit_scan(
+            key,
+            lambda: _scan_job(req),
+            observation,
+            budget_seconds=max(0, deadline - time.monotonic()),
+        )
+
+        async def watch_disconnect() -> None:
+            try:
+                while True:
+                    if await request.is_disconnected():
+                        if observation is not None:
+                            observation.mark_client_gone()
+                        handle.detach()
+                        return
+                    await asyncio.sleep(0.25)
+            except Exception as exc:
+                logger.debug("Scan disconnect observation skipped: %s", type(exc).__name__)
+
+        watcher = asyncio.create_task(watch_disconnect())
+        future = asyncio.wrap_future(handle.future)
+        future.add_done_callback(lambda done: None if done.cancelled() else done.exception())
+        out = await asyncio.wait_for(
+            asyncio.shield(future), timeout=max(0, deadline - time.monotonic())
+        )
+        outcome = "ok"
+        return deepcopy(out)
+    except asyncio.CancelledError:
+        outcome = "client_gone"
+        raise
+    except TimeoutError:
+        outcome = "timeout"
+        error_type = "TimeoutError"
+        raise HTTPException(status_code=504, detail="Scan request timed out") from None
+    except scan_coordinator.ScanBusy as exc:
+        error_type = type(exc).__name__
+        raise HTTPException(status_code=503, detail=str(exc), headers={"Retry-After": "5"}) from exc
+    except scan_coordinator.ScanCancelled as exc:
+        outcome = "client_gone"
+        error_type = type(exc).__name__
+        raise HTTPException(status_code=499, detail="Scan waiters disconnected") from exc
+    except ImportError as exc:
+        error_type = type(exc).__name__
+        raise HTTPException(status_code=503, detail="Scanner module is not available.") from exc
+    except Exception as exc:
+        error_type = type(exc).__name__
+        logger.exception("Coordinated scan failed")
+        raise HTTPException(status_code=500, detail=f"Scan error: {type(exc).__name__}") from exc
+    finally:
+        if watcher is not None:
+            watcher.cancel()
+            try:
+                await watcher
+            except asyncio.CancelledError:
+                pass
+        if handle is not None:
+            handle.detach()
+        if observation is not None:
+            observation.finish_request(outcome, error_type)
+
+
+def _scan_job(req: ScanRequest) -> dict:
+    from scanner import evaluate_symbols_parallel
+
+    started = time.perf_counter()
+    results = evaluate_symbols_parallel(symbols=req.symbols, kelly_fraction=req.kelly_fraction)
+    scan_coordinator.check_cancelled()
+    return _complete_scan(req, results, started, scan_observability.current_scan())
 
 
 async def _run_scan(
@@ -506,6 +597,7 @@ def _complete_scan(req, results, _t_start, observation):
         "result_symbols": len(out),
         "stage_timing": _stage_timing,
     }
+    scan_coordinator.check_cancelled()
     _persist_start = time.perf_counter()
     _persist_shortlist(out)
     _persist_shadow_ledger(out, universe=len(req.symbols))

@@ -174,6 +174,10 @@ def observe_scan(
 
     @wraps(function)
     def observed(*args: _Parameters.args, **kwargs: _Parameters.kwargs) -> _ReturnT:
+        from core.scan_coordinator import current_job
+
+        if current_job() is not None:
+            return function(*args, **kwargs)
         if not enabled():
             return function(*args, **kwargs)
         observation = current_scan()

@@ -14,6 +14,7 @@ from typing import Any
 
 import pandas as pd
 
+from core.scan_coordinator import check_cancelled, coordinate_scan, current_job
 from core.scan_observability import observe_scan
 
 from . import instrumentation as _instrumentation
@@ -755,6 +756,7 @@ def evaluate_symbol(
         return _unavailable_result(symbol, "evaluation_error", detail=str(e))
 
 
+@coordinate_scan
 @observe_scan
 def evaluate_symbols_parallel(
     symbols: list[str],
@@ -772,6 +774,8 @@ def evaluate_symbols_parallel(
 
     results: list[dict[str, Any]] = []
     total = len(symbols)
+    scan_job = current_job()
+    check_cancelled(scan_job)
 
     if use_prefetch and total > 1:
         logger.info("Prefetching data for %d symbols...", total)
@@ -792,6 +796,7 @@ def evaluate_symbols_parallel(
             logger.warning("Prefetch phase timed out — continuing with partial data")
             all_data = {}
 
+        check_cancelled(scan_job)
         # NOT (2026-09-22): gun ici kapsam olcumu BURADA DEGIL,
         # data_fetcher._note_intraday_coverage() icinde — prefetch'in uc donus
         # yolunun hepsinde cagriliyor. Burada ikinci kez cagirmak golgeleme
@@ -804,6 +809,7 @@ def evaluate_symbols_parallel(
         _eval_workers = min(32, max(4, total))
 
         def _eval_one(symbol: str) -> dict[str, Any] | None:
+            check_cancelled(scan_job)
             symbol_data = all_data.get(symbol, {})
             with timer("evaluation.symbol", count=1, path="prefetched"):
                 return evaluate_symbol(symbol, kelly_fraction, prefetched_data=symbol_data)
@@ -811,6 +817,7 @@ def evaluate_symbols_parallel(
         with ThreadPoolExecutor(max_workers=_eval_workers) as pool:
             future_map = {pool.submit(_eval_one, sym): sym for sym in symbols}
             for fut in as_completed(future_map):
+                check_cancelled(scan_job)
                 sym = future_map[fut]
                 try:
                     result = fut.result()
@@ -829,6 +836,7 @@ def evaluate_symbols_parallel(
     else:
         # Single symbol or prefetch disabled — evaluate directly without batch prefetch
         for symbol in symbols:
+            check_cancelled(scan_job)
             try:
                 result = evaluate_symbol(symbol, kelly_fraction)
                 if result:
@@ -836,6 +844,7 @@ def evaluate_symbols_parallel(
             except Exception as e:
                 logger.warning("Evaluate error for %s: %s", symbol, e)
 
+    check_cancelled(scan_job)
     logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
     # Level B observability only: persist already-computed baseline inputs.
     # No-op unless FINPILOT_INSTRUMENT_BASELINE=1; never alters results.
