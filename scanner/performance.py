@@ -9,6 +9,8 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
+from core.scan_observability import note_counter_reset
+
 _LOCK = threading.Lock()
 _EVENTS: list[dict[str, Any]] = []
 
@@ -22,6 +24,7 @@ def reset() -> None:
     """Clear the current scan's in-memory stage events."""
     with _LOCK:
         _EVENTS.clear()
+    note_counter_reset()
 
 
 def record(

@@ -14,6 +14,8 @@ from typing import Any
 
 import pandas as pd
 
+from core.scan_observability import observe_scan
+
 from . import instrumentation as _instrumentation
 from .config import DELISTED_SYMBOLS_SET, get_setting
 from .data_fetcher import (
@@ -108,66 +110,6 @@ def _unavailable_result(symbol: str, reason: str, detail: str | None = None) -> 
     return result
 
 
-def _feature_contract(
-    *,
-    df_15m: pd.DataFrame,
-    df_1h: pd.DataFrame,
-    df_4h: pd.DataFrame,
-    df_1d: pd.DataFrame,
-    signal_timestamp: str,
-) -> dict[str, Any]:
-    frames = {"15m": df_15m, "1h": df_1h, "4h": df_4h, "1d": df_1d}
-    signal_ts = pd.Timestamp(signal_timestamp)
-    if signal_ts.tzinfo is not None:
-        signal_ts = signal_ts.tz_localize(None)
-    timestamps: dict[str, str | None] = {}
-    ages: dict[str, float | None] = {}
-    for name, frame in frames.items():
-        if frame.empty:
-            timestamps[name] = None
-            ages[name] = None
-            continue
-        latest = pd.Timestamp(frame.index[-1])
-        if latest.tzinfo is not None:
-            latest = latest.tz_localize(None)
-        timestamps[name] = latest.isoformat()
-        ages[name] = round(max(0.0, (signal_ts - latest).total_seconds() / 60.0), 2)
-    dollar_adv = None
-    if all(column in df_1d.columns for column in ("Close", "Volume")):
-        values = (
-            (
-                pd.to_numeric(df_1d["Close"], errors="coerce")
-                * pd.to_numeric(df_1d["Volume"], errors="coerce")
-            )
-            .dropna()
-            .tail(20)
-        )
-        if len(values) >= 5:
-            dollar_adv = float(values.mean())
-    spread_bps = None
-    if "spread_bps" in df_15m.columns and pd.notna(df_15m["spread_bps"].iloc[-1]):
-        spread_bps = float(df_15m["spread_bps"].iloc[-1])
-    short_timestamp = df_1d.attrs.get("short_interest_timestamp")
-    if short_timestamp is not None and hasattr(short_timestamp, "isoformat"):
-        short_timestamp = short_timestamp.isoformat()
-    available = {
-        "spread_bps": spread_bps is not None,
-        "dollar_adv": dollar_adv is not None,
-        "short_interest_timestamp": short_timestamp is not None,
-    }
-    return {
-        "spread_bps": round(spread_bps, 4) if spread_bps is not None else None,
-        "spread_source": "spread_bps" if spread_bps is not None else "missing",
-        "dollar_adv": round(dollar_adv, 2) if dollar_adv is not None else None,
-        "adv_source": "close_volume_20d" if dollar_adv is not None else "missing",
-        "short_interest_timestamp": short_timestamp,
-        "feature_timestamps": timestamps,
-        "feature_age_minutes": ages,
-        "available": available,
-        "missing_fields": [name for name, present in available.items() if not present],
-    }
-
-
 def _compute_cost_labels(
     ev_per_trade: float,
     ann_vol_pct: float,
@@ -206,76 +148,6 @@ def _compute_cost_labels(
     return {
         "net_expected_return": round(net_ev, 4),
         "edge_label": label,
-    }
-
-
-def _feature_contract(
-    *,
-    df_15m: pd.DataFrame,
-    df_1h: pd.DataFrame,
-    df_4h: pd.DataFrame,
-    df_1d: pd.DataFrame,
-    signal_timestamp: str,
-) -> dict[str, Any]:
-    frames = {"15m": df_15m, "1h": df_1h, "4h": df_4h, "1d": df_1d}
-    feature_timestamps: dict[str, str | None] = {}
-    feature_age_minutes: dict[str, float | None] = {}
-    signal_ts = pd.Timestamp(signal_timestamp)
-    if signal_ts.tzinfo is not None:
-        signal_ts = signal_ts.tz_localize(None)
-    for name, frame in frames.items():
-        if frame.empty:
-            feature_timestamps[name] = None
-            feature_age_minutes[name] = None
-            continue
-        latest = pd.Timestamp(frame.index[-1])
-        if latest.tzinfo is not None:
-            latest = latest.tz_localize(None)
-        feature_timestamps[name] = latest.isoformat()
-        feature_age_minutes[name] = round(max(0.0, (signal_ts - latest).total_seconds() / 60.0), 2)
-    spread_bps = None
-    spread_source = "missing"
-    for column in ("spread_bps", "spread_pct"):
-        if column in df_15m.columns and pd.notna(df_15m[column].iloc[-1]):
-            value = float(df_15m[column].iloc[-1])
-            spread_bps = value if column == "spread_bps" else value * 100.0
-            spread_source = column
-            break
-    if spread_bps is None and all(column in df_15m.columns for column in ("bid", "ask")):
-        bid = float(df_15m["bid"].iloc[-1])
-        ask = float(df_15m["ask"].iloc[-1])
-        mid = (bid + ask) / 2.0
-        if bid > 0 and ask >= bid and mid > 0:
-            spread_bps = (ask - bid) / mid * 10_000.0
-            spread_source = "bid_ask"
-    dollar_adv = None
-    adv_source = "missing"
-    if all(column in df_1d.columns for column in ("Close", "Volume")):
-        dollar_volume = pd.to_numeric(df_1d["Close"], errors="coerce") * pd.to_numeric(
-            df_1d["Volume"], errors="coerce"
-        )
-        dollar_volume = dollar_volume.dropna().tail(20)
-        if len(dollar_volume) >= 5:
-            dollar_adv = float(dollar_volume.mean())
-            adv_source = "close_volume_20d"
-    short_interest_timestamp = df_1d.attrs.get("short_interest_timestamp")
-    if short_interest_timestamp is not None and hasattr(short_interest_timestamp, "isoformat"):
-        short_interest_timestamp = short_interest_timestamp.isoformat()
-    available = {
-        "spread_bps": spread_bps is not None,
-        "dollar_adv": dollar_adv is not None,
-        "short_interest_timestamp": short_interest_timestamp is not None,
-    }
-    return {
-        "spread_bps": round(spread_bps, 4) if spread_bps is not None else None,
-        "spread_source": spread_source,
-        "dollar_adv": round(dollar_adv, 2) if dollar_adv is not None else None,
-        "adv_source": adv_source,
-        "short_interest_timestamp": short_interest_timestamp,
-        "feature_timestamps": feature_timestamps,
-        "feature_age_minutes": feature_age_minutes,
-        "available": available,
-        "missing_fields": [name for name, present in available.items() if not present],
     }
 
 
@@ -883,6 +755,7 @@ def evaluate_symbol(
         return _unavailable_result(symbol, "evaluation_error", detail=str(e))
 
 
+@observe_scan
 def evaluate_symbols_parallel(
     symbols: list[str],
     kelly_fraction: float = 0.5,

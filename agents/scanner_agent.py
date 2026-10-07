@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 
 from agents.base import AgentContext, AgentResult, BaseAgent
+from core import scan_observability
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,23 @@ class ScannerAgent(BaseAgent):
     name = "scanner"
 
     def run(self, context: AgentContext, kelly_fraction: float = 0.5) -> AgentResult:  # noqa: D102
+        if not scan_observability.enabled():
+            return self._run(context, kelly_fraction)
+        observation = scan_observability.ScanObservation("scanner_agent", len(context.symbols))
+        outcome = "error"
+        error_type = None
+        try:
+            with scan_observability.scan_context(observation):
+                result = self._run(context, kelly_fraction)
+            outcome = "ok" if result.success else "error"
+            return result
+        except BaseException as exc:
+            error_type = type(exc).__name__
+            raise
+        finally:
+            observation.finish_request(outcome, error_type, event="caller_finished")
+
+    def _run(self, context: AgentContext, kelly_fraction: float = 0.5) -> AgentResult:
         import time
 
         t0 = time.perf_counter()
