@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -20,7 +21,18 @@ from distribution import broadcast, lint  # noqa: E402
 from distribution.concepts import concept_of_the_day  # noqa: E402
 from distribution.jobs import _resolve_karne_by_grade  # noqa: E402
 from distribution.market_calendar import is_trading_day  # noqa: E402
+from distribution.partial_publication import (  # noqa: E402
+    build_partial_export,
+    build_partial_snapshots,
+    load_partial_export,
+    load_partial_snapshot,
+    save_partial_export,
+    save_partial_snapshot,
+    validate_partial_export,
+    validate_partial_snapshot,
+)
 from distribution.rationale import build_rationale, extract_badges, prob_band  # noqa: E402
+from distribution.scan_contract import full_scan_problems  # noqa: E402
 from distribution.schema import (  # noqa: E402
     SCHEMA_VERSION,
     demo_view,
@@ -28,7 +40,7 @@ from distribution.schema import (  # noqa: E402
     validate_snapshot,
 )
 from distribution.snapshot_builder import build_snapshot, read_json_object  # noqa: E402
-from distribution.store import log_delivery  # noqa: E402
+from distribution.store import ensure_tables, get_conn, log_delivery  # noqa: E402
 from distribution.templates import render_daily_free, render_daily_premium  # noqa: E402
 
 
@@ -149,6 +161,87 @@ class TestSnapshot(unittest.TestCase):
         self.assertNotIn("take_profit", metrics)
         self.assertNotIn("stop_loss_percent", metrics)
 
+
+class TestPartialPublication(unittest.TestCase):
+    def test_partial_artifacts_are_separate_and_keep_full_gate(self):
+        rows = [_row("AAA", conv="B"), _row("BBB", conv="C", prob=0.4)]
+        export = build_partial_export(
+            rows,
+            requested_universe=3,
+            date_str="2026-10-05",
+            source_artifacts=[{"path": "batch.csv", "sha256": "example-hash"}],
+        )
+        self.assertEqual(export["scan_scope"], "partial")
+        self.assertFalse(export["scan_complete"])
+        self.assertEqual(validate_partial_export(export), [])
+        self.assertTrue(
+            full_scan_problems(export["results"], export["universe"], export["scan_complete"])
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            export_dir = Path(temp_dir) / "exports"
+            snapshot_dir = Path(temp_dir) / "snapshots"
+            with (
+                patch("distribution.partial_publication.PARTIAL_EXPORT_DIR", export_dir),
+                patch("distribution.partial_publication.PARTIAL_SNAPSHOT_DIR", snapshot_dir),
+            ):
+                export_path = save_partial_export(export)
+                loaded_export = load_partial_export("2026-10-05", export["scan_id"])
+                self.assertEqual(loaded_export["results"], rows)
+                self.assertIn("_partial_", export_path.name)
+
+                snapshots = build_partial_snapshots(
+                    rows,
+                    requested_universe=3,
+                    date_str="2026-10-05",
+                    scan_id=export["scan_id"],
+                    source_export=export_path.name,
+                )
+                self.assertEqual(snapshots["tr"]["publication_scope"], "partial")
+                self.assertEqual(snapshots["tr"]["result_coverage_pct"], 0.1)
+                self.assertEqual(snapshots["tr"]["scan_result_count"], 2)
+                self.assertEqual(snapshots["tr"]["snapshot_id"], snapshots["en"]["snapshot_id"])
+                for lang, snapshot in snapshots.items():
+                    self.assertEqual(validate_partial_snapshot(snapshot), [])
+                    save_partial_snapshot(snapshot, lang)
+                    loaded = load_partial_snapshot("2026-10-05", export["scan_id"], lang)
+                    self.assertEqual(loaded["snapshot_id"], snapshot["snapshot_id"])
+
+    def test_partial_validation_rejects_tampered_identity(self):
+        snapshot = build_partial_snapshots(
+            [_row("AAA")], requested_universe=2, date_str="2026-10-05"
+        )["tr"]
+        snapshot["snapshot_id"] = "0" * 24
+        self.assertIn(
+            "snapshot_id does not match partial snapshot metadata",
+            validate_partial_snapshot(snapshot),
+        )
+
+    def test_partial_api_exposes_published_file_only(self):
+        from api.routers.distribution import distribution_partial_snapshot
+        from distribution.snapshot_builder import write_snapshot
+        from fastapi import HTTPException
+
+        today = date.today().isoformat()
+        snapshot = build_partial_snapshots([_row("AAA")], requested_universe=2, date_str=today)[
+            "en"
+        ]
+        with (
+            tempfile.TemporaryDirectory() as temp_dir,
+            patch.dict(os.environ, {"FINPILOT_DIST_DIR": temp_dir}),
+        ):
+            dist_dir = Path(temp_dir)
+            staged = dist_dir / "partial_snapshots" / "staged.json"
+            write_snapshot(staged, snapshot)
+            with self.assertRaises(HTTPException):
+                distribution_partial_snapshot()
+
+            published = dist_dir / "partial_published" / "snapshot_en_latest.json"
+            write_snapshot(published, snapshot)
+            result = distribution_partial_snapshot()
+            self.assertEqual(result["publication_scope"], "partial")
+            self.assertEqual(result["snapshot_id"], snapshot["snapshot_id"])
+
     def test_public_view_strips_internal_risk_metrics_from_context(self):
         snap = build_snapshot([_row("AAA")], universe=100, date_str="2026-07-06")
         snap["web_context"] = [{"ticker": "CTX", "metrics": {"stop_loss": 10.0, "price": 12.0}}]
@@ -244,6 +337,50 @@ class TestBroadcastQueue(unittest.TestCase):
         self.assertEqual(first, second)
         item = next(row for row in broadcast.get_pending() if row["id"] == first)
         self.assertEqual(item["snapshot_id"], "snap-1")
+        self.assertEqual(item["snapshot_scope"], "full")
+
+    def test_partial_queue_scope_and_coverage_metadata(self):
+        text = "Kısmi tarama taslağı. Yatırım tavsiyesi değildir."
+        queue_id = broadcast.queue_draft(
+            "daily_free_partial",
+            "2026-10-05",
+            text,
+            snapshot_id="partial-snap-1",
+            snapshot_date="2026-10-05",
+            snapshot_universe=1812,
+            candidate_hash="partial-hash-1",
+            scan_id="partial-scan-1",
+            snapshot_scope="partial",
+            snapshot_requested_universe=1612,
+            snapshot_result_count=1601,
+        )
+        item = next(row for row in broadcast.get_pending() if row["id"] == queue_id)
+        self.assertEqual(item["snapshot_scope"], "partial")
+        self.assertEqual(item["snapshot_requested_universe"], 1612)
+        self.assertEqual(item["snapshot_result_count"], 1601)
+
+    def test_unknown_snapshot_scope_is_rejected(self):
+        with self.assertRaises(ValueError):
+            broadcast.queue_draft(
+                "daily_free",
+                "2026-07-06",
+                "Clean text. Yatırım tavsiyesi değildir.",
+                snapshot_scope="partialish",
+            )
+
+    def test_partial_sent_queue_does_not_increment_full_edition_count(self):
+        ensure_tables()
+        count_before = broadcast.count_sent_editions()
+        with get_conn() as conn:
+            conn.execute(
+                "INSERT INTO broadcast_queue(kind, brief_date, text, status, created_at, snapshot_scope) "
+                "VALUES('daily_free_partial','2026-10-05','partial','sent',1,'partial')"
+            )
+            conn.execute(
+                "INSERT INTO broadcast_queue(kind, brief_date, text, status, created_at, snapshot_scope) "
+                "VALUES('daily_free','2026-10-06','full','sent',2,'full')"
+            )
+        self.assertEqual(broadcast.count_sent_editions(), count_before + 1)
 
     def test_lint_blocks_queue(self):
         with self.assertRaises(ValueError):

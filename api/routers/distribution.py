@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from distribution.partial_publication import validate_partial_snapshot
 from distribution.scan_contract import expected_universe
 from distribution.schema import demo_view, validate_snapshot
 from distribution.snapshot_builder import read_json_object
@@ -51,6 +52,42 @@ def distribution_snapshot():
                 "snapshot_universe": snapshot.get("universe"),
                 "expected_date": today,
                 "expected_universe": expected_universe(),
+            },
+        )
+    return demo_view(snapshot, max_candidates=len(snapshot.get("candidates", [])))
+
+
+@router.get("/distribution/partial-snapshot")
+def distribution_partial_snapshot():
+    """Return today's separately published partial edition, if one exists."""
+    dist_dir = Path(os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
+    path = dist_dir / "partial_published" / "snapshot_en_latest.json"
+    try:
+        snapshot = read_json_object(path)
+    except (
+        FileNotFoundError,
+        OSError,
+        UnicodeDecodeError,
+        ValueError,
+        json.JSONDecodeError,
+    ) as exc:
+        raise HTTPException(status_code=503, detail=f"partial snapshot unavailable: {exc}") from exc
+
+    problems = validate_partial_snapshot(snapshot)
+    if problems:
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "partial snapshot invalid", "problems": problems},
+        )
+
+    today = datetime.now(tz=ZoneInfo("Europe/Vienna")).date().isoformat()
+    if snapshot.get("date") != today:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "partial snapshot stale",
+                "snapshot_date": snapshot.get("date"),
+                "expected_date": today,
             },
         )
     return demo_view(snapshot, max_candidates=len(snapshot.get("candidates", [])))

@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import shutil
 import urllib.request
 from datetime import UTC, datetime
@@ -38,6 +39,9 @@ from distribution.telegram_client import notify_admin, send_to_channel
 logger = logging.getLogger(__name__)
 
 WEB_PUBLIC_SNAPSHOT = Path(os.getenv("FINPILOT_WEB_SNAPSHOT", "web/public/demo_snapshot.json"))
+WEB_PUBLIC_PARTIAL_SNAPSHOT = Path(
+    os.getenv("FINPILOT_WEB_PARTIAL_SNAPSHOT", "web/public/demo_partial_snapshot.json")
+)
 API_BASE = os.getenv("FINPILOT_LOCAL_API", "http://localhost:8000/api/v1")
 
 
@@ -280,15 +284,121 @@ def job_draft() -> dict:
     return result
 
 
+def job_partial_draft(
+    rows: list[dict],
+    requested_universe: int,
+    *,
+    date_str: str | None = None,
+    source_artifacts: list[dict[str, str]] | None = None,
+    publication_gate_open: bool | None = None,
+) -> dict:
+    """Create a separately labeled partial edition without touching full artifacts."""
+    if not distribution_enabled():
+        return {"skipped": "distribution disabled"}
+
+    today = _vienna_now().date().isoformat()
+    date_str = date_str or today
+    if date_str != today:
+        raise ValueError(f"partial draft date must be today ({today})")
+    if publication_gate_open is None:
+        publication_gate_open = distribution_enabled()
+
+    from distribution.partial_publication import (
+        build_partial_export,
+        build_partial_snapshots,
+        save_partial_export,
+        save_partial_snapshot,
+    )
+
+    export = build_partial_export(
+        rows,
+        requested_universe=requested_universe,
+        date_str=date_str,
+        source_artifacts=source_artifacts,
+    )
+    export_path = save_partial_export(export)
+    snapshots = build_partial_snapshots(
+        rows,
+        requested_universe=requested_universe,
+        date_str=date_str,
+        scan_id=export["scan_id"],
+        source_export=export_path.name,
+    )
+    snapshot_paths = {
+        lang: save_partial_snapshot(snapshot, lang) for lang, snapshot in snapshots.items()
+    }
+
+    snapshot = snapshots["tr"]
+    from distribution.market_context import build_context_line
+
+    free_text = (
+        f"⚠️ KISMİ TARAMA: {snapshot['scan_result_count']:,}/{snapshot['expected_universe']:,} "
+        f"sonuç ({snapshot['result_coverage_pct']:.1f}%); "
+        f"{snapshot['requested_universe']:,} sembol istendi. Tam evren taraması değildir.\n\n"
+        + templates.render_daily_free(snapshot, context_line=build_context_line("tr"))
+    )
+    queue_metadata = {
+        "snapshot_id": snapshot["snapshot_id"],
+        "snapshot_date": snapshot["date"],
+        "snapshot_universe": snapshot["universe"],
+        "candidate_hash": snapshot["candidate_hash"],
+        "scan_id": snapshot["scan_id"],
+        "snapshot_scope": "partial",
+        "snapshot_requested_universe": snapshot["requested_universe"],
+        "snapshot_result_count": snapshot["scan_result_count"],
+    }
+    queue_id = broadcast.queue_draft("daily_free_partial", date_str, free_text, **queue_metadata)
+    preview = re.sub(r"<[^>]+>", "", free_text)[:1500]
+    if publication_gate_open:
+        approval_note = (
+            "ONAYLA yalnızca kuyrukta karar kaydeder; otomatik yayın için aynı snapshot "
+            "doğrulamasının geçmesi gerekir. Bu taslak henüz yayımlanmadı."
+        )
+    else:
+        approval_note = (
+            "Bu çalışma alanında dağıtım kapalı. ONAYLA yalnızca kuyruğu onaylar; "
+            "otomatik Telegram/web yayını yapmaz. Bu taslak henüz yayımlanmadı."
+        )
+    notified = notify_admin(
+        f"📝 <b>{date_str} KISMİ tarama taslağı onay için hazır.</b>\n\n"
+        f"Kapsam: {snapshot['scan_result_count']:,}/{snapshot['expected_universe']:,} sonuç "
+        f"(%{snapshot['result_coverage_pct']:.1f}); {snapshot['requested_universe']:,} sembol istendi.\n"
+        f"Snapshot: <code>{snapshot['snapshot_id']}</code>\n"
+        f"\n{preview}\n\n"
+        f"Karar: ONAYLA {queue_id}  ·  Reddet: RED {queue_id}\n{approval_note}"
+    )
+    return {
+        "partial_export": str(export_path),
+        "partial_snapshots": {lang: str(path) for lang, path in snapshot_paths.items()},
+        "snapshot_id": snapshot["snapshot_id"],
+        "scan_id": snapshot["scan_id"],
+        "requested_universe": snapshot["requested_universe"],
+        "result_count": snapshot["scan_result_count"],
+        "result_coverage_pct": snapshot["result_coverage_pct"],
+        "free_queue_id": queue_id,
+        "admin_notified": notified,
+    }
+
+
 def job_publish() -> dict:
     """08:30 — send approved drafts; push snapshot to the web demo."""
     if not distribution_enabled():
         return {"skipped": "distribution disabled"}
 
     sent, failed, blocked = [], [], []
+    sent_full_snapshots: list[dict] = []
+    sent_partial_snapshots: list[tuple[dict, dict]] = []
     current_snapshot = _load_current_snapshot()
     for item in broadcast.get_approved_unsent():
-        problems = _queue_snapshot_problems(item, current_snapshot)
+        scope = item.get("snapshot_scope") or "full"
+        if scope == "partial":
+            snapshot_tr, snapshot_en, problems = _load_partial_queue_snapshots(item)
+        elif scope == "full":
+            snapshot_tr, snapshot_en = current_snapshot, None
+            problems = _queue_snapshot_problems(item, current_snapshot)
+        else:
+            snapshot_tr, snapshot_en = None, None
+            problems = [f"unknown snapshot_scope: {scope}"]
         if problems:
             error = "snapshot mismatch: " + "; ".join(problems)
             broadcast.mark_sent(item["id"], error=error)
@@ -304,6 +414,10 @@ def job_publish() -> dict:
         if ok:
             broadcast.mark_sent(item["id"])
             sent.append(item["id"])
+            if scope == "partial" and snapshot_tr is not None and snapshot_en is not None:
+                sent_partial_snapshots.append((snapshot_tr, snapshot_en))
+            elif scope == "full" and snapshot_tr is not None:
+                sent_full_snapshots.append(snapshot_tr)
         else:
             broadcast.mark_sent(item["id"], error="send failed")
             failed.append(item["id"])
@@ -323,7 +437,12 @@ def job_publish() -> dict:
         import time as _time
 
         _t_web = _time.perf_counter()
-        pushed = _push_snapshot_to_web(current_snapshot)
+        web_results = []
+        for _, snapshot_en in sent_partial_snapshots:
+            web_results.append(_push_partial_snapshot_to_web(snapshot_en))
+        if sent_full_snapshots:
+            web_results.append(_push_snapshot_to_web(current_snapshot))
+        pushed = bool(web_results) and all(web_results)
         logger.info(
             "pipeline timing: web snapshot push = %.2fs (ok=%s)",
             _time.perf_counter() - _t_web,
@@ -340,6 +459,53 @@ def job_publish() -> dict:
         "web_pushed": pushed,
         "pending_unapproved": len(pending),
     }
+
+
+def _load_partial_queue_snapshots(item: dict) -> tuple[dict | None, dict | None, list[str]]:
+    from distribution.partial_publication import load_partial_snapshot
+
+    today = _vienna_now().date().isoformat()
+    problems: list[str] = []
+    if item.get("snapshot_scope") != "partial":
+        problems.append("queue scope is not partial")
+    date_str = str(item.get("snapshot_date") or "")
+    scan_id = str(item.get("scan_id") or "")
+    if date_str != today or item.get("brief_date") != today:
+        problems.append("queue date is stale")
+    if not scan_id:
+        problems.append("queue scan_id is missing")
+    if problems:
+        return None, None, problems
+    try:
+        snapshot_tr = load_partial_snapshot(date_str, scan_id, "tr")
+        snapshot_en = load_partial_snapshot(date_str, scan_id, "en")
+    except (
+        FileNotFoundError,
+        OSError,
+        UnicodeDecodeError,
+        ValueError,
+        json.JSONDecodeError,
+    ) as exc:
+        return None, None, [f"partial snapshot unavailable or invalid: {exc}"]
+
+    for snapshot in (snapshot_tr, snapshot_en):
+        if snapshot.get("snapshot_id") != item.get("snapshot_id"):
+            problems.append("snapshot_id differs")
+        if snapshot.get("date") != date_str:
+            problems.append("snapshot date differs")
+        if snapshot.get("candidate_hash") != item.get("candidate_hash"):
+            problems.append("candidate_hash differs")
+        if snapshot.get("universe") != expected_universe():
+            problems.append("expected universe differs")
+        if item.get("snapshot_universe") != expected_universe():
+            problems.append("queue expected universe differs")
+        if snapshot.get("requested_universe") != item.get("snapshot_requested_universe"):
+            problems.append("requested_universe differs")
+        if snapshot.get("scan_result_count") != item.get("snapshot_result_count"):
+            problems.append("result count differs")
+    if snapshot_tr.get("snapshot_id") != snapshot_en.get("snapshot_id"):
+        problems.append("Turkish and English snapshot_id differs")
+    return snapshot_tr, snapshot_en, problems
 
 
 def _load_current_snapshot() -> dict | None:
@@ -427,6 +593,32 @@ def _push_snapshot_to_web(snapshot: dict | None = None) -> bool:
         return True
     except Exception as exc:
         logger.error("web snapshot push failed: %s", exc)
+        return False
+
+
+def _push_partial_snapshot_to_web(snapshot: dict | None = None) -> bool:
+    """Publish an approved partial edition to its separate web artifact only."""
+    from distribution.partial_publication import validate_partial_snapshot
+    from distribution.schema import demo_view
+    from distribution.snapshot_builder import EXPORT_DIR, write_snapshot
+
+    if snapshot is None:
+        return False
+    if WEB_PUBLIC_PARTIAL_SNAPSHOT.resolve() == WEB_PUBLIC_SNAPSHOT.resolve():
+        logger.error("partial web snapshot refused: partial path aliases the full snapshot path")
+        return False
+    problems = validate_partial_snapshot(snapshot)
+    if problems or snapshot.get("lang") != "en":
+        logger.error("partial web snapshot refused: %s", problems or ["English snapshot required"])
+        return False
+    try:
+        public = demo_view(snapshot, max_candidates=len(snapshot.get("candidates", [])))
+        published_path = EXPORT_DIR / "partial_published" / "snapshot_en_latest.json"
+        write_snapshot(published_path, public)
+        write_snapshot(WEB_PUBLIC_PARTIAL_SNAPSHOT, public)
+        return True
+    except Exception as exc:
+        logger.error("partial web snapshot push failed: %s", exc)
         return False
 
 
@@ -530,7 +722,8 @@ def job_startup_catchup() -> dict:
     ensure_tables()
     with get_conn() as conn:
         row = conn.execute(
-            "SELECT COUNT(*) FROM broadcast_queue WHERE brief_date=? AND kind LIKE 'daily%'",
+            "SELECT COUNT(*) FROM broadcast_queue WHERE brief_date=? AND kind LIKE 'daily%' "
+            "AND snapshot_scope='full'",
             (today.isoformat(),),
         ).fetchone()
     if row[0] == 0 and export_fresh:
@@ -592,7 +785,8 @@ def maybe_trigger_draft_after_scan(universe: int) -> dict:
         ensure_tables()
         with get_conn() as conn:
             row = conn.execute(
-                "SELECT COUNT(*) FROM broadcast_queue WHERE brief_date=? AND kind LIKE 'daily%'",
+                "SELECT COUNT(*) FROM broadcast_queue WHERE brief_date=? AND kind LIKE 'daily%' "
+                "AND snapshot_scope='full'",
                 (today.isoformat(),),
             ).fetchone()
         if row and row[0] > 0:

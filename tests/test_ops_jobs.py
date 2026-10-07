@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -149,6 +150,31 @@ class TestDraftTrigger(unittest.TestCase):
             jobs.is_trading_day = orig_trading
             jobs.job_draft = orig_draft
 
+    def test_partial_draft_does_not_block_full_daily_draft(self):
+        from distribution import broadcast, lint
+
+        today = jobs._vienna_now().date().isoformat()
+        broadcast.queue_draft(
+            "daily_free_partial",
+            today,
+            f"Partial draft. {lint.DISCLAIMER_TR}",
+            snapshot_scope="partial",
+        )
+        original = {
+            "trading": jobs.is_trading_day,
+            "draft": jobs.job_draft,
+        }
+        jobs.is_trading_day = lambda _date: True
+        calls: list[int] = []
+        jobs.job_draft = lambda: calls.append(1) or {"free_queue_id": 101}
+        try:
+            result = jobs.maybe_trigger_draft_after_scan(500)
+            self.assertEqual(result, {"free_queue_id": 101})
+            self.assertEqual(calls, [1])
+        finally:
+            jobs.is_trading_day = original["trading"]
+            jobs.job_draft = original["draft"]
+
 
 class TestPublishApprovalGate(unittest.TestCase):
     def test_pending_draft_does_not_push_web_snapshot(self):
@@ -178,6 +204,143 @@ class TestPublishApprovalGate(unittest.TestCase):
             jobs.broadcast.get_approved_unsent = original["approved"]
             jobs.broadcast.get_pending = original["pending"]
             jobs.notify_admin = original["notify"]
+
+    def test_approved_partial_draft_publishes_only_matching_partial_snapshot(self):
+        today = jobs._vienna_now().date().isoformat()
+        rows = [
+            {
+                "symbol": "AAA",
+                "price": 12.5,
+                "score": 40,
+                "composite_score": 55.0,
+                "conviction_tier": "B",
+                "conviction_prob": 0.6,
+                "tier": "CONFIRM",
+                "selection_eligible": True,
+                "execution_feasible": True,
+                "execution_confidence": "Tier 1",
+                "squeeze_factor": 0.8,
+                "volume_spike": True,
+                "atr_pct": 5.0,
+            },
+            {
+                "symbol": "BBB",
+                "price": 10.0,
+                "score": 30,
+                "composite_score": 45.0,
+                "conviction_tier": "C",
+                "conviction_prob": 0.4,
+                "tier": "TRIGGER",
+                "selection_eligible": True,
+                "execution_feasible": True,
+                "execution_confidence": "Tier 1",
+                "squeeze_factor": 0.6,
+                "volume_spike": False,
+                "atr_pct": 6.0,
+            },
+        ]
+        original = {
+            "notify": jobs.notify_admin,
+            "send": jobs.send_to_channel,
+            "mark_sent": jobs.broadcast.mark_sent,
+            "get_approved": jobs.broadcast.get_approved_unsent,
+            "get_pending": jobs.broadcast.get_pending,
+            "current": jobs._load_current_snapshot,
+            "push_full": jobs._push_snapshot_to_web,
+            "push_partial": jobs._push_partial_snapshot_to_web,
+        }
+        partial_pushes: list[dict] = []
+        full_pushes: list[dict | None] = []
+        notices: list[str] = []
+        jobs.notify_admin = lambda text: notices.append(text) or True
+        draft = jobs.job_partial_draft(
+            rows,
+            requested_universe=3,
+            date_str=today,
+            publication_gate_open=False,
+        )
+        self.assertIn("dağıtım kapalı", notices[0])
+        self.assertIn("otomatik Telegram/web yayını yapmaz", notices[0])
+        queue_id = draft["free_queue_id"]
+        self.assertTrue(jobs.broadcast.decide(queue_id, approve=True, decided_by="test-admin"))
+        approved = next(
+            item for item in jobs.broadcast.get_approved_unsent() if item["id"] == queue_id
+        )
+        jobs.broadcast.get_approved_unsent = lambda: [approved]
+        jobs.broadcast.get_pending = lambda: []
+        jobs._load_current_snapshot = lambda: None
+        jobs.send_to_channel = lambda *args, **kwargs: True
+        jobs.broadcast.mark_sent = lambda *_args, **_kwargs: None
+        jobs._push_snapshot_to_web = lambda snapshot=None: full_pushes.append(snapshot) or True
+        jobs._push_partial_snapshot_to_web = (
+            lambda snapshot=None: partial_pushes.append(snapshot) or True
+        )
+        try:
+            result = jobs.job_publish()
+            self.assertEqual(result["sent"], [queue_id])
+            self.assertTrue(result["web_pushed"])
+            self.assertEqual(full_pushes, [])
+            self.assertEqual(len(partial_pushes), 1)
+            self.assertEqual(partial_pushes[0]["snapshot_id"], draft["snapshot_id"])
+            self.assertEqual(partial_pushes[0]["lang"], "en")
+        finally:
+            jobs.notify_admin = original["notify"]
+            jobs.send_to_channel = original["send"]
+            jobs.broadcast.mark_sent = original["mark_sent"]
+            jobs.broadcast.get_approved_unsent = original["get_approved"]
+            jobs.broadcast.get_pending = original["get_pending"]
+            jobs._load_current_snapshot = original["current"]
+            jobs._push_snapshot_to_web = original["push_full"]
+            jobs._push_partial_snapshot_to_web = original["push_partial"]
+
+    def test_partial_web_push_preserves_full_snapshot_path(self):
+        from distribution.partial_publication import build_partial_snapshots
+        from distribution.snapshot_builder import read_json_object
+
+        today = jobs._vienna_now().date().isoformat()
+        snapshot = build_partial_snapshots(
+            [
+                {
+                    "symbol": "AAA",
+                    "price": 12.5,
+                    "score": 40,
+                    "composite_score": 55.0,
+                    "conviction_tier": "B",
+                    "conviction_prob": 0.6,
+                    "tier": "CONFIRM",
+                    "selection_eligible": True,
+                    "execution_feasible": True,
+                    "execution_confidence": "Tier 1",
+                    "squeeze_factor": 0.8,
+                    "volume_spike": True,
+                    "atr_pct": 5.0,
+                }
+            ],
+            requested_universe=2,
+            date_str=today,
+        )["en"]
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            full_path = root / "demo_snapshot.json"
+            full_path.write_text('{"full":"untouched"}', encoding="utf-8")
+            partial_path = root / "demo_partial_snapshot.json"
+            data_dir = root / "distribution"
+            with (
+                patch.object(jobs, "WEB_PUBLIC_SNAPSHOT", full_path),
+                patch.object(jobs, "WEB_PUBLIC_PARTIAL_SNAPSHOT", partial_path),
+                patch("distribution.snapshot_builder.EXPORT_DIR", data_dir),
+            ):
+                self.assertTrue(jobs._push_partial_snapshot_to_web(snapshot))
+                self.assertEqual(full_path.read_text(encoding="utf-8"), '{"full":"untouched"}')
+                self.assertEqual(read_json_object(partial_path)["publication_scope"], "partial")
+                self.assertTrue(
+                    (data_dir / "partial_published" / "snapshot_en_latest.json").exists()
+                )
+
+                jobs.WEB_PUBLIC_PARTIAL_SNAPSHOT = full_path
+                self.assertFalse(jobs._push_partial_snapshot_to_web(snapshot))
+                self.assertEqual(full_path.read_text(encoding="utf-8"), '{"full":"untouched"}')
 
     def test_triggers_job_draft_when_no_draft_yet(self):
         orig_trading, orig_draft = jobs.is_trading_day, jobs.job_draft
