@@ -31,7 +31,10 @@ CREATE TABLE IF NOT EXISTS broadcast_queue (
     snapshot_date TEXT,
     snapshot_universe INTEGER,
     candidate_hash TEXT,
-    scan_id TEXT
+    scan_id TEXT,
+    snapshot_scope TEXT NOT NULL DEFAULT 'full',
+    snapshot_requested_universe INTEGER,
+    snapshot_result_count INTEGER
 );
 CREATE TABLE IF NOT EXISTS tg_delivery_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -123,6 +126,9 @@ def ensure_tables() -> None:
             ("snapshot_universe", "INTEGER"),
             ("candidate_hash", "TEXT"),
             ("scan_id", "TEXT"),
+            ("snapshot_scope", "TEXT NOT NULL DEFAULT 'full'"),
+            ("snapshot_requested_universe", "INTEGER"),
+            ("snapshot_result_count", "INTEGER"),
         ):
             if name not in queue_columns:
                 conn.execute(f"ALTER TABLE broadcast_queue ADD COLUMN {name} {sql_type}")
