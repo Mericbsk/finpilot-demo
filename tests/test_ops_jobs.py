@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -354,6 +356,97 @@ class TestPublishApprovalGate(unittest.TestCase):
         finally:
             jobs.is_trading_day = orig_trading
             jobs.job_draft = orig_draft
+
+
+class TestWebPublication(unittest.TestCase):
+    def test_full_snapshot_has_terminal_newline_without_content_change(self):
+        from distribution.schema import demo_view
+
+        snapshot = {
+            "date": "2026-10-09",
+            "snapshot_id": "test-full-snapshot",
+            "universe": 1812,
+            "candidates": [],
+            "warnings": [],
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source_dir = root / "distribution"
+            source_dir.mkdir()
+            (source_dir / "snapshot_en_latest.json").write_text(
+                json.dumps(snapshot), encoding="utf-8"
+            )
+            public_path = root / "public" / "demo_snapshot.json"
+            with (
+                patch.object(jobs, "WEB_PUBLIC_SNAPSHOT", public_path),
+                patch("distribution.snapshot_builder.EXPORT_DIR", source_dir),
+                patch.dict(
+                    os.environ,
+                    {
+                        "FINPILOT_WEB_PUBLISH_CMD": "",
+                        "FINPILOT_VERCEL_DEPLOY_HOOK_URL": "",
+                        "FINPILOT_REQUIRE_VERCEL_DEPLOY": "0",
+                    },
+                ),
+            ):
+                self.assertTrue(jobs._push_snapshot_to_web(snapshot))
+
+            content = public_path.read_bytes()
+            self.assertTrue(content.endswith(b"\n"))
+            self.assertFalse(content.endswith(b"\n\n"))
+            self.assertEqual(json.loads(content), demo_view(snapshot, max_candidates=0))
+
+    def test_commit_failure_includes_hook_stdout_and_complete_stderr(self):
+        from scripts import publish_web
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            snapshot_path = root / "web" / "public" / "demo_snapshot.json"
+            snapshot_path.parent.mkdir(parents=True)
+            snapshot_path.write_text("{}\n", encoding="utf-8")
+            hook_output = "fix end of files...Failed\nfiles were modified by this hook"
+            git_error = "line-ending warning\n" * 20 + "complete commit error"
+            results = [
+                subprocess.CompletedProcess([], 0, "", ""),
+                subprocess.CompletedProcess([], 0, "web/public/demo_snapshot.json\n", ""),
+                subprocess.CompletedProcess([], 1, hook_output, git_error),
+            ]
+            output = io.StringIO()
+            with (
+                patch.object(publish_web, "ROOT", root),
+                patch.object(publish_web, "_git", side_effect=results) as mock_git,
+                patch("sys.stderr", output),
+            ):
+                self.assertEqual(publish_web.main(), 1)
+                self.assertEqual(mock_git.call_count, 3)
+            self.assertIn(hook_output, output.getvalue())
+            self.assertIn(git_error, output.getvalue())
+
+    def test_push_failure_includes_error_after_line_ending_warnings(self):
+        from scripts import publish_web
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            snapshot_path = root / "web" / "public" / "demo_snapshot.json"
+            snapshot_path.parent.mkdir(parents=True)
+            snapshot_path.write_text("{}\n", encoding="utf-8")
+            git_error = "line-ending warning\n" * 20 + "fatal: no upstream branch"
+            results = [
+                subprocess.CompletedProcess([], 0, "", ""),
+                subprocess.CompletedProcess([], 0, "web/public/demo_snapshot.json\n", ""),
+                subprocess.CompletedProcess([], 0, "commit succeeded", ""),
+                subprocess.CompletedProcess([], 128, "push details", git_error),
+            ]
+            output = io.StringIO()
+            with (
+                patch.object(publish_web, "ROOT", root),
+                patch.object(publish_web, "_git", side_effect=results) as mock_git,
+                patch("sys.stderr", output),
+            ):
+                self.assertEqual(publish_web.main(), 1)
+                self.assertEqual(mock_git.call_count, 4)
+            self.assertIn("push details", output.getvalue())
+            self.assertIn(git_error, output.getvalue())
 
 
 class TestArchiveCheck(unittest.TestCase):

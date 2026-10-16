@@ -19,6 +19,8 @@ from typing import Any
 
 import pandas as pd
 
+from core.cache import MemoryCache
+
 try:
     import streamlit as st
 
@@ -212,7 +214,8 @@ CACHE_TTL_SECONDS = _market_aware_ttl()
 CACHE_TTL_MARKET_INDEX = CACHE_TTL_SECONDS
 
 # In-memory fallback cache for non-Streamlit usage
-_memory_cache: dict[str, tuple] = {}
+_OHLCV_CACHE_MAX_ENTRIES = 256
+_memory_cache = MemoryCache(max_size=_OHLCV_CACHE_MAX_ENTRIES, default_ttl=CACHE_TTL_SECONDS)
 
 
 # ============================================
@@ -349,23 +352,27 @@ def _cache_data(ttl_seconds: int = CACHE_TTL_SECONDS):
         except Exception:  # noqa: BLE001
             cache_manager = None
 
-        if HAS_STREAMLIT and st is not None:
-            return st.cache_data(ttl=ttl_seconds, show_spinner=False)(func)
+        if HAS_STREAMLIT and st is not None and st.runtime.exists():
+            return st.cache_data(
+                ttl=ttl_seconds, max_entries=_OHLCV_CACHE_MAX_ENTRIES, show_spinner=False
+            )(func)
 
         def wrapper(*args, **kwargs):
             key = f"finpilot:ohlcv:{func.__name__}:{args}:{sorted(kwargs.items())}"
-            now = datetime.now().timestamp()
-
-            entry = _memory_cache.get(key)
-            if entry is not None:
-                cached_time, cached_result = entry
-                if now - cached_time < ttl_seconds:
-                    return cached_result
+            _memory_cache.cleanup_expired()
+            if cache_manager is not None:
+                try:
+                    cache_manager.cleanup()
+                except Exception:  # noqa: BLE001
+                    pass
+            cached_result = _memory_cache.get(key)
+            if cached_result is not None:
+                return cached_result
 
             shared_payload = None
             if cache_manager is not None:
                 try:
-                    shared_payload = cache_manager.get(key)
+                    shared_payload = cache_manager.get(key, l2_only=True)
                 except Exception:  # noqa: BLE001
                     shared_payload = None
             if isinstance(shared_payload, dict) and "records" in shared_payload:
@@ -373,13 +380,13 @@ def _cache_data(ttl_seconds: int = CACHE_TTL_SECONDS):
                     df = pd.DataFrame(shared_payload["records"])
                     if "index" in shared_payload and shared_payload["index"]:
                         df.index = pd.to_datetime(shared_payload["index"])
-                    _memory_cache[key] = (now, df)
+                    _memory_cache.set(key, df, ttl=ttl_seconds)
                     return df
                 except Exception:  # noqa: BLE001
                     pass
 
             result = func(*args, **kwargs)
-            _memory_cache[key] = (now, result)
+            _memory_cache.set(key, result, ttl=ttl_seconds)
 
             if cache_manager is not None and isinstance(result, pd.DataFrame) and not result.empty:
                 try:
@@ -387,7 +394,7 @@ def _cache_data(ttl_seconds: int = CACHE_TTL_SECONDS):
                         "records": result.reset_index(drop=False).to_dict(orient="records"),
                         "index": [str(ix) for ix in result.index.tolist()],
                     }
-                    cache_manager.set(key, payload, ttl=ttl_seconds)
+                    cache_manager.set(key, payload, ttl=ttl_seconds, l2_only=True)
                 except Exception:  # noqa: BLE001
                     pass
 
@@ -1210,7 +1217,8 @@ def _repair_partial_alpaca_result(
         for symbol in symbols
         if not _has_sufficient_history(result.get(symbol, {}), timeframes)
     ]
-    for symbol in remaining:
+
+    def repair_symbol(symbol: str) -> None:
         try:
             fallback = fetch_multi_timeframe(
                 symbol,
@@ -1229,6 +1237,11 @@ def _repair_partial_alpaca_result(
                     result[symbol][interval] = candidate
         except Exception:
             logger.debug("Selective yfinance repair failed for %s", symbol, exc_info=True)
+
+    if remaining:
+        with timer("prefetch.symbol_repair", count=len(remaining), path="symbol_yfinance"):
+            with ThreadPoolExecutor(max_workers=min(4, len(remaining))) as executor:
+                list(executor.map(repair_symbol, remaining))
 
     repaired = sum(
         _has_sufficient_history(result.get(symbol, {}), timeframes) for symbol in symbols

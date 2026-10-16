@@ -560,7 +560,7 @@ def _push_snapshot_to_web(snapshot: dict | None = None) -> bool:
         public = demo_view(snap, max_candidates=len(snap.get("candidates", [])))
         WEB_PUBLIC_SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
         WEB_PUBLIC_SNAPSHOT.write_text(
-            json.dumps(public, ensure_ascii=False, indent=1), encoding="utf-8"
+            json.dumps(public, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
         )
         # Optional: external publish hook (e.g. copy into the Vercel repo /
         # rclone to R2). Configured by ops, not by code. shell=False + shlex
