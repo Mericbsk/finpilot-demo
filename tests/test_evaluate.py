@@ -178,6 +178,10 @@ class TestEvaluateSymbol:
             "feature_timestamps",
             "feature_age_minutes",
             "data_quality",
+            "dist_52w_high",
+            "gap_pct",
+            "rvol_daily",
+            "squeeze_factor",
         ]:
             assert key in result, f"Missing key: {key}"
 

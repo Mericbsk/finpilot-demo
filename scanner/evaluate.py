@@ -14,6 +14,7 @@ from typing import Any
 
 import pandas as pd
 
+from . import instrumentation as _instrumentation
 from .config import DELISTED_SYMBOLS_SET, get_setting
 from .data_fetcher import (
     fetch_multi_timeframe,
@@ -601,16 +602,25 @@ def evaluate_symbol(
         alpha_gap = 0.0
         alpha_rvol = 0.0
         alpha_ext = 0.0
+        dist_52w_high = 0.0
+        gap_pct = 0.0
+        rvol_daily = 0.0
         try:
             from scanner.features import (
+                compute_dist_52w_high,
                 compute_extension_factor,
                 compute_gap_factor,
+                compute_gap_pct,
+                compute_rvol_daily,
                 compute_rvol_factor,
             )
 
             alpha_gap = compute_gap_factor(df_1d)
             alpha_rvol = compute_rvol_factor(df_1d)
             alpha_ext = compute_extension_factor(df_1d)
+            dist_52w_high = compute_dist_52w_high(df_1d)
+            gap_pct = compute_gap_pct(df_1d)
+            rvol_daily = compute_rvol_daily(df_1d)
         except Exception:
             pass
 
@@ -811,6 +821,10 @@ def evaluate_symbol(
             "vol_regime": vol_regime_val,
             "lottery_factor": round(lottery_factor, 4),
             "overnight_gap_factor": round(overnight_gap_factor, 4),
+            "dist_52w_high": round(float(dist_52w_high), 4),
+            "gap_pct": round(float(gap_pct), 4),
+            "rvol_daily": round(float(rvol_daily), 4),
+            "squeeze_factor": round(float(squeeze_factor), 4),
             "composite_score": _composite_score,
             "conviction_tier": _conv_tier,
             "conviction_prob": round(float(_conv_prob), 3),
@@ -905,6 +919,11 @@ def evaluate_symbols_parallel(
             logger.warning("Prefetch phase timed out — continuing with partial data")
             all_data = {}
 
+        # NOT (2026-09-22): gun ici kapsam olcumu BURADA DEGIL,
+        # data_fetcher._note_intraday_coverage() icinde — prefetch'in uc donus
+        # yolunun hepsinde cagriliyor. Burada ikinci kez cagirmak golgeleme
+        # hatasi yaratiyordu, kaldirildi.
+
         total_done = 0
 
         # Parallel evaluation: evaluate_symbol is CPU-light after prefetch (pure pandas),
@@ -945,4 +964,7 @@ def evaluate_symbols_parallel(
                 logger.warning("Evaluate error for %s: %s", symbol, e)
 
     logger.info("evaluate_symbols_parallel complete: %d/%d results", len(results), total)
+    # Level B observability only: persist already-computed baseline inputs.
+    # No-op unless FINPILOT_INSTRUMENT_BASELINE=1; never alters results.
+    _instrumentation.emit_baseline_inputs(results, scan_basis="EOD")
     return results

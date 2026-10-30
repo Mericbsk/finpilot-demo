@@ -15,8 +15,17 @@ Kullanım (repo kökünden):
   python refresh_price_cache.py --control 3000   # + 3000 kontrol sembolü (kota tüketir)
   python refresh_price_cache.py --report-only    # fetch YOK, yalnız kapsama raporu
   python refresh_price_cache.py --from 2026-05-01 --sleep 0.15
+  python refresh_price_cache.py --shortlist                      # + en yeni data/shortlists/*.csv sembolleri
+  python refresh_price_cache.py --shortlist data/shortlists/shortlist_20260814_1157.csv
 
 Ağ yoksa/anahtar yoksa fetch atlanır; --report-only her zaman çalışır.
+
+--shortlist: varsayılan kapsam (gölge defteri eligible + benchmark, ~93 sembol) canlı
+shortlist CSV'lerindeki sembolleri İÇERMEZ (ayrı bir evren — bkz. decision-log
+2026-08-14 "Attention Map section 2.1" girdisi). Bu bayrak, Attention Score
+formül-eşdeğerliği doğrulaması (research/attention_score_formula_overlap_*.py)
+gibi shortlist-sembollerine ihtiyaç duyan işler için kapsamı genişletir. Değer
+verilmezse en son değiştirilen data/shortlists/*.csv otomatik seçilir.
 """
 
 from __future__ import annotations
@@ -33,6 +42,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 LEDGER = "data/shadow/scan_shadow.jsonl"
 PRICE_DIR = "data/price_cache"
+SHORTLIST_DIR = "data/shortlists"
 DEFAULT_FROM = "2026-05-01"  # ATR-14 lookback + Temmuz sinyalleri için yeterli taban
 HORIZON = 5
 
@@ -100,6 +110,30 @@ def gather_symbols(include_control: bool, control_limit: int | None):
     # dedup eligible (symbol, gün)
     eligible = sorted(set(eligible))
     return eligible, sorted(symbols)
+
+
+# ---------------------------------------------------------------- shortlist (--shortlist)
+def latest_shortlist_path(directory: str = SHORTLIST_DIR) -> str | None:
+    """`directory`'deki en son değiştirilmiş shortlist CSV'sinin yolu (yoksa None)."""
+    if not os.path.isdir(directory):
+        return None
+    candidates = [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith(".csv")]
+    if not candidates:
+        return None
+    return max(candidates, key=os.path.getmtime)
+
+
+def shortlist_symbols(path: str) -> set[str]:
+    """Bir shortlist CSV'sindeki benzersiz, boş-olmayan `symbol` değerlerini döndür."""
+    import csv
+
+    symbols: set[str] = set()
+    with open(path, encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            sym = (row.get("symbol") or "").strip()
+            if sym:
+                symbols.add(sym)
+    return symbols
 
 
 # ---------------------------------------------------------------- cache I/O
@@ -220,6 +254,17 @@ def main():
     )
     ap.add_argument("--sleep", type=float, default=0.12, help="İstekler arası bekleme (rate-limit)")
     ap.add_argument("--force", action="store_true", help="Güncel olsa bile yeniden çek")
+    ap.add_argument(
+        "--shortlist",
+        nargs="?",
+        const="latest",
+        default=None,
+        metavar="PATH",
+        help=(
+            "Kapsama bir shortlist CSV'sinin sembollerini de ekle. Yol verilmezse "
+            "data/shortlists/ altındaki en son değiştirilen .csv otomatik seçilir."
+        ),
+    )
     args = ap.parse_args()
 
     include_control = args.control > 0
@@ -228,6 +273,21 @@ def main():
         f"Eligible sinyal: {len(eligible)} | çekilecek benzersiz sembol: {len(symbols)} "
         f"(benchmark {len(BENCHMARKS)}{' + kontrol' if include_control else ''})"
     )
+
+    if args.shortlist:
+        sl_path = latest_shortlist_path() if args.shortlist == "latest" else args.shortlist
+        if not sl_path or not os.path.exists(sl_path):
+            print(
+                f"UYARI: --shortlist dosyası bulunamadı ({args.shortlist!r}) — kapsam genişletilmedi."
+            )
+        else:
+            sl_syms = shortlist_symbols(sl_path)
+            before_n = len(symbols)
+            symbols = sorted(set(symbols) | sl_syms)
+            print(
+                f"Shortlist eklendi: {sl_path} ({len(sl_syms)} sembol, "
+                f"{len(symbols) - before_n} yeni, {len(symbols)} toplam)"
+            )
 
     print("\n=== ÖNCE: kapsama ===")
     before = coverage_report(eligible)
@@ -250,7 +310,7 @@ def main():
         return
 
     today = date.today().isoformat()
-    ok = fail = skip = added_total = 0
+    fetched = empty = fail = skip = added_total = 0
     for i, sym in enumerate(symbols, 1):
         bars = load_cache(sym)
         ld = last_date(bars)
@@ -271,14 +331,22 @@ def main():
             time.sleep(1.5 * (attempt + 1))
         if new is None:
             fail += 1
+        elif not new:
+            empty += 1
         else:
             added_total += merge_cache(sym, new)
-            ok += 1
+            fetched += 1
         if i % 50 == 0:
-            print(f"  ... {i}/{len(symbols)} (ok={ok} fail={fail} skip={skip})")
+            print(
+                f"  ... {i}/{len(symbols)} "
+                f"(fetched={fetched} empty={empty} fail={fail} skip={skip})"
+            )
         time.sleep(args.sleep)
 
-    print(f"\nFetch bitti: ok={ok} fail={fail} skip={skip} | eklenen bar={added_total}")
+    print(
+        f"\nFetch bitti: fetched={fetched} empty={empty} fail={fail} skip={skip} "
+        f"| eklenen bar={added_total}"
+    )
 
     print("\n=== SONRA: kapsama ===")
     after = coverage_report(eligible)
