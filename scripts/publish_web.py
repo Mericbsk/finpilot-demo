@@ -48,12 +48,18 @@ def main() -> int:
     msg = f"chore(web): daily snapshot {date.today().isoformat()}"
     c = _git("commit", "-m", msg, "--", *existing)
     if c.returncode != 0:
-        print(f"publish_web: commit hatası: {c.stderr.strip()[:160]}", file=sys.stderr)
+        print(
+            f"publish_web: commit hatası (exit {c.returncode}):\n"
+            f"{c.stdout.strip()}\n{c.stderr.strip()}",
+            file=sys.stderr,
+        )
         return 1
     pushr = _git("push")
     if pushr.returncode != 0:
         print(
-            f"publish_web: PUSH HATASI (kimlik/ağ?): {pushr.stderr.strip()[:200]}", file=sys.stderr
+            f"publish_web: PUSH HATASI (exit {pushr.returncode}):\n"
+            f"{pushr.stdout.strip()}\n{pushr.stderr.strip()}",
+            file=sys.stderr,
         )
         return 1
     print(f"publish_web: pushed → Vercel deploy tetiklendi ({msg})")
