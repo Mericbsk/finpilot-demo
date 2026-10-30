@@ -546,24 +546,26 @@ class CacheManager:
         self._l1_ttl = memory_ttl
         self._l2_ttl = redis_ttl
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Any = None, *, l2_only: bool = False) -> Any:
         """
         Get value from cache.
 
         Checks L1 first, then L2. If found in L2 but not L1,
-        promotes to L1.
+        promotes to L1 unless l2_only is requested.
         """
         # Check L1
-        value = self._l1.get(key)
-        if value is not None:
-            return value
+        if not l2_only:
+            value = self._l1.get(key)
+            if value is not None:
+                return value
 
         # Check L2
         if self._l2 and self._l2.is_connected:
             value = self._l2.get(key)
             if value is not None:
                 # Promote to L1
-                self._l1.set(key, value)
+                if not l2_only:
+                    self._l1.set(key, value)
                 return value
 
         return default

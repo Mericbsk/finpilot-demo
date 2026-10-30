@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import threading
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
@@ -62,6 +63,185 @@ def test_stage_timing_records_error_outcome(monkeypatch):
         pass
 
     assert performance.snapshot()[0]["outcome"] == "error"
+
+
+def test_local_ohlcv_cache_releases_expired_other_keys(monkeypatch):
+    from core.cache import MemoryCache
+
+    monkeypatch.setattr(data_fetcher, "HAS_STREAMLIT", False)
+    monkeypatch.setattr(data_fetcher, "_memory_cache", MemoryCache(max_size=256))
+    monkeypatch.setattr("core.cache.cache_manager", None)
+    clock = [100.0]
+    monkeypatch.setattr("core.cache.time.time", lambda: clock[0])
+
+    @data_fetcher._cache_data(ttl_seconds=10)
+    def cached_frame(symbol):
+        return pd.DataFrame({"Close": [1.0]})
+
+    cached_frame("EXPIRED")
+    clock[0] += 11
+    cached_frame("FRESH")
+
+    assert data_fetcher._memory_cache.get_stats()["size"] == 1
+    assert "FRESH" in next(iter(data_fetcher._memory_cache._cache))
+
+
+def test_ohlcv_cache_releases_expired_shared_payloads(monkeypatch):
+    from core.cache import CacheManager, MemoryCache
+
+    shared_cache = CacheManager(memory_max_size=3)
+    monkeypatch.setattr(data_fetcher, "HAS_STREAMLIT", False)
+    monkeypatch.setattr(data_fetcher, "_memory_cache", MemoryCache(max_size=2))
+    monkeypatch.setattr("core.cache.cache_manager", shared_cache)
+    clock = [100.0]
+    monkeypatch.setattr("core.cache.time.time", lambda: clock[0])
+    shared_cache.set("EXPIRED_OTHER", {"records": [{"Close": 1.0}]}, ttl=10)
+    shared_cache.set("UNRELATED_ACTIVE", 7, ttl=60)
+
+    @data_fetcher._cache_data(ttl_seconds=10)
+    def cached_frame(symbol):
+        return pd.DataFrame({"Close": [1.0]})
+
+    cached_frame("EXPIRED")
+    clock[0] += 11
+    cached_frame("FRESH")
+
+    assert data_fetcher._memory_cache.get_stats()["size"] == 1
+    assert shared_cache.get_stats()["l1"]["size"] == 1
+    assert shared_cache.get("UNRELATED_ACTIVE") == 7
+
+
+def test_api_ohlcv_cache_uses_redis_without_shared_l1_copies(monkeypatch):
+    from core.cache import CacheManager, MemoryCache
+
+    shared_cache = CacheManager()
+    remote_payloads = {}
+
+    def store_payload(key, value, ttl):
+        remote_payloads[key] = value
+        return True
+
+    monkeypatch.setattr(
+        shared_cache,
+        "_l2",
+        SimpleNamespace(is_connected=True, get=remote_payloads.get, set=store_payload),
+    )
+    monkeypatch.setattr(data_fetcher, "HAS_STREAMLIT", False)
+    monkeypatch.setattr(data_fetcher, "_memory_cache", MemoryCache(max_size=2))
+    monkeypatch.setattr("core.cache.cache_manager", shared_cache)
+    calls = []
+
+    @data_fetcher._cache_data(ttl_seconds=60)
+    def cached_frame(symbol):
+        calls.append(symbol)
+        return pd.DataFrame({"Close": [1.0]}, index=pd.date_range("2026-01-01", periods=1))
+
+    assert cached_frame("FIXTURE")["Close"].tolist() == [1.0]
+    assert shared_cache._l1.get_stats()["size"] == 0
+    assert len(remote_payloads) == 1
+
+    data_fetcher._memory_cache.clear()
+    assert cached_frame("FIXTURE")["Close"].tolist() == [1.0]
+    assert calls == ["FIXTURE"]
+    assert shared_cache._l1.get_stats()["size"] == 0
+    cache_key = next(iter(remote_payloads))
+    assert shared_cache.get(cache_key) is remote_payloads[cache_key]
+    assert shared_cache._l1.get_stats()["size"] == 1
+    shared_cache._l1.set(cache_key, {"local_only": True})
+    assert shared_cache.get(cache_key, l2_only=True) is remote_payloads[cache_key]
+    assert shared_cache.get("MISSING", default="fallback", l2_only=True) == "fallback"
+
+
+def test_api_ohlcv_cache_does_not_use_streamlit_without_runtime(monkeypatch):
+    from core.cache import MemoryCache
+
+    monkeypatch.setattr(data_fetcher, "HAS_STREAMLIT", True)
+    monkeypatch.setattr(data_fetcher, "_memory_cache", MemoryCache(max_size=2))
+    monkeypatch.setattr("core.cache.cache_manager", None)
+    monkeypatch.setattr(
+        data_fetcher,
+        "st",
+        SimpleNamespace(
+            runtime=SimpleNamespace(exists=lambda: False),
+            cache_data=lambda **kwargs: pytest.fail("API selected Streamlit cache"),
+        ),
+    )
+    calls = []
+
+    @data_fetcher._cache_data(ttl_seconds=60)
+    def cached_frame(symbol):
+        calls.append(symbol)
+        return pd.DataFrame({"Close": [1.0]})
+
+    cached_frame("FIRST")
+    cached_frame("FIRST")
+    cached_frame("SECOND")
+    cached_frame("THIRD")
+
+    assert calls == ["FIRST", "SECOND", "THIRD"]
+    assert data_fetcher._memory_cache.get_stats()["size"] == 2
+
+
+def test_ui_ohlcv_cache_keeps_streamlit_with_bounded_entries(monkeypatch):
+    options = {}
+
+    def streamlit_cache(**kwargs):
+        options.update(kwargs)
+        return lambda function: function
+
+    monkeypatch.setattr(data_fetcher, "HAS_STREAMLIT", True)
+    monkeypatch.setattr(
+        data_fetcher,
+        "st",
+        SimpleNamespace(runtime=SimpleNamespace(exists=lambda: True), cache_data=streamlit_cache),
+    )
+
+    @data_fetcher._cache_data(ttl_seconds=60)
+    def cached_frame(symbol):
+        return pd.DataFrame({"Close": [1.0]})
+
+    assert not cached_frame("FIRST").empty
+    assert options == {"ttl": 60, "max_entries": 256, "show_spinner": False}
+
+
+@pytest.mark.parametrize("missing_count", [2, 8])
+def test_partial_alpaca_symbol_repair_is_bounded_and_preserves_frames(monkeypatch, missing_count):
+    frame = pd.DataFrame({"Close": [1.0, 2.0]})
+    missing = [f"FIXTURE{index}" for index in range(missing_count)]
+    result = {symbol: {"1d": pd.DataFrame(), "4h": pd.DataFrame()} for symbol in missing}
+    result["UNCHANGED"] = {"1d": frame.copy(), "4h": frame.copy()}
+    monkeypatch.setattr(data_fetcher, "MIN_HISTORY_BARS", {"1d": 2, "4h": 2})
+    monkeypatch.setattr(data_fetcher, "eodhd_bars_enabled", lambda: False)
+    monkeypatch.setattr(data_fetcher, "_bulk_yf_download", lambda *args, **kwargs: {})
+    barrier = threading.Barrier(min(4, missing_count))
+    lock = threading.Lock()
+    active = 0
+    peak = 0
+    calls = []
+
+    def fetch_frames(symbol, **kwargs):
+        nonlocal active, peak
+        with lock:
+            active += 1
+            peak = max(peak, active)
+            calls.append(symbol)
+        try:
+            barrier.wait(timeout=2)
+            return {"1d": frame.copy(), "4h": frame.copy()}
+        finally:
+            with lock:
+                active -= 1
+
+    monkeypatch.setattr(data_fetcher, "fetch_multi_timeframe", fetch_frames)
+    repaired = data_fetcher._repair_partial_alpaca_result(
+        list(result), [("1d", 5), ("4h", 5)], result, False
+    )
+
+    assert peak == min(4, missing_count)
+    assert sorted(calls) == missing
+    for frames in repaired.values():
+        for interval in ("1d", "4h"):
+            pd.testing.assert_frame_equal(frames[interval], frame)
 
 
 def test_bulk_yfinance_call_is_counted_separately(monkeypatch):
