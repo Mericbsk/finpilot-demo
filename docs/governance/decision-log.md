@@ -2,6 +2,19 @@
 
 _CLAUDE.md Bölüm 3 formatı: her önemli karar buraya, dağınık dosyalara gömülmez._
 
+[2026-10-30] - Local topic-branch preparation and verification; remote release remains held
+Layer: Engineering / Git traceability and research evidence; no product rule changed.
+Level: A - local review-branch preparation and factual validation only. Scanner/distribution changes remain Level B candidates; push, publication, and deployment remain Level C.
+Context: Meriç requested that pending commits be separated into review topics and tested before any push. The dirty source worktree at `review/pending-2026-10-07` / `93ae83c` was preserved. `origin/main` was `a242b068` at the start of this work. The current D2/release authorization remains unresolved.
+Change: The mixed `b780b10` candidate remains split into source/test (`ab18d28`), research (`c17721c`), and evidence (`a9a217a`) review branches. Additional local candidates include scanner cache/repair (`5336315`), distribution publication diagnostics (`def072d`), and the combined code-only branch (`eee84bd`). The read-only audit helper (`14e25f6`) and scanner rollout documentation (`aa118bf`) remain separate. `e0e7b38` and `3afa3f7` were not replayed: their decision-log changes depend on 1,702 lines absent from the clean topic bases; `3afa3f7` also revises `DURUM.md` priorities and is held for governance review. Six SHA-constant research scripts, the B2 manual JSON, and `.secrets.baseline` remain held; no detector was bypassed.
+Evidence: Combined scanner/baseline/distribution/ops selection on `review/scanner-distribution-integration-20261030` at `eee84bd`: 130 passed, 0 failed, 5 dependency deprecation warnings. All configured hooks passed for its exact 31-file diff. The read-only audit suite passed 7/7; scanner rollout/docs selection passed 81/81 with documentation hooks passing. Prior isolated topic results remain on their respective branches.
+Finding: P0 authority mismatch remains unresolved. `docs/INDEX.md` names `LAUNCH_CHECKLIST.md` as the launch-status authority, while `DURUM.md` describes itself as the sole status map. No side was selected and no authority change was applied.
+Impact: No push, merge to `main`, live restart, scan request, coordinator activation, publication, deployment, runtime-data mutation, secret inspection, or user-worktree cleanup. Candidate changes remain local and unapproved for release.
+Owner: Meriç for governance disposition and any Level B/C approval; GitHub Copilot for isolated local review and factual test reporting.
+Target: Local review branches listed above and this receipt. This entry records preparation only; it does not approve any code, research result, status change, or release.
+Status: applied - local review and test evidence recorded; remote publication and live operations NOT RUN.
+
+[2026-08-13] — FinPilot/Finsense repo ve doküman hijyeni denetimi tamamlandı ve bağımsız doğrulandı (Level A; migration pending — Meriç onayı bekliyor)
 [2026-08-13] — FinPilot/Finsense repo ve doküman hijyeni denetimi tamamlandı ve bağımsız doğrulandı (Level A; migration pending — Meriç onayı bekliyor)
 Layer: Governance / Engineering / Content / Research
 Level: A (salt-okunur audit ve öneri); önerilen taşıma/rename Level B, silme/geri-dönüşsüz işlem Level C
