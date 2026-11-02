@@ -862,3 +862,16 @@ Impact: Uretim davranisi degismedi. Bu bir icerik paketleme calismasidir;
 yayin karari Meric'e aittir. Gelir potansiyeli: dusuk-orta (icerik satisi),
 yuksek (danismanlik hunisi girisi).
 Status: applied - content packaging; publishing decision pending Meric.
+
+---
+
+[2026-11-02] - Narrow ignore coverage for confirmed runtime outputs
+Layer: Engineering / repository runtime-artifact hygiene (Layer 5). Existing runtime-data rule unchanged.
+Level: A - applying the existing YONERGE.md runtime-data non-commit rule; no product, scanner, publication, or release rule changed.
+Context: During the requested worktree inventory, the source review worktree contained 790 pending paths. 567 entries were under `data/price_cache_signal_eval_2026-10-23/`; known generated paths under `data/distribution/partial_snapshots/`, `data/distribution/previews/`, and root Redis backup archives were also present. These are runtime/cache/preview/backup outputs, not source. YONERGE.md §§0-1 says runtime data must not be committed.
+Change (before/after): Before, these paths appeared as untracked status entries. After, `.gitignore` adds only `data/price_cache_signal_eval_*/`, `data/distribution/partial_snapshots/`, `data/distribution/previews/`, and `redis-backup-*.tar.gz`. No files were deleted, extracted, modified, or added to the index; no broad `data/` rule was introduced.
+Evidence: In the source worktree, status entries fell from 790 to 217 after these rules. `git check-ignore -v` matched representative paths; all configured pre-commit hooks passed for `.gitignore`. Existing tracked runtime files remain tracked and visible if modified.
+Impact: Reduces untracked runtime noise without changing application, scan, or publication behavior. It does not establish a clean release worktree or resolve tracked-cache diffs, D2, or publication blockers.
+Owner: Meriç for review; GitHub Copilot for the isolated change and validation.
+Target: `.gitignore`, `docs/governance/decision-log.md`, branch `review/runtime-artifact-ignore-20261102`.
+Status: applied on isolated review branch; no merge to main or production publication.
