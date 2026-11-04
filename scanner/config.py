@@ -32,6 +32,11 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "max_signal_alerts": 3,  # Max alerts per run
     "auto_adjust": True,  # Dividend/split adjusted prices
     "prepost": False,  # Include pre/after-hours
+    "alpaca_daily_feed": "sip",
+    "alpaca_intraday_feed": "iex",
+    "alpaca_bar_adjustment": "all",
+    "earnings_blackout_days_before": 7,
+    "earnings_blackout_days_after": 1,
     # Momentum analysis settings
     "momentum_windows": [1, 3, 5],
     "momentum_baseline_window": 60,

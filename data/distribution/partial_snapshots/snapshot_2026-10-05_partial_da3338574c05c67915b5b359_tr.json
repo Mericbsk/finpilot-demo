@@ -1,0 +1,476 @@
+{
+ "schema": 2,
+ "snapshot_id": "d5bab2fad1ccaec33090c808",
+ "candidate_hash": "a77922dd7b1023054b9328cd168c0fc05c69d3599cd825347a032ae353befcfa",
+ "scan_id": "da3338574c05c67915b5b359",
+ "date": "2026-10-05",
+ "generated_at": "2026-10-05T15:29:44.179299+00:00",
+ "config_sha": "517df7e93855@e0e7b38",
+ "universe": 1812,
+ "scan_result_count": 1601,
+ "eligible_candidate_count": 2,
+ "candidates": [
+  {
+   "ticker": "ON",
+   "company": "ON Semiconductor Corporation",
+   "grade": "B",
+   "prob_band": "~60%",
+   "badges": [
+    "rvol",
+    "gap",
+    "momentum"
+   ],
+   "rationale": "ON bugünkü taramada öne çıktı. Nedeni şu: göreli hacim yüksek — hissenin sıradan bir gününe göre çok daha fazla el değiştirme var. Ayrıca seans dışı gelişmeler fiyatı açılışta yukarı taşıdı; bu tür açılışlar artan ilginin göstergesi olabilir. Üstelik son seansların yönü yukarı — fiyat, satış baskısından çok talebin kontrolünde görünüyor. Hacim, açılış ve momentumun aynı tabloda buluşması, ilginin seans dışında başlayıp işlem aktivitesiyle sürdüğünü düşündürüyor; gap'in kalıcılığı henüz açık soru. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+   "premium_only": false,
+   "risk_note": "gapli açılışlar kısmen geri dolabilir — ilk saatler yanıltıcı olabilir",
+   "factor_detail": {
+    "conviction_prob": "0.59",
+    "squeeze_factor": "0.365",
+    "price": "84.88"
+   },
+   "metrics": {
+    "price": "84.88",
+    "risk_reward": "3.33",
+    "stop_loss": "80.23",
+    "take_profit": "100.36",
+    "stop_loss_percent": "5.47",
+    "conviction_prob": "0.59",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": "11.77",
+    "volume_multiple": "2.59",
+    "ema_gap_pct": "-1.18"
+   },
+   "rationale_i18n": {
+    "tr": "ON bugünkü taramada öne çıktı. Nedeni şu: göreli hacim yüksek — hissenin sıradan bir gününe göre çok daha fazla el değiştirme var. Ayrıca seans dışı gelişmeler fiyatı açılışta yukarı taşıdı; bu tür açılışlar artan ilginin göstergesi olabilir. Üstelik son seansların yönü yukarı — fiyat, satış baskısından çok talebin kontrolünde görünüyor. Hacim, açılış ve momentumun aynı tabloda buluşması, ilginin seans dışında başlayıp işlem aktivitesiyle sürdüğünü düşündürüyor; gap'in kalıcılığı henüz açık soru. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+    "en": "ON stood out in today's scan. The reason: relative volume is high — far more shares are changing hands than on an ordinary day for this stock. Also, overnight developments carried the price up at the open; openings like this can indicate growing interest. On top of that, recent sessions point upward — price looks driven by demand rather than selling pressure. Volume, the open and momentum appearing together suggest interest began outside the session and continued through trading activity; whether the gap holds remains open. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
+    "de": "ON stach im heutigen Scan hervor. Der Grund: das relative Volumen ist hoch — es wechseln weit mehr Aktien den Besitzer als an einem gewöhnlichen Tag. Außerdem: Entwicklungen außerhalb der Handelszeit trugen den Kurs zur Eröffnung nach oben; solche Eröffnungen können auf wachsendes Interesse hindeuten. Zudem: die letzten Sitzungen weisen nach oben — der Kurs wirkt eher von Nachfrage als von Verkaufsdruck getragen. Dass Volumen, Eröffnung und Momentum zusammen auftreten, deutet darauf hin, dass das Interesse außerhalb der Sitzung begann und sich im Handel fortsetzte; ob das Gap hält, bleibt offen. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
+   },
+   "risk_note_i18n": {
+    "tr": "gapli açılışlar kısmen geri dolabilir — ilk saatler yanıltıcı olabilir",
+    "en": "gapped opens can partially fill — the first hours may mislead",
+    "de": "Gap-Eröffnungen können sich teilweise schließen — die ersten Stunden können täuschen"
+   }
+  },
+  {
+   "ticker": "S",
+   "company": "SentinelOne, Inc.",
+   "grade": "C",
+   "prob_band": "~50%",
+   "badges": [
+    "rvol",
+    "gap",
+    "momentum"
+   ],
+   "rationale": "S, erken aşamada bir aday olarak listede. Öne çıkaran etkenler açık: işlem aktivitesi ortalamanın üstünde seyrediyor; artan ilgi çoğu zaman fiyattan önce hacimde görünür. Bir başka detay: güne önceki kapanışın belirgin üzerinde başladı — gece boyunca biriken talebin işareti. Ayrıca fiyat eğilimi kısa vadede diri; ivmenin korunup korunmadığı önümüzdeki günlerde netleşecek. Hacim, açılış ve momentumun aynı tabloda buluşması, ilginin seans dışında başlayıp işlem aktivitesiyle sürdüğünü düşündürüyor; gap'in kalıcılığı henüz açık soru. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+   "premium_only": false,
+   "risk_note": "açılış boşluğu her zaman kalıcı değildir; gün içi geri çekilme olağandır",
+   "factor_detail": {
+    "conviction_prob": "0.52",
+    "squeeze_factor": "0.2093",
+    "price": "25.05"
+   },
+   "metrics": {
+    "price": "25.05",
+    "risk_reward": "3.33",
+    "stop_loss": "23.81",
+    "take_profit": "29.19",
+    "stop_loss_percent": "4.96",
+    "conviction_prob": "0.52",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": "7.4",
+    "volume_multiple": "1.29",
+    "ema_gap_pct": "19.67"
+   },
+   "rationale_i18n": {
+    "tr": "S, erken aşamada bir aday olarak listede. Öne çıkaran etkenler açık: işlem aktivitesi ortalamanın üstünde seyrediyor; artan ilgi çoğu zaman fiyattan önce hacimde görünür. Bir başka detay: güne önceki kapanışın belirgin üzerinde başladı — gece boyunca biriken talebin işareti. Ayrıca fiyat eğilimi kısa vadede diri; ivmenin korunup korunmadığı önümüzdeki günlerde netleşecek. Hacim, açılış ve momentumun aynı tabloda buluşması, ilginin seans dışında başlayıp işlem aktivitesiyle sürdüğünü düşündürüyor; gap'in kalıcılığı henüz açık soru. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+    "en": "S is on the list as an early-stage candidate. What puts it there is clear: trading activity sits above average; growing interest usually shows up in volume before it shows up in price. Another detail: it opened well above the prior close — a sign of demand that built up overnight. Also, the short-term price trend is lively; whether the momentum holds will become clear over the coming days. Volume, the open and momentum appearing together suggest interest began outside the session and continued through trading activity; whether the gap holds remains open. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
+    "de": "S steht als Kandidat im Frühstadium auf der Liste. Was es dorthin bringt, ist klar: die Handelsaktivität liegt über dem Durchschnitt; wachsendes Interesse zeigt sich meist zuerst im Volumen, dann im Kurs. Ein weiteres Detail: die Aktie eröffnete deutlich über dem Vortagesschluss — ein Zeichen für über Nacht aufgebaute Nachfrage. Außerdem: der kurzfristige Kurstrend ist lebhaft; ob das Momentum hält, zeigt sich in den kommenden Tagen. Dass Volumen, Eröffnung und Momentum zusammen auftreten, deutet darauf hin, dass das Interesse außerhalb der Sitzung begann und sich im Handel fortsetzte; ob das Gap hält, bleibt offen. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
+   },
+   "risk_note_i18n": {
+    "tr": "açılış boşluğu her zaman kalıcı değildir; gün içi geri çekilme olağandır",
+    "en": "opening gaps are not always durable; intraday give-backs are common",
+    "de": "Eröffnungslücken sind nicht immer beständig; Rücksetzer im Tagesverlauf sind normal"
+   }
+  }
+ ],
+ "web_context": [
+  {
+   "ticker": "ACOG",
+   "company": "Alpha Cognition Inc.",
+   "public_status": "scan_context",
+   "rank": 1,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "gap",
+    "momentum"
+   ],
+   "rationale": "ACOG sits near the top of today's scan. Three-day momentum is upward (+6.04%) and volume is 2.60x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "ACOG, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+6.04%) ve hacim kendi ortalamasının 2.60 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "ACOG sits near the top of today's scan. Three-day momentum is upward (+6.04%) and volume is 2.60x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "9.22",
+    "risk_reward": "3.33",
+    "stop_loss": "8.74",
+    "take_profit": "10.82",
+    "stop_loss_percent": "5.21",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "72.152",
+    "legacy_quality_score": "72.152",
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": "6.04",
+    "volume_multiple": "2.6",
+    "ema_gap_pct": "18.12"
+   }
+  },
+  {
+   "ticker": "OUST",
+   "company": "Ouster, Inc.",
+   "public_status": "scan_context",
+   "rank": 2,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "gap",
+    "momentum"
+   ],
+   "rationale": "OUST sits near the top of today's scan. Three-day momentum is mixed (+11.08%) and volume is 1.83x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "OUST, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+11.08%) ve hacim kendi ortalamasının 1.83 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "OUST sits near the top of today's scan. Three-day momentum is mixed (+11.08%) and volume is 1.83x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "44.365",
+    "risk_reward": "3.33",
+    "stop_loss": "41.45",
+    "take_profit": "54.09",
+    "stop_loss_percent": "6.58",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "68.92",
+    "legacy_quality_score": "68.92",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": "11.08",
+    "volume_multiple": "1.83",
+    "ema_gap_pct": "14.23"
+   }
+  },
+  {
+   "ticker": "IBRX",
+   "company": "ImmunityBio, Inc.",
+   "public_status": "scan_context",
+   "rank": 3,
+   "prob_band": "—",
+   "badges": [
+    "squeeze",
+    "rvol",
+    "gap",
+    "momentum"
+   ],
+   "rationale": "IBRX sits near the top of today's scan. Three-day momentum is upward (+16.53%) and volume is 1.84x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "IBRX, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+16.53%) ve hacim kendi ortalamasının 1.84 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "IBRX sits near the top of today's scan. Three-day momentum is upward (+16.53%) and volume is 1.84x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "10.29",
+    "risk_reward": "3.33",
+    "stop_loss": "9.59",
+    "take_profit": "12.63",
+    "stop_loss_percent": "6.81",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "67.608",
+    "legacy_quality_score": "67.608",
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": "16.53",
+    "volume_multiple": "1.84",
+    "ema_gap_pct": "18.56"
+   }
+  },
+  {
+   "ticker": "NNBR",
+   "company": "NN, Inc.",
+   "public_status": "scan_context",
+   "rank": 4,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "gap",
+    "momentum"
+   ],
+   "rationale": "NNBR sits near the top of today's scan. Three-day momentum is upward (+15.72%) and volume is 3.34x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "NNBR, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yukarı (+15.72%) ve hacim kendi ortalamasının 3.34 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "NNBR sits near the top of today's scan. Three-day momentum is upward (+15.72%) and volume is 3.34x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "4.49",
+    "risk_reward": "3.33",
+    "stop_loss": "4.12",
+    "take_profit": "5.71",
+    "stop_loss_percent": "8.13",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "67.316",
+    "legacy_quality_score": "67.316",
+    "momentum_bias": "bullish",
+    "momentum_3d_pct": "15.72",
+    "volume_multiple": "3.34",
+    "ema_gap_pct": "30.75"
+   }
+  },
+  {
+   "ticker": "QRVO",
+   "company": "Qorvo, Inc.",
+   "public_status": "scan_context",
+   "rank": 5,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "momentum"
+   ],
+   "rationale": "QRVO sits near the top of today's scan. Three-day momentum is mixed (-2.11%) and volume is 2.72x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "QRVO, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-2.11%) ve hacim kendi ortalamasının 2.72 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "QRVO sits near the top of today's scan. Three-day momentum is mixed (-2.11%) and volume is 2.72x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "114.25",
+    "risk_reward": "4.33",
+    "stop_loss": "109.46",
+    "take_profit": "135.0",
+    "stop_loss_percent": "4.19",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "67.283",
+    "legacy_quality_score": "67.283",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": "-2.11",
+    "volume_multiple": "2.72",
+    "ema_gap_pct": "11.42"
+   }
+  },
+  {
+   "ticker": "LSCC",
+   "company": "Lattice Semiconductor Corporation",
+   "public_status": "scan_context",
+   "rank": 6,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "gap",
+    "momentum"
+   ],
+   "rationale": "LSCC sits near the top of today's scan. Three-day momentum is mixed (+6.80%) and volume is 1.84x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "LSCC, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+6.80%) ve hacim kendi ortalamasının 1.84 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "LSCC sits near the top of today's scan. Three-day momentum is mixed (+6.80%) and volume is 1.84x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "133.99",
+    "risk_reward": "3.33",
+    "stop_loss": "127.71",
+    "take_profit": "154.91",
+    "stop_loss_percent": "4.68",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "67.179",
+    "legacy_quality_score": "67.179",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": "6.8",
+    "volume_multiple": "1.84",
+    "ema_gap_pct": "7.01"
+   }
+  },
+  {
+   "ticker": "NUTX",
+   "company": "Nutex Health Inc.",
+   "public_status": "scan_context",
+   "rank": 7,
+   "prob_band": "—",
+   "badges": [
+    "squeeze",
+    "rvol",
+    "gap",
+    "momentum"
+   ],
+   "rationale": "NUTX sits near the top of today's scan. Three-day momentum is mixed (+3.74%) and volume is 3.35x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "NUTX, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+3.74%) ve hacim kendi ortalamasının 3.35 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "NUTX sits near the top of today's scan. Three-day momentum is mixed (+3.74%) and volume is 3.35x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "217.25",
+    "risk_reward": "4.33",
+    "stop_loss": "207.01",
+    "take_profit": "261.61",
+    "stop_loss_percent": "4.71",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "66.755",
+    "legacy_quality_score": "66.755",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": "3.74",
+    "volume_multiple": "3.35",
+    "ema_gap_pct": "17.67"
+   }
+  },
+  {
+   "ticker": "FRHC",
+   "company": "Freedom Holding Corp.",
+   "public_status": "scan_context",
+   "rank": 8,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "momentum"
+   ],
+   "rationale": "FRHC sits near the top of today's scan. Three-day momentum is mixed (+1.31%) and volume is 2.41x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "FRHC, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+1.31%) ve hacim kendi ortalamasının 2.41 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "FRHC sits near the top of today's scan. Three-day momentum is mixed (+1.31%) and volume is 2.41x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "172.33",
+    "risk_reward": "4.33",
+    "stop_loss": "167.51",
+    "take_profit": "193.24",
+    "stop_loss_percent": "2.8",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "65.897",
+    "legacy_quality_score": "65.897",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": "1.31",
+    "volume_multiple": "2.41",
+    "ema_gap_pct": "9.58"
+   }
+  },
+  {
+   "ticker": "GMAB",
+   "company": "Genmab A/S ADS",
+   "public_status": "scan_context",
+   "rank": 9,
+   "prob_band": "—",
+   "badges": [
+    "rvol",
+    "momentum"
+   ],
+   "rationale": "GMAB sits near the top of today's scan. Three-day momentum is mixed (-2.31%) and volume is 1.91x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "GMAB, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (-2.31%) ve hacim kendi ortalamasının 1.91 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "GMAB sits near the top of today's scan. Three-day momentum is mixed (-2.31%) and volume is 1.91x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "34.745",
+    "risk_reward": "4.33",
+    "stop_loss": "33.87",
+    "take_profit": "38.54",
+    "stop_loss_percent": "2.52",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "65.073",
+    "legacy_quality_score": "65.073",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": "-2.31",
+    "volume_multiple": "1.91",
+    "ema_gap_pct": "8.2"
+   }
+  },
+  {
+   "ticker": "CAKE",
+   "company": "Cheesecake Factory Incorporated (The)",
+   "public_status": "scan_context",
+   "rank": 10,
+   "prob_band": "—",
+   "badges": [
+    "squeeze",
+    "rvol",
+    "momentum"
+   ],
+   "rationale": "CAKE sits near the top of today's scan. Three-day momentum is mixed (+2.24%) and volume is 1.14x its own average. This is scan context, not a Grade A/B/C candidate.",
+   "rationale_i18n": {
+    "tr": "CAKE, bugünkü taramanın üst sıralarında yer alıyor. Son üç günlük momentum yatay (+2.24%) ve hacim kendi ortalamasının 1.14 katı. Bu satır tarama bağlamıdır; Grade A/B/C adayı değildir.",
+    "en": "CAKE sits near the top of today's scan. Three-day momentum is mixed (+2.24%) and volume is 1.14x its own average. This is scan context, not a Grade A/B/C candidate."
+   },
+   "premium_only": false,
+   "metrics": {
+    "price": "109.75",
+    "risk_reward": "3.33",
+    "stop_loss": "106.15",
+    "take_profit": "121.75",
+    "stop_loss_percent": "3.28",
+    "conviction_prob": "0.0",
+    "execution_confidence": "Tier 1",
+    "data_quality_tier": "Tier 1",
+    "ranking_method": "legacy_quality",
+    "ranking_score": "64.609",
+    "legacy_quality_score": "64.609",
+    "momentum_bias": "neutral",
+    "momentum_3d_pct": "2.24",
+    "volume_multiple": "1.14",
+    "ema_gap_pct": "27.24"
+   }
+  }
+ ],
+ "karne": {
+  "toplam_aday_bugun": {
+   "B": 1,
+   "C": 1
+  },
+  "by_grade": {},
+  "window": ""
+ },
+ "warnings": [
+  "karne unavailable — using daily totals only"
+ ],
+ "concept": {
+  "name": "Aşırı İşlem",
+  "line": "Gerekmeden çok işlem yapma alışkanlığı; maliyetler ve hatalar sessizce birikir."
+ },
+ "edition_no": 23,
+ "publication_scope": "partial",
+ "lang": "tr",
+ "expected_universe": 1812,
+ "requested_universe": 1612,
+ "result_coverage_pct": 88.4,
+ "requested_coverage_pct": 89.0,
+ "source_export": "scan_export_2026-10-05_partial_da3338574c05c67915b5b359.json"
+}

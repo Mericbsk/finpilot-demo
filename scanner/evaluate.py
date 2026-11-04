@@ -440,7 +440,11 @@ def evaluate_symbol(
                 is_earnings_blackout,
             )
 
-            earnings_blackout = is_earnings_blackout(symbol, days_before=2, days_after=1)
+            earnings_blackout = is_earnings_blackout(
+                symbol,
+                days_before=get_setting("earnings_blackout_days_before", 7),
+                days_after=get_setting("earnings_blackout_days_after", 1),
+            )
             earnings_prox = earnings_proximity(symbol)
             if earnings_blackout and entry_ok:
                 entry_ok = False

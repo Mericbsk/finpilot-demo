@@ -40,6 +40,7 @@ from .performance import timer
 
 # Configure module logger
 logger = logging.getLogger(__name__)
+_SIP_MIN_DELAY_MINUTES = 16
 
 # yfinance is the per-symbol FALLBACK (Alpaca is the bulk primary). Its internal
 # logger emits an ERROR line for every expected per-symbol 404 (delisted/invalid
@@ -855,6 +856,8 @@ def _prefetch_alpaca_bulk(
                 continue
 
             end_dt = datetime.now(UTC)
+            if interval == "1d":
+                end_dt -= _timedelta(minutes=_SIP_MIN_DELAY_MINUTES)
             start_dt = end_dt - _timedelta(days=days)
 
             # Dynamic limit: enough bars so ALL symbols fit in a single page
@@ -869,7 +872,11 @@ def _prefetch_alpaca_bulk(
                 timeframe=tf_obj,
                 start=start_dt,
                 end=end_dt,
-                feed="iex",
+                feed=SETTINGS.get(
+                    "alpaca_daily_feed" if interval == "1d" else "alpaca_intraday_feed",
+                    "sip" if interval == "1d" else "iex",
+                ),
+                adjustment=SETTINGS.get("alpaca_bar_adjustment", "all"),
                 limit=_limit,
             )
 

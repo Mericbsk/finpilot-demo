@@ -1,0 +1,112 @@
+{
+ "schema": 2,
+ "snapshot_id": "ad36b6ac3f3a600399220501",
+ "candidate_hash": "20e262a9a8f5c34d0a5e68e00f1063741e312a6ecb1c93c3771c4900be00e59d",
+ "scan_id": "20e262a9a8f5c34d0a5e68e0",
+ "date": "2026-11-04",
+ "generated_at": "2026-11-04T12:32:11.987115+00:00",
+ "config_sha": "809436a93ecb@943c8e0",
+ "universe": 1812,
+ "scan_result_count": 2,
+ "eligible_candidate_count": 2,
+ "candidates": [
+  {
+   "ticker": "AAA",
+   "company": "Alternative Access First Priority CLO Bond ETF",
+   "grade": "B",
+   "prob_band": "~60%",
+   "badges": [
+    "squeeze",
+    "rvol",
+    "early_tier"
+   ],
+   "rationale": "AAA makes today's list with a strong profile. Short interest is running high; in setups like this, upward moves sometimes feed on themselves. On top of that, trading volume is running clearly above its norm — the interest comes from broad participation, not a few stray orders. Adding to the picture, the signal chain strengthened step by step — which makes it less likely to be one-day noise. Staged confirmation lining up with the factors shows the signal is not resting on one measure; the next sessions still have to validate the picture. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
+   "premium_only": false,
+   "risk_note": "squeeze scenarios can produce sharp moves in either direction",
+   "factor_detail": {
+    "conviction_prob": 0.6,
+    "tier": "CONFIRM",
+    "squeeze_factor": 0.8,
+    "atr_pct": 5.0,
+    "price": 12.5
+   },
+   "metrics": {
+    "price": 12.5,
+    "conviction_prob": 0.6,
+    "execution_confidence": "Tier 1",
+    "atr_pct": 5.0
+   },
+   "rationale_i18n": {
+    "tr": "AAA bugün güçlü bir profille listede. Açığa satış oranı yüksek seyrediyor; bu tür tablolarda yukarı hareketler kimi zaman kendi kendini besler. Üstelik işlem hacmi normalinin belirgin üzerinde akıyor — ilgiyi tek tük emirler değil, geniş bir katılım oluşturuyor. Buna ek olarak sinyal zinciri adım adım güçlendi — tek günlük gürültü olma ihtimali bu yüzden daha düşük. Aşamalı teyit ile faktörlerin aynı yönde toplanması, sinyalin tek bir ölçüme dayanmadığını gösteriyor; yine de sonraki seanslar bu tabloyu doğrulamak zorunda. Şimdi izlenecek soru şu: bu tablo birkaç seans boyunca korunacak mı? Bu bir izleme adayıdır; karar ve risk yönetimi okuyucuya aittir.",
+    "en": "AAA makes today's list with a strong profile. Short interest is running high; in setups like this, upward moves sometimes feed on themselves. On top of that, trading volume is running clearly above its norm — the interest comes from broad participation, not a few stray orders. Adding to the picture, the signal chain strengthened step by step — which makes it less likely to be one-day noise. Staged confirmation lining up with the factors shows the signal is not resting on one measure; the next sessions still have to validate the picture. The question to watch now is simple: will this picture hold for several sessions? This is a watch candidate; decisions and risk management remain yours.",
+    "de": "AAA steht mit einem starken Profil auf der heutigen Liste. Die Leerverkaufsquote ist hoch; bei solchen Konstellationen nähren sich Aufwärtsbewegungen manchmal selbst. Zudem: das Handelsvolumen liegt deutlich über seinem Normalwert — das Interesse kommt aus breiter Beteiligung, nicht aus wenigen Einzelorders. Darüber hinaus: die Signalkette wurde Schritt für Schritt stärker — was ein Ein-Tages-Rauschen unwahrscheinlicher macht. Die gestufte Bestätigung zusammen mit den Faktoren zeigt, dass das Signal nicht auf einem einzigen Maß beruht; die nächsten Sitzungen müssen das Bild noch bestätigen. Dies ist ein Beobachtungskandidat; Entscheidung und Risikomanagement bleiben bei dir."
+   },
+   "risk_note_i18n": {
+    "tr": "squeeze senaryoları iki yönlü sert hareket üretebilir",
+    "en": "squeeze scenarios can produce sharp moves in either direction",
+    "de": "Squeeze-Szenarien können scharfe Bewegungen in beide Richtungen erzeugen"
+   }
+  },
+  {
+   "ticker": "BBB",
+   "company": "CYBER HORNET Trust CYBER HORNET S&P 500 and Bitcoin 75/25 Strategy ETF",
+   "grade": "C",
+   "prob_band": "~40%",
+   "badges": [
+    "squeeze",
+    "early_tier"
+   ],
+   "rationale": "BBB is on the list as an early-stage candidate. What puts it there is clear: short positions sit at eye-catching levels — a recovery could turn that pressure the other way. Another detail: the signal chain strengthened step by step — which makes it less likely to be one-day noise. Staged confirmation lining up with the factors shows the signal is not resting on one measure; the next sessions still have to validate the picture. A high-volatility candidate — it asks for careful monitoring; risk stays with the reader.",
+   "premium_only": false,
+   "risk_note": "squeeze plus high volatility: both directions can run equally fast",
+   "factor_detail": {
+    "conviction_prob": 0.4,
+    "tier": "TRIGGER",
+    "squeeze_factor": 0.6,
+    "atr_pct": 6.0,
+    "price": 10.0
+   },
+   "metrics": {
+    "price": 10.0,
+    "conviction_prob": 0.4,
+    "execution_confidence": "Tier 1",
+    "atr_pct": 6.0
+   },
+   "rationale_i18n": {
+    "tr": "BBB, erken aşamada bir aday olarak listede. Öne çıkaran etkenler açık: kısa pozisyonlar dikkat çekici seviyede birikmiş durumda — olası bir toparlanmada bu baskı tersine dönebilir. Bir başka detay: sinyal zinciri adım adım güçlendi — tek günlük gürültü olma ihtimali bu yüzden daha düşük. Aşamalı teyit ile faktörlerin aynı yönde toplanması, sinyalin tek bir ölçüme dayanmadığını gösteriyor; yine de sonraki seanslar bu tabloyu doğrulamak zorunda. Volatilitesi yüksek bir aday — temkinli izleme gerektirir; risk yönetimi okuyana aittir.",
+    "en": "BBB is on the list as an early-stage candidate. What puts it there is clear: short positions sit at eye-catching levels — a recovery could turn that pressure the other way. Another detail: the signal chain strengthened step by step — which makes it less likely to be one-day noise. Staged confirmation lining up with the factors shows the signal is not resting on one measure; the next sessions still have to validate the picture. A high-volatility candidate — it asks for careful monitoring; risk stays with the reader.",
+    "de": "BBB steht als Kandidat im Frühstadium auf der Liste. Was es dorthin bringt, ist klar: die Short-Positionen liegen auf auffälligem Niveau — eine Erholung könnte diesen Druck ins Gegenteil verkehren. Ein weiteres Detail: die Signalkette wurde Schritt für Schritt stärker — was ein Ein-Tages-Rauschen unwahrscheinlicher macht. Die gestufte Bestätigung zusammen mit den Faktoren zeigt, dass das Signal nicht auf einem einzigen Maß beruht; die nächsten Sitzungen müssen das Bild noch bestätigen. Ein Kandidat mit hoher Volatilität — er verlangt sorgfältige Beobachtung; das Risiko bleibt beim Leser."
+   },
+   "risk_note_i18n": {
+    "tr": "squeeze + yüksek volatilite: iki yön de aynı hızla işleyebilir",
+    "en": "squeeze plus high volatility: both directions can run equally fast",
+    "de": "Squeeze plus hohe Volatilität: beide Richtungen können gleich schnell laufen"
+   }
+  }
+ ],
+ "web_context": [],
+ "karne": {
+  "toplam_aday_bugun": {
+   "B": 1,
+   "C": 1
+  },
+  "by_grade": {},
+  "window": ""
+ },
+ "warnings": [
+  "karne unavailable — using daily totals only"
+ ],
+ "concept": {
+  "name": "Survivorship Bias",
+  "line": "Judging only what survived; forgetting delisted names makes results look better than they were."
+ },
+ "context_line": "Regime: neutral (VIX 17)",
+ "edition_no": 2,
+ "publication_scope": "partial",
+ "lang": "en",
+ "expected_universe": 1812,
+ "requested_universe": 3,
+ "result_coverage_pct": 0.1,
+ "requested_coverage_pct": 0.2,
+ "source_export": "scan_export_2026-11-04_partial_20e262a9a8f5c34d0a5e68e0.json"
+}

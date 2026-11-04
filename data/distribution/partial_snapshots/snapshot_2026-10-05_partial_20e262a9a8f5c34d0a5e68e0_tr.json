@@ -1,0 +1,111 @@
+{
+ "schema": 2,
+ "snapshot_id": "f39e63a7555ae46a34875588",
+ "candidate_hash": "20e262a9a8f5c34d0a5e68e00f1063741e312a6ecb1c93c3771c4900be00e59d",
+ "scan_id": "20e262a9a8f5c34d0a5e68e0",
+ "date": "2026-10-05",
+ "generated_at": "2026-10-05T15:28:45.969349+00:00",
+ "config_sha": "7ac28fbdfba0@e0e7b38",
+ "universe": 1812,
+ "scan_result_count": 2,
+ "eligible_candidate_count": 2,
+ "candidates": [
+  {
+   "ticker": "AAA",
+   "company": "Alternative Access First Priority CLO Bond ETF",
+   "grade": "B",
+   "prob_band": "~60%",
+   "badges": [
+    "squeeze",
+    "rvol",
+    "early_tier"
+   ],
+   "rationale": "AAA bugün güçlü bir profille listede. Piyasada bu hisseye karşı yüklü bir kısa pozisyon birikimi var — ani yukarı hareketlerde ek yakıt anlamına gelebilir. Ayrıca işlem hacmi normalinin belirgin üzerinde akıyor — ilgiyi tek tük emirler değil, geniş bir katılım oluşturuyor. Üstelik erken uyarı zincirimizde epey yol almış bir aday — ilk işaretten bu yana her kontrol basamağını geçti. Aşamalı teyit ile faktörlerin aynı yönde toplanması, sinyalin tek bir ölçüme dayanmadığını gösteriyor; yine de sonraki seanslar bu tabloyu doğrulamak zorunda. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+   "premium_only": false,
+   "risk_note": "short kapanışları kadar short baskısı da mümkün — iki yöne de hazırlıklı izle",
+   "factor_detail": {
+    "conviction_prob": 0.6,
+    "tier": "CONFIRM",
+    "squeeze_factor": 0.8,
+    "atr_pct": 5.0,
+    "price": 12.5
+   },
+   "metrics": {
+    "price": 12.5,
+    "conviction_prob": 0.6,
+    "execution_confidence": "Tier 1",
+    "atr_pct": 5.0
+   },
+   "rationale_i18n": {
+    "tr": "AAA bugün güçlü bir profille listede. Piyasada bu hisseye karşı yüklü bir kısa pozisyon birikimi var — ani yukarı hareketlerde ek yakıt anlamına gelebilir. Ayrıca işlem hacmi normalinin belirgin üzerinde akıyor — ilgiyi tek tük emirler değil, geniş bir katılım oluşturuyor. Üstelik erken uyarı zincirimizde epey yol almış bir aday — ilk işaretten bu yana her kontrol basamağını geçti. Aşamalı teyit ile faktörlerin aynı yönde toplanması, sinyalin tek bir ölçüme dayanmadığını gösteriyor; yine de sonraki seanslar bu tabloyu doğrulamak zorunda. Bir sonraki bölüm henüz yazılmış değil: sinyal güçlenecek mi, zayıflayacak mı? Aday statüsündedir; ne yapılacağına her zaman okuyan karar verir.",
+    "en": "AAA makes today's list with a strong profile. There is a heavy build-up of bets against this stock — in sharp upside moves that can act as extra fuel. Also, trading volume is running clearly above its norm — the interest comes from broad participation, not a few stray orders. On top of that, a candidate well advanced along our early-warning chain — it has cleared every checkpoint since the first flag. Staged confirmation lining up with the factors shows the signal is not resting on one measure; the next sessions still have to validate the picture. The next chapter is not written yet: does the signal strengthen or fade? Candidate status only; what to do with it is always the reader's call.",
+    "de": "AAA steht mit einem starken Profil auf der heutigen Liste. Es gibt einen hohen Bestand an Wetten gegen diese Aktie — bei kräftigen Aufwärtsbewegungen kann das als zusätzlicher Treibstoff wirken. Außerdem: das Handelsvolumen liegt deutlich über seinem Normalwert — das Interesse kommt aus breiter Beteiligung, nicht aus wenigen Einzelorders. Zudem: ein Kandidat, der in unserer Frühwarnkette weit fortgeschritten ist — er hat seit dem ersten Flag jede Prüfstufe bestanden. Die gestufte Bestätigung zusammen mit den Faktoren zeigt, dass das Signal nicht auf einem einzigen Maß beruht; die nächsten Sitzungen müssen das Bild noch bestätigen. Nur Kandidatenstatus; was daraus wird, entscheidet stets der Leser."
+   },
+   "risk_note_i18n": {
+    "tr": "short kapanışları kadar short baskısı da mümkün — iki yöne de hazırlıklı izle",
+    "en": "short-covering and renewed shorting are both possible — watch both ways",
+    "de": "Short-Eindeckung und erneute Leerverkäufe sind beide möglich — beobachte beide Richtungen"
+   }
+  },
+  {
+   "ticker": "BBB",
+   "company": "CYBER HORNET Trust CYBER HORNET S&P 500 and Bitcoin 75/25 Strategy ETF",
+   "grade": "C",
+   "prob_band": "~40%",
+   "badges": [
+    "squeeze",
+    "early_tier"
+   ],
+   "rationale": "BBB, erken aşamada bir aday olarak listede. Öne çıkaran etkenler açık: açığa satış tarafı kalabalık; olası bir yükselişte bu taraf pozisyon kapatmak zorunda kalabilir, bu da hareketi büyütebilir. Ayrıca erken uyarı zincirimizde epey yol almış bir aday — ilk işaretten bu yana her kontrol basamağını geçti. Aşamalı teyit ile faktörlerin aynı yönde toplanması, sinyalin tek bir ölçüme dayanmadığını gösteriyor; yine de sonraki seanslar bu tabloyu doğrulamak zorunda. Hareketli bir profil: iki yön de hızlı işleyebilir. İzleme adayıdır; karar senin.",
+   "premium_only": false,
+   "risk_note": "geniş günlük aralıkla birleşen squeeze profili — tempo çok yüksek olabilir",
+   "factor_detail": {
+    "conviction_prob": 0.4,
+    "tier": "TRIGGER",
+    "squeeze_factor": 0.6,
+    "atr_pct": 6.0,
+    "price": 10.0
+   },
+   "metrics": {
+    "price": 10.0,
+    "conviction_prob": 0.4,
+    "execution_confidence": "Tier 1",
+    "atr_pct": 6.0
+   },
+   "rationale_i18n": {
+    "tr": "BBB, erken aşamada bir aday olarak listede. Öne çıkaran etkenler açık: açığa satış tarafı kalabalık; olası bir yükselişte bu taraf pozisyon kapatmak zorunda kalabilir, bu da hareketi büyütebilir. Ayrıca erken uyarı zincirimizde epey yol almış bir aday — ilk işaretten bu yana her kontrol basamağını geçti. Aşamalı teyit ile faktörlerin aynı yönde toplanması, sinyalin tek bir ölçüme dayanmadığını gösteriyor; yine de sonraki seanslar bu tabloyu doğrulamak zorunda. Hareketli bir profil: iki yön de hızlı işleyebilir. İzleme adayıdır; karar senin.",
+    "en": "BBB is on the list as an early-stage candidate. What puts it there is clear: the short side is crowded; in a rally those positions may be forced to cover, which can amplify the move. Also, a candidate well advanced along our early-warning chain — it has cleared every checkpoint since the first flag. Staged confirmation lining up with the factors shows the signal is not resting on one measure; the next sessions still have to validate the picture. A fast-moving profile: both directions can run quickly. Watch candidate; your call.",
+    "de": "BBB steht als Kandidat im Frühstadium auf der Liste. Was es dorthin bringt, ist klar: die Short-Seite ist überfüllt; in einer Erholung könnten diese Positionen zur Eindeckung gezwungen sein, was die Bewegung verstärken kann. Außerdem: ein Kandidat, der in unserer Frühwarnkette weit fortgeschritten ist — er hat seit dem ersten Flag jede Prüfstufe bestanden. Die gestufte Bestätigung zusammen mit den Faktoren zeigt, dass das Signal nicht auf einem einzigen Maß beruht; die nächsten Sitzungen müssen das Bild noch bestätigen. Ein schnelllebiges Profil: beide Richtungen können rasch laufen. Beobachtungskandidat; deine Entscheidung."
+   },
+   "risk_note_i18n": {
+    "tr": "geniş günlük aralıkla birleşen squeeze profili — tempo çok yüksek olabilir",
+    "en": "a squeeze profile paired with a wide daily range — the pace can be extreme",
+    "de": "ein Squeeze-Profil mit weiter Tagesspanne — das Tempo kann extrem sein"
+   }
+  }
+ ],
+ "web_context": [],
+ "karne": {
+  "toplam_aday_bugun": {
+   "B": 1,
+   "C": 1
+  },
+  "by_grade": {},
+  "window": ""
+ },
+ "warnings": [
+  "karne unavailable — using daily totals only"
+ ],
+ "concept": {
+  "name": "Aşırı İşlem",
+  "line": "Gerekmeden çok işlem yapma alışkanlığı; maliyetler ve hatalar sessizce birikir."
+ },
+ "edition_no": 2,
+ "publication_scope": "partial",
+ "lang": "tr",
+ "expected_universe": 1812,
+ "requested_universe": 3,
+ "result_coverage_pct": 0.1,
+ "requested_coverage_pct": 0.2,
+ "source_export": "scan_export_2026-10-05_partial_20e262a9a8f5c34d0a5e68e0.json"
+}
