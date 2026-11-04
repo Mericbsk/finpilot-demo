@@ -19,6 +19,18 @@ from distribution.snapshot_builder import _risk_note  # noqa: E402
 
 
 class TestGlossary(unittest.TestCase):
+    def test_probability_wording_is_historical_and_unvalidated(self):
+        entries = {entry["key"]: entry for entry in GLOSSARY}
+        probability_band = entries["prob_band"]
+        grade = entries["grade"]
+
+        self.assertIn("tarihsel oran", probability_band["line_tr"])
+        self.assertIn("bağımsız doğrulanmamıştır", probability_band["line_tr"])
+        self.assertIn("not independently validated", probability_band["line_en"])
+        self.assertNotIn("recalibrated as outcomes accumulate", probability_band["card_en"])
+        self.assertNotIn("kalibre olasılık", grade["line_tr"])
+        self.assertNotIn("calibrated probability", grade["line_en"])
+
     def test_min_30_and_unique(self):
         self.assertGreaterEqual(len(GLOSSARY), 30)
         self.assertEqual(len({e["key"] for e in GLOSSARY}), len(GLOSSARY))

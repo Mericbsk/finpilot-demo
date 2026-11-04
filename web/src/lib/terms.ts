@@ -15,13 +15,13 @@ export const TERMS: Record<string, Term> = {
     slug: "probability-band",
     name: "Probability Band",
     short:
-      "When a candidate shows ~60%, it means setups with a similar statistical profile historically worked out at about that frequency over the evaluation window. It is derived from past data, recalibrated as outcomes accumulate, and can be wrong for any single case — which is why it is a band, not a promise.",
+      "When a candidate shows ~60%, this is the historical frequency of similar past setups reaching the stated outcome over the evaluation window. It has not been independently validated and is not a probability forecast or a statement about future outcomes.",
   },
   "conviction": {
     slug: "conviction",
     name: "Conviction",
     short:
-      "Conviction blends signal strength, data quality and historical calibration into a single confidence measure. It is then bucketed into the public Grade (A/B/C) so readers compare candidates on one scale instead of raw model internals.",
+      "Conviction combines signal strength, data quality and historical-frequency inputs into one confidence measure. Those historical frequencies have not been independently validated. The result is grouped into the public Grade (A/B/C) so readers can compare candidates on one scale instead of raw model internals.",
   },
   "scorecard": {
     slug: "scorecard",
@@ -99,7 +99,7 @@ export const TERMS: Record<string, Term> = {
     slug: "grade",
     name: "Grade (A/B/C)",
     short:
-      "FinPilot's single quality label. It combines a calibrated probability with how many independent factors align. Grade A is rare (~1/day) and historically hit large moves most often. It is a research grade — not a recommendation.",
+      "FinPilot's single quality label. It combines a historical frequency (not independently validated) with how many independent factors align. Grade A is rare (~1/day) and historically hit large moves most often. It is a research grade — not a recommendation.",
   },
   "calibration": {
     slug: "calibration",
@@ -232,6 +232,48 @@ export const TERMS: Record<string, Term> = {
     name: "Position Sizing",
     short:
       "Deciding how much of your capital a single idea deserves. Sizing — not entry timing — is what usually separates accounts that survive from accounts that don't.",
+  },
+  "attention_score": {
+    slug: "attention-score",
+    name: "Attention Score",
+    short:
+      "Attention Score combines several behavior signals (gap size, volatility, relative volume, distance from recent highs, and others) into one number. A high score means \"this is behaving unusually right now\" — it does not mean \"this will go up.\" It measures the magnitude of unusualness, not the direction of the next move.",
+  },
+  "attention_tier": {
+    slug: "attention-tier",
+    name: "Attention Tier",
+    short:
+      "Candidates are grouped into tiers by Attention Score so readers can compare unusualness on one scale. A higher tier is not a forecast of a bigger move — it reflects more independent unusual-behavior signals lining up on the same name at the same time.",
+  },
+  "unusualness": {
+    slug: "unusualness",
+    name: "Unusualness",
+    short:
+      "Unusualness is deliberately direction-free. A stock can be flagged as unusual while moving up, down, or sideways with unusually wide swings. The scanner flags the deviation; what happens next is left open, and the published scorecard tracks how that plays out over time.",
+  },
+  "big_gap": {
+    slug: "big-gap",
+    name: "Big Gap",
+    short:
+      "Flags when a stock opens far from where it closed the session before — farther than is typical for that specific name. This is a magnitude flag: it says a jump happened, not which way the rest of the session will go.",
+  },
+  "volatility_spike": {
+    slug: "volatility-spike",
+    name: "Volatility Spike",
+    short:
+      "Flags when a stock's realized daily range stretches well beyond what is typical for that specific name. Some stocks are naturally choppier than others; this flag triggers on the deviation from each stock's own baseline, not on volatility level alone.",
+  },
+  "far_from_high": {
+    slug: "distance-from-52-week-high",
+    name: "Distance From 52-Week High",
+    short:
+      "Measures the percentage gap between the current price and the highest price the stock reached over the trailing 52 weeks. An unusually wide distance is flagged as noteworthy — it says nothing by itself about whether that gap will close or widen further.",
+  },
+  "high_lottery": {
+    slug: "lottery-factor",
+    name: "Lottery Factor",
+    short:
+      "Some stocks attract demand less for their fundamentals and more for a \"lottery ticket\" profile — small, cheap, volatile, capable of a fast large move. This flag identifies that profile. It is tracked as its own research line because internal testing found it behaves differently from the scanner's other unusualness flags; that testing is ongoing, not a settled result.",
   },
 };
 
