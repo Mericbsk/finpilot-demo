@@ -138,7 +138,7 @@ class QualityGuardAgent:
 
         # Update lesson status
         new_status = {
-            "APPROVED": "published",
+            "APPROVED": "pending_review",
             "REVISION_NEEDED": "draft",
             "REJECTED": "draft",
         }.get(decision, "draft")

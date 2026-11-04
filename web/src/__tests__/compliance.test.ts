@@ -125,3 +125,23 @@ describe("public research pages carry the required disclaimer", () => {
     });
   }
 });
+
+describe("public methodology does not overstate validation or returns", () => {
+  it("uses historical-frequency wording and disclaims unvalidated performance claims", () => {
+    const src = read("src/app/methodology/page.tsx");
+    expect(src).toMatch(/historical-frequency band/i);
+    expect(src).toMatch(/not been independently validated/i);
+    expect(src).toMatch(/not treated as out-of-sample/i);
+    expect(src).not.toMatch(/calibrated probability band/i);
+    expect(src).not.toMatch(/locked out-of-sample/i);
+    expect(src).not.toMatch(/we report expectancy/i);
+  });
+
+  it("does not display average P&L as public expectancy", () => {
+    const src = read("src/components/ledger/LedgerStrip.tsx");
+    expect(src).toMatch(/descriptive historical figures/i);
+    expect(src).not.toMatch(/expectancy \/ pick/i);
+    expect(src).not.toMatch(/average pick is still positive/i);
+    expect(src).not.toMatch(/overall\?\.avg_pnl/);
+  });
+});

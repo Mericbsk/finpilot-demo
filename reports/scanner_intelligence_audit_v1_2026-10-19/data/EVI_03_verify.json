@@ -1,0 +1,176 @@
+{
+ "generated_at_utc": "2026-10-19T10:30:14+00:00",
+ "db": {
+  "sha256": "b64c0c5262e0d685daa1309e6293d27c208f64a6fc213b3c00e3cb896bd5f5f6",
+  "bytes": 7811072,
+  "mtime_local": "2026-10-19T12:08:56"
+ },
+ "n_total": 5748,
+ "n_resolved_status_win_loss": 5452,
+ "n_decided_barrier": 5206,
+ "full": {
+  "n": 5206,
+  "mean": 0.398424,
+  "median": -0.64315
+ },
+ "excluding_top1": {
+  "n": 5154,
+  "mean": 0.189646,
+  "median": -0.6511,
+  "k_removed": 52
+ },
+ "excluding_top5": {
+  "n": 4946,
+  "mean": -0.161478,
+  "median": -0.6799,
+  "k_removed": 260
+ },
+ "top1_ts_dates": [
+  [
+   "2026-03-03",
+   27,
+   "Tue"
+  ],
+  [
+   "2026-03-01",
+   21,
+   "Sun"
+  ],
+  [
+   "2025-09-22",
+   1,
+   "Mon"
+  ],
+  [
+   "2026-05-19",
+   1,
+   "Tue"
+  ],
+  [
+   "2026-05-18",
+   1,
+   "Mon"
+  ],
+  [
+   "2026-05-08",
+   1,
+   "Fri"
+  ]
+ ],
+ "top1_signal_dates": [
+  [
+   "2026-03-03",
+   27,
+   "Tue"
+  ],
+  [
+   "2026-02-12",
+   10,
+   "Thu"
+  ],
+  [
+   "2026-02-17",
+   9,
+   "Tue"
+  ],
+  [
+   "2025-09-22",
+   1,
+   "Mon"
+  ],
+  [
+   "2026-05-19",
+   1,
+   "Tue"
+  ],
+  [
+   "2026-05-18",
+   1,
+   "Mon"
+  ],
+  [
+   "2026-03-01",
+   1,
+   "Sun"
+  ],
+  [
+   "2026-02-11",
+   1,
+   "Wed"
+  ],
+  [
+   "2026-05-08",
+   1,
+   "Fri"
+  ]
+ ],
+ "top1_source_model": {
+  "scanner_import": 1,
+  "scanner_v1": 48,
+  "scanner_v2": 2,
+  "scanner_shortlist": 1
+ },
+ "top1_rows_on_two_ts_dates": 48,
+ "decided_rows_on_two_ts_dates": 2421,
+ "share_top1_on_two_ts_dates": 0.9231,
+ "share_decided_on_two_ts_dates": 0.465,
+ "decided_ts_month_x_source_model": {
+  "2025-09|scanner_import": 1579,
+  "2025-10|scanner_import": 474,
+  "2025-11|scanner_import": 6,
+  "2025-12|scanner_import": 6,
+  "2026-03|scanner_v1": 2495,
+  "2026-04|scanner_shortlist": 177,
+  "2026-05|scanner_shortlist": 377,
+  "2026-05|scanner_v2": 92
+ },
+ "decided_score_profile": {
+  "n_null": 0,
+  "n_distinct": 65,
+  "top5_values": [
+   [
+    1.0,
+    2697
+   ],
+   [
+    0.0,
+    1056
+   ],
+   [
+    2.0,
+    892
+   ],
+   [
+    3.0,
+    116
+   ],
+   [
+    7.6,
+    39
+   ]
+  ],
+  "rows_sharing_value_globally": 5200,
+  "share_integer_valued": 0.9819,
+  "min": 0.0,
+  "max": 89.0
+ },
+ "decided_finpilot_score_profile": {
+  "n_null": 5206,
+  "n_distinct": 0,
+  "top5_values": [],
+  "rows_sharing_value_globally": 0,
+  "share_integer_valued": null,
+  "min": null,
+  "max": null
+ },
+ "decided_score_within_day_ties": {
+  "rows_with_value": 5206,
+  "rows_tied_within_same_ts_day": 5132,
+  "n_ts_days": 37
+ },
+ "decided_finpilot_score_within_day_ties": {
+  "rows_with_value": 0,
+  "rows_tied_within_same_ts_day": 0,
+  "n_ts_days": 0
+ }
+}

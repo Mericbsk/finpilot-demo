@@ -62,13 +62,12 @@ of the rule.
    - **Level B (proposal, wait for approval)** — new product rule,
      roadmap change, new content strategy, new module. Draft only,
      state clearly: "This is a Level B decision, awaiting approval."
-   - **Level C (human approval required, cannot be applied by AI)** —
-     risk limits, position sizing, production/live release, API
-     keys/secrets, regulatory or grant submissions. Present analysis
-     only, state clearly: "This is a Level C decision and cannot be
-     applied by AI."
-   - Any conflict touching Layer 1 or 2 automatically escalates to
-     Level C, regardless of how small it looks.
+   - - **Level C (human decision required)** — The human is always the
+  approving authority. AI may not approve or expand authorization.
+  Apply `_instructions/05-escalation.md`: the only delegable execution
+  exception is one web-only publication bound to an exact, written
+  release manifest and passing every YONERGE.md gate. All other Level C
+  actions remain human-executed.
 3. Locate the single authority document for the concept in question.
    Never duplicate business rules, formulas, or policy text across
    files — reference the authority file instead of copying it.

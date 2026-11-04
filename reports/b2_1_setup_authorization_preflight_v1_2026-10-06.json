@@ -1,0 +1,55 @@
+{
+  "schema_version": "b2-1-setup-authorization-preflight-v1",
+  "observed_date": "2026-10-06",
+  "layer": "Research / Engineering preparation",
+  "level": "B",
+  "scope_reference": {
+    "path": "docs/governance/decision-log.md",
+    "entry": "2026-10-06 - PROPOSAL: separately authorized setup-only restricted authoring boundary"
+  },
+  "human_authorization": {
+    "approved_by": "Meric",
+    "user_message": "\u0131z\u0131nler\u0131 ver\u0131yorum",
+    "setup_only_authorized": true,
+    "image_download_authorized": false,
+    "scientific_execution_authorized": false,
+    "study_lock_authorized": false
+  },
+  "preflight": {
+    "method": "READ_ONLY_DOCKER_IMAGE_METADATA_NO_ENV_VALUES_REPORTED",
+    "cached_image_count_observed": 31,
+    "official_python_reference_candidates": [],
+    "official_setup_alternative_reference_candidates": [],
+    "alternatives_checked": ["node", "alpine", "busybox", "debian", "ubuntu"],
+    "fully_qualified_reference_and_digest_check": true,
+    "identified_clean_runtime": null,
+    "runtime_identity_review": "BLOCKED_NO_IDENTIFIED_CLEAN_CACHED_RUNTIME",
+    "limits": [
+      "Image metadata establishes candidate references only, not complete filesystem or supply-chain verification",
+      "No claim that every possible offline runtime is absent",
+      "Application images and unidentifiable base/build-cache layers are not accepted as clean runtime substitutes"
+    ]
+  },
+  "actions": {
+    "container_created": false,
+    "image_downloaded": false,
+    "dependencies_installed": false,
+    "elevation_attempted": false,
+    "host_accounts_or_acls_changed": false,
+    "historical_inputs_mounted": false,
+    "canary_execution": "NOT_RUN",
+    "scientific_execution": "NOT_RUN"
+  },
+  "actors": {
+    "setup_custodian": "GitHub Copilot / NON_BLIND",
+    "restricted_runner_author": null,
+    "independent_verifier": null
+  },
+  "technical_boundary_status": "NOT_TESTED_RUNTIME_BLOCKED",
+  "blindness_status": "NOT_VERIFIED",
+  "historical_execution_identity": "UNKNOWN",
+  "locked": false,
+  "real_execution_performed": false,
+  "status": "SETUP_PERMISSION_RECORDED_PROVISIONING_BLOCKED",
+  "next_dependency": "Provide an identified clean offline runtime image, or separately authorize a bounded official-image download and identity review. Neither alternative authorizes scientific execution or certifies isolated authoring."
+}

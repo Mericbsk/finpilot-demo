@@ -1,0 +1,170 @@
+[
+ {
+  "data_rows": 199,
+  "file": "data/shortlists/shortlist_20261016_1512.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T12:12:35Z",
+  "sha256": "28c0a19d548cc0b15ab33d8bf9c55a5c2636308b44a32e8b7f118f311afb5d6a",
+  "size": 450097
+ },
+ {
+  "data_rows": 200,
+  "file": "data/shortlists/shortlist_20261016_1514.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T12:14:43Z",
+  "sha256": "fa6bde44cec74b318ba3a061fcdf0c372ee181702e8e818707b253bcf7f523d8",
+  "size": 448153
+ },
+ {
+  "data_rows": 200,
+  "file": "data/shortlists/shortlist_20261016_1522.csv",
+  "header": "symbol,price,score,regime,direction,atr,entry_ok,market_status,timestamp,spread_bps,spread_source,dollar_adv,adv_source,short_interest_timestamp,feature_timestamps,feature_age_minutes,data_quality,entry_drift_pct,execution_confidence,data_quality_tier,data_quality_status,execution_feasible,execution_reject_reason,execution_warning,missing_fields,reject_reason,selection_eligible,liquidity_ok,volume",
+  "mtime_utc": "2026-10-16T12:22:09Z",
+  "sha256": "0e8286e42550dc14189716db94c38b23182b8b7d4c875326ee69b2a45a41e018",
+  "size": 447619
+ },
+ {
+  "data_rows": 198,
+  "file": "data/shortlists/shortlist_20261016_1527.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T12:27:31Z",
+  "sha256": "20a08cbd273f19b17867ea352c32318c9f6517281288ecacd1ebffa70c5fe3e5",
+  "size": 412295
+ },
+ {
+  "data_rows": 200,
+  "file": "data/shortlists/shortlist_20261016_1532.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T12:32:14Z",
+  "sha256": "a6a82ab2bd94d7ab36d73816b9e87e9d2d193d2c111db5793ef94b52ff273669",
+  "size": 433107
+ },
+ {
+  "data_rows": 198,
+  "file": "data/shortlists/shortlist_20261016_1547.csv",
+  "header": "symbol,price,score,regime,direction,atr,entry_ok,market_status,timestamp,spread_bps,spread_source,dollar_adv,adv_source,short_interest_timestamp,feature_timestamps,feature_age_minutes,data_quality,entry_drift_pct,execution_confidence,data_quality_tier,data_quality_status,execution_feasible,execution_reject_reason,execution_warning,missing_fields,reject_reason,selection_eligible,liquidity_ok,volume",
+  "mtime_utc": "2026-10-16T12:47:53Z",
+  "sha256": "4052bef871920fbf05e2ab68732fed552425bb03ef4241e129c2d89808e56619",
+  "size": 406428
+ },
+ {
+  "data_rows": 200,
+  "file": "data/shortlists/shortlist_20261016_1605.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T13:05:44Z",
+  "sha256": "515c8647849cc990c6bec5833e91d94dc71b5377b6f27e9524489114dcbafdac",
+  "size": 382865
+ },
+ {
+  "data_rows": 12,
+  "file": "data/shortlists/shortlist_20261016_1606.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T13:06:11Z",
+  "sha256": "51df37391d1c07077f5bdb3b313e77246c106986eb2ffbab7c6f7e1b457d183a",
+  "size": 28445
+ },
+ {
+  "data_rows": 1,
+  "file": "data/shortlists/shortlist_20261016_1630.csv",
+  "header": "symbol,price,score,regime,direction,atr,entry_ok,market_status,timestamp,spread_bps,spread_source,dollar_adv,adv_source,short_interest_timestamp,feature_timestamps,feature_age_minutes,data_quality,entry_drift_pct,execution_confidence,data_quality_tier,data_quality_status,execution_feasible,execution_reject_reason,execution_warning,missing_fields,reject_reason,selection_eligible,liquidity_ok,volume",
+  "mtime_utc": "2026-10-16T13:30:02Z",
+  "sha256": "a3c01c23b7a73fbe5b6b12b55c03707b6cf06f906778b715a8630105635b8367",
+  "size": 4121
+ },
+ {
+  "data_rows": 1,
+  "file": "data/shortlists/shortlist_20261016_1632.csv",
+  "header": "symbol,price,score,regime,direction,atr,entry_ok,market_status,timestamp,spread_bps,spread_source,dollar_adv,adv_source,short_interest_timestamp,feature_timestamps,feature_age_minutes,data_quality,entry_drift_pct,execution_confidence,data_quality_tier,data_quality_status,execution_feasible,execution_reject_reason,execution_warning,missing_fields,reject_reason,selection_eligible,liquidity_ok,volume",
+  "mtime_utc": "2026-10-16T13:32:40Z",
+  "sha256": "46bfad0ae9663857e21d966ea830aa543d58bec15e12abe3ad4dc06c30c7a740",
+  "size": 4104
+ },
+ {
+  "data_rows": 1,
+  "file": "data/shortlists/shortlist_20261016_1719.csv",
+  "header": "symbol,price,score,regime,direction,atr,entry_ok,market_status,timestamp,spread_bps,spread_source,dollar_adv,adv_source,short_interest_timestamp,feature_timestamps,feature_age_minutes,data_quality,entry_drift_pct,execution_confidence,data_quality_tier,data_quality_status,execution_feasible,execution_reject_reason,execution_warning,missing_fields,reject_reason,selection_eligible,liquidity_ok,volume",
+  "mtime_utc": "2026-10-16T14:19:32Z",
+  "sha256": "4f1563820110677423647ac248203b4bac949f7cd98f23f4092bec41060588b5",
+  "size": 4097
+ },
+ {
+  "data_rows": 30,
+  "file": "data/shortlists/shortlist_20261016_1721.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T14:21:40Z",
+  "sha256": "da5767338a58fa138916666d5b1239f0ef193f90c535fca1426ef87575e4fa70",
+  "size": 70668
+ },
+ {
+  "data_rows": 199,
+  "file": "data/shortlists/shortlist_20261016_1722.csv",
+  "header": "symbol,price,score,regime,direction,atr,entry_ok,market_status,timestamp,spread_bps,spread_source,dollar_adv,adv_source,short_interest_timestamp,feature_timestamps,feature_age_minutes,data_quality,entry_drift_pct,execution_confidence,data_quality_tier,data_quality_status,execution_feasible,execution_reject_reason,execution_warning,missing_fields,reject_reason,selection_eligible,liquidity_ok,volume",
+  "mtime_utc": "2026-10-16T14:22:36Z",
+  "sha256": "ce7333bd6049de7c28326eb0fedd56dfc287361cad33ba4fc9df89b3f22bdfc6",
+  "size": 451178
+ },
+ {
+  "data_rows": 200,
+  "file": "data/shortlists/shortlist_20261016_1728.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T14:28:44Z",
+  "sha256": "fd3918aac979cd4a45a2f9d4062a90ce67f3f88e86d19db99e43b45fd74132d9",
+  "size": 448157
+ },
+ {
+  "data_rows": 200,
+  "file": "data/shortlists/shortlist_20261016_1736.csv",
+  "header": "symbol,price,score,regime,direction,atr,entry_ok,market_status,timestamp,spread_bps,spread_source,dollar_adv,adv_source,short_interest_timestamp,feature_timestamps,feature_age_minutes,data_quality,entry_drift_pct,execution_confidence,data_quality_tier,data_quality_status,execution_feasible,execution_reject_reason,execution_warning,missing_fields,reject_reason,selection_eligible,liquidity_ok,volume",
+  "mtime_utc": "2026-10-16T14:36:09Z",
+  "sha256": "3cc9b53d60dc20188476508ada58c44ddeb5a2ac1f2d6d4d96b525d551501ab3",
+  "size": 446052
+ },
+ {
+  "data_rows": 198,
+  "file": "data/shortlists/shortlist_20261016_1743.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T14:43:48Z",
+  "sha256": "93b9908e55351b88d918bfeea5ae7eea3a4df643125d9a7f008e6416825d7543",
+  "size": 406665
+ },
+ {
+  "data_rows": 200,
+  "file": "data/shortlists/shortlist_20261016_1750.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T14:50:09Z",
+  "sha256": "7ff3a704a07a608e14a7e1f51e6ab0fa851cf3678f7a59b3a8a4a0cc6a624300",
+  "size": 436903
+ },
+ {
+  "data_rows": 194,
+  "file": "data/shortlists/shortlist_20261016_1756.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T14:56:56Z",
+  "sha256": "b04e2695226bc07c5b87a238eae5fa79e6d01b3ac0d7727c93750c689101d7ae",
+  "size": 373825
+ },
+ {
+  "data_rows": 198,
+  "file": "data/shortlists/shortlist_20261016_1805.csv",
+  "header": "symbol,price,score,regime,direction,atr,entry_ok,market_status,timestamp,spread_bps,spread_source,dollar_adv,adv_source,short_interest_timestamp,feature_timestamps,feature_age_minutes,data_quality,entry_drift_pct,execution_confidence,data_quality_tier,data_quality_status,execution_feasible,execution_reject_reason,execution_warning,missing_fields,reject_reason,selection_eligible,liquidity_ok,volume",
+  "mtime_utc": "2026-10-16T15:05:56Z",
+  "sha256": "d7af6b1c56ae92b4325b911d6a715adc7cf1e6667f590e95f0561a0094b4e5c1",
+  "size": 408646
+ },
+ {
+  "data_rows": 200,
+  "file": "data/shortlists/shortlist_20261016_1813.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T15:13:26Z",
+  "sha256": "9a706891df549cc4ad275d79dca8657c808041594af892083aa2e700af6c38bd",
+  "size": 374689
+ },
+ {
+  "data_rows": 12,
+  "file": "data/shortlists/shortlist_20261016_1820.csv",
+  "header": "symbol,scan_status,data_quality_tier,data_quality_status,data_quality,reject_reason,execution_reject_reason,selection_eligible,entry_ok,execution_feasible,execution_confidence,selected_by_legacy_quality,selected_by_v2,selected_by_both,legacy_only,v2_only,ranking_method,legacy_quality_score,ranking_score,v2_score,strategy_scores,conviction_tier,conviction_prob,position_cap_notional,position_cap_app",
+  "mtime_utc": "2026-10-16T15:20:30Z",
+  "sha256": "e43dbba0033a98aa290503a3d96a932a7c334256434fb848061952e47d0420ef",
+  "size": 28426
+ }
+]

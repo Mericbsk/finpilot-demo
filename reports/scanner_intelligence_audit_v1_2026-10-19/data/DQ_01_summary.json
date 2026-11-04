@@ -1,0 +1,971 @@
+{
+ "RUN_UTC": "2026-10-19T10:34:10.449334+00:00",
+ "DB_SHA256": "b64c0c5262e0d685daa1309e6293d27c208f64a6fc213b3c00e3cb896bd5f5f6",
+ "EXPORT_META": {
+  "sha256": "013bbf3a1ae22ab2f92d2a947d978a2abba1ebb710d093363a1d5d0e60238ed9",
+  "run_id": "20261016T224443",
+  "generated_at": "2026-10-16T22:44:43.604819+00:00",
+  "universe": 1812,
+  "result_count": 1801,
+  "n_rows": 1801
+ },
+ "EXPORT_PARTITION": {
+  "skeleton": 283,
+  "full": 1518,
+  "both_scan_status_and_price": 0,
+  "neither": 0
+ },
+ "SKEL_scan_status": [
+  [
+   "unavailable",
+   283
+  ]
+ ],
+ "SKEL_reject_reason": [
+  [
+   [
+    "insufficient_history"
+   ],
+   283
+  ]
+ ],
+ "ALL_dq_status": [
+  [
+   "partial",
+   1518
+  ],
+  [
+   "missing",
+   283
+  ]
+ ],
+ "FULL_dq_status": [
+  [
+   "partial",
+   1518
+  ]
+ ],
+ "FULL_dq_tier": [
+  [
+   "Tier 1",
+   1518
+  ]
+ ],
+ "FULL_n_missing_hist": [
+  [
+   2,
+   1518
+  ]
+ ],
+ "FULL_missing_fields_freq": [
+  [
+   "spread_bps",
+   1518
+  ],
+  [
+   "short_interest_timestamp",
+   1518
+  ]
+ ],
+ "FULL_available_false": [
+  [
+   "spread_bps",
+   1518
+  ],
+  [
+   "short_interest_timestamp",
+   1518
+  ]
+ ],
+ "SCORE_INPUT_keys": [
+  "alignment_ratio",
+  "catalyst_factor",
+  "direction",
+  "extension_factor",
+  "filter_score",
+  "gap_factor",
+  "is_premium_symbol",
+  "lottery_factor",
+  "momentum_ratio",
+  "overnight_gap_factor",
+  "price_momentum",
+  "regime",
+  "rvol_factor",
+  "score",
+  "squeeze_factor",
+  "trend_strength",
+  "vol_regime",
+  "volume_spike"
+ ],
+ "SCORE_INPUT_none": [],
+ "SCORE_INPUT_zero": [
+  [
+   "catalyst_factor",
+   1518
+  ],
+  [
+   "extension_factor",
+   1259
+  ],
+  [
+   "rvol_factor",
+   857
+  ],
+  [
+   "filter_score",
+   771
+  ],
+  [
+   "alignment_ratio",
+   703
+  ],
+  [
+   "gap_factor",
+   683
+  ],
+  [
+   "overnight_gap_factor",
+   441
+  ],
+  [
+   "momentum_ratio",
+   268
+  ],
+  [
+   "score",
+   139
+  ],
+  [
+   "vol_regime",
+   97
+  ],
+  [
+   "squeeze_factor",
+   71
+  ]
+ ],
+ "DIST_full_partial": {
+  "composite": {
+   "n": 1518,
+   "min": 0.0,
+   "p25": 6.0,
+   "med": 18.0,
+   "p75": 40.0,
+   "p90": 54.0,
+   "max": 84.0,
+   "mean": 24.054,
+   "n_zero": 133
+  },
+  "ranking": {
+   "n": 1518,
+   "min": -2.82,
+   "p25": 10.716,
+   "med": 20.198,
+   "p75": 39.212,
+   "p90": 52.785,
+   "max": 74.231,
+   "mean": 25.514,
+   "n_zero": 0
+  },
+  "eligible": 10
+ },
+ "DIST_skeleton": {
+  "composite": {
+   "n": 283,
+   "min": 0.0,
+   "p25": 0.0,
+   "med": 0.0,
+   "p75": 0.0,
+   "p90": 0.0,
+   "max": 0.0,
+   "mean": 0.0,
+   "n_zero": 283
+  },
+  "ranking": {
+   "n": 283,
+   "min": 0.0,
+   "p25": 0.0,
+   "med": 0.0,
+   "p75": 0.0,
+   "p90": 0.0,
+   "max": 0.0,
+   "mean": 0.0,
+   "n_zero": 283
+  },
+  "eligible": 0
+ },
+ "DIST_FULL_dqstatus_partial": {
+  "composite": {
+   "n": 1518,
+   "min": 0.0,
+   "p25": 6.0,
+   "med": 18.0,
+   "p75": 40.0,
+   "p90": 54.0,
+   "max": 84.0,
+   "mean": 24.054,
+   "n_zero": 133
+  },
+  "eligible": 10
+ },
+ "TOP20": {
+  "group": [
+   [
+    "full_partial",
+    20
+   ]
+  ],
+  "dq": [
+   [
+    "partial",
+    20
+   ]
+  ],
+  "name_class": [
+   [
+    "common_other",
+    17
+   ],
+   [
+    "adr",
+    1
+   ],
+   [
+    "lp_trust_units",
+    1
+   ],
+   [
+    "debt_note",
+    1
+   ]
+  ],
+  "suffix_nonempty": 0
+ },
+ "TOP50": {
+  "group": [
+   [
+    "full_partial",
+    50
+   ]
+  ],
+  "dq": [
+   [
+    "partial",
+    50
+   ]
+  ],
+  "name_class": [
+   [
+    "common_other",
+    45
+   ],
+   [
+    "adr",
+    2
+   ],
+   [
+    "lp_trust_units",
+    2
+   ],
+   [
+    "debt_note",
+    1
+   ]
+  ],
+  "suffix_nonempty": 0
+ },
+ "TOP100": {
+  "group": [
+   [
+    "full_partial",
+    100
+   ]
+  ],
+  "dq": [
+   [
+    "partial",
+    100
+   ]
+  ],
+  "name_class": [
+   [
+    "common_other",
+    93
+   ],
+   [
+    "adr",
+    4
+   ],
+   [
+    "lp_trust_units",
+    2
+   ],
+   [
+    "debt_note",
+    1
+   ]
+  ],
+  "suffix_nonempty": 0
+ },
+ "ELIGIBLE": {
+  "n": 10,
+  "group": [
+   [
+    "full_partial",
+    10
+   ]
+  ],
+  "name_class": [
+   [
+    "common_other",
+    9
+   ],
+   [
+    "adr",
+    1
+   ]
+  ],
+  "suffix_nonempty": 0
+ },
+ "EXPORT_name_class": [
+  [
+   "common_other",
+   1547
+  ],
+  [
+   "adr",
+   91
+  ],
+  [
+   "preferred",
+   61
+  ],
+  [
+   "warrant",
+   39
+  ],
+  [
+   "etf_fund",
+   34
+  ],
+  [
+   "unit",
+   12
+  ],
+  [
+   "lp_trust_units",
+   10
+  ],
+  [
+   "debt_note",
+   6
+  ],
+  [
+   "right",
+   1
+  ]
+ ],
+ "EXPORT_suffix_class": [
+  [
+   "",
+   1750
+  ],
+  [
+   "warrant_sfx5",
+   39
+  ],
+  [
+   "unit_sfx5",
+   12
+  ]
+ ],
+ "EXPORT_noncommon_top100": [
+  [
+   19,
+   "OXLCZ",
+   "debt_note",
+   "",
+   63.775,
+   "partial"
+  ]
+ ],
+ "WATCH_in_export": [
+  {
+   "rank": 1271,
+   "symbol": "NUAIW",
+   "ranking_score": 8.519,
+   "composite_score": 9,
+   "group": "full_partial",
+   "dq_status": "partial",
+   "missing_fields": "spread_bps|short_interest_timestamp",
+   "selection_eligible": false,
+   "name_class": "warrant",
+   "suffix_class": "warrant_sfx5",
+   "exchange": "AssetExchange.NASDAQ",
+   "dollar_adv": 748.36,
+   "spread_bps": null,
+   "price": 1.69
+  },
+  {
+   "rank": 1516,
+   "symbol": "ANNAW",
+   "ranking_score": 0,
+   "composite_score": 0,
+   "group": "skeleton",
+   "dq_status": "missing",
+   "missing_fields": "",
+   "selection_eligible": false,
+   "name_class": "warrant",
+   "suffix_class": "warrant_sfx5",
+   "exchange": "AssetExchange.NASDAQ",
+   "dollar_adv": null,
+   "spread_bps": null,
+   "price": null
+  },
+  {
+   "rank": 1608,
+   "symbol": "GSRFU",
+   "ranking_score": 0,
+   "composite_score": 0,
+   "group": "skeleton",
+   "dq_status": "missing",
+   "missing_fields": "",
+   "selection_eligible": false,
+   "name_class": "unit",
+   "suffix_class": "unit_sfx5",
+   "exchange": "AssetExchange.NASDAQ",
+   "dollar_adv": null,
+   "spread_bps": null,
+   "price": null
+  },
+  {
+   "rank": 1612,
+   "symbol": "HAVAU",
+   "ranking_score": 0,
+   "composite_score": 0,
+   "group": "skeleton",
+   "dq_status": "missing",
+   "missing_fields": "",
+   "selection_eligible": false,
+   "name_class": "unit",
+   "suffix_class": "unit_sfx5",
+   "exchange": "AssetExchange.NASDAQ",
+   "dollar_adv": null,
+   "spread_bps": null,
+   "price": null
+  },
+  {
+   "rank": 1615,
+   "symbol": "HCACU",
+   "ranking_score": 0,
+   "composite_score": 0,
+   "group": "skeleton",
+   "dq_status": "missing",
+   "missing_fields": "",
+   "selection_eligible": false,
+   "name_class": "unit",
+   "suffix_class": "unit_sfx5",
+   "exchange": "AssetExchange.NASDAQ",
+   "dollar_adv": null,
+   "spread_bps": null,
+   "price": null
+  }
+ ],
+ "FLAGS": [
+  [
+   "{\"edgar_catalyst\": true, \"lottery_fade\": true, \"overnight_gap\": true, \"squeeze_factor\": true}",
+   1518
+  ]
+ ],
+ "SENTIMENT_BAND": [
+  [
+   "None",
+   1518
+  ]
+ ],
+ "SENTIMENT_VALUE": [
+  [
+   "0",
+   1518
+  ]
+ ],
+ "MARKET_STATUS": [
+  [
+   "Varsay\u0131lan",
+   1518
+  ]
+ ],
+ "POINT_IN_TIME": [
+  [
+   "True",
+   1518
+  ]
+ ],
+ "FEATURE_AGE_MIN": {
+  "n": 0
+ },
+ "TIMESTAMP_RANGE": [
+  "2026-10-12 19:45",
+  "2026-10-16 20:45"
+ ],
+ "FEATURE_TS_SAMPLE": [
+  "LRCX",
+  {
+   "15m": "2026-10-16T19:45:00",
+   "1h": "2026-10-16T19:00:00",
+   "4h": "2026-10-16T16:00:00",
+   "1d": "2026-10-16T04:00:00"
+  }
+ ],
+ "CNT_adv_source": [
+  [
+   "close_volume_20d",
+   1518
+  ]
+ ],
+ "CNT_spread_source": [
+  [
+   "missing",
+   1518
+  ]
+ ],
+ "CNT_risk_data_quality": [
+  [
+   "high",
+   1517
+  ],
+  [
+   "medium",
+   1
+  ]
+ ],
+ "CNT_regime": [
+  [
+   "False",
+   971
+  ],
+  [
+   "True",
+   547
+  ]
+ ],
+ "CNT_vol_regime": [
+  [
+   "2",
+   979
+  ],
+  [
+   "1",
+   442
+  ],
+  [
+   "0",
+   97
+  ]
+ ],
+ "CNT_earnings_proximity": [
+  [
+   "0",
+   1421
+  ],
+  [
+   "0.2745",
+   11
+  ],
+  [
+   "0.2729",
+   8
+  ],
+  [
+   "0.4173",
+   5
+  ],
+  [
+   "0.2751",
+   5
+  ],
+  [
+   "0.2762",
+   5
+  ]
+ ],
+ "CNT_earnings_blackout": [
+  [
+   "False",
+   1511
+  ],
+  [
+   "True",
+   7
+  ]
+ ],
+ "CNT_telemetry_version": [
+  [
+   "p0.v1",
+   1518
+  ]
+ ],
+ "CNT_liquidity_ok": [
+  [
+   "False",
+   1352
+  ],
+  [
+   "True",
+   166
+  ]
+ ],
+ "CNT_execution_warning": [
+  [
+   "['missing_spread']",
+   1518
+  ]
+ ],
+ "SHORT_INT_TS": [
+  [
+   "none",
+   1518
+  ]
+ ],
+ "LIST_iwm_300m": {
+  "rows": 366,
+  "unique": 366,
+  "not_in_symbols": 0,
+  "tradable0": 0
+ },
+ "LIST_preset_1500": {
+  "rows": 1449,
+  "unique": 1449,
+  "not_in_symbols": 0,
+  "tradable0": 0
+ },
+ "UNION": {
+  "union": 1815,
+  "overlap": 0,
+  "union_tradable": 1815,
+  "export_symbols": 1801,
+  "export_in_union": 1801,
+  "export_not_in_union": [],
+  "n_export_not_in_union": 0,
+  "union_not_in_export": [
+   "ALGT",
+   "AMODW",
+   "AMPL",
+   "ANGI",
+   "BAERW",
+   "FGIWW",
+   "GIPRW",
+   "MOBBW",
+   "QSIAW",
+   "RNWWW",
+   "RVSNW",
+   "SENEB",
+   "WHLRL",
+   "WLDSW"
+  ],
+  "n_union_not_in_export": 14
+ },
+ "UNIVERSE_name_class": [
+  [
+   "common_other",
+   1551
+  ],
+  [
+   "adr",
+   91
+  ],
+  [
+   "preferred",
+   61
+  ],
+  [
+   "warrant",
+   48
+  ],
+  [
+   "etf_fund",
+   34
+  ],
+  [
+   "unit",
+   12
+  ],
+  [
+   "lp_trust_units",
+   10
+  ],
+  [
+   "debt_note",
+   7
+  ],
+  [
+   "right",
+   1
+  ]
+ ],
+ "UNIVERSE_name_vs_suffix": [
+  [
+   "preferred",
+   "",
+   61
+  ],
+  [
+   "warrant",
+   "warrant_sfx5",
+   47
+  ],
+  [
+   "unit",
+   "unit_sfx5",
+   12
+  ],
+  [
+   "lp_trust_units",
+   "",
+   10
+  ],
+  [
+   "debt_note",
+   "",
+   7
+  ],
+  [
+   "right",
+   "",
+   1
+  ],
+  [
+   "warrant",
+   "",
+   1
+  ],
+  [
+   "adr",
+   "warrant_sfx5",
+   1
+  ]
+ ],
+ "WATCH_meta": {
+  "ANNAW": [
+   "AleAnna, Inc. Warrant",
+   "AssetExchange.NASDAQ",
+   true,
+   false
+  ],
+  "NUAIW": [
+   "New Era Energy & Digital, Inc. Warrants",
+   "AssetExchange.NASDAQ",
+   true,
+   false
+  ],
+  "GSRFU": [
+   "GSR IV Acquisition Corp. Units",
+   "AssetExchange.NASDAQ",
+   false,
+   true
+  ],
+  "HAVAU": [
+   "Harvard Ave Acquisition Corporation Unit",
+   "AssetExchange.NASDAQ",
+   false,
+   true
+  ],
+  "HCACU": [
+   "Hall Chadwick Acquisition Corp. Unit",
+   "AssetExchange.NASDAQ",
+   false,
+   true
+  ]
+ },
+ "SHORTLIST_files": {
+  "n": 125,
+  "ncols_hist": [
+   [
+    119,
+    121
+   ],
+   [
+    113,
+    4
+   ]
+  ],
+  "rows_74col": 0
+ },
+ "SHORTLIST_last_files": [
+  {
+   "file": "shortlist_20261019_1238.csv",
+   "ncols": 119,
+   "nrows": 200,
+   "sha256": "05aac9d56f3ea18a3feffd868e98387e4eba6551178709d95aedd9b5d631c2f4"
+  },
+  {
+   "file": "shortlist_20261019_1245.csv",
+   "ncols": 119,
+   "nrows": 194,
+   "sha256": "00a2962e3564dc9d6692db68652c58573be2f1cd07fec93f29b1ca0f6c3423e2"
+  },
+  {
+   "file": "shortlist_20261019_1250.csv",
+   "ncols": 119,
+   "nrows": 198,
+   "sha256": "9cfef077fac1dee1aca9313155272d041ff452b38691b42a70fbc0acc6d37b14"
+  },
+  {
+   "file": "shortlist_20261019_1258.csv",
+   "ncols": 119,
+   "nrows": 200,
+   "sha256": "3034806de4f64f89374c0b4b2c67ee3258a7c137512116e2c3ee6901a0f35353"
+  },
+  {
+   "file": "shortlist_20261019_1303.csv",
+   "ncols": 119,
+   "nrows": 200,
+   "sha256": "5806c8e6ba611fc00940fce0492c63fb3a266ca3124a8d3fb17278448f4c9514"
+  },
+  {
+   "file": "shortlist_20261019_1308.csv",
+   "ncols": 119,
+   "nrows": 12,
+   "sha256": "eddc57c94bea6242f58fbb5935d7e369096f63ebafb530017a7f8e484896165d"
+  }
+ ],
+ "SHORTLIST_header74": null,
+ "SHORTLIST_missing_cols_top": null,
+ "SHORTLIST_composite": {},
+ "SHORTLIST_name_class": [],
+ "SHORTLIST_watch_positions": {},
+ "SHORTLIST_watch_counts": {},
+ "PRIOR_price_cache_adjusted_integrity_audit_2026-08-07.json": {
+  "sha256": "4eb9c4df9ea417b5b2dd8b3c40f5864f162bedb5715b297052f25c7ce69d9357",
+  "bytes": 153150,
+  "scalars": {
+   "status": "'diagnostic_only'",
+   "cache": "'data\\\\price_cache'",
+   "jump_threshold_pct": "50.0",
+   "price_field": "'adjusted_close'",
+   "symbols_scanned": "2039",
+   "symbols_with_large_jumps": "148",
+   "largest_abs_jump_median_pct": "158.787321"
+  },
+  "containers": {
+   "flagged_symbols": "list[148]"
+  }
+ },
+ "PRIOR_price_cache_adjusted_integrity_audit_2026-08-10.json": {
+  "sha256": "4eb9c4df9ea417b5b2dd8b3c40f5864f162bedb5715b297052f25c7ce69d9357",
+  "bytes": 153150,
+  "scalars": {
+   "status": "'diagnostic_only'",
+   "cache": "'data\\\\price_cache'",
+   "jump_threshold_pct": "50.0",
+   "price_field": "'adjusted_close'",
+   "symbols_scanned": "2039",
+   "symbols_with_large_jumps": "148",
+   "largest_abs_jump_median_pct": "158.787321"
+  },
+  "containers": {
+   "flagged_symbols": "list[148]"
+  }
+ },
+ "PRIOR_price_cache_adjusted_integrity_audit_2026-08-11_e2e.json": {
+  "sha256": "eebc921c7686c396381d8746141a88c52e0c286fab672582c909fb501437435c",
+  "bytes": 153150,
+  "scalars": {
+   "status": "'diagnostic_only'",
+   "cache": "'data\\\\price_cache'",
+   "jump_threshold_pct": "50.0",
+   "price_field": "'adjusted_close'",
+   "symbols_scanned": "2047",
+   "symbols_with_large_jumps": "148",
+   "largest_abs_jump_median_pct": "158.787321"
+  },
+  "containers": {
+   "flagged_symbols": "list[148]"
+  }
+ },
+ "PRIOR_price_cache_integrity_audit_2026-08-07.json": {
+  "sha256": "436fa74c5e1c6d429c910c6b98437fe8b1c89338a7f377647b4874c1f15e78f9",
+  "bytes": 396900,
+  "scalars": {
+   "status": "'diagnostic_only'",
+   "cache": "'data\\\\price_cache'",
+   "jump_threshold_pct": "50.0",
+   "symbols_scanned": "2039",
+   "symbols_with_large_jumps": "485",
+   "largest_abs_jump_median_pct": "173.57513"
+  },
+  "containers": {
+   "flagged_symbols": "list[485]"
+  }
+ },
+ "PRIOR_price_cache_integrity_audit_2026-08-11.json": {
+  "sha256": "18ed00b66111f6f26968442ddb325c86dcd1c7237f6a030d9d8a873226b9a7a5",
+  "bytes": 412261,
+  "scalars": {
+   "status": "'diagnostic_only'",
+   "cache": "'data\\\\price_cache'",
+   "jump_threshold_pct": "50.0",
+   "price_field": "'close'",
+   "symbols_scanned": "2047",
+   "symbols_with_large_jumps": "485",
+   "largest_abs_jump_median_pct": "173.57513"
+  },
+  "containers": {
+   "flagged_symbols": "list[485]"
+  }
+ },
+ "PRIOR_price_cache_integrity_audit_2026-08-11_e2e.json": {
+  "sha256": "18ed00b66111f6f26968442ddb325c86dcd1c7237f6a030d9d8a873226b9a7a5",
+  "bytes": 412261,
+  "scalars": {
+   "status": "'diagnostic_only'",
+   "cache": "'data\\\\price_cache'",
+   "jump_threshold_pct": "50.0",
+   "price_field": "'close'",
+   "symbols_scanned": "2047",
+   "symbols_with_large_jumps": "485",
+   "largest_abs_jump_median_pct": "173.57513"
+  },
+  "containers": {
+   "flagged_symbols": "list[485]"
+  }
+ },
+ "PRIOR_price_cache_integrity_audit_2026-08-12-e2e.json": {
+  "sha256": "18ed00b66111f6f26968442ddb325c86dcd1c7237f6a030d9d8a873226b9a7a5",
+  "bytes": 412261,
+  "scalars": {
+   "status": "'diagnostic_only'",
+   "cache": "'data\\\\price_cache'",
+   "jump_threshold_pct": "50.0",
+   "price_field": "'close'",
+   "symbols_scanned": "2047",
+   "symbols_with_large_jumps": "485",
+   "largest_abs_jump_median_pct": "173.57513"
+  },
+  "containers": {
+   "flagged_symbols": "list[485]"
+  }
+ },
+ "CACHE_catalyst_cache.json": {
+  "bytes": 164,
+  "mtime_utc": "2026-10-18T13:57:43.517302+00:00",
+  "sha256": "c8720aba2886c3c424e70cd5433c08d46afdca95b3b1fecc23b255936c6eacc4",
+  "n_keys": 2,
+  "ts_fields": {
+   "updated": "'2026-10-18T13:57:43.513485+00:00'"
+  },
+  "n_dict_values": 1
+ },
+ "CACHE_macro_regime.json": {
+  "bytes": 98,
+  "mtime_utc": "2026-10-18T12:00:09.967637+00:00",
+  "sha256": "82afd7b328651a418163daecd106f1f7c0dec5b97d3aaec853e7f15912ff1252",
+  "n_keys": 4,
+  "ts_fields": {
+   "regime": "'neutral'",
+   "updated": "'2026-10-18T12:00:09.934693+00:00'"
+  },
+  "n_dict_values": 0
+ },
+ "CACHE_sentiment_cache.json": "MISSING"
+}

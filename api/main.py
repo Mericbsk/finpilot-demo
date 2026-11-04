@@ -15,7 +15,7 @@ if _PROJECT_ROOT not in sys.path:
 
 # Load .env file into environment variables
 _env_path = Path(_PROJECT_ROOT) / ".env"
-if _env_path.exists():
+if os.getenv("FINPILOT_SKIP_DOTENV") != "1" and _env_path.exists():
     with open(_env_path) as _f:
         for _line in _f:
             _line = _line.strip()
@@ -30,11 +30,12 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 
 from api.middleware.pii_filter import PIIFilterMiddleware
+from api.middleware.rate_limiter import limiter
+from api.middleware.request_body_limit import AcademyRequestBodyLimitMiddleware
 from api.routers import (
     academy,
     advisory,
@@ -67,12 +68,6 @@ from api.routers import (
 )
 from core.monitoring import health_check, metrics, sentry_client
 from core.prometheus_exporter import get_metrics_output
-
-# ---------------------------------------------------------------------------
-# Rate limiter — 60 requests/minute per IP
-# ---------------------------------------------------------------------------
-limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
-
 
 def _archive_yesterday_on_startup() -> None:
     """Archive signals from the previous day on container start (idempotent)."""
@@ -285,7 +280,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=422,
-        content={"detail": exc.errors(), "body": str(exc.body)},
+        content={"detail": "Request validation failed"},
     )
 
 
@@ -352,6 +347,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(PIIFilterMiddleware)
+app.add_middleware(AcademyRequestBodyLimitMiddleware)
 
 # ---------------------------------------------------------------------------
 # Routers

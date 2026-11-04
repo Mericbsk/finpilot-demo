@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 import os
@@ -359,6 +360,145 @@ class TestPublishApprovalGate(unittest.TestCase):
 
 
 class TestWebPublication(unittest.TestCase):
+    @staticmethod
+    def _manifest():
+        return {
+            "schema_version": 1,
+            "approval_id": "approval-1",
+            "approved_by": "test-admin",
+            "approved_at": "2026-10-22T12:00:00+00:00",
+            "date": "2026-10-22",
+            "destination": "https://www.finpilot.at",
+            "source_commit": "commit-1",
+            "run_id": "run-1",
+            "scan_id": "scan-1",
+            "snapshot_id": "snapshot-1",
+            "artifact_path": "web/public/demo_snapshot.json",
+            "artifact_sha256": hashlib.sha256(b"{}\n").hexdigest(),
+            "public_copy_reviewed": True,
+        }
+
+    def test_publish_preflight_rejects_non_main_branch(self):
+        from scripts import publish_web
+
+        with patch.object(
+            publish_web,
+            "_git",
+            return_value=subprocess.CompletedProcess([], 0, "review/feature\n", ""),
+        ):
+            with self.assertRaisesRegex(ValueError, "only from main"):
+                publish_web._check_git_preflight()
+
+    def test_publish_preflight_rejects_dirty_tree_and_index(self):
+        from scripts import publish_web
+
+        results = [
+            subprocess.CompletedProcess([], 0, "main\n", ""),
+            subprocess.CompletedProcess([], 0, "head-1\n", ""),
+            subprocess.CompletedProcess([], 0, "head-1\n", ""),
+            subprocess.CompletedProcess([], 0, " M web/public/demo_snapshot.json\n M unrelated.txt\n", ""),
+        ]
+        with patch.object(publish_web, "_git", side_effect=results):
+            with self.assertRaisesRegex(ValueError, "working tree"):
+                publish_web._check_git_preflight()
+
+        results = [
+            subprocess.CompletedProcess([], 0, "main\n", ""),
+            subprocess.CompletedProcess([], 0, "head-1\n", ""),
+            subprocess.CompletedProcess([], 0, "head-1\n", ""),
+            subprocess.CompletedProcess([], 0, " M web/public/demo_snapshot.json\n", ""),
+            subprocess.CompletedProcess([], 1, "", ""),
+        ]
+        with patch.object(publish_web, "_git", side_effect=results):
+            with self.assertRaisesRegex(ValueError, "index must be clean"):
+                publish_web._check_git_preflight()
+
+    def test_publish_preflight_allows_only_generated_web_artifact(self):
+        from scripts import publish_web
+
+        results = [
+            subprocess.CompletedProcess([], 0, "main\n", ""),
+            subprocess.CompletedProcess([], 0, "head-1\n", ""),
+            subprocess.CompletedProcess([], 0, "head-1\n", ""),
+            subprocess.CompletedProcess([], 0, " M web/public/demo_snapshot.json\n", ""),
+            subprocess.CompletedProcess([], 0, "", ""),
+        ]
+        with patch.object(publish_web, "_git", side_effect=results):
+            self.assertTrue(publish_web._check_git_preflight())
+
+    def test_publish_preflight_rejects_main_not_synced_with_origin(self):
+        from scripts import publish_web
+
+        results = [
+            subprocess.CompletedProcess([], 0, "main\n", ""),
+            subprocess.CompletedProcess([], 0, "local-head\n", ""),
+            subprocess.CompletedProcess([], 0, "origin-head\n", ""),
+        ]
+        with patch.object(publish_web, "_git", side_effect=results):
+            with self.assertRaisesRegex(ValueError, "match origin/main"):
+                publish_web._check_git_preflight()
+
+    def test_main_requires_exact_interactive_snapshot_approval(self):
+        from scripts import publish_web
+
+        with (
+            patch.object(publish_web, "_validate_release", return_value=self._manifest()),
+            patch.object(publish_web, "_check_git_preflight", return_value=True),
+            patch("builtins.input", return_value="not the approval"),
+            patch.object(publish_web, "_publish") as publish,
+            patch("sys.stderr", io.StringIO()),
+        ):
+            self.assertEqual(publish_web.main(["--manifest", "approval.json"]), 1)
+            publish.assert_not_called()
+
+    def test_release_manifest_missing_fields_is_rejected(self):
+        from scripts import publish_web
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest_path = Path(temp_dir) / "release.json"
+            manifest_path.write_text("{}\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "missing fields"):
+                publish_web._validate_release(manifest_path)
+
+    def test_publish_refuses_extra_staged_paths(self):
+        from scripts import publish_web
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            snapshot_path = root / "web" / "public" / "demo_snapshot.json"
+            snapshot_path.parent.mkdir(parents=True)
+            snapshot_path.write_bytes(b"{}\n")
+            results = [
+                subprocess.CompletedProcess([], 0, "", ""),
+                subprocess.CompletedProcess(
+                    [], 0, "web/public/demo_snapshot.json\nunrelated.txt\n", ""
+                ),
+            ]
+            with (
+                patch.object(publish_web, "ROOT", root),
+                patch.object(publish_web, "_git", side_effect=results) as mock_git,
+                patch("sys.stderr", io.StringIO()),
+            ):
+                self.assertEqual(publish_web._publish(self._manifest()), 1)
+                self.assertEqual(mock_git.call_count, 2)
+
+    def test_publish_refuses_working_artifact_hash_mismatch_before_git(self):
+        from scripts import publish_web
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            snapshot_path = root / "web" / "public" / "demo_snapshot.json"
+            snapshot_path.parent.mkdir(parents=True)
+            snapshot_path.write_bytes(b'{"new":true}\n')
+            manifest = self._manifest()
+            with (
+                patch.object(publish_web, "ROOT", root),
+                patch.object(publish_web, "_git") as mock_git,
+                patch("sys.stderr", io.StringIO()),
+            ):
+                self.assertEqual(publish_web._publish(manifest), 1)
+                mock_git.assert_not_called()
+
     def test_full_snapshot_has_terminal_newline_without_content_change(self):
         from distribution.schema import demo_view
 
@@ -403,22 +543,29 @@ class TestWebPublication(unittest.TestCase):
             root = Path(temp_dir)
             snapshot_path = root / "web" / "public" / "demo_snapshot.json"
             snapshot_path.parent.mkdir(parents=True)
-            snapshot_path.write_text("{}\n", encoding="utf-8")
+            snapshot_path.write_bytes(b"{}\n")
             hook_output = "fix end of files...Failed\nfiles were modified by this hook"
             git_error = "line-ending warning\n" * 20 + "complete commit error"
             results = [
                 subprocess.CompletedProcess([], 0, "", ""),
                 subprocess.CompletedProcess([], 0, "web/public/demo_snapshot.json\n", ""),
+                subprocess.CompletedProcess([], 0, "", ""),
+                subprocess.CompletedProcess([], 0, "main\n", ""),
                 subprocess.CompletedProcess([], 1, hook_output, git_error),
             ]
             output = io.StringIO()
             with (
                 patch.object(publish_web, "ROOT", root),
                 patch.object(publish_web, "_git", side_effect=results) as mock_git,
+                patch.object(
+                    publish_web,
+                    "_git_bytes",
+                    return_value=subprocess.CompletedProcess([], 0, b"{}\n", b""),
+                ),
                 patch("sys.stderr", output),
             ):
-                self.assertEqual(publish_web.main(), 1)
-                self.assertEqual(mock_git.call_count, 3)
+                self.assertEqual(publish_web._publish(self._manifest()), 1)
+                self.assertEqual(mock_git.call_count, 5)
             self.assertIn(hook_output, output.getvalue())
             self.assertIn(git_error, output.getvalue())
 
@@ -429,22 +576,35 @@ class TestWebPublication(unittest.TestCase):
             root = Path(temp_dir)
             snapshot_path = root / "web" / "public" / "demo_snapshot.json"
             snapshot_path.parent.mkdir(parents=True)
-            snapshot_path.write_text("{}\n", encoding="utf-8")
+            snapshot_path.write_bytes(b"{}\n")
             git_error = "line-ending warning\n" * 20 + "fatal: no upstream branch"
             results = [
                 subprocess.CompletedProcess([], 0, "", ""),
                 subprocess.CompletedProcess([], 0, "web/public/demo_snapshot.json\n", ""),
+                subprocess.CompletedProcess([], 0, "", ""),
+                subprocess.CompletedProcess([], 0, "main\n", ""),
                 subprocess.CompletedProcess([], 0, "commit succeeded", ""),
+                subprocess.CompletedProcess([], 0, "web/public/demo_snapshot.json\n", ""),
+                subprocess.CompletedProcess([], 0, "main\n", ""),
+                subprocess.CompletedProcess([], 0, "", ""),
                 subprocess.CompletedProcess([], 128, "push details", git_error),
             ]
             output = io.StringIO()
             with (
                 patch.object(publish_web, "ROOT", root),
                 patch.object(publish_web, "_git", side_effect=results) as mock_git,
+                patch.object(
+                    publish_web,
+                    "_git_bytes",
+                    side_effect=[
+                        subprocess.CompletedProcess([], 0, b"{}\n", b""),
+                        subprocess.CompletedProcess([], 0, b"{}\n", b""),
+                    ],
+                ),
                 patch("sys.stderr", output),
             ):
-                self.assertEqual(publish_web.main(), 1)
-                self.assertEqual(mock_git.call_count, 4)
+                self.assertEqual(publish_web._publish(self._manifest()), 1)
+                self.assertEqual(mock_git.call_count, 9)
             self.assertIn("push details", output.getvalue())
             self.assertIn(git_error, output.getvalue())
 

@@ -1,0 +1,284 @@
+db sha256=b64c0c5262e0d685daa1309e6293d27c208f64a6fc213b3c00e3cb896bd5f5f6 bytes=7811072
+======== X. EXECUTION TABLES ========
+alpaca_orders n,filled_price_nonnull,filled_qty_nonnull,filled_at_nonnull,min/max created,min/max submitted: (14, 0, 0, 0, '2026-06-09T22:33:29.486116', '2026-10-16T15:36:02.736758', '2026-06-09 22:33:28.844063+00:00', '2026-10-16 15:36:03.088277+00:00')
+alpaca_orders by type/tif (n, limit_nonnull, stop_nonnull): [('limit_bracket', 'day', 14, 14, 14)]
+watchlist_signals n,min/max signal_date,min/max added_at: (1158, '2026-05-12', '2026-10-19', '2026-05-12T20:04:55.340239+00:00', '2026-10-19T10:08:54.267875+00:00')
+watchlist_signals status_lifecycle.status top: [('resolved_loss', 702), ('expired', 232), ('resolved_win', 90), ('new', 70), ('watching', 64)]
+======== M. METADATA (all rows; no outcomes) ========
+n_rows=5748 cohorts=[('C_other', 3654), ('A_entry_ok_key', 2065), ('B_grade_key', 29)]
+cohort A entry_ok values: [('False', 2059), ('True', 6)]
+signal_date parse fail=0 ts parse fail=0
+signal_date month counts: [('2025-09', 1579), ('2025-10', 580), ('2025-11', 6), ('2025-12', 6), ('2026-02', 1533), ('2026-03', 892), ('2026-04', 179), ('2026-05', 944), ('2026-07', 8), ('2026-08', 11), ('2026-09', 10)]
+partition: nonlocked(sd<=2026-05-21)=5687 metadata_only(sd>2026-05-21 or None)=61 PIT-window rows=0
+stored barrier status (all): [('resolved_loss', 3641), ('resolved_win', 1565), (None, 532), ('expired_win', 8), ('expired_loss', 2)]
+stored barrier status nonlocked: [('resolved_loss', 3625), ('resolved_win', 1549), (None, 503), ('expired_win', 8), ('expired_loss', 2)]
+stored barrier status metadata_only partition: [(None, 29), ('resolved_win', 16), ('resolved_loss', 16)]
+resolver anchor (ts date first) minus signal_date, ALL: buckets=[('0', 3929), ('4-7', 318), ('8-14', 724), ('<0', 180), ('>14', 597)] n=5748 mean=5.953 p10=0.000 p25=0.000 p50=0.000 p75=5.000 p90=17.000
+resolver anchor (ts date first) minus signal_date, DECIDED: buckets=[('0', 3417), ('4-7', 316), ('8-14', 713), ('<0', 178), ('>14', 592)] n=5216 mean=6.517 p10=0.000 p25=0.000 p50=0.000 p75=12.000 p90=17.000
+same (symbol, signal_date) groups with >1 row=468 extra_rows=591 groups_identical_levels=194
+consecutive distinct signal_date gap per symbol (calendar days): <=1 1342/4033=33.3%, <=7 3292/4033=81.6%, <=14 3376/4033=83.7%
+======== G. LEVEL GEOMETRY (payload levels; no outcomes) ========
+level validity: [('valid', 5746), ('sl<=0_or_sl>=entry', 1), ('tp<=entry', 1)]
+ALL_VALID stop_pct: n=5746 mean=1.449 p10=0.446 p25=0.649 p50=1.058 p75=1.761 p90=2.703
+ALL_VALID tp_pct:   n=5746 mean=3.840 p10=0.936 p25=1.471 p50=2.805 p75=4.808 p90=7.528
+ALL_VALID rr:       n=5746 mean=2.572 p10=1.998 p25=2.000 p50=2.597 p75=3.267 p90=3.336
+ALL_VALID rr round2 top: [(2.0, 1313), (2.6, 893), (3.33, 508), (3.34, 285), (1.99, 263), (2.59, 242), (2.01, 236), (2.61, 219), (3.32, 166), (2.02, 110), (3.35, 93), (2.62, 84)]
+ALL_VALID rr round1 top: [(2.0, 2112), (2.6, 1687), (3.3, 1181), (3.4, 211), (2.7, 135), (2.5, 107), (2.8, 58), (3.2, 45)]
+NONLOCKED_VALID stop_pct: n=5685 mean=1.423 p10=0.444 p25=0.648 p50=1.052 p75=1.745 p90=2.661
+NONLOCKED_VALID tp_pct:   n=5685 mean=3.745 p10=0.934 p25=1.458 p50=2.778 p75=4.750 p90=7.273
+NONLOCKED_VALID rr:       n=5685 mean=2.564 p10=1.998 p25=2.000 p50=2.597 p75=3.200 p90=3.336
+NONLOCKED_VALID rr round2 top: [(2.0, 1313), (2.6, 893), (3.33, 477), (3.34, 280), (1.99, 263), (2.59, 242), (2.01, 236), (2.61, 219), (3.32, 164), (2.02, 110), (3.35, 92), (2.62, 84)]
+NONLOCKED_VALID rr round1 top: [(2.0, 2112), (2.6, 1687), (3.3, 1136), (3.4, 201), (2.7, 135), (2.5, 107), (2.8, 58), (3.2, 42)]
+payload risk_reward==0 share: 2532/5719=44.3%
+price[0,1): n=59 median_stop_pct=5.102 median_stop_ticks=2.8 stop<10ticks=58/59=98.3% one_tick_pct_median=1.818 one_tick/stop_median=0.357
+price[1,2): n=83 median_stop_pct=3.333 median_stop_ticks=5.0 stop<10ticks=72/83=86.7% one_tick_pct_median=0.680 one_tick/stop_median=0.200
+price[2,5): n=260 median_stop_pct=2.561 median_stop_ticks=9.0 stop<10ticks=153/260=58.8% one_tick_pct_median=0.280 one_tick/stop_median=0.111
+price[5,10): n=209 median_stop_pct=2.231 median_stop_ticks=15.5 stop<10ticks=48/209=23.0% one_tick_pct_median=0.140 one_tick/stop_median=0.065
+price[10,50): n=1203 median_stop_pct=1.440 median_stop_ticks=35.0 stop<10ticks=97/1203=8.1% one_tick_pct_median=0.037 one_tick/stop_median=0.029
+price[50,1e+09): n=3932 median_stop_pct=0.869 median_stop_ticks=160.3 stop<10ticks=21/3932=0.5% one_tick_pct_median=0.006 one_tick/stop_median=0.006
+entry<2.0 by cohort: {'A_entry_ok_key': '0/2065=0.0%', 'B_grade_key': '0/29=0.0%', 'C_other': '142/3652=3.9%'}
+======== P. DAILY-BAR PATH STATISTICS (nonlocked only; approximations) ========
+stages: [('nonlocked_valid', 5685), ('computed', 5676), ('no_d0_or_no_future', 9)]
+--- group ALL n=5676
+  d0 exact trading-day match: 4591/5676=80.9%
+  entry_price vs close(d0) %: n=5676 mean=2.890 p10=-1.302 p25=-0.382 p50=0.000 p75=0.269 p90=1.146
+  |entry/close(d0)-1|<=0.1%: 1918/5676=33.8%  <=1%: 4292/5676=75.6%
+  gap next open vs entry %: n=5676 mean=0.053 p10=-2.015 p25=-0.747 p50=0.117 p75=0.914 p90=2.215
+  gap next open vs close(d0) %: n=5676 mean=0.077 p10=-1.593 p25=-0.451 p50=0.059 p75=0.645 p90=1.484
+  next open above entry by >2%: 645/5676=11.4%; below by >2%: 573/5676=10.1%
+  MFE1 %: n=5676 mean=2.092 p10=-0.558 p25=0.359 p50=1.419 p75=3.045 p90=5.549
+  MAE1 %: n=5676 mean=-1.749 p10=-4.844 p25=-2.703 p50=-1.111 p75=-0.111 p90=0.756
+  MFE5 %: n=5673 mean=6.097 p10=0.158 p25=1.195 p50=3.191 p75=6.394 p90=11.991
+  MAE5 %: n=5673 mean=-4.629 p10=-10.949 p25=-6.209 p50=-3.211 p75=-1.198 p90=-0.018
+  MFE10 %: n=5671 mean=12.083 p10=0.468 p25=1.810 p50=4.539 p75=9.448 p90=18.346
+  MAE10 %: n=5671 mean=-6.545 p10=-15.129 p25=-9.125 p50=-4.518 p75=-2.004 p90=-0.449
+  runup5 %: n=5676 mean=1.539 p10=-5.827 p25=-2.085 p50=0.675 p75=3.951 p90=9.116
+  runup20 %: n=5676 mean=5.868 p10=-14.051 p25=-4.000 p50=1.929 p75=8.906 p90=19.957
+  daily ATR14 % of close: n=5676 mean=4.347 p10=1.501 p25=2.170 p50=3.457 p75=5.373 p90=7.609
+  stop distance in daily ATR: n=5673 mean=0.351 p10=0.216 p25=0.258 p50=0.313 p75=0.386 p90=0.464
+  TP distance in daily ATR: n=5673 mean=0.886 p10=0.537 p25=0.635 p50=0.778 p75=0.970 p90=1.185
+  stop<0.5 dailyATR: 5259/5676=92.7% stop<1.0 dailyATR: 5634/5676=99.3%
+  d1 low<=SL: 2939/5676=51.8% d1 high>=TP: 1539/5676=27.1% d1 both inside: 240/5676=4.2%
+  replay(signal_date anchor) status: [('resolved_loss', 3534), ('resolved_win', 2125), ('expired_win', 11), ('expired_loss', 4), ('incomplete', 2)]
+  first touch on bar 1 (decided): 4238/5659=74.9%
+  ambiguous (TP and SL both in hit bar) among replay wins: 267/2125=12.6%; among decided: 267/5659=4.7%
+  gap-through-stop among replay losses: 1155/3534=32.7%; open-based minus SL-based pct: n=1155 mean=-1.899 p10=-3.035 p25=-1.695 p50=-0.746 p75=-0.288 p90=-0.082
+  gap-through-TP among replay wins: 497/2125=23.4%
+  stored status == replay(rp_sd): 4080/5183=78.7%
+  stored status == replay(rp_res): 4605/5183=88.8%
+  [anchor differs] stored == replay(rp_sd): 1244/1799=69.1%
+  [anchor differs] stored == replay(rp_res): 1769/1799=98.3%
+  [anchor same] stored == replay(rp_sd): 2836/3384=83.8%
+  stored wins also replay wins (sd anchor) that are ambiguous: 117/1225=9.6%
+--- group PAYLOAD_ENTRY_OK_TRUE n=6
+  d0 exact trading-day match: 6/6=100.0%
+  entry_price vs close(d0) %: n=6 mean=2.301 p10=0.067 p25=0.617 p50=2.478 p75=3.394 p90=4.360
+  |entry/close(d0)-1|<=0.1%: 2/6=33.3%  <=1%: 2/6=33.3%
+  gap next open vs entry %: n=6 mean=-1.059 p10=-2.091 p25=-1.747 p50=-1.327 p75=-0.163 p90=0.240
+  gap next open vs close(d0) %: n=6 mean=1.200 p10=0.307 p25=0.545 p50=1.118 p75=1.587 p90=2.175
+  next open above entry by >2%: 0/6=0.0%; below by >2%: 1/6=16.7%
+  MFE1 %: n=6 mean=-0.511 p10=-1.266 p25=-1.218 p50=-0.993 p75=0.092 p90=0.727
+  MAE1 %: n=6 mean=-1.586 p10=-2.812 p25=-2.153 p50=-1.845 p75=-0.602 p90=-0.102
+  MFE5 %: n=6 mean=0.038 p10=-1.098 p25=-0.799 p50=-0.267 p75=0.785 p90=1.481
+  MAE5 %: n=6 mean=-2.876 p10=-5.645 p25=-3.297 p50=-2.881 p75=-0.848 p90=-0.102
+  MFE10 %: n=6 mean=0.808 p10=-0.317 p25=0.743 p50=1.153 p75=1.252 p90=1.589
+  MAE10 %: n=6 mean=-3.149 p10=-5.783 p25=-3.297 p50=-2.881 p75=-1.651 p90=-0.783
+  runup5 %: n=6 mean=-0.081 p10=-2.398 p25=-2.350 p50=-1.752 p75=2.108 p90=3.908
+  runup20 %: n=6 mean=0.146 p10=-1.280 p25=-0.566 p50=-0.027 p75=0.415 p90=1.744
+  daily ATR14 % of close: n=6 mean=1.738 p10=1.071 p25=1.290 p50=1.531 p75=1.916 p90=2.613
+  stop distance in daily ATR: n=6 mean=0.228 p10=0.198 p25=0.206 p50=0.229 p75=0.247 p90=0.258
+  TP distance in daily ATR: n=6 mean=0.523 p10=0.458 p25=0.477 p50=0.516 p75=0.577 p90=0.596
+  stop<0.5 dailyATR: 6/6=100.0% stop<1.0 dailyATR: 6/6=100.0%
+  d1 low<=SL: 4/6=66.7% d1 high>=TP: 0/6=0.0% d1 both inside: 0/6=0.0%
+  replay(signal_date anchor) status: [('resolved_loss', 4), ('resolved_win', 2)]
+  first touch on bar 1 (decided): 4/6=66.7%
+  ambiguous (TP and SL both in hit bar) among replay wins: 0/2=0.0%; among decided: 0/6=0.0%
+  gap-through-stop among replay losses: 4/4=100.0%; open-based minus SL-based pct: n=4 mean=-1.293 p10=-1.558 p25=-1.547 p50=-1.444 p75=-1.190 p90=-0.907
+  gap-through-TP among replay wins: 1/2=50.0%
+  stored status == replay(rp_sd): 5/6=83.3%
+  stored status == replay(rp_res): 5/6=83.3%
+  [anchor differs] stored == replay(rp_sd): 0/0
+  [anchor differs] stored == replay(rp_res): 0/0
+  [anchor same] stored == replay(rp_sd): 5/6=83.3%
+  stored wins also replay wins (sd anchor) that are ambiguous: 0/1=0.0%
+price_cache files used=1118 aggregate_sha256(name,sha lines)=3789326fd5e6b7cef2f1fef5b95893f295d0f98d8f17541b792e504793c37078 malformed_bars_in_used=592
+rows csv=ENX_paths_rows.csv manifest=ENX_price_cache_manifest.csv
+======== K. CODE VERIFICATION ========
+--- SRC scanner/evaluate.py (852 lines)
+   66| 
+   67| # Faz 6: cost-label thresholds
+   68| _COST_FLAT_PCT: float = 0.0020  # 0.20% round-trip cost assumption (retail fallback)
+   69| _THIN_EDGE_THRESH: float = 0.003  # net EV < 0.3% → thin edge
+   70| _DECAY_EV_THRESH: float = 0.005  # high-vol + net EV < 0.5% → edge_decay warning
+   71| 
+   72| 
+  402|             )
+  403|         else:
+  404|             risk_data = calculate_risk_management(
+  405|                 price=safe_float(last_price),
+  406|                 atr_val=safe_float(atr_val) if pd.notna(atr_val) else 0.01,
+--- SRC scanner/data_fetcher.py (1758 lines)
+   16| from concurrent.futures import ThreadPoolExecutor, as_completed
+  684|         for future in as_completed(futures):
+  793|         for future in as_completed(futures):
+ 1139|             for fut in as_completed(futures):
+ 1149| def _repair_partial_alpaca_result(
+ 1250|         "Alpaca partial repair: %d/%d symbols meet minimum history",
+ 1284|             alpaca_result = _repair_partial_alpaca_result(
+ 1350|         logger.warning("prefetch bulk yf.download partial failure — falling back to per-symbol")
+ 1356|     completed = 0
+ 1371|             for future in as_completed(futures, timeout=180):
+ 1383|                 completed += 1
+ 1386|                         progress_callback(completed, total)
+ 1392|             logger.warning("Prefetch incomplete: %s — boş veri", sym)
+--- SRC core/slippage_tracker.py (450 lines)
+   40| class FillRecord:
+   52|     def slippage_pct(self) -> float:
+   61|     def slippage_usd(self) -> float:
+   65|     def participation_rate(self) -> float:
+   77| class SlippageTracker:
+   83|     def __init__(self, tracker_file: Path = TRACKER_FILE):
+   88|     def _load(self):
+   98|     def save(self):
+  112|     def record_fill(
+  148|     def calibrate(self, min_records: int = 10) -> dict:
+  167|         def safe_stats(series):
+  176|         # Kyle's lambda — piyasa etkisi katsayısı
+  182|                 kyle_lambda = float(coefs[1])
+  184|                 kyle_lambda = 0.10
+  186|             kyle_lambda = 0.10
+  192|             "kyle_lambda": max(0.0, kyle_lambda),
+  193|             "avg_gap_pct": float(df["slippage_pct"].mean()),
+  205|     def _defaults(self) -> dict:
+  211|             "kyle_lambda": 0.10,
+  212|             "avg_gap_pct": 0.0010,
+  219|     def weekly_report(self) -> str:
+  233|             f"Kyle λ (piyasa etkisi): {cal['kyle_lambda']:.4f}",
+  234|             f"Ortalama gap: {cal['avg_gap_pct'] * 100:.3f}%",
+  241|         gap = cal["avg_gap_pct"] * pos
+  245|             f"  Gap risk:   ${gap:.2f}",
+  246|             f"  Toplam:     ${slip + comm + gap:.2f}  ({(slip + comm + gap) / pos * 100:.2f}%)",
+  257| class RealisticBacktestCosts:
+  265|     kyle_lambda: float = 0.10  # Piyasa etkisi katsayısı
+  266|     commission_per_side: float = 1.50  # $1.50 per taraf (IB Tiered)
+  267|     overnight_gap_pct: float = 0.0010  # %0.10 gap riski
+  272|     def from_tracker(cls, tracker: SlippageTracker) -> RealisticBacktestCosts:
+  278|             kyle_lambda=cal["kyle_lambda"],
+  279|             overnight_gap_pct=cal["avg_gap_pct"],
+  283|     def conservative(cls) -> RealisticBacktestCosts:
+  288|             overnight_gap_pct=0.0015,
+  291|     def entry_cost(self, price: float, shares: int, avg_volume: float = 1_000_000) -> dict:
+  300|         dynamic_slip = self.buy_slippage_pct + self.kyle_lambda * participation
+  302|         commission_usd = self.commission_per_side
+  303|         gap_usd = position_usd * self.overnight_gap_pct
+  305|         fill_price = price * (1 + dynamic_slip + self.overnight_gap_pct)
+  306|         total_cost = slippage_usd + commission_usd + gap_usd
+  311|             "commission_usd": round(commission_usd, 2),
+  312|             "gap_usd": round(gap_usd, 2),
+  317|     def exit_cost(
+  324|         dynamic_slip = self.sell_slippage_pct + self.kyle_lambda * participation
+  329|         commission_usd = self.commission_per_side
+  335|             "commission_usd": round(commission_usd, 2),
+  336|             "total_cost_usd": round(slippage_usd + commission_usd, 2),
+  340|     def round_trip_cost_pct(self, position_usd: float = 3000) -> float:
+  342|         entry_slip = self.buy_slippage_pct + self.overnight_gap_pct
+  344|         commissions = (self.commission_per_side * 2) / position_usd
+  345|         return (entry_slip + exit_slip + commissions) * 100
+  347|     def annual_drag(self, trades_per_year: int, avg_position_usd: float = 3000) -> float:
+  349|         cost_per_trade = self.round_trip_cost_pct(avg_position_usd) / 100
+  358| def apply_realistic_haircut(
+  383|         "commission_drag": round(annual_drag * 0.20, 2),
+  384|         "gap_drag": round(annual_drag * 0.15, 2),
+  390|         "cost_pct_per_trade": round(costs.round_trip_cost_pct(avg_position_usd), 3),
+  426|     print(f"  Gidiş-dönüş maliyet: {costs.round_trip_cost_pct():.3f}%")
+--- SRC scanner/execution_policy.py (118 lines)
+   35| def portfolio_adv_limit_enabled() -> bool:
+   39| def max_position_notional(dollar_adv: object) -> float | None:
+   42|         value = float(dollar_adv)  # type: ignore[arg-type]
+   62|     adv_available = bool(available.get("dollar_adv", False))
+   63|     feasible = adv_available or not execution_policy_enabled()
+   64|     reasons = [] if feasible else ["missing_dollar_adv"]
+   66|     if not adv_available:
+   68|     if not available.get("spread_bps", False):
+   69|         warnings.append("missing_spread")
+   71|         "execution_confidence": "Tier 2"
+   74|             for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
+   76|         else "Tier 1"
+   77|         if adv_available
+   78|         else "Tier 0",
+   79|         "data_quality_tier": "Tier 2"
+   82|             for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
+   84|         else "Tier 1"
+   85|         if adv_available
+   86|         else "Tier 0",
+   88|         "execution_feasible": feasible,
+   95| def position_cap(dollar_adv: object, requested_notional: object) -> dict[str, Any]:
+   96|     cap = max_position_notional(dollar_adv)
+  101|     if not portfolio_adv_limit_enabled() or cap is None:
+  111|         "position_cap_reject_reason": "adv_position_cap" if requested > cap else None,
+--- SRC core/paper_portfolio.py (291 lines)
+   37| # Transaction cost model: 5 bps slippage + 5 bps commission per side = 10 bps round-trip
+   39| COMMISSION_BPS: float = 5.0  # broker commission per side
+  148|     # Apply transaction costs: slippage + commission on both entry and exit
+  149|     cost_factor = (SLIPPAGE_BPS + COMMISSION_BPS) / 10_000.0
+  150|     entry_cost = entry * cost_factor
+  151|     exit_cost = float(exit_price) * cost_factor
+  152|     adjusted_entry = entry + entry_cost if direction == "BUY" else entry - entry_cost
+  154|         float(exit_price) - exit_cost if direction == "BUY" else float(exit_price) + exit_cost
+  167|         "cost_bps": round((cost_factor * 2) * 10_000, 1),
+--- SRC core/outcome_reconciler.py (345 lines)
+   60|         )
+   61|     except Exception as exc:
+   62|         logger.debug("outcome_reconciler: yf.download(%s) failed: %s", symbol, exc)
+   63|         return None
+   64| 
+   65|     if df is None or df.empty:
+   66|         return None
+   67| 
+   68|     # Filter to bars on/after the target date; otherwise take the last available bar
+   69|     try:
+   70|         idx = df.index
+   71|         target_date = target_dt.date()
+   72|         after = df[idx.date >= target_date]
+   73|         bar = after.iloc[0] if not after.empty else df.iloc[-1]
+   74|         close = bar["Close"]
+   75|         # multi-ticker fallback (when df has MultiIndex columns)
+   76|         if hasattr(close, "iloc"):
+   77|             close = close.iloc[0]
+   78|         return float(close)
+   79|     except Exception as exc:
+   80|         logger.debug("outcome_reconciler: parse close for %s failed: %s", symbol, exc)
+   81|         return None
+   82| 
+   83| 
+   84| def _compute_profit_pct(direction: str, entry_price: float, exit_price: float) -> float:
+   85|     sign = 1.0 if direction == "BUY" else -1.0
+   86|     return sign * (exit_price - entry_price) / entry_price * 100.0
+   87| 
+   88| 
+   89| def reconcile_open_signals(
+   90|     hold_days: int = HOLD_DAYS,
+  120|         try:
+  121|             entry_ts = int(sig.get("ts", 0))
+  122|             if now_ms - entry_ts < min_age_ms:
+  123|                 summary["skipped_age"] += 1
+  124|                 continue
+  125| 
+  126|             symbol = sig["symbol"]
+  127|             cycle = int(sig.get("cycle", 0))
+  128|             entry_price = float(sig.get("price", 0) or 0)
+  129|             if entry_price <= 0:
+  130|                 summary["skipped_data"] += 1
+  131|                 continue
+  132| 
+  133|             exit_price = _fetch_close_after(symbol, entry_ts, hold_days)
+  134|             if exit_price is None or exit_price <= 0:
+  135|                 summary["skipped_data"] += 1
+  136|                 continue
+  137| 
+  138|             direction = sig.get("direction", "BUY")
+  139|             profit_pct = _compute_profit_pct(direction, entry_price, exit_price)
+  140| 
+  141|             record_outcome(symbol=symbol, cycle=cycle, profit_pct=profit_pct)
+  142| 
+DONE_ENX

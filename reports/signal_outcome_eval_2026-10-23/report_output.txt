@@ -1,0 +1,42 @@
+
+######## SHORTLIST BUY (entry_ok): total 1906 | finished(21d) 1745 | still open 161 | no data 0 | date 2025-09-16..2026-10-23
+all finished (|dev|<=20%)          n= 1574 | TP-first  24.0% STOP-first  72.7% none  3.3% | +3%<stop  37.6% +5%<stop  27.7% | 5d touch +3 56.4% +5 39.3% | gross mean -1.48% med -1.75% net -2.03%
+strict entry (|dev|<=2%)           n= 1020 | TP-first  26.0% STOP-first  70.5% none  3.5% | +3%<stop  34.0% +5%<stop  24.1% | 5d touch +3 54.6% +5 35.5% | gross mean -0.61% med -1.11% net -1.16%
+  planned SL median -1.82% TP median 5.89% | stop on day1 49.6% | 5d MFE med 3.71% MAE med -5.38%
+  monthly (current SL/TP):
+    2025-09 n=  20 TP  40.0% STOP  60.0% | +3%<stop  35.0% | mean +0.42%
+    2025-10 n=   5 TP  20.0% STOP  80.0% | +3%<stop  20.0% | mean -0.85%
+    2025-12 n=   2 TP 100.0% STOP   0.0% | +3%<stop   0.0% | mean +1.05%
+    2026-04 n=  85 TP  72.9% STOP  27.1% | +3%<stop  69.4% | mean +3.61%
+    2026-05 n= 886 TP  24.9% STOP  75.1% | +3%<stop  27.0% | mean -0.74%
+    2026-06 n=  75 TP  42.7% STOP  54.7% | +3%<stop  57.3% | mean +0.07%
+    2026-07 n= 392 TP  10.2% STOP  80.4% | +3%<stop  45.7% | mean -4.30%
+    2026-08 n=  52 TP   7.7% STOP  75.0% | +3%<stop  59.6% | mean -2.86%
+    2026-09 n=  57 TP  14.0% STOP  78.9% | +3%<stop  57.9% | mean -2.87%
+  FIXED TP+4/SL-6: n=1574 TP 50.6% STOP 45.5% none 3.9% | gross mean -0.63% med +4.00% net -1.18%
+    2025-09 n=  20 TP  85.0% STOP   5.0% mean +3.33%
+    2025-10 n=   5 TP  60.0% STOP  20.0% mean +1.79%
+    2025-12 n=   2 TP   0.0% STOP   0.0% mean -0.18%
+    2026-04 n=  85 TP  87.1% STOP  11.8% mean +3.77%
+    2026-05 n= 886 TP  48.3% STOP  48.5% mean -0.95%
+    2026-06 n=  75 TP  74.7% STOP  20.0% mean +2.14%
+    2026-07 n= 392 TP  40.6% STOP  53.8% mean -1.72%
+    2026-08 n=  52 TP  55.8% STOP  42.3% mean +0.07%
+    2026-09 n=  57 TP  52.6% STOP  45.6% mean -0.65%
+
+######## DAILY REPORT TOP-10: total 725 | finished(21d) 589 | still open 136 | no data 0 | date 2026-05-12..2026-10-23
+all finished (|dev|<=20%)          n=  510 | TP-first  20.2% STOP-first  70.2% none  9.6% | +3%<stop  50.4% +5%<stop  40.0% | 5d touch +3 61.0% +5 45.7% | gross mean -1.01% med -3.60% net -1.56%
+strict entry (|dev|<=2%)           n=  283 | TP-first  21.9% STOP-first  67.8% none 10.2% | +3%<stop  50.2% +5%<stop  38.5% | 5d touch +3 59.4% +5 41.7% | gross mean -0.00% med -2.62% net -0.55%
+  planned SL median -4.25% TP median 14.32% | stop on day1 34.1% | 5d MFE med 4.54% MAE med -4.87%
+  monthly (current SL/TP):
+    2026-05 n=  52 TP  23.1% STOP  75.0% | +3%<stop  30.8% | mean -0.91%
+    2026-06 n=  76 TP  31.6% STOP  59.2% | +3%<stop  60.5% | mean +0.02%
+    2026-07 n= 179 TP  17.3% STOP  69.8% | +3%<stop  49.7% | mean -1.33%
+    2026-08 n= 114 TP  16.7% STOP  71.9% | +3%<stop  49.1% | mean -1.72%
+    2026-09 n=  89 TP  19.1% STOP  75.3% | +3%<stop  56.2% | mean -0.41%
+  FIXED TP+4/SL-6: n=510 TP 51.0% STOP 44.3% none 4.7% | gross mean -0.32% med +4.00% net -0.87%
+    2026-05 n=  52 TP  50.0% STOP  46.2% mean -0.68%
+    2026-06 n=  76 TP  63.2% STOP  25.0% mean +1.06%
+    2026-07 n= 179 TP  48.6% STOP  46.9% mean -0.34%
+    2026-08 n= 114 TP  50.0% STOP  47.4% mean -0.31%
+    2026-09 n=  89 TP  47.2% STOP  50.6% mean -1.28%

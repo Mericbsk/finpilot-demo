@@ -1,0 +1,87 @@
+{
+  "allowed_row_fields": [
+    "symbol",
+    "entry_ok",
+    "score_input",
+    "legacy_quality_score",
+    "v2_score",
+    "squeeze_factor",
+    "conviction_tier",
+    "feature_timestamps",
+    "scan_id"
+  ],
+  "blind_bundle_allowed": false,
+  "execution_authorized": false,
+  "final_allowlist_status": "PENDING_MEMBER_AND_LINEAGE_REVIEW",
+  "historical_execution_identity": "UNKNOWN",
+  "layer": "Research",
+  "level": "A",
+  "limitations": [
+    "Field names come from unchanged approved V3, not a new rule",
+    "Top-level identity/envelope stays in source; final lineage mapping remains required",
+    "Nested allowed fields are retained without value comparison; nested definitions and temporal evidence still require review",
+    "This is one staged export candidate, not a finalized manifest or blind bundle",
+    "No source requiredness or inventory gate is closed by staging this member"
+  ],
+  "locked": false,
+  "population": {
+    "duplicate_symbol_counts": {},
+    "entry_ok_is_complete": true,
+    "entry_ok_states": {
+      "FALSE": 1790,
+      "MALFORMED": 0,
+      "MISSING": 0,
+      "TRUE": 11
+    },
+    "historical_execution_identity": "UNKNOWN",
+    "membership_hash_scope": "row_index, exact valid symbol, observed entry_ok state; not recovery values",
+    "missing_or_malformed_symbol_rows": 0,
+    "population_membership_sha256": "68a6f44fd3d5692baf5fb82de77ee772ade5d15d47dbff87c18aafea851b1146",
+    "population_rule": "EVERY_RESULT_ROW_IN_ORIGINAL_ORDER_NO_FILTER_NO_DEDUPLICATION",
+    "row_count": 1801,
+    "target_eligibility_review": "PENDING_PROTOCOL_TARGET_MAPPING",
+    "unique_valid_symbols": 1801
+  },
+  "projection": "FIELD_PROJECTION_NO_FILTER_NO_DEDUPLICATION_NO_IMPUTATION",
+  "protocol": {
+    "path": "reports/b2_1_provenance_recovery_preregistration_DRAFT_v3_2026-10-05.md",
+    "sha256": "6745641a28a254f2ff1c8d2fb6dc2ec599b58d7685248b73a361ef46ac2feaf0"
+  },
+  "real_execution_performed": false,
+  "role": "NON_BLIND_CUSTODIAN",
+  "schema_version": "b2-1-staged-export-candidate-v1",
+  "source": {
+    "availability": "AVAILABLE",
+    "bytes": 7158532,
+    "filesystem_mtime_utc": "2026-09-09T11:15:32.486763+00:00",
+    "historical_identity": "UNKNOWN",
+    "mtime_is_provenance": false,
+    "path": "data/distribution/scan_export_2026-09-09.json",
+    "sha256": "454dd92835201b5c019067ffd9945f6de531d07776a94b8b65164798312b2074",
+    "source_timestamp": null,
+    "temporal_validity": "UNKNOWN"
+  },
+  "source_envelope_fields_not_staged": [
+    "date",
+    "generated_at",
+    "result_count",
+    "run_id",
+    "scan_complete",
+    "scan_id",
+    "timing",
+    "universe"
+  ],
+  "staged_member": {
+    "availability": "AVAILABLE",
+    "bytes": 1475046,
+    "filesystem_mtime_utc": "2026-10-06T15:08:49.895817+00:00",
+    "historical_identity": "UNKNOWN",
+    "mtime_is_provenance": false,
+    "path": "reports/b2_1_staged_candidate_v1_2026-10-06/historical_scan_export.json",
+    "sha256": "0d67abf98ef8c9a5f94db201f671529917cea3e2677344ae3d582e3fb1406a49",
+    "source_timestamp": null,
+    "temporal_validity": "UNKNOWN"
+  },
+  "status": "CANDIDATE_ONLY_LOCK_BLOCKED",
+  "synthetic_gate": "NOT_RUN"
+}

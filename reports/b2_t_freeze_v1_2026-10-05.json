@@ -1,0 +1,655 @@
+{
+  "artifacts": [
+    {
+      "bytes": 4799,
+      "id": "scope",
+      "path": "reports/b2_t_synthetic_technical_validation_SCOPE_DRAFT_v1_2026-10-05.md",
+      "sha256": "7f50669db4eed7ce91a529f5015b60946e2933d7d7ab6a3a429c247fd48906e7"
+    },
+    {
+      "bytes": 14436,
+      "id": "implementation",
+      "path": "scripts/b2_t_technical_validation.py",
+      "sha256": "0c3202ca1bea5b7bebb380bc6134a112dc7c233ac0ee0304cdc5fc3368f6b350"
+    },
+    {
+      "bytes": 7691,
+      "id": "fixtures",
+      "path": "reports/b2_t_artificial_fixtures_v1_2026-10-05.json",
+      "sha256": "b6cdcce0a4c19ea50b4a4066f9fd8914df64da8a3767a9fb771463c64f138f39"
+    },
+    {
+      "bytes": 6267,
+      "id": "suite",
+      "path": "tests/test_b2_t_technical_validation_v1.py",
+      "sha256": "53db1a512550e3c524d2485105474d19dfee7852ef8caedabb1605003e00ca94"
+    }
+  ],
+  "authoring": "NON_BLIND_ENGINEERING",
+  "definition_references": [
+    {
+      "commit": "ff9658aa189d8ff0cbb9f3a0fecddab8a50b5b35",
+      "path": "scanner/score_engine.py",
+      "sha256": "9455d5205eb476261373700a71252062b44f85f209ebb1d693fc677151ba4a3f",
+      "use": "SOURCE_REFERENCE_ONLY_NOT_IMPORTED_OR_NUMERICAL_INPUT"
+    },
+    {
+      "commit": "ff9658aa189d8ff0cbb9f3a0fecddab8a50b5b35",
+      "path": "scanner/features.py",
+      "sha256": "edae0594cecb214e4d51e2486f63e767dcaac98e09ad62f8ac202b33c9b6df90",
+      "use": "SOURCE_REFERENCE_ONLY_NOT_IMPORTED_OR_NUMERICAL_INPUT"
+    }
+  ],
+  "execution_authorized": false,
+  "execution_receipt": null,
+  "fixture_review": {
+    "case_count": 28,
+    "kind": "SELF_REVIEW_ANALYTIC_EXPECTATIONS_NOT_INDEPENDENT",
+    "numerical_evaluation_performed": false,
+    "reviewer": "GitHub Copilot"
+  },
+  "isolation": "NOT_VERIFIED",
+  "limits": [
+    "No real rows, recovery or B2-1 suite execution",
+    "Host authoring context remains visible; -I/-S is not filesystem or network isolation",
+    "No result can satisfy a B2-1 gate",
+    "Explicit separate frozen-bundle execution receipt required"
+  ],
+  "output_path": "reports/b2_t_technical_results_v1_2026-10-05.json",
+  "runtime": {
+    "executable": {
+      "bytes": 103192,
+      "sha256": "15b41a488c356c0e331facdea6c836a6cec021f12d5fde9844e7ca4a1aa0361a"
+    },
+    "flags": {
+      "dont_write_bytecode": true,
+      "isolated": 1,
+      "no_site": 1
+    },
+    "implementation": "CPython",
+    "limitations": [
+      "Loaded stdlib source/cache/extensions and Python DLLs hashed, not a full OS DLL or reproducible image snapshot",
+      "Current runtime identity only, not the September historical runtime"
+    ],
+    "machine": "AMD64",
+    "stdlib_and_interpreter_members": [
+      {
+        "bytes": 85272,
+        "path": "DLLs/_bz2.pyd",
+        "sha256": "f81dc49eac5ecc528e628175add2ff6bda695a93ea76671d7187155aa6326abb"
+      },
+      {
+        "bytes": 251672,
+        "path": "DLLs/_decimal.pyd",
+        "sha256": "e4104e47399d3f635a14d649f61250e9fd37f7e65c81ffe11f099923f8532577"
+      },
+      {
+        "bytes": 65816,
+        "path": "DLLs/_hashlib.pyd",
+        "sha256": "79c4cde23397b9a35b54a3c2298b3c7a844454f4387cb0693f15e4facd227dd2"
+      },
+      {
+        "bytes": 160024,
+        "path": "DLLs/_lzma.pyd",
+        "sha256": "a6e2a5bb7a33ad9054f178786a031a46ea560faeef1fb96259331500aae9154c"
+      },
+      {
+        "bytes": 36632,
+        "path": "DLLs/_wmi.pyd",
+        "sha256": "1a105311a5ed88a31472b141b4b6daa388a1cd359fe705d9a7a4aba793c5749f"
+      },
+      {
+        "bytes": 5365,
+        "path": "Lib/__future__.py",
+        "sha256": "bf11d13b6c9b2b8706be425addf399965738622bb4cc553217be16399c51d51a"
+      },
+      {
+        "bytes": 4743,
+        "path": "Lib/__pycache__/__future__.cpython-312.pyc",
+        "sha256": "e2c0116b0f3084e21ae9110777709bf35c94bb1b22ac0b10baf04d823151c5f0"
+      },
+      {
+        "bytes": 7536,
+        "path": "Lib/__pycache__/_compression.cpython-312.pyc",
+        "sha256": "81d6fb2f104a6e49c2ee76ca2d1d1526419ca4416180900e4ac8ae68866a7ff4"
+      },
+      {
+        "bytes": 11790,
+        "path": "Lib/__pycache__/_weakrefset.cpython-312.pyc",
+        "sha256": "724938815f2484af4796eacdd2796b12704ead210926d300759c76855cc263e4"
+      },
+      {
+        "bytes": 101295,
+        "path": "Lib/__pycache__/argparse.cpython-312.pyc",
+        "sha256": "ac5edefa2b35f18d2ccbebede2466d4f21346edec46aa7db505b3e20aa5b755f"
+      },
+      {
+        "bytes": 100318,
+        "path": "Lib/__pycache__/ast.cpython-312.pyc",
+        "sha256": "2f9558894b5d45e7cc50864a474d07bfc11f353a48d1ab49ac374bf09b09e931"
+      },
+      {
+        "bytes": 15172,
+        "path": "Lib/__pycache__/bz2.cpython-312.pyc",
+        "sha256": "d3e73cf5a508e7852dcb892b2d77516a44ed699d09a3ecb94e047c6f678efaeb"
+      },
+      {
+        "bytes": 30415,
+        "path": "Lib/__pycache__/contextlib.cpython-312.pyc",
+        "sha256": "4396860648d61fea27eb58464880da849b37d9b10c8f5c36515fbe562f319035"
+      },
+      {
+        "bytes": 7453,
+        "path": "Lib/__pycache__/copyreg.cpython-312.pyc",
+        "sha256": "03379ad3b5050209dec5f90b443040f34e56fd6397102affe62dedc5b3a4494b"
+      },
+      {
+        "bytes": 445,
+        "path": "Lib/__pycache__/decimal.cpython-312.pyc",
+        "sha256": "d435bfaa276f67dfa7d3b06694ffc8f390afc2b51c4028873ba70daf1c2e7a69"
+      },
+      {
+        "bytes": 80747,
+        "path": "Lib/__pycache__/enum.cpython-312.pyc",
+        "sha256": "dd52b5e4681470e7486e91e265cb44e0b0d5a746c63cd9edd89b88c9094193d7"
+      },
+      {
+        "bytes": 6534,
+        "path": "Lib/__pycache__/fnmatch.cpython-312.pyc",
+        "sha256": "58e58a15192888e490890f3c8ee9343e32a105c6c1426c3e986655f19a872830"
+      },
+      {
+        "bytes": 36706,
+        "path": "Lib/__pycache__/fractions.cpython-312.pyc",
+        "sha256": "c4aba61d6a3ffcaa82f58602cc3a58951e378ae4ef4e52ef4600b6e18ee3a7ba"
+      },
+      {
+        "bytes": 40545,
+        "path": "Lib/__pycache__/functools.cpython-312.pyc",
+        "sha256": "ad1860755b1f2c3846614a59ad3343e2927d6ddaef3c9adbb27cb3b46670ae60"
+      },
+      {
+        "bytes": 21891,
+        "path": "Lib/__pycache__/gettext.cpython-312.pyc",
+        "sha256": "e4555944b11e9770aef4d9c797a3782489e81b18dd093c0959179aaca34d8cbb"
+      },
+      {
+        "bytes": 8126,
+        "path": "Lib/__pycache__/hashlib.cpython-312.pyc",
+        "sha256": "9aef480c9c37fec369267a557810d47fb8249f8db671e2c300fd50d912888edb"
+      },
+      {
+        "bytes": 88734,
+        "path": "Lib/__pycache__/ipaddress.cpython-312.pyc",
+        "sha256": "bd0ad2f6888623626f076f4a161d20e2179363f0aaabd52859ed439aedaa0c96"
+      },
+      {
+        "bytes": 1080,
+        "path": "Lib/__pycache__/keyword.cpython-312.pyc",
+        "sha256": "1d48e2a7ed17a73c453e2d34f63ab37e7db7b51f090086513c0b3f7d7cd9e302"
+      },
+      {
+        "bytes": 59586,
+        "path": "Lib/__pycache__/locale.cpython-312.pyc",
+        "sha256": "9ee49910424f0a23dcf3d9997b4e8166f99b94f78f66c84941d61107dd1d0940"
+      },
+      {
+        "bytes": 15894,
+        "path": "Lib/__pycache__/lzma.cpython-312.pyc",
+        "sha256": "e9882bfa2a374d4fb4b70b968b12f6810d7347d2a15c3fbc3d95e0e17df27b5d"
+      },
+      {
+        "bytes": 14006,
+        "path": "Lib/__pycache__/numbers.cpython-312.pyc",
+        "sha256": "5116ca94b01d586e4ad5e50e9ddc62b187cabefc6b718d070433c096dd8edd0b"
+      },
+      {
+        "bytes": 17403,
+        "path": "Lib/__pycache__/operator.cpython-312.pyc",
+        "sha256": "40c61a41023b861ff4e3c18141f39ead669046d7434e29ca60f585b77cf09565"
+      },
+      {
+        "bytes": 62101,
+        "path": "Lib/__pycache__/pathlib.cpython-312.pyc",
+        "sha256": "9254712b8a2e64fcc9bf825ad6df17f5c2c01dd470b51cca787d7242cc6d29f5"
+      },
+      {
+        "bytes": 41639,
+        "path": "Lib/__pycache__/platform.cpython-312.pyc",
+        "sha256": "e58d9bd73300c55886708045cf14fafe0892f469a91008bf58af5900e2a0e524"
+      },
+      {
+        "bytes": 9948,
+        "path": "Lib/__pycache__/reprlib.cpython-312.pyc",
+        "sha256": "541ea424ee42a93a061fbeac9a9a13a91579180b462e35dee63ae10d7f090e03"
+      },
+      {
+        "bytes": 68152,
+        "path": "Lib/__pycache__/shutil.cpython-312.pyc",
+        "sha256": "9210459d7d285348d60ab80c9170bd6f3995c7275fe28b14f3a927f42dde9d93"
+      },
+      {
+        "bytes": 4487,
+        "path": "Lib/__pycache__/signal.cpython-312.pyc",
+        "sha256": "c13cc001aca668a7eaa93bb8bc848d3528e5753f13017f5d619a178d66c1f768"
+      },
+      {
+        "bytes": 79226,
+        "path": "Lib/__pycache__/subprocess.cpython-312.pyc",
+        "sha256": "139e61ad78f100cfd9c1facf1f9c269561db6b12414d96d0d7e400d9f552b9e6"
+      },
+      {
+        "bytes": 65385,
+        "path": "Lib/__pycache__/threading.cpython-312.pyc",
+        "sha256": "d75cb1d297cbb088fe8ffadd096332eebb710c71ff2f90473cd27532a57bcf98"
+      },
+      {
+        "bytes": 14978,
+        "path": "Lib/__pycache__/types.cpython-312.pyc",
+        "sha256": "d4f2c95bf95bbcd9090a24bbf64c6403177b0f45671c37b358c8eca4683c2d94"
+      },
+      {
+        "bytes": 141899,
+        "path": "Lib/__pycache__/typing.cpython-312.pyc",
+        "sha256": "4526e010a414fdad04f77ddcf5c627416b0a6e54f19c085134249c7d72fd9021"
+      },
+      {
+        "bytes": 23831,
+        "path": "Lib/__pycache__/warnings.cpython-312.pyc",
+        "sha256": "03bdb615dd192ace8603675115db4455f156e4b01e82d9458084227a04b5b951"
+      },
+      {
+        "bytes": 33255,
+        "path": "Lib/_collections_abc.py",
+        "sha256": "c3454744bf6b649f19e91ca1411e88ffd608e86f58375f3f8cee5ca53473e331"
+      },
+      {
+        "bytes": 5843,
+        "path": "Lib/_compression.py",
+        "sha256": "a10cf1a317374641bcdb8252499e9cb9d4d6e774ac724edfdddd0433ead771d9"
+      },
+      {
+        "bytes": 6098,
+        "path": "Lib/_weakrefset.py",
+        "sha256": "cf8031a6e21150438f3d2964c4152615b91a03894616d5b6930e0f14f44dabda"
+      },
+      {
+        "bytes": 6726,
+        "path": "Lib/abc.py",
+        "sha256": "d51c54428495cd62a5da4360315fa84f692b5aa9db21be986b3e14a83f7cf288"
+      },
+      {
+        "bytes": 104119,
+        "path": "Lib/argparse.py",
+        "sha256": "7778cd670473220869fbf4e58022eaced79b6e10f0f19a5a9c75e48144a47ced"
+      },
+      {
+        "bytes": 66095,
+        "path": "Lib/ast.py",
+        "sha256": "a3cc2501761596db13cdc84f085dd2736e5c352b51f39f26bdd2407d99dfbb72"
+      },
+      {
+        "bytes": 12191,
+        "path": "Lib/bz2.py",
+        "sha256": "a539fc503737c53d5a45272e33a435b8a6b7a8559ba6a425002978038096bd66"
+      },
+      {
+        "bytes": 37999,
+        "path": "Lib/codecs.py",
+        "sha256": "000cf1d683c677ed3de6d8e284376f81def4b91f93d68ee41bdf07c4e04cea77"
+      },
+      {
+        "bytes": 53970,
+        "path": "Lib/collections/__init__.py",
+        "sha256": "1eb4c4445883fd706016aca377d9e5c378bac0412d7c9b20f71cae695d6bb656"
+      },
+      {
+        "bytes": 73128,
+        "path": "Lib/collections/__pycache__/__init__.cpython-312.pyc",
+        "sha256": "973fd95ccfa018b59855dc41ddca316c65448d9d9c3740888e518fba03b37d72"
+      },
+      {
+        "bytes": 288,
+        "path": "Lib/collections/__pycache__/abc.cpython-312.pyc",
+        "sha256": "1592c7e5b3f8eca5676a57020965fa9bb4ace1ae78c4f8a22dbe922947aecdb3"
+      },
+      {
+        "bytes": 122,
+        "path": "Lib/collections/abc.py",
+        "sha256": "7ad86878712fc6682863f12208f4ced5daf2dd82b6ff5ed58207de29d0efa410"
+      },
+      {
+        "bytes": 28437,
+        "path": "Lib/contextlib.py",
+        "sha256": "a53b1db774f19c6b1e4320c2bc64058c49e3fba58b20b9c1158e5a8d02069890"
+      },
+      {
+        "bytes": 7831,
+        "path": "Lib/copyreg.py",
+        "sha256": "ea2363638fe83e8e5b007013a821841371a615d99414b3c2f8f19152ca109a07"
+      },
+      {
+        "bytes": 331,
+        "path": "Lib/decimal.py",
+        "sha256": "f205d8dc95d81b5d2b59362cbe0e385cfeeb98c14a70971f3372be1403378b03"
+      },
+      {
+        "bytes": 6058,
+        "path": "Lib/encodings/__init__.py",
+        "sha256": "8b997e9f7beef09de01c34ac34191866d3ab25e17164e08f411940b070bc3e74"
+      },
+      {
+        "bytes": 5829,
+        "path": "Lib/encodings/__pycache__/__init__.cpython-312.pyc",
+        "sha256": "76624b0adaf14e789662c26e17b9ac8378fff86d8f99d99f36bc7da2b4e458b9"
+      },
+      {
+        "bytes": 12447,
+        "path": "Lib/encodings/__pycache__/aliases.cpython-312.pyc",
+        "sha256": "3300b8d013634ca87fe73d0eafe8de363f6f2921dd5dfe74577d32483a02c23c"
+      },
+      {
+        "bytes": 3173,
+        "path": "Lib/encodings/__pycache__/cp1252.cpython-312.pyc",
+        "sha256": "fd2bbd26e8cde908ae7b6bf012a35b0be45decbf4c5d7f23869109f2534dbbb5"
+      },
+      {
+        "bytes": 2186,
+        "path": "Lib/encodings/__pycache__/utf_8.cpython-312.pyc",
+        "sha256": "feb2eb480df1a2b3f8b4e95737d402cde6cd9984fe72bf3654225b2c40dce007"
+      },
+      {
+        "bytes": 16228,
+        "path": "Lib/encodings/aliases.py",
+        "sha256": "1893cfb597bc5eafd38ef03ac85d8874620112514eb42660408811929cc0d6f8"
+      },
+      {
+        "bytes": 13818,
+        "path": "Lib/encodings/cp1252.py",
+        "sha256": "7acb7b80c29d9ffda0fe79540509439537216df3a259973d54e1fb23c34e7519"
+      },
+      {
+        "bytes": 1047,
+        "path": "Lib/encodings/utf_8.py",
+        "sha256": "9c54c7db8ce0722ca4ddb5f45d4e170357e37991afb3fcdc091721bf6c09257e"
+      },
+      {
+        "bytes": 83745,
+        "path": "Lib/enum.py",
+        "sha256": "9d1b2f7dd26000e03c483bc381c1af20395a3ac25c5fd988fbed742cd5278c9a"
+      },
+      {
+        "bytes": 6184,
+        "path": "Lib/fnmatch.py",
+        "sha256": "146d27a2853cd14c95ee49cc6130b9f84e2a56618dd1be695cddb20489460425"
+      },
+      {
+        "bytes": 39055,
+        "path": "Lib/fractions.py",
+        "sha256": "54ddef0252ddbe76a3bef3d821e1ae96bb5c655a1621b3b913c3ebde9d762a00"
+      },
+      {
+        "bytes": 39132,
+        "path": "Lib/functools.py",
+        "sha256": "bd6f192c31c5e266ad9eec9f550b8bc485f90d583764ff81aa3f36d1209f005e"
+      },
+      {
+        "bytes": 5468,
+        "path": "Lib/genericpath.py",
+        "sha256": "c540a28c560234d4d00d3451dfdde05b404f81a38bde87086ce8773021e1cc1b"
+      },
+      {
+        "bytes": 21966,
+        "path": "Lib/gettext.py",
+        "sha256": "da55e22f51bb369819fe4cc1201459c8f18ca948b6ca00137e6dfd7012814d83"
+      },
+      {
+        "bytes": 9602,
+        "path": "Lib/hashlib.py",
+        "sha256": "f0c8900585062c567a283cb782c3c867f86c38516e30f1f98a04ffa775b9a013"
+      },
+      {
+        "bytes": 70920,
+        "path": "Lib/importlib/_bootstrap_external.py",
+        "sha256": "a4644d1472529a8f2bdf039cc211630cc4b37cd293f8ae13fd8d974d37e6dc57"
+      },
+      {
+        "bytes": 3681,
+        "path": "Lib/io.py",
+        "sha256": "d70646d9c063dd0ac4293591639de75a100731d9f091f916fbca4857cd8a044e"
+      },
+      {
+        "bytes": 77311,
+        "path": "Lib/ipaddress.py",
+        "sha256": "4179279bf3a9711cc7a9c0e0679366113baed44428807be5a8f2c81b271f19b3"
+      },
+      {
+        "bytes": 14379,
+        "path": "Lib/json/__init__.py",
+        "sha256": "feb17670e443e5db2723f217727dcc5d5e155c40e4e6935b16061c88542f24e7"
+      },
+      {
+        "bytes": 13659,
+        "path": "Lib/json/__pycache__/__init__.cpython-312.pyc",
+        "sha256": "aa65897dae1a74065cbd715a587253c12edfd394791e01d2defebfe122c3d7b2"
+      },
+      {
+        "bytes": 13864,
+        "path": "Lib/json/__pycache__/decoder.cpython-312.pyc",
+        "sha256": "e11856cf6ba9fb642bd61b4c58538d6deea77f90c4cf84cd11163a98bca16767"
+      },
+      {
+        "bytes": 15137,
+        "path": "Lib/json/__pycache__/encoder.cpython-312.pyc",
+        "sha256": "a03add93cddf716d5078038d35fa7f6513f7e8161a55bd5ea32b3705ec0d0ce7"
+      },
+      {
+        "bytes": 3360,
+        "path": "Lib/json/__pycache__/scanner.cpython-312.pyc",
+        "sha256": "1c2b9d242754295a09c84f12183bb740e42b345aef68c8d25a4c99d4026d6952"
+      },
+      {
+        "bytes": 12829,
+        "path": "Lib/json/decoder.py",
+        "sha256": "b719fbcfcebd2b174f076e71292e22b1a17d9e258dbe896c768325383bad4f80"
+      },
+      {
+        "bytes": 16513,
+        "path": "Lib/json/encoder.py",
+        "sha256": "7db65c95f09297d57cc6273d78858b25ffcba65bc83709c4a15584d1dbef3c38"
+      },
+      {
+        "bytes": 2498,
+        "path": "Lib/json/scanner.py",
+        "sha256": "9841566fb17315ebdd40a1ca9cb214f02cde7171b187d4dc821c80120ea853c3"
+      },
+      {
+        "bytes": 1137,
+        "path": "Lib/keyword.py",
+        "sha256": "1f28f509383273238ad86eda04a96343fa0dc10eeaf3189439959d75cdac0a0b"
+      },
+      {
+        "bytes": 80336,
+        "path": "Lib/locale.py",
+        "sha256": "afc247d331c8af405fe65ece448c3f8f11db41d307afcc0e1f43318f2bce3f6e"
+      },
+      {
+        "bytes": 13633,
+        "path": "Lib/lzma.py",
+        "sha256": "da46fa7c6c554a0705cf9a7318279b56fd5f62f71a55ac28e9579616f11129d6"
+      },
+      {
+        "bytes": 32380,
+        "path": "Lib/ntpath.py",
+        "sha256": "35d008117c58c43967b9f7157eb5fbfea0eb2e94aea903859936c61f7eac3a1b"
+      },
+      {
+        "bytes": 11885,
+        "path": "Lib/numbers.py",
+        "sha256": "090c5543a1446c444960524b4bb73585cff1ac7420120bdd4805988327a4dbf9"
+      },
+      {
+        "bytes": 11432,
+        "path": "Lib/operator.py",
+        "sha256": "c57b6816cfddfa6e4a126583fca0a2563234018daec2cfb9b5142d855546955c"
+      },
+      {
+        "bytes": 40916,
+        "path": "Lib/os.py",
+        "sha256": "619143acd3bef191eea83bd869db1144cc1215c21f787c6471ee3e084022c81b"
+      },
+      {
+        "bytes": 52540,
+        "path": "Lib/pathlib.py",
+        "sha256": "19225df6facd98d01a9e15507288ef960b17b40fe464271b1b574499c73fc7a5"
+      },
+      {
+        "bytes": 44688,
+        "path": "Lib/platform.py",
+        "sha256": "25bc32228bcce3d8ce0949a03af71422d0f435494e465a2429e06ecf6fb4ad61"
+      },
+      {
+        "bytes": 18145,
+        "path": "Lib/posixpath.py",
+        "sha256": "a8ca0a31c50004d159560d7d3e24b00e2d162de93df27e1d50bda55bbf95b486"
+      },
+      {
+        "bytes": 16700,
+        "path": "Lib/re/__init__.py",
+        "sha256": "778cdca1fe51cddb7671d7a158c6bdecee1b7967e9f4a0ddf41cfb5320568c42"
+      },
+      {
+        "bytes": 17977,
+        "path": "Lib/re/__pycache__/__init__.cpython-312.pyc",
+        "sha256": "5cf185de47e37771b7115a5be0f34212db10a0f3822785c5ab84aa3e525cb3b4"
+      },
+      {
+        "bytes": 1855,
+        "path": "Lib/re/__pycache__/_casefix.cpython-312.pyc",
+        "sha256": "18863603dc0b972677c82ab6dc21cf28851b82279e980490311ca018d3c511b0"
+      },
+      {
+        "bytes": 26555,
+        "path": "Lib/re/__pycache__/_compiler.cpython-312.pyc",
+        "sha256": "f7bb8d7ed4ba09f0af0afdf1ca054712d8972c37439b8347dc509440ed3088f9"
+      },
+      {
+        "bytes": 5335,
+        "path": "Lib/re/__pycache__/_constants.cpython-312.pyc",
+        "sha256": "f634d769079f71393358770c5b07746990955f31c8829dc85ad2bdc88bae4f6f"
+      },
+      {
+        "bytes": 42046,
+        "path": "Lib/re/__pycache__/_parser.cpython-312.pyc",
+        "sha256": "edbd9159a6e7e31399307cb9f19568a79c6873a23f5703606d3004b199f841b8"
+      },
+      {
+        "bytes": 5552,
+        "path": "Lib/re/_casefix.py",
+        "sha256": "a1a8ce5d2051c96abb0c854f4a9c513c219e821f7285d28330f84eca71c341e2"
+      },
+      {
+        "bytes": 26854,
+        "path": "Lib/re/_compiler.py",
+        "sha256": "7151ee39cffc73db023430de5d6d8f13bc8244255c831d5c2934fccc991ca5e0"
+      },
+      {
+        "bytes": 6150,
+        "path": "Lib/re/_constants.py",
+        "sha256": "8df304954ca75dcd98b9f1f5e3cb5347adc6eaccfc461a94ab914e1b0085e9ab"
+      },
+      {
+        "bytes": 42281,
+        "path": "Lib/re/_parser.py",
+        "sha256": "bcc84f06d54e2d28506350a60bc1aaaa0efda4221f4ceeb05b2d0f48c712c479"
+      },
+      {
+        "bytes": 6762,
+        "path": "Lib/reprlib.py",
+        "sha256": "354fd4471a2d8c5972e67a38a8eb40040f12bd9b6acd260a889efed250770f0b"
+      },
+      {
+        "bytes": 59725,
+        "path": "Lib/shutil.py",
+        "sha256": "9b4f3fbed78e32b9b89760ab448bcc9217d602fc186554163f67502d9115d851"
+      },
+      {
+        "bytes": 2589,
+        "path": "Lib/signal.py",
+        "sha256": "0b7e3d3d39a120142dbf4875d7d79579cad8fee662add30c2375a797f0d2386e"
+      },
+      {
+        "bytes": 5680,
+        "path": "Lib/stat.py",
+        "sha256": "e514fd41e2933dd1f06be315fb42a62e67b33d04571435a4815a18f490e0f6ce"
+      },
+      {
+        "bytes": 90941,
+        "path": "Lib/subprocess.py",
+        "sha256": "4f08d583a95b415762d888fff499c19103040d4b7027e25a73d46c7e3d777d04"
+      },
+      {
+        "bytes": 61829,
+        "path": "Lib/threading.py",
+        "sha256": "2e15f4e0500260a756868ac0609c4702b10634a5dee5d89926f9e3bd642089f1"
+      },
+      {
+        "bytes": 11326,
+        "path": "Lib/types.py",
+        "sha256": "d7ce485ecd8d4d1531d8f710e538b4d1a49378afacb6ff9231e48c645a9fa95e"
+      },
+      {
+        "bytes": 120888,
+        "path": "Lib/typing.py",
+        "sha256": "45dad58211901fb3dc8001a3f5f60325bc046c149ef0219dfad6898f87690531"
+      },
+      {
+        "bytes": 0,
+        "path": "Lib/urllib/__init__.py",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 174,
+        "path": "Lib/urllib/__pycache__/__init__.cpython-312.pyc",
+        "sha256": "7271aa1db7df0dc2320a5eac8fca13cc9b263d5661e833e58cdb348fb4c12d58"
+      },
+      {
+        "bytes": 50133,
+        "path": "Lib/urllib/__pycache__/parse.cpython-312.pyc",
+        "sha256": "9699f707e58cb0b4ab1c91469bc899f77b5c575817d9ee6ced3b712439a790d1"
+      },
+      {
+        "bytes": 46165,
+        "path": "Lib/urllib/parse.py",
+        "sha256": "708c070638fb372ef0c7a8ec7dc38702a2d93a1b1c6598a31682ba05d7269be5"
+      },
+      {
+        "bytes": 22356,
+        "path": "Lib/warnings.py",
+        "sha256": "890980203db82e0360e616f1e6f7b6c2504424b2b815d268a944f10fca0698e0"
+      },
+      {
+        "bytes": 28852,
+        "path": "Lib/zipimport.py",
+        "sha256": "9d1e64f2678e00be1afc59c1b791978e609906668d31d8c2f4ab3fde160a0cc8"
+      },
+      {
+        "bytes": 68376,
+        "path": "python3.dll",
+        "sha256": "d2e348e615a5d3b08b0bac29b91f79b32f0c1d0be48976450042462466b51123"
+      },
+      {
+        "bytes": 6928664,
+        "path": "python312.dll",
+        "sha256": "c98ba3354a7d1f69bdca42560feec933ccba93afcc707391049a065e1079cddb"
+      }
+    ],
+    "third_party_dependencies": [],
+    "version": "3.12.3"
+  },
+  "schema_version": "b2-t-freeze-v1",
+  "scope_sha256": "7f50669db4eed7ce91a529f5015b60946e2933d7d7ab6a3a429c247fd48906e7",
+  "status": "PREPARED_FROZEN_NOT_RUN",
+  "study": "B2-T",
+  "verification": "NOT_INDEPENDENT"
+}

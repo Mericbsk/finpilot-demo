@@ -1,0 +1,125 @@
+=== LEGACY data/signal_archive exists=True ===
+N_FILES 55
+FILE 2025-09-12.json rows=43 batch0301=0 sig=2025-09-12..2025-09-12 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-12T09:00', 43)]
+FILE 2025-09-13.json rows=43 batch0301=0 sig=2025-09-13..2025-09-13 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-13T09:00', 43)]
+FILE 2025-09-15.json rows=111 batch0301=0 sig=2025-09-15..2025-09-15 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-15T09:00', 111)]
+FILE 2025-09-16.json rows=153 batch0301=0 sig=2025-09-16..2025-09-16 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-16T09:00', 153)]
+FILE 2025-09-17.json rows=153 batch0301=0 sig=2025-09-17..2025-09-17 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-17T09:00', 153)]
+FILE 2025-09-18.json rows=153 batch0301=0 sig=2025-09-18..2025-09-18 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-18T09:00', 153)]
+FILE 2025-09-22.json rows=153 batch0301=0 sig=2025-09-22..2025-09-22 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-22T09:00', 153)]
+FILE 2025-09-23.json rows=154 batch0301=0 sig=2025-09-23..2025-09-23 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-23T09:00', 154)]
+FILE 2025-09-24.json rows=154 batch0301=0 sig=2025-09-24..2025-09-24 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-24T09:00', 154)]
+FILE 2025-09-26.json rows=154 batch0301=0 sig=2025-09-26..2025-09-26 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-26T09:00', 154)]
+FILE 2025-09-27.json rows=154 batch0301=0 sig=2025-09-27..2025-09-27 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-27T09:00', 154)]
+FILE 2025-09-29.json rows=154 batch0301=0 sig=2025-09-29..2025-09-29 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-09-29T09:00', 154)]
+FILE 2025-10-01.json rows=154 batch0301=0 sig=2025-10-01..2025-10-01 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-10-01T09:00', 154)]
+FILE 2025-10-05.json rows=154 batch0301=0 sig=2025-10-05..2025-10-05 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-10-05T09:00', 154)]
+FILE 2025-10-06.json rows=154 batch0301=0 sig=2025-10-06..2025-10-06 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-10-06T09:00', 154)]
+FILE 2025-10-07.json rows=36 batch0301=36 sig=2025-10-07..2025-10-07 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 36)]
+FILE 2025-10-08.json rows=40 batch0301=40 sig=2025-10-08..2025-10-08 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 40)]
+FILE 2025-10-10.json rows=6 batch0301=0 sig=2025-10-10..2025-10-10 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-10-10T09:00', 6)]
+FILE 2025-10-14.json rows=6 batch0301=0 sig=2025-10-14..2025-10-14 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-10-14T09:00', 6)]
+FILE 2025-10-16.json rows=12 batch0301=12 sig=2025-10-16..2025-10-16 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 12)]
+FILE 2025-10-17.json rows=6 batch0301=6 sig=2025-10-17..2025-10-17 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 6)]
+FILE 2025-10-24.json rows=12 batch0301=12 sig=2025-10-24..2025-10-24 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 12)]
+FILE 2025-11-28.json rows=6 batch0301=0 sig=2025-11-28..2025-11-28 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-11-28T09:00', 6)]
+FILE 2025-12-01.json rows=6 batch0301=0 sig=2025-12-01..2025-12-01 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2025-12-01T09:00', 6)]
+FILE 2026-02-11.json rows=191 batch0301=191 sig=2026-02-11..2026-02-11 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 191)]
+FILE 2026-02-12.json rows=300 batch0301=300 sig=2026-02-12..2026-02-12 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 300)]
+FILE 2026-02-15.json rows=228 batch0301=228 sig=2026-02-15..2026-02-15 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 228)]
+FILE 2026-02-17.json rows=496 batch0301=496 sig=2026-02-17..2026-02-17 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 496)]
+FILE 2026-02-22.json rows=90 batch0301=90 sig=2026-02-22..2026-02-22 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 90)]
+FILE 2026-02-24.json rows=228 batch0301=228 sig=2026-02-24..2026-02-24 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 228)]
+FILE 2026-03-01.json rows=336 batch0301=331 sig=2026-03-01..2026-03-01 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-01T21:45', 331), ('2026-03-01T22:01', 5)]
+FILE 2026-03-02.json rows=75 batch0301=0 sig=2026-03-02..2026-03-02 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-02T20:51', 75)]
+FILE 2026-03-03.json rows=482 batch0301=0 sig=2026-03-03..2026-03-03 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-03-03T21:54', 257), ('2026-03-03T17:56', 95)]
+FILE 2026-04-03.json rows=49 batch0301=0 sig=2026-04-03..2026-04-03 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-04-02 19:45', 47), ('2026-04-02 19:00', 1)]
+FILE 2026-04-07.json rows=50 batch0301=0 sig=2026-04-07..2026-04-07 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-04-06 19:45', 50)]
+FILE 2026-04-16.json rows=50 batch0301=0 sig=2026-04-16..2026-04-16 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-04-16 17:45', 49), ('2026-04-16 16:30', 1)]
+FILE 2026-04-18.json rows=30 batch0301=0 sig=2026-04-18..2026-04-18 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-04-17 19:45', 30)]
+FILE 2026-05-04.json rows=50 batch0301=0 sig=2026-05-04..2026-05-04 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-05-04 16:45', 50)]
+FILE 2026-05-05.json rows=50 batch0301=0 sig=2026-05-05..2026-05-05 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-05-05 16:15', 35), ('2026-05-05 16:00', 14)]
+FILE 2026-05-06.json rows=30 batch0301=0 sig=2026-05-06..2026-05-06 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-05-06 14:15', 30)]
+FILE 2026-05-08.json rows=50 batch0301=0 sig=2026-05-08..2026-05-08 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-05-08 18:15', 50)]
+FILE 2026-05-11.json rows=50 batch0301=0 sig=2026-05-11..2026-05-11 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-05-11 14:30', 50)]
+FILE 2026-05-12.json rows=138 batch0301=0 sig=2026-05-12..2026-05-12 n_sig=1 mtime_utc=2026-05-20T09:15 top_added=[('2026-05-12T20:04', 138)]
+FILE 2026-05-13.json rows=55 batch0301=0 sig=2026-05-13..2026-05-13 n_sig=1 mtime_utc=2026-05-20T09:15 top_added=[('2026-05-13T21:59', 55)]
+FILE 2026-05-14.json rows=172 batch0301=0 sig=2026-05-14..2026-05-14 n_sig=1 mtime_utc=2026-05-20T09:15 top_added=[('2026-05-14T13:59', 172)]
+FILE 2026-05-15.json rows=50 batch0301=0 sig=2026-05-15..2026-05-15 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-05-15 18:00', 37), ('2026-05-15 17:45', 6)]
+FILE 2026-05-18.json rows=22 batch0301=0 sig=2026-05-18..2026-05-18 n_sig=1 mtime_utc=2026-05-20T09:15 top_added=[('2026-05-18T15:09', 22)]
+FILE 2026-05-19.json rows=147 batch0301=0 sig=2026-05-19..2026-05-19 n_sig=1 mtime_utc=2026-05-20T09:15 top_added=[('2026-05-19T13:57', 147)]
+FILE 2026-05-20.json rows=50 batch0301=0 sig=2026-05-20..2026-05-20 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-05-20 18:45', 49), ('2026-05-20 18:15', 1)]
+FILE 2026-05-21.json rows=50 batch0301=0 sig=2026-05-21..2026-05-21 n_sig=1 mtime_utc=2026-05-23T07:54 top_added=[('2026-05-20 19:45', 45), ('2026-05-20 19:00', 1)]
+FILE 2026-05-22.json rows=32 batch0301=0 sig=2026-05-22..2026-05-22 n_sig=1 mtime_utc=2026-05-23T07:24 top_added=[('2026-05-22T14:32', 30), ('2026-05-22T15:02', 2)]
+FILE 2026-06-01.json rows=59 batch0301=0 sig=2026-06-01..2026-06-01 n_sig=1 mtime_utc=2026-06-01T16:00 top_added=[('2026-06-01T19:00', 59)]
+FILE 2026-10-05.json rows=3 batch0301=0 sig=2026-10-05..2026-10-05 n_sig=1 mtime_utc=2026-10-06T15:06 top_added=[('2026-10-05T12:44', 1), ('2026-10-05T13:14', 1)]
+FILE 2026-10-08.json rows=2 batch0301=0 sig=2026-10-08..2026-10-08 n_sig=1 mtime_utc=2026-10-09T08:45 top_added=[('2026-10-08T17:07', 1), ('2026-10-08T17:26', 1)]
+FILE 2026-10-15.json rows=8 batch0301=0 sig=2026-10-15..2026-10-15 n_sig=1 mtime_utc=2026-10-16T11:54 top_added=[('2026-10-15T12:22', 2), ('2026-10-15T12:27', 2)]
+TOTALS {'rows': 5794, 'batch_0301_2145': 1970}
+=== CODE ===
+scanner/data_fetcher.py:554: def fetch_with_indicators(symbol: str, interval: str, days: int) -> pd.DataFrame:
+scanner/data_fetcher.py:555:     """
+scanner/data_fetcher.py:556:     Fetch data and add technical indicators.
+scanner/data_fetcher.py:558:     Convenience function combining fetch() and add_indicators().
+scanner/data_fetcher.py:560:     Args:
+scanner/data_fetcher.py:561:         symbol: Stock ticker symbol
+scanner/data_fetcher.py:562:         interval: Time interval
+scanner/data_fetcher.py:563:         days: Number of days of history
+scanner/data_fetcher.py:565:     Returns:
+scanner/data_fetcher.py:566:         DataFrame with OHLCV data and all technical indicators
+scanner/data_fetcher.py:567:     """
+scanner/data_fetcher.py:568:     df = fetch(symbol, interval, days)
+scanner/data_fetcher.py:569:     if df.empty:
+scanner/data_fetcher.py:570:         return pd.DataFrame()
+scanner/data_fetcher.py:571:     return add_indicators(df)
+scanner/data_fetcher.py:574: # ============================================
+scanner/data_fetcher.py:575: # \U0001f680 Parallel Multi-Timeframe Fetching
+scanner/data_fetcher.py:576: # ============================================
+scanner/data_fetcher.py:578: # Default timeframes for multi-timeframe analysis
+scanner/data_fetcher.py:579: # NOTE: yfinance does not reliably support "4h" as a native interval.
+scanner/data_fetcher.py:580: # The 4h DataFrame is derived by resampling the 1h data (fetched with 100-day window)
+scanner/data_fetcher.py:581: # inside fetch_multi_timeframe(), saving one network round-trip per symbol.
+scanner/data_fetcher.py:582: DEFAULT_TIMEFRAMES: list[tuple[str, int]] = [
+scanner/data_fetcher.py:583:     ("15m", 10),  # 15-minute, 10 days
+scanner/data_fetcher.py:584:     ("1h", 15),  # 1-hour, 15 days \u2014 enough for the derived 4h minimum history
+scanner/data_fetcher.py:585:     ("1d", 300),  # Daily, 300 days (~210 trading bars \u2014 enough for EMA200)
+scanner/data_fetcher.py:586: ]
+scanner/data_fetcher.py:588: MIN_HISTORY_BARS = {"15m": 15, "1h": 10, "4h": 15, "1d": 50}
+api/routers/history.py:18: """Load signals from signal_archive/*.json for the last `days` days."""
+api/routers/history.py:55: # Try signal_archive/*.json files
+api/routers/watchlist.py:104: """Load resolved signals from signal_archive/ (ge\xe7mi\u015f sinyaller)."""
+api/routers/watchlist.py:760: @router.post("/watchlist/archive", status_code=200)
+core/config.py:39: SIGNAL_ARCHIVE_DIR = DATA_DIR / "signal_archive"
+core/scheduler.py:800: # --- 4b. Feedback: strategy_optimizer \u2192 scanner_config.json \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+core/scheduler.py:809: os.path.dirname(os.path.dirname(__file__)), "data", "scanner_config.json"
+core/scheduler.py:821: logger.info("Scheduler: scanner_config.json updated from optimizer")
+core/scheduler.py:921: # Persist to scanner_config.json so the effect survives restarts
+core/scheduler.py:928: "scanner_config.json",
+scripts/component_ablation.py:3: Reads resolved signals from data/signal_archive/*.json (and optionally live
+scripts/migrate_signal_archive_to_sqlite.py:1: """Migrate data/signal_archive/*.json \u2192 SQLite signals_archive table.
+scripts/migrate_signal_archive_to_sqlite.py:14: ARCHIVE_DIR = ROOT / "data" / "signal_archive"
+scripts/profitcore_audit.py:9: 2. data/signal_archive/*.json with status_lifecycle.outcome populated
+scripts/profitcore_audit.py:33: ARCHIVE_DIR = ROOT / "data" / "signal_archive"
+scripts/_archive_count.py:4: files = sorted(glob.glob("/app/data/signal_archive/*.json"))
+CODE_HITS 16
+GIT_PICKAXE_signal_archive n=15 first=['a815cf2 2026-05-13 17:59:32 +0200 feat: daily signal watchlist journal with lifecycle, archive & history', '8a46295 2026-05-15 11:22:15 +0200 chore: ignore runtime data files, untrack shortlists/archive/watchlist', 'f20fb7c 2026-05-20 16:20:47 +0200 feat: Sprint 7 \u2014 WR visibility infrastructure', 'd0b4486 2026-05-23 10:00:04 +0200 refactor(config): route data paths through FINPILOT_DATA_DIR env vars']
+=== B11 within-cache means (late decided rows, W) ===
+n=1616 stored_mean=0.8457 replay_ts_mean=0.8680 (n=1616) replay_sig_mean=0.4032 (n=1616) diff_ts_minus_sig=0.4648
+replay_ts_hit=0.3991 replay_sig_hit=0.3261
+ENTRY_VS_CLOSE late rows n=1616 median_abs_dev_vs_signal_close=0.0041 median_abs_dev_vs_ts_close=0.0464 share_within_1pct_signal=0.7389 share_within_1pct_ts=0.1194
+=== ROWS BY SIGNAL MONTH x LAG (all rows, status-agnostic) ===
+('2025-09', 'ontime') 1579
+('2025-10', 'late') 106
+('2025-10', 'ontime') 474
+('2025-11', 'ontime') 6
+('2025-12', 'ontime') 6
+('2026-02', 'late') 1533
+('2026-03', 'ontime') 892
+('2026-04', 'ontime') 50
+('2026-04', 'other') 129
+('2026-05', 'ontime') 893
+('2026-05', 'other') 51
+('2026-07', 'ontime') 8
+('2026-08', 'ontime') 11
+('2026-09', 'ontime') 10
+DONE_RT

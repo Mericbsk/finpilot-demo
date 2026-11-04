@@ -1,0 +1,67 @@
+#### METADATA (all rows; no outcomes)
+rows 5748 groups {'late': 1639, 'same': 3929, 'early': 180}
+lag_days(ts_date - signal_date): {'8-14': 724, '15-29': 491, '0': 3929, '30+': 106, '<0': 180, '4-7': 318}
+signal_date < 2026-08-01: 5727 rows; >= cutoff: 21 rows (labels present, count only: 0)
+cohort (ts HH:MM, group, has_entry_ok): [(('09:00', 'same', True), 2065), (('21:45', 'late', False), 1639), (('21:45', 'same', False), 331), (('other', 'early', False), 180), (('other', 'same', False), 1533)]
+table score scale: {'int0_3': 4800, 'gt3': 943, 'other': 3, 'frac0_1': 2}
+payload score scale: {'int0_3': 4800, 'gt3': 916, 'other': 3, 'null_or_nonnum': 29}
+table vs payload score: {'equal': 5719, 'one_missing': 29}
+table scale int0_3: n=4800 signal_date 2025-09-12..2026-05-12 top values [(1.0, 2723), (0.0, 1058), (2.0, 902), (3.0, 117)]
+table scale frac0_1: n=2 signal_date 2026-08-24..2026-08-24 top values [(0.59, 2)]
+table scale gt3: n=943 signal_date 2025-10-07..2026-09-09 top values [(60.0, 72), (62.0, 67), (64.0, 55), (58.0, 52), (51.0, 51), (56.0, 47), (55.0, 43), (7.6, 39)]
+table scale x group: [(('frac0_1', 'same'), 2), (('gt3', 'early'), 51), (('gt3', 'late'), 103), (('gt3', 'same'), 789), (('int0_3', 'early'), 129), (('int0_3', 'late'), 1533), (('int0_3', 'same'), 3138), (('other', 'late'), 3)]
+regime raw: {'True': 2827, 'False': 1767, 'Trend': 335, 'Range': 228, '': 1, '0': 350, '1': 211, 'None': 29}
+signal: {'WATCH': 2813, 'BUY': 841, 'TRUE': 1326, 'FALSE': 739, 'None': 29}
+source: {'scanner_v1': 2531, 'scanner_import': 2065, 'scanner_v2': 564, 'scanner_shortlist': 559, 'publish_archive_bridge': 29}
+completeness count: {1: 4386, 2: 513, 3: 669, 4: 150, 0: 30}
+pre-cutoff signal days: 53 rows/day min/median/max 4.0 50.0 496.0 tercile cuts 49.33333333333333 153.0
+#### OUTCOME PROBES (gross resolved_pct_barrier, %; signal_date < cutoff; decided rows)
+decided rows by group: {'late': 1621, 'same': 3417, 'early': 178}
+-- P0_archive_timing [all] days=44
+  cell same             n= 3417 days= 33 mean=  0.221 CI[ -0.030,  0.500] win=0.265 CI[0.226,0.308] median= -0.595 tp_med=  1.94 sl_med= -0.85
+  cell late             n= 1621 days= 11 mean=  0.848 CI[  0.245,  1.263] win=0.389 CI[0.322,0.462] median= -0.870 tp_med=  4.02 sl_med= -1.48
+  contrast late_minus_same            mean_diff=  0.627 CI[ -0.027,  1.119] win_diff=0.125 CI[0.046,0.202] nan_frac=0.000
+-- P4_same_day_count [same] days=33
+  cell tercile_low      n=  183 days=  9 mean=  0.711 CI[ -0.247,  1.326] win=0.415 CI[0.271,0.491] median= -0.417 tp_med=  1.90 sl_med= -0.78
+  cell tercile_mid      n= 1196 days= 14 mean=  0.227 CI[ -0.079,  0.562] win=0.293 CI[0.230,0.370] median= -0.611 tp_med=  2.00 sl_med= -0.86
+  cell tercile_high     n= 2038 days= 10 mean=  0.174 CI[ -0.245,  0.606] win=0.234 CI[0.177,0.284] median= -0.599 tp_med=  1.92 sl_med= -0.85
+  contrast high_minus_low             mean_diff= -0.538 CI[ -1.341,  0.479] win_diff=-0.181 CI[-0.273,-0.038] nan_frac=0.000
+-- P4_same_day_count [late] days=11
+  cell tercile_low      n=  106 days=  5 mean=  0.319 CI[  0.248,  0.421] win=0.613 CI[0.500,0.667] median=  0.451 tp_med=  0.93 sl_med= -0.46
+  cell tercile_mid      n=   90 days=  1 mean= -0.314 CI[ -0.314, -0.314] win=0.156 CI[0.156,0.156] median= -1.025 tp_med=  3.06 sl_med= -1.15
+  cell tercile_high     n= 1425 days=  5 mean=  0.961 CI[  0.388,  1.407] win=0.387 CI[0.324,0.442] median= -0.997 tp_med=  4.38 sl_med= -1.62
+  contrast high_minus_low             mean_diff=  0.642 CI[  0.078,  1.097] win_diff=-0.226 CI[-0.301,-0.115] nan_frac=0.003
+-- P5_price_lt5 [same] days=33
+  cell price_ge5        n= 3253 days= 33 mean=  0.001 CI[ -0.179,  0.215] win=0.253 CI[0.215,0.301] median= -0.595 tp_med=  1.86 sl_med= -0.82
+  cell price_lt5        n=  164 days= 13 mean=  4.585 CI[  1.253,  5.459] win=0.488 CI[0.453,0.778] median= -1.477 tp_med= 10.07 sl_med= -3.94
+  contrast lt5_minus_ge5              mean_diff=  4.584 CI[  1.167,  5.341] win_diff=0.235 CI[0.174,0.505] nan_frac=0.000
+-- P5_price_lt5 [late] days=11
+  cell price_ge5        n= 1438 days= 11 mean=  0.668 CI[  0.216,  1.066] win=0.378 CI[0.318,0.451] median= -0.864 tp_med=  3.76 sl_med= -1.38
+  cell price_lt5        n=  183 days=  5 mean=  2.261 CI[  1.235,  2.749] win=0.481 CI[0.386,0.550] median= -1.344 tp_med=  6.75 sl_med= -2.48
+  contrast lt5_minus_ge5              mean_diff=  1.593 CI[  0.802,  2.243] win_diff=0.103 CI[-0.000,0.191] nan_frac=0.004
+-- P6_completeness [same] days=33
+  cell comp_le1         n= 2842 days= 17 mean=  0.172 CI[ -0.122,  0.485] win=0.247 CI[0.208,0.284] median= -0.583 tp_med=  1.69 sl_med= -0.81
+  cell comp_ge2         n=  575 days= 17 mean=  0.466 CI[ -0.179,  1.063] win=0.351 CI[0.233,0.460] median= -0.718 tp_med=  3.42 sl_med= -1.11
+  contrast ge2_minus_le1              mean_diff=  0.294 CI[ -0.419,  0.960] win_diff=0.104 CI[-0.026,0.219] nan_frac=0.000
+-- P6_completeness [late] days=11
+  cell comp_le1         n= 1515 days=  6 mean=  0.885 CI[  0.241,  1.334] win=0.374 CI[0.290,0.428] median= -1.004 tp_med=  4.26 sl_med= -1.55
+  cell comp_ge2         n=  106 days=  5 mean=  0.319 CI[  0.248,  0.441] win=0.613 CI[0.500,0.667] median=  0.451 tp_med=  0.93 sl_med= -0.46
+  contrast ge2_minus_le1              mean_diff= -0.566 CI[ -1.005,  0.069] win_diff=0.240 CI[0.137,0.334] nan_frac=0.001
+-- P7_score_x_regime [same] days=26
+  cell lowscore_bear    n=  986 days= 24 mean=  0.220 CI[ -0.105,  0.541] win=0.251 CI[0.209,0.290] median= -0.591 tp_med=  1.61 sl_med= -0.78
+  cell lowscore_bull    n= 1540 days= 25 mean=  0.133 CI[ -0.030,  0.348] win=0.275 CI[0.234,0.324] median= -0.522 tp_med=  1.56 sl_med= -0.74
+  cell highscore_bear   n=  354 days= 17 mean=  0.864 CI[ -0.459,  2.119] win=0.266 CI[0.132,0.401] median= -0.887 tp_med=  3.90 sl_med= -1.33
+  cell highscore_bull   n=  245 days= 16 mean= -0.348 CI[ -0.624,  0.494] win=0.159 CI[0.091,0.291] median= -0.924 tp_med=  3.26 sl_med= -1.08
+  contrast hi_minus_lo_in_bull        mean_diff= -0.481 CI[ -0.766,  0.326] win_diff=-0.115 CI[-0.185,0.001] nan_frac=0.000
+  contrast hi_minus_lo_in_bear        mean_diff=  0.644 CI[ -0.484,  1.678] win_diff=0.015 CI[-0.114,0.135] nan_frac=0.000
+  contrast interaction                mean_diff= -1.125 CI[ -1.989,  0.217] win_diff=-0.131 CI[-0.197,-0.023] nan_frac=0.000
+-- P7_score_x_regime [late] days=6
+  cell lowscore_bear    n=  476 days=  6 mean=  1.725 CI[  1.262,  1.952] win=0.473 CI[0.432,0.502] median= -0.934 tp_med=  5.59 sl_med= -2.17
+  cell lowscore_bull    n=  702 days=  6 mean=  0.200 CI[ -0.398,  0.763] win=0.302 CI[0.190,0.378] median= -1.049 tp_med=  3.45 sl_med= -1.25
+  cell highscore_bear   n=  155 days=  6 mean=  1.958 CI[  0.494,  3.257] win=0.465 CI[0.327,0.554] median= -0.984 tp_med=  5.44 sl_med= -2.04
+  cell highscore_bull   n=  182 days=  6 mean=  0.414 CI[ -0.096,  0.916] win=0.313 CI[0.229,0.387] median= -0.859 tp_med=  3.73 sl_med= -1.16
+  contrast hi_minus_lo_in_bull        mean_diff=  0.213 CI[ -0.322,  1.060] win_diff=0.011 CI[-0.071,0.149] nan_frac=0.000
+  contrast hi_minus_lo_in_bear        mean_diff=  0.233 CI[ -0.862,  1.482] win_diff=-0.008 CI[-0.147,0.099] nan_frac=0.000
+  contrast interaction                mean_diff= -0.020 CI[ -1.750,  1.885] win_diff=0.019 CI[-0.167,0.298] nan_frac=0.000
+MULTIPLE_TESTING cells=24 contrasts=13 (95% CIs, no adjustment; expected ~0.7 contrast CIs excluding 0 by chance)
+DONE_INT_PROBES

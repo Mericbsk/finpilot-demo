@@ -1,0 +1,32 @@
+{
+  "study": "B2-N",
+  "version": 1,
+  "date": "2026-10-06",
+  "approved_by": "Meric",
+  "human_message": "evet oyle yap\u0131p cal\u0131st\u0131ral\u0131m art\u0131k.",
+  "approval_basis": "Explicit selection of the separate versioned NON_BLIND diagnostic alternative and instruction to execute; custodian binds that instruction to the pre-execution frozen package, not to B2-1 V3.",
+  "manifest_path": "reports/b2_n_freeze_v1_2026-10-06.json",
+  "manifest_sha256": "6799cc44ccbf8b826921ff4059aaf7eeb16c09b1ef8b2ede744cdd312646962d",
+  "scope_path": "reports/b2_n_diagnostic_scope_v1_2026-10-06.md",
+  "scope_sha256": "a373f71f6f2464c0514867b89bdb1f5179dc5851e032c24df509c3e54e71b280",
+  "execution_authorized": true,
+  "invocation_limit": 1,
+  "output": "reports/b2_n_diagnostic_results_v1_2026-10-06.json",
+  "allowed": [
+    "Reused frozen artificial self-checks, not B2-1 S/J validation",
+    "Complete 1801-row coverage reporting",
+    "Conditional squeeze model diagnostics only on observed entry_ok=true rows"
+  ],
+  "prohibited": [
+    "Historical identity or actual historical ON mode assertion",
+    "ATR/R1/R3/R5/risk/performance calculation",
+    "B2-1 LOCK/scientific PASS or independent verification claim",
+    "Network/production imports/secrets/DB/cache/flags/publication changes",
+    "Same-version patch-and-continue, automatic numerical rerun or output overwrite"
+  ],
+  "authoring": "NON_BLIND_ENGINEERING",
+  "verification": "NOT_INDEPENDENT",
+  "blindness": "NOT_VERIFIED",
+  "b2_1_lock_authorized": false,
+  "b2_1_scientific_execution_authorized": false
+}

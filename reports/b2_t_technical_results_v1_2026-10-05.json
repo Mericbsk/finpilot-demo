@@ -1,0 +1,393 @@
+{
+  "authoring": "NON_BLIND_ENGINEERING",
+  "cases": [
+    {
+      "expected": {
+        "value": 0.062
+      },
+      "id": "T01",
+      "observed": {
+        "value": 0.062
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "value": -0.188
+      },
+      "id": "T02",
+      "observed": {
+        "value": -0.188
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "value": 4.0
+      },
+      "id": "T03",
+      "observed": {
+        "value": 4.0
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "value": 0.0312
+      },
+      "id": "T04",
+      "observed": {
+        "value": 0.0312
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "value": 3.0
+      },
+      "id": "T05",
+      "observed": {
+        "value": 3.0
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "value": 25.0
+      },
+      "id": "T06",
+      "observed": {
+        "value": 25.0
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "FALSE",
+        "high": "6001/5000",
+        "low": "5999/5000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "id": "T07",
+      "observed": {
+        "decision": "FALSE",
+        "high": "6001/5000",
+        "low": "5999/5000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "TRUE",
+        "high": "24001/5000",
+        "low": "23999/5000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "id": "T08",
+      "observed": {
+        "decision": "TRUE",
+        "high": "24001/5000",
+        "low": "23999/5000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "UNRESOLVED",
+        "high": "20001/5000",
+        "low": "19999/5000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "id": "T09",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": "20001/5000",
+        "low": "19999/5000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "TRUE",
+        "high": null,
+        "low": "29999/5000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": true
+      },
+      "id": "T10",
+      "observed": {
+        "decision": "TRUE",
+        "high": null,
+        "low": "29999/5000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": true
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "UNRESOLVED",
+        "reason": "EMPTY_NORMALIZED_DOMAIN",
+        "status": "CONFLICT"
+      },
+      "id": "T11",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": null,
+        "low": null,
+        "reason": "EMPTY_NORMALIZED_DOMAIN",
+        "status": "CONFLICT",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "UNRESOLVED",
+        "status": "MISSING"
+      },
+      "id": "T12",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": null,
+        "low": null,
+        "reason": "MISSING_STORED_SCORE",
+        "status": "MISSING",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "reason": "MISSING_COMPONENT_BOUNDS",
+        "status": "UNRESOLVED"
+      },
+      "id": "T13",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": null,
+        "low": null,
+        "reason": "MISSING_COMPONENT_BOUNDS",
+        "status": "UNRESOLVED",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "all_contained": true,
+        "checked": 6
+      },
+      "id": "T14",
+      "observed": {
+        "all_contained": true,
+        "checked": 6
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "FALSE",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "id": "T15",
+      "observed": {
+        "decision": "FALSE",
+        "high": "125050001/375000000",
+        "low": "249849997/1750000000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "TRUE",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "id": "T16",
+      "observed": {
+        "decision": "TRUE",
+        "high": "1500150003/1750000000",
+        "low": "249949999/375000000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "UNRESOLVED",
+        "status": "VALID_DOMAIN"
+      },
+      "id": "T17",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": "1125150003/1750000000",
+        "low": "624849997/1750000000",
+        "status": "VALID_DOMAIN",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "reason": "INVALID_NUMERIC_INPUT",
+        "status": "CONFLICT"
+      },
+      "id": "T18",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": null,
+        "low": null,
+        "reason": "INVALID_NUMERIC_INPUT",
+        "status": "CONFLICT",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "reason": "INVALID_STORED_ON_DOMAIN",
+        "status": "CONFLICT"
+      },
+      "id": "T19",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": null,
+        "low": null,
+        "reason": "INVALID_STORED_ON_DOMAIN",
+        "status": "CONFLICT",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "decision": "UNRESOLVED",
+        "status": "MISSING"
+      },
+      "id": "T20",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": null,
+        "low": null,
+        "reason": "MISSING_STORED_ON",
+        "status": "MISSING",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "value": 100
+      },
+      "id": "T21",
+      "observed": {
+        "value": 100
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "value": 8
+      },
+      "id": "T22",
+      "observed": {
+        "value": 8
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "value": 2
+      },
+      "id": "T23",
+      "observed": {
+        "value": 2
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "exception": "ValueError"
+      },
+      "id": "T24",
+      "observed": {
+        "exception": "ValueError"
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "all_contained": true,
+        "checked": 6
+      },
+      "id": "T25",
+      "observed": {
+        "all_contained": true,
+        "checked": 6
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "equal": true
+      },
+      "id": "T26",
+      "observed": {
+        "equal": true
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "reason": "INVALID_COMPONENT_DOMAIN",
+        "status": "CONFLICT"
+      },
+      "id": "T27",
+      "observed": {
+        "decision": "UNRESOLVED",
+        "high": null,
+        "low": null,
+        "reason": "INVALID_COMPONENT_DOMAIN",
+        "status": "CONFLICT",
+        "unbounded_upper": false
+      },
+      "status": "TECHNICAL_PASS"
+    },
+    {
+      "expected": {
+        "exception": "ValueError"
+      },
+      "id": "T28",
+      "observed": {
+        "exception": "ValueError"
+      },
+      "status": "TECHNICAL_PASS"
+    }
+  ],
+  "execution_receipt_sha256": "9d342aaf3a7033ece3535fb0aa61a1162db664becc74518e06a7b01bde27da27",
+  "freeze_sha256": "c3c650181f8d876051653664648bcb0c0ee0548504236fef88b6cd687968a89f",
+  "isolation": "NOT_VERIFIED",
+  "limitations": [
+    "Non-blind technical checks only; no historical recovery or B2-1 gate acceptance",
+    "Receipt fields require custodial human-approval evidence; not cryptographic authentication",
+    "No OS-level filesystem/network sandbox is certified"
+  ],
+  "not_run_case_ids": [],
+  "status": "TECHNICAL_PASS",
+  "study": "B2-T",
+  "verification": "NOT_INDEPENDENT"
+}

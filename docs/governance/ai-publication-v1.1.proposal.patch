@@ -1,0 +1,87 @@
+# PROPOSAL ONLY: this file is not an active instruction or authority.
+# Human review/application and a recorded activation receipt are required.
+# Scope assumption: web/Telegram content publication includes the existing
+# content-only CI/Vercel deployment, not general code/infrastructure deployment.
+diff --git a/_instructions/05-escalation.md b/_instructions/05-escalation.md
+--- a/_instructions/05-escalation.md
++++ b/_instructions/05-escalation.md
+@@ -1,8 +1,13 @@
+ # FinPilot AI Operating Standard
+ ## 05 — Escalation Levels
+ 
+-Version: 1.0 · Status: DRAFT — Meriç onayı bekliyor (CORE-006)
+-Authority Level: GLOBAL · Owner: Governance · Last Updated: 24 July 2026
++Version: 1.1 · Status: ACTIVE
++Authority Level: GLOBAL · Owner: Governance · Last Updated: 9 October 2026
++
++Changelog:
++- v1.1 (2026-10-09): Insan onayli dagitim icerigi yayini icin dar AI uygulama istisnasi.
++- Etkinlestirme: Yetkili insanin bu surumu uygulamasi ve benimsenen metni, tarihi ve kaniti docs/governance/decision-log.md icinde kaydetmesi zorunludur. Bu kayit yoksa istisna kullanilamaz.
++- Onceki surum: v1.0 / DRAFT; diger Level C yasaklari korunur.
+ 
+ Referans: CORE-007 (Escalation First). Her görev, yürütülmeden önce sınıflandırılır.
+ 
+@@ -17,6 +22,16 @@
+ ## Level C — Human Approval Required (önceden)
+-AI öneri hazırlar, UYGULAMAZ; Meriç açıkça onaylayıp kendisi çalıştırır veya yazılı onay verir.
++Level C kararini yetkili insan verir. AI, asagidaki dar dagitim yayini istisnasi disinda Level C islemlerini uygulamaz; oneriyi hazirlar ve insan uygulamasini bekler.
+ Kapsam: yayın/publish kararının kendisi · para veya emir hareketi (Alpaca dahil — mevcut politika: AI asla emir iletmez) · governance/authority doküman değişikliği · sözleşme alanı silme/yeniden adlandırma · geri dönüşsüz veri işlemleri (silme, tarihsel kayıt değiştirme) · secrets rotasyonu.
+ 
++### Insan onayli dagitim yayini istisnasi
++
++- AI yalniz FinPilot web/Telegram dagitim icerigini, yetkili insanin acik ve kayda gecmis yayin onayindan sonra mevcut pipeline ile yayinlayabilir. Onay; snapshot kimligi, kaynak ve cikti hash'leri, yayin tarihi, hedef ortam, kanal/proje/dal ve yayinlanacak yuzeylere baglidir. Genel veya eski izin baska bir paket/hedef icin kullanilamaz.
++- Insan karar merciidir; AI yalniz onaylanan islemin uygulayicisidir. Onay kaydi ve etkili kural surumu uygulama oncesinde dogrulanir. Taslak kural, onerinin kabul edilmis oldugu varsayimi veya yayin istegi tek basina governance aktivasyonu degildir.
++- YONERGE.md'nin mevcut butunluk, tazelik, icerik, Git/deploy ve Risk & Compliance kapilari aynen uygulanir. Onay bir kapiyi atlamaz, eksik kaniti tamamlamaz ve force, hook atlama, yetki bypass'i veya artifact'i elle duzenleme izni vermez.
++- Web izni, yalniz onaylanan uretilmis yayin ciktilarinin izole ve temiz yayin calisma agacinda commit/push edilmesini ve mevcut CI/Vercel akisi ile bunlara bagli otomatik icerik deploy'unu kapsar. Uygulama kodu, bagimlilik, altyapi, proje/env/secret ayari veya genel release/restart/rebuild islemi bu istisnaya girmez. Inceleme dalindaki ilgisiz commit veya degisiklikler yayina tasinamaz.
++- Paket, metin, hedef veya kapsam degisirse yeni insan onayi gerekir. Onay geri cekilirse ya da sonuc belirsizse AI durur ve insana raporlar; otomatik tekrar/rollback yapmaz. Basarili Telegram gonderimi web hatasini gidermek icin tekrar edilmez; onayli kapsam icinde yalniz eksik yuzey devam ettirilir.
++- AI onay, uygulanan hash'ler ve hedefler, commit/deploy/delivery kaniti ve her yuzeyin sonucunu karar siciline kaydeder. Yalniz komutun sifir cikis kodu yayin kaniti degildir; her yuzeyde mevcut smoke/teslim kontrolleri tamamlanmadan basari ilan edilmez.
++- Para/emir hareketi, risk limiti/pozisyon boyutu, secrets islemleri, governance/authority degisikligi, kirici sozlesme degisikligi, geri donussuz veri islemi ve resmi basvurular bu istisnanin disindadir. Bunlarda insan uygulamasi zorunludur; AI kendi yetkisini genisletemez.
++
+ ## Belirsizlik kuralı
+ Seviye belirsizse bir ÜST seviye uygulanır. "Level A sanmıştım" geçerli mazeret değildir.
+diff --git a/.github/copilot-instructions.md b/.github/copilot-instructions.md
+--- a/.github/copilot-instructions.md
++++ b/.github/copilot-instructions.md
+@@ -4,6 +4,9 @@
+ 
+ # FinPilot — Workspace Instructions (Global)
+ 
++Version: 1.1
++Changelog: 2026-10-09 - Level C dagitim yayini uygulama yetkisi tek otoriteye referansla duzenlendi; diger yasaklar korunur.
++
+ This repository is governed by `_instructions/00-core.md` (v3.0), the
+ immutable global rule set for every AI agent working here — Claude
+ Code, GitHub Copilot, Cursor, Windsurf, VS Code Agent Mode, or any
+@@ -62,11 +65,13 @@
+    - **Level B (proposal, wait for approval)** — new product rule,
+      roadmap change, new content strategy, new module. Draft only,
+      state clearly: "This is a Level B decision, awaiting approval."
+-   - **Level C (human approval required, cannot be applied by AI)** —
++   - **Level C (human decision required)** —
+      risk limits, position sizing, production/live release, API
+-     keys/secrets, regulatory or grant submissions. Present analysis
+-     only, state clearly: "This is a Level C decision and cannot be
+-     applied by AI."
++     keys/secrets, regulatory or grant submissions. AI execution of
++     distribution content publication is allowed only by the ACTIVE,
++     human-activated exception in `_instructions/05-escalation.md`.
++     For all other Level C operations, present analysis only; AI must
++     not apply them. Never infer activation from a publication request.
+    - Any conflict touching Layer 1 or 2 automatically escalates to
+      Level C, regardless of how small it looks.
+ 3. Locate the single authority document for the concept in question.
+diff --git a/docs/INDEX.md b/docs/INDEX.md
+--- a/docs/INDEX.md
++++ b/docs/INDEX.md
+@@ -74,9 +74,9 @@
+            "id": "escalation",
+            "concept": "Level A/B/C siniflandirmasi",
+            "authority_path": "_instructions/05-escalation.md",
+-      "status": "draft",
++      "status": "active",
+            "owner": "governance",
+            "applies_to": ["**/*"],
+-      "note": "Dosyanin kendi basligi Status: DRAFT diyor (CORE-006 onayi bekliyor)."
++      "note": "v1.1 ACTIVE; dar dagitim istisnasi yalniz docs/governance/decision-log.md icindeki insan aktivasyon kanitiyla kullanilabilir."
+     },
+     {

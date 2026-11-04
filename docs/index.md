@@ -17,7 +17,7 @@ _2026-07-29: aşağıya makine-okunur bir manifest eklendi (`scripts/lint_author
 | Uygulama sırası (0→6 bölüm planı) | `FinPilot_UcaUca_Uygulama_Plani_2026-07-24.md` | Aktif plan |
 | Lansmana kadar dokunulmayacak fikirler | `PARKING_LOT.md` | Kapsam kilidi |
 | Sözlük içeriği (landing/Telegram) | `distribution/glossary.py` | TEK kaynak — `terms.ts` ve concepts türevdir (`python scripts/gen_terms_ts.py`) |
-| Akademi ders içeriği | FinSense repo (`academy/`) → `web/public/academy_lessons.json` | Üretici → türev |
+| Akademi ders içeriği | FinSense repo (`content/releases/active.json` + immutable `content/releases/<release_id>/`) | Kanonik üretici; Borsa API/Classroom manifesti doğrulayan salt-okunur tüketici |
 | Eski dashboard sözlüğü | `web/public/dictionary.json` | LEGACY — yalnız dashboard/finsense sayfaları; landing BUNU KULLANMAZ |
 | Strateji/GTM | `docs/strategy/` + kök GTM/Funnel dosyaları (taşınacak) | Yön |
 
@@ -164,10 +164,15 @@ verilen otorite dokümanı repoda yok — icat edilmedi, açıkça işaretlendi,
     {
       "id": "academy-content",
       "concept": "Finance Academy ders icerigi",
-      "authority_path": "academy",
-      "status": "active",
-      "owner": "content",
-      "applies_to": ["web/public/academy_lessons.json"]
+      "authority_path": null,
+      "status": "external",
+      "owner": "FinSense",
+      "applies_to": [
+        "api/services/finsense_release.py",
+        "api/routers/academy.py",
+        "web/src/app/academy/**"
+      ],
+      "note": "Kanonik ders/kaynak/review/release otoritesi FinSense deposundaki content/releases/active.json ve degismez release paketidir. Borsa yalniz manifesti ve dosya hash'lerini dogrulayan API/Classroom tuketicisidir; web/public/academy_lessons.json legacy artifact olup otorite degildir."
     },
     {
       "id": "releases",

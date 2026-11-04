@@ -16,8 +16,12 @@ Bu dosya CLAUDE.md'nin Startup Sequence 1. adımının işaret ettiği bootstrap
 ## Escalation (özet — detay: _instructions/05-escalation.md)
 
 - **Level A (otonom):** salt-okunur analiz, rapor, test yazımı, yeni izole dosya.
-- **Level B (öneri+onay):** üretim-kritik dosya değişikliği (publish zinciri, scanner sözleşmesi, web canlı yüzeyi) — değişiklik yapılır, kapı raporunda diff ile sunulur, Meriç onayı olmadan bölüm kapanmaz.
-- **Level C (insan zorunlu):** yayın kararı, para/işlem hareketi, governance değişikliği, sözleşme alanı silme, geri dönüşsüz veri işlemi.
+- **Level B (öneri+onay):** üretim-kritik dosya değişikliği (publish zinciri, scanner sözleşmesi, web canlı yüzeyi) — değişiklik yapılır, kapı raporunda diff ile sunulur,yayın kararı, Meriç onayı olmadan bölüm kapanmaz.
+- - **Level C (insan kararı):** yayın, para/işlem hareketi, governance,
+  sözleşme alanı silme ve geri dönüşsüz veri işlemleri. İnsan onayı
+  zorunludur. AI'nın tek-seferlik web yayını delegasyonu varsa
+  `_instructions/05-escalation.md` ve `YONERGE.md` koşulları uygulanır;
+  başka Level C işlemleri delege edilemez.
 
 ## Kırmızı çizgiler (kısa)
 

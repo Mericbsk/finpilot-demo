@@ -1,0 +1,211 @@
+---- distribution/snapshot_builder.py:86-131 (file has 680 lines)
+   86| def _grade_of(row: dict[str, Any]) -> str | None:
+   87|     """Map a scan row to a public Grade \u2014 the SINGLE user-facing label."""
+   88|     conv = str(row.get("conviction_tier") or "").strip().upper()
+   89|     if conv in ("A", "B", "C"):
+   90|         return conv
+   91|     tier = str(row.get("tier") or "").strip().upper()
+   92|     if tier == "CONFIRM":
+   93|         return "B"
+   94|     if tier == "TRIGGER":
+   95|         return "C"
+   96|     return None
+   97| 
+   98| 
+   99| def _sort_key(row: dict[str, Any]) -> tuple:
+  100|     grade = _grade_of(row) or "Z"
+  101|     execution = str(row.get("execution_confidence") or "Tier 0")
+  102|     try:
+  103|         prob = float(row.get("conviction_prob") or 0.0)
+  104|     except (TypeError, ValueError):
+  105|         prob = 0.0
+  106|     try:
+  107|         score = float(
+  108|             row.get("ranking_score")
+  109|             or row.get("legacy_quality_score")
+  110|             or row.get("composite_score")
+  111|             or row.get("score")
+  112|             or 0.0
+  113|         )
+  114|     except (TypeError, ValueError):
+  115|         score = 0.0
+  116|     return (_GRADE_ORDER.get(grade, 9), _EXECUTION_ORDER.get(execution, 3), -prob, -score)
+  117| 
+  118| 
+  119| def _is_true(value: Any) -> bool:
+  120|     return value is True or str(value).strip().lower() in {"true", "1", "yes"}
+  121| 
+  122| 
+  123| def _public_candidate(row: dict[str, Any]) -> bool:
+  124|     """Keep only eligible, executable, non-cap-rejected graded rows public."""
+  125|     if not _grade_of(row):
+  126|         return False
+  127|     if "selection_eligible" in row and not _is_true(row.get("selection_eligible")):
+  128|         return False
+  129|     if "execution_feasible" in row and not _is_true(row.get("execution_feasible")):
+  130|         return False
+  131|     return not row.get("position_cap_reject_reason")
+==== GREP api/routers/watchlist.py /def _upsert|def _load|def _save|signal_date|added_at/ files=1
+api/routers/watchlist.py:103| def _load_archive() -> list[dict]:
+api/routers/watchlist.py:122| if "signal_date" not in item:
+api/routers/watchlist.py:123| added_raw = item.get("added_at", "")
+api/routers/watchlist.py:124| item["signal_date"] = (
+api/routers/watchlist.py:146| def _load() -> list[dict]:
+api/routers/watchlist.py:157| def _save(items: list[dict]) -> None:
+api/routers/watchlist.py:170| def _upsert(items: list[dict], entry: dict) -> list[dict]:
+api/routers/watchlist.py:189| added_raw = item.get("added_at", "")
+api/routers/watchlist.py:268| def _load_archive_for_date(date_str: str) -> list[dict]:
+api/routers/watchlist.py:280| def _save_archive(date_str: str, items: list[dict]) -> None:
+api/routers/watchlist.py:460| entry["added_at"] = datetime.now(UTC).isoformat()
+api/routers/watchlist.py:462| entry["signal_date"] = datetime.now(UTC).strftime("%Y-%m-%d")
+api/routers/watchlist.py:479| entry["added_at"] = now.isoformat()
+api/routers/watchlist.py:481| entry["signal_date"] = now.strftime("%Y-%m-%d")
+api/routers/watchlist.py:548| today_items = [i for i in items if i.get("signal_date", "") == today]
+api/routers/watchlist.py:588| def get_signal_dates():
+api/routers/watchlist.py:605| today_count = sum(1 for i in items if i.get("signal_date", "") == today)
+api/routers/watchlist.py:623| day_items = [i for i in items if i.get("signal_date", "") == today]
+api/routers/watchlist.py:707| added_raw = item.get("added_at", "")
+api/routers/watchlist.py:765| today_items = [i for i in items if i.get("signal_date", "") == today]
+api/routers/watchlist.py:828| Fetch OHLCV history from added_at to added_at+days and determine outcome:
+api/routers/watchlist.py:837| added_raw = item.get("added_at", "")
+api/routers/watchlist.py:1072| "signals": sorted(results, key=lambda r: r.get("added_at", ""), reverse=True),
+==== GREP research/protocol.py /(?i)locked|oos|split|_end|_start/ files=1
+research/protocol.py:30| class TemporalSplit:
+research/protocol.py:31| """Non-overlapping chronological train/validation/locked-OOS split."""
+research/protocol.py:33| train_end: str
+research/protocol.py:34| validation_end: str
+research/protocol.py:35| locked_oos_end: str
+research/protocol.py:38| train_end = _parse_date(self.train_end)
+research/protocol.py:39| validation_end = _parse_date(self.validation_end)
+research/protocol.py:40| locked_oos_end = _parse_date(self.locked_oos_end)
+research/protocol.py:41| if not train_end < validation_end < locked_oos_end:
+research/protocol.py:43| "temporal split must satisfy train_end < validation_end < locked_oos_end"
+research/protocol.py:98| split: TemporalSplit
+research/protocol.py:134| self.split.validate()
+research/protocol.py:140| result["split"] = self.split.as_dict()
+research/protocol.py:146| class LockedHoldoutGuard:
+research/protocol.py:147| """Persist a one-time locked holdout opening event."""
+research/protocol.py:154| raise ProtocolError("locked holdout has already been opened")
+research/protocol.py:156| raise ProtocolError("experiment_id is required to open locked holdout")
+==== GREP research /(?i)locked_oos_(start|end)\s*[=:]/ files=98
+research/protocol.py:35| locked_oos_end: str
+research/protocol.py:40| locked_oos_end = _parse_date(self.locked_oos_end)
+research/protocol.py:41| if not train_end < validation_end < locked_oos_end:
+==== GREP docs/governance/decision-log.md /(?i)\bD7\b/ files=1
+docs/governance/decision-log.md:53| [2026-10-16] - Human decisions recorded: D4, D6, U4, D2, D7 (approved recommendations; implementation pending)
+docs/governance/decision-log.md:56| Context: Meri\xe7 approved the recommendations of the 2026-10-16 decision audit (delivered in chat, no file) for D4, D6, U4, D2 and D7.
+docs/governance/decision-log.md:57| Decisions: (1) D4, calibration wording (glossary C1/C2): the sentence "recalibrated as outcomes accumulate" is removed; the "calibrated" label is replaced by "tarihsel s\u0131kl\u0131k (ba\u011f\u0131ms\u0131z do\u011frulanmam\u0131\u015f)". C3 (Grade A "~1/da
+docs/governance/decision-log.md:60| Target: docs/governance/decision-log.md; distribution/glossary.py (D4, pending diff); investor and pitch surfaces (D6, pending); reports/oos_status_c_remediation_v1_2026-10-15/ (D7).
+docs/governance/decision-log.md:3483| Level: A (evidence collection and report). D1-D7 are proposals requiring separate human approval; no Level C operational decision was made by the agent.
+docs/governance/decision-log.md:3485| Change: Before: fragmented flag, authorization and user-facing evidence. After: reports/b2_auth_readonly_audit_2026-10-05.md consolidates a 22-flag plus 3-associated-control inventory, prioritized findings, scoped author
+docs/governance/decision-log.md:3489| Owner: GitHub Copilot (audit delivery); Meric (D1-D7 decisions). Implementation owners and dates await human assignment.
+docs/governance/decision-log.md:3490| Status: applied - Level A audit delivered. B2-AUTH HUMAN_DECISION_PENDING / governance closure NOT_GRANTED. D1-D7 pending; no production authorization issued.
+docs/governance/decision-log.md:3498| Owner: GitHub Copilot (audit evidence); Meric (pending human decisions). Status: applied - audit delivered; D1-D7 HUMAN_DECISION_PENDING; B2-AUTH governance closure NOT_GRANTED. No flag, publication, deployment, experime
+docs/governance/decision-log.md:3517| Impact: Production NONE. No real historical recovery calculation, synthetic suite execution, runner/verifier launch, network refresh, cache/DB/export mutation, flag change, publication, deployment or locked-document amen
+---- scanner/evaluate.py:255-292 (file has 852 lines)
+  255|         # Track whether we have enough history for high-quality signals
+  256|         _has_full_history = len(df_1d) >= 200
+  257| 
+  258|         # Stage 1: TREND FILTER (Daily)
+  259|         try:
+  260|             c_daily = safe_float(df_1d["Close"].iloc[-1])
+  261|             # Use ema200 only when 200 bars available, else fall back to ema50
+  262|             if _has_full_history and "ema200" in df_1d.columns:
+  263|                 e200_daily = safe_float(df_1d["ema200"].iloc[-1])
+  264|             else:
+  265|                 e200_daily = (
+  266|                     safe_float(df_1d["ema50"].iloc[-1]) if "ema50" in df_1d.columns else c_daily
+  267|                 )
+  268|             e50_daily = safe_float(df_1d["ema50"].iloc[-1]) if "ema50" in df_1d.columns else c_daily
+  269|             regime = c_daily > e200_daily
+  270|             direction = c_daily > e50_daily
+  271|         except Exception:
+  272|             regime = False
+  273|             direction = False
+  274| 
+  275|         # Stage 2: MOMENTUM & VOLUME SCORE
+  276|         score = 0
+  277|         try:
+  278|             if len(df_1d) >= 2:
+  279|                 row = df_1d.iloc[-1]
+  280|                 prev = df_1d.iloc[-2]
+  281|                 if 30 <= safe_float(row["rsi"]) <= 70:
+  282|                     score += 1
+  283|                 if safe_float(row["Volume"]) > safe_float(row["vol_med20"]) * 1.2:
+  284|                     score += 1
+  285|                 if safe_float(row["macd_hist"]) > 0 and safe_float(row["macd_hist"]) > safe_float(
+  286|                     prev["macd_hist"]
+  287|                 ):
+  288|                     score += 1
+  289|         except Exception:
+  290|             score = 0
+  291| 
+  292|         last_price = df_15m["Close"].iloc[-1]
+---- scanner/features.py:175-240 (file has 804 lines)
+  175| # --- Konviksiyon tier (env-gated) --------------------------------------------
+  176| # Sinyal kalitesi labi (2026-06, n=6410): skor kalibre; faktor-hizalamasi isabeti
+  177| # yukseltir. short>=15 & gap>=3 -> >=%5 %73 / >=%10 %69 (elit). Skoru DEGISTIRMEZ;
+  178| # yalniz etiketler. conviction_prob = o tier'in gozlemlenen >=%5 isabeti (tahmin).
+  179| _CONV_PROB = {"A": 0.73, "B": 0.59, "C": 0.52}
+  180| 
+  181| 
+  182| def _conviction_enabled() -> bool:
+  183|     return os.environ.get("FINPILOT_ENABLE_CONVICTION_TIERS", "0") == "1"
+  184| 
+  185| 
+  186| def compute_atr_pct(df: Any) -> float:
+  187|     """Gunluk ATR(14) / kapanis * 100 (yuzde). Veri yoksa 0.0."""
+  188|     try:
+  189|         if (
+  190|             not hasattr(df, "iloc")
+  191|             or len(df) < 15
+  192|             or "High" not in df.columns
+  193|             or "Low" not in df.columns
+  194|             or "Close" not in df.columns
+  195|         ):
+  196|             return 0.0
+  197|         trs = []
+  198|         for j in range(len(df) - 14, len(df)):
+  199|             h = float(df["High"].iloc[j])
+  200|             lo = float(df["Low"].iloc[j])
+  201|             pc = float(df["Close"].iloc[j - 1])
+  202|             trs.append(max(h - lo, abs(h - pc), abs(lo - pc)))
+  203|         close = float(df["Close"].iloc[-1])
+  204|         return round(sum(trs) / len(trs) / close * 100.0, 4) if close > 0 else 0.0
+  205|     except Exception:  # noqa: BLE001
+  206|         return 0.0
+  207| 
+  208| 
+  209| def compute_conviction(
+  210|     squeeze_factor: float, gap_factor: float, rvol_factor: float, atr_pct: float
+  211| ):
+  212|     """(tier, prob) dondur. tier in {A,B,C,''}. Env kapaliyken ('',0.0).
+  213| 
+  214|     Esikler normalize faktorlere gore (evaluate zaten bunlari hesaplar):
+  215|       short_strong  = squeeze_factor >= 0.5  (~short>=15%)
+  216|       gap_strong    = gap_factor >= 0.6      (~gap>=3%)
+  217|       gap_present   = gap_factor >= 0.2      (~gap>=1%)
+  218|       rvol_present  = rvol_factor >= 0.25    (~RVOL>=1.5)
+  219|       atr_present   = atr_pct >= 4.0
+  220|     """
+  221|     if not _conviction_enabled():
+  222|         return ("", 0.0)
+  223|     short_strong = squeeze_factor >= 0.5
+  224|     gap_strong = gap_factor >= 0.6
+  225|     gap_present = gap_factor >= 0.2
+  226|     rvol_present = rvol_factor >= 0.25
+  227|     atr_present = atr_pct >= 4.0
+  228|     nfac = sum([short_strong, atr_present, gap_present, rvol_present])
+  229|     if short_strong and gap_strong:
+  230|         tier = "A"
+  231|     elif (short_strong and atr_present) or nfac >= 3:
+  232|         tier = "B"
+  233|     elif nfac >= 2:
+  234|         tier = "C"
+  235|     else:
+  236|         tier = ""
+  237|     return (tier, _CONV_PROB.get(tier, 0.0))
+  238| 
+  239| 
+  240| def compute_gap_factor(df: Any) -> float:
+DONE_INT

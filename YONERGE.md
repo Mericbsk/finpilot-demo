@@ -86,11 +86,23 @@ Kurallar:
 - Project root = **`web/`** (asıl düzeltme budur). Tek standart deploy komutu.
 - Büyük klasörler ignore: `.venv*`, `__pycache__`, `data/`, `research/`, `reports/`, `scripts/`, `api/`. (`demo_snapshot.json` **dahil kalır**.)
 - Deploy sonrası otomatik smoke: `GET /demo_snapshot.json` → `date == bugün`, `universe == 1812`, `candidate > 0`.
-
+**AI ile delege edilmiş web yayını:**
+- Yetki, tam `date + run_id + scan_id + snapshot_id + artifact SHA-256 +
+  destination` bileşimine bağlanır; farklı içerik yeni onay gerektirir.
+- Önce insanın göreceği preview ve diff hazırlanır. Onaydan sonra yalnız
+  `web/public/demo_snapshot.json` üretilen pipeline artifact'i olarak
+  güncellenebilir; elle düzenlenmez.
+- Telegram yayını bu yetkinin dışındadır ve ayrı insan onayı gerektirir.
+- Herhangi bir gate başarısızsa dur; `--force` veya eski/farklı export
+  kullanma. Deploy sonrası `/demo_snapshot.json` tarih, evren ve snapshot
+  kimliği doğrulanır.
 **Render (API):**
 - Guard + SMTP kodu **commit'li** olmalı; env panelde doğrulanır.
 - Deploy sonrası test signup → mailin `finpilot@finpilot.at` inbox'ına ulaştığı doğrulanır.
-
+- AI tarafından web yayını yalnızca `_instructions/05-escalation.md`
+  içindeki tek-yayın manifestiyle insan tarafından açıkça yetkilendirildiyse
+  yürütülebilir. Dal `main` değilse veya yayın öncesi çalışma ağacı/index
+  temiz değilse yayın durur.
 ---
 
 ## 7. Telegram Yayın Kuralları
@@ -126,7 +138,10 @@ Kurallar:
 
 | Kim | Sorumluluk |
 |-----|-----------|
-| **Meriç** | Hesaplar · env/secrets · deploy onayı · günlük `ONAYLA` · OneDrive/AV/donanım · şifre rotasyonu |
+| **Meriç** | Hesaplar · env/secrets · deploy onayı · günlük `ONAYLA` · OneDrive/AV/donanım · şifre rotasyonu | AI, insan onayıyla yalnızca §6 ve `_instructions/05-escalation.md`
+kapsamındaki tek-seferlik web yayınının yürütücüsü olabilir. Yayın
+onayı ve kapsamı insana aittir; onaysız veya farklı snapshot'la yayın
+yapılamaz.
 | **Claude (kod)** | Üretim kodu — **sözleşmeyi KORUYARAK** · test ekleyerek · runtime/artifact'e dokunmadan |
 | **Ortak** | Haftalık kapı denetimi · yönerge güncellemesi |
 
@@ -152,7 +167,8 @@ Kurallar:
 5. Sırrı **paylaşma / commit etme.**
 6. **Yarım/karışık commit** ile deploy.
 7. Küçük taramayla full export'u **ezme.**
-
+8. Onaylanan release manifestiyle birebir eşleşmeyen artifact'i
+   yayınlama; bu eşleşmeyi `--force` ile geçme.
 ---
 
 _Bu yönerge yaşayan bir belgedir. Yeni bir kırılma yaşandığında: kök nedeni bul → buraya tek satır kural ekle → bir daha yaşanmasın._

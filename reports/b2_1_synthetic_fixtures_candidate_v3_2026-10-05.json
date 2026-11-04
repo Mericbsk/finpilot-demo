@@ -1,0 +1,98 @@
+{
+  "schema_version": "b2-1-fixtures-candidate-v1",
+  "protocol_path": "reports/b2_1_provenance_recovery_preregistration_DRAFT_v3_2026-10-05.md",
+  "status": "CONCRETE_CANDIDATE_REQUIRES_ISOLATED_REVIEW_NOT_RUN",
+  "authored_by": "NON_BLIND_CUSTODIAN",
+  "contains_historical_rows": false,
+  "synthetic_gate": "NOT_RUN",
+  "runtime_identity": "CANDIDATE_CPYTHON_3.12.3_HISTORICAL_IDENTITY_UNVERIFIED",
+  "numeric_encoding": "Finite decimal strings; producer parses Python floats; independent interval oracle uses exact rational decimal inputs. Nonfinite strings are invalid-input fixtures only.",
+  "rounding_envelope_choice": "Candidate conservative OFF envelope +/-0.00005 plus 1e-9 with [0,1] clipping; review and freeze before LOCK, per protocol section 5.4.",
+  "cases": [
+    {"id": "S01", "input": {"production_atr": "3.9999", "C": "0", "LQS": "10.000"}, "expected": {"ground_truth_decision": "FALSE", "r2_decision": "UNRESOLVED"}},
+    {"id": "S02", "input": {"production_atr": "4.0000", "C": "0", "LQS": "10.000"}, "expected": {"ground_truth_decision": "TRUE", "r2_decision": "UNRESOLVED"}},
+    {"id": "S03", "input": {"raw_atr": "3.99996", "producer_digits": 4}, "expected": {"production_atr": "4.0000", "raw_decision": "FALSE", "production_decision": "TRUE"}},
+    {"id": "S04", "input": {"raw_atr": "3.9999", "producer_digits": 4}, "expected": {"production_atr": "3.9999", "production_decision": "FALSE"}},
+    {"id": "S05", "input": {"LQS": "9.990", "C": "0"}, "expected": {"r2_decision": "FALSE", "exact_atr_recovered": false}},
+    {"id": "S06", "input": {"LQS": "10.010", "C": "0"}, "expected": {"r2_decision": "TRUE", "exact_atr_recovered": false}},
+    {"id": "S07", "input": {"production_atr_candidates": ["6.0000", "8.0000"], "C": "0", "LQS": "15.000"}, "expected": {"r2_decision": "TRUE", "exact_atr_recovered": false, "retain_saturation_tail": true}},
+    {"id": "S08", "input": {"LQS": "0.000", "C": "0"}, "expected": {"domain_nonempty": true, "includes_zero": true, "r2_decision": "FALSE"}},
+    {"id": "S09", "input": {"LQS": "-0.001", "C": "0"}, "expected": {"domain_nonempty": false, "classification": "CONFLICT"}},
+    {"id": "S10", "subcases": [
+      {"input": {"value": "0.0625", "digits": 3}, "expected": {"rounded": "0.062"}},
+      {"input": {"value": "0.1875", "digits": 3}, "expected": {"rounded": "0.188"}},
+      {"input": {"value": "-0.0625", "digits": 3}, "expected": {"rounded": "-0.062"}},
+      {"input": {"value": "-0.1875", "digits": 3}, "expected": {"rounded": "-0.188"}},
+      {"input": {"value": "2.5", "digits": 0}, "expected": {"rounded": "2"}},
+      {"input": {"value": "3.5", "digits": 0}, "expected": {"rounded": "4"}},
+      {"input": {"value": "-2.5", "digits": 0}, "expected": {"rounded": "-2"}},
+      {"input": {"value": "-3.5", "digits": 0}, "expected": {"rounded": "-4"}},
+      {"input": {"value": "0.03125", "digits": 4}, "expected": {"rounded": "0.0312"}},
+      {"input": {"value": "0.09375", "digits": 4}, "expected": {"rounded": "0.0938"}},
+      {"input": {"C": "0.00625", "production_atr": "0.0000", "LQS": "0.062"}, "expected": {"inverse_contains_producer_atr": true}},
+      {"input": {"C": "-0.00625", "production_atr": "0.0000", "LQS": "-0.062"}, "expected": {"inverse_contains_producer_atr": true}}
+    ]},
+    {"id": "S11", "input": {"C": "0", "LQS": "6.000", "production_atr": "2.4000", "gap_factor": "0", "rvol_factor": "0", "squeeze_factor": "0", "V2": 15}, "expected": {"cross_output_consistency": "PASS", "r2_decision": "FALSE", "historical_identity": "NOT_ESTABLISHED"}},
+    {"id": "S12", "input": {"C": "0", "LQS": "6.000", "gap_factor": "0", "rvol_factor": "0", "squeeze_factor": "0", "V2": 10}, "expected": {"cross_output_consistency": "FAIL", "classification": "CONFLICT", "acceptance_blocked": true}},
+    {"id": "S13", "subcases": [
+      {"input": {"C": "0", "LQS": "15.000", "production_atr_candidates": ["6.0000", "8.0000"], "gap_factor": "0", "rvol_factor": "0", "squeeze_factor": "0", "V2": 25}, "expected": {"cross_output_consistency": "BOUNDARY", "r2_decision": "TRUE", "exact_atr_recovered": false}},
+      {"input": {"C": "0", "LQS": "10.000", "gap_factor": "0", "rvol_factor": "0", "squeeze_factor": "0", "V2": 25}, "expected": {"cross_output_consistency": "BOUNDARY", "r2_decision": "UNRESOLVED"}},
+      {"input": {"C": "7.5", "LQS": "90.000", "production_atr": "6.0000", "gap_factor": "1", "rvol_factor": "1", "squeeze_factor": "1", "V2": 100, "legacy_components": {"regime": true, "direction": true, "raw_score": "3", "rvol": "5", "squeeze_factor": "1", "lottery_factor": "0", "overnight_gap_factor": "0"}}, "expected": {"cross_output_consistency": "BOUNDARY", "r2_decision": "TRUE", "exact_atr_recovered": false}}
+    ]},
+    {"id": "S14", "input": {"stored_ON_squeeze": "0.0000"}, "expected": {"r4_decision": "FALSE", "historical_inputs_recovered": false}},
+    {"id": "S15", "input": {"stored_ON_squeeze": "1.0000"}, "expected": {"r4_decision": "TRUE", "exact_OFF_recovered": false}},
+    {"id": "S16", "input": {"stored_ON_squeeze": "0.5000", "feasible_pairs": [{"s": "0.5", "f": "0.5"}, {"s": "2/7", "f": "1"}, {"s": "5/7", "f": "0"}]}, "expected": {"r4_decision": "UNRESOLVED", "exact_OFF_recovered": false}},
+    {"id": "S17", "subcases": [
+      {"input": {"stored_ON_squeeze": "-0.0001"}, "expected": {"classification": "CONFLICT"}},
+      {"input": {"stored_ON_squeeze": "1.0001"}, "expected": {"classification": "CONFLICT"}},
+      {"input": {"stored_ON_squeeze": "NaN"}, "expected": {"classification": "CONFLICT"}},
+      {"input": {"stored_ON_squeeze": "Infinity"}, "expected": {"classification": "CONFLICT"}},
+      {"input": {"stored_ON_squeeze": "-Infinity"}, "expected": {"classification": "CONFLICT"}}
+    ]},
+    {"id": "S18", "subcases": [
+      {"input": {"stored_ON_squeeze": null, "r1_source": "NOT_FOUND"}, "expected": {"decision_value": "UNRESOLVED", "implicit_zero": false}},
+      {"input": {"LQS": "6.000", "C": null, "C_precision": "UNKNOWN", "r1_source": "NOT_FOUND"}, "expected": {"decision_value": "UNRESOLVED", "implicit_zero": false}}
+    ]},
+    {"id": "S19", "input": {"provider": "SYNTHETIC_PROVIDER", "short_input": "20", "short_unit": "percent", "required_unit": "fraction", "float_shares": "25000000"}, "expected": {"definition_match": "FAIL", "external_source_consistency": "NOT_APPLICABLE", "auto_conversion": false}},
+    {"id": "S20", "subcases": [
+      {"input": {"short_fraction": "0.1", "float_shares": "25000000", "stored_ON_squeeze": "0.5000", "provider": "SYNTHETIC_PROVIDER", "definition_match": "PASS", "historical_identity": "NOT_ESTABLISHED", "temporal_validity": "UNKNOWN"}, "expected": {"external_source_consistency": "PASS", "historical_input_recovered": "FALSE", "decision_recovered": "FALSE", "exact_OFF_recovered": false}},
+      {"input": {"short_fraction": "0.1", "float_shares": "25000000", "stored_ON_squeeze": "0.5000", "provider": "SYNTHETIC_PROVIDER", "definition_match": "PASS", "historical_identity": "NOT_ESTABLISHED", "temporal_validity": "FAIL", "available_at": "2000-01-03", "historical_cutoff": "2000-01-02"}, "expected": {"external_source_consistency": "PASS", "historical_input_recovered": "FALSE", "decision_recovered": "FALSE"}}
+    ]},
+    {"id": "S21", "input": {"r1_source": "NOT_FOUND", "LQS": "9.990", "C": "0", "r3_status": "PASS", "definitions": "PASS"}, "expected": {"classification": "DECISION_RECOVERED", "decision_value": "FALSE", "historical_input_recovered": "FALSE"}},
+    {"id": "S22", "input": {"r1_source": "NOT_FOUND", "atr_LQS": "10.000", "atr_C": "0", "stored_ON_squeeze": "0.0000"}, "expected": {"atr_decision": "UNRESOLVED", "squeeze_classification": "BOUNDED_RECOVERY", "squeeze_decision": "FALSE", "combined_verdict": null}},
+    {"id": "S23", "input": {"r1_production_atr": "3.9000", "r1_identity": "ESTABLISHED", "r1_PIT": "PASS", "r1_integrity": "MATCH", "definition_match": "PASS", "LQS": "10.250", "C": "0"}, "expected": {"classification": "CONFLICT", "prefer_source_override": false}},
+    {"id": "S24", "subcases": [
+      {"input": {"required_member": "synthetic.json", "expected_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "observed_sha256": "1111111111111111111111111111111111111111111111111111111111111111"}, "expected": {"gate": "STOP"}},
+      {"input": {"required_member": "synthetic.json", "availability": "MISSING"}, "expected": {"gate": "STOP"}},
+      {"input": {"inventory_complete": false}, "expected": {"gate": "STOP"}}
+    ]},
+    {"id": "S25", "subcases": [
+      {"input": {"isolation_evidence": null}, "expected": {"blindness_status": "NOT_VERIFIED", "gate": "STOP", "non_blind_fallback": false}},
+      {"input": {"forbidden_path_read_succeeded": true, "forbidden_path": "host-workspace-canary-not-a-secret"}, "expected": {"blindness_status": "FAILED", "gate": "STOP", "non_blind_fallback": false}}
+    ]},
+    {"id": "S26", "subcases": [
+      {"input": {"rows": [{"id": "FAKE-1", "eligible": false}]}, "expected": {"coverage_reason": "NO_ELIGIBLE_ROWS", "recoverable": false}},
+      {"input": {"rows": [{"id": "FAKE-1", "eligible": null}]}, "expected": {"coverage_reason": "ELIGIBILITY_UNKNOWN", "complete_population_claim": false}}
+    ]},
+    {"id": "S27", "input": {"payload_A": {"study": "SYNTHETIC", "row": {"id": "FAKE-1", "value": "0"}}, "payload_B": {"row": {"value": "0", "id": "FAKE-1"}, "study": "SYNTHETIC"}, "observation_time_A": "2000-01-01T00:00:00Z", "observation_time_B": "2000-01-02T00:00:00Z"}, "expected": {"canonical_payload_bytes_equal": true, "observation_times_outside_payload": true}},
+    {"id": "S28", "subcases": [
+      {"input": {"LQS": "0.000", "C": "0.00001", "C_precision": "EXACT_SYNTHETIC", "production_atr_witness": "0.0000"}, "expected": {"domain_nonempty": true, "midpoint_outside_domain": true, "classification_not": "CONFLICT"}},
+      {"input": {"LQS": "15.000", "C": "-0.00001", "C_precision": "EXACT_SYNTHETIC", "production_atr_witness": "6.0000"}, "expected": {"domain_nonempty": true, "midpoint_outside_domain": true, "retain_saturation_tail": true, "classification_not": "CONFLICT"}},
+      {"input": {"LQS": "-0.001", "C_midpoint": "0", "C_precision": "UNKNOWN", "justified_C_bounds": null}, "expected": {"decision_value": "UNRESOLVED", "classification_not": "CONFLICT", "assume_exact_C": false}}
+    ]}
+  ],
+  "joint_squeeze_oracle_cases": [
+    {"id": "J01", "input": {"stored_ON_squeeze": "0.2999"}, "expected": {"r4_decision": "FALSE"}},
+    {"id": "J02", "input": {"stored_ON_squeeze": "0.3000"}, "expected": {"r4_decision": "UNRESOLVED"}},
+    {"id": "J03", "input": {"stored_ON_squeeze": "0.7000"}, "expected": {"r4_decision": "UNRESOLVED"}},
+    {"id": "J04", "input": {"stored_ON_squeeze": "0.7001"}, "expected": {"r4_decision": "TRUE"}}
+  ],
+  "joint_oracle_specification": {
+    "method": "Independent exact-rational polygon vertex enumeration; do not call runner interval implementation.",
+    "constraints": ["0<=s<=1", "0<=f<=1", "max(0,S-0.000050001)<=0.7*s+0.3*f<=min(1,S+0.000050001)"],
+    "objective": "min and max of (s+f)/2 over all feasible vertices",
+    "final_conservative_envelope": "subtract/add 0.000050001, then clip to [0,1]",
+    "expected_bound_oracle": {"minimum_when_ON_lower_le_0.7": "5*ON_lower/7", "minimum_otherwise": "1/2+5*(ON_lower-7/10)/3", "maximum_when_ON_upper_le_0.3": "5*ON_upper/3", "maximum_otherwise": "1/2+5*(ON_upper-3/10)/7"},
+    "execution_status": "NOT_RUN"
+  }
+}

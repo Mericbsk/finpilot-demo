@@ -1,0 +1,1702 @@
+---- api/routers/scan.py:86-138 (file has 1148 lines)
+   86| def _enrich_results(
+   87|     results: list[dict],
+   88|     drl_cache: dict,
+   89|     drl_valid: bool,
+   90| ) -> dict:
+   91|     """Convert raw scanner list to symbol-keyed dict; add explanation, reason,
+   92|     and unified FinPilot Score to each entry.
+   93| 
+   94|     Args:
+   95|         results:   Raw list from evaluate_symbols_parallel
+   96|         drl_cache: Loaded DRL cache dict
+   97|         drl_valid: Whether the DRL cache passed freshness checks
+   98| 
+   99|     Returns:
+  100|         Dict keyed by symbol with enriched scan entries.
+  101|     """
+  102|     try:
+  103|         from scanner.signals import build_explanation, build_reason
+  104| 
+  105|         _explain_ok = True
+  106|     except ImportError:
+  107|         _explain_ok = False
+  108| 
+  109|     try:
+  110|         from scanner.finpilot_score import compute_finpilot_score
+  111| 
+  112|         _fps_ok = True
+  113|     except ImportError:
+  114|         _fps_ok = False
+  115| 
+  116|     out: dict = {}
+  117|     for r in results:
+  118|         sym = r.get("symbol") or r.get("ticker")
+  119|         if not sym:
+  120|             continue
+  121| 
+  122|         r["explanation"] = build_explanation(r) if _explain_ok else ""
+  123|         r["reason"] = build_reason(r) if _explain_ok else ""
+  124| 
+  125|         if _fps_ok:
+  126|             scanner_signal = "BUY" if r.get("direction") else "SELL"
+  127|             drl_entry = drl_cache.get(sym, {}) if drl_valid else {}
+  128|             r["finpilot_score"] = compute_finpilot_score(
+  129|                 scanner_composite=int(r.get("composite_score") or 0),
+  130|                 scanner_signal=scanner_signal,
+  131|                 drl_signal=drl_entry.get("signal"),
+  132|                 drl_confidence=drl_entry.get("confidence"),
+  133|             )
+  134| 
+  135|         out[sym] = r
+  136|     return out
+  137| 
+  138| 
+---- api/routers/scan.py:228-300 (file has 1148 lines)
+  228| def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
+  229|     """Auto-add BUY signals (entry_ok=True) to the watchlist.
+  230| 
+  231|     Alpha Tracker taraf\u0131ndan hesaplanan ``score_floor`` varsa, composite_score
+  232|     bu e\u015fi\u011fin alt\u0131ndaki sinyaller watchlist'e yine eklenir \u2014 ancak
+  233|     ``score_warning=True`` flag'i ile i\u015faretlenir. Hard block yok.
+  234|     """
+  235|     if not out:
+  236|         return
+  237|     try:
+  238|         from api.routers.watchlist import _load, _save, _upsert
+  239| 
+  240|         # Alpha Tracker'dan gelen dinamik score floor (sadece flag i\xe7in)
+  241|         score_floor: int | None = None
+  242|         try:
+  243|             from agents.alpha_tracker import get_score_floor
+  244| 
+  245|             score_floor = get_score_floor()
+  246|         except Exception:
+  247|             pass
+  248| 
+  249|         wl = _load()
+  250|         added = 0
+  251|         flagged_low_score = 0
+  252|         for sym, r in out.items():
+  253|             if not r.get("selection_eligible", r.get("entry_ok", False)):
+  254|                 continue
+  255| 
+  256|             # Score floor kontrol\xfc \u2014 atlam\u0131yoruz, sadece flag ekliyoruz
+  257|             score_warning = False
+  258|             if score_floor is not None:
+  259|                 composite = float(r.get("composite_score") or 0)
+  260|                 if composite < score_floor:
+  261|                     score_warning = True
+  262|                     flagged_low_score += 1
+  263|                     logger.debug(
+  264|                         "Score uyar\u0131s\u0131: %s composite_score=%.1f < floor=%d",
+  265|                         sym,
+  266|                         composite,
+  267|                         score_floor,
+  268|                     )
+  269| 
+  270|             direction = r.get("direction", False)
+  271|             scanner_signal = "BUY" if direction else "SELL"
+  272| 
+  273|             drl_conflict = False
+  274|             if drl_valid and sym in drl_cache:
+  275|                 drl_sig = drl_cache[sym].get("signal", "")
+  276|                 if drl_sig and drl_sig != scanner_signal and drl_sig != "HOLD":
+  277|                     drl_conflict = True
+  278|                     logger.info(
+  279|                         "DRL conflict for %s: scanner=%s drl=%s", sym, scanner_signal, drl_sig
+  280|                     )
+  281| 
+  282|             _now = datetime.now(tz=UTC)
+  283|             entry: dict = {
+  284|                 "symbol": sym,
+  285|                 "signal": scanner_signal,
+  286|                 "entry_price": float(r.get("price") or 0),
+  287|                 "stop_loss": float(r.get("stop_loss") or 0),
+  288|                 "take_profit": float(r.get("take_profit") or 0),
+  289|                 "score": float(r.get("filter_score") or r.get("score") or 0),
+  290|                 "finpilot_score": int(r.get("finpilot_score") or 0),
+  291|                 "composite_score": int(r.get("composite_score") or 0),
+  292|                 "signal_date": _now.strftime("%Y-%m-%d"),
+  293|                 "regime": "Bull" if r.get("regime") else "Bear",
+  294|                 "sentiment": "Bullish" if direction else "Bearish",
+  295|                 "risk_reward": float(r.get("risk_reward") or 0),
+  296|                 "reason": r.get("reason") or "",
+  297|                 "explanation": r.get("explanation") or "",
+  298|                 "added_at": _now.isoformat(),
+  299|                 "current_price": 0.0,
+  300|                 "change_pct": 0.0,
+---- api/routers/scan.py:998-1060 (file has 1148 lines)
+  998| def _persist_distribution_export(
+  999|     results: dict,
+ 1000|     universe: int,
+ 1001|     scan_id: str | None = None,
+ 1002|     scan_complete: bool | None = None,
+ 1003|     timing: dict | None = None,
+ 1004| ) -> None:
+ 1005|     """Write full enriched scan results for the distribution layer.
+ 1006| 
+ 1007|     The daily brief / web demo snapshot is built from THIS export (it carries
+ 1008|     tier/conviction fields) \u2014 never from legacy daily_reports. Atomic writes
+ 1009|     (tmp+replace) so a concurrent reader can never see a half-written file.
+ 1010|     Best-effort: failure must never break the scan.
+ 1011|     """
+ 1012|     try:
+ 1013|         import os as _os
+ 1014| 
+ 1015|         export_dir = Path(_os.getenv("FINPILOT_DIST_DIR", "data/distribution"))
+ 1016|         export_dir.mkdir(parents=True, exist_ok=True)
+ 1017|         rows = list(results.values()) if isinstance(results, dict) else list(results or [])
+ 1018|         for row in rows:
+ 1019|             if not isinstance(row, dict) or row.get("scan_status") != "unavailable":
+ 1020|                 continue
+ 1021|             reason = str((row.get("reject_reason") or ["unavailable"])[0])
+ 1022|             row.setdefault("data_quality", {"available": {}, "missing_fields": [reason]})
+ 1023|             row.setdefault("execution_reject_reason", [reason])
+ 1024|             row.setdefault("execution_confidence", "Tier 0")
+ 1025|             row.setdefault("legacy_quality_score", 0.0)
+ 1026|             row.setdefault("ranking_score", 0.0)
+ 1027|             row.setdefault("v2_score", 0.0)
+ 1028|             row.setdefault("strategy_scores", {"legacy_quality": 0.0, "v2": 0.0})
+ 1029|             row.setdefault("conviction_tier", "")
+ 1030|             row.setdefault("conviction_prob", 0.0)
+ 1031|             row.setdefault("position_cap_notional", None)
+ 1032|             row.setdefault("position_cap_applied", False)
+ 1033|             row.setdefault("position_cap_reject_reason", None)
+ 1034|         payload = {
+ 1035|             "date": datetime.now(tz=UTC).strftime("%Y-%m-%d"),
+ 1036|             "generated_at": datetime.now(tz=UTC).isoformat(),
+ 1037|             # scan_id identifies the SYMBOL SET (identical across same-universe
+ 1038|             # runs); run_id identifies THIS run \u2014 never confuse the two.
+ 1039|             "run_id": datetime.now(tz=UTC).strftime("%Y%m%dT%H%M%S"),
+ 1040|             "universe": universe,
+ 1041|             "scan_id": scan_id
+ 1042|             or hashlib.sha256(
+ 1043|                 "|".join(
+ 1044|                     sorted(
+ 1045|                         str(row.get("symbol") or row.get("ticker") or "").upper()
+ 1046|                         for row in (
+ 1047|                             list(results.values()) if isinstance(results, dict) else results
+ 1048|                         )
+ 1049|                         if isinstance(row, dict) and (row.get("symbol") or row.get("ticker"))
+ 1050|                     )
+ 1051|                 ).encode()
+ 1052|             ).hexdigest()[:24],
+ 1053|             "scan_complete": scan_complete is not False,
+ 1054|             # Per-run performance (P0 instrumentation): eval/enrich/total seconds
+ 1055|             # so scan duration is queryable history, not a file-mtime guess.
+ 1056|             "timing": timing or {},
+ 1057|             "result_count": len(rows),
+ 1058|             "results": rows,
+ 1059|         }
+ 1060|         current_results = payload["results"]
+---- scanner/finpilot_score.py:1-113 (file has 113 lines)
+    1| """Unified FinPilot Score \u2014 Sprint 8 (DRL weight zeroed until live DRL connected)
+    2| 
+    3| Formula
+    4| -------
+    5|     base  = _W_SCANNER \xd7 (scanner_composite / 100)
+    6|             + _W_DRL \xd7 drl_confidence (inactive while _W_DRL == 0.0)
+    7|     score = base \xd7 (1 + \u03b1 \xd7 agreement)
+    8| 
+    9| where:
+   10|     \u03b1 = 0.3  (agreement weight)
+   11|     _W_DRL = 0.0  \u2192 DRL weight disabled until a real-time DRL is wired in
+   12|     _W_SCANNER = 1.0 - _W_DRL
+   13| """
+   14| 
+   15| from __future__ import annotations
+   16| 
+   17| import threading
+   18| 
+   19| _ALPHA = 0.3  # agreement weight
+   20| _W_DRL = 0.0  # DRL weight \u2014 set to 0 until live DRL is connected; was 0.4
+   21| _W_SCANNER = 1.0 - _W_DRL  # scanner weight (currently 1.0)
+   22| 
+   23| # Named weights for the multi-factor ranker (loaded from registry champion on startup)
+   24| _weights: dict[str, float] = {}
+   25| _weights_lock = threading.Lock()
+   26| 
+   27| 
+   28| def get_weights() -> dict[str, float]:
+   29|     """Return a copy of the current named weight dict."""
+   30|     with _weights_lock:
+   31|         return dict(_weights)
+   32| 
+   33| 
+   34| def set_weights(new_weights: dict[str, float]) -> None:
+   35|     """Hot-reload named weights (called by calibration rollback / registry promote)."""
+   36|     with _weights_lock:
+   37|         _weights.clear()
+   38|         _weights.update(new_weights)
+   39| 
+   40| 
+   41| def load_weights() -> dict[str, float]:
+   42|     """Load champion weights from the model registry and apply them in-process."""
+   43|     try:
+   44|         from research.registry import ModelRegistry
+   45| 
+   46|         reg = ModelRegistry()
+   47|         champion = reg.get_champion()
+   48|         if champion and champion.get("weights"):
+   49|             set_weights(champion["weights"])
+   50|             return dict(champion["weights"])
+   51|     except Exception:
+   52|         pass
+   53|     return {}
+   54| 
+   55| 
+   56| def compute_finpilot_score(
+   57|     scanner_composite: int | float,
+   58|     scanner_signal: str,
+   59|     drl_signal: str | None,
+   60|     drl_confidence: float | None,
+   61| ) -> int:
+   62|     """Compute the unified FinPilot Score (0-100).
+   63| 
+   64|     Args:
+   65|         scanner_composite: Scanner's 0-100 composite score
+   66|         scanner_signal:    "BUY" | "SELL" from scanner direction
+   67|         drl_signal:        "BUY" | "SELL" | "HOLD" | None from DRL cache
+   68|         drl_confidence:    0.0-1.0 confidence from DRL; None if unavailable
+   69| 
+   70|     Returns:
+   71|         Unified FinPilot Score 0-100
+   72|     """
+   73|     # DRL mevcut de\u011filse composite_score'u oldu\u011fu gibi d\xf6nd\xfcr.
+   74|     # Sahte/stale DRL confidence (varsay\u0131lan 0.5) skoru bozmas\u0131n.
+   75|     if drl_signal is None or drl_confidence is None:
+   76|         return min(100, max(0, int(round(float(scanner_composite)))))
+   77| 
+   78|     sc = float(scanner_composite) / 100.0
+   79|     dc = float(drl_confidence)
+   80| 
+   81|     base = _W_SCANNER * sc + _W_DRL * dc
+   82| 
+   83|     # Agreement multiplier only applies when DRL is active
+   84|     if _W_DRL == 0.0 or drl_signal is None or drl_signal == "HOLD" or drl_confidence is None:
+   85|         agreement = 0.0
+   86|     elif drl_signal == scanner_signal:
+   87|         agreement = 1.0
+   88|     else:
+   89|         agreement = -0.5  # \xe7eli\u015fki cezas\u0131
+   90| 
+   91|     raw = base * (1.0 + _ALPHA * agreement)
+   92|     return min(100, max(0, int(round(raw * 100))))
+   93| 
+   94| 
+   95| # ---------------------------------------------------------------------------
+   96| # Re-export the composite recommendation scoring API so callers can rely on
+   97| # scanner.finpilot_score as the single public scoring surface.
+   98| # ---------------------------------------------------------------------------
+   99| from scanner.score_engine import (  # noqa: E402, F401
+  100|     MAX_RECO_SCORE,
+  101|     compute_recommendation_score,
+  102|     compute_recommendation_strength,
+  103| )
+  104| 
+  105| __all__ = [
+  106|     "compute_finpilot_score",
+  107|     "compute_recommendation_score",
+  108|     "compute_recommendation_strength",
+  109|     "MAX_RECO_SCORE",
+  110|     "get_weights",
+  111|     "set_weights",
+  112|     "load_weights",
+  113| ]
+==== GREP scanner/evaluate.py /.score.\s*:|filter_score|composite_score|recommendation_score/ files=1
+scanner/evaluate.py:37| compute_recommendation_score,
+scanner/evaluate.py:61| "Normal": {"min_score": 1, "rsi_low": 30, "rsi_high": 70},
+scanner/evaluate.py:62| "Agresif": {"min_score": 1, "rsi_low": 40, "rsi_high": 60},
+scanner/evaluate.py:63| "Defansif": {"min_score": 2, "rsi_low": 25, "rsi_high": 75},
+scanner/evaluate.py:64| "Momentum": {"min_score": 1, "rsi_low": 35, "rsi_high": 65},
+scanner/evaluate.py:97| "legacy_quality_score": 0.0,
+scanner/evaluate.py:98| "ranking_score": 0.0,
+scanner/evaluate.py:99| "v2_score": 0.0,
+scanner/evaluate.py:106| "score": 0,
+scanner/evaluate.py:107| "composite_score": 0,
+scanner/evaluate.py:299| filter_score = int(volume_spike) + int(price_momentum) + int(trend_strength)
+scanner/evaluate.py:522| "score": int(score),
+scanner/evaluate.py:523| "filter_score": int(filter_score),
+scanner/evaluate.py:544| _score_raw = compute_recommendation_score(_score_input, sentiment_score=sentiment_score)
+scanner/evaluate.py:546| _composite_score = compute_recommendation_strength(
+scanner/evaluate.py:549| _gate_mult = regime_gate_mult(bool(regime), _composite_score)
+scanner/evaluate.py:559| composite_score=int(_composite_score),
+scanner/evaluate.py:606| _composite_score if legacy_composite_ranking_enabled() else _legacy_quality_score
+scanner/evaluate.py:627| "score": int(score),
+scanner/evaluate.py:648| "filter_score": int(filter_score),
+scanner/evaluate.py:652| "momentum_best_zscore": round(dominant_zscore, 2),
+scanner/evaluate.py:701| "composite_score": _composite_score,
+scanner/evaluate.py:704| "legacy_quality_score": _legacy_quality_score,
+scanner/evaluate.py:705| "ranking_score": _ranking_score,
+scanner/evaluate.py:707| "v2_score": _v2_score,
+---- scanner/evaluate.py:115-220 (file has 852 lines)
+  115|     ev_per_trade: float,
+  116|     ann_vol_pct: float,
+  117|     vol_regime: int,
+  118|     price: float,
+  119| ) -> dict[str, object]:
+  120|     """Return Faz 6 net-return and edge-decay fields for the signal result dict.
+  121| 
+  122|     Uses core.slippage_tracker's real RealisticBacktestCosts model to estimate
+  123|     round-trip cost; falls back to _COST_FLAT_PCT (0.20%) if the import/call
+  124|     fails for any reason. (Previously imported a non-existent
+  125|     `estimate_round_trip_cost` function \u2014 every call silently fell back to
+  126|     the flat 0.20% one-sided assumption; see tests/test_scanner_fixes.py.)
+  127| 
+  128|     Returns keys: net_expected_return (float %), edge_label (str).
+  129|     """
+  130|     cost_pct = _COST_FLAT_PCT
+  131|     try:
+  132|         from core.slippage_tracker import RealisticBacktestCosts  # noqa: PLC0415
+  133| 
+  134|         cost_pct = RealisticBacktestCosts().round_trip_cost_pct() / 100.0
+  135|     except Exception:
+  136|         pass
+  137| 
+  138|     net_ev = ev_per_trade - cost_pct
+  139| 
+  140|     if net_ev <= 0:
+  141|         label = "negative"
+  142|     elif vol_regime == 2 and net_ev < _DECAY_EV_THRESH:
+  143|         label = "edge_decay"
+  144|     elif net_ev < _THIN_EDGE_THRESH:
+  145|         label = "thin_edge"
+  146|     else:
+  147|         label = "ok"
+  148| 
+  149|     return {
+  150|         "net_expected_return": round(net_ev, 4),
+  151|         "edge_label": label,
+  152|     }
+  153| 
+  154| 
+  155| def _feature_contract(
+  156|     *,
+  157|     df_15m: pd.DataFrame,
+  158|     df_1h: pd.DataFrame,
+  159|     df_4h: pd.DataFrame,
+  160|     df_1d: pd.DataFrame,
+  161|     signal_timestamp: str,
+  162| ) -> dict[str, Any]:
+  163|     frames = {"15m": df_15m, "1h": df_1h, "4h": df_4h, "1d": df_1d}
+  164|     feature_timestamps: dict[str, str | None] = {}
+  165|     feature_age_minutes: dict[str, float | None] = {}
+  166|     signal_ts = pd.Timestamp(signal_timestamp)
+  167|     if signal_ts.tzinfo is not None:
+  168|         signal_ts = signal_ts.tz_localize(None)
+  169|     for name, frame in frames.items():
+  170|         if frame.empty:
+  171|             feature_timestamps[name] = None
+  172|             feature_age_minutes[name] = None
+  173|             continue
+  174|         latest = pd.Timestamp(frame.index[-1])
+  175|         if latest.tzinfo is not None:
+  176|             latest = latest.tz_localize(None)
+  177|         feature_timestamps[name] = latest.isoformat()
+  178|         feature_age_minutes[name] = round(max(0.0, (signal_ts - latest).total_seconds() / 60.0), 2)
+  179| 
+  180|     spread_bps = None
+  181|     spread_source = "missing"
+  182|     for column in ("spread_bps", "spread_pct"):
+  183|         if column in df_15m.columns and pd.notna(df_15m[column].iloc[-1]):
+  184|             value = float(df_15m[column].iloc[-1])
+  185|             spread_bps = value if column == "spread_bps" else value * 100.0
+  186|             spread_source = column
+  187|             break
+  188|     if spread_bps is None and all(column in df_15m.columns for column in ("bid", "ask")):
+  189|         bid = float(df_15m["bid"].iloc[-1])
+  190|         ask = float(df_15m["ask"].iloc[-1])
+  191|         mid = (bid + ask) / 2.0
+  192|         if bid > 0 and ask >= bid and mid > 0:
+  193|             spread_bps = (ask - bid) / mid * 10_000.0
+  194|             spread_source = "bid_ask"
+  195| 
+  196|     dollar_adv = None
+  197|     adv_source = "missing"
+  198|     if all(column in df_1d.columns for column in ("Close", "Volume")):
+  199|         dollar_volume = pd.to_numeric(df_1d["Close"], errors="coerce") * pd.to_numeric(
+  200|             df_1d["Volume"], errors="coerce"
+  201|         )
+  202|         dollar_volume = dollar_volume.dropna().tail(20)
+  203|         if len(dollar_volume) >= 5:
+  204|             dollar_adv = float(dollar_volume.mean())
+  205|             adv_source = "close_volume_20d"
+  206| 
+  207|     short_interest_timestamp = df_1d.attrs.get("short_interest_timestamp")
+  208|     if short_interest_timestamp is not None and hasattr(short_interest_timestamp, "isoformat"):
+  209|         short_interest_timestamp = short_interest_timestamp.isoformat()
+  210|     available = {
+  211|         "spread_bps": spread_bps is not None,
+  212|         "dollar_adv": dollar_adv is not None,
+  213|         "short_interest_timestamp": short_interest_timestamp is not None,
+  214|     }
+  215|     return {
+  216|         "spread_bps": round(spread_bps, 4) if spread_bps is not None else None,
+  217|         "spread_source": spread_source,
+  218|         "dollar_adv": round(dollar_adv, 2) if dollar_adv is not None else None,
+  219|         "adv_source": adv_source,
+  220|         "short_interest_timestamp": short_interest_timestamp,
+---- scanner/evaluate.py:286-300 (file has 852 lines)
+  286|                     prev["macd_hist"]
+  287|                 ):
+  288|                     score += 1
+  289|         except Exception:
+  290|             score = 0
+  291| 
+  292|         last_price = df_15m["Close"].iloc[-1]
+  293|         atr_val = df_15m["atr"].iloc[-1]
+  294|         momentum_analysis = analyze_price_momentum(df_1d)
+  295| 
+  296|         volume_spike = bool(check_volume_spike(df_1d))
+  297|         price_momentum = bool(momentum_analysis.get("positive", False))
+  298|         trend_strength = bool(check_trend_strength(df_1d))
+  299|         filter_score = int(volume_spike) + int(price_momentum) + int(trend_strength)
+  300| 
+---- scanner/evaluate.py:440-560 (file has 852 lines)
+  440|                 is_earnings_blackout,
+  441|             )
+  442| 
+  443|             earnings_blackout = is_earnings_blackout(symbol, days_before=2, days_after=1)
+  444|             earnings_prox = earnings_proximity(symbol)
+  445|             if earnings_blackout and entry_ok:
+  446|                 entry_ok = False
+  447|                 reject_reasons.append("earnings_blackout")
+  448|                 logger.info("[%s] earnings blackout \u2014 signal suppressed", symbol)
+  449|         except Exception:
+  450|             pass
+  451| 
+  452|         # Sprint 15: Sector RS + vol regime alpha features
+  453|         sector_rs = 0.0
+  454|         vol_regime_val = 1
+  455|         squeeze_factor = 0.0
+  456|         try:
+  457|             from scanner.features import get_alpha_features  # noqa: PLC0415
+  458| 
+  459|             alpha = get_alpha_features(symbol, df_1d=df_1d)
+  460|             sector_rs = alpha.get("sector_rs", 0.0)
+  461|             vol_regime_val = alpha.get("vol_regime", 1)
+  462|             squeeze_factor = alpha.get("squeeze_factor", 0.0)
+  463|         except Exception:
+  464|             pass
+  465| 
+  466|         # SEC EDGAR catalyst factor (env-gated, reads from cache \u2014 hot-path safe)
+  467|         catalyst_factor = 0.0
+  468|         try:
+  469|             from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
+  470| 
+  471|             catalyst_factor = compute_catalyst_factor(symbol)
+  472|         except Exception:
+  473|             pass
+  474| 
+  475|         alpha_gap = 0.0
+  476|         alpha_rvol = 0.0
+  477|         alpha_ext = 0.0
+  478|         dist_52w_high = 0.0
+  479|         gap_pct = 0.0
+  480|         rvol_daily = 0.0
+  481|         try:
+  482|             from scanner.features import (
+  483|                 compute_dist_52w_high,
+  484|                 compute_extension_factor,
+  485|                 compute_gap_factor,
+  486|                 compute_gap_pct,
+  487|                 compute_rvol_daily,
+  488|                 compute_rvol_factor,
+  489|             )
+  490| 
+  491|             alpha_gap = compute_gap_factor(df_1d)
+  492|             alpha_rvol = compute_rvol_factor(df_1d)
+  493|             alpha_ext = compute_extension_factor(df_1d)
+  494|             dist_52w_high = compute_dist_52w_high(df_1d)
+  495|             gap_pct = compute_gap_pct(df_1d)
+  496|             rvol_daily = compute_rvol_daily(df_1d)
+  497|         except Exception:
+  498|             pass
+  499| 
+  500|         # Faz 1: Lottery/MAX fade factor (pure pandas, no network call)
+  501|         lottery_factor = 0.0
+  502|         try:
+  503|             from scanner.features import compute_lottery_factor  # noqa: PLC0415
+  504| 
+  505|             lottery_factor = compute_lottery_factor(df_1d)
+  506|         except Exception:
+  507|             pass
+  508| 
+  509|         # Faz 4: Overnight gap reversal factor (pure pandas, no network call)
+  510|         overnight_gap_factor = 0.0
+  511|         try:
+  512|             from scanner.features import compute_overnight_gap_factor  # noqa: PLC0415
+  513| 
+  514|             overnight_gap_factor = compute_overnight_gap_factor(df_1d)
+  515|         except Exception:
+  516|             pass
+  517| 
+  518|         # Regime \xd7 score-band gate (2026-06-12 barrier audit findings)
+  519|         _score_input = {
+  520|             "regime": regime,
+  521|             "direction": bool(direction),
+  522|             "score": int(score),
+  523|             "filter_score": int(filter_score),
+  524|             "alignment_ratio": float(alignment_ratio),
+  525|             "momentum_ratio": float(momentum_ratio),
+  526|             "volume_spike": bool(volume_spike),
+  527|             "price_momentum": bool(price_momentum),
+  528|             "trend_strength": bool(trend_strength),
+  529|             "is_premium_symbol": bool(is_premium_symbol),
+  530|             # Faz 3: vol_regime drives momentum weight in score_engine
+  531|             "vol_regime": int(vol_regime_val),
+  532|             "squeeze_factor": float(squeeze_factor),
+  533|             "gap_factor": float(alpha_gap),
+  534|             "rvol_factor": float(alpha_rvol),
+  535|             "extension_factor": float(alpha_ext),
+  536|             "catalyst_factor": float(catalyst_factor),
+  537|             # Faz 1/2: lottery penalty (gated by FINPILOT_ENABLE_LOTTERY_FADE)
+  538|             "lottery_factor": float(lottery_factor),
+  539|             # Faz 4: overnight gap reversal (gated by FINPILOT_ENABLE_OVERNIGHT_GAP)
+  540|             "overnight_gap_factor": float(overnight_gap_factor),
+  541|             # Faz 5: is_premium_symbol removed (was dead code \u2014 score_engine
+  542|             # never read it). Kept as False in return dict for UI compat.
+  543|         }
+  544|         _score_raw = compute_recommendation_score(_score_input, sentiment_score=sentiment_score)
+  545|         _score_components = score_component_breakdown(_score_input, sentiment_score=sentiment_score)
+  546|         _composite_score = compute_recommendation_strength(
+  547|             _score_input, sentiment_score=sentiment_score
+  548|         )
+  549|         _gate_mult = regime_gate_mult(bool(regime), _composite_score)
+  550| 
+  551|         # \u2500\u2500 Task 2: Risk-adjusted metrics from daily OHLC \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  552|         _risk_metrics = calculate_risk_adjusted_metrics(df_1d) if len(df_1d) >= 10 else {}
+  553|         _ann_vol_pct = float(_risk_metrics.get("ann_vol_pct", 20.0) or 20.0)
+  554| 
+  555|         # \u2500\u2500 Task 3: Dynamic position sizing \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  556|         _dyn_pos = calculate_dynamic_position(
+  557|             price=safe_float(last_price),
+  558|             stop_loss=risk_data["stop_loss"],
+  559|             composite_score=int(_composite_score),
+  560|             is_bull_regime=bool(regime),
+---- scanner/evaluate.py:575-650 (file has 852 lines)
+  575|                 else ("", 0.0)
+  576|             )
+  577|         except Exception:
+  578|             _conv_tier, _conv_prob = "", 0.0
+  579|         _signal_timestamp = df_15m.index[-1].strftime("%Y-%m-%d %H:%M")
+  580|         _data_quality = _feature_contract(
+  581|             df_15m=df_15m,
+  582|             df_1h=df_1h,
+  583|             df_4h=df_4h,
+  584|             df_1d=df_1d,
+  585|             signal_timestamp=_signal_timestamp,
+  586|         )
+  587|         _execution_contract_data = execution_contract(_data_quality)
+  588|         _reject_reasons = list(_execution_contract_data.get("execution_reject_reason", []))
+  589|         if not entry_ok:
+  590|             _reject_reasons.append("signal_not_eligible")
+  591|         _execution_contract_data["reject_reason"] = list(dict.fromkeys(_reject_reasons))
+  592|         _execution_contract_data["selection_eligible"] = bool(
+  593|             entry_ok and _execution_contract_data["execution_feasible"]
+  594|         )
+  595|         _legacy_quality_score = compute_legacy_quality_score(
+  596|             regime=regime,
+  597|             direction=bool(direction),
+  598|             raw_score=float(score),
+  599|             atr_pct=_atr_pct_daily,
+  600|             rvol=(1.0 + float(alpha_rvol) * 2.0 if alpha_rvol else None),
+  601|             squeeze_factor=float(squeeze_factor),
+  602|             lottery_factor=float(lottery_factor),
+  603|             overnight_gap_factor=float(overnight_gap_factor),
+  604|         )
+  605|         _ranking_score = (
+  606|             _composite_score if legacy_composite_ranking_enabled() else _legacy_quality_score
+  607|         )
+  608|         _v2_score = compute_v2_score(
+  609|             gap_factor=float(alpha_gap),
+  610|             rvol_factor=float(alpha_rvol),
+  611|             atr_pct=float(_atr_pct_daily),
+  612|             squeeze_factor=float(squeeze_factor),
+  613|         )
+  614|         _position_cap = position_cap(
+  615|             _data_quality["dollar_adv"],
+  616|             float(risk_data["position_size"]) * safe_float(last_price),
+  617|         )
+  618|         _position_cap["position_size"] = (
+  619|             round(_position_cap["position_notional"] / safe_float(last_price), 4)
+  620|             if safe_float(last_price) > 0
+  621|             else 0
+  622|         )
+  623| 
+  624|         return {
+  625|             "symbol": symbol,
+  626|             "price": round(safe_float(last_price), 4),
+  627|             "score": int(score),
+  628|             "regime": regime,
+  629|             "direction": bool(direction),
+  630|             "atr": round(safe_float(atr_val), 6) if pd.notna(atr_val) else None,
+  631|             "entry_ok": bool(entry_ok),
+  632|             "market_status": CURRENT_MARKET_STATUS["reason"],
+  633|             "timestamp": _signal_timestamp,
+  634|             "spread_bps": _data_quality["spread_bps"],
+  635|             "spread_source": _data_quality["spread_source"],
+  636|             "dollar_adv": _data_quality["dollar_adv"],
+  637|             "adv_source": _data_quality["adv_source"],
+  638|             "short_interest_timestamp": _data_quality["short_interest_timestamp"],
+  639|             "feature_timestamps": _data_quality["feature_timestamps"],
+  640|             "feature_age_minutes": _data_quality["feature_age_minutes"],
+  641|             "data_quality": _data_quality,
+  642|             "entry_drift_pct": None,
+  643|             **_execution_contract_data,
+  644|             "liquidity_ok": bool(liquidity_ok),
+  645|             "volume_spike": bool(volume_spike),
+  646|             "price_momentum": bool(price_momentum),
+  647|             "trend_strength": bool(trend_strength),
+  648|             "filter_score": int(filter_score),
+  649|             "volume_multiple": round(volume_multiple, 2),
+  650|             "momentum_3d_pct": round(momentum_3d_pct, 2),
+---- scanner/evaluate.py:736-760 (file has 852 lines)
+  736|             "dyn_portfolio_ok": _dyn_pos.get("portfolio_ok", True),
+  737|             "dyn_sizing_method": _dyn_pos.get("sizing_method", "fixed-fractional"),
+  738|             # \u2500\u2500 Faz 6: Cost-adjusted expected return + edge decay label \u2500\u2500\u2500\u2500
+  739|             # net_expected_return: ev_per_trade minus estimated round-trip cost
+  740|             # (slippage + commission). Uses core.slippage_tracker when available;
+  741|             # falls back to 0.20% flat assumption (typical retail, low-cap).
+  742|             # Edge decay labels warn when edge may be thin or regime-dependent:
+  743|             #   "ok"         \u2014 net EV > 0.3% and vol is normal/low
+  744|             #   "thin_edge"  \u2014 net EV between 0% and 0.3% (barely profitable)
+  745|             #   "edge_decay" \u2014 high-vol regime (vol_regime==2) AND net EV < 0.5%
+  746|             #   "negative"   \u2014 net EV \u2264 0 (expected loss after costs)
+  747|             **_compute_cost_labels(
+  748|                 ev_per_trade=float(_risk_metrics.get("ev_per_trade") or 0.0),
+  749|                 ann_vol_pct=_ann_vol_pct,
+  750|                 vol_regime=int(vol_regime_val),
+  751|                 price=safe_float(last_price),
+  752|             ),
+  753|         }
+  754|     except Exception as e:
+  755|         logger.error("[%s] evaluation error: %s", symbol, e)
+  756|         return _unavailable_result(symbol, "evaluation_error", detail=str(e))
+  757| 
+  758| 
+  759| @coordinate_scan
+  760| @observe_scan
+==== GREP scanner /feature_age_minutes|feature_timestamps/ files=25
+scanner/evaluate.py:164| feature_timestamps: dict[str, str | None] = {}
+scanner/evaluate.py:165| feature_age_minutes: dict[str, float | None] = {}
+scanner/evaluate.py:171| feature_timestamps[name] = None
+scanner/evaluate.py:172| feature_age_minutes[name] = None
+scanner/evaluate.py:177| feature_timestamps[name] = latest.isoformat()
+scanner/evaluate.py:178| feature_age_minutes[name] = round(max(0.0, (signal_ts - latest).total_seconds() / 60.0), 2)
+scanner/evaluate.py:221| "feature_timestamps": feature_timestamps,
+scanner/evaluate.py:222| "feature_age_minutes": feature_age_minutes,
+scanner/evaluate.py:639| "feature_timestamps": _data_quality["feature_timestamps"],
+scanner/evaluate.py:640| "feature_age_minutes": _data_quality["feature_age_minutes"],
+---- distribution/archive_bridge.py:40-110 (file has 169 lines)
+   40|     return f"sig_{digest}"
+   41| 
+   42| 
+   43| def archive_snapshot_candidates(
+   44|     snap: dict[str, Any],
+   45|     db_path: Path | str | None = None,
+   46| ) -> dict[str, Any]:
+   47|     """Insert the snapshot's public candidates into signals_archive.
+   48| 
+   49|     Returns {"archived": n, "skipped": n, "date": ...}. Raises on DB errors \u2014
+   50|     an archive failure must be visible, never silent.
+   51|     """
+   52|     path = Path(db_path) if db_path else DEFAULT_DB
+   53|     date_str = str(snap.get("date") or date.today().isoformat())
+   54|     candidates = snap.get("candidates") or []
+   55|     ts = datetime.now(tz=UTC).isoformat()
+   56| 
+   57|     archived = skipped = 0
+   58|     con = sqlite3.connect(path)
+   59|     try:
+   60|         for cand in candidates:
+   61|             symbol = str(cand.get("ticker") or cand.get("symbol") or "").upper()
+   62|             if not symbol:
+   63|                 continue
+   64|             row_id = _candidate_id(symbol, date_str)
+   65|             enrich = _watchlist_enrichment(con, symbol, date_str)
+   66|             metrics = cand.get("metrics") or {}
+   67|             resolver_fields = {
+   68|                 # keys scripts/resolve_open_signals.py reads from payload_json
+   69|                 "signal_date": date_str,
+   70|                 "entry_price": enrich.get("entry_price") or metrics.get("price"),
+   71|                 "stop_loss": enrich.get("stop_loss") or metrics.get("stop_loss"),
+   72|                 "take_profit": enrich.get("take_profit") or metrics.get("take_profit"),
+   73|                 "conviction_tier": enrich.get("conviction_tier") or cand.get("grade"),
+   74|             }
+   75|             payload = json.dumps(
+   76|                 {"source": "publish_archive_bridge", "date": date_str, **resolver_fields, **cand},
+   77|                 ensure_ascii=False,
+   78|                 default=str,
+   79|             )
+   80|             cur = con.execute(
+   81|                 "INSERT OR IGNORE INTO signals_archive "
+   82|                 "(id, symbol, ts, score, finpilot_score, payload_json, resolved_status) "
+   83|                 "VALUES (?, ?, ?, ?, ?, ?, 'new')",
+   84|                 (
+   85|                     row_id,
+   86|                     symbol,
+   87|                     ts,
+   88|                     _as_float(enrich.get("score") or metrics.get("conviction_prob")),
+   89|                     _as_float(enrich.get("finpilot_score")),
+   90|                     payload,
+   91|                 ),
+   92|             )
+   93|             if cur.rowcount:
+   94|                 archived += 1
+   95|             else:
+   96|                 skipped += 1
+   97|         con.commit()
+   98|     finally:
+   99|         con.close()
+  100|     logger.info("archive bridge: %d archived, %d already present (%s)", archived, skipped, date_str)
+  101|     return {"archived": archived, "skipped": skipped, "date": date_str}
+  102| 
+  103| 
+  104| def _watchlist_enrichment(con: sqlite3.Connection, symbol: str, date_str: str) -> dict[str, Any]:
+  105|     """Pull entry/SL/TP/score for the same symbol+day from watchlist_signals.
+  106| 
+  107|     The public snapshot candidate is compliance-stripped; the watchlist row
+  108|     carries the numeric fields the resolver needs. Best-effort: returns {}
+  109|     when the table or row is missing.
+  110|     """
+==== GREP scripts/migrate_signal_archive_to_sqlite.py /ts|signal_date|added_at|INSERT|score/ files=1
+scripts/migrate_signal_archive_to_sqlite.py:3| Idempotent: uses INSERT OR IGNORE keyed on signal id.
+scripts/migrate_signal_archive_to_sqlite.py:13| ROOT = Path(__file__).resolve().parents[1]
+scripts/migrate_signal_archive_to_sqlite.py:21| ts              TEXT,
+scripts/migrate_signal_archive_to_sqlite.py:22| score           REAL,
+scripts/migrate_signal_archive_to_sqlite.py:23| finpilot_score  REAL,
+scripts/migrate_signal_archive_to_sqlite.py:29| CREATE INDEX IF NOT EXISTS ix_signals_archive_ts     ON signals_archive(ts);
+scripts/migrate_signal_archive_to_sqlite.py:36| or f"{record.get('symbol', '?')}_{record.get('signal_date') or fallback_date}"
+scripts/migrate_signal_archive_to_sqlite.py:39| ts = str(record.get("added_at") or record.get("signal_date") or fallback_date)
+scripts/migrate_signal_archive_to_sqlite.py:40| score = record.get("score")
+scripts/migrate_signal_archive_to_sqlite.py:41| fp = record.get("finpilot_score")
+scripts/migrate_signal_archive_to_sqlite.py:52| ts,
+scripts/migrate_signal_archive_to_sqlite.py:53| float(score) if score is not None else None,
+scripts/migrate_signal_archive_to_sqlite.py:62| if not ARCHIVE_DIR.exists():
+scripts/migrate_signal_archive_to_sqlite.py:81| "INSERT OR IGNORE INTO signals_archive "
+scripts/migrate_signal_archive_to_sqlite.py:82| "(id, symbol, ts, score, finpilot_score, payload_json, resolved_status, resolved_pct) "
+---- scripts/resolve_open_signals.py:1-260 (file has 422 lines)
+    1| """Resolve open signals in signals_archive with yfinance forward returns.
+    2| 
+    3| Produces two label columns per signal (dual-label standard):
+    4|     resolved_pct_t5      \u2014 fixed T+5 close return  (research comparisons)
+    5|     resolved_pct_barrier \u2014 first barrier hit: TP / SL / 21-trading-day expiry (product truth)
+    6| 
+    7| Updates signals_archive rows where resolved_status IS NULL.
+    8| 
+    9| Usage:
+   10|     python scripts/resolve_open_signals.py [options]
+   11| 
+   12| Options:
+   13|     --horizon N     T+N trading-day fixed horizon (default 5)
+   14|     --limit N       process at most N symbols (default: all)
+   15|     --dry-run       print summary, do not write to DB
+   16|     --db PATH       path to finpilot.db (default: data/finpilot.db)
+   17| """
+   18| 
+   19| from __future__ import annotations
+   20| 
+   21| import argparse
+   22| import logging
+   23| import sqlite3
+   24| import sys
+   25| import time
+   26| from datetime import date, datetime, timedelta
+   27| from pathlib import Path
+   28| from typing import Any
+   29| 
+   30| ROOT = Path(__file__).resolve().parents[1]
+   31| sys.path.insert(0, str(ROOT))
+   32| 
+   33| DB_PATH = ROOT / "data" / "finpilot.db"
+   34| BATCH_SIZE = 80  # max symbols per yfinance download call
+   35| MAX_BARRIER_DAYS = 30  # calendar days to fetch beyond signal date for barrier search
+   36| TRADING_DAY_APPROX = 1.4  # calendar-to-trading-day conversion factor
+   37| 
+   38| logging.basicConfig(
+   39|     level=logging.INFO,
+   40|     format="%(asctime)s [%(levelname)s] %(message)s",
+   41|     datefmt="%H:%M:%S",
+   42| )
+   43| logger = logging.getLogger(__name__)
+   44| 
+   45| 
+   46| # ---------------------------------------------------------------------------
+   47| # DB helpers
+   48| # ---------------------------------------------------------------------------
+   49| 
+   50| 
+   51| def _open_db(db_path: Path) -> sqlite3.Connection:
+   52|     conn = sqlite3.connect(str(db_path))
+   53|     conn.row_factory = sqlite3.Row
+   54|     # DELETE journal (not WAL): avoid -wal/-shm sidecar corruption under
+   55|     # OneDrive/AV. This resolver is what put finpilot.db into WAL mode.
+   56|     conn.execute("PRAGMA journal_mode=DELETE")
+   57|     # Ensure dual-label columns exist (idempotent ALTER TABLE)
+   58|     for col, ctype in [
+   59|         ("resolved_pct_t5", "REAL"),
+   60|         ("resolved_pct_barrier", "REAL"),
+   61|         ("resolved_status_barrier", "TEXT"),
+   62|     ]:
+   63|         try:
+   64|             conn.execute(f"ALTER TABLE signals_archive ADD COLUMN {col} {ctype}")
+   65|             conn.commit()
+   66|         except sqlite3.OperationalError:
+   67|             pass  # column already exists
+   68|     return conn
+   69| 
+   70| 
+   71| def _load_open_rows(conn: sqlite3.Connection, limit: int | None) -> list[sqlite3.Row]:
+   72|     # resolved_status stores 'new', 'open' or 'watching' for unresolved rows.
+   73|     # 'new' = freshly archived signal whose lifecycle never advanced (migrated
+   74|     #         from status_lifecycle.status='new'); must still be resolved.
+   75|     # 'watching' = watchlist lifecycle active but no TP/SL/expiry yet.
+   76|     # 'unresolvable' = previously failed due to parse errors; retry on re-run.
+   77|     # Also handle IS NULL for rows added before migration.
+   78|     sql = """
+   79|         SELECT id, symbol, ts, score, finpilot_score, payload_json
+   80|         FROM   signals_archive
+   81|         WHERE  resolved_status IS NULL
+   82|            OR  resolved_status = 'new'
+   83|            OR  resolved_status = 'open'
+   84|            OR  resolved_status = 'watching'
+   85|            OR  resolved_status = 'unresolvable'
+   86|         ORDER  BY ts ASC
+   87|     """
+   88|     if limit:
+   89|         sql += f" LIMIT {limit * 5}"  # over-fetch; we de-dup by symbol later
+   90|     cur = conn.execute(sql)
+   91|     return cur.fetchall()
+   92| 
+   93| 
+   94| def _write_results(
+   95|     conn: sqlite3.Connection,
+   96|     results: list[dict[str, Any]],
+   97|     dry_run: bool,
+   98| ) -> None:
+   99|     if dry_run:
+  100|         for r in results:
+  101|             logger.info(
+  102|                 "[DRY-RUN] %s  t5=%s  barrier=%s (%s)",
+  103|                 r["id"],
+  104|                 r.get("pct_t5"),
+  105|                 r.get("pct_barrier"),
+  106|                 r.get("status_barrier"),
+  107|             )
+  108|         return
+  109|     conn.executemany(
+  110|         """
+  111|         UPDATE signals_archive
+  112|         SET    resolved_pct_t5           = :pct_t5,
+  113|                resolved_pct_barrier      = :pct_barrier,
+  114|                resolved_status_barrier   = :status_barrier,
+  115|                resolved_status           = :status_barrier,
+  116|                resolved_pct              = COALESCE(resolved_pct, :pct_barrier)
+  117|         WHERE  id = :id
+  118|           AND  (resolved_status IS NULL
+  119|                 OR resolved_status = 'new'
+  120|                 OR resolved_status = 'open'
+  121|                 OR resolved_status = 'watching'
+  122|                 OR resolved_status = 'unresolvable')
+  123|         """,
+  124|         results,
+  125|     )
+  126|     conn.commit()
+  127| 
+  128| 
+  129| # ---------------------------------------------------------------------------
+  130| # Date / calendar helpers
+  131| # ---------------------------------------------------------------------------
+  132| 
+  133| 
+  134| def _parse_ts(ts: str | None) -> date | None:
+  135|     if not ts:
+  136|         return None
+  137|     for fmt in (
+  138|         "%Y-%m-%d",
+  139|         "%Y-%m-%dT%H:%M:%S%z",
+  140|         "%Y-%m-%dT%H:%M:%S",
+  141|         "%Y-%m-%dT%H:%M:%S.%f%z",
+  142|         "%Y-%m-%dT%H:%M:%S.%f",
+  143|         "%Y-%m-%d %H:%M:%S",
+  144|         "%Y-%m-%d %H:%M",
+  145|     ):
+  146|         try:
+  147|             return datetime.strptime(ts[:26], fmt).date()
+  148|         except ValueError:
+  149|             continue
+  150|     return None
+  151| 
+  152| 
+  153| def _trading_days_after(closes_index: Any, signal_date: date, n: int) -> date | None:
+  154|     """Return the date of the N-th trading day after signal_date in closes_index."""
+  155|     future = [d for d in closes_index if d > signal_date]
+  156|     if len(future) < n:
+  157|         return None
+  158|     return future[n - 1]
+  159| 
+  160| 
+  161| # ---------------------------------------------------------------------------
+  162| # Core resolution logic (per symbol batch)
+  163| # ---------------------------------------------------------------------------
+  164| 
+  165| 
+  166| def _resolve_symbol(
+  167|     symbol: str,
+  168|     rows: list[dict],
+  169|     horizon_td: int,
+  170|     yf_module: Any,
+  171| ) -> list[dict[str, Any]]:
+  172|     """Download history for *symbol* and compute both labels for each row."""
+  173|     if not rows:
+  174|         return []
+  175| 
+  176|     valid_dates = [r["signal_date"] for r in rows if r["signal_date"]]
+  177|     if not valid_dates:
+  178|         logger.debug("No valid signal_date for %s \u2014 skipping", symbol)
+  179|         return [
+  180|             {"id": r["id"], "pct_t5": None, "pct_barrier": None, "status_barrier": "unresolvable"}
+  181|             for r in rows
+  182|         ]
+  183| 
+  184|     oldest = min(valid_dates)
+  185| 
+  186|     start_str = (oldest - timedelta(days=5)).strftime("%Y-%m-%d")
+  187|     end_str = (date.today() + timedelta(days=1)).strftime("%Y-%m-%d")
+  188| 
+  189|     try:
+  190|         hist = yf_module.download(
+  191|             symbol,
+  192|             start=start_str,
+  193|             end=end_str,
+  194|             progress=False,
+  195|             auto_adjust=True,
+  196|         )
+  197|     except Exception as exc:
+  198|         logger.warning("yfinance download failed for %s: %s", symbol, exc)
+  199|         return []
+  200| 
+  201|     if hist is None or hist.empty:
+  202|         logger.debug("No data for %s", symbol)
+  203|         return []
+  204| 
+  205|     # Normalise multi-index columns (happens when downloading a single ticker)
+  206|     if hasattr(hist.columns, "levels"):
+  207|         hist.columns = hist.columns.get_level_values(0)
+  208| 
+  209|     closes = hist["Close"].dropna()
+  210|     high_s = hist["High"].dropna()
+  211|     low_s = hist["Low"].dropna()
+  212|     close_dates = [d.date() for d in closes.index]
+  213| 
+  214|     results: list[dict[str, Any]] = []
+  215| 
+  216|     for row in rows:
+  217|         sig_date = row["signal_date"]
+  218|         if sig_date is None:
+  219|             continue
+  220| 
+  221|         entry_price = row.get("entry_price") or 0.0
+  222|         take_profit = row.get("take_profit") or 0.0
+  223|         stop_loss = row.get("stop_loss") or 0.0
+  224| 
+  225|         # --- T+N fixed horizon label ---
+  226|         t5_date = _trading_days_after(close_dates, sig_date, horizon_td)
+  227|         pct_t5: float | None = None
+  228|         if t5_date is not None and entry_price > 0:
+  229|             try:
+  230|                 px = float(closes[closes.index.date == t5_date].iloc[0])  # type: ignore[attr-defined]
+  231|                 pct_t5 = round((px - entry_price) / entry_price * 100.0, 4)
+  232|             except (IndexError, ValueError):
+  233|                 pass
+  234| 
+  235|         # --- Triple-barrier label ---
+  236|         pct_barrier: float | None = None
+  237|         status_barrier: str | None = None
+  238| 
+  239|         if entry_price > 0:
+  240|             barrier_dates = [d for d in close_dates if d > sig_date]
+  241|             # Max 21 trading days
+  242|             barrier_dates = barrier_dates[:21]
+  243| 
+  244|             for bd in barrier_dates:
+  245|                 try:
+  246|                     hi = float(high_s[high_s.index.date == bd].iloc[0])  # type: ignore[attr-defined]
+  247|                     lo = float(low_s[low_s.index.date == bd].iloc[0])  # type: ignore[attr-defined]
+  248|                     float(closes[closes.index.date == bd].iloc[0])  # type: ignore[attr-defined]
+  249|                 except (IndexError, ValueError):
+  250|                     continue
+  251| 
+  252|                 # TP hit (use intraday high as proxy)
+  253|                 if take_profit > 0 and hi >= take_profit:
+  254|                     pct_barrier = round((take_profit - entry_price) / entry_price * 100.0, 4)
+  255|                     status_barrier = "resolved_win"
+  256|                     break
+  257| 
+  258|                 # SL hit (use intraday low as proxy)
+  259|                 if stop_loss > 0 and lo <= stop_loss:
+  260|                     pct_barrier = round((stop_loss - entry_price) / entry_price * 100.0, 4)
+==== GREP agents/backtest_agent.py /final_value|win_rate|total_return|initial_capital/ files=1
+agents/backtest_agent.py:5| initial_capital : float (default: 10_000)
+agents/backtest_agent.py:41| if msg.get("feedback_type") == "low_win_rate":
+agents/backtest_agent.py:47| "Backtest: applying feedback strategy override \u2192 %s (win_rate was %.1f%%)",
+agents/backtest_agent.py:49| msg["data"].get("win_rate", 0),
+agents/backtest_agent.py:56| initial_capital: float = float(kwargs.get("initial_capital", 10_000))
+agents/backtest_agent.py:82| config = bt_module.BacktestConfig(initial_capital=initial_capital)
+agents/backtest_agent.py:94| result.total_return,
+---- core/scheduler.py:192-214 (file has 1511 lines)
+  192| def _run_resolve_open_signals_job() -> None:
+  193|     """Weekly resolution of open signals_archive rows (Mondays 03:00 UTC).
+  194| 
+  195|     Computes dual-label outcomes:
+  196|         resolved_pct_t5      \u2014 fixed T+5 close return
+  197|         resolved_pct_barrier \u2014 first TP/SL/21-trading-day barrier hit
+  198|     """
+  199|     try:
+  200|         from scripts.resolve_open_signals import run as resolve_run
+  201| 
+  202|         stats = resolve_run(horizon=5, dry_run=False)
+  203|         logger.info(
+  204|             "resolve_open_signals: symbols=%s rows=%s t5=%s barrier=%s unresolvable=%s",
+  205|             stats.get("symbols"),
+  206|             stats.get("rows"),
+  207|             stats.get("t5"),
+  208|             stats.get("barrier"),
+  209|             stats.get("unresolvable"),
+  210|         )
+  211|     except Exception as exc:
+  212|         logger.warning("resolve_open_signals job failed: %s", exc)
+  213| 
+  214| 
+---- core/scheduler.py:371-412 (file has 1511 lines)
+  371| def _run_auto_approve_job(symbols: list[str]) -> None:
+  372|     """Sprint 14: Auto-approve pending signals when p_win > 0.65 and env is normal."""
+  373|     try:
+  374|         from core.calibration import calibrated_probability
+  375|         from core.kpi_tracker import _load_all_signals  # type: ignore
+  376|         from core.quality_gate import is_degraded
+  377| 
+  378|         if is_degraded():
+  379|             logger.info("auto_approve: system degraded \u2014 skipping auto-approve")
+  380|             return
+  381| 
+  382|         sigs = _load_all_signals()
+  383|         approved = 0
+  384|         for sig in sigs:
+  385|             if sig.get("outcome") is not None:
+  386|                 continue  # already resolved
+  387|             score = sig.get("score") or sig.get("finpilot_score")
+  388|             if score is None:
+  389|                 continue
+  390|             p_win = calibrated_probability(float(score))
+  391|             if p_win >= 0.65:
+  392|                 # Persist auto-approve decision to Redis / in-memory store
+  393|                 try:
+  394|                     from core.kpi_tracker import mark_signal_auto_approved
+  395| 
+  396|                     if mark_signal_auto_approved(sig["symbol"], sig["cycle"], p_win):
+  397|                         approved += 1
+  398|                         # Faz 3b: open a paper-trade for every auto-approved signal
+  399|                         try:
+  400|                             from core.paper_portfolio import open_position
+  401| 
+  402|                             open_position(
+  403|                                 signal_id=str(sig.get("id", sig.get("cycle", "?"))),
+  404|                                 symbol=sig["symbol"],
+  405|                                 direction="BUY",
+  406|                                 entry_price=float(sig.get("price") or sig.get("close") or 0),
+  407|                                 score=float(sig.get("score") or sig.get("finpilot_score") or 0),
+  408|                                 cycle=int(sig.get("cycle") or _cycle_count + 1),
+  409|                                 p_win=p_win,
+  410|                             )
+  411|                         except Exception as pe:  # noqa: BLE001
+  412|                             logger.debug(
+---- scanner/score_engine.py:100-160 (file has 397 lines)
+  100|     row: dict[str, Any], sentiment_score: float | None = None
+  101| ) -> float:
+  102|     """Compute composite recommendation score from signal components.
+  103| 
+  104|     Args:
+  105|         row: Dictionary with signal data. Recognised keys:
+  106|              regime, direction, score, filter_score, alignment_ratio,
+  107|              momentum_ratio, volume_spike, price_momentum, trend_strength,
+  108|              vol_regime (Faz 3), squeeze_factor, catalyst_factor,
+  109|              lottery_factor (Faz 1/2), overnight_gap_factor (Faz 4).
+  110|         sentiment_score: Optional 0.0-1.0 FinBERT sentiment (0.5=neutral).
+  111|                          INT-4: When provided, adds a \xb10.5 sentiment boost/penalty.
+  112| 
+  113|     Returns:
+  114|         Recommendation score (0 to ~18.0). Lottery/overnight penalties can
+  115|         push the value below 0; compute_recommendation_strength clamps at 0.
+  116|     """
+  117|     score = 0.0
+  118|     score += 2.0 if bool(row.get("regime", False)) else 0.0
+  119|     score += 2.0 if bool(row.get("direction", False)) else 0.0
+  120| 
+  121|     # Faz 5: RSI/MACD/volume raw-score demoted from \xd71.0 \u2192 \xd70.5.
+  122|     # These three binary checks (RSI in 30-70, volume > med\xd71.2, MACD hist rising)
+  123|     # are necessary but not sufficient \u2014 they act as a confirmation filter, not
+  124|     # the primary signal source. Reducing their weight prevents noise-driven
+  125|     # over-scoring while keeping the gate: entry_ok still requires score==3.
+  126|     score += float(row.get("score", 0)) * 0.5
+  127| 
+  128|     # filter_score (volume_spike + price_momentum + trend_strength) remains at \xd71.5:
+  129|     # these are the cleaner, longer-horizon confirmations from momentum analysis.
+  130|     score += float(row.get("filter_score", 0)) * 1.5
+  131|     score += float(row.get("alignment_ratio", 0.0)) * 2.0
+  132| 
+  133|     # Faz 3: vol-regime scaled momentum weight
+  134|     # Low-vol (0): weight 2.5 \u2014 clean momentum, trust more
+  135|     # Normal (1):  weight 2.0 \u2014 current baseline
+  136|     # High-vol (2): weight 1.5 \u2014 vol-inflated momentum, trust less
+  137|     # Note: use explicit None-check to avoid `0 or 1` falsy-trap.
+  138|     _vr = row.get("vol_regime")
+  139|     vol_regime = int(_vr) if _vr is not None else 1
+  140|     mom_weight = _VOL_REGIME_MOM_WEIGHTS.get(vol_regime, 2.0)
+  141|     score += float(row.get("momentum_ratio", 0.0)) * mom_weight
+  142| 
+  143|     score += 0.5 if bool(row.get("volume_spike", False)) else 0.0
+  144|     score += 0.5 if bool(row.get("price_momentum", False)) else 0.0
+  145|     score += 0.5 if bool(row.get("trend_strength", False)) else 0.0
+  146| 
+  147|     # INT-4: FinBERT sentiment boost (\xb10.5, neutral at 0.5)
+  148|     # Positive sentiment (>0.6): +0.5 boost
+  149|     # Negative sentiment (<0.4): -0.5 penalty
+  150|     if sentiment_score is not None:
+  151|         _SENTIMENT_WEIGHT = 0.5
+  152|         sentiment_delta = (float(sentiment_score) - 0.5) * 2.0 * _SENTIMENT_WEIGHT
+  153|         score += sentiment_delta
+  154| 
+  155|     # Float/Short squeeze factor (env-gated, default OFF). Additive 0.0\u20131.5.
+  156|     # SEC EDGAR catalyst factor (env-gated, default OFF). Signed \xb11.5.
+  157|     # Both are dampened by the FRED macro multiplier in a risk-off regime.
+  158|     if _squeeze_enabled() or _catalyst_enabled():
+  159|         macro_mult = _macro_mult()
+  160|         if _squeeze_enabled():
+---- scanner/score_engine.py:255-330 (file has 397 lines)
+  255| ) -> dict[str, float]:
+  256|     """Return named additive components for score telemetry."""
+  257|     components = {
+  258|         "regime": 2.0 if bool(row.get("regime", False)) else 0.0,
+  259|         "direction": 2.0 if bool(row.get("direction", False)) else 0.0,
+  260|         "raw_score": float(row.get("score", 0)) * 0.5,
+  261|         "filter_score": float(row.get("filter_score", 0)) * 1.5,
+  262|         "alignment": float(row.get("alignment_ratio", 0.0)) * 2.0,
+  263|         "volume_spike": 0.5 if bool(row.get("volume_spike", False)) else 0.0,
+  264|         "price_momentum": 0.5 if bool(row.get("price_momentum", False)) else 0.0,
+  265|         "trend_strength": 0.5 if bool(row.get("trend_strength", False)) else 0.0,
+  266|         "sentiment": 0.0,
+  267|         "squeeze": 0.0,
+  268|         "catalyst": 0.0,
+  269|         "lottery_penalty": 0.0,
+  270|         "overnight_penalty": 0.0,
+  271|     }
+  272|     vol_regime = int(row.get("vol_regime")) if row.get("vol_regime") is not None else 1
+  273|     components["momentum"] = float(row.get("momentum_ratio", 0.0)) * _VOL_REGIME_MOM_WEIGHTS.get(
+  274|         vol_regime, 2.0
+  275|     )
+  276|     if sentiment_score is not None:
+  277|         components["sentiment"] = (float(sentiment_score) - 0.5) * 2.0 * 0.5
+  278|     macro_mult = _macro_mult() if _squeeze_enabled() or _catalyst_enabled() else 1.0
+  279|     if _squeeze_enabled():
+  280|         components["squeeze"] = (
+  281|             max(0.0, min(1.0, float(row.get("squeeze_factor", 0.0) or 0.0)))
+  282|             * _SQUEEZE_WEIGHT
+  283|             * macro_mult
+  284|         )
+  285|     if _catalyst_enabled():
+  286|         components["catalyst"] = (
+  287|             max(-1.0, min(1.0, float(row.get("catalyst_factor", 0.0) or 0.0)))
+  288|             * _CATALYST_WEIGHT
+  289|             * macro_mult
+  290|         )
+  291|     if _lottery_enabled():
+  292|         lottery = max(0.0, min(1.0, float(row.get("lottery_factor", 0.0) or 0.0))) * _LOTTERY_WEIGHT
+  293|         if _catalyst_enabled() and float(row.get("catalyst_factor", 0.0) or 0.0) > 0.3:
+  294|             lottery *= 1.0 - min(0.5, (float(row["catalyst_factor"]) - 0.3) / 0.8)
+  295|         components["lottery_penalty"] = -lottery
+  296|     if _overnight_enabled():
+  297|         components["overnight_penalty"] = (
+  298|             -max(0.0, min(1.0, float(row.get("overnight_gap_factor", 0.0) or 0.0)))
+  299|             * _OVERNIGHT_WEIGHT
+  300|         )
+  301|     components["total"] = round(sum(components.values()), 3)
+  302|     return {key: round(value, 3) for key, value in components.items()}
+  303| 
+  304| 
+  305| def decision_telemetry(
+  306|     *,
+  307|     reject_reasons: list[str],
+  308|     score: float,
+  309|     components: dict[str, float],
+  310|     point_in_time: bool = True,
+  311|     data_quality: dict[str, Any] | None = None,
+  312|     score_input: dict[str, Any] | None = None,
+  313|     feature_flags: dict[str, bool] | None = None,
+  314| ) -> dict[str, Any]:
+  315|     """Build the stable P0 decision telemetry envelope."""
+  316|     return {
+  317|         "telemetry_version": "p0.v1",
+  318|         "point_in_time": bool(point_in_time),
+  319|         "reject_reason": list(dict.fromkeys(reject_reasons)),
+  320|         "score_component_breakdown": dict(components),
+  321|         "score_component_total": round(float(score), 3),
+  322|         "recommendation_score": round(float(score), 3),
+  323|         "score_input": dict(score_input or {}),
+  324|         "score_feature_flags": dict(feature_flags or {}),
+  325|         "data_quality": dict(data_quality or {}),
+  326|     }
+  327| 
+  328| 
+  329| def effective_max_reco_score() -> float:
+  330|     """Return the composite-score normalisation ceiling.
+---- scanner/score_engine.py:355-397 (file has 397 lines)
+  355| 
+  356| 
+  357| def regime_gate_mult(regime_bull: bool, composite_score: int) -> float:
+  358|     """Return position-size multiplier based on regime \xd7 composite-score band.
+  359| 
+  360|     Args:
+  361|         regime_bull:     True if market is in Bull regime (price > EMA200).
+  362|         composite_score: 0-100 composite strength from compute_recommendation_strength.
+  363| 
+  364|     Returns:
+  365|         Multiplier to apply to base position size (0.5, 0.75, 1.0, or 1.3).
+  366|     """
+  367|     if not regime_bull:  # Bear
+  368|         if _BEAR_BOOST_LOW <= composite_score <= _BEAR_BOOST_HIGH:
+  369|             return _BEAR_BOOST_MULT
+  370|         if composite_score > _HIGH_SCORE_THRESH:
+  371|             return _BEAR_SUPPRESS_MULT
+  372|     else:  # Bull
+  373|         if composite_score > _HIGH_SCORE_THRESH:
+  374|             return _BULL_SUPPRESS_MULT
+  375|     return 1.0
+  376| 
+  377| 
+  378| def compute_recommendation_strength(x: Any, sentiment_score: float | None = None) -> int:
+  379|     """Scale recommendation score to 0-100 range.
+  380| 
+  381|     Args:
+  382|         x: Either a row dict or raw score value
+  383|         sentiment_score: Optional 0.0-1.0 FinBERT sentiment to incorporate (INT-4)
+  384| 
+  385|     Returns:
+  386|         Strength percentage (0-100)
+  387|     """
+  388|     try:
+  389|         if isinstance(x, dict) or hasattr(x, "get"):
+  390|             score = compute_recommendation_score(x, sentiment_score=sentiment_score)
+  391|         else:
+  392|             score = float(x)
+  393|         strength = max(0.0, min(100.0, (score / effective_max_reco_score()) * 100.0))
+  394|         return int(round(strength))
+  395|     except (TypeError, ValueError, ZeroDivisionError) as e:
+  396|         logger.debug("Signal strength calculation failed: %s", e)
+  397|         return 0
+---- scanner/labeling.py:44-122 (file has 156 lines)
+   44|     forward_closes: Sequence[float],
+   45|     *,
+   46|     entry_price: float,
+   47|     tp_pct: float,
+   48|     sl_pct: float,
+   49|     max_horizon: int | None = None,
+   50|     side: str = "long",
+   51|     forward_highs: Sequence[float] | None = None,
+   52|     forward_lows: Sequence[float] | None = None,
+   53| ) -> BarrierLabel:
+   54|     """Label a trade by the first barrier touched.
+   55| 
+   56|     Args:
+   57|         forward_closes: close prices AFTER entry (bar 0 = first bar after entry).
+   58|         entry_price:    fill price at entry.
+   59|         tp_pct:         take-profit distance as a fraction (e.g. 0.10 = +10%).
+   60|         sl_pct:         stop-loss distance as a fraction, POSITIVE (e.g. 0.05 = -5%).
+   61|         max_horizon:    time barrier in bars; defaults to len(forward_closes).
+   62|         side:           "long" or "short".
+   63|         forward_highs/forward_lows: optional, for precise intrabar touch detection.
+   64|                         When omitted, closes are used for both barrier checks.
+   65| 
+   66|     Returns:
+   67|         BarrierLabel. If neither price barrier is touched within the horizon,
+   68|         label == "time" and exit is the last available close.
+   69| 
+   70|     Conservative tie-breaking: if BOTH barriers are touchable within the same
+   71|     bar (using high/low), the stop is assumed to hit first (worst case).
+   72|     """
+   73|     if tp_pct <= 0 or sl_pct <= 0:
+   74|         raise ValueError("tp_pct and sl_pct must be positive fractions")
+   75|     if side not in ("long", "short"):
+   76|         raise ValueError("side must be 'long' or 'short'")
+   77|     if entry_price <= 0:
+   78|         raise ValueError("entry_price must be positive")
+   79| 
+   80|     closes = list(forward_closes)
+   81|     n = len(closes)
+   82|     horizon = n if max_horizon is None else min(max_horizon, n)
+   83|     if horizon == 0:
+   84|         return BarrierLabel("time", 0, entry_price, entry_price, 0.0, 0.0, 0.0)
+   85| 
+   86|     highs = list(forward_highs) if forward_highs is not None else closes
+   87|     lows = list(forward_lows) if forward_lows is not None else closes
+   88| 
+   89|     if side == "long":
+   90|         tp_price = entry_price * (1.0 + tp_pct)
+   91|         sl_price = entry_price * (1.0 - sl_pct)
+   92|     else:
+   93|         tp_price = entry_price * (1.0 - tp_pct)
+   94|         sl_price = entry_price * (1.0 + sl_pct)
+   95| 
+   96|     def _ret(px: float) -> float:
+   97|         r = (px - entry_price) / entry_price
+   98|         return r if side == "long" else -r
+   99| 
+  100|     mfe = 0.0
+  101|     mae = 0.0
+  102|     for i in range(horizon):
+  103|         hi, lo = float(highs[i]), float(lows[i])
+  104|         # Update path excursions (favourable/adverse in trade terms).
+  105|         if side == "long":
+  106|             mfe = max(mfe, _ret(hi))
+  107|             mae = min(mae, _ret(lo))
+  108|             tp_touch = hi >= tp_price
+  109|             sl_touch = lo <= sl_price
+  110|         else:
+  111|             mfe = max(mfe, _ret(lo))
+  112|             mae = min(mae, _ret(hi))
+  113|             tp_touch = lo <= tp_price
+  114|             sl_touch = hi >= sl_price
+  115| 
+  116|         if sl_touch:  # conservative: stop wins same-bar ties
+  117|             return BarrierLabel("sl", i + 1, entry_price, sl_price, _ret(sl_price), mfe, mae)
+  118|         if tp_touch:
+  119|             return BarrierLabel("tp", i + 1, entry_price, tp_price, _ret(tp_price), mfe, mae)
+  120| 
+  121|     exit_px = float(closes[horizon - 1])
+  122|     return BarrierLabel("time", horizon, entry_price, exit_px, _ret(exit_px), mfe, mae)
+---- scanner/features.py:81-100 (file has 804 lines)
+   81| def compute_vol_regime(symbol: str) -> int:
+   82|     """Return vol regime bucket for symbol (0=low, 1=normal, 2=high).
+   83| 
+   84|     Uses 20-day realised vol annualised (\xd7\u221a252).
+   85|     Returns 1 (normal) on failure.
+   86|     """
+   87|     close = _fetch_returns(symbol, period="2mo")
+   88|     if close is None or len(close) < 21:
+   89|         return 1
+   90| 
+   91|     daily_rets = close.pct_change().dropna()
+   92|     if len(daily_rets) < 20:
+   93|         return 1
+   94|     rv = float(daily_rets.iloc[-20:].std() * (252**0.5))
+   95| 
+   96|     if rv < 0.15:
+   97|         return 0
+   98|     if rv < 0.30:
+   99|         return 1
+  100|     return 2
+---- scanner/features.py:369-430 (file has 804 lines)
+  369| def compute_vol_regime_from_df(df: Any) -> int:
+  370|     """Vol-regime (0=low, 1=normal, 2=high) from an ALREADY-FETCHED daily frame.
+  371| 
+  372|     Same math as compute_vol_regime (20-day realised vol annualised) but reads
+  373|     the df_1d the scanner already holds \u2014 avoiding a redundant per-symbol
+  374|     yfinance download in the hot path. Returns 1 (normal) on any shortfall.
+  375|     """
+  376|     try:
+  377|         if not hasattr(df, "iloc") or "Close" not in df.columns or len(df) < 21:
+  378|             return 1
+  379|         close = df["Close"].astype(float)
+  380|         daily_rets = close.pct_change().dropna()
+  381|         if len(daily_rets) < 20:
+  382|             return 1
+  383|         rv = float(daily_rets.iloc[-20:].std() * (252**0.5))
+  384|         if rv < 0.15:
+  385|             return 0
+  386|         if rv < 0.30:
+  387|             return 1
+  388|         return 2
+  389|     except Exception:
+  390|         return 1
+  391| 
+  392| 
+  393| def get_alpha_features(symbol: str, sector: str | None = None, df_1d: Any = None) -> dict[str, Any]:
+  394|     """Return cached ``sector_rs``, ``vol_regime`` and ``squeeze_factor``.
+  395| 
+  396|     Uses a 1-hour in-memory cache to avoid redundant fetches. The squeeze
+  397|     factor is only computed when ``FINPILOT_ENABLE_SQUEEZE_FACTOR=1`` so the
+  398|     extra yfinance ``.info`` call is skipped while the factor is disabled.
+  399|     """
+  400|     now = time.time()
+  401|     cache_key = f"{symbol}:{sector or ''}"
+  402|     cached = _FEATURE_CACHE.get(cache_key)
+  403|     if cached and now - cached["ts"] < _CACHE_TTL:
+  404|         return {k: v for k, v in cached.items() if k != "ts"}
+  405| 
+  406|     sector_rs = compute_sector_rs(sector or "") if sector else 0.0
+  407|     # Hot-path fix: compute vol-regime from the already-fetched df_1d when the
+  408|     # caller provides it (no redundant yfinance download). Falls back to the
+  409|     # network path only when df_1d is unavailable.
+  410|     vol_regime = (
+  411|         compute_vol_regime_from_df(df_1d) if df_1d is not None else compute_vol_regime(symbol)
+  412|     )
+  413| 
+  414|     squeeze_factor = 0.0
+  415|     if os.environ.get("FINPILOT_ENABLE_SQUEEZE_FACTOR", "0") == "1" or _alpha_v2_enabled():
+  416|         squeeze_factor = compute_squeeze_factor(symbol)
+  417| 
+  418|     entry: dict[str, Any] = {
+  419|         "sector_rs": sector_rs,
+  420|         "vol_regime": vol_regime,
+  421|         "squeeze_factor": squeeze_factor,
+  422|         "ts": now,
+  423|     }
+  424|     _FEATURE_CACHE[cache_key] = entry
+  425|     return {
+  426|         "sector_rs": sector_rs,
+  427|         "vol_regime": vol_regime,
+  428|         "squeeze_factor": squeeze_factor,
+  429|     }
+  430| 
+---- scanner/data_fetcher.py:186-215 (file has 1758 lines)
+  186| # \U0001f9e0 Cache Configuration
+  187| # ============================================
+  188| # Market-aware TTL: 5 min during trading hours, 60 min outside.
+  189| # This avoids stale data during market hours while eliminating
+  190| # unnecessary yfinance calls on nights/weekends.
+  191| 
+  192| 
+  193| def _market_aware_ttl() -> int:
+  194|     """Return appropriate cache TTL based on current time (UTC).
+  195| 
+  196|     - 300s  during NYSE trading hours (Mon-Fri 13:30\u201320:00 UTC)
+  197|     - 3600s outside trading hours / weekends
+  198|     """
+  199|     now = datetime.utcnow()
+  200|     weekday = now.weekday()  # 0=Mon \u2026 6=Sun
+  201|     if weekday >= 5:  # Weekend
+  202|         return 3600
+  203|     market_open_h, market_open_m = 13, 30  # 09:30 ET = 13:30 UTC
+  204|     market_close_h, market_close_m = 20, 0  # 16:00 ET = 20:00 UTC
+  205|     total_min = now.hour * 60 + now.minute
+  206|     open_min = market_open_h * 60 + market_open_m
+  207|     close_min = market_close_h * 60 + market_close_m
+  208|     if open_min <= total_min <= close_min:
+  209|         return 300  # 5 min \u2014 market open
+  210|     return 3600  # 60 min \u2014 pre/post market or overnight
+  211| 
+  212| 
+  213| CACHE_TTL_SECONDS = _market_aware_ttl()
+  214| CACHE_TTL_MARKET_INDEX = CACHE_TTL_SECONDS
+  215| 
+==== GREP research /(?i)holdout|sealed|lockbox|locked.oos|lock_start|lock_date/ files=98
+research/attention_score_formula_overlap_2026_08_14.py:143| "locked_oos": "not_opened",
+research/attention_score_validation_2026_08_14.py:129| "locked_oos": "not_opened",
+research/budget_return_battery_2026_08_12.py:160| "locked_oos": "not_opened",
+research/candidate_pipeline.py:128| "locked_oos": "not_opened",
+research/data_readiness_audit.py:112| "locked_oos": "NOT_OPENED",
+research/data_readiness_audit.py:122| "Locked OOS requires human approval after all prerequisite gates pass.",
+research/decision_context_battery_2026_08_12.py:202| "locked_oos": "not_opened",
+research/direction_context_battery_2026_09_03.py:3| Level: A (research-only; no production change; locked OOS NOT_OPENED)
+research/direction_context_battery_2026_09_03.py:223| "locked_oos": "not_opened",
+research/direction_threshold_matrix_2026_09_03.py:3| Level: A (research-only; no production change; locked OOS NOT_OPENED)
+research/direction_threshold_matrix_2026_09_03.py:260| "locked_oos": "not_opened",
+research/full_universe_pre_rise_hypotheses_2026_08_12.py:476| "locked_oos": "NOT_OPENED",
+research/gated_research_program_2026_08_11.py:82| "Walk-forward, stress, stability and locked OOS",
+research/gated_research_program_2026_08_11.py:111| "locked_oos_preregistration",
+research/gated_research_program_2026_08_11.py:117| "P9": "locked OOS must not open before all prior data and execution gates pass",
+research/gated_research_program_2026_08_11.py:150| """Evaluate phase availability without opening locked OOS or fabricating results."""
+research/gated_research_program_2026_08_11.py:180| "locked_oos": "NOT_OPENED",
+research/high_rvol_deep_audit_2026_08_12.py:103| "locked_oos": "not_opened",
+research/high_rvol_full_universe_2026_08_12.py:110| "locked_oos": "not_opened",
+research/high_rvol_horizon_battery_2026_08_12.py:104| "locked_oos": "not_opened",
+research/high_rvol_opportunity_battery_2026_08_12.py:152| "locked_oos": "not_opened",
+research/high_rvol_raw_ohlc_exit_battery_2026_08_12.py:282| "locked_oos": "not_opened",
+research/hypothesis_ladder_battery_2026_08_12.py:229| "locked_oos": "not_opened",
+research/master_audit_battery_2026_08_12.py:5| diagnostic output; no production, promotion or locked-OOS decision is made.
+research/master_audit_battery_2026_08_12.py:396| "locked_oos": "not_opened",
+research/pre_rise_path_battery_2026_08_11.py:312| "locked_oos": "NOT_OPENED",
+research/production_candidate_validation_2026_08_12.py:181| "interpretation": "Cutoff learned on calibration dates and evaluated once on later validation dates; still exploratory, not locked OOS.",
+research/production_candidate_validation_2026_08_12.py:235| "locked_oos": "not_opened",
+research/protocol.py:31| """Non-overlapping chronological train/validation/locked-OOS split."""
+research/protocol.py:35| locked_oos_end: str
+==== GREP scripts/b2_1_prepare_lock.py /(?i)lock|holdout|sealed|cutoff/ files=1
+scripts/b2_1_prepare_lock.py:22| BASE_MANIFEST = "reports/b2_1_prelock_manifest_candidate_v1_2026-10-05.json"
+scripts/b2_1_prepare_lock.py:24| CLOSURE_AUDIT = "reports/b2_1_prelock_closure_audit_v1_2026-10-05.json"
+scripts/b2_1_prepare_lock.py:177| "parse_status": "SYNTAX_BLOCKED", "parse_error_line": error.lineno,
+scripts/b2_1_prepare_lock.py:190| "locked": False, "execution_authorized": False, "real_execution_performed": False, "synthetic_gate": "NOT_RUN",
+scripts/b2_1_prepare_lock.py:191| "limitations": ["Static references across all branches are a conservative candidate graph, not an executed call graph", "Local file presence does not prove runtime import resolution or exported-symbol precision", "Dynami
+scripts/b2_1_prepare_lock.py:266| blocks = re.findall(r"```json\s*\n(.*?)\n```", protocol, re.DOTALL)
+scripts/b2_1_prepare_lock.py:267| if len(blocks) != 1:
+scripts/b2_1_prepare_lock.py:269| template = json.loads(blocks[0])
+scripts/b2_1_prepare_lock.py:297| "role": "NON_BLIND_CUSTODIAN", "status": "CANDIDATE_ONLY_LOCK_BLOCKED",
+scripts/b2_1_prepare_lock.py:303| "locked": False, "execution_authorized": False, "synthetic_gate": "NOT_RUN",
+scripts/b2_1_prepare_lock.py:395| if Path(path).name in {"Dockerfile", "requirements.txt", "pyproject.toml", "docker-compose.yml", "requirements.lock", "poetry.lock", "uv.lock", "Pipfile.lock"}:
+scripts/b2_1_prepare_lock.py:398| runtime_history = git_bytes(root, "log", manifest["observed_head"], "--format=%H", "--name-only", "--", "*requirements*lock*", "*poetry.lock", "*uv.lock", "*Pipfile.lock", "*environment*.yml", "*deployment*.yaml").decode
+scripts/b2_1_prepare_lock.py:401| "role": "NON_BLIND_CUSTODIAN", "status": "LOCK_BLOCKED",
+scripts/b2_1_prepare_lock.py:402| "locked": False, "execution_authorized": False, "synthetic_gate": "NOT_RUN",
+scripts/b2_1_prepare_lock.py:413| "runtime_history_search": {"reachable_from_inclusive": manifest["observed_head"], "pathspecs": ["*requirements*lock*", "*poetry.lock", "*uv.lock", "*Pipfile.lock", "*environment*.yml", "*deployment*.yaml"], "commit_and_p
+scripts/b2_1_prepare_lock.py:449| def prepare_lock_handoff(root: Path) -> dict[str, Any]:
+scripts/b2_1_prepare_lock.py:454| if audit["locked"] or audit["execution_authorized"] or audit["synthetic_gate"] != "NOT_RUN":
+scripts/b2_1_prepare_lock.py:469| ("human_lock", "12 items 8-9; 9", "MERIC", "Assign actors/output scope, review all gates and record exact accepted bundle hashes before scientific execution."),
+scripts/b2_1_prepare_lock.py:472| "schema_version": "b2-1-lock-handoff-v1", "layer": "Research", "level": "A",
+scripts/b2_1_prepare_lock.py:473| "role": "NON_BLIND_CUSTODIAN", "status": "LOCK_BLOCKED",
+scripts/b2_1_prepare_lock.py:474| "locked": False, "execution_authorized": False, "synthetic_gate": "NOT_RUN",
+scripts/b2_1_prepare_lock.py:481| "gates": [{"id": gate, "protocol_reference": section, "owner_role": owner, "assigned_actor": None, "status": "BLOCKED", "next_action": action, "evidence_artifact": None, "evidence_sha256": None} for gate, section, owner,
+scripts/b2_1_prepare_lock.py:484| "limitations": ["Output-writer definitions identify a possible file family, not the actual writer or provenance of every member", "All original unresolved records remain unresolved for member-level requiredness and autho
+scripts/b2_1_prepare_lock.py:515| if path.name.startswith("b2_1_prelock_") or path.name.startswith("b2_1_synthetic_fixtures_"):
+scripts/b2_1_prepare_lock.py:555| "schema_version": "b2-1-prelock-candidate-v1",
+==== GREP distribution/snapshot_builder.py /def |sort|grade|ranking_method|top_n/ files=1
+distribution/snapshot_builder.py:38| def config_sha() -> str:
+distribution/snapshot_builder.py:40| flags = sorted(f"{k}={v}" for k, v in os.environ.items() if k.startswith("FINPILOT_ENABLE"))
+distribution/snapshot_builder.py:58| def _company_from_db(ticker: str) -> str:
+distribution/snapshot_builder.py:86| def _grade_of(row: dict[str, Any]) -> str | None:
+distribution/snapshot_builder.py:99| def _sort_key(row: dict[str, Any]) -> tuple:
+distribution/snapshot_builder.py:100| grade = _grade_of(row) or "Z"
+distribution/snapshot_builder.py:116| return (_GRADE_ORDER.get(grade, 9), _EXECUTION_ORDER.get(execution, 3), -prob, -score)
+distribution/snapshot_builder.py:119| def _is_true(value: Any) -> bool:
+distribution/snapshot_builder.py:123| def _public_candidate(row: dict[str, Any]) -> bool:
+distribution/snapshot_builder.py:124| """Keep only eligible, executable, non-cap-rejected graded rows public."""
+distribution/snapshot_builder.py:125| if not _grade_of(row):
+distribution/snapshot_builder.py:134| def _web_context_comment(row: dict[str, Any], lang: str = "en") -> str:
+distribution/snapshot_builder.py:135| """Explain a ranked scan row without presenting it as a graded candidate."""
+distribution/snapshot_builder.py:166| def _build_web_context(
+distribution/snapshot_builder.py:167| scan_rows: list[dict[str, Any]], graded_tickers: set[str]
+distribution/snapshot_builder.py:169| """Return measurable ranked rows for the web, separate from graded candidates."""
+distribution/snapshot_builder.py:173| if str(row.get("symbol") or row.get("ticker") or "").upper() not in graded_tickers
+distribution/snapshot_builder.py:179| measurable.sort(key=_sort_key)
+distribution/snapshot_builder.py:196| "ranking_method",
+distribution/snapshot_builder.py:309| "c_grade": {
+distribution/snapshot_builder.py:334| def _risk_conditions(row: dict[str, Any], grade: str) -> list[str]:
+distribution/snapshot_builder.py:337| def num(key: str) -> float:
+distribution/snapshot_builder.py:363| if grade == "C":
+distribution/snapshot_builder.py:364| conds.append("c_grade")
+distribution/snapshot_builder.py:369| def _risk_note(
+distribution/snapshot_builder.py:371| grade: str = "C",
+distribution/snapshot_builder.py:386| for cond in _risk_conditions(row, grade):
+distribution/snapshot_builder.py:397| def build_snapshot(
+distribution/snapshot_builder.py:407| graded = [r for r in scan_rows if _public_candidate(r)]
+distribution/snapshot_builder.py:408| graded.sort(key=_sort_key)
+distribution/snapshot_builder.py:409| graded = graded[:MAX_CANDIDATES]
+distribution/snapshot_builder.py:410| candidate_tickers = sorted(
+distribution/snapshot_builder.py:412| for r in graded
+distribution/snapshot_builder.py:421| grade_totals: dict[str, int] = {}
+distribution/snapshot_builder.py:423| g = _grade_of(r)
+distribution/snapshot_builder.py:425| grade_totals[g] = grade_totals.get(g, 0) + 1
+distribution/snapshot_builder.py:429| for i, row in enumerate(graded):
+distribution/snapshot_builder.py:433| grade = _grade_of(row) or "C"
+distribution/snapshot_builder.py:438| "grade": grade,
+distribution/snapshot_builder.py:443| grade,
+distribution/snapshot_builder.py:454| row, grade=grade, lang=lang, date_str=date_str, used=_used_risk_notes
+distribution/snapshot_builder.py:482| "ranking_method",
+distribution/snapshot_builder.py:494| _L: build_rationale(ticker, grade, badges, lang=_L, context=_ctx)
+distribution/snapshot_builder.py:498| _L: _risk_note(row, grade=grade, lang=_L, date_str=date_str, used=_used_risk_i18n[_L])
+distribution/snapshot_builder.py:505| graded_tickers={str(c["ticker"]).upper() for c in candidates},
+distribution/snapshot_builder.py:512| karne_out.setdefault("toplam_aday_bugun", grade_totals)
+distribution/snapshot_builder.py:513| if karne_out is None and grade_totals:
+distribution/snapshot_builder.py:514| karne_out = {"toplam_aday_bugun": grade_totals, "by_grade": {}, "window": ""}
+distribution/snapshot_builder.py:526| "eligible_candidate_count": len(graded),
+distribution/snapshot_builder.py:558| snap["warnings"].append("no graded candidates today")
+---- core/pipeline.py:160-195 (file has 527 lines)
+  160|         "bear_cases": {},
+  161|         "enrichment": {},
+  162|         "composite_confidence": None,
+  163|         "errors": [],
+  164|     }
+  165| 
+  166|     # \u2500\u2500 Step 1: Scan \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  167|     try:
+  168|         ctx = AgentContext(symbols=symbols)
+  169|         result = ScannerAgent().run(ctx, kelly_fraction=kelly_fraction)
+  170|         if result.success:
+  171|             scan = result.data or {}
+  172|             ranked = sorted(
+  173|                 scan.items(),
+  174|                 key=lambda kv: kv[1].get("finpilot_score", kv[1].get("composite_score", 0)),
+  175|                 reverse=True,
+  176|             )
+  177|             state["scan_results"] = scan
+  178|             state["top_symbols"] = [sym for sym, _ in ranked[:5]]
+  179|             logger.info(
+  180|                 "pipeline: scan \u2014 %d symbols, top=%s",
+  181|                 len(scan),
+  182|                 state["top_symbols"],
+  183|             )
+  184|             _emit(
+  185|                 _cycle_id,
+  186|                 symbols,
+  187|                 "scanner",
+  188|                 "scan_done",
+  189|                 from_state="init",
+  190|                 payload={"n_symbols": len(scan), "top": state["top_symbols"]},
+  191|             )
+  192|         else:
+  193|             state["errors"].append(f"scan: {result.error}")
+  194|             logger.error("pipeline: scan failed: %s", result.error)
+  195|             _emit(
+---- scanner/execution_policy.py:58-95 (file has 118 lines)
+   58| def execution_contract(data_quality: dict[str, Any]) -> dict[str, Any]:
+   59|     """Classify data quality and execution readiness without zero-filling."""
+   60|     available = data_quality.get("available", {})
+   61|     missing = list(data_quality.get("missing_fields", []))
+   62|     adv_available = bool(available.get("dollar_adv", False))
+   63|     feasible = adv_available or not execution_policy_enabled()
+   64|     reasons = [] if feasible else ["missing_dollar_adv"]
+   65|     warnings = []
+   66|     if not adv_available:
+   67|         warnings.append("portfolio_capacity_unknown")
+   68|     if not available.get("spread_bps", False):
+   69|         warnings.append("missing_spread")
+   70|     return {
+   71|         "execution_confidence": "Tier 2"
+   72|         if all(
+   73|             available.get(field, False)
+   74|             for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
+   75|         )
+   76|         else "Tier 1"
+   77|         if adv_available
+   78|         else "Tier 0",
+   79|         "data_quality_tier": "Tier 2"
+   80|         if all(
+   81|             available.get(field, False)
+   82|             for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
+   83|         )
+   84|         else "Tier 1"
+   85|         if adv_available
+   86|         else "Tier 0",
+   87|         "data_quality_status": "complete" if not missing else "partial",
+   88|         "execution_feasible": feasible,
+   89|         "execution_reject_reason": reasons,
+   90|         "execution_warning": warnings,
+   91|         "missing_fields": missing,
+   92|     }
+   93| 
+   94| 
+   95| def position_cap(dollar_adv: object, requested_notional: object) -> dict[str, Any]:
+---- scanner/position_sizer.py:28-50 (file has 261 lines)
+   28| def _clamp(val: float, lo: float, hi: float) -> float:
+   29|     return max(lo, min(hi, val))
+   30| 
+   31| 
+   32| def _regime_scale(composite_score: int, is_bull_regime: bool) -> float:
+   33|     """Return a position-size multiplier based on market regime and score quality.
+   34| 
+   35|     Logic (from barrier audit 2026-06-12):
+   36|     - Bull + high score (>62):  suppress \xd70.75 (false-positive zone)
+   37|     - Bear + mid score (30-55): boost \xd71.30 (contrarian edge zone)
+   38|     - All other:                neutral \xd71.00
+   39|     """
+   40|     if is_bull_regime and composite_score > 62:
+   41|         return 0.75
+   42|     if not is_bull_regime and 30 <= composite_score <= 55:
+   43|         return 1.30
+   44|     return 1.00
+   45| 
+   46| 
+   47| def _kelly_size(
+   48|     win_rate: float,
+   49|     avg_win_r: float,
+   50|     avg_loss_r: float,
+DONE_INT

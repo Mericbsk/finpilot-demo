@@ -138,6 +138,48 @@ class TestCaseToday:
         assert r.json()["my_prediction"]["direction"] == "UP"
 
 
+class TestClassroomCaseRoutes:
+    def test_list_and_detail_return_own_prediction_without_outcome_fields(self, client, db):
+        _seed_case(db)
+        _seed_outcome(db)
+        client.post(
+            f"/api/v1/finsense/case/{CASE_ID}/predict",
+            json={
+                "anonymous_user_id": "anon-classroom-list",
+                "direction": "UP",
+                "probability": 0.7,
+                "reason": "Volume expansion and price structure suggest continued upward pressure.",
+            },
+        )
+
+        listed = client.get(
+            "/api/v1/finsense/cases",
+            params={"anonymous_user_id": "anon-classroom-list"},
+        )
+        assert listed.status_code == 200
+        assert len(listed.json()) == 1
+        listed_case = listed.json()[0]
+        assert listed_case["id"] == CASE_ID
+        assert listed_case["my_prediction"]["direction"] == "UP"
+
+        detail = client.get(
+            f"/api/v1/finsense/case/{CASE_ID}",
+            params={"anonymous_user_id": "anon-classroom-list"},
+        )
+        assert detail.status_code == 200
+        detail_case = detail.json()
+        assert detail_case["my_prediction"]["id"] == listed_case["my_prediction"]["id"]
+
+        for body in (listed_case, detail_case):
+            for leaked_field in (
+                "actual_direction",
+                "actual_return_pct",
+                "resolved_at",
+                "evaluation",
+            ):
+                assert leaked_field not in body, f"{leaked_field} leaked into case response"
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # §7.2 Test 2 + §7.3 Immutability
 # ─────────────────────────────────────────────────────────────────────────────

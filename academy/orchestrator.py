@@ -71,7 +71,10 @@ class AcademyOrchestrator:
         # 3. Quality guard: review all draft lessons
         reviewed = self.quality_guard.review_pending_lessons()
         results["reviewed"] = len(reviewed)
-        results["published"] = sum(1 for r in reviewed if r.get("decision") == "APPROVED")
+        results["pending_human_review"] = sum(
+            1 for r in reviewed if r.get("decision") == "APPROVED"
+        )
+        results["published"] = 0
 
         duration_ms = (time.perf_counter() - t0) * 1000
         logger.info("[Orchestrator] Daily run done in %.0f ms: %s", duration_ms, results)

@@ -1,0 +1,192 @@
+{
+ "generated_at_utc": "2026-10-19T10:23:29+00:00",
+ "symbol_lists_counts": {
+  "iwm_300m": 366,
+  "preset_1500": 1449
+ },
+ "watchlist_signals_signal_date_min_max_n": [
+  "2026-05-12",
+  "2026-10-19",
+  1158
+ ],
+ "alpaca_orders_status_n_filled": [
+  [
+   "OrderStatus.ACCEPTED",
+   1,
+   0
+  ],
+  [
+   "OrderStatus.PENDING_NEW",
+   13,
+   0
+  ]
+ ],
+ "decided_source_model_counts": {
+  "scanner_v1": 2495,
+  "scanner_import": 2065,
+  "scanner_v2": 92,
+  "scanner_shortlist": 554
+ },
+ "decided_signal_field_counts": {
+  "WATCH": 2776,
+  "BUY": 365,
+  "TRUE": 1326,
+  "FALSE": 739
+ },
+ "decided_status_lifecycle_keys": {},
+ "decided_added_at_equals_ts": 5206,
+ "decided_ts_date_minus_payload_signal_date_days": {
+  "-1": 176,
+  "0": 3414,
+  "5": 225,
+  "7": 90,
+  "12": 487,
+  "14": 224,
+  "17": 298,
+  "18": 186,
+  "128": 12,
+  "135": 6,
+  "136": 12,
+  "144": 40,
+  "145": 36
+ },
+ "decided_daydiff_by_ts_month": {
+  "2025-09": {
+   "0": 1579
+  },
+  "2025-10": {
+   "0": 474
+  },
+  "2025-11": {
+   "0": 6
+  },
+  "2025-12": {
+   "0": 6
+  },
+  "2026-03": {
+   "0": 879,
+   "5": 225,
+   "7": 90,
+   "12": 487,
+   "14": 224,
+   "17": 298,
+   "18": 186,
+   "128": 12,
+   "135": 6,
+   "136": 12,
+   "144": 40,
+   "145": 36
+  },
+  "2026-04": {
+   "-1": 127,
+   "0": 50
+  },
+  "2026-05": {
+   "-1": 49,
+   "0": 420
+  }
+ },
+ "decided_payload_signal_date_weekday": {
+  "Tue": 1683,
+  "Sun": 800,
+  "Thu": 561,
+  "Wed": 767,
+  "Fri": 405,
+  "Mon": 763,
+  "Sat": 227
+ },
+ "decided_entry_ok_values": {
+  "False": 2059,
+  "True": 6
+ },
+ "top1_k": 52,
+ "top1_ts_dates": [
+  [
+   "2026-03-03",
+   27
+  ],
+  [
+   "2026-03-01",
+   21
+  ],
+  [
+   "2025-09-22",
+   1
+  ],
+  [
+   "2026-05-19",
+   1
+  ],
+  [
+   "2026-05-18",
+   1
+  ],
+  [
+   "2026-05-08",
+   1
+  ]
+ ],
+ "top1_payload_signal_dates": [
+  [
+   "2026-03-03",
+   27
+  ],
+  [
+   "2026-02-12",
+   10
+  ],
+  [
+   "2026-02-17",
+   9
+  ],
+  [
+   "2025-09-22",
+   1
+  ],
+  [
+   "2026-05-19",
+   1
+  ],
+  [
+   "2026-05-18",
+   1
+  ],
+  [
+   "2026-03-01",
+   1
+  ],
+  [
+   "2026-02-11",
+   1
+  ],
+  [
+   "2026-05-08",
+   1
+  ]
+ ],
+ "preset_union_all_strings": 1812,
+ "preset_union_list_values_only": 1812,
+ "preset_exchange_counts": {
+  "AssetExchange.NASDAQ": 1504,
+  "AssetExchange.NYSE": 270,
+  "AssetExchange.AMEX": 37,
+  "AssetExchange.ARCA": 1
+ },
+ "decided_symbol_exchange_counts": {
+  "AssetExchange.NASDAQ": 844,
+  "AssetExchange.NYSE": 141,
+  "AssetExchange.ARCA": 18,
+  "NOT_IN_SYMBOLS": 11,
+  "AssetExchange.AMEX": 2,
+  "AssetExchange.OTC": 1
+ },
+ "decided_row_exchange_counts": {
+  "AssetExchange.NASDAQ": 3657,
+  "AssetExchange.NYSE": 1236,
+  "NOT_IN_SYMBOLS": 51,
+  "AssetExchange.AMEX": 4,
+  "AssetExchange.ARCA": 257,
+  "AssetExchange.OTC": 1
+ },
+ "decided_symbols_in_preset_list_values": 953
+}

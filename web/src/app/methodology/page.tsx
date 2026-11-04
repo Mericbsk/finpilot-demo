@@ -39,8 +39,9 @@ export default function Methodology() {
 
       <H2>2 · Grading (A / B / C)</H2>
       <P>Only candidates that pass eligibility, executability and position-cap checks receive a single
-      Grade (A, B or C) plus a calibrated probability band. We deliberately surface a small,
-      high-conviction shortlist — most days that is a handful of names, and some days it is zero.
+      Grade (A, B or C) plus a historical-frequency band from similar past setups. The frequency has
+      not been independently validated and is not a probability forecast. We deliberately surface a
+      small shortlist — most days that is a handful of names, and some days it is zero.
       &ldquo;No candidate today&rdquo; is a valid, honest outcome.</P>
       <P>A Grade is an <strong>educational conviction label, not a recommendation</strong>. We publish
       research context only: no transaction instructions and no performance claims.</P>
@@ -51,18 +52,16 @@ export default function Methodology() {
       to the current daily Grade.</P>
 
       <H2>4 · How we verify</H2>
-      <P><strong>Locked out-of-sample:</strong> parameters are frozen before evaluation — no hindsight
-      fitting. <strong>Triple-barrier resolution:</strong> outcomes are decided by predefined upper,
-      lower and time barriers, not naïve returns. <strong>Precision ≠ P&amp;L:</strong> we
-      measure expectancy and calibration, not vanity hit-rates.</P>
+      <P><strong>Barrier labels:</strong> outcomes use predefined upper, lower and time barriers.
+      Daily-bar data cannot establish the intraday order when both barriers are touched.
+      Existing historical datasets are not treated as out-of-sample under the current validation
+      rules. Reproducible labels do not establish executable fills or profitability.</P>
 
       <H2>5 · The open scorecard</H2>
-      <P>Every published pick is tracked — <strong>including the misses</strong>. We report expectancy
-      (the average outcome per pick), not a cherry-picked win-rate. A maturity gate means a pick only
-      counts once its barrier window has had time to resolve, so fresh, still-open picks never
-      flatter the record.</P>
-      <P>A low hit-rate can be by design: positive outcomes can remain open longer than negative
-      outcomes, so the average pick can still be positive. See the live scorecard on the{" "}
+      <P>When available, the public scorecard shows counts and historical hit rates for resolved
+      published picks, including misses. These descriptive figures are not independently validated
+      forecasts, out-of-sample evidence or net-return measures. Open picks are not counted as
+      resolved outcomes. See the live scorecard on the{" "}
       <a href="/demo" className="underline">demo page</a>.</P>
 
       <H2>6 · Education, not advice</H2>

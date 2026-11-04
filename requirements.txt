@@ -37,6 +37,7 @@ langgraph>=0.2.0
 Riskfolio-Lib>=6.0
 
 # Core Infrastructure
+jsonschema==4.25.0
 pydantic==2.12.5
 pydantic-settings==2.13.1
 structlog==25.4.0

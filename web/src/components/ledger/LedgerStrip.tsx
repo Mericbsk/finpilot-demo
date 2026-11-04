@@ -8,8 +8,7 @@ interface LedgerStripProps {
 const GRADE_ORDER = ["A", "B", "C"];
 const GRADE_COLOR: Record<string, string> = { A: C.gold, B: C.steel, C: C.inkSoft };
 
-/** S4 "Ledger Strip" — today's grade totals as a heat-strip, plus the
- * historical scorecard (by_grade) when it has actually been compiled. */
+/** S4 "Ledger Strip" — today's grade totals and descriptive closed-pick counts. */
 export default function LedgerStrip({ karne }: LedgerStripProps) {
   const totals = karne?.toplam_aday_bugun ?? {};
   const grades = GRADE_ORDER.filter((g) => totals[g] != null);
@@ -18,8 +17,6 @@ export default function LedgerStrip({ karne }: LedgerStripProps) {
   const overall = karne?.overall;
   const hasOverall = !!overall && (overall.n ?? 0) > 0;
   const fmtPct = (v?: number) => (v == null ? "—" : `${(v * 100).toFixed(0)}%`);
-  const fmtSigned = (v?: number) => (v == null ? "—" : `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`);
-
   if (grades.length === 0) {
     return (
       <p className="text-sm italic" style={{ color: C.inkSoft }}>
@@ -53,7 +50,7 @@ export default function LedgerStrip({ karne }: LedgerStripProps) {
       {hasOverall && (
         <div className="border-t pt-4" style={{ borderColor: C.rule }}>
           <div className="mb-2 font-ledger-mono text-xs uppercase tracking-wide" style={{ color: C.inkSoft }}>
-            Track record — all closed picks
+            Historical record — resolved picks
           </div>
           <div className="flex flex-wrap gap-x-8 gap-y-2">
             <div>
@@ -64,16 +61,10 @@ export default function LedgerStrip({ karne }: LedgerStripProps) {
               <div className="font-ledger-mono text-lg" style={{ color: C.ink }}>{fmtPct(overall?.hit_rate)}</div>
               <div className="text-xs" style={{ color: C.inkSoft }}>hit rate</div>
             </div>
-            <div>
-              <div className="font-ledger-mono text-lg" style={{ color: (overall?.avg_pnl ?? 0) >= 0 ? C.steel : C.brick }}>
-                {fmtSigned(overall?.avg_pnl)}
-              </div>
-              <div className="text-xs" style={{ color: C.inkSoft }}>expectancy / pick</div>
-            </div>
           </div>
           <p className="mt-2 text-xs italic" style={{ color: C.inkSoft }}>
-            A low hit rate is by design: winners run to a far take-profit while losers cut at a
-            near stop, so the average pick is still positive.
+            Counts and hit rate are descriptive historical figures, not a probability forecast,
+            independent out-of-sample evidence, or a net-return measure.
           </p>
         </div>
       )}

@@ -1,0 +1,1269 @@
+=== SHOW api/routers/scan.py 28-57 ===
+api/routers/scan.py:28: logger = logging.getLogger(__name__)
+api/routers/scan.py:30: _SHORTLIST_DIR = Path("data/shortlists")
+api/routers/scan.py:31: _FEEDBACK_DIR = Path("data/feedback")
+api/routers/scan.py:32: _REPORTS_DIR = Path("data/daily_reports")
+api/routers/scan.py:33: _SHADOW_DIR = Path("data/shadow")
+api/routers/scan.py:34: _STALE_DAYS = 7
+api/routers/scan.py:35: # Timeout per scan call.  200-symbol batches with Alpaca bulk prefetch + 32-worker
+api/routers/scan.py:36: # evaluation typically complete in 30-60s, but slow markets or yfinance fallback
+api/routers/scan.py:37: # can push this to ~5 min.  600s gives comfortable headroom.
+api/routers/scan.py:38: _SCAN_TIMEOUT_SECONDS = 600
+api/routers/scan.py:40: # 16 workers allows up to 16 concurrent scan requests without queuing.
+api/routers/scan.py:41: # Each request only occupies a thread during the evaluate phase (Alpaca
+api/routers/scan.py:42: # I/O runs in its own async loop) so 16 is well within container limits.
+api/routers/scan.py:43: _executor = ThreadPoolExecutor(max_workers=16, thread_name_prefix="scan")
+api/routers/scan.py:46: def _clean_value(v: object) -> object:
+api/routers/scan.py:47:     """Replace NaN/Inf with None so JSON serialisation never fails."""
+api/routers/scan.py:48:     if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+api/routers/scan.py:49:         return None
+api/routers/scan.py:50:     return v
+api/routers/scan.py:53: class ScanRequest(BaseModel):
+api/routers/scan.py:54:     symbols: list[str] = Field(..., max_length=500)
+api/routers/scan.py:55:     kelly_fraction: float = Field(0.5, ge=0.0, le=1.0)
+=== SHOW api/routers/scan.py 318-372 ===
+api/routers/scan.py:318:     except Exception as exc:
+api/routers/scan.py:319:         logger.warning("Auto-watchlist failed: %s", exc)
+api/routers/scan.py:322: @router.post("/scan")
+api/routers/scan.py:323: async def run_scan(
+api/routers/scan.py:324:     req: ScanRequest,
+api/routers/scan.py:325:     _auth: Annotated[TokenPayload, Depends(require_auth)],
+api/routers/scan.py:326:     request: Request,
+api/routers/scan.py:327: ):
+api/routers/scan.py:328:     """Use opt-in job coordination or retain the observation-only path."""
+api/routers/scan.py:329:     if scan_coordinator.enabled():
+api/routers/scan.py:330:         return await _run_coordinated_scan(req, _auth, request)
+api/routers/scan.py:331:     if not scan_observability.enabled():
+api/routers/scan.py:332:         return await _run_scan(req, _auth)
+api/routers/scan.py:333:     from uuid import uuid4
+api/routers/scan.py:335:     observation = scan_observability.ScanObservation("api_scan", len(req.symbols), uuid4().hex)
+api/routers/scan.py:336:     outcome = "ok"
+api/routers/scan.py:337:     error_type = None
+api/routers/scan.py:339:     async def watch_disconnect() -> None:
+api/routers/scan.py:340:         try:
+api/routers/scan.py:341:             while True:
+api/routers/scan.py:342:                 if await request.is_disconnected():
+api/routers/scan.py:343:                     observation.mark_client_gone()
+api/routers/scan.py:344:                     return
+api/routers/scan.py:345:                 await asyncio.sleep(0.25)
+api/routers/scan.py:346:         except Exception as exc:
+api/routers/scan.py:347:             logger.debug("Scan disconnect observation skipped: %s", type(exc).__name__)
+api/routers/scan.py:349:     watcher = asyncio.create_task(watch_disconnect())
+api/routers/scan.py:350:     try:
+api/routers/scan.py:351:         with scan_observability.scan_context(observation):
+api/routers/scan.py:352:             return await _run_scan(req, _auth)
+api/routers/scan.py:353:     except asyncio.CancelledError:
+api/routers/scan.py:354:         outcome = "client_gone"
+api/routers/scan.py:355:         raise
+api/routers/scan.py:356:     except HTTPException as exc:
+api/routers/scan.py:357:         outcome = "timeout" if exc.status_code == 504 else "error"
+api/routers/scan.py:358:         error_type = type(exc).__name__
+api/routers/scan.py:359:         raise
+api/routers/scan.py:360:     except BaseException as exc:
+api/routers/scan.py:361:         outcome = "error"
+api/routers/scan.py:362:         error_type = type(exc).__name__
+api/routers/scan.py:363:         raise
+api/routers/scan.py:364:     finally:
+api/routers/scan.py:365:         watcher.cancel()
+api/routers/scan.py:366:         try:
+api/routers/scan.py:367:             await watcher
+api/routers/scan.py:368:         except asyncio.CancelledError:
+api/routers/scan.py:369:             pass
+api/routers/scan.py:370:         observation.finish_request(outcome, error_type)
+=== SHOW api/routers/scan.py 945-961 ===
+api/routers/scan.py:945:     return {"reports": out, "count": len(out)}
+api/routers/scan.py:948: @router.get("/scan/daily-report/{date}")
+api/routers/scan.py:949: def get_daily_report(date: str):
+api/routers/scan.py:950:     """Return full daily report for a given YYYY-MM-DD date."""
+api/routers/scan.py:951:     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+api/routers/scan.py:952:     report_path = _REPORTS_DIR / f"{date}.json"
+api/routers/scan.py:953:     if not report_path.exists():
+api/routers/scan.py:954:         raise HTTPException(status_code=404, detail=f"No report for {date}")
+api/routers/scan.py:955:     try:
+api/routers/scan.py:956:         with open(report_path, encoding="utf-8") as fh:
+api/routers/scan.py:957:             return json.load(fh)
+api/routers/scan.py:958:     except Exception as exc:
+api/routers/scan.py:959:         raise HTTPException(status_code=500, detail=str(exc)) from exc
+=== SHOW api/routers/scan.py 1018-1030 ===
+api/routers/scan.py:1018:         for row in rows:
+api/routers/scan.py:1019:             if not isinstance(row, dict) or row.get("scan_status") != "unavailable":
+api/routers/scan.py:1020:                 continue
+api/routers/scan.py:1021:             reason = str((row.get("reject_reason") or ["unavailable"])[0])
+api/routers/scan.py:1022:             row.setdefault("data_quality", {"available": {}, "missing_fields": [reason]})
+api/routers/scan.py:1023:             row.setdefault("execution_reject_reason", [reason])
+api/routers/scan.py:1024:             row.setdefault("execution_confidence", "Tier 0")
+api/routers/scan.py:1025:             row.setdefault("legacy_quality_score", 0.0)
+api/routers/scan.py:1026:             row.setdefault("ranking_score", 0.0)
+api/routers/scan.py:1027:             row.setdefault("v2_score", 0.0)
+api/routers/scan.py:1028:             row.setdefault("strategy_scores", {"legacy_quality": 0.0, "v2": 0.0})
+api/routers/scan.py:1029:             row.setdefault("conviction_tier", "")
+api/routers/scan.py:1030:             row.setdefault("conviction_prob", 0.0)
+=== SHOW api/main.py 300-345 ===
+api/main.py:300:     )
+api/main.py:303: @app.middleware("http")
+api/main.py:304: async def instrument_requests(request: Request, call_next):
+api/main.py:305:     start = time.perf_counter()
+api/main.py:306:     raw_endpoint = request.url.path
+api/main.py:308:     response = await call_next(request)
+api/main.py:310:     route = request.scope.get("route")
+api/main.py:311:     endpoint = getattr(route, "path", raw_endpoint)
+api/main.py:312:     metrics.api_requests.inc(endpoint=endpoint, status_code=str(response.status_code))
+api/main.py:313:     metrics.api_latency.observe(time.perf_counter() - start, endpoint=endpoint)
+api/main.py:315:     # Track page views for known frontend paths (fire-and-forget, never raises)
+api/main.py:316:     try:
+api/main.py:317:         _FRONTEND_PREFIXES = ("/dashboard", "/agent", "/scanner", "/research", "/portfolio")
+api/main.py:318:         if raw_endpoint.startswith(_FRONTEND_PREFIXES) and response.status_code < 400:
+api/main.py:319:             from core.analytics import increment_page_view
+api/main.py:321:             increment_page_view(raw_endpoint)
+api/main.py:322:     except Exception:
+api/main.py:323:         pass
+api/main.py:325:     return response
+api/main.py:328: # ---------------------------------------------------------------------------
+api/main.py:329: # CORS \u2014 whitelist only known origins
+api/main.py:330: # CORS_ORIGINS env var (comma-separated) overrides defaults in production.
+api/main.py:331: # Example: CORS_ORIGINS=https://finpilot.at,https://www.finpilot.at
+api/main.py:332: # ---------------------------------------------------------------------------
+api/main.py:333: _DEFAULT_ORIGINS = [
+api/main.py:334:     "http://localhost:3000",
+api/main.py:335:     "http://localhost:3001",
+api/main.py:336:     "http://localhost:8000",
+api/main.py:337: ]
+api/main.py:338: _env_origins = os.getenv("CORS_ORIGINS", "")
+api/main.py:339: _ALLOWED_ORIGINS = (
+api/main.py:340:     [o.strip() for o in _env_origins.split(",") if o.strip()] if _env_origins else _DEFAULT_ORIGINS
+api/main.py:341: )
+api/main.py:343: app.add_middleware(
+api/main.py:344:     CORSMiddleware,
+api/main.py:345:     allow_origins=_ALLOWED_ORIGINS,
+=== SHOW api/middleware/auth.py 44-75 ===
+api/middleware/auth.py:44:         data = _get_jwt().decode(credentials.credentials)
+api/middleware/auth.py:45:         return TokenPayload(**{k: data[k] for k in TokenPayload.__dataclass_fields__})
+api/middleware/auth.py:46:     except (TokenExpiredError, TokenInvalidError, KeyError):
+api/middleware/auth.py:47:         return None
+api/middleware/auth.py:50: def require_auth(
+api/middleware/auth.py:51:     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
+api/middleware/auth.py:52: ) -> TokenPayload:
+api/middleware/auth.py:53:     """Dependency that **requires** a valid JWT.  Returns 401 otherwise."""
+api/middleware/auth.py:54:     payload = _extract_payload(credentials)
+api/middleware/auth.py:55:     if payload is None:
+api/middleware/auth.py:56:         raise HTTPException(
+api/middleware/auth.py:57:             status_code=status.HTTP_401_UNAUTHORIZED,
+api/middleware/auth.py:58:             detail="Missing or invalid authentication token",
+api/middleware/auth.py:59:             headers={"WWW-Authenticate": "Bearer"},
+api/middleware/auth.py:60:         )
+api/middleware/auth.py:61:     if payload.type != "access":
+api/middleware/auth.py:62:         raise HTTPException(
+api/middleware/auth.py:63:             status_code=status.HTTP_401_UNAUTHORIZED,
+api/middleware/auth.py:64:             detail="Invalid token type",
+api/middleware/auth.py:65:         )
+api/middleware/auth.py:66:     return payload
+api/middleware/auth.py:69: def optional_auth(
+api/middleware/auth.py:70:     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
+api/middleware/auth.py:71: ) -> TokenPayload | None:
+api/middleware/auth.py:72:     """Dependency that optionally extracts a JWT.  Returns None if absent."""
+api/middleware/auth.py:73:     return _extract_payload(credentials)
+COORDINATOR_FILES ['core/scan_coordinator.py']
+=== GREP core/scan_coordinator.py /^\s*def |^class |budget|cancel/ a=0 ===
+core/scan_coordinator.py:23: class ScanBusy(RuntimeError):
+core/scan_coordinator.py:24:     """Admission or queue wait exceeds the scan's bounded budget."""
+core/scan_coordinator.py:27: class ScanCancelled(RuntimeError):
+core/scan_coordinator.py:28:     """All waiters left and the job reached a cancellation boundary."""
+core/scan_coordinator.py:31: def enabled() -> bool:
+core/scan_coordinator.py:36: class ScanJob:
+core/scan_coordinator.py:43:     cancelled: threading.Event = field(default_factory=threading.Event)
+core/scan_coordinator.py:44:     cancellation_lock: Any = field(default_factory=threading.RLock)
+core/scan_coordinator.py:45:     cancellation_committed: bool = False
+core/scan_coordinator.py:55: def current_job() -> ScanJob | None:
+core/scan_coordinator.py:59: def check_cancelled(job: ScanJob | None = None) -> None:
+core/scan_coordinator.py:62:         with job.cancellation_lock:
+core/scan_coordinator.py:63:             if job.cancelled.is_set():
+core/scan_coordinator.py:64:                 job.cancellation_committed = True
+core/scan_coordinator.py:68: class ScanHandle:
+core/scan_coordinator.py:69:     def __init__(self, coordinator: ScanCoordinator, job: ScanJob, waiter_id: str) -> None:
+core/scan_coordinator.py:75:     def future(self) -> Future:
+core/scan_coordinator.py:78:     def detach(self) -> None:
+core/scan_coordinator.py:81:     def result(self, timeout: float | None = None) -> Any:
+core/scan_coordinator.py:88: class ScanCoordinator:
+core/scan_coordinator.py:89:     def __init__(
+core/scan_coordinator.py:96:         cooperative_cancel: bool = True,
+core/scan_coordinator.py:101:             raise ValueError("Invalid scan queue/estimate budget")
+core/scan_coordinator.py:107:         self.cooperative_cancel = cooperative_cancel
+core/scan_coordinator.py:114:     def _estimated_wait(self, now: float) -> float:
+core/scan_coordinator.py:127:     def submit(
+core/scan_coordinator.py:132:         budget_seconds: float = 600,
+core/scan_coordinator.py:141:                 with existing.cancellation_lock:
+core/scan_coordinator.py:142:                     if existing.cancellation_committed:
+core/scan_coordinator.py:145:                         existing.cancelled.clear()
+core/scan_coordinator.py:154:                     600, budget_seconds
+core/scan_coordinator.py:156:                     raise ScanBusy("Scan queue exceeds time budget; retry later")
+core/scan_coordinator.py:169:                         self.queue_wait_seconds, max(0, budget_seconds - self.estimated_job_seconds)
+core/scan_coordinator.py:186:     def detach(self, job: ScanJob, waiter_id: str) -> None:
+core/scan_coordinator.py:189:             if self.cooperative_cancel and not job.waiters:
+core/scan_coordinator.py:190:                 with job.cancellation_lock:
+core/scan_coordinator.py:191:                     job.cancelled.set()
+core/scan_coordinator.py:193:     def _run(self, job: ScanJob) -> None:
+core/scan_coordinator.py:205:             check_cancelled()
+core/scan_coordinator.py:212:             check_cancelled()
+core/scan_coordinator.py:245:     def shutdown(self) -> None:
+core/scan_coordinator.py:255: def get_coordinator() -> ScanCoordinator:
+core/scan_coordinator.py:265:                 cooperative_cancel=os.getenv("FINPILOT_SCAN_COOP_CANCEL", "1") == "1",
+core/scan_coordinator.py:270: def make_key(operation: str, symbols: list[str], parameters: dict, scope: tuple) -> str:
+core/scan_coordinator.py:301: def submit_scan(
+core/scan_coordinator.py:306:     budget_seconds: float = 600,
+core/scan_coordinator.py:315:         budget_seconds=budget_seconds,
+core/scan_coordinator.py:319: def coordinate_scan(function: Callable) -> Callable:
+core/scan_coordinator.py:323:     def coordinated(*args, **kwargs):
+MATCHES 49
+=== GREP core/scan_coordinator.py /def check_cancelled|def detach|def submit_scan/ a=22 ===
+core/scan_coordinator.py:59: def check_cancelled(job: ScanJob | None = None) -> None:
+core/scan_coordinator.py:60:     job = job if job is not None else current_job()
+core/scan_coordinator.py:61:     if job is not None:
+core/scan_coordinator.py:62:         with job.cancellation_lock:
+core/scan_coordinator.py:63:             if job.cancelled.is_set():
+core/scan_coordinator.py:64:                 job.cancellation_committed = True
+core/scan_coordinator.py:65:                 raise ScanCancelled("Scan has no remaining waiters")
+core/scan_coordinator.py:68: class ScanHandle:
+core/scan_coordinator.py:69:     def __init__(self, coordinator: ScanCoordinator, job: ScanJob, waiter_id: str) -> None:
+core/scan_coordinator.py:70:         self.coordinator = coordinator
+core/scan_coordinator.py:71:         self.job = job
+core/scan_coordinator.py:72:         self.waiter_id = waiter_id
+core/scan_coordinator.py:74:     @property
+core/scan_coordinator.py:75:     def future(self) -> Future:
+core/scan_coordinator.py:76:         return self.job.future
+core/scan_coordinator.py:78:     def detach(self) -> None:
+core/scan_coordinator.py:79:         self.coordinator.detach(self.job, self.waiter_id)
+core/scan_coordinator.py:81:     def result(self, timeout: float | None = None) -> Any:
+core/scan_coordinator.py:82:         try:
+core/scan_coordinator.py:83:             return deepcopy(self.future.result(timeout=timeout))
+core/scan_coordinator.py:84:         finally:
+core/scan_coordinator.py:85:             self.detach()
+core/scan_coordinator.py:88: class ScanCoordinator:
+core/scan_coordinator.py:89:     def __init__(
+core/scan_coordinator.py:90:         self,
+core/scan_coordinator.py:91:         max_concurrent: int = 1,
+core/scan_coordinator.py:92:         queue_capacity: int = 1,
+core/scan_coordinator.py:93:         queue_wait_seconds: float = 120,
+core/scan_coordinator.py:94:         estimated_job_seconds: float = 480,
+core/scan_coordinator.py:95:         dedupe: bool = True,
+core/scan_coordinator.py:96:         cooperative_cancel: bool = True,
+core/scan_coordinator.py:97:     ) -> None:
+core/scan_coordinator.py:98:         if not 1 <= max_concurrent <= 16 or not 0 <= queue_capacity <= 16:
+core/scan_coordinator.py:99:             raise ValueError("Invalid scan slot/queue capacity")
+core/scan_coordinator.py:100:         if not 0 <= queue_wait_seconds <= 120 or not 0 < estimated_job_seconds <= 600:
+core/scan_coordinator.py:186:     def detach(self, job: ScanJob, waiter_id: str) -> None:
+core/scan_coordinator.py:187:         with self._lock:
+core/scan_coordinator.py:188:             job.waiters.discard(waiter_id)
+core/scan_coordinator.py:189:             if self.cooperative_cancel and not job.waiters:
+core/scan_coordinator.py:190:                 with job.cancellation_lock:
+core/scan_coordinator.py:191:                     job.cancelled.set()
+core/scan_coordinator.py:193:     def _run(self, job: ScanJob) -> None:
+core/scan_coordinator.py:194:         token = _CURRENT_JOB.set(job)
+core/scan_coordinator.py:195:         result = None
+core/scan_coordinator.py:196:         error = None
+core/scan_coordinator.py:197:         observation_token = None
+core/scan_coordinator.py:198:         try:
+core/scan_coordinator.py:199:             with self._lock:
+core/scan_coordinator.py:200:                 job.started = time.monotonic()
+core/scan_coordinator.py:201:             if job.observation is not None:
+core/scan_coordinator.py:202:                 job.observation.queue_wait_s = round(job.started - job.created, 6)
+core/scan_coordinator.py:203:             if job.started > job.queue_deadline:
+core/scan_coordinator.py:204:                 raise ScanBusy("Scan queue wait expired; retry later")
+core/scan_coordinator.py:205:             check_cancelled()
+core/scan_coordinator.py:206:             if job.prepare is not None:
+core/scan_coordinator.py:207:                 job.prepare()
+core/scan_coordinator.py:208:             if job.observation is not None:
+MATCHES 4
+=== GREP scanner/data_fetcher.py /^DEFAULT_TIMEFRAMES|^MIN_HISTORY_BARS|^CACHE_TTL_SECONDS/ a=6 ===
+scanner/data_fetcher.py:213: CACHE_TTL_SECONDS = _market_aware_ttl()
+scanner/data_fetcher.py:214: CACHE_TTL_MARKET_INDEX = CACHE_TTL_SECONDS
+scanner/data_fetcher.py:216: # In-memory fallback cache for non-Streamlit usage
+scanner/data_fetcher.py:217: _OHLCV_CACHE_MAX_ENTRIES = 256
+scanner/data_fetcher.py:218: _memory_cache = MemoryCache(max_size=_OHLCV_CACHE_MAX_ENTRIES, default_ttl=CACHE_TTL_SECONDS)
+scanner/data_fetcher.py:582: DEFAULT_TIMEFRAMES: list[tuple[str, int]] = [
+scanner/data_fetcher.py:583:     ("15m", 10),  # 15-minute, 10 days
+scanner/data_fetcher.py:584:     ("1h", 15),  # 1-hour, 15 days \u2014 enough for the derived 4h minimum history
+scanner/data_fetcher.py:585:     ("1d", 300),  # Daily, 300 days (~210 trading bars \u2014 enough for EMA200)
+scanner/data_fetcher.py:586: ]
+scanner/data_fetcher.py:588: MIN_HISTORY_BARS = {"15m": 15, "1h": 10, "4h": 15, "1d": 50}
+scanner/data_fetcher.py:591: def _resample_4h(df_1h: pd.DataFrame) -> pd.DataFrame:
+scanner/data_fetcher.py:592:     """Derive a 4-hour OHLCV DataFrame from 1-hour data via resample.
+scanner/data_fetcher.py:594:     This avoids a separate yfinance network call for the 4h interval
+MATCHES 3
+=== SHOW scanner/data_fetcher.py 333-440 ===
+scanner/data_fetcher.py:333: def _cache_data(ttl_seconds: int = CACHE_TTL_SECONDS):
+scanner/data_fetcher.py:334:     """
+scanner/data_fetcher.py:335:     Decorator providing layered caching:
+scanner/data_fetcher.py:337:     1. Streamlit ``cache_data`` if available (UI process only).
+scanner/data_fetcher.py:338:     2. Process-shared Redis cache via ``core.cache.cache_manager`` when Redis
+scanner/data_fetcher.py:339:        is configured \u2014 DataFrames serialized via to_dict / from_records to
+scanner/data_fetcher.py:340:        stay JSON-safe (Sprint 4 S4-1).
+scanner/data_fetcher.py:341:     3. Per-process in-memory TTL cache as last resort.
+scanner/data_fetcher.py:342:     """
+scanner/data_fetcher.py:344:     def decorator(func):
+scanner/data_fetcher.py:345:         # Attempt to use shared CacheManager (covers both Redis L2 and
+scanner/data_fetcher.py:346:         # in-process LRU L1, with safe DataFrame serialization).
+scanner/data_fetcher.py:347:         cache_manager = None
+scanner/data_fetcher.py:348:         try:
+scanner/data_fetcher.py:349:             from core.cache import cache_manager as _cm
+scanner/data_fetcher.py:351:             cache_manager = _cm
+scanner/data_fetcher.py:352:         except Exception:  # noqa: BLE001
+scanner/data_fetcher.py:353:             cache_manager = None
+scanner/data_fetcher.py:355:         if HAS_STREAMLIT and st is not None and st.runtime.exists():
+scanner/data_fetcher.py:356:             return st.cache_data(
+scanner/data_fetcher.py:357:                 ttl=ttl_seconds, max_entries=_OHLCV_CACHE_MAX_ENTRIES, show_spinner=False
+scanner/data_fetcher.py:358:             )(func)
+scanner/data_fetcher.py:360:         def wrapper(*args, **kwargs):
+scanner/data_fetcher.py:361:             key = f"finpilot:ohlcv:{func.__name__}:{args}:{sorted(kwargs.items())}"
+scanner/data_fetcher.py:362:             _memory_cache.cleanup_expired()
+scanner/data_fetcher.py:363:             if cache_manager is not None:
+scanner/data_fetcher.py:364:                 try:
+scanner/data_fetcher.py:365:                     cache_manager.cleanup()
+scanner/data_fetcher.py:366:                 except Exception:  # noqa: BLE001
+scanner/data_fetcher.py:367:                     pass
+scanner/data_fetcher.py:368:             cached_result = _memory_cache.get(key)
+scanner/data_fetcher.py:369:             if cached_result is not None:
+scanner/data_fetcher.py:370:                 return cached_result
+scanner/data_fetcher.py:372:             shared_payload = None
+scanner/data_fetcher.py:373:             if cache_manager is not None:
+scanner/data_fetcher.py:374:                 try:
+scanner/data_fetcher.py:375:                     shared_payload = cache_manager.get(key, l2_only=True)
+scanner/data_fetcher.py:376:                 except Exception:  # noqa: BLE001
+scanner/data_fetcher.py:377:                     shared_payload = None
+scanner/data_fetcher.py:378:             if isinstance(shared_payload, dict) and "records" in shared_payload:
+scanner/data_fetcher.py:379:                 try:
+scanner/data_fetcher.py:380:                     df = pd.DataFrame(shared_payload["records"])
+scanner/data_fetcher.py:381:                     if "index" in shared_payload and shared_payload["index"]:
+scanner/data_fetcher.py:382:                         df.index = pd.to_datetime(shared_payload["index"])
+scanner/data_fetcher.py:383:                     _memory_cache.set(key, df, ttl=ttl_seconds)
+scanner/data_fetcher.py:384:                     return df
+scanner/data_fetcher.py:385:                 except Exception:  # noqa: BLE001
+scanner/data_fetcher.py:386:                     pass
+scanner/data_fetcher.py:388:             result = func(*args, **kwargs)
+scanner/data_fetcher.py:389:             _memory_cache.set(key, result, ttl=ttl_seconds)
+scanner/data_fetcher.py:391:             if cache_manager is not None and isinstance(result, pd.DataFrame) and not result.empty:
+scanner/data_fetcher.py:392:                 try:
+scanner/data_fetcher.py:393:                     payload = {
+scanner/data_fetcher.py:394:                         "records": result.reset_index(drop=False).to_dict(orient="records"),
+scanner/data_fetcher.py:395:                         "index": [str(ix) for ix in result.index.tolist()],
+scanner/data_fetcher.py:396:                     }
+scanner/data_fetcher.py:397:                     cache_manager.set(key, payload, ttl=ttl_seconds, l2_only=True)
+scanner/data_fetcher.py:398:                 except Exception:  # noqa: BLE001
+scanner/data_fetcher.py:399:                     pass
+scanner/data_fetcher.py:401:             return result
+scanner/data_fetcher.py:403:         return wrapper
+scanner/data_fetcher.py:405:     return decorator
+scanner/data_fetcher.py:408: @_cache_data(ttl_seconds=CACHE_TTL_SECONDS)
+scanner/data_fetcher.py:409: def fetch(symbol: str, interval: str, days: int) -> pd.DataFrame:
+scanner/data_fetcher.py:410:     """
+scanner/data_fetcher.py:411:     Fetch OHLCV data from Yahoo Finance with indicators.
+scanner/data_fetcher.py:413:     Args:
+scanner/data_fetcher.py:414:         symbol: Stock ticker symbol (e.g., 'AAPL', 'GOOGL')
+scanner/data_fetcher.py:415:         interval: Time interval ('15m', '1h', '4h', '1d')
+scanner/data_fetcher.py:416:         days: Number of days of history to fetch
+scanner/data_fetcher.py:418:     Returns:
+scanner/data_fetcher.py:419:         DataFrame with OHLCV data and technical indicators,
+scanner/data_fetcher.py:420:         or empty DataFrame on failure
+scanner/data_fetcher.py:421:     """
+scanner/data_fetcher.py:422:     interval_map = {"15m": "15m", "1h": "1h", "4h": "4h", "1d": "1d"}
+scanner/data_fetcher.py:423:     yf_interval = interval_map.get(interval, "1d")
+scanner/data_fetcher.py:424:     period_map = {"15m": f"{days}d", "1h": f"{days}d", "4h": f"{days}d", "1d": f"{days}d"}
+scanner/data_fetcher.py:425:     yf_period = period_map.get(interval, f"{days}d")
+scanner/data_fetcher.py:427:     # S4-4: yfinance rate limit (default 4 req/s, burst 8). Non-fatal: if
+scanner/data_fetcher.py:428:     # bucket times out we proceed anyway \u2014 the existing retry path will
+scanner/data_fetcher.py:429:     # absorb 429s.
+scanner/data_fetcher.py:430:     try:
+scanner/data_fetcher.py:431:         from core.rate_limiter import get_bucket
+scanner/data_fetcher.py:433:         rate = float(os.environ.get("YFINANCE_RATE", "4"))
+scanner/data_fetcher.py:434:         burst = float(os.environ.get("YFINANCE_BURST", "8"))
+scanner/data_fetcher.py:435:         with timer("rate_limit.wait", path="yfinance"):
+scanner/data_fetcher.py:436:             get_bucket("yfinance", rate=rate, capacity=burst).wait(timeout=5.0)
+scanner/data_fetcher.py:437:     except Exception:  # noqa: BLE001
+scanner/data_fetcher.py:438:         pass
+scanner/data_fetcher.py:440:     _note_yf_fetch()  # P1: this is a real yfinance fallback fetch (cache miss)
+=== SHOW scanner/data_fetcher.py 636-700 ===
+scanner/data_fetcher.py:636: def fetch_multi_timeframe(
+scanner/data_fetcher.py:637:     symbol: str,
+scanner/data_fetcher.py:638:     timeframes: list[tuple[str, int]] | None = None,
+scanner/data_fetcher.py:639:     with_indicators: bool = True,
+scanner/data_fetcher.py:640:     max_workers: int = 4,
+scanner/data_fetcher.py:641: ) -> dict[str, pd.DataFrame]:
+scanner/data_fetcher.py:642:     """
+scanner/data_fetcher.py:643:     Fetch multiple timeframes for a symbol in parallel.
+scanner/data_fetcher.py:645:     This function significantly improves performance by fetching
+scanner/data_fetcher.py:646:     all timeframe data concurrently instead of sequentially.
+scanner/data_fetcher.py:648:     Args:
+scanner/data_fetcher.py:649:         symbol: Stock ticker symbol
+scanner/data_fetcher.py:650:         timeframes: List of (interval, days) tuples.
+scanner/data_fetcher.py:651:                    Defaults to DEFAULT_TIMEFRAMES if None.
+scanner/data_fetcher.py:652:         with_indicators: Whether to add technical indicators
+scanner/data_fetcher.py:653:         max_workers: Maximum parallel threads
+scanner/data_fetcher.py:655:     Returns:
+scanner/data_fetcher.py:656:         Dictionary mapping interval to DataFrame:
+scanner/data_fetcher.py:657:         {'15m': df_15m, '1h': df_1h, '4h': df_4h, '1d': df_1d}
+scanner/data_fetcher.py:659:     Example:
+scanner/data_fetcher.py:660:         >>> data = fetch_multi_timeframe('AAPL')
+scanner/data_fetcher.py:661:         >>> df_daily = data['1d']
+scanner/data_fetcher.py:662:         >>> df_hourly = data['1h']
+scanner/data_fetcher.py:663:     """
+scanner/data_fetcher.py:664:     if timeframes is None:
+scanner/data_fetcher.py:665:         timeframes = DEFAULT_TIMEFRAMES
+scanner/data_fetcher.py:667:     results: dict[str, pd.DataFrame] = {}
+scanner/data_fetcher.py:669:     def _fetch_single(interval: str, days: int) -> tuple[str, pd.DataFrame]:
+scanner/data_fetcher.py:670:         """Fetch single timeframe with optional indicators."""
+scanner/data_fetcher.py:671:         if with_indicators:
+scanner/data_fetcher.py:672:             df = fetch_with_indicators(symbol, interval, days)
+scanner/data_fetcher.py:673:         else:
+scanner/data_fetcher.py:674:             df = fetch(symbol, interval, days)
+scanner/data_fetcher.py:675:         return interval, df
+scanner/data_fetcher.py:677:     # Parallel fetch (only real timeframes \u2014 4h is derived from 1h below)
+scanner/data_fetcher.py:678:     real_timeframes = [(iv, d) for iv, d in timeframes if iv != "4h"]
+scanner/data_fetcher.py:679:     with ThreadPoolExecutor(max_workers=max_workers) as executor:
+scanner/data_fetcher.py:680:         futures = [
+scanner/data_fetcher.py:681:             executor.submit(_fetch_single, interval, days) for interval, days in real_timeframes
+scanner/data_fetcher.py:682:         ]
+scanner/data_fetcher.py:684:         for future in as_completed(futures):
+scanner/data_fetcher.py:685:             try:
+scanner/data_fetcher.py:686:                 interval, df = future.result()
+scanner/data_fetcher.py:687:                 results[interval] = df
+scanner/data_fetcher.py:688:             except Exception as e:
+scanner/data_fetcher.py:689:                 logger.warning("Paralel fetch hatas\u0131: %s %s - %s", symbol, str(e), type(e).__name__)
+scanner/data_fetcher.py:691:     # Derive 4h from 1h to avoid an extra yfinance round-trip
+scanner/data_fetcher.py:692:     df_1h = results.get("1h", pd.DataFrame())
+scanner/data_fetcher.py:693:     df_4h_raw = _resample_4h(df_1h)
+scanner/data_fetcher.py:694:     if not df_4h_raw.empty:
+scanner/data_fetcher.py:695:         results["4h"] = add_indicators(df_4h_raw) if with_indicators else df_4h_raw
+scanner/data_fetcher.py:696:     else:
+scanner/data_fetcher.py:697:         results["4h"] = pd.DataFrame()
+scanner/data_fetcher.py:699:     return results
+=== SHOW scanner/data_fetcher.py 1208-1222 ===
+scanner/data_fetcher.py:1208:     # Rebuild 4h only for symbols whose 1h result was repaired.
+scanner/data_fetcher.py:1209:     for symbol in missing_by_tf.get("1h", []):
+scanner/data_fetcher.py:1210:         df_4h_raw = _resample_4h(result[symbol].get("1h", pd.DataFrame()))
+scanner/data_fetcher.py:1211:         result[symbol]["4h"] = (
+scanner/data_fetcher.py:1212:             add_indicators(df_4h_raw) if with_indicators and not df_4h_raw.empty else df_4h_raw
+scanner/data_fetcher.py:1213:         )
+scanner/data_fetcher.py:1215:     remaining = [
+scanner/data_fetcher.py:1216:         symbol
+scanner/data_fetcher.py:1217:         for symbol in symbols
+scanner/data_fetcher.py:1218:         if not _has_sufficient_history(result.get(symbol, {}), timeframes)
+scanner/data_fetcher.py:1219:     ]
+scanner/data_fetcher.py:1221:     def repair_symbol(symbol: str) -> None:
+scanner/data_fetcher.py:1222:         try:
+=== GREP scanner/data_fetcher.py /dropna|isna|notna/ a=0 ===
+scanner/data_fetcher.py:515:         df = df.dropna()
+scanner/data_fetcher.py:604:             .dropna()
+scanner/data_fetcher.py:986:             df = df.dropna(how="all")
+scanner/data_fetcher.py:1012:                 df = df.dropna(how="all")
+scanner/data_fetcher.py:1016:                     df = df.dropna(subset=["Close"])
+scanner/data_fetcher.py:1065:         return out.dropna(subset=["Close"])
+scanner/data_fetcher.py:1091:     df = df.dropna(subset=["_dt"]).set_index("_dt")
+scanner/data_fetcher.py:1103:     df = df[keep].apply(pd.to_numeric, errors="coerce").dropna(subset=["Close"]).sort_index()
+MATCHES 8
+=== SHOW core/rate_limiter.py 1-33 ===
+core/rate_limiter.py:1: """Token bucket rate limiter \u2014 Sprint 4.
+core/rate_limiter.py:3: In-process token bucket implementation. Use one bucket per resource (e.g.
+core/rate_limiter.py:4: per LLM provider, per data API). Thread-safe.
+core/rate_limiter.py:6: Public API::
+core/rate_limiter.py:8:     bucket = TokenBucket(rate=5, capacity=10)   # 5 tokens/sec, burst 10
+core/rate_limiter.py:9:     if bucket.acquire():
+core/rate_limiter.py:10:         do_work()
+core/rate_limiter.py:11:     else:
+core/rate_limiter.py:12:         sleep_or_skip()
+core/rate_limiter.py:14:     # Or block until available (with timeout):
+core/rate_limiter.py:15:     bucket.wait(timeout=30.0)
+core/rate_limiter.py:17: A small registry exposes named buckets so the same limit is shared across
+core/rate_limiter.py:18: call sites in the same process::
+core/rate_limiter.py:20:     from core.rate_limiter import get_bucket
+core/rate_limiter.py:21:     bucket = get_bucket("llm:groq", rate=5, capacity=10)
+core/rate_limiter.py:22: """
+core/rate_limiter.py:24: from __future__ import annotations
+core/rate_limiter.py:26: import logging
+core/rate_limiter.py:27: import threading
+core/rate_limiter.py:28: import time
+core/rate_limiter.py:29: from typing import Final
+core/rate_limiter.py:31: logger = logging.getLogger(__name__)
+=== SHOW core/rate_limiter.py 94-108 ===
+core/rate_limiter.py:94: def get_bucket(name: str, rate: float = 5.0, capacity: float = 10.0) -> TokenBucket:
+core/rate_limiter.py:95:     """Return a process-wide named bucket (creates one on first use).
+core/rate_limiter.py:97:     The first call defines the (rate, capacity) for that name; subsequent
+core/rate_limiter.py:98:     calls return the existing bucket and ignore the parameters.
+core/rate_limiter.py:99:     """
+core/rate_limiter.py:100:     with _registry_lock:
+core/rate_limiter.py:101:         bucket = _buckets.get(name)
+core/rate_limiter.py:102:         if bucket is None:
+core/rate_limiter.py:103:             bucket = TokenBucket(rate=rate, capacity=capacity, name=name)
+core/rate_limiter.py:104:             _buckets[name] = bucket
+core/rate_limiter.py:105:             logger.debug("rate_limiter: created bucket %s rate=%.2f cap=%.2f", name, rate, capacity)
+core/rate_limiter.py:106:         return bucket
+=== SHOW scanner/score_engine.py 10-32 ===
+scanner/score_engine.py:10: import os
+scanner/score_engine.py:11: from typing import Any
+scanner/score_engine.py:13: logger = logging.getLogger(__name__)
+scanner/score_engine.py:15: # Theoretical maximum composite score after Faz 5 RSI/MACD demotion
+scanner/score_engine.py:16: # (score weight reduced \xd71.0\u2192\xd70.5, max score=3 \u2192 contributes 1.5 instead of 3.0)
+scanner/score_engine.py:17: # Previous MAX: 18.0 (with score\xd71.0). New ceiling: 16.5
+scanner/score_engine.py:18: # Components: regime 2 + direction 2 + score(max 3)\xd70.5=1.5 + filter(max 3)\xd71.5=4.5
+scanner/score_engine.py:19: #             + alignment_ratio(1.0)\xd72=2 + momentum_ratio(1.0)\xd72.5(low-vol)=2.5
+scanner/score_engine.py:20: #             + volume_spike 0.5 + price_momentum 0.5 + trend_strength 0.5 = 16.5
+scanner/score_engine.py:21: # The 0.5 reduction per good signal also means the upper suppression band
+scanner/score_engine.py:22: # needs a slight downward shift: _HIGH_SCORE_THRESH from 62\u219258 to preserve
+scanner/score_engine.py:23: # the same relative percentile cut-off in the composite 0-100 distribution.
+scanner/score_engine.py:24: MAX_RECO_SCORE: float = 16.5
+scanner/score_engine.py:26: # \u2500\u2500 Float/Short squeeze factor (env-gated, default OFF) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+scanner/score_engine.py:27: # Additive 0.0\u20131.0 squeeze potential (scanner.features.compute_squeeze_factor)
+scanner/score_engine.py:28: # scaled by this weight. Disabled by default so live scoring is unchanged until
+scanner/score_engine.py:29: # component_ablation validates marginal lift in the >30% move bucket.
+scanner/score_engine.py:30: _SQUEEZE_WEIGHT: float = 1.5
+=== SHOW scanner/score_engine.py 99-252 ===
+scanner/score_engine.py:99: def compute_recommendation_score(
+scanner/score_engine.py:100:     row: dict[str, Any], sentiment_score: float | None = None
+scanner/score_engine.py:101: ) -> float:
+scanner/score_engine.py:102:     """Compute composite recommendation score from signal components.
+scanner/score_engine.py:104:     Args:
+scanner/score_engine.py:105:         row: Dictionary with signal data. Recognised keys:
+scanner/score_engine.py:106:              regime, direction, score, filter_score, alignment_ratio,
+scanner/score_engine.py:107:              momentum_ratio, volume_spike, price_momentum, trend_strength,
+scanner/score_engine.py:108:              vol_regime (Faz 3), squeeze_factor, catalyst_factor,
+scanner/score_engine.py:109:              lottery_factor (Faz 1/2), overnight_gap_factor (Faz 4).
+scanner/score_engine.py:110:         sentiment_score: Optional 0.0-1.0 FinBERT sentiment (0.5=neutral).
+scanner/score_engine.py:111:                          INT-4: When provided, adds a \xb10.5 sentiment boost/penalty.
+scanner/score_engine.py:113:     Returns:
+scanner/score_engine.py:114:         Recommendation score (0 to ~18.0). Lottery/overnight penalties can
+scanner/score_engine.py:115:         push the value below 0; compute_recommendation_strength clamps at 0.
+scanner/score_engine.py:116:     """
+scanner/score_engine.py:117:     score = 0.0
+scanner/score_engine.py:118:     score += 2.0 if bool(row.get("regime", False)) else 0.0
+scanner/score_engine.py:119:     score += 2.0 if bool(row.get("direction", False)) else 0.0
+scanner/score_engine.py:121:     # Faz 5: RSI/MACD/volume raw-score demoted from \xd71.0 \u2192 \xd70.5.
+scanner/score_engine.py:122:     # These three binary checks (RSI in 30-70, volume > med\xd71.2, MACD hist rising)
+scanner/score_engine.py:123:     # are necessary but not sufficient \u2014 they act as a confirmation filter, not
+scanner/score_engine.py:124:     # the primary signal source. Reducing their weight prevents noise-driven
+scanner/score_engine.py:125:     # over-scoring while keeping the gate: entry_ok still requires score==3.
+scanner/score_engine.py:126:     score += float(row.get("score", 0)) * 0.5
+scanner/score_engine.py:128:     # filter_score (volume_spike + price_momentum + trend_strength) remains at \xd71.5:
+scanner/score_engine.py:129:     # these are the cleaner, longer-horizon confirmations from momentum analysis.
+scanner/score_engine.py:130:     score += float(row.get("filter_score", 0)) * 1.5
+scanner/score_engine.py:131:     score += float(row.get("alignment_ratio", 0.0)) * 2.0
+scanner/score_engine.py:133:     # Faz 3: vol-regime scaled momentum weight
+scanner/score_engine.py:134:     # Low-vol (0): weight 2.5 \u2014 clean momentum, trust more
+scanner/score_engine.py:135:     # Normal (1):  weight 2.0 \u2014 current baseline
+scanner/score_engine.py:136:     # High-vol (2): weight 1.5 \u2014 vol-inflated momentum, trust less
+scanner/score_engine.py:137:     # Note: use explicit None-check to avoid `0 or 1` falsy-trap.
+scanner/score_engine.py:138:     _vr = row.get("vol_regime")
+scanner/score_engine.py:139:     vol_regime = int(_vr) if _vr is not None else 1
+scanner/score_engine.py:140:     mom_weight = _VOL_REGIME_MOM_WEIGHTS.get(vol_regime, 2.0)
+scanner/score_engine.py:141:     score += float(row.get("momentum_ratio", 0.0)) * mom_weight
+scanner/score_engine.py:143:     score += 0.5 if bool(row.get("volume_spike", False)) else 0.0
+scanner/score_engine.py:144:     score += 0.5 if bool(row.get("price_momentum", False)) else 0.0
+scanner/score_engine.py:145:     score += 0.5 if bool(row.get("trend_strength", False)) else 0.0
+scanner/score_engine.py:147:     # INT-4: FinBERT sentiment boost (\xb10.5, neutral at 0.5)
+scanner/score_engine.py:148:     # Positive sentiment (>0.6): +0.5 boost
+scanner/score_engine.py:149:     # Negative sentiment (<0.4): -0.5 penalty
+scanner/score_engine.py:150:     if sentiment_score is not None:
+scanner/score_engine.py:151:         _SENTIMENT_WEIGHT = 0.5
+scanner/score_engine.py:152:         sentiment_delta = (float(sentiment_score) - 0.5) * 2.0 * _SENTIMENT_WEIGHT
+scanner/score_engine.py:153:         score += sentiment_delta
+scanner/score_engine.py:155:     # Float/Short squeeze factor (env-gated, default OFF). Additive 0.0\u20131.5.
+scanner/score_engine.py:156:     # SEC EDGAR catalyst factor (env-gated, default OFF). Signed \xb11.5.
+scanner/score_engine.py:157:     # Both are dampened by the FRED macro multiplier in a risk-off regime.
+scanner/score_engine.py:158:     if _squeeze_enabled() or _catalyst_enabled():
+scanner/score_engine.py:159:         macro_mult = _macro_mult()
+scanner/score_engine.py:160:         if _squeeze_enabled():
+scanner/score_engine.py:161:             squeeze = float(row.get("squeeze_factor", 0.0) or 0.0)
+scanner/score_engine.py:162:             score += max(0.0, min(1.0, squeeze)) * _SQUEEZE_WEIGHT * macro_mult
+scanner/score_engine.py:163:         if _catalyst_enabled():
+scanner/score_engine.py:164:             catalyst = float(row.get("catalyst_factor", 0.0) or 0.0)
+scanner/score_engine.py:165:             score += max(-1.0, min(1.0, catalyst)) * _CATALYST_WEIGHT * macro_mult
+scanner/score_engine.py:167:     # \u2500\u2500 Faz 1: Lottery / MAX fade penalty (env-gated, default OFF) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+scanner/score_engine.py:168:     # Subtracts up to _LOTTERY_WEIGHT (2.0) for high-MAX/high-IVOL/skew stocks.
+scanner/score_engine.py:169:     # Faz 2: Fade-vs-Continuation \u2014 a strong positive catalyst_factor (genuine
+scanner/score_engine.py:170:     # news/PEAD event) partially offsets the lottery penalty: real event-driven
+scanner/score_engine.py:171:     # continuation should not be penalised as a pure lottery fade.
+scanner/score_engine.py:172:     if _lottery_enabled():
+scanner/score_engine.py:173:         lottery = float(row.get("lottery_factor", 0.0) or 0.0)
+scanner/score_engine.py:174:         lottery_penalty = max(0.0, min(1.0, lottery)) * _LOTTERY_WEIGHT
+scanner/score_engine.py:175:         # Faz 2: catalyst relief \u2014 if catalyst > 0.3, reduce penalty by up to 50%
+scanner/score_engine.py:176:         # (catalyst 0.3\u21920.7 maps linearly to 0%\u219250% penalty reduction)
+scanner/score_engine.py:177:         if _catalyst_enabled():
+scanner/score_engine.py:178:             catalyst = float(row.get("catalyst_factor", 0.0) or 0.0)
+scanner/score_engine.py:179:             if catalyst > 0.3:
+scanner/score_engine.py:180:                 catalyst_relief = min(0.5, (catalyst - 0.3) / 0.8)
+scanner/score_engine.py:181:                 lottery_penalty *= 1.0 - catalyst_relief
+scanner/score_engine.py:182:         score -= lottery_penalty
+scanner/score_engine.py:184:     # \u2500\u2500 Faz 4: Overnight gap reversal penalty (env-gated, default OFF) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+scanner/score_engine.py:185:     # Subtracts up to _OVERNIGHT_WEIGHT (1.0) for recent large gap-up setups.
+scanner/score_engine.py:186:     if _overnight_enabled():
+scanner/score_engine.py:187:         overnight = float(row.get("overnight_gap_factor", 0.0) or 0.0)
+scanner/score_engine.py:188:         score -= max(0.0, min(1.0, overnight)) * _OVERNIGHT_WEIGHT
+scanner/score_engine.py:190:     return round(score, 3)
+scanner/score_engine.py:193: def compute_legacy_quality_score(
+scanner/score_engine.py:194:     *,
+scanner/score_engine.py:195:     regime: bool,
+scanner/score_engine.py:196:     direction: bool,
+scanner/score_engine.py:197:     raw_score: float,
+scanner/score_engine.py:198:     atr_pct: float | None,
+scanner/score_engine.py:199:     rvol: float | None,
+scanner/score_engine.py:200:     squeeze_factor: float | None = None,
+scanner/score_engine.py:201:     lottery_factor: float | None = None,
+scanner/score_engine.py:202:     overnight_gap_factor: float | None = None,
+scanner/score_engine.py:203: ) -> float:
+scanner/score_engine.py:204:     """Return the production legacy quality ranking score on a 0-100 scale."""
+scanner/score_engine.py:206:     def normalized(value: float | None, scale: float) -> float:
+scanner/score_engine.py:207:         if value is None:
+scanner/score_engine.py:208:             return 0.0
+scanner/score_engine.py:209:         return max(0.0, min(1.0, float(value) / scale))
+scanner/score_engine.py:211:     base = 2.0 * float(regime) + 2.0 * float(direction) + 1.5 * normalized(raw_score, 3.0)
+scanner/score_engine.py:212:     atr = normalized(atr_pct, 6.0)
+scanner/score_engine.py:213:     relative_volume = normalized((float(rvol) - 1.0) if rvol is not None else None, 2.0)
+scanner/score_engine.py:214:     squeeze = max(0.0, min(1.0, float(squeeze_factor or 0.0)))
+scanner/score_engine.py:215:     lottery = max(0.0, min(1.0, float(lottery_factor or 0.0)))
+scanner/score_engine.py:216:     overnight = max(0.0, min(1.0, float(overnight_gap_factor or 0.0)))
+scanner/score_engine.py:217:     return round(
+scanner/score_engine.py:218:         (base + 1.5 * atr + 1.5 * relative_volume + 0.5 * squeeze - 1.5 * lottery - overnight)
+scanner/score_engine.py:219:         / 10.0
+scanner/score_engine.py:220:         * 100.0,
+scanner/score_engine.py:221:         3,
+scanner/score_engine.py:222:     )
+scanner/score_engine.py:225: def compute_v2_score(
+scanner/score_engine.py:226:     *, gap_factor: float, rvol_factor: float, atr_pct: float, squeeze_factor: float
+scanner/score_engine.py:227: ) -> int:
+scanner/score_engine.py:228:     """Return the independent V2 shadow score on a 0-100 scale."""
+scanner/score_engine.py:229:     score = (
+scanner/score_engine.py:230:         max(0.0, min(1.0, gap_factor)) * 30.0
+scanner/score_engine.py:231:         + max(0.0, min(1.0, rvol_factor)) * 30.0
+scanner/score_engine.py:232:         + max(0.0, min(1.0, atr_pct / 4.0)) * 25.0
+scanner/score_engine.py:233:         + max(0.0, min(1.0, squeeze_factor)) * 15.0
+scanner/score_engine.py:234:     )
+scanner/score_engine.py:235:     return max(0, min(100, round(score)))
+scanner/score_engine.py:238: def legacy_composite_ranking_enabled() -> bool:
+scanner/score_engine.py:239:     """Return whether the legacy composite override is explicitly enabled."""
+scanner/score_engine.py:240:     return os.environ.get("FINPILOT_ENABLE_LEGACY_COMPOSITE_RANKING", "0") == "1"
+scanner/score_engine.py:243: def score_feature_flags() -> dict[str, bool]:
+scanner/score_engine.py:244:     """Return feature flags that can alter recommendation score accounting."""
+scanner/score_engine.py:245:     return {
+scanner/score_engine.py:246:         "squeeze_factor": _squeeze_enabled(),
+scanner/score_engine.py:247:         "edgar_catalyst": _catalyst_enabled(),
+scanner/score_engine.py:248:         "lottery_fade": _lottery_enabled(),
+scanner/score_engine.py:249:         "overnight_gap": _overnight_enabled(),
+scanner/score_engine.py:250:     }
+=== SHOW scanner/evaluate.py 360-384 ===
+scanner/evaluate.py:360:         core_signal = bool(regime and direction and (score >= min_score_threshold))
+scanner/evaluate.py:361:         entry_ok = bool(score == 3) if core_signal else False
+scanner/evaluate.py:363:         # Faz 5: is_premium_symbol removed \u2014 subjective hardcoded list had no
+scanner/evaluate.py:364:         # measurable lift in scoring (score_engine never read the key; it was
+scanner/evaluate.py:365:         # a no-op in the composite calculation). high_quality_signal retained
+scanner/evaluate.py:366:         # as a reporting flag for UI display only.
+scanner/evaluate.py:367:         is_premium_symbol = False
+scanner/evaluate.py:368:         # Downgrade to non-high-quality if we didn't have 200 days of history
+scanner/evaluate.py:369:         high_quality_signal = entry_ok and _has_full_history
+scanner/evaluate.py:371:         try:
+scanner/evaluate.py:372:             price_ok = safe_float(df_1d["Close"].iloc[-1]) >= get_setting("min_price", 2.0)
+scanner/evaluate.py:373:         except Exception:
+scanner/evaluate.py:374:             price_ok = True
+scanner/evaluate.py:375:         try:
+scanner/evaluate.py:376:             avg_vol_ok = safe_float(df_1d["vol_avg10"].iloc[-1]) >= get_setting(
+scanner/evaluate.py:377:                 "min_avg_vol", 300_000
+scanner/evaluate.py:378:             )
+scanner/evaluate.py:379:         except Exception:
+scanner/evaluate.py:380:             avg_vol_ok = True
+scanner/evaluate.py:381:         liquidity_ok = bool(price_ok and avg_vol_ok)
+scanner/evaluate.py:382:         if not liquidity_ok:
+scanner/evaluate.py:383:             reject_reasons.append("liquidity_gate")
+scanner/evaluate.py:384:         entry_ok = bool(entry_ok and liquidity_ok)
+=== SHOW scanner/evaluate.py 525-575 ===
+scanner/evaluate.py:525:             "momentum_ratio": float(momentum_ratio),
+scanner/evaluate.py:526:             "volume_spike": bool(volume_spike),
+scanner/evaluate.py:527:             "price_momentum": bool(price_momentum),
+scanner/evaluate.py:528:             "trend_strength": bool(trend_strength),
+scanner/evaluate.py:529:             "is_premium_symbol": bool(is_premium_symbol),
+scanner/evaluate.py:530:             # Faz 3: vol_regime drives momentum weight in score_engine
+scanner/evaluate.py:531:             "vol_regime": int(vol_regime_val),
+scanner/evaluate.py:532:             "squeeze_factor": float(squeeze_factor),
+scanner/evaluate.py:533:             "gap_factor": float(alpha_gap),
+scanner/evaluate.py:534:             "rvol_factor": float(alpha_rvol),
+scanner/evaluate.py:535:             "extension_factor": float(alpha_ext),
+scanner/evaluate.py:536:             "catalyst_factor": float(catalyst_factor),
+scanner/evaluate.py:537:             # Faz 1/2: lottery penalty (gated by FINPILOT_ENABLE_LOTTERY_FADE)
+scanner/evaluate.py:538:             "lottery_factor": float(lottery_factor),
+scanner/evaluate.py:539:             # Faz 4: overnight gap reversal (gated by FINPILOT_ENABLE_OVERNIGHT_GAP)
+scanner/evaluate.py:540:             "overnight_gap_factor": float(overnight_gap_factor),
+scanner/evaluate.py:541:             # Faz 5: is_premium_symbol removed (was dead code \u2014 score_engine
+scanner/evaluate.py:542:             # never read it). Kept as False in return dict for UI compat.
+scanner/evaluate.py:543:         }
+scanner/evaluate.py:544:         _score_raw = compute_recommendation_score(_score_input, sentiment_score=sentiment_score)
+scanner/evaluate.py:545:         _score_components = score_component_breakdown(_score_input, sentiment_score=sentiment_score)
+scanner/evaluate.py:546:         _composite_score = compute_recommendation_strength(
+scanner/evaluate.py:547:             _score_input, sentiment_score=sentiment_score
+scanner/evaluate.py:548:         )
+scanner/evaluate.py:549:         _gate_mult = regime_gate_mult(bool(regime), _composite_score)
+scanner/evaluate.py:551:         # \u2500\u2500 Task 2: Risk-adjusted metrics from daily OHLC \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+scanner/evaluate.py:552:         _risk_metrics = calculate_risk_adjusted_metrics(df_1d) if len(df_1d) >= 10 else {}
+scanner/evaluate.py:553:         _ann_vol_pct = float(_risk_metrics.get("ann_vol_pct", 20.0) or 20.0)
+scanner/evaluate.py:555:         # \u2500\u2500 Task 3: Dynamic position sizing \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+scanner/evaluate.py:556:         _dyn_pos = calculate_dynamic_position(
+scanner/evaluate.py:557:             price=safe_float(last_price),
+scanner/evaluate.py:558:             stop_loss=risk_data["stop_loss"],
+scanner/evaluate.py:559:             composite_score=int(_composite_score),
+scanner/evaluate.py:560:             is_bull_regime=bool(regime),
+scanner/evaluate.py:561:             risk_reward=float(risk_data["risk_reward_ratio"]),
+scanner/evaluate.py:562:             ann_vol_pct=_ann_vol_pct,
+scanner/evaluate.py:563:             kelly_fraction=kelly_fraction,
+scanner/evaluate.py:564:         )
+scanner/evaluate.py:565:         _atr_pct_daily = 0.0
+scanner/evaluate.py:566:         try:
+scanner/evaluate.py:567:             from scanner.features import compute_atr_pct, compute_conviction
+scanner/evaluate.py:569:             _atr_pct_daily = compute_atr_pct(df_1d)
+scanner/evaluate.py:570:             _conv_tier, _conv_prob = (
+scanner/evaluate.py:571:                 compute_conviction(
+scanner/evaluate.py:572:                     float(squeeze_factor), float(alpha_gap), float(alpha_rvol), _atr_pct_daily
+scanner/evaluate.py:573:                 )
+scanner/evaluate.py:574:                 if entry_ok
+scanner/evaluate.py:575:                 else ("", 0.0)
+=== SHOW core/scheduler.py 885-921 ===
+core/scheduler.py:885:                             if isinstance(sym_map, dict) and sym_map:
+core/scheduler.py:886:                                 worst = min(
+core/scheduler.py:887:                                     sym_map.items(),
+core/scheduler.py:888:                                     key=lambda kv: kv[1].get("drawdown_pct", 0)
+core/scheduler.py:889:                                     if isinstance(kv[1], dict)
+core/scheduler.py:890:                                     else 0,
+core/scheduler.py:891:                                 )
+core/scheduler.py:892:                                 worst_sym = (
+core/scheduler.py:893:                                     f"\nEn k\xf6t\xfc: {worst[0]} DD={worst[1].get('drawdown_pct', '?')}%"
+core/scheduler.py:894:                                 )
+core/scheduler.py:895:                         except Exception:  # noqa: BLE001, S110
+core/scheduler.py:896:                             pass
+core/scheduler.py:897:                         msg = (
+core/scheduler.py:898:                             f"{emoji} *PORTF\xd6Y {status_str}* \u2014 Cycle #{_cycle_count + 1}"
+core/scheduler.py:899:                             f"{worst_sym}"
+core/scheduler.py:900:                             f"\nWin rate: {win_rate:.1f}% | Resolved: {kpis.get('resolved_signals', 0)}"
+core/scheduler.py:901:                         )
+core/scheduler.py:902:                         TelegramNotifier()._send_message(msg)
+core/scheduler.py:903:                     except Exception as tex:  # noqa: BLE001
+core/scheduler.py:904:                         logger.warning("Scheduler: telegram drawdown alert failed: %s", tex)
+core/scheduler.py:905:             except Exception:
+core/scheduler.py:906:                 pass  # feedback is best-effort
+core/scheduler.py:908:             # --- 5b. Feedback: drawdown \u2192 reduce kelly_fraction for next cycle ---
+core/scheduler.py:909:             # If portfolio is in WARN/STOP, reduce the kelly multiplier by 30%
+core/scheduler.py:910:             # so the next scan cycle sizes positions more conservatively.
+core/scheduler.py:911:             try:
+core/scheduler.py:912:                 if pm_data.get("portfolio_status") in ("STOP", "WARN"):
+core/scheduler.py:913:                     _new_kelly = round(max(0.1, kelly_fraction * 0.70), 4)
+core/scheduler.py:914:                     logger.warning(
+core/scheduler.py:915:                         "Scheduler: drawdown detected (%s) \u2014 kelly_fraction reduced "
+core/scheduler.py:916:                         "from %.4f to %.4f for next cycle",
+core/scheduler.py:917:                         pm_data.get("portfolio_status"),
+core/scheduler.py:918:                         kelly_fraction,
+core/scheduler.py:919:                         _new_kelly,
+core/scheduler.py:920:                     )
+core/scheduler.py:921:                     # Persist to scanner_config.json so the effect survives restarts
+=== SHOW scripts/resolve_open_signals.py 30-50 ===
+scripts/resolve_open_signals.py:30: ROOT = Path(__file__).resolve().parents[1]
+scripts/resolve_open_signals.py:31: sys.path.insert(0, str(ROOT))
+scripts/resolve_open_signals.py:33: DB_PATH = ROOT / "data" / "finpilot.db"
+scripts/resolve_open_signals.py:34: BATCH_SIZE = 80  # max symbols per yfinance download call
+scripts/resolve_open_signals.py:35: MAX_BARRIER_DAYS = 30  # calendar days to fetch beyond signal date for barrier search
+scripts/resolve_open_signals.py:36: TRADING_DAY_APPROX = 1.4  # calendar-to-trading-day conversion factor
+scripts/resolve_open_signals.py:38: logging.basicConfig(
+scripts/resolve_open_signals.py:39:     level=logging.INFO,
+scripts/resolve_open_signals.py:40:     format="%(asctime)s [%(levelname)s] %(message)s",
+scripts/resolve_open_signals.py:41:     datefmt="%H:%M:%S",
+scripts/resolve_open_signals.py:42: )
+scripts/resolve_open_signals.py:43: logger = logging.getLogger(__name__)
+scripts/resolve_open_signals.py:46: # ---------------------------------------------------------------------------
+scripts/resolve_open_signals.py:47: # DB helpers
+scripts/resolve_open_signals.py:48: # ---------------------------------------------------------------------------
+=== SHOW scripts/resolve_open_signals.py 71-93 ===
+scripts/resolve_open_signals.py:71: def _load_open_rows(conn: sqlite3.Connection, limit: int | None) -> list[sqlite3.Row]:
+scripts/resolve_open_signals.py:72:     # resolved_status stores 'new', 'open' or 'watching' for unresolved rows.
+scripts/resolve_open_signals.py:73:     # 'new' = freshly archived signal whose lifecycle never advanced (migrated
+scripts/resolve_open_signals.py:74:     #         from status_lifecycle.status='new'); must still be resolved.
+scripts/resolve_open_signals.py:75:     # 'watching' = watchlist lifecycle active but no TP/SL/expiry yet.
+scripts/resolve_open_signals.py:76:     # 'unresolvable' = previously failed due to parse errors; retry on re-run.
+scripts/resolve_open_signals.py:77:     # Also handle IS NULL for rows added before migration.
+scripts/resolve_open_signals.py:78:     sql = """
+scripts/resolve_open_signals.py:79:         SELECT id, symbol, ts, score, finpilot_score, payload_json
+scripts/resolve_open_signals.py:80:         FROM   signals_archive
+scripts/resolve_open_signals.py:81:         WHERE  resolved_status IS NULL
+scripts/resolve_open_signals.py:82:            OR  resolved_status = 'new'
+scripts/resolve_open_signals.py:83:            OR  resolved_status = 'open'
+scripts/resolve_open_signals.py:84:            OR  resolved_status = 'watching'
+scripts/resolve_open_signals.py:85:            OR  resolved_status = 'unresolvable'
+scripts/resolve_open_signals.py:86:         ORDER  BY ts ASC
+scripts/resolve_open_signals.py:87:     """
+scripts/resolve_open_signals.py:88:     if limit:
+scripts/resolve_open_signals.py:89:         sql += f" LIMIT {limit * 5}"  # over-fetch; we de-dup by symbol later
+scripts/resolve_open_signals.py:90:     cur = conn.execute(sql)
+scripts/resolve_open_signals.py:91:     return cur.fetchall()
+=== SHOW scripts/resolve_open_signals.py 134-152 ===
+scripts/resolve_open_signals.py:134: def _parse_ts(ts: str | None) -> date | None:
+scripts/resolve_open_signals.py:135:     if not ts:
+scripts/resolve_open_signals.py:136:         return None
+scripts/resolve_open_signals.py:137:     for fmt in (
+scripts/resolve_open_signals.py:138:         "%Y-%m-%d",
+scripts/resolve_open_signals.py:139:         "%Y-%m-%dT%H:%M:%S%z",
+scripts/resolve_open_signals.py:140:         "%Y-%m-%dT%H:%M:%S",
+scripts/resolve_open_signals.py:141:         "%Y-%m-%dT%H:%M:%S.%f%z",
+scripts/resolve_open_signals.py:142:         "%Y-%m-%dT%H:%M:%S.%f",
+scripts/resolve_open_signals.py:143:         "%Y-%m-%d %H:%M:%S",
+scripts/resolve_open_signals.py:144:         "%Y-%m-%d %H:%M",
+scripts/resolve_open_signals.py:145:     ):
+scripts/resolve_open_signals.py:146:         try:
+scripts/resolve_open_signals.py:147:             return datetime.strptime(ts[:26], fmt).date()
+scripts/resolve_open_signals.py:148:         except ValueError:
+scripts/resolve_open_signals.py:149:             continue
+scripts/resolve_open_signals.py:150:     return None
+=== SHOW scripts/resolve_open_signals.py 166-289 ===
+scripts/resolve_open_signals.py:166: def _resolve_symbol(
+scripts/resolve_open_signals.py:167:     symbol: str,
+scripts/resolve_open_signals.py:168:     rows: list[dict],
+scripts/resolve_open_signals.py:169:     horizon_td: int,
+scripts/resolve_open_signals.py:170:     yf_module: Any,
+scripts/resolve_open_signals.py:171: ) -> list[dict[str, Any]]:
+scripts/resolve_open_signals.py:172:     """Download history for *symbol* and compute both labels for each row."""
+scripts/resolve_open_signals.py:173:     if not rows:
+scripts/resolve_open_signals.py:174:         return []
+scripts/resolve_open_signals.py:176:     valid_dates = [r["signal_date"] for r in rows if r["signal_date"]]
+scripts/resolve_open_signals.py:177:     if not valid_dates:
+scripts/resolve_open_signals.py:178:         logger.debug("No valid signal_date for %s \u2014 skipping", symbol)
+scripts/resolve_open_signals.py:179:         return [
+scripts/resolve_open_signals.py:180:             {"id": r["id"], "pct_t5": None, "pct_barrier": None, "status_barrier": "unresolvable"}
+scripts/resolve_open_signals.py:181:             for r in rows
+scripts/resolve_open_signals.py:182:         ]
+scripts/resolve_open_signals.py:184:     oldest = min(valid_dates)
+scripts/resolve_open_signals.py:186:     start_str = (oldest - timedelta(days=5)).strftime("%Y-%m-%d")
+scripts/resolve_open_signals.py:187:     end_str = (date.today() + timedelta(days=1)).strftime("%Y-%m-%d")
+scripts/resolve_open_signals.py:189:     try:
+scripts/resolve_open_signals.py:190:         hist = yf_module.download(
+scripts/resolve_open_signals.py:191:             symbol,
+scripts/resolve_open_signals.py:192:             start=start_str,
+scripts/resolve_open_signals.py:193:             end=end_str,
+scripts/resolve_open_signals.py:194:             progress=False,
+scripts/resolve_open_signals.py:195:             auto_adjust=True,
+scripts/resolve_open_signals.py:196:         )
+scripts/resolve_open_signals.py:197:     except Exception as exc:
+scripts/resolve_open_signals.py:198:         logger.warning("yfinance download failed for %s: %s", symbol, exc)
+scripts/resolve_open_signals.py:199:         return []
+scripts/resolve_open_signals.py:201:     if hist is None or hist.empty:
+scripts/resolve_open_signals.py:202:         logger.debug("No data for %s", symbol)
+scripts/resolve_open_signals.py:203:         return []
+scripts/resolve_open_signals.py:205:     # Normalise multi-index columns (happens when downloading a single ticker)
+scripts/resolve_open_signals.py:206:     if hasattr(hist.columns, "levels"):
+scripts/resolve_open_signals.py:207:         hist.columns = hist.columns.get_level_values(0)
+scripts/resolve_open_signals.py:209:     closes = hist["Close"].dropna()
+scripts/resolve_open_signals.py:210:     high_s = hist["High"].dropna()
+scripts/resolve_open_signals.py:211:     low_s = hist["Low"].dropna()
+scripts/resolve_open_signals.py:212:     close_dates = [d.date() for d in closes.index]
+scripts/resolve_open_signals.py:214:     results: list[dict[str, Any]] = []
+scripts/resolve_open_signals.py:216:     for row in rows:
+scripts/resolve_open_signals.py:217:         sig_date = row["signal_date"]
+scripts/resolve_open_signals.py:218:         if sig_date is None:
+scripts/resolve_open_signals.py:219:             continue
+scripts/resolve_open_signals.py:221:         entry_price = row.get("entry_price") or 0.0
+scripts/resolve_open_signals.py:222:         take_profit = row.get("take_profit") or 0.0
+scripts/resolve_open_signals.py:223:         stop_loss = row.get("stop_loss") or 0.0
+scripts/resolve_open_signals.py:225:         # --- T+N fixed horizon label ---
+scripts/resolve_open_signals.py:226:         t5_date = _trading_days_after(close_dates, sig_date, horizon_td)
+scripts/resolve_open_signals.py:227:         pct_t5: float | None = None
+scripts/resolve_open_signals.py:228:         if t5_date is not None and entry_price > 0:
+scripts/resolve_open_signals.py:229:             try:
+scripts/resolve_open_signals.py:230:                 px = float(closes[closes.index.date == t5_date].iloc[0])  # type: ignore[attr-defined]
+scripts/resolve_open_signals.py:231:                 pct_t5 = round((px - entry_price) / entry_price * 100.0, 4)
+scripts/resolve_open_signals.py:232:             except (IndexError, ValueError):
+scripts/resolve_open_signals.py:233:                 pass
+scripts/resolve_open_signals.py:235:         # --- Triple-barrier label ---
+scripts/resolve_open_signals.py:236:         pct_barrier: float | None = None
+scripts/resolve_open_signals.py:237:         status_barrier: str | None = None
+scripts/resolve_open_signals.py:239:         if entry_price > 0:
+scripts/resolve_open_signals.py:240:             barrier_dates = [d for d in close_dates if d > sig_date]
+scripts/resolve_open_signals.py:241:             # Max 21 trading days
+scripts/resolve_open_signals.py:242:             barrier_dates = barrier_dates[:21]
+scripts/resolve_open_signals.py:244:             for bd in barrier_dates:
+scripts/resolve_open_signals.py:245:                 try:
+scripts/resolve_open_signals.py:246:                     hi = float(high_s[high_s.index.date == bd].iloc[0])  # type: ignore[attr-defined]
+scripts/resolve_open_signals.py:247:                     lo = float(low_s[low_s.index.date == bd].iloc[0])  # type: ignore[attr-defined]
+scripts/resolve_open_signals.py:248:                     float(closes[closes.index.date == bd].iloc[0])  # type: ignore[attr-defined]
+scripts/resolve_open_signals.py:249:                 except (IndexError, ValueError):
+scripts/resolve_open_signals.py:250:                     continue
+scripts/resolve_open_signals.py:252:                 # TP hit (use intraday high as proxy)
+scripts/resolve_open_signals.py:253:                 if take_profit > 0 and hi >= take_profit:
+scripts/resolve_open_signals.py:254:                     pct_barrier = round((take_profit - entry_price) / entry_price * 100.0, 4)
+scripts/resolve_open_signals.py:255:                     status_barrier = "resolved_win"
+scripts/resolve_open_signals.py:256:                     break
+scripts/resolve_open_signals.py:258:                 # SL hit (use intraday low as proxy)
+scripts/resolve_open_signals.py:259:                 if stop_loss > 0 and lo <= stop_loss:
+scripts/resolve_open_signals.py:260:                     pct_barrier = round((stop_loss - entry_price) / entry_price * 100.0, 4)
+scripts/resolve_open_signals.py:261:                     status_barrier = "resolved_loss"
+scripts/resolve_open_signals.py:262:                     break
+scripts/resolve_open_signals.py:263:             else:
+scripts/resolve_open_signals.py:264:                 # 21-day expiry \u2014 use final close
+scripts/resolve_open_signals.py:265:                 if barrier_dates:
+scripts/resolve_open_signals.py:266:                     last_d = barrier_dates[-1]
+scripts/resolve_open_signals.py:267:                     try:
+scripts/resolve_open_signals.py:268:                         cl_last = float(closes[closes.index.date == last_d].iloc[0])  # type: ignore[attr-defined]
+scripts/resolve_open_signals.py:269:                         pct_barrier = round((cl_last - entry_price) / entry_price * 100.0, 4)
+scripts/resolve_open_signals.py:270:                         status_barrier = "expired_win" if pct_barrier >= 0 else "expired_loss"
+scripts/resolve_open_signals.py:271:                     except (IndexError, ValueError):
+scripts/resolve_open_signals.py:272:                         pass
+scripts/resolve_open_signals.py:274:         if pct_barrier is None and entry_price == 0:
+scripts/resolve_open_signals.py:275:             status_barrier = "unresolvable"
+scripts/resolve_open_signals.py:277:         results.append(
+scripts/resolve_open_signals.py:278:             {
+scripts/resolve_open_signals.py:279:                 "id": row["id"],
+scripts/resolve_open_signals.py:280:                 "pct_t5": pct_t5,
+scripts/resolve_open_signals.py:281:                 "pct_barrier": pct_barrier,
+scripts/resolve_open_signals.py:282:                 "status_barrier": status_barrier,
+scripts/resolve_open_signals.py:283:             }
+scripts/resolve_open_signals.py:284:         )
+scripts/resolve_open_signals.py:286:     return results
+scripts/resolve_open_signals.py:289: # ---------------------------------------------------------------------------
+=== SHOW distribution/archive_bridge.py 1-140 ===
+distribution/archive_bridge.py:1: """Archive bridge \u2014 writes each published day's public candidates into
+distribution/archive_bridge.py:2: signals_archive and watches archive continuity.
+distribution/archive_bridge.py:4: Why: the old archive chain (watchlist API POST /archive \u2192 JSON \u2192 migrate
+distribution/archive_bridge.py:5: script) died with the always-on API architecture (last write 2026-05-22).
+distribution/archive_bridge.py:6: This module gives the manual publish flow its own direct, dependency-free
+distribution/archive_bridge.py:7: archive step so the karne/resolver pipeline keeps receiving data.
+distribution/archive_bridge.py:9: Rules:
+distribution/archive_bridge.py:10:   * idempotent \u2014 re-publishing the same day never duplicates rows
+distribution/archive_bridge.py:11:     (deterministic id = sha256(symbol|date));
+distribution/archive_bridge.py:12:   * archived rows start as resolved_status='new' and are later labelled by
+distribution/archive_bridge.py:13:     scripts/resolve_open_signals.py (dual-label standard);
+distribution/archive_bridge.py:14:   * a continuity check warns LOUDLY when the archive stops growing \u2014 the
+distribution/archive_bridge.py:15:     silent-death class that went unnoticed for two months must stay dead.
+distribution/archive_bridge.py:17: Stdlib only.
+distribution/archive_bridge.py:18: """
+distribution/archive_bridge.py:20: from __future__ import annotations
+distribution/archive_bridge.py:22: import hashlib
+distribution/archive_bridge.py:23: import json
+distribution/archive_bridge.py:24: import logging
+distribution/archive_bridge.py:25: import sqlite3
+distribution/archive_bridge.py:26: from datetime import UTC, date, datetime
+distribution/archive_bridge.py:27: from pathlib import Path
+distribution/archive_bridge.py:28: from typing import Any
+distribution/archive_bridge.py:30: logger = logging.getLogger(__name__)
+distribution/archive_bridge.py:32: ROOT = Path(__file__).resolve().parents[1]
+distribution/archive_bridge.py:33: DEFAULT_DB = ROOT / "data" / "finpilot.db"
+distribution/archive_bridge.py:35: MAX_SILENT_TRADING_DAYS = 2  # archive not growing for this many trading days \u2192 alarm
+distribution/archive_bridge.py:38: def _candidate_id(symbol: str, date_str: str) -> str:
+distribution/archive_bridge.py:39:     digest = hashlib.sha256(f"{symbol}|{date_str}".encode()).hexdigest()[:12]
+distribution/archive_bridge.py:40:     return f"sig_{digest}"
+distribution/archive_bridge.py:43: def archive_snapshot_candidates(
+distribution/archive_bridge.py:44:     snap: dict[str, Any],
+distribution/archive_bridge.py:45:     db_path: Path | str | None = None,
+distribution/archive_bridge.py:46: ) -> dict[str, Any]:
+distribution/archive_bridge.py:47:     """Insert the snapshot's public candidates into signals_archive.
+distribution/archive_bridge.py:49:     Returns {"archived": n, "skipped": n, "date": ...}. Raises on DB errors \u2014
+distribution/archive_bridge.py:50:     an archive failure must be visible, never silent.
+distribution/archive_bridge.py:51:     """
+distribution/archive_bridge.py:52:     path = Path(db_path) if db_path else DEFAULT_DB
+distribution/archive_bridge.py:53:     date_str = str(snap.get("date") or date.today().isoformat())
+distribution/archive_bridge.py:54:     candidates = snap.get("candidates") or []
+distribution/archive_bridge.py:55:     ts = datetime.now(tz=UTC).isoformat()
+distribution/archive_bridge.py:57:     archived = skipped = 0
+distribution/archive_bridge.py:58:     con = sqlite3.connect(path)
+distribution/archive_bridge.py:59:     try:
+distribution/archive_bridge.py:60:         for cand in candidates:
+distribution/archive_bridge.py:61:             symbol = str(cand.get("ticker") or cand.get("symbol") or "").upper()
+distribution/archive_bridge.py:62:             if not symbol:
+distribution/archive_bridge.py:63:                 continue
+distribution/archive_bridge.py:64:             row_id = _candidate_id(symbol, date_str)
+distribution/archive_bridge.py:65:             enrich = _watchlist_enrichment(con, symbol, date_str)
+distribution/archive_bridge.py:66:             metrics = cand.get("metrics") or {}
+distribution/archive_bridge.py:67:             resolver_fields = {
+distribution/archive_bridge.py:68:                 # keys scripts/resolve_open_signals.py reads from payload_json
+distribution/archive_bridge.py:69:                 "signal_date": date_str,
+distribution/archive_bridge.py:70:                 "entry_price": enrich.get("entry_price") or metrics.get("price"),
+distribution/archive_bridge.py:71:                 "stop_loss": enrich.get("stop_loss") or metrics.get("stop_loss"),
+distribution/archive_bridge.py:72:                 "take_profit": enrich.get("take_profit") or metrics.get("take_profit"),
+distribution/archive_bridge.py:73:                 "conviction_tier": enrich.get("conviction_tier") or cand.get("grade"),
+distribution/archive_bridge.py:74:             }
+distribution/archive_bridge.py:75:             payload = json.dumps(
+distribution/archive_bridge.py:76:                 {"source": "publish_archive_bridge", "date": date_str, **resolver_fields, **cand},
+distribution/archive_bridge.py:77:                 ensure_ascii=False,
+distribution/archive_bridge.py:78:                 default=str,
+distribution/archive_bridge.py:79:             )
+distribution/archive_bridge.py:80:             cur = con.execute(
+distribution/archive_bridge.py:81:                 "INSERT OR IGNORE INTO signals_archive "
+distribution/archive_bridge.py:82:                 "(id, symbol, ts, score, finpilot_score, payload_json, resolved_status) "
+distribution/archive_bridge.py:83:                 "VALUES (?, ?, ?, ?, ?, ?, 'new')",
+distribution/archive_bridge.py:84:                 (
+distribution/archive_bridge.py:85:                     row_id,
+distribution/archive_bridge.py:86:                     symbol,
+distribution/archive_bridge.py:87:                     ts,
+distribution/archive_bridge.py:88:                     _as_float(enrich.get("score") or metrics.get("conviction_prob")),
+distribution/archive_bridge.py:89:                     _as_float(enrich.get("finpilot_score")),
+distribution/archive_bridge.py:90:                     payload,
+distribution/archive_bridge.py:91:                 ),
+distribution/archive_bridge.py:92:             )
+distribution/archive_bridge.py:93:             if cur.rowcount:
+distribution/archive_bridge.py:94:                 archived += 1
+distribution/archive_bridge.py:95:             else:
+distribution/archive_bridge.py:96:                 skipped += 1
+distribution/archive_bridge.py:97:         con.commit()
+distribution/archive_bridge.py:98:     finally:
+distribution/archive_bridge.py:99:         con.close()
+distribution/archive_bridge.py:100:     logger.info("archive bridge: %d archived, %d already present (%s)", archived, skipped, date_str)
+distribution/archive_bridge.py:101:     return {"archived": archived, "skipped": skipped, "date": date_str}
+distribution/archive_bridge.py:104: def _watchlist_enrichment(con: sqlite3.Connection, symbol: str, date_str: str) -> dict[str, Any]:
+distribution/archive_bridge.py:105:     """Pull entry/SL/TP/score for the same symbol+day from watchlist_signals.
+distribution/archive_bridge.py:107:     The public snapshot candidate is compliance-stripped; the watchlist row
+distribution/archive_bridge.py:108:     carries the numeric fields the resolver needs. Best-effort: returns {}
+distribution/archive_bridge.py:109:     when the table or row is missing.
+distribution/archive_bridge.py:110:     """
+distribution/archive_bridge.py:111:     try:
+distribution/archive_bridge.py:112:         row = con.execute(
+distribution/archive_bridge.py:113:             "SELECT entry_price, stop_loss, take_profit, score, conviction_tier "
+distribution/archive_bridge.py:114:             "FROM watchlist_signals WHERE symbol=? AND signal_date=? "
+distribution/archive_bridge.py:115:             "ORDER BY id DESC LIMIT 1",
+distribution/archive_bridge.py:116:             (symbol, date_str),
+distribution/archive_bridge.py:117:         ).fetchone()
+distribution/archive_bridge.py:118:     except sqlite3.Error:
+distribution/archive_bridge.py:119:         return {}
+distribution/archive_bridge.py:120:     if not row:
+distribution/archive_bridge.py:121:         return {}
+distribution/archive_bridge.py:122:     return {
+distribution/archive_bridge.py:123:         "entry_price": row[0],
+distribution/archive_bridge.py:124:         "stop_loss": row[1],
+distribution/archive_bridge.py:125:         "take_profit": row[2],
+distribution/archive_bridge.py:126:         "score": row[3],
+distribution/archive_bridge.py:127:         "conviction_tier": row[4],
+distribution/archive_bridge.py:128:     }
+distribution/archive_bridge.py:131: def _as_float(value: Any) -> float | None:
+distribution/archive_bridge.py:132:     try:
+distribution/archive_bridge.py:133:         return float(value)
+distribution/archive_bridge.py:134:     except (TypeError, ValueError):
+distribution/archive_bridge.py:135:         return None
+distribution/archive_bridge.py:138: def check_archive_continuity(
+distribution/archive_bridge.py:139:     db_path: Path | str | None = None,
+distribution/archive_bridge.py:140:     max_gap_days: int = MAX_SILENT_TRADING_DAYS,
+=== SHOW scripts/migrate_signal_archive_to_sqlite.py 1-130 ===
+scripts/migrate_signal_archive_to_sqlite.py:1: """Migrate data/signal_archive/*.json \u2192 SQLite signals_archive table.
+scripts/migrate_signal_archive_to_sqlite.py:3: Idempotent: uses INSERT OR IGNORE keyed on signal id.
+scripts/migrate_signal_archive_to_sqlite.py:4: """
+scripts/migrate_signal_archive_to_sqlite.py:6: from __future__ import annotations
+scripts/migrate_signal_archive_to_sqlite.py:8: import json
+scripts/migrate_signal_archive_to_sqlite.py:9: import sqlite3
+scripts/migrate_signal_archive_to_sqlite.py:10: import sys
+scripts/migrate_signal_archive_to_sqlite.py:11: from pathlib import Path
+scripts/migrate_signal_archive_to_sqlite.py:13: ROOT = Path(__file__).resolve().parents[1]
+scripts/migrate_signal_archive_to_sqlite.py:14: ARCHIVE_DIR = ROOT / "data" / "signal_archive"
+scripts/migrate_signal_archive_to_sqlite.py:15: DB_PATH = ROOT / "data" / "finpilot.db"
+scripts/migrate_signal_archive_to_sqlite.py:17: SCHEMA = """
+scripts/migrate_signal_archive_to_sqlite.py:18: CREATE TABLE IF NOT EXISTS signals_archive (
+scripts/migrate_signal_archive_to_sqlite.py:19:     id              TEXT PRIMARY KEY,
+scripts/migrate_signal_archive_to_sqlite.py:20:     symbol          TEXT,
+scripts/migrate_signal_archive_to_sqlite.py:21:     ts              TEXT,
+scripts/migrate_signal_archive_to_sqlite.py:22:     score           REAL,
+scripts/migrate_signal_archive_to_sqlite.py:23:     finpilot_score  REAL,
+scripts/migrate_signal_archive_to_sqlite.py:24:     payload_json    TEXT,
+scripts/migrate_signal_archive_to_sqlite.py:25:     resolved_status TEXT,
+scripts/migrate_signal_archive_to_sqlite.py:26:     resolved_pct    REAL
+scripts/migrate_signal_archive_to_sqlite.py:27: );
+scripts/migrate_signal_archive_to_sqlite.py:28: CREATE INDEX IF NOT EXISTS ix_signals_archive_symbol ON signals_archive(symbol);
+scripts/migrate_signal_archive_to_sqlite.py:29: CREATE INDEX IF NOT EXISTS ix_signals_archive_ts     ON signals_archive(ts);
+scripts/migrate_signal_archive_to_sqlite.py:30: """
+scripts/migrate_signal_archive_to_sqlite.py:33: def _row(record: dict, fallback_date: str) -> tuple:
+scripts/migrate_signal_archive_to_sqlite.py:34:     sid = str(
+scripts/migrate_signal_archive_to_sqlite.py:35:         record.get("id")
+scripts/migrate_signal_archive_to_sqlite.py:36:         or f"{record.get('symbol', '?')}_{record.get('signal_date') or fallback_date}"
+scripts/migrate_signal_archive_to_sqlite.py:37:     )
+scripts/migrate_signal_archive_to_sqlite.py:38:     symbol = str(record.get("symbol") or "")
+scripts/migrate_signal_archive_to_sqlite.py:39:     ts = str(record.get("added_at") or record.get("signal_date") or fallback_date)
+scripts/migrate_signal_archive_to_sqlite.py:40:     score = record.get("score")
+scripts/migrate_signal_archive_to_sqlite.py:41:     fp = record.get("finpilot_score")
+scripts/migrate_signal_archive_to_sqlite.py:42:     sl = record.get("status_lifecycle") or {}
+scripts/migrate_signal_archive_to_sqlite.py:43:     if isinstance(sl, dict):
+scripts/migrate_signal_archive_to_sqlite.py:44:         status = sl.get("outcome") or sl.get("status")
+scripts/migrate_signal_archive_to_sqlite.py:45:         rpct = sl.get("outcome_pct") or sl.get("profit_pct")
+scripts/migrate_signal_archive_to_sqlite.py:46:     else:
+scripts/migrate_signal_archive_to_sqlite.py:47:         status = str(sl) if sl else None
+scripts/migrate_signal_archive_to_sqlite.py:48:         rpct = None
+scripts/migrate_signal_archive_to_sqlite.py:49:     return (
+scripts/migrate_signal_archive_to_sqlite.py:50:         sid,
+scripts/migrate_signal_archive_to_sqlite.py:51:         symbol,
+scripts/migrate_signal_archive_to_sqlite.py:52:         ts,
+scripts/migrate_signal_archive_to_sqlite.py:53:         float(score) if score is not None else None,
+scripts/migrate_signal_archive_to_sqlite.py:54:         float(fp) if fp is not None else None,
+scripts/migrate_signal_archive_to_sqlite.py:55:         json.dumps(record, ensure_ascii=False),
+scripts/migrate_signal_archive_to_sqlite.py:56:         str(status) if status is not None else None,
+scripts/migrate_signal_archive_to_sqlite.py:57:         float(rpct) if rpct is not None else None,
+scripts/migrate_signal_archive_to_sqlite.py:58:     )
+scripts/migrate_signal_archive_to_sqlite.py:61: def main() -> int:
+scripts/migrate_signal_archive_to_sqlite.py:62:     if not ARCHIVE_DIR.exists():
+scripts/migrate_signal_archive_to_sqlite.py:63:         print(f"archive dir missing: {ARCHIVE_DIR}", file=sys.stderr)
+scripts/migrate_signal_archive_to_sqlite.py:64:         return 1
+scripts/migrate_signal_archive_to_sqlite.py:66:     conn = sqlite3.connect(DB_PATH)
+scripts/migrate_signal_archive_to_sqlite.py:67:     conn.executescript(SCHEMA)
+scripts/migrate_signal_archive_to_sqlite.py:69:     files = sorted(ARCHIVE_DIR.glob("*.json"))
+scripts/migrate_signal_archive_to_sqlite.py:70:     inserted = 0
+scripts/migrate_signal_archive_to_sqlite.py:71:     total = 0
+scripts/migrate_signal_archive_to_sqlite.py:72:     for f in files:
+scripts/migrate_signal_archive_to_sqlite.py:73:         try:
+scripts/migrate_signal_archive_to_sqlite.py:74:             data = json.loads(f.read_text(encoding="utf-8"))
+scripts/migrate_signal_archive_to_sqlite.py:75:             if not isinstance(data, list):
+scripts/migrate_signal_archive_to_sqlite.py:76:                 continue
+scripts/migrate_signal_archive_to_sqlite.py:77:             for rec in data:
+scripts/migrate_signal_archive_to_sqlite.py:78:                 total += 1
+scripts/migrate_signal_archive_to_sqlite.py:79:                 try:
+scripts/migrate_signal_archive_to_sqlite.py:80:                     cur = conn.execute(
+scripts/migrate_signal_archive_to_sqlite.py:81:                         "INSERT OR IGNORE INTO signals_archive "
+scripts/migrate_signal_archive_to_sqlite.py:82:                         "(id, symbol, ts, score, finpilot_score, payload_json, resolved_status, resolved_pct) "
+scripts/migrate_signal_archive_to_sqlite.py:83:                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+scripts/migrate_signal_archive_to_sqlite.py:84:                         _row(rec, f.stem),
+scripts/migrate_signal_archive_to_sqlite.py:85:                     )
+scripts/migrate_signal_archive_to_sqlite.py:86:                     inserted += cur.rowcount
+scripts/migrate_signal_archive_to_sqlite.py:87:                 except Exception as exc:
+scripts/migrate_signal_archive_to_sqlite.py:88:                     print(f"[warn] {f.name} row failed: {exc}", file=sys.stderr)
+scripts/migrate_signal_archive_to_sqlite.py:89:         except Exception as exc:
+scripts/migrate_signal_archive_to_sqlite.py:90:             print(f"[warn] {f.name}: {exc}", file=sys.stderr)
+scripts/migrate_signal_archive_to_sqlite.py:91:     conn.commit()
+scripts/migrate_signal_archive_to_sqlite.py:92:     conn.close()
+scripts/migrate_signal_archive_to_sqlite.py:93:     print(f"files={len(files)} rows_seen={total} inserted={inserted} db={DB_PATH}")
+scripts/migrate_signal_archive_to_sqlite.py:94:     return 0
+scripts/migrate_signal_archive_to_sqlite.py:97: if __name__ == "__main__":
+scripts/migrate_signal_archive_to_sqlite.py:98:     raise SystemExit(main())
+=== GREP distribution/karne.py /_overall_from_archive|resolved_status_barrier|resolved_pct_barrier|decided/ a=0 ===
+distribution/karne.py:13:                 labels (resolved_pct_barrier). This is the real, positive
+distribution/karne.py:79: def _overall_from_archive(con: sqlite3.Connection) -> dict[str, Any] | None:
+distribution/karne.py:82:     These historical rows carry realized barrier returns (resolved_pct_barrier)
+distribution/karne.py:87:             "SELECT resolved_status_barrier AS s, resolved_pct_barrier AS p "
+distribution/karne.py:89:             "WHERE resolved_status_barrier IN ('resolved_win', 'resolved_loss') "
+distribution/karne.py:90:             "  AND resolved_pct_barrier IS NOT NULL"
+distribution/karne.py:147:             overall = _overall_from_archive(con)
+MATCHES 7
+=== GREP research/label_entry_basis_backfill_2026_09_03.py /UPDATE|INSERT|signals_archive|commit\(|dry|mode=ro|query_only/ a=0 ===
+MATCHES 0
+=== SHOW docs/governance/decision-log.md 57-57 ===
+docs/governance/decision-log.md:57: Decisions: (1) D4, calibration wording (glossary C1/C2): the sentence "recalibrated as outcomes accumulate" is removed; the "calibrated" label is replaced by "tarihsel s\u0131kl\u0131k (ba\u011f\u0131ms\u0131z do\u011frulanmam\u0131\u015f)". C3 (Grade A "~1/day") is not decided by this receipt and remains open. (2) D6, investor and public expectancy: no net or expected-return claim on public or investor surfaces as an interim measure, until a separate Level C wording decision. (3) U4, signal-distribution classification: no "no signals distributed" or equivalent claim in any investor, grant or public text until a legal opinion is obtained. (4) D2, web continuation: no web push or deploy action until the production target is recorded by a human; Telegram #40 is unaffected. (5) D7, OOS definition: the prospective definition in the remediation plan (reports/oos_status_c_remediation_v1_2026-10-15/, Option C) is adopted; existing sets, including the 2026-05-21 locked OOS and the PIT holdout, are not treated as out-of-sample; numeric thresholds are not set until data exists.
+=== SHOW docs/governance/decision-log.md 93-95 ===
+docs/governance/decision-log.md:93: Impact: Investor question 4 must not be answered with a claim of independent or sealed out-of-sample validation. The German answer states that independence and gate are not established and that the evaluation is not ready to run.
+docs/governance/decision-log.md:94: Owner: GitHub Copilot for the read-only audit and reports; Meri\xe7 for the investor response, correction of the contradicted RX-CAPTURE-1-ECON record, and any new prospective protocol and access policy.
+docs/governance/decision-log.md:95: Target: reports/oos_independence_audit_v1_2026-10-14/ (four files) and docs/governance/decision-log.md.
+=== SHOW docs/governance/decision-log.md 832-840 ===
+docs/governance/decision-log.md:832: Meric onayi bekleniyor.
+docs/governance/decision-log.md:833: Bulgu: `scanner/data_fetcher.py::_bulk_yf_download` icindeki `yf.download`
+docs/governance/decision-log.md:834: cagrisi timeout argumani vermiyor. Bulk cagri agda asilirsa endpoint'in
+docs/governance/decision-log.md:835: `_SCAN_TIMEOUT_SECONDS=600` siniri istegi sonlandirabilir, ancak worker/thread
+docs/governance/decision-log.md:836: ve alttaki HTTP cagri ayni anda guvenilir sekilde iptal edilmis sayilmaz.
+docs/governance/decision-log.md:837: Kan\u0131t: 200 sembol production-universe benchmark'inda yfinance kolu timeout'suz
+docs/governance/decision-log.md:838: uzun sure calisti; Alpaca/EODHD kesisim kosusu `--skip-yfinance` ile bu riski
+docs/governance/decision-log.md:839: izole ederek tamamlandi. Bu benchmark bir production scan degildir.
+docs/governance/decision-log.md:840: Onaylanmayan kapsam: timeout degeri, retry/cancel semantigi, thread havuzu veya
+=== SHOW docs/governance/decision-log.md 1260-1260 ===
+docs/governance/decision-log.md:1260: Change: No score formula, ranking source, scanner, configuration, database, scheduler, publication behavior, or user-facing surface was changed. Under the observed default flag value `FINPILOT_ENABLE_LEGACY_COMPOSITE_RANKING=0`, current evaluator code selects `legacy_quality_score` for `ranking_score`; the override branch selects `composite_score`. Public and summary ordering remain separate multi-key paths, and neither has an explicit final tie-breaker.
+=== SHOW docs/governance/decision-log.md 3241-3241 ===
+docs/governance/decision-log.md:3241: Result: Overall = NO_SCREEN_SUPPORTED. Per-rule: NS-A SCREEN_NOT_SUPPORTED; NS-B3 SCREEN_PARTIAL; NS-C SCREEN_PARTIAL; NS-UNION SCREEN_NOT_SUPPORTED. During execution one methodology-defect was found in my own first runner draft and corrected BEFORE any verdict was recorded: the first draft measured "median(kept)-median(full)" while the locked NS-1 question (and the ANS-1 contract it replicates) is the kept-vs-removed median difference; the runner was corrected to the ANS-1 estimand (median kept-removed, 5-day block bootstrap, ANS-1 matched-random/null-shuffle semantics). Verdicts above are from the corrected, determinism-verified runner only; the superseded draft produced different labels and was NOT used.
+=== GREP docs/governance/decision-log.md /econ/ a=0 ===
+docs/governance/decision-log.md:21: Limits and conflicts (CORE-005): The Oct 17 receipt says 411 completed 200-symbol batches, while this snapshot has 416; the five-row difference is not reconciled. The Sep 23 note labels 274.648s as a median and 81.6% as a ratio of medians; raw rows show 274.648s is the mean and 81.6% is mean repair divided by median total. The Sep 21 plan marks FAZ 2R pending while the Sep 22 decision-log entry says FAZ 2R.3 closed. These historical files were not edited to resolve the conflicts. No full-univers ...
+docs/governance/decision-log.md:90: Findings: No trading-strategy out-of-sample set has a verifiable freeze before its outcomes were computed. The 2026-05-21 boundary and its locked-OOS results first appear together in common_buy_accuracy.json (generated 2026-07-15T16:52:02Z; locked_oos n = 44). The exit comparison (v2_exit_same_selection_results.json, generated 17:37:26Z) and the 2026-07-15 nihai-kontrol document rank exit profiles on the locked-OOS result. The test-plan gates were committed 2026-07-15 20:18 +0200, after those ar ...
+docs/governance/decision-log.md:94: Owner: GitHub Copilot for the read-only audit and reports; Meri\xe7 for the investor response, correction of the contradicted RX-CAPTURE-1-ECON record, and any new prospective protocol and access policy.
+docs/governance/decision-log.md:268: Change: Before, .github/copilot-instructions.md prohibits AI production/live-release execution and _instructions/05-escalation.md says AI does not execute Level C actions. Proposed after: retain Level C human decision-making, but permit AI execution of the exact human-approved distribution publication through the established pipeline only. Current authority/customization files, runtime permissions and published artifacts are NOT changed. This entry is a nonbinding proposal, not a second policy a ...
+docs/governance/decision-log.md:392: Artifacts: Actual dated full path data/distribution/scan_export_2026-10-08.json is absent. scan_export_latest.json remains dated 2026-09-09, with universe 1812 and 1801 distinct rows, including 293 unavailable rows. Today's six retained partial files parse as single JSON objects, have no duplicate symbols/non-object rows and contain the inspected contract fields; field presence alone is not full semantic validation. The latest full export also passes those structural checks. Partial filenames us ...
+docs/governance/decision-log.md:395: Limits: Batch cadence, requested count and daily report agree, but there is no shared full-run identifier or browser counter capture. No reconstruction of overwritten batch result rows, full usable-result count, live numerical benchmark, current full test rerun, provider latency attribution or deployed browser-code certification. The observed legacy path has coordinator_version=null; no coordinator activation inferred. Findings are reported, not automatically repaired or resolved.
+docs/governance/decision-log.md:420: Limits: No browser counter, request payload, full-universe identifier or stable scan-run ID observed. The second batch was still active at the last sample; total completion is not established. High API resource use can lengthen batches; no root cause inferred.
+docs/governance/decision-log.md:448: Evidence: Current branch is review/pending-2026-10-07 at 3afa3f7, seven commits ahead of main (e0e7b38). Worktree has 50 pending paths (0 staged, 4 modified, 46 untracked), including runtime caches, partial snapshots, a backup archive, and research candidates; it is not a clean release candidate. Compose reports API, web, and Redis Up 2 days and Docker-healthy. GET /api/v1/ready returned degraded: database/cache/Redis healthy, memory 2089 MB. docker stats reported API 1.992 GiB / 2 GiB (99.62%)  ...
+docs/governance/decision-log.md:450: Impact: No live GO or section closure inferred. Release remains NOT READY until the worktree/release boundary, API resource/readiness issue, current deployed-code identity, scanner observation/activation gates, fresh end-to-end publication evidence, and human launch criteria are reconciled and approved.
+docs/governance/decision-log.md:491: | RX economic review | 4 | Two research/*capture_1* Python files; reports/research_x_capture_1_economic_review_preregistration_2026-09-23.md and reports/research_x_capture_1_econ_2026-09-23.md. Lint/format findings; historical numerical study not rerun. |
+docs/governance/decision-log.md:498: Behavior finding: ScanCoordinator accepts queue_wait_seconds=0, but queue_deadline=created at admission and the subsequent worker-start comparison rejects an idle, queue_capacity=0 job before its function runs. One offline fake-worker probe reproduced ScanBusy("Scan queue wait expired; retry later") and worker_function_calls=0. Initial probe failed before execution because artificial AUTH__SECRET_KEY was absent; the same probe with artificial-only auth reproduced the finding. No defaults or live ...
+docs/governance/decision-log.md:680: Findings: (P1) A request-scoped semaphore can be released on timeout/cancellation while its executor worker remains active; the shared job must own its slot until actual completion, and cancelling a waiter must not cancel the shared job. Artificial stdlib reproduction confirmed worker alive, gate released and second worker overlap after timeout. (P1) Unbounded waiting is incompatible with the current 620s proxy idle timeout for sufficiently long queue plus execution; queue bound/admission and en ...
+docs/governance/decision-log.md:835: `_SCAN_TIMEOUT_SECONDS=600` siniri istegi sonlandirabilir, ancak worker/thread
+docs/governance/decision-log.md:1012: `_cache_data(ttl_seconds=CACHE_TTL_SECONDS)` SUREC-ICI. API uzun omurlu ve arka
+docs/governance/decision-log.md:1248: Context: H4B closed as MAPPING_DEPENDS_ON_ADDITIONAL_INPUTS and left official production ranking resolution as DEFINITION_REQUIRED with historical production ordering NOT RECONSTRUCTED. H4C is scoped strictly to the reconstructable composite_score <-> legacy_quality_score mapping; it examines measurable information loss between the two score values only and never assumes production ordering.
+MATCHES 87
+RECOVERED_CSV header=id,symbol,ts,score,finpilot_score,resolved_status,resolved_pct,resolved_pct_t5,resolved_pct_barrier,resolved_status_barrier rows=5719
+=== FIXED TARGET final-interpretation lists ===
+LINE 57 n_items=130 target_in=True tp10_items=49 first12=['all|tp=3.00%|atr_stop=1.5|h=10', 'all|tp=3.00%|atr_stop=1.5|h=20', 'all|tp=3.00%|atr_stop=2|h=3', 'all|tp=3.00%|atr_stop=2|h=5', 'all|tp=3.00%|atr_stop=2|h=10', 'ATR>=3|tp=3.00%|atr_stop=2|h=10', 'ATR>=4|tp=3.00%|atr_stop=2|h=10', 'all|tp=3.00%|atr_stop=2|h=20', 'ATR>=3|tp=3.00%|atr_stop=2|h=20', 'all|tp=5.00%|fixed_stop=0.05|h=3', 'all|tp=5.00%|fixed_stop=0.05|h=5', 'all|tp=5.00%|fixed_stop=0.05|h=10']
+LINE 57 tp10_items_list=['ATR>=5|tp=10.00%|atr_stop=1|h=10', 'ATR>=6|tp=10.00%|atr_stop=1|h=10', 'all|tp=10.00%|atr_stop=1.5|h=3', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=3', 'ATR>=4|tp=10.00%|atr_stop=1.5|h=3', 'ATR>=5|tp=10.00%|atr_stop=1.5|h=3', 'all|tp=10.00%|atr_stop=1.5|h=5', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=5', 'ATR>=4|tp=10.00%|atr_stop=1.5|h=5', 'ATR>=5|tp=10.00%|atr_stop=1.5|h=5', 'all|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=4|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=5|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=6|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=4+RVOL>=1.5|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=20', 'ATR>=4|tp=10.00%|atr_stop=1.5|h=20', 'ATR>=5|tp=10.00%|atr_stop=1.5|h=20', 'ATR>=4+RVOL>=1.5|tp=10.00%|atr_stop=1.5|h=20']
+LINE 57 ATR>=3 items=['ATR>=3|tp=3.00%|atr_stop=2|h=10', 'ATR>=3|tp=3.00%|atr_stop=2|h=20', 'ATR>=3|tp=5.00%|atr_stop=1.5|h=5', 'ATR>=3|tp=5.00%|atr_stop=1.5|h=10', 'ATR>=3|tp=5.00%|atr_stop=1.5|h=20', 'ATR>=3|tp=5.00%|atr_stop=2|h=5', 'ATR>=3|tp=5.00%|atr_stop=2|h=10', 'ATR>=3|tp=5.00%|atr_stop=2|h=20', 'ATR>=3|tp=7.00%|atr_stop=1|h=5', 'ATR>=3|tp=7.00%|atr_stop=1|h=10', 'ATR>=3|tp=7.00%|atr_stop=1.5|h=3', 'ATR>=3|tp=7.00%|atr_stop=1.5|h=5', 'ATR>=3|tp=7.00%|atr_stop=1.5|h=10', 'ATR>=3|tp=7.00%|atr_stop=1.5|h=20', 'ATR>=3|tp=7.00%|atr_stop=2|h=3', 'ATR>=3|tp=7.00%|atr_stop=2|h=5', 'ATR>=3|tp=7.00%|atr_stop=2|h=10', 'ATR>=3|tp=7.00%|atr_stop=2|h=20', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=3', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=5']
+LINE 58 n_items=129 target_in=True tp10_items=49 first12=['all|tp=3.00%|atr_stop=1.5|h=10', 'all|tp=3.00%|atr_stop=1.5|h=20', 'all|tp=3.00%|atr_stop=2|h=5', 'all|tp=3.00%|atr_stop=2|h=10', 'ATR>=3|tp=3.00%|atr_stop=2|h=10', 'ATR>=4|tp=3.00%|atr_stop=2|h=10', 'all|tp=3.00%|atr_stop=2|h=20', 'ATR>=3|tp=3.00%|atr_stop=2|h=20', 'all|tp=5.00%|fixed_stop=0.05|h=3', 'all|tp=5.00%|fixed_stop=0.05|h=5', 'all|tp=5.00%|fixed_stop=0.05|h=10', 'all|tp=5.00%|fixed_stop=0.05|h=20']
+LINE 58 tp10_items_list=['ATR>=5|tp=10.00%|atr_stop=1|h=10', 'ATR>=6|tp=10.00%|atr_stop=1|h=10', 'all|tp=10.00%|atr_stop=1.5|h=3', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=3', 'ATR>=4|tp=10.00%|atr_stop=1.5|h=3', 'ATR>=5|tp=10.00%|atr_stop=1.5|h=3', 'all|tp=10.00%|atr_stop=1.5|h=5', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=5', 'ATR>=4|tp=10.00%|atr_stop=1.5|h=5', 'ATR>=5|tp=10.00%|atr_stop=1.5|h=5', 'all|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=4|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=5|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=6|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=4+RVOL>=1.5|tp=10.00%|atr_stop=1.5|h=10', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=20', 'ATR>=4|tp=10.00%|atr_stop=1.5|h=20', 'ATR>=5|tp=10.00%|atr_stop=1.5|h=20', 'ATR>=4+RVOL>=1.5|tp=10.00%|atr_stop=1.5|h=20']
+LINE 58 ATR>=3 items=['ATR>=3|tp=3.00%|atr_stop=2|h=10', 'ATR>=3|tp=3.00%|atr_stop=2|h=20', 'ATR>=3|tp=5.00%|atr_stop=1.5|h=5', 'ATR>=3|tp=5.00%|atr_stop=1.5|h=10', 'ATR>=3|tp=5.00%|atr_stop=1.5|h=20', 'ATR>=3|tp=5.00%|atr_stop=2|h=5', 'ATR>=3|tp=5.00%|atr_stop=2|h=10', 'ATR>=3|tp=5.00%|atr_stop=2|h=20', 'ATR>=3|tp=7.00%|atr_stop=1|h=5', 'ATR>=3|tp=7.00%|atr_stop=1|h=10', 'ATR>=3|tp=7.00%|atr_stop=1.5|h=3', 'ATR>=3|tp=7.00%|atr_stop=1.5|h=5', 'ATR>=3|tp=7.00%|atr_stop=1.5|h=10', 'ATR>=3|tp=7.00%|atr_stop=1.5|h=20', 'ATR>=3|tp=7.00%|atr_stop=2|h=3', 'ATR>=3|tp=7.00%|atr_stop=2|h=5', 'ATR>=3|tp=7.00%|atr_stop=2|h=10', 'ATR>=3|tp=7.00%|atr_stop=2|h=20', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=3', 'ATR>=3|tp=10.00%|atr_stop=1.5|h=5']
+JSON_EXISTS True 8642019
+JSON_TOP_KEYS ['research_only', 'experiment_id', 'protocol', 'dataset', 'gates', 'fdr', 'cpcv_pbo', 'white_reality_check', 'hansen_spa', 'qualification', 'configurations']
+=== GIT log --all -S INSERT OR IGNORE INTO signals_archive --date=iso --format=%h %ad %s ===
+RC 0 N_LINES 2
+cbc09fc 2026-07-24 18:51:14 +0200 Complete FinPilot publication, governance, and web updates
+1ade01f 2026-05-23 14:43:07 +0200 feat(db): idempotent migrate_signal_archive_to_sqlite \u2014 5722 rows into signals_archive
+=== GIT log --all --date=iso --format=%h %ad %s -- distribution/archive_bridge.py ===
+RC 0 N_LINES 1
+cbc09fc 2026-07-24 18:51:14 +0200 Complete FinPilot publication, governance, and web updates
+=== GIT log --all --date=iso --format=%h %ad %s -- scripts/migrate_signal_archive_to_sqlite.py ===
+RC 0 N_LINES 1
+1ade01f 2026-05-23 14:43:07 +0200 feat(db): idempotent migrate_signal_archive_to_sqlite \u2014 5722 rows into signals_archive
+=== GIT log --all --date=iso --format=%h %ad %s -- data/signals_archive_recovered_20260703.csv ===
+RC 0 N_LINES 1
+ad6fc1c 2026-07-03 10:53:37 +0200 git push
+=== GIT log --all --date=iso --format=%h %ad %s -- research/label_entry_basis_backfill_2026_09_03.py ===
+RC 0 N_LINES 1
+b780b10 2026-09-23 13:43:45 +0200 chore: commit pending research and project artifacts
+=== GIT log --all --date=iso --format=%h %ad %s -- research/ans1_attention_negative_screen_2026_09_18.py ===
+RC 0 N_LINES 1
+b780b10 2026-09-23 13:43:45 +0200 chore: commit pending research and project artifacts
+=== GIT log --all --date=iso --format=%h %ad %s -- reports/ans1_attention_negative_screen_2026-09-18.md ===
+RC 0 N_LINES 1
+b780b10 2026-09-23 13:43:45 +0200 chore: commit pending research and project artifacts
+=== GIT log --all --date=iso --format=%h %ad %s -- data/backtest_out/ans1_attention_negative_screen_2026-09-18.json ===
+RC 0 N_LINES 0
+=== GIT log --all --date=iso --format=%h %ad %s -- reports/research_x_ns1_negative_screen_preregistration_2026-09-22.md ===
+RC 0 N_LINES 1
+b780b10 2026-09-23 13:43:45 +0200 chore: commit pending research and project artifacts
+=== GIT log --all --date=iso --format=%h %ad %s -- reports/research_x_ns1_negative_screen_2026-09-22.md ===
+RC 0 N_LINES 1
+b780b10 2026-09-23 13:43:45 +0200 chore: commit pending research and project artifacts
+=== GIT log --all --date=iso --format=%h %ad %s -- reports/research_x_capture_1_preregistration_2026-09-22.md ===
+RC 0 N_LINES 1
+b780b10 2026-09-23 13:43:45 +0200 chore: commit pending research and project artifacts
+=== GIT log --all --date=iso --format=%h %ad %s -- reports/research_x_capture_1_2026-09-22.md ===
+RC 0 N_LINES 1
+b780b10 2026-09-23 13:43:45 +0200 chore: commit pending research and project artifacts
+=== GIT log --all --date=iso --format=%h %ad %s -- reports/research_x_capture_1_econ_2026-09-23.md ===
+RC 0 N_LINES 0
+=== GIT log --all --date=iso --format=%h %ad %s -- data/backtest_out/fixed_target_full_universe_2026-08-11.md ===
+RC 0 N_LINES 0
+=== STRUCTURAL (all rows, status-agnostic) N=5748 ===
+LAG_BUCKETS_ALL [('0', 3929), ('5-145', 1639), ('<0', 180)]
+LATE_ALL n=1639 min=5 max=145
+TS_EQ_ADDED_AT_MINUTE 5719 of 5748 with added_at=5719
+TS_WEEKDAY [('Sun', 2129), ('Tue', 1129), ('Mon', 831), ('Wed', 660), ('Thu', 427), ('Fri', 375), ('Sat', 197)]
+SIG_WEEKDAY [('Tue', 1939), ('Wed', 841), ('Sun', 808), ('Mon', 781), ('Thu', 740), ('Fri', 412), ('Sat', 227)]
+TS_HHMM_TOP [('09:00', 2065), ('21:45', 1970), ('21:54', 256), ('19:45', 173), ('13:59', 171), ('13:57', 147)]
+HHMM 09:00 x lag bucket [('0', 2065)]
+HHMM 21:45 x lag bucket [('0', 331), ('5-145', 1639)]
+HHMM 21:54 x lag bucket [('0', 256)]
+TOP_TS_DATES_WITH_LATE_ROWS (ts_date n min_sig max_sig n_sig weekday)
+  2026-03-01 n=1639 sig=2025-10-07..2026-02-24 n_sig=11 Sun
+ROWS_SIG_AFTER_CUTOFF 111 (excluded from all outcome statistics)
+=== OUTCOME WINDOW W: signal_date <= 2026-05-20, n=5637 sig_range=2025-09-12..2026-05-20 ===
+STATUS_W [('resolved_loss', 3586), ('resolved_win', 1540), (None, 503), ('expired_win', 6), ('expired_loss', 2)]
+DECIDED_W n=5126 mean=0.3951 median=-0.6419 hit=0.3004 mean_abs=2.1743
+DECIDED_W lag buckets [('0', 3382), ('5-145', 1616), ('<0', 128)]
+DECIDED_W ALL  n=5126 days=46 mean=0.3951 median=-0.6419 sum=2025.30 CR95=[0.1177,0.6725] BOOT95=[0.1143,0.6563]
+=== B1 TOP1PCT (W) k=51 distinct_ts=6 distinct_sig=9 top2_ts_share=47/51 ===
+TOP_TS [('2026-03-03', 26, 'Tue'), ('2026-03-01', 21, 'Sun'), ('2025-09-22', 1, 'Mon'), ('2026-05-19', 1, 'Tue'), ('2026-05-18', 1, 'Mon'), ('2026-05-08', 1, 'Fri')]
+TOP_SIG [('2026-03-03', 26), ('2026-02-12', 10), ('2026-02-17', 9), ('2025-09-22', 1), ('2026-05-19', 1), ('2026-05-18', 1), ('2026-03-01', 1), ('2026-02-11', 1), ('2026-05-08', 1)]
+TOP_LAG_BUCKETS [('0', 31), ('5-145', 20)]
+TOP_min_pct=13.2438 max_pct=49.2930
+=== B2 GROUPS (W decided; clusters = signal_date) ===
+on_time_lag0 n=3382 days=32 mean=0.2034 median=-0.5975 sum=687.84 CR95=[-0.0925,0.4992] BOOT95=[-0.0499,0.4946] share_of_sum=0.3396 lag_range=0..0
+lag1_4 n=0
+lag0_4 n=3382 days=32 mean=0.2034 median=-0.5975 sum=687.84 CR95=[-0.0925,0.4992] BOOT95=[-0.0499,0.4946] share_of_sum=0.3396 lag_range=0..0
+late_lag5_145 n=1616 days=11 mean=0.8457 median=-0.8725 sum=1366.64 CR95=[0.4062,1.2852] BOOT95=[0.3050,1.2406] share_of_sum=0.6748 lag_range=5..145
+lag_gt145 n=0
+lag_neg n=128 days=4 mean=-0.2280 median=-0.8719 sum=-29.18 CR95=[-0.7136,0.2577] BOOT95=[-0.4644,0.4978] share_of_sum=-0.0144 lag_range=-1..-1
+TOTAL_SUM_W=2025.3010
+=== B11 REPLAY (approximation on cached daily bars; TP checked before SL; <=21 bars) ===
+AFFECTED_DECIDED_W (lag>=1) n=1616 ; lag>=5 n=1616 ; all-rows lag>=1 (status-agnostic) n=1639
+affected cap=30 usable=1616/1616 agree_ts_basis=0.9839 agree_sig_basis=0.6881 resolved_before_ts_under_sig_basis=0.9796 first_bar_after_ts_resolution=0.9196 mean_stored=0.8457 mean_replay_sig_basis=0.4032
+   stored->sig_basis transitions [(('loss', 'expired'), 2), (('loss', 'loss'), 786), (('loss', 'win'), 201), (('win', 'loss'), 301), (('win', 'win'), 326)]
+affected cap=None usable=1616/1616 agree_ts_basis=0.9839 agree_sig_basis=0.6881 resolved_before_ts_under_sig_basis=0.9796 first_bar_after_ts_resolution=0.9196 mean_stored=0.8457 mean_replay_sig_basis=0.4032
+   stored->sig_basis transitions [(('loss', 'expired'), 2), (('loss', 'loss'), 786), (('loss', 'win'), 201), (('win', 'loss'), 301), (('win', 'win'), 326)]
+control_lag0 cap=30 usable=3382/3382 agree_ts_basis=0.8383 agree_sig_basis=0.8383 resolved_before_ts_under_sig_basis=0.0000 first_bar_after_ts_resolution=0.7883 mean_stored=0.2034 mean_replay_sig_basis=0.3558
+   stored->sig_basis transitions [(('loss', 'expired'), 3), (('loss', 'loss'), 1971), (('loss', 'win'), 522), (('win', 'loss'), 22), (('win', 'win'), 864)]
+control_lag0 cap=None usable=3382/3382 agree_ts_basis=0.8383 agree_sig_basis=0.8383 resolved_before_ts_under_sig_basis=0.0000 first_bar_after_ts_resolution=0.7883 mean_stored=0.2034 mean_replay_sig_basis=0.3558
+   stored->sig_basis transitions [(('loss', 'expired'), 3), (('loss', 'loss'), 1971), (('loss', 'win'), 522), (('win', 'loss'), 22), (('win', 'win'), 864)]
+REPLAY_CSV_ROWS 1616 ; price_cache symbols loaded=1003 missing=0
+=== NAN SEMANTICS (pure Python, mirrors expressions only) ===
+max(0,min(100,nan/16.5*100)) = 100.0
+min(1,max(0,nan)) = 0.0  max(0,min(1,nan)) = 1.0
+round(nan,4) = nan  nan>=4.0 = False  nan>0 = False
+DONE_RT

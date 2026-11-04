@@ -1,0 +1,186 @@
+{
+ "csv": "C:\\Users\\meric\\Borsa\\data\\backtest_out\\full_universe_enriched_labeled.csv",
+ "nonlocked_max_scan_date": "2025-12-31",
+ "return_definition": "CSV c2c_5d (not barrier)",
+ "rows": 100496,
+ "date_min_max": [
+  "2025-09-11",
+  "2026-08-05"
+ ],
+ "rows_by_month": {
+  "2025-09": 7902,
+  "2025-10": 492,
+  "2025-11": 6,
+  "2025-12": 6,
+  "2026-03": 1,
+  "2026-04": 1716,
+  "2026-05": 20290,
+  "2026-06": 23826,
+  "2026-07": 46056,
+  "2026-08": 201
+ },
+ "label_entry_basis_counts": {
+  "eod_close": 79935,
+  "intraday": 20561
+ },
+ "rows_nonlocked": 8406,
+ "dates_nonlocked": 19,
+ "eod_dup_groups": 1351,
+ "eod_dup_max_absdiff": 0.0,
+ "dedup_symbol_days": 2081,
+ "dedup_eod_share": 0.987,
+ "c2c_5d_nonlocked_dedup": {
+  "n": 2081,
+  "mean": 13.5967,
+  "q_0_1_50_99_100": [
+   -98.8549,
+   -58.9034,
+   0.5421,
+   140.7711,
+   14368.3497
+  ],
+  "abs_gt_100": 26
+ },
+ "selected_decided_nonlocked_rows": 2171,
+ "selected_unique_symbol_days": 2094,
+ "selected_dates": 24,
+ "selected_keys_found_in_csv": 1259,
+ "selected_keys_found_in_csv_eod": 1253,
+ "selected_keys_found_weekend_to_prev_bday": 1413,
+ "matched_eod_selected_barrier_vs_c2c5d": {
+  "n": 1253,
+  "barrier_mean": 0.0509,
+  "c2c_5d_mean": 1.3764,
+  "c2c_5d_median": 0.5587
+ },
+ "compare_primary_eod": {
+  "days": 1,
+  "n_sel": 111,
+  "n_uni_rows": 319,
+  "sel_mean": 1.9776,
+  "sel_median": 0.947,
+  "uni_mean_weighted_by_sel": 19.0502,
+  "uni_median_weighted_by_sel": 2.6068,
+  "excess_vs_same_day_uni_mean": {
+   "n": 111,
+   "days": 1,
+   "B": 5000,
+   "seed": 20261019,
+   "mean": -17.0726,
+   "ci95": [
+    -17.0726,
+    -17.0726
+   ]
+  },
+  "excess_vs_same_day_uni_median_median": -1.6598,
+  "share_excess_vs_same_day_uni_median_gt0_pct": 31.5315,
+  "per_day_mean_diff_equal_weight": {
+   "n": 1,
+   "days": 1,
+   "B": 5000,
+   "seed": 20261019,
+   "mean": -17.0726,
+   "ci95": [
+    -17.0726,
+    -17.0726
+   ]
+  },
+  "per_day_median_diff_median": -1.6598,
+  "days_sel_mean_gt_uni_mean": 0,
+  "largest_days_n_sel": [
+   [
+    "2025-09-15",
+    111
+   ]
+  ]
+ },
+ "compare_eod_liquidity_ok_universe": {
+  "days": 0
+ },
+ "compare_eod_winsor_1_99": {
+  "days": 1,
+  "n_sel": 111,
+  "n_uni_rows": 319,
+  "sel_mean": 1.9776,
+  "sel_median": 0.947,
+  "uni_mean_weighted_by_sel": 3.7205,
+  "uni_median_weighted_by_sel": 2.6068,
+  "excess_vs_same_day_uni_mean": {
+   "n": 111,
+   "days": 1,
+   "B": 5000,
+   "seed": 20261019,
+   "mean": -1.743,
+   "ci95": [
+    -1.743,
+    -1.743
+   ]
+  },
+  "excess_vs_same_day_uni_median_median": -1.6598,
+  "share_excess_vs_same_day_uni_median_gt0_pct": 31.5315,
+  "per_day_mean_diff_equal_weight": {
+   "n": 1,
+   "days": 1,
+   "B": 5000,
+   "seed": 20261019,
+   "mean": -1.743,
+   "ci95": [
+    -1.743,
+    -1.743
+   ]
+  },
+  "per_day_median_diff_median": -1.6598,
+  "days_sel_mean_gt_uni_mean": 0,
+  "largest_days_n_sel": [
+   [
+    "2025-09-15",
+    111
+   ]
+  ]
+ },
+ "compare_all_basis": {
+  "days": 2,
+  "n_sel": 154,
+  "n_uni_rows": 340,
+  "sel_mean": 2.0709,
+  "sel_median": 1.3382,
+  "uni_mean_weighted_by_sel": 285.809,
+  "uni_median_weighted_by_sel": 32.095,
+  "excess_vs_same_day_uni_mean": {
+   "n": 154,
+   "days": 2,
+   "B": 5000,
+   "seed": 20261019,
+   "mean": -283.738,
+   "ci95": [
+    -972.1069,
+    -17.0726
+   ]
+  },
+  "excess_vs_same_day_uni_median_median": -2.8099,
+  "share_excess_vs_same_day_uni_median_gt0_pct": 22.7273,
+  "per_day_mean_diff_equal_weight": {
+   "n": 2,
+   "days": 2,
+   "B": 5000,
+   "seed": 20261019,
+   "mean": -494.5897,
+   "ci95": [
+    -972.1069,
+    -17.0726
+   ]
+  },
+  "per_day_median_diff_median": -53.6387,
+  "days_sel_mean_gt_uni_mean": 0,
+  "largest_days_n_sel": [
+   [
+    "2025-09-15",
+    111
+   ],
+   [
+    "2025-09-12",
+    43
+   ]
+  ]
+ }
+}

@@ -140,8 +140,12 @@ class ContentGeneratorAgent:
 
         # Check for existing
         existing = self.lesson_repo.get(lesson_id)
-        if existing and existing.status == "published":
-            logger.info("Lesson %s already published, skipping", lesson_id)
+        if existing and existing.status in {"approved", "pending_review", "published", "archived"}:
+            logger.info(
+                "Lesson %s has protected status %s, skipping",
+                lesson_id,
+                existing.status,
+            )
             return existing
 
         prompt = LESSON_TEMPLATE.format(

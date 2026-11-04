@@ -1,0 +1,495 @@
+{
+ "generated_at_utc": "2026-10-19T10:22:09+00:00",
+ "hashes": [
+  {
+   "path": "data/finpilot.db",
+   "exists": true,
+   "sha256": "b64c0c5262e0d685daa1309e6293d27c208f64a6fc213b3c00e3cb896bd5f5f6",
+   "bytes": 7811072,
+   "mtime_local": "2026-10-19T12:08:56"
+  },
+  {
+   "path": "data/signals_archive_recovered_20260703.csv",
+   "exists": true,
+   "sha256": "a48eab6cf4ab00724fbae0fd87f871d268603360f942a1118b5d42ec968e59a0",
+   "bytes": 557452,
+   "mtime_local": "2026-07-13T16:13:18"
+  },
+  {
+   "path": "web/public/stock_presets.json",
+   "exists": true,
+   "sha256": "4e300c194d2d87129af2abd45c7ae5793ae684f32f497d8280a068fa02529e36",
+   "bytes": 31795,
+   "mtime_local": "2026-06-10T21:55:08"
+  },
+  {
+   "path": "distribution/karne.py",
+   "exists": true,
+   "sha256": "40749445f8fdea299f3570e43a572517305b25c6480bcf0861713032d456ab00",
+   "bytes": 7802,
+   "mtime_local": "2026-07-27T14:11:57"
+  },
+  {
+   "path": "distribution/archive_bridge.py",
+   "exists": true,
+   "sha256": "21a3bf851f8d548cf0f85b07f842445d10a162b308f880231988abbce6a017ee",
+   "bytes": 6235,
+   "mtime_local": "2026-07-27T14:41:23"
+  },
+  {
+   "path": "scripts/resolve_open_signals.py",
+   "exists": true,
+   "sha256": "9e4efa491dca9a9d12b65446468abf0cf94d2c9d3d4c3035d6efea8e1a8d7014",
+   "bytes": 14441,
+   "mtime_local": "2026-07-27T13:52:07"
+  },
+  {
+   "path": "scripts/migrate_signal_archive_to_sqlite.py",
+   "exists": true,
+   "sha256": "1c30c1d8beed036a55e54549be5cb6004909522e10cee338d887afbcaefd48fc",
+   "bytes": 3085,
+   "mtime_local": "2026-05-23T14:43:00"
+  },
+  {
+   "path": "data/backtest_out/fundamentals_sentiment_protocol.json",
+   "exists": true,
+   "sha256": "d8e7ac9bdc887a73d79252eb0a84baa5ed153fc9b4263ae8c712f74e8c1a5e1b",
+   "bytes": 1168,
+   "mtime_local": "2026-08-05T13:31:08"
+  },
+  {
+   "path": "data/backtest_out/fundamentals_sentiment_holdout.json",
+   "exists": true,
+   "sha256": "38781bb8b2ac0114e5eae5b308fda60f2a78a8bd8b46cf97e8c1773d6a891ccc",
+   "bytes": 228,
+   "mtime_local": "2026-08-05T13:31:24"
+  }
+ ],
+ "db_sidecars": {
+  "-wal": false,
+  "-shm": false,
+  "-journal": false
+ },
+ "db_tables": {
+  "alembic_version": 1,
+  "alpaca_orders": 14,
+  "buy_signals": 0,
+  "execution_controls": 0,
+  "execution_events": 0,
+  "execution_intents": 0,
+  "fs_cases": 5,
+  "fs_evaluations": 2,
+  "fs_outcomes": 5,
+  "fs_predictions": 2,
+  "outcomes_horizon": 0,
+  "portfolios": 0,
+  "positions": 0,
+  "quiz_scores": 0,
+  "scan_results": 0,
+  "sessions": 53,
+  "signal_events": 0,
+  "signals": 0,
+  "signals_archive": 5748,
+  "sqlite_sequence": 2,
+  "symbol_lists": 1815,
+  "symbols": 13852,
+  "trades": 0,
+  "user_settings": 3,
+  "users": 4,
+  "watchlist_signals": 1158,
+  "watchlists": 0
+ },
+ "signals_archive_columns": [
+  "id",
+  "symbol",
+  "ts",
+  "score",
+  "finpilot_score",
+  "payload_json",
+  "resolved_status",
+  "resolved_pct",
+  "resolved_pct_t5",
+  "resolved_pct_barrier",
+  "resolved_status_barrier"
+ ],
+ "signals_archive": {
+  "n_total": 5748,
+  "resolved_status_counts": {
+   "resolved_loss": 3850,
+   "resolved_win": 1602,
+   "open": 31,
+   "expired_win": 8,
+   "expired_loss": 2,
+   "expired": 225,
+   "watching": 1,
+   "new": 29
+  },
+  "resolved_status_barrier_counts": {
+   "resolved_loss": 3641,
+   "resolved_win": 1565,
+   "None": 532,
+   "expired_win": 8,
+   "expired_loss": 2
+  },
+  "ts_date_range_all": [
+   "2025-09-12",
+   "2026-09-09"
+  ],
+  "n_decided": 5206,
+  "ts_date_range_decided": [
+   "2025-09-12",
+   "2026-05-22"
+  ],
+  "decided_payload_source_counts": {
+   "None": 5206
+  },
+  "decided_month_counts": {
+   "2025-09": 1579,
+   "2025-10": 474,
+   "2025-11": 6,
+   "2025-12": 6,
+   "2026-03": 2495,
+   "2026-04": 177,
+   "2026-05": 469
+  },
+  "decided_weekday_counts": {
+   "Sun": 2102,
+   "Fri": 369,
+   "Mon": 813,
+   "Tue": 885,
+   "Wed": 589,
+   "Sat": 197,
+   "Thu": 251
+  },
+  "decided_time_of_day_top10": [
+   [
+    "09:00",
+    2065
+   ],
+   [
+    "21:45",
+    1943
+   ],
+   [
+    "21:54",
+    252
+   ],
+   [
+    "19:45",
+    170
+   ],
+   [
+    "21:30",
+    93
+   ],
+   [
+    "17:56",
+    93
+   ],
+   [
+    "20:51",
+    74
+   ],
+   [
+    "17:45",
+    55
+   ],
+   [
+    "18:15",
+    51
+   ],
+   [
+    "18:45",
+    50
+   ]
+  ],
+  "decided_month_by_tod_bucket": {
+   "2025-09": {
+    "09:00": 1579
+   },
+   "2025-10": {
+    "09:00": 474
+   },
+   "2025-11": {
+    "09:00": 6
+   },
+   "2025-12": {
+    "09:00": 6
+   },
+   "2026-03": {
+    "21:45": 1943,
+    "other": 552
+   },
+   "2026-04": {
+    "other": 177
+   },
+   "2026-05": {
+    "other": 469
+   }
+  },
+  "decided_ts_format": {
+   "has_T": 4652,
+   "space": 554
+  },
+  "decided_payload_signal_date_vs_ts_date": {
+   "different": 1792,
+   "equal": 3414
+  },
+  "decided_payload_keys_top40": [
+   [
+    "id",
+    5206
+   ],
+   [
+    "symbol",
+    5206
+   ],
+   [
+    "signal",
+    5206
+   ],
+   [
+    "entry_price",
+    5206
+   ],
+   [
+    "stop_loss",
+    5206
+   ],
+   [
+    "take_profit",
+    5206
+   ],
+   [
+    "score",
+    5206
+   ],
+   [
+    "regime",
+    5206
+   ],
+   [
+    "sentiment",
+    5206
+   ],
+   [
+    "risk_reward",
+    5206
+   ],
+   [
+    "reason",
+    5206
+   ],
+   [
+    "explanation",
+    5206
+   ],
+   [
+    "source_model",
+    5206
+   ],
+   [
+    "status_lifecycle",
+    5206
+   ],
+   [
+    "signal_date",
+    5206
+   ],
+   [
+    "added_at",
+    5206
+   ],
+   [
+    "notes",
+    3141
+   ],
+   [
+    "tags",
+    3141
+   ],
+   [
+    "entry_ok",
+    2065
+   ]
+  ],
+  "decided_barrier_formula_check": {
+   "checked": 5206,
+   "within_0p05pp": 5206
+  },
+  "decided_resolved_status_equals_barrier_status": 5206,
+  "decided_resolved_pct_equals_barrier_pct": 5206,
+  "decided_resolved_pct_null": 0,
+  "headline_resolved_pct_barrier": {
+   "n": 5206,
+   "mean": 0.398424,
+   "median": -0.64315,
+   "min": -14.6262,
+   "max": 49.293,
+   "hit_rate": 0.300615,
+   "avg_win": 4.282497,
+   "avg_loss": -1.271056,
+   "sum_pp": 2074.1935
+  },
+  "trimmed": {
+   "top1": {
+    "k_removed": 52,
+    "cut_value": 13.2075,
+    "rows_equal_to_cut_value": 1,
+    "remaining": {
+     "n": 5154,
+     "mean": 0.189646,
+     "median": -0.6511,
+     "min": -14.6262,
+     "max": 13.1387
+    },
+    "removed_all_wins": true,
+    "removed_top_dates": [
+     [
+      "2026-03-03",
+      27
+     ],
+     [
+      "2026-03-01",
+      21
+     ],
+     [
+      "2025-09-22",
+      1
+     ],
+     [
+      "2026-05-19",
+      1
+     ],
+     [
+      "2026-05-18",
+      1
+     ]
+    ]
+   },
+   "top5": {
+    "k_removed": 260,
+    "cut_value": 6.3477,
+    "rows_equal_to_cut_value": 1,
+    "remaining": {
+     "n": 4946,
+     "mean": -0.161478,
+     "median": -0.6799,
+     "min": -14.6262,
+     "max": 6.3259
+    },
+    "removed_all_wins": true,
+    "removed_top_dates": [
+     [
+      "2026-03-01",
+      154
+     ],
+     [
+      "2026-03-03",
+      65
+     ],
+     [
+      "2026-05-22",
+      6
+     ],
+     [
+      "2026-05-06",
+      5
+     ],
+     [
+      "2026-05-04",
+      4
+     ]
+    ]
+   }
+  },
+  "two_dates_rows": 2421,
+  "alt_field_resolved_pct_on_decided": {
+   "n": 5206,
+   "mean": 0.398424,
+   "median": -0.64315,
+   "min": -14.6262,
+   "max": 49.293
+  },
+  "alt_field_resolved_pct_t5_on_decided": {
+   "n": 5204,
+   "mean": 13.68255,
+   "median": -1.3012,
+   "min": -96.2144,
+   "max": 11990.9096
+  },
+  "alt_field_resolved_pct_t5_all_nonnull": {
+   "n": 5213,
+   "mean": 13.660876,
+   "median": -1.2797,
+   "min": -96.2144,
+   "max": 11990.9096
+  },
+  "decided_distinct_symbols": 1017,
+  "decided_distinct_symbol_days": 3795,
+  "decided_rows_in_duplicated_symbol_days": 1815,
+  "all_distinct_symbol_days": 4318,
+  "preset_union_size_including_labels": 1812,
+  "preset_sizes": {
+   "technology": 210,
+   "healthcare_biotech": 160,
+   "finance": 320,
+   "energy_industrials": 463,
+   "consumer": 198,
+   "growth_thematic": 148,
+   "small_cap_growth": 366,
+   "value_income": 54,
+   "international": 71
+  },
+  "decided_symbols_in_preset_union": 953,
+  "decided_rows_symbol_in_preset_union": 4516
+ },
+ "recovered_csv": {
+  "header": [
+   "id",
+   "symbol",
+   "ts",
+   "score",
+   "finpilot_score",
+   "resolved_status",
+   "resolved_pct",
+   "resolved_pct_t5",
+   "resolved_pct_barrier",
+   "resolved_status_barrier"
+  ],
+  "n_rows": 5719,
+  "ids_also_in_db": 5719,
+  "ts_date_range": [
+   "2025-09-12",
+   "2026-05-22"
+  ],
+  "decided_in_csv_compared": 5114,
+  "same_barrier_status_in_db": 5114,
+  "same_barrier_pct_in_db": 5114,
+  "csv_barrier_status_counts": {
+   "resolved_loss": 3580,
+   "resolved_win": 1534,
+   "": 596,
+   "expired_loss": 1,
+   "expired_win": 8
+  }
+ },
+ "legacy_json_archive": {
+  "n_files": 55,
+  "first_last": [
+   "2025-09-12.json",
+   "2026-10-15.json"
+  ],
+  "mtime_date_counts": {
+   "2026-05-20": 5,
+   "2026-05-23": 46,
+   "2026-06-01": 1,
+   "2026-10-06": 1,
+   "2026-10-09": 1,
+   "2026-10-16": 1
+  },
+  "n_records": 5794,
+  "record_ids_in_db": 5719,
+  "decided_ids_from_json_folder": 5206
+ }
+}

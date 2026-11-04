@@ -1,0 +1,409 @@
+{
+ "db": "data/finpilot.db",
+ "mtime_utc": "2026-10-19T10:08:56Z",
+ "sha256": "b64c0c5262e0d685daa1309e6293d27c208f64a6fc213b3c00e3cb896bd5f5f6",
+ "size": 7811072,
+ "tables": {
+  "alembic_version": {
+   "columns": [
+    "version_num"
+   ],
+   "rows": 1
+  },
+  "alpaca_orders": {
+   "columns": [
+    "id",
+    "order_id",
+    "buy_signal_id",
+    "symbol",
+    "side",
+    "qty",
+    "order_type",
+    "limit_price",
+    "stop_price",
+    "time_in_force",
+    "status",
+    "filled_price",
+    "filled_qty",
+    "filled_at",
+    "submitted_at",
+    "raw_response",
+    "created_at"
+   ],
+   "rows": 14
+  },
+  "buy_signals": {
+   "columns": [
+    "id",
+    "date",
+    "symbol",
+    "entry_price",
+    "stop_loss",
+    "take_profit",
+    "risk_reward",
+    "score",
+    "strength",
+    "regime",
+    "sentiment",
+    "position_size",
+    "kelly_fraction",
+    "reason",
+    "scan_source",
+    "status",
+    "exit_price",
+    "exit_date",
+    "pnl_pct",
+    "pnl_dollar",
+    "alpaca_order_id",
+    "created_at"
+   ],
+   "rows": 0
+  },
+  "execution_controls": {
+   "columns": [
+    "control_key",
+    "enabled",
+    "reason",
+    "updated_at"
+   ],
+   "rows": 0
+  },
+  "execution_events": {
+   "columns": [
+    "id",
+    "event_type",
+    "entity_id",
+    "signal_id",
+    "payload",
+    "occurred_at"
+   ],
+   "rows": 0
+  },
+  "execution_intents": {
+   "columns": [
+    "intent_id",
+    "signal_id",
+    "scanner_run_id",
+    "idempotency_key",
+    "environment",
+    "symbol",
+    "side",
+    "qty",
+    "order_type",
+    "limit_price",
+    "stop_price",
+    "take_profit",
+    "strategy_id",
+    "strategy_version",
+    "status",
+    "rejection_reason",
+    "alpaca_order_id",
+    "client_order_id",
+    "filled_qty",
+    "filled_price",
+    "last_error",
+    "payload",
+    "created_at",
+    "updated_at"
+   ],
+   "rows": 0
+  },
+  "fs_cases": {
+   "columns": [
+    "id",
+    "source_signal_id",
+    "asset",
+    "event_timestamp",
+    "snapshot",
+    "context",
+    "horizon_days",
+    "outcome_rule",
+    "resolution_method",
+    "status",
+    "created_at"
+   ],
+   "rows": 5
+  },
+  "fs_evaluations": {
+   "columns": [
+    "id",
+    "prediction_id",
+    "direction_correct",
+    "binary_outcome",
+    "probability_error",
+    "evaluation_version",
+    "created_at"
+   ],
+   "rows": 2
+  },
+  "fs_outcomes": {
+   "columns": [
+    "case_id",
+    "actual_direction",
+    "actual_return_pct",
+    "resolution_method",
+    "resolved_at"
+   ],
+   "rows": 5
+  },
+  "fs_predictions": {
+   "columns": [
+    "id",
+    "case_id",
+    "anonymous_user_id",
+    "direction",
+    "probability",
+    "reason",
+    "status",
+    "committed_at",
+    "created_at"
+   ],
+   "rows": 2
+  },
+  "outcomes_horizon": {
+   "columns": [
+    "signal_id",
+    "horizon_days",
+    "pct",
+    "status",
+    "resolved_at"
+   ],
+   "rows": 0
+  },
+  "portfolios": {
+   "columns": [
+    "id",
+    "user_id",
+    "cash",
+    "created_at",
+    "updated_at"
+   ],
+   "rows": 0
+  },
+  "positions": {
+   "columns": [
+    "id",
+    "portfolio_id",
+    "symbol",
+    "shares",
+    "avg_price",
+    "opened_at",
+    "updated_at"
+   ],
+   "rows": 0
+  },
+  "quiz_scores": {
+   "columns": [
+    "id",
+    "user_id",
+    "score",
+    "total",
+    "category",
+    "played_at"
+   ],
+   "rows": 0
+  },
+  "scan_results": {
+   "columns": [
+    "id",
+    "scan_id",
+    "scan_timestamp",
+    "symbol",
+    "price",
+    "stop_loss",
+    "take_profit",
+    "score",
+    "strength",
+    "regime",
+    "sentiment",
+    "entry_ok",
+    "summary",
+    "source_file",
+    "created_at"
+   ],
+   "rows": 0
+  },
+  "sessions": {
+   "columns": [
+    "id",
+    "user_id",
+    "access_token",
+    "refresh_token",
+    "device_info",
+    "ip_address",
+    "user_agent",
+    "created_at",
+    "expires_at",
+    "last_activity",
+    "is_active"
+   ],
+   "rows": 53
+  },
+  "signal_events": {
+   "columns": [
+    "id",
+    "signal_id",
+    "symbol",
+    "from_state",
+    "to_state",
+    "agent",
+    "payload",
+    "ts",
+    "success",
+    "error"
+   ],
+   "rows": 0
+  },
+  "signals": {
+   "columns": [
+    "id",
+    "timestamp",
+    "symbol",
+    "price",
+    "stop_loss",
+    "take_profit",
+    "score",
+    "strength",
+    "regime",
+    "sentiment",
+    "onchain",
+    "entry_ok",
+    "summary",
+    "reason",
+    "status",
+    "outcome_price",
+    "outcome_date",
+    "outcome_pct",
+    "created_at"
+   ],
+   "rows": 0
+  },
+  "signals_archive": {
+   "columns": [
+    "id",
+    "symbol",
+    "ts",
+    "score",
+    "finpilot_score",
+    "payload_json",
+    "resolved_status",
+    "resolved_pct",
+    "resolved_pct_t5",
+    "resolved_pct_barrier",
+    "resolved_status_barrier"
+   ],
+   "rows": 5748
+  },
+  "sqlite_sequence": {
+   "columns": [
+    "name",
+    "seq"
+   ],
+   "rows": 2
+  },
+  "symbol_lists": {
+   "columns": [
+    "list_name",
+    "ticker"
+   ],
+   "rows": 1815
+  },
+  "symbols": {
+   "columns": [
+    "ticker",
+    "name",
+    "exchange",
+    "asset_class",
+    "status",
+    "tradable",
+    "shortable",
+    "marginable",
+    "updated_at",
+    "market_cap",
+    "float_shares"
+   ],
+   "rows": 13852
+  },
+  "trades": {
+   "columns": [
+    "id",
+    "portfolio_id",
+    "symbol",
+    "side",
+    "shares",
+    "price",
+    "total",
+    "commission",
+    "executed_at",
+    "notes"
+   ],
+   "rows": 0
+  },
+  "user_settings": {
+   "columns": [
+    "user_id",
+    "settings_json",
+    "updated_at"
+   ],
+   "rows": 3
+  },
+  "users": {
+   "columns": [
+    "id",
+    "email",
+    "username",
+    "password_hash",
+    "salt",
+    "display_name",
+    "avatar_url",
+    "role",
+    "is_active",
+    "is_verified",
+    "created_at",
+    "updated_at",
+    "last_login",
+    "failed_login_attempts",
+    "locked_until"
+   ],
+   "rows": 4
+  },
+  "watchlist_signals": {
+   "columns": [
+    "id",
+    "symbol",
+    "signal",
+    "entry_price",
+    "stop_loss",
+    "take_profit",
+    "score",
+    "regime",
+    "sentiment",
+    "risk_reward",
+    "reason",
+    "explanation",
+    "source_model",
+    "notes",
+    "tags",
+    "status_lifecycle",
+    "signal_date",
+    "added_at",
+    "tier",
+    "tier_score",
+    "conviction_tier",
+    "conviction_prob"
+   ],
+   "rows": 1158
+  },
+  "watchlists": {
+   "columns": [
+    "id",
+    "user_id",
+    "name",
+    "symbols",
+    "created_at",
+    "updated_at"
+   ],
+   "rows": 0
+  }
+ }
+}

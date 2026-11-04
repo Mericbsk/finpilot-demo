@@ -1,0 +1,1312 @@
+#### CODE MAP
+-- defs/keylines core/scheduler.py nlines 1511
+core/scheduler.py:49| def _make_watchdog_job(job_name: str, fn: Any, timeout_s: int = _JOB_TIMEOUT_SECONDS) -> Any:
+core/scheduler.py:57| def _wrapped() -> None:
+core/scheduler.py:80| def _compose_jobs(group_name: str, *sub_jobs: Any) -> Any:
+core/scheduler.py:88| def _composite() -> None:
+core/scheduler.py:96| _composite.__name__ = f"composite_{group_name}"
+core/scheduler.py:97| return _composite
+core/scheduler.py:100| def _run_eval_job(symbols: list[str]) -> None:
+core/scheduler.py:119| grade = "ok" if report.get("overall_pass") else "warn"
+core/scheduler.py:121| "Eval job completed \u2014 overall_pass=%s grade=%s", report.get("overall_pass"), grade
+core/scheduler.py:124| # Sprint 5 (S5-3): Quality gate \u2014 degrade on eval failure
+core/scheduler.py:126| from core.quality_gate import clear_degraded, set_degraded
+core/scheduler.py:133| set_degraded(
+core/scheduler.py:138| clear_degraded()
+core/scheduler.py:145| def _run_reconcile_job() -> None:
+core/scheduler.py:159| def _run_calibration_job() -> None:
+core/scheduler.py:176| def _run_weekly_calibration_retrain_job() -> None:
+core/scheduler.py:192| def _run_resolve_open_signals_job() -> None:
+core/scheduler.py:193| """Weekly resolution of open signals_archive rows (Mondays 03:00 UTC).
+core/scheduler.py:215| def _run_edge_report_job() -> None:
+core/scheduler.py:218| Runs profitcore_audit + barrier_audit + regime_cross_section then
+core/scheduler.py:225| from scripts.regime_cross_section import run as regime_run
+core/scheduler.py:229| regime_run()
+core/scheduler.py:230| logger.info("Edge report components regenerated (profitcore + barrier + regime).")
+core/scheduler.py:243| def _run_weekly_report_job() -> None:
+core/scheduler.py:255| def _run_research_pipeline_job() -> None:
+core/scheduler.py:282| def _run_drift_job() -> None:
+core/scheduler.py:309| def _run_ceo_report_job() -> None:
+core/scheduler.py:371| def _run_auto_approve_job(symbols: list[str]) -> None:
+core/scheduler.py:376| from core.quality_gate import is_degraded
+core/scheduler.py:378| if is_degraded():
+core/scheduler.py:379| logger.info("auto_approve: system degraded \u2014 skipping auto-approve")
+core/scheduler.py:387| score = sig.get("score") or sig.get("finpilot_score")
+core/scheduler.py:407| score=float(sig.get("score") or sig.get("finpilot_score") or 0),
+core/scheduler.py:469| def run_cycle_once(
+core/scheduler.py:546| # --- 1. Market Intelligence (regime detection) ---
+core/scheduler.py:557| "regime_detection",
+core/scheduler.py:635| "market_regime": mi_data.get("regime"),
+core/scheduler.py:656| # --- 3. Backtest \u2014 uses regime context for strategy selection (feedback) ---
+core/scheduler.py:660| regime_str = mi_data.get("regime", "")
+core/scheduler.py:661| strategy = "trend" if "bull" in str(regime_str).lower() else "momentum"
+core/scheduler.py:666| "regime": regime_str,
+core/scheduler.py:780| symbols=symbols, metadata={"regime": mi_data.get("regime", "")}
+core/scheduler.py:960| "regime": mi_data.get("regime", True),
+core/scheduler.py:963| "finpilot_score": bt_sym.get("win_rate", 0),
+core/scheduler.py:998| # Sprint 5 (S5-3): suppress alerts when system is degraded
+core/scheduler.py:1000| from core.quality_gate import is_degraded as _is_degraded
+core/scheduler.py:1002| _gate_degraded = _is_degraded()
+core/scheduler.py:1004| _gate_degraded = False
+core/scheduler.py:1008| if _gate_degraded
+core/scheduler.py:1032| "score": int(round(float(sig.get("finpilot_score", 0) or 0))),
+core/scheduler.py:1033| "filter_score": 3,
+core/scheduler.py:1064| _last_status = evaluation["grade"]
+core/scheduler.py:1070| f"Cycle #{_cycle_count} \u2014 Skor: {evaluation['score']}/100 ({evaluation['grade']})",
+core/scheduler.py:1109| "Scheduler cycle #%d complete \u2014 %d agents, %d errors, grade=%s",
+core/scheduler.py:1115| results.get("self_evaluation", {}).get("grade", "?"),
+core/scheduler.py:1125| def get_scheduler() -> Any:
+core/scheduler.py:1130| def start_scheduler(
+core/scheduler.py:1156| def _scheduled_job() -> None:
+core/scheduler.py:1182| def _eval_job_wrapper() -> None:
+core/scheduler.py:1186| def _auto_approve_wrapper() -> None:
+core/scheduler.py:1278| def _daily_ops_wrapper() -> None:
+core/scheduler.py:1322| def _catalyst_refresh_wrapper() -> None:
+core/scheduler.py:1340| def _sentiment_refresh_wrapper() -> None:
+core/scheduler.py:1354| # Always-on (env-gated): FRED macro regime refresh, daily 12:00 UTC.
+core/scheduler.py:1357| def _macro_refresh_wrapper() -> None:
+core/scheduler.py:1358| from core.macro_regime import fred_enabled, refresh_macro_regime
+core/scheduler.py:1362| refresh_macro_regime()
+core/scheduler.py:1375| def _dist_draft_wrapper() -> None:
+core/scheduler.py:1381| def _dist_publish_wrapper() -> None:
+core/scheduler.py:1387| def _dist_weekly_wrapper() -> None:
+core/scheduler.py:1414| def _dist_scan_wrapper() -> None:
+core/scheduler.py:1420| def _dist_sentinel_wrapper() -> None:
+core/scheduler.py:1440| def _dist_backup_wrapper() -> None:
+core/scheduler.py:1447| def _dist_archive_check_wrapper() -> None:
+core/scheduler.py:1448| from distribution.maintenance import job_archive_check
+core/scheduler.py:1450| job_archive_check()
+core/scheduler.py:1459| _make_watchdog_job("dist_archive_check", _dist_archive_check_wrapper),
+core/scheduler.py:1461| id="finpilot_dist_archive_check",
+core/scheduler.py:1469| def _dist_catchup_thread() -> None:
+core/scheduler.py:1487| def stop_scheduler() -> bool:
+core/scheduler.py:1503| def scheduler_status() -> dict[str, Any]:
+-- defs/keylines api/routers/scan.py nlines 1148
+api/routers/scan.py:46| def _clean_value(v: object) -> object:
+api/routers/scan.py:70| def _load_drl_cache() -> tuple[dict, bool]:
+api/routers/scan.py:86| def _enrich_results(
+api/routers/scan.py:110| from scanner.finpilot_score import compute_finpilot_score
+api/routers/scan.py:128| r["finpilot_score"] = compute_finpilot_score(
+api/routers/scan.py:129| scanner_composite=int(r.get("composite_score") or 0),
+api/routers/scan.py:139| def _persist_shortlist(out: dict) -> None:
+api/routers/scan.py:153| def _persist_shadow_ledger(out: dict, universe: int) -> None:
+api/routers/scan.py:178| "ranking_method": row.get("ranking_method"),
+api/routers/scan.py:195| def _trigger_distribution_draft(universe: int) -> None:
+api/routers/scan.py:228| def _auto_add_watchlist(out: dict, drl_cache: dict, drl_valid: bool) -> None:
+api/routers/scan.py:231| Alpha Tracker taraf\u0131ndan hesaplanan ``score_floor`` varsa, composite_score
+api/routers/scan.py:259| composite = float(r.get("composite_score") or 0)
+api/routers/scan.py:260| if composite < score_floor:
+api/routers/scan.py:264| "Score uyar\u0131s\u0131: %s composite_score=%.1f < floor=%d",
+api/routers/scan.py:266| composite,
+api/routers/scan.py:289| "score": float(r.get("filter_score") or r.get("score") or 0),
+api/routers/scan.py:290| "finpilot_score": int(r.get("finpilot_score") or 0),
+api/routers/scan.py:291| "composite_score": int(r.get("composite_score") or 0),
+api/routers/scan.py:293| "regime": "Bull" if r.get("regime") else "Bear",
+api/routers/scan.py:323| async def run_scan(
+api/routers/scan.py:339| async def watch_disconnect() -> None:
+api/routers/scan.py:373| async def _run_coordinated_scan(req: ScanRequest, auth: TokenPayload, request: Request):
+api/routers/scan.py:398| async def watch_disconnect() -> None:
+api/routers/scan.py:452| def _scan_job(req: ScanRequest) -> dict:
+api/routers/scan.py:461| async def _run_scan(
+api/routers/scan.py:516| def _complete_scan(req, results, _t_start, observation):
+api/routers/scan.py:635| async def summarize_scan(
+api/routers/scan.py:695| async def run_analyze(
+api/routers/scan.py:732| def shortlist_status():
+api/routers/scan.py:735| files = sorted(_SHORTLIST_DIR.glob("shortlist_*.csv"))
+api/routers/scan.py:757| async def get_chart(
+api/routers/scan.py:825| def get_shortlist_latest(limit: int = Query(30, ge=1, le=100)):
+api/routers/scan.py:826| """Return the latest shortlist CSV as JSON, sorted by score desc.
+api/routers/scan.py:832| files = sorted(_SHORTLIST_DIR.glob("shortlist_*.csv"))
+api/routers/scan.py:842| "regime",
+api/routers/scan.py:857| for score_col in ("composite_score", "filter_score", "score"):
+api/routers/scan.py:859| df = df.sort_values(score_col, ascending=False)
+api/routers/scan.py:879| def submit_feedback(req: FeedbackRequest):
+api/routers/scan.py:912| def save_daily_report(req: DailyReportRequest):
+api/routers/scan.py:925| def list_daily_reports(limit: int = Query(30, ge=1, le=90)):
+api/routers/scan.py:928| files = sorted(_REPORTS_DIR.glob("*.json"), reverse=True)[:limit]
+api/routers/scan.py:949| def get_daily_report(date: str):
+api/routers/scan.py:962| def _append_scan_timing_log(timing: dict, universe: int) -> None:
+api/routers/scan.py:998| def _persist_distribution_export(
+api/routers/scan.py:1026| row.setdefault("ranking_score", 0.0)
+api/routers/scan.py:1044| sorted(
+api/routers/scan.py:1109| # Degraded-run guard (2026-07-24): an equal-size run whose
+api/routers/scan.py:1110| # enrichment produced ZERO graded/eligible rows must not
+api/routers/scan.py:1113| from distribution.prepublish_gate import _grade_like
+api/routers/scan.py:1115| def _enriched_count(rows: list) -> int:
+api/routers/scan.py:1120| and (_grade_like(row) or row.get("selection_eligible") is True)
+api/routers/scan.py:1124| degraded_path = export_dir / (
+api/routers/scan.py:1125| f"scan_export_{payload['date']}_degraded_"
+api/routers/scan.py:1128| degraded_path.write_text(
+api/routers/scan.py:1135| degraded_path.name,
+FUNC core/scheduler.py:run_cycle_once lines 469-1119
+  469| def run_cycle_once(
+  470|     symbols: list[str],
+  471|     kelly_fraction: float = 0.5,
+  472|     run_optimizer: bool = False,
+  473| ) -> dict[str, Any]:
+  474|     """Tek bir agent d\xf6ng\xfcs\xfcn\xfc senkron \xe7al\u0131\u015ft\u0131r. T\xfcm sonu\xe7lar\u0131 d\xf6nd\xfcr.
+  475| 
+  476|     Agents communicate via shared context (feedback mechanism):
+  477|       - market_intel results \u2192 passed as metadata to research + backtest
+  478|       - backtest results \u2192 used for KPI signal recording
+  479|       - monitor results \u2192 triggers KPI outcome updates
+  480|       - All results \u2192 aggregated in ReportAgent
+  481|       - Final step: self_evaluate() to score cycle health
+  482|     """
+  483|     global _cycle_count, _last_run, _last_status
+  484| 
+  485|     _last_status = "running"
+  486|     t_start = datetime.now(tz=UTC)
+  487|     results: dict[str, Any] = {}
+  488|     errors: list[str] = []
+  489| 
+  490|     try:
+  491|         import time
+  492| 
+  493|         from agents.backtest_agent import BacktestAgent
+  494|         from agents.base import AgentContext
+  495|         from agents.market_intelligence import MarketIntelligenceAgent
+  496|         from agents.performance_monitor import PerformanceMonitorAgent
+  497|         from agents.research_agent import ResearchAgent
+  498| 
+  499|         from core.agent_events import log_event
+  500|         from core.agent_state import save_agent_result
+  501|         from core.kpi_tracker import record_signal, self_evaluate
+  502| 
+  503|         # --- 0. CEO pipeline (step-0 orchestrator) ---
+  504|         # S17-03: replaced LangGraph get_graph().invoke() with core.pipeline.run_cycle()
+  505|         # \u2014 no LangGraph dependency, no ImportError fallback needed.
+  506|         _t = time.perf_counter()
+  507|         scan_data: dict[str, Any] = {}
+  508|         ceo_state: dict[str, Any] = {}
+  509|         try:
+  510|             from core.pipeline import run_cycle
+  511| 
+  512|             ceo_state = run_cycle(
+  513|                 symbols=symbols,
+  514|                 task="scan",
+  515|                 kelly_fraction=kelly_fraction,
+  516|                 stages={"social", "bull_bear"},
+  517|             )
+  518|             scan_data = ceo_state.get("scan_results", {}) or {}
+  519|             ceo_errors = ceo_state.get("errors", []) or []
+  520|             errors.extend(ceo_errors)
+  521| 
+  522|             _dur = (time.perf_counter() - _t) * 1000
+  523|             results["scan"] = scan_data
+  524|             results["ceo"] = {
+  525|                 "task": "scan",
+  526|                 "top_symbols": ceo_state.get("top_symbols", []),
+  527|                 "errors": ceo_errors,
+  528|             }
+  529|             try:
+  530|                 save_agent_result("scan", symbols, scan_data)
+  531|             except Exception as save_exc:
+  532|                 logger.warning("Scheduler: scan state save failed: %s", save_exc)
+  533|             log_event(
+  534|                 "CEO",
+  535|                 "pipeline_scan",
+  536|                 "ok" if not ceo_errors else "warn",
+  537|                 _dur,
+  538|                 f"{len(scan_data)} sembol tarand\u0131 (top={len(ceo_state.get('top_symbols', []))})",
+  539|                 symbols,
+  540|                 "strategy",
+  541|             )
+  542|         except Exception as exc:
+  543|             errors.append(f"pipeline: {exc}")
+  544|             logger.warning("Scheduler: pipeline failed: %s", exc)
+  545| 
+  546|         # --- 1. Market Intelligence (regime detection) ---
+  547|         _t = time.perf_counter()
+  548|         mi_data: dict[str, Any] = {}
+  549|         try:
+  550|             mi_ctx = AgentContext(symbols=symbols)
+  551|             mi_result = MarketIntelligenceAgent().run(mi_ctx, lookback_days=30, use_llm=True)
+  552|             _dur = (time.perf_counter() - _t) * 1000
+  553|             mi_data = mi_result.data or {}
+  554|             results["market_intel"] = mi_data
+  555|             log_event(
+  556|                 "Market Intelligence",
+  557|                 "regime_detection",
+  558|                 "ok" if mi_result.success else "error",
+  559|                 _dur,
+  560|                 mi_data.get("market_summary", "") if mi_data else str(mi_result.error),
+  561|                 symbols,
+  562|                 "strategy",
+  563|             )
+  564|         except Exception as exc:
+  565|             errors.append(f"market_intel: {exc}")
+  566|             logger.warning("Scheduler: market_intel failed: %s", exc)
+  567| 
+  568|         # --- 1b. Data Quality Gate \u2014 validate symbols before pipeline ---
+  569|         _t = time.perf_counter()
+  570|         try:
+  571|             from agents.data_quality import DataQualityAgent
+  572| 
+  573|             dq_ctx = AgentContext(symbols=symbols)
+  574|             dq_result = DataQualityAgent().run(dq_ctx)
+  575|             _dur = (time.perf_counter() - _t) * 1000
+  576|             dq_data = dq_result.data or {}
+  577|             results["data_quality"] = dq_data
+  578|             if not dq_data.get("passed", True):
+  579|                 logger.warning(
+  580|                     "Scheduler: data quality gate issues: %s",
+  581|                     dq_data.get("issues", []),
+  582|                 )
+  583|             log_event(
+  584|                 "Data Quality",
+  585|                 "schema_check",
+  586|                 "ok" if dq_result.success else "error",
+  587|                 _dur,
+  588|                 f"quality_score={dq_data.get('quality_score', '?')} passed={dq_data.get('passed', '?')}",
+  589|                 symbols,
+  590|                 "quality",
+  591|             )
+  592|         except Exception as exc:
+  593|             errors.append(f"data_quality: {exc}")
+  594|             logger.warning("Scheduler: data_quality failed: %s", exc)
+  595| 
+  596|         # --- 1c. Feedback: data_quality \u2192 24h symbol exclusion list \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  597|         # Symbols flagged as "broken" (missing OHLCV, stale prices) are added
+  598|         # to a Redis / in-process set so the next pipeline run skips them.
+  599|         try:
+  600|             dq_data_local = results.get("data_quality") or {}
+  601|             broken_symbols: list[str] = dq_data_local.get("broken_symbols", [])
+  602|             if broken_symbols:
+  603|                 try:
+  604|                     from core.cache import get_redis
+  605| 
+  606|                     _redis = get_redis()
+  607|                     for _sym in broken_symbols:
+  608|                         _redis.set(f"excl:dq:{_sym}", "1", ex=86_400)  # 24 h TTL
+  609|                     logger.info(
+  610|                         "Scheduler: DQ exclusion set for %d symbols: %s",
+  611|                         len(broken_symbols),
+  612|                         broken_symbols,
+  613|                     )
+  614|                 except Exception:  # noqa: BLE001
+  615|                     # Redis unavailable \u2014 fall back to in-process set
+  616|                     _DQ_EXCLUSIONS.update(broken_symbols)
+  617|                     logger.debug("Scheduler: DQ exclusions (in-process): %s", broken_symbols)
+  618|         except Exception as exc2:  # noqa: BLE001
+  619|             logger.debug("Scheduler: DQ exclusion update skipped: %s", exc2)
+  620|         _t = time.perf_counter()
+  621|         try:
+  622|             # Load latest CEO scan results from shared state (best-effort)
+  623|             _ceo_scan: dict[str, Any] = {}
+  624|             try:
+  625|                 from core.agent_state import get_latest_scan
+  626| 
+  627|                 _ceo_scan = get_latest_scan(symbols) or {}
+  628|             except Exception:
+  629|                 pass
+  630| 
+  631|             rs_ctx = AgentContext(
+  632|                 symbols=symbols,
+  633|                 scan_results=_ceo_scan or None,
+  634|                 metadata={
+  635|                     "market_regime": mi_data.get("regime"),
+  636|                     "market_summary": mi_data.get("market_summary", ""),
+  637|                     "ceo_scan_available": bool(_ceo_scan),
+  638|                 },
+  639|             )
+  640|             rs_result = ResearchAgent().run(rs_ctx)
+  641|             _dur = (time.perf_counter() - _t) * 1000
+  642|             results["research"] = rs_result.data
+  643|             log_event(
+  644|                 "Quant Research",
+  645|                 "news_fetch",
+  646|                 "ok" if rs_result.success else "error",
+  647|                 _dur,
+  648|                 f"{len(rs_result.data or {})} sembol haber",
+  649|                 symbols,
+  650|                 "strategy",
+  651|             )
+  652|         except Exception as exc:
+  653|             errors.append(f"research: {exc}")
+  654|             logger.warning("Scheduler: research failed: %s", exc)
+  655| 
+  656|         # --- 3. Backtest \u2014 uses regime context for strategy selection (feedback) ---
+  657|         _t = time.perf_counter()
+  658|         bt_data: dict[str, Any] = {}
+  659|         try:
+  660|             regime_str = mi_data.get("regime", "")
+  661|             strategy = "trend" if "bull" in str(regime_str).lower() else "momentum"
+  662|             bt_ctx = AgentContext(
+  663|                 symbols=symbols,
+  664|                 scan_results=scan_data or None,
+  665|                 metadata={
+  666|                     "regime": regime_str,
+  667|                     "strategy_hint": strategy,
+  668|                     "scan_available": bool(scan_data),
+  669|                 },
+  670|             )
+  671|             bt_result = BacktestAgent().run(bt_ctx, strategy=strategy, initial_capital=10_000)
+  672|             _dur = (time.perf_counter() - _t) * 1000
+  673|             bt_data = bt_result.data or {}
+  674|             results["backtest"] = bt_data
+  675|             log_event(
+  676|                 "Combination Testing",
+  677|                 "backtest",
+  678|                 "ok" if bt_result.success else "error",
+  679|                 _dur,
+  680|                 f"{len(bt_data)} sembol backtest ({strategy})",
+  681|                 symbols,
+  682|                 "strategy",
+  683|             )
+  684|             # Record signals from backtest into KPI tracker
+  685|             # Sprint 5 (S5-5): also open a paper-portfolio position so we get real P&L
+  686|             # Phase 2 (faz2-decision-gate):
+  687|             #   * compute calibrated p_win once and pass to record_signal + open_position
+  688|             #   * gate open_position on p_win >= FINPILOT_PWIN_THRESHOLD
+  689|             #   * optional DRL veto behind FINPILOT_DRL_GATE=1
+  690|             import os as _os
+  691| 
+  692|             try:
+  693|                 _pwin_threshold = float(_os.getenv("FINPILOT_PWIN_THRESHOLD", "0.55"))
+  694|             except ValueError:
+  695|                 _pwin_threshold = 0.55
+  696|             _drl_gate_on = _os.getenv("FINPILOT_DRL_GATE", "0") == "1"
+  697|             try:
+  698|                 from core.calibration import calibrated_probability as _calibrated_probability
+  699|             except Exception:  # noqa: BLE001
+  700|                 _calibrated_probability = lambda s: 0.5  # noqa: E731
+  701| 
+  702|             for sym, bt_sym in bt_data.items():
+  703|                 if isinstance(bt_sym, dict):
+  704|                     direction = "BUY" if bt_sym.get("total_return", 0) > 0 else "SELL"
+  705|                     entry_price = float(bt_sym.get("final_value", 0) or 0)
+  706|                     score_val = float(bt_sym.get("win_rate", 0) or 0)
+  707| 
+  708|                     # R/R fix (Sprint 8): guard against zero/negative denominator;
+  709|                     # max_return is reward side, max_drawdown is risk side (may be negative).
+  710|                     _max_ret = float(bt_sym.get("max_return", 0) or 0)
+  711|                     _max_dd = abs(float(bt_sym.get("max_drawdown", 0) or 0))
+  712|                     _rr = round(_max_ret / _max_dd, 3) if _max_dd > 0 else 0.0
+  713| 
+  714|                     # Gate: skip zero-price or SELL signals before recording
+  715|                     if entry_price <= 0 or direction != "BUY":
+  716|                         continue
+  717| 
+  718|                     p_win = float(_calibrated_probability(score_val))
+  719|                     # score_val backtest win_rate'i (0-1); kpi_tracker'a
+  720|                     # 0-100 \xf6l\xe7e\u011finde kaydediyoruz \u2192 alpha_tracker bucket'lar\u0131yla uyumlu
+  721|                     record_signal(
+  722|                         symbol=sym,
+  723|                         direction=direction,
+  724|                         price=entry_price,
+  725|                         score=round(score_val * 100, 1),
+  726|                         rr=_rr,
+  727|                         cycle=_cycle_count + 1,
+  728|                         p_win=p_win,
+  729|                     )
+  730|                     if p_win < _pwin_threshold:
+  731|                         logger.info(
+  732|                             "Decision gate: skip paper trade %s (p_win=%.3f < %.3f)",
+  733|                             sym,
+  734|                             p_win,
+  735|                             _pwin_threshold,
+  736|                         )
+  737|                         continue
+  738|                     if _drl_gate_on:
+  739|                         try:
+  740|                             from drl.ensemble_router import get_ensemble_router
+  741| 
+  742|                             router = get_ensemble_router()
+  743|                             drl_pred = router.predict({"symbol": sym, "score": score_val})
+  744|                             drl_action = getattr(drl_pred, "action", None) or (
+  745|                                 drl_pred.get("action") if isinstance(drl_pred, dict) else None
+  746|                             )
+  747|                             if drl_action and str(drl_action).upper() not in ("BUY", "LONG", "1"):
+  748|                                 logger.info("DRL gate: veto %s (action=%s)", sym, drl_action)
+  749|                                 continue
+  750|                         except Exception as drl_exc:  # noqa: BLE001
+  751|                             logger.debug("DRL gate bypass for %s: %s", sym, drl_exc)
+  752|                     try:
+  753|                         import time as _t_paper
+  754| 
+  755|                         from core.paper_portfolio import open_position
+  756| 
+  757|                         sig_id = f"{sym}_{_cycle_count + 1}_{int(_t_paper.time())}"
+  758|                         open_position(
+  759|                             signal_id=sig_id,
+  760|                             symbol=sym,
+  761|                             direction=direction,
+  762|                             entry_price=entry_price,
+  763|                             score=score_val,
+  764|                             cycle=_cycle_count + 1,
+  765|                             p_win=p_win,
+  766|                         )
+  767|                     except Exception as paper_exc:
+  768|                         logger.debug("paper open failed for %s: %s", sym, paper_exc)
+  769|         except Exception as exc:
+  770|             errors.append(f"backtest: {exc}")
+  771|             logger.warning("Scheduler: backtest failed: %s", exc)
+  772| 
+  773|         # --- 4. Strategy Optimizer (optional \u2014 every N cycles) ---
+  774|         if run_optimizer:
+  775|             _t = time.perf_counter()
+  776|             try:
+  777|                 from agents.strategy_optimizer import StrategyOptimizerAgent
+  778| 
+  779|                 opt_ctx = AgentContext(
+  780|                     symbols=symbols, metadata={"regime": mi_data.get("regime", "")}
+  781|                 )
+  782|                 opt_result = StrategyOptimizerAgent().run(
+  783|                     opt_ctx, strategy="momentum", method="grid"
+  784|                 )
+  785|                 _dur = (time.perf_counter() - _t) * 1000
+  786|                 results["optimizer"] = opt_result.data
+  787|                 log_event(
+  788|                     "Strategy Optimizer",
+  789|                     "grid_optimize",
+  790|                     "ok" if opt_result.success else "error",
+  791|                     _dur,
+  792|                     f"{len(opt_result.data or {})} sembol optimize edildi",
+  793|                     symbols,
+  794|                     "strategy",
+  795|                 )
+  796|             except Exception as exc:
+  797|                 errors.append(f"optimizer: {exc}")
+  798|                 logger.warning("Scheduler: optimizer failed: %s", exc)
+  799| 
+  800|         # --- 4b. Feedback: strategy_optimizer \u2192 scanner_config.json \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  801|         # If optimizer produced best_params, persist them so the next scanner
+  802|         # cycle picks them up automatically without a full restart.
+  803|         try:
+  804|             opt_params = (results.get("optimizer") or {}).get("best_params")
+  805|             if opt_params and isinstance(opt_params, dict):
+  806|                 import json as _json
+  807| 
+  808|                 _cfg_path = os.path.join(
+  809|                     os.path.dirname(os.path.dirname(__file__)), "data", "scanner_config.json"
+  810|                 )
+  811|                 existing: dict = {}
+  812|                 try:
+  813|                     with open(_cfg_path) as _f:
+  814|                         existing = _json.load(_f)
+  815|                 except Exception:  # noqa: BLE001
+  816|                     pass
+  817|                 existing.update(opt_params)
+  818|                 existing["_updated_cycle"] = _cycle_count + 1
+  819|                 with open(_cfg_path, "w") as _f:
+  820|                     _json.dump(existing, _f, indent=2)
+  821|                 logger.info("Scheduler: scanner_config.json updated from optimizer")
+  822|         except Exception as exc:  # noqa: BLE001
+  823|             logger.debug("Scheduler: scanner_config write skipped: %s", exc)
+  824|         _t = time.perf_counter()
+  825|         pm_data: dict[str, Any] = {}
+  826|         try:
+  827|             pm_ctx = AgentContext(
+  828|                 symbols=symbols,
+  829|                 metadata={"backtest_results": bt_data, "cycle": _cycle_count + 1},
+  830|             )
+  831|             pm_result = PerformanceMonitorAgent().run(
+  832|                 pm_ctx, warn_drawdown_pct=10, stop_drawdown_pct=20
+  833|             )
+  834|             _dur = (time.perf_counter() - _t) * 1000
+  835|             pm_data = pm_result.data or {}
+  836|             results["monitor"] = pm_data
+  837|             portfolio_status = pm_data.get("portfolio_status", "?")
+  838|             log_event(
+  839|                 "Performance Monitor",
+  840|                 "drawdown_check",
+  841|                 "ok" if pm_result.success else "error",
+  842|                 _dur,
+  843|                 f"Portfolio: {portfolio_status}",
+  844|                 symbols,
+  845|                 "quality",
+  846|             )
+  847|             # Emit feedback to backtest when KPIs are poor (cross-agent feedback loop)
+  848|             try:
+  849|                 from agents.feedback import emit_feedback
+  850| 
+  851|                 from core.kpi_tracker import get_kpis
+  852| 
+  853|                 kpis = get_kpis()
+  854|                 win_rate = kpis.get("win_rate", 0.0)
+  855|                 if win_rate < 50 and kpis.get("resolved_signals", 0) > 0:
+  856|                     emit_feedback(
+  857|                         from_agent="performance_monitor",
+  858|                         to_agent="backtest",
+  859|                         feedback_type="low_win_rate",
+  860|                         data={
+  861|                             "win_rate": win_rate,
+  862|                             "recommendation": "switch to trend strategy",
+  863|                             "cycle": _cycle_count + 1,
+  864|                         },
+  865|                     )
+  866|                 if pm_data.get("portfolio_status") in ("STOP", "WARN"):
+  867|                     emit_feedback(
+  868|                         from_agent="performance_monitor",
+  869|                         to_agent="ceo",
+  870|                         feedback_type="drawdown_alert",
+  871|                         data={
+  872|                             "portfolio_status": pm_data.get("portfolio_status"),
+  873|                             "cycle": _cycle_count + 1,
+  874|                         },
+  875|                     )
+  876|                     # S3-5: Telegram critical alert on drawdown
+  877|                     try:
+  878|                         from telegram_alerts import TelegramNotifier
+  879| 
+  880|                         status_str = pm_data.get("portfolio_status")
+  881|                         emoji = "\U0001f6d1" if status_str == "STOP" else "\u26a0\ufe0f"
+  882|                         worst_sym = ""
+  883|                         try:
+  884|                             sym_map = pm_data.get("symbols", {})
+  885|                             if isinstance(sym_map, dict) and sym_map:
+  886|                                 worst = min(
+  887|                                     sym_map.items(),
+  888|                                     key=lambda kv: kv[1].get("drawdown_pct", 0)
+  889|                                     if isinstance(kv[1], dict)
+  890|                                     else 0,
+  891|                                 )
+  892|                                 worst_sym = (
+  893|                                     f"\nEn k\xf6t\xfc: {worst[0]} DD={worst[1].get('drawdown_pct', '?')}%"
+  894|                                 )
+  895|                         except Exception:  # noqa: BLE001, S110
+  896|                             pass
+  897|                         msg = (
+  898|                             f"{emoji} *PORTF\xd6Y {status_str}* \u2014 Cycle #{_cycle_count + 1}"
+  899|                             f"{worst_sym}"
+  900|                             f"\nWin rate: {win_rate:.1f}% | Resolved: {kpis.get('resolved_signals', 0)}"
+  901|                         )
+  902|                         TelegramNotifier()._send_message(msg)
+  903|                     except Exception as tex:  # noqa: BLE001
+  904|                         logger.warning("Scheduler: telegram drawdown alert failed: %s", tex)
+  905|             except Exception:
+  906|                 pass  # feedback is best-effort
+  907| 
+  908|             # --- 5b. Feedback: drawdown \u2192 reduce kelly_fraction for next cycle ---
+  909|             # If portfolio is in WARN/STOP, reduce the kelly multiplier by 30%
+  910|             # so the next scan cycle sizes positions more conservatively.
+  911|             try:
+  912|                 if pm_data.get("portfolio_status") in ("STOP", "WARN"):
+  913|                     _new_kelly = round(max(0.1, kelly_fraction * 0.70), 4)
+  914|                     logger.warning(
+  915|                         "Scheduler: drawdown detected (%s) \u2014 kelly_fraction reduced "
+  916|                         "from %.4f to %.4f for next cycle",
+  917|                         pm_data.get("portfolio_status"),
+  918|                         kelly_fraction,
+  919|                         _new_kelly,
+  920|                     )
+  921|                     # Persist to scanner_config.json so the effect survives restarts
+  922|                     try:
+  923|                         import json as _json
+  924| 
+  925|                         _cfg_path = os.path.join(
+  926|                             os.path.dirname(os.path.dirname(__file__)),
+  927|                             "data",
+  928|                             "scanner_config.json",
+  929|                         )
+  930|                         existing: dict = {}
+  931|                         try:
+  932|                             with open(_cfg_path) as _f:
+  933|                                 existing = _json.load(_f)
+  934|                         except Exception:  # noqa: BLE001
+  935|                             pass
+  936|                         existing["kelly_fraction"] = _new_kelly
+  937|                         existing["_kelly_reduced_cycle"] = _cycle_count + 1
+  938|                         with open(_cfg_path, "w") as _f:
+  939|                             _json.dump(existing, _f, indent=2)
+  940|                     except Exception:  # noqa: BLE001, S110
+  941|                         pass
+  942|             except Exception:  # noqa: BLE001, S110
+  943|                 pass
+  944|         except Exception as exc:
+  945|             errors.append(f"monitor: {exc}")
+  946|             logger.warning("Scheduler: monitor failed: %s", exc)
+  947| 
+  948|         # --- 6. Report Agent \u2014 aggregate all results into a Markdown report ---
+  949|         _t = time.perf_counter()
+  950|         try:
+  951|             from agents.report_agent import ReportAgent
+  952| 
+  953|             scan_for_report: dict[str, Any] = {}
+  954|             for sym in symbols:
+  955|                 pm_sym = pm_data.get("symbols", {}).get(sym, {})
+  956|                 bt_sym = bt_data.get(sym, {}) if isinstance(bt_data, dict) else {}
+  957|                 scan_for_report[sym] = {
+  958|                     "symbol": sym,
+  959|                     "direction": True,
+  960|                     "regime": mi_data.get("regime", True),
+  961|                     "entry_ok": pm_sym.get("status") == "OK",
+  962|                     "price": pm_sym.get("last_price", 0),
+  963|                     "finpilot_score": bt_sym.get("win_rate", 0),
+  964|                     "risk_reward": bt_sym.get("profit_factor", 0),
+  965|                     "stop_loss": pm_sym.get("period_high", 0) * 0.95,
+  966|                     "take_profit": pm_sym.get("last_price", 0) * 1.1,
+  967|                 }
+  968|             rp_ctx = AgentContext(
+  969|                 symbols=symbols,
+  970|                 scan_results=scan_for_report,
+  971|                 metadata={
+  972|                     "analysis_results": {},
+  973|                     "risk_results": {},
+  974|                     "market_summary": mi_data.get("market_summary", ""),
+  975|                     "cycle": _cycle_count + 1,
+  976|                 },
+  977|             )
+  978|             rp_result = ReportAgent().run(rp_ctx)
+  979|             _dur = (time.perf_counter() - _t) * 1000
+  980|             rp_data = rp_result.data or {}
+  981|             results["report"] = rp_data.get("report", "")
+  982|             log_event(
+  983|                 "Documentation",
+  984|                 "cycle_report",
+  985|                 "ok" if rp_result.success else "error",
+  986|                 _dur,
+  987|                 f"Cycle #{_cycle_count + 1} raporu \u2014 {len(symbols)} sembol",
+  988|                 symbols,
+  989|                 "ops",
+  990|             )
+  991| 
+  992|             # Legacy signal alerts are diagnostic-only and bypass approval.
+  993|             try:
+  994|                 from telegram_alerts import TelegramNotifier
+  995| 
+  996|                 from core.agent_state import mark_alert_sent, was_alert_sent
+  997| 
+  998|                 # Sprint 5 (S5-3): suppress alerts when system is degraded
+  999|                 try:
+ 1000|                     from core.quality_gate import is_degraded as _is_degraded
+ 1001| 
+ 1002|                     _gate_degraded = _is_degraded()
+ 1003|                 except Exception:  # noqa: BLE001
+ 1004|                     _gate_degraded = False
+ 1005| 
+ 1006|                 entries = (
+ 1007|                     []
+ 1008|                     if _gate_degraded
+ 1009|                     or os.environ.get("FINPILOT_ENABLE_LEGACY_SIGNAL_ALERTS", "0") != "1"
+ 1010|                     else [
+ 1011|                         (sym, sig)
+ 1012|                         for sym, sig in scan_for_report.items()
+ 1013|                         if sig.get("entry_ok") and not was_alert_sent(sym, _cycle_count + 1)
+ 1014|                     ]
+ 1015|                 )
+ 1016|                 if entries:
+ 1017|                     notifier = TelegramNotifier()
+ 1018|                     for sym, sig in entries[:10]:  # cap to 10 per cycle
+ 1019|                         try:
+ 1020|                             price = float(sig.get("price", 0) or 0)
+ 1021|                             sl = float(sig.get("stop_loss", 0) or 0)
+ 1022|                             tp = float(sig.get("take_profit", 0) or 0)
+ 1023|                             sl_pct = abs((price - sl) / price * 100) if price else 0.0
+ 1024|                             signal_data = {
+ 1025|                                 "symbol": sym,
+ 1026|                                 "price": round(price, 4),
+ 1027|                                 "stop_loss": round(sl, 4),
+ 1028|                                 "stop_loss_percent": sl_pct,
+ 1029|                                 "take_profit": round(tp, 4),
+ 1030|                                 "risk_reward": float(sig.get("risk_reward", 0) or 0),
+ 1031|                                 "position_size": 0,
+ 1032|                                 "score": int(round(float(sig.get("finpilot_score", 0) or 0))),
+ 1033|                                 "filter_score": 3,
+ 1034|                                 "is_premium_symbol": False,
+ 1035|                                 "timestamp": t_start.strftime("%Y-%m-%d %H:%M UTC"),
+ 1036|                             }
+ 1037|                             notifier.send_signal_alert(signal_data)
+ 1038|                             mark_alert_sent(sym, _cycle_count + 1)
+ 1039|                         except Exception as ie:  # noqa: BLE001
+ 1040|                             logger.warning(
+ 1041|                                 "Scheduler: telegram entry_ok send failed for %s: %s", sym, ie
+ 1042|                             )
+ 1043|             except Exception as exc:  # noqa: BLE001
+ 1044|                 logger.warning("Scheduler: telegram entry_ok hook failed: %s", exc)
+ 1045|         except Exception as exc:
+ 1046|             errors.append(f"report: {exc}")
+ 1047|             logger.warning("Scheduler: report failed: %s", exc)
+ 1048| 
+ 1049|     except Exception as exc:
+ 1050|         errors.append(f"cycle_fatal: {exc}")
+ 1051|         logger.exception("Scheduler cycle fatal error: %s", exc)
+ 1052|         _last_status = "error"
+ 1053|         return {"errors": errors, "cycle": _cycle_count}
+ 1054| 
+ 1055|     _cycle_count += 1
+ 1056|     _last_run = t_start.strftime("%Y-%m-%d %H:%M UTC")
+ 1057| 
+ 1058|     # --- 7. Self-evaluation --- (runs after cycle data is populated)
+ 1059|     try:
+ 1060|         from core.kpi_tracker import self_evaluate
+ 1061| 
+ 1062|         evaluation = self_evaluate(results)
+ 1063|         results["self_evaluation"] = evaluation
+ 1064|         _last_status = evaluation["grade"]
+ 1065|         log_event(
+ 1066|             "CEO",
+ 1067|             "self_evaluate",
+ 1068|             "ok",
+ 1069|             0.0,
+ 1070|             f"Cycle #{_cycle_count} \u2014 Skor: {evaluation['score']}/100 ({evaluation['grade']})",
+ 1071|             symbols,
+ 1072|             "management",
+ 1073|         )
+ 1074|     except Exception as exc:
+ 1075|         errors.append(f"self_eval: {exc}")
+ 1076|         logger.warning("Scheduler: self_eval failed: %s", exc)
+ 1077|         _last_status = "ok"
+ 1078| 
+ 1079|     try:
+ 1080|         from core.tracing import record_cycle_trace
+ 1081| 
+ 1082|         record_cycle_trace(
+ 1083|             _cycle_count,
+ 1084|             "cycle_complete",
+ 1085|             _last_status,
+ 1086|             (datetime.now(tz=UTC) - t_start).total_seconds() * 1000,
+ 1087|             f"errors={len(errors)} steps={len(results)}",
+ 1088|         )
+ 1089|     except Exception:
+ 1090|         pass  # tracing is best-effort
+ 1091| 
+ 1092|     # --- 8. Advisory post-step \u2014 DEACTIVATED (2026-06-12)
+ 1093|     # Advisory persona LLM calls ran every ~10 cycles but output was never consumed
+ 1094|     # by any downstream system (pure cost with zero measured value).
+ 1095|     # Personas remain available on-demand via API task="advisory".
+ 1096|     # Re-enable by uncommenting the block below if a consumption surface is added.
+ 1097|     # try:
+ 1098|     #     _advisory_every_n = 10
+ 1099|     #     if _cycle_count > 0 and _cycle_count % _advisory_every_n == 0:
+ 1100|     #         ...  (original advisory review code removed)
+ 1101|     # except Exception as exc:
+ 1102|     #     logger.warning("Scheduler: advisory post-step failed: %s", exc)
+ 1103| 
+ 1104|     results["errors"] = errors
+ 1105|     results["cycle_number"] = _cycle_count
+ 1106|     results["ran_at"] = _last_run
+ 1107| 
+ 1108|     logger.info(
+ 1109|         "Scheduler cycle #%d complete \u2014 %d agents, %d errors, grade=%s",
+ 1110|         _cycle_count,
+ 1111|         len(
+ 1112|             [k for k in results if k not in ("errors", "cycle_number", "ran_at", "self_evaluation")]
+ 1113|         ),
+ 1114|         len(errors),
+ 1115|         results.get("self_evaluation", {}).get("grade", "?"),
+ 1116|     )
+ 1117|     return results
+ 1118| 
+ 1119| 
+-- py files scanned: 197
+DIR scanner files: __init__.py(86), backtest_metrics.py(314), catalyst.py(194), config.py(181), data_fetcher.py(1758), earnings_blackout.py(116), edge_report.py(291), evaluate.py(852), execution_policy.py(118), features.py(804), finpilot_score.py(113), indicators.py(268), instrumentation.py(110), labeling.py(156), performance.py(89), position_sizer.py(261), risk_engine.py(233), risk_metrics.py(228), scan_summary.py(298), score_engine.py(397), screener.py(253), sentiment.py(169), signals.py(511), telemetry.py(9), watch_tier.py(205)
+DIR core files: __init__.py(114), advisory_memory.py(151), agent_events.py(105), agent_state.py(173), analytics.py(125), audit.py(591), audit_log.py(70), auto_pipeline.py(138), backtest.py(1273), cache.py(830), calibration.py(665), config.py(549), database.py(103), exceptions.py(621), horizon_outcomes_db.py(96), kpi_tracker.py(540), logging.py(591), macro_regime.py(147), monitoring.py(1212), outcome_reconciler.py(345), paper_portfolio.py(291), pending_actions.py(136), pipeline.py(527), prometheus_exporter.py(337), quality_gate.py(120), rate_limiter.py(115), regime_weights.py(183), scan_coordinator.py(341), scan_observability.py(218), scheduler.py(1511), services.py(92), session_state.py(463), shortlist_view.py(39), signal_events.py(153), slippage_tracker.py(450), tracing.py(145)
+DIR api files: __init__.py(0), main.py(432), middleware/__init__.py(0), middleware/auth.py(97), middleware/pii_filter.py(146), middleware/rate_limiter.py(6), middleware/request_body_limit.py(94), routers/__init__.py(0), routers/academy.py(171), routers/advisory.py(270), routers/agent.py(802), routers/ai_explain.py(213), routers/analytics.py(33), routers/auth.py(162), routers/backtest.py(109), routers/closed_loop.py(300), routers/demo_feedback.py(71), routers/distribution.py(93), routers/ensemble.py(31), routers/execution.py(102), routers/history.py(308), routers/inference.py(224), routers/llm.py(318), routers/market_data.py(291), routers/models.py(76), routers/optuna.py(117), routers/prices.py(286), routers/profitcore.py(26), routers/reasoning.py(347), routers/research.py(109), routers/scan.py(1148), routers/stripe_webhook.py(132), routers/trade.py(166), routers/user.py(80), routers/waitlist_signup.py(152), routers/watchlist.py(1074), services/__init__.py(0), services/finsense_release.py(431), services/watchlist_db.py(262)
+DIR distribution files: __init__.py(16), archive_bridge.py(169), broadcast.py(272), concepts.py(33), glossary.py(435), jobs.py(957), karne.py(203), lint.py(116), maintenance.py(190), market_calendar.py(44), market_context.py(70), partial_publication.py(274), prepublish_gate.py(105), rationale.py(571), scan_contract.py(74), schema.py(114), snapshot_builder.py(680), store.py(264), telegram_client.py(126), templates.py(205)
+## PAT SCORE_ASSIGN total 28 files 7
+   top files: scripts/golden_scan.py=10, scanner/evaluate.py=7, api/routers/scan.py=4, scanner/features.py=2, scanner/score_engine.py=2, core/scheduler.py=2, scripts/run_finpilot_tests.py=1
+   scanner/evaluate.py:107| "composite_score": 0,
+   scanner/evaluate.py:299| filter_score = int(volume_spike) + int(price_momentum) + int(trend_strength)
+   scanner/evaluate.py:523| "filter_score": int(filter_score),
+   scanner/evaluate.py:546| _composite_score = compute_recommendation_strength(
+   scanner/evaluate.py:559| composite_score=int(_composite_score),
+   scanner/evaluate.py:648| "filter_score": int(filter_score),
+   scanner/evaluate.py:701| "composite_score": _composite_score,
+   scanner/features.py:690| final_score = int(max(0, min(100, round(score))))
+   scanner/features.py:766| final_score = int(max(0, min(100, round(score))))
+   scanner/score_engine.py:261| "filter_score": float(row.get("filter_score", 0)) * 1.5,
+   scanner/score_engine.py:322| "recommendation_score": round(float(score), 3),
+   core/scheduler.py:963| "finpilot_score": bt_sym.get("win_rate", 0),
+   core/scheduler.py:1033| "filter_score": 3,
+   api/routers/scan.py:128| r["finpilot_score"] = compute_finpilot_score(
+   api/routers/scan.py:264| "Score uyar\u0131s\u0131: %s composite_score=%.1f < floor=%d",
+   api/routers/scan.py:290| "finpilot_score": int(r.get("finpilot_score") or 0),
+   api/routers/scan.py:291| "composite_score": int(r.get("composite_score") or 0),
+## PAT ARCHIVE total 56 files 18
+   top files: distribution/archive_bridge.py=8, scripts/resolve_open_signals.py=6, scripts/_check_db.py=6, scripts/export_resolved_cases.py=5, scripts/migrate_signal_archive_to_sqlite.py=5, distribution/karne.py=4, scripts/_payload_check.py=4, scripts/_db_audit.py=3, scripts/_watching_check.py=3, scripts/barrier_audit.py=2, scripts/offline_ablation.py=2, scripts/regime_cross_section.py=2, scanner/edge_report.py=1, core/scheduler.py=1
+   scanner/edge_report.py:12| ``signals_archive``, attaches each one's forward OHLC window, and calls
+   core/scheduler.py:193| """Weekly resolution of open signals_archive rows (Mondays 03:00 UTC).
+   distribution/archive_bridge.py:2| signals_archive and watches archive continuity.
+   distribution/archive_bridge.py:47| """Insert the snapshot's public candidates into signals_archive.
+   distribution/archive_bridge.py:81| "INSERT OR IGNORE INTO signals_archive "
+   distribution/archive_bridge.py:151| row = con.execute("SELECT MAX(ts) FROM signals_archive").fetchone()
+   distribution/archive_bridge.py:155| return f"signals_archive okunamad\u0131: {exc}"
+   distribution/archive_bridge.py:158| return "signals_archive tamamen bo\u015f"
+   distribution/archive_bridge.py:162| return f"signals_archive ts alan\u0131 bozuk: {last_ts!r}"
+   distribution/archive_bridge.py:166| f"signals_archive {gap} g\xfcnd\xfcr b\xfcy\xfcm\xfcyor (son kay\u0131t {last_day}). "
+   distribution/karne.py:12| * overall   \u2014 all-time ungraded track record from signals_archive barrier
+   distribution/karne.py:80| """All-time ungraded track record from signals_archive barrier labels.
+   distribution/karne.py:88| "FROM signals_archive "
+   distribution/karne.py:143| con.execute("SELECT COUNT(*) FROM signals_archive").fetchone()[0]
+## PAT BARRIER total 38 files 12
+   top files: scripts/export_resolved_cases.py=6, distribution/karne.py=5, scripts/momentum_turnover_sort.py=5, scripts/resolve_open_signals.py=5, scripts/fit_meta_labeler.py=4, scripts/offline_ablation.py=3, scripts/_db_audit.py=3, scripts/barrier_audit.py=2, scripts/regime_cross_section.py=2, core/scheduler.py=1, scripts/_payload_check.py=1, scripts/_watching_check.py=1
+   core/scheduler.py:197| resolved_pct_barrier \u2014 first TP/SL/21-trading-day barrier hit
+   distribution/karne.py:13| labels (resolved_pct_barrier). This is the real, positive
+   distribution/karne.py:82| These historical rows carry realized barrier returns (resolved_pct_barrier)
+   distribution/karne.py:87| "SELECT resolved_status_barrier AS s, resolved_pct_barrier AS p "
+   distribution/karne.py:89| "WHERE resolved_status_barrier IN ('resolved_win', 'resolved_loss') "
+   distribution/karne.py:90| "  AND resolved_pct_barrier IS NOT NULL"
+## PAT MFE_MAE total 12 files 3
+   top files: scanner/labeling.py=9, scanner/backtest_metrics.py=2, scripts/universe_backtest.py=1
+   scanner/backtest_metrics.py:269| mfe = _num(o, "mfe_pct")
+   scanner/backtest_metrics.py:270| val = mfe if mfe is not None else _num(o, "ret")
+   scanner/labeling.py:100| mfe = 0.0
+   scanner/labeling.py:101| mae = 0.0
+   scanner/labeling.py:106| mfe = max(mfe, _ret(hi))
+   scanner/labeling.py:107| mae = min(mae, _ret(lo))
+   scanner/labeling.py:111| mfe = max(mfe, _ret(lo))
+   scanner/labeling.py:112| mae = min(mae, _ret(hi))
+   scanner/labeling.py:117| return BarrierLabel("sl", i + 1, entry_price, sl_price, _ret(sl_price), mfe, mae)
+   scanner/labeling.py:119| return BarrierLabel("tp", i + 1, entry_price, tp_price, _ret(tp_price), mfe, mae)
+   scanner/labeling.py:122| return BarrierLabel("time", horizon, entry_price, exit_px, _ret(exit_px), mfe, mae)
+## PAT COST total 207 files 14
+   top files: core/slippage_tracker.py=62, scripts/run_finpilot_tests.py=33, core/backtest.py=32, scripts/paper_trading.py=16, scripts/backtest.py=15, scanner/evaluate.py=13, scripts/run_fixed_target_research.py=8, core/paper_portfolio.py=6, scripts/research_protocol_check.py=5, scripts/run_full_universe_research.py=5, scripts/build_content_series.py=4, scanner/execution_policy.py=3, distribution/glossary.py=3, distribution/snapshot_builder.py=2
+   scanner/evaluate.py:122| Uses core.slippage_tracker's real RealisticBacktestCosts model to estimate
+   scanner/evaluate.py:125| `estimate_round_trip_cost` function \u2014 every call silently fell back to
+   scanner/evaluate.py:132| from core.slippage_tracker import RealisticBacktestCosts  # noqa: PLC0415
+   scanner/evaluate.py:134| cost_pct = RealisticBacktestCosts().round_trip_cost_pct() / 100.0
+   scanner/evaluate.py:180| spread_bps = None
+   scanner/evaluate.py:182| for column in ("spread_bps", "spread_pct"):
+   scanner/evaluate.py:185| spread_bps = value if column == "spread_bps" else value * 100.0
+   scanner/evaluate.py:188| if spread_bps is None and all(column in df_15m.columns for column in ("bid", "ask")):
+   scanner/evaluate.py:193| spread_bps = (ask - bid) / mid * 10_000.0
+   scanner/evaluate.py:211| "spread_bps": spread_bps is not None,
+   scanner/evaluate.py:216| "spread_bps": round(spread_bps, 4) if spread_bps is not None else None,
+   scanner/evaluate.py:634| "spread_bps": _data_quality["spread_bps"],
+   scanner/evaluate.py:740| # (slippage + commission). Uses core.slippage_tracker when available;
+   scanner/execution_policy.py:68| if not available.get("spread_bps", False):
+   scanner/execution_policy.py:74| for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
+   scanner/execution_policy.py:82| for field in ("spread_bps", "dollar_adv", "short_interest_timestamp")
+   core/backtest.py:10| - Slippage and commission modeling
+   core/backtest.py:40| from core.slippage_tracker import RealisticBacktestCosts as _RBC
+   core/backtest.py:49| from core.slippage_tracker import RealisticBacktestCosts as _RBC
+   core/backtest.py:92| commission: float = 0.0
+   core/backtest.py:93| slippage: float = 0.0
+   core/backtest.py:107| return gross - self.commission - self.slippage
+   core/backtest.py:944| from core.slippage_tracker import RealisticBacktestCosts, SlippageTracker
+   core/backtest.py:945| tracker = SlippageTracker()
+   core/backtest.py:949| - slippage_rate ve commission_rate flat parametreleri devre d\u0131\u015f\u0131 kal\u0131r
+   core/backtest.py:950| - Dinamik Kyle-lambda slippage + $1.50 komisyon + overnight gap modeli devreye girer
+   core/backtest.py:954| commission_rate: float = 0.001  # 0.1% \u2014 realistic_costs set edilince kullan\u0131lmaz
+   core/backtest.py:955| slippage_rate: float = 0.0005  # 0.05% \u2014 realistic_costs set edilince kullan\u0131lmaz
+   core/backtest.py:1054| # Dinamik slippage + Kyle-lambda + komisyon + overnight gap
+   core/backtest.py:1057| slippage = entry["slippage_usd"]
+## PAT REGIME total 58 files 15
+   top files: scanner/features.py=10, scanner/evaluate.py=9, core/regime_weights.py=9, scanner/score_engine.py=8, scripts/regime_cross_section.py=5, core/macro_regime.py=3, scripts/universe_backtest.py=3, scanner/__init__.py=2, scripts/backtest.py=2, scripts/_write_report.py=2, scanner/data_fetcher.py=1, scanner/instrumentation.py=1, scanner/position_sizer.py=1, core/scheduler.py=1
+   scanner/data_fetcher.py:1575| def get_market_regime_status(symbols: list[str]) -> dict[str, Any]:
+   scanner/evaluate.py:117| vol_regime: int,
+   scanner/evaluate.py:142| elif vol_regime == 2 and net_ev < _DECAY_EV_THRESH:
+   scanner/evaluate.py:454| vol_regime_val = 1
+   scanner/evaluate.py:461| vol_regime_val = alpha.get("vol_regime", 1)
+   scanner/evaluate.py:530| # Faz 3: vol_regime drives momentum weight in score_engine
+   scanner/evaluate.py:531| "vol_regime": int(vol_regime_val),
+   scanner/evaluate.py:694| "vol_regime": vol_regime_val,
+   scanner/evaluate.py:745| #   "edge_decay" \u2014 high-vol regime (vol_regime==2) AND net EV < 0.5%
+   scanner/evaluate.py:750| vol_regime=int(vol_regime_val),
+   scanner/features.py:8| 2. ``vol_regime`` \u2014 realised volatility regime for a symbol:
+   scanner/features.py:41| # Cache: symbol \u2192 {"sector_rs": float, "vol_regime": int, "ts": float}
+   scanner/features.py:81| def compute_vol_regime(symbol: str) -> int:
+   scanner/features.py:369| def compute_vol_regime_from_df(df: Any) -> int:
+   scanner/features.py:372| Same math as compute_vol_regime (20-day realised vol annualised) but reads
+   scanner/features.py:394| """Return cached ``sector_rs``, ``vol_regime`` and ``squeeze_factor``.
+   scanner/features.py:410| vol_regime = (
+   scanner/features.py:411| compute_vol_regime_from_df(df_1d) if df_1d is not None else compute_vol_regime(symbol)
+   scanner/features.py:420| "vol_regime": vol_regime,
+   scanner/features.py:427| "vol_regime": vol_regime,
+   scanner/instrumentation.py:45| "vol_regime",
+   scanner/position_sizer.py:32| def _regime_scale(composite_score: int, is_bull_regime: bool) -> float:
+   scanner/score_engine.py:79| # vol_regime: 0=low (\u03c3<15%), 1=normal (15\u201330%), 2=high (>30%)
+   scanner/score_engine.py:108| vol_regime (Faz 3), squeeze_factor, catalyst_factor,
+   scanner/score_engine.py:138| _vr = row.get("vol_regime")
+   scanner/score_engine.py:139| vol_regime = int(_vr) if _vr is not None else 1
+   scanner/score_engine.py:140| mom_weight = _VOL_REGIME_MOM_WEIGHTS.get(vol_regime, 2.0)
+   scanner/score_engine.py:272| vol_regime = int(row.get("vol_regime")) if row.get("vol_regime") is not None else 1
+   scanner/score_engine.py:274| vol_regime, 2.0
+   scanner/score_engine.py:357| def regime_gate_mult(regime_bull: bool, composite_score: int) -> float:
+## PAT FRESH total 97 files 23
+   top files: core/cache.py=36, scanner/data_fetcher.py=15, api/routers/watchlist.py=7, api/routers/scan.py=6, api/routers/inference.py=4, scanner/features.py=3, scanner/risk_engine.py=3, distribution/jobs.py=3, scanner/earnings_blackout.py=2, scanner/__init__.py=2, core/regime_weights.py=2, core/scheduler.py=2, api/routers/distribution.py=2, scanner/finpilot_score.py=1
+   scanner/data_fetcher.py:8| - Smart caching with configurable TTL
+   scanner/data_fetcher.py:188| # Market-aware TTL: 5 min during trading hours, 60 min outside.
+   scanner/data_fetcher.py:189| # This avoids stale data during market hours while eliminating
+   scanner/data_fetcher.py:194| """Return appropriate cache TTL based on current time (UTC).
+   scanner/data_fetcher.py:213| CACHE_TTL_SECONDS = _market_aware_ttl()
+   scanner/data_fetcher.py:214| CACHE_TTL_MARKET_INDEX = CACHE_TTL_SECONDS
+   scanner/data_fetcher.py:218| _memory_cache = MemoryCache(max_size=_OHLCV_CACHE_MAX_ENTRIES, default_ttl=CACHE_TTL_SECONDS)
+   scanner/data_fetcher.py:333| def _cache_data(ttl_seconds: int = CACHE_TTL_SECONDS):
+   scanner/data_fetcher.py:341| 3. Per-process in-memory TTL cache as last resort.
+   scanner/data_fetcher.py:357| ttl=ttl_seconds, max_entries=_OHLCV_CACHE_MAX_ENTRIES, show_spinner=False
+   scanner/data_fetcher.py:383| _memory_cache.set(key, df, ttl=ttl_seconds)
+   scanner/data_fetcher.py:389| _memory_cache.set(key, result, ttl=ttl_seconds)
+   scanner/data_fetcher.py:397| cache_manager.set(key, payload, ttl=ttl_seconds, l2_only=True)
+   scanner/data_fetcher.py:408| @_cache_data(ttl_seconds=CACHE_TTL_SECONDS)
+   scanner/data_fetcher.py:1550| @_cache_data(ttl_seconds=CACHE_TTL_MARKET_INDEX)  # Standardized TTL
+   scanner/earnings_blackout.py:26| _CACHE_TTL = 6 * 3600.0  # 6 hours
+   scanner/earnings_blackout.py:74| if cached and now - cached["ts"] < _CACHE_TTL:
+   scanner/features.py:13| Both features are cached per symbol with a 1-hour TTL to avoid
+   scanner/features.py:43| _CACHE_TTL = 3600.0  # seconds
+   scanner/features.py:403| if cached and now - cached["ts"] < _CACHE_TTL:
+   scanner/finpilot_score.py:74| # Sahte/stale DRL confidence (varsay\u0131lan 0.5) skoru bozmas\u0131n.
+   scanner/risk_engine.py:34| A missing/stale/malformed file is treated as "not breached" (fail-open so
+   scanner/risk_engine.py:35| the scanner keeps running when state isn't initialised). Stale = date older
+   scanner/risk_engine.py:44| return False  # stale: new day, no DD yet
+   scanner/__init__.py:7| CACHE_TTL_SECONDS,
+   scanner/__init__.py:75| "CACHE_TTL_SECONDS",
+   core/agent_state.py:9| Storage: Redis (key-value, TTL=3600s) with in-memory fallback.
+   core/cache.py:6| - L1: Memory cache (LRU, h\u0131zl\u0131, k\u0131sa TTL)
+   core/cache.py:7| - L2: Redis cache (opsiyonel, uzun TTL, distributed)
+   core/cache.py:13| @cached(ttl=300, prefix="market")
+## PAT COMPLETE total 94 files 25
+   top files: scanner/evaluate.py=18, scanner/risk_metrics.py=12, core/exceptions.py=6, core/scheduler.py=6, scanner/execution_policy.py=5, scripts/run_fixed_target_research.py=5, scripts/run_full_universe_research.py=5, scanner/features.py=4, scripts/provider_benchmark.py=4, scanner/data_fetcher.py=3, core/calibration.py=3, api/routers/scan.py=3, distribution/prepublish_gate.py=3, scripts/pit_research_pipeline.py=3
+   scanner/data_fetcher.py:155| # timeframe, how many symbols had INSUFFICIENT Alpaca(IEX) history and thus fell
+   scanner/data_fetcher.py:168| """Symbols with insufficient Alpaca history per timeframe, since last reset."""
+   scanner/data_fetcher.py:1155| """Fill only insufficient Alpaca symbol/timeframe results with yfinance."""
+   scanner/evaluate.py:75| data_quality = {
+   scanner/evaluate.py:82| "data_quality_tier": "Tier 3",
+   scanner/evaluate.py:83| "data_quality_status": "missing",
+   scanner/evaluate.py:84| "data_quality": data_quality,
+   scanner/evaluate.py:253| return _unavailable_result(symbol, "insufficient_history")
+   scanner/evaluate.py:580| _data_quality = _feature_contract(
+   scanner/evaluate.py:587| _execution_contract_data = execution_contract(_data_quality)
+   scanner/evaluate.py:615| _data_quality["dollar_adv"],
+   scanner/evaluate.py:634| "spread_bps": _data_quality["spread_bps"],
+   scanner/evaluate.py:635| "spread_source": _data_quality["spread_source"],
+   scanner/evaluate.py:636| "dollar_adv": _data_quality["dollar_adv"],
+   scanner/evaluate.py:637| "adv_source": _data_quality["adv_source"],
+   scanner/evaluate.py:638| "short_interest_timestamp": _data_quality["short_interest_timestamp"],
+   scanner/evaluate.py:639| "feature_timestamps": _data_quality["feature_timestamps"],
+   scanner/evaluate.py:640| "feature_age_minutes": _data_quality["feature_age_minutes"],
+   scanner/evaluate.py:641| "data_quality": _data_quality,
+   scanner/evaluate.py:714| data_quality=_data_quality,
+   scanner/evaluate.py:728| "risk_data_quality": _risk_metrics.get("data_quality", "low"),
+   scanner/execution_policy.py:58| def execution_contract(data_quality: dict[str, Any]) -> dict[str, Any]:
+   scanner/execution_policy.py:60| available = data_quality.get("available", {})
+   scanner/execution_policy.py:61| missing = list(data_quality.get("missing_fields", []))
+   scanner/execution_policy.py:79| "data_quality_tier": "Tier 2"
+   scanner/execution_policy.py:87| "data_quality_status": "complete" if not missing else "partial",
+   scanner/features.py:642| if not sigs or sigs.get("data_quality") == "low":
+   scanner/features.py:693| "fundamental_quality": sigs.get("data_quality", "low"),
+   scanner/features.py:694| **{k: v for k, v in sigs.items() if k != "data_quality"},
+   scanner/features.py:787| 0.0 = volume flat or fading. Pure pandas; 0.0 when insufficient data.
+## PAT PROVIDER total 462 files 35
+   top files: scanner/data_fetcher.py=170, scripts/provider_benchmark.py=43, api/routers/prices.py=34, api/routers/scan.py=23, scripts/verify_eodhd_bars.py=23, scanner/sentiment.py=19, scripts/alpaca_extract_probe.py=17, core/config.py=15, scripts/sync_symbols.py=15, scanner/features.py=13, scripts/probe_eodhd.py=11, scripts/universe_backtest.py=11, api/routers/trade.py=9, scripts/golden_scan.py=8
+   scanner/data_fetcher.py:33| import yfinance as yf
+   scanner/data_fetcher.py:44| # yfinance is the per-symbol FALLBACK (Alpaca is the bulk primary). Its internal
+   scanner/data_fetcher.py:56| # it leaned on the slow per-symbol fallback vs the Alpaca bulk primary. This was
+   scanner/data_fetcher.py:71| # P0.1: also clear the per-timeframe Alpaca-miss counter for this scan.
+   scanner/data_fetcher.py:72| global _ALPACA_MISS_BY_TF
+   scanner/data_fetcher.py:73| with _ALPACA_MISS_LOCK:
+   scanner/data_fetcher.py:74| _ALPACA_MISS_BY_TF = {}
+   scanner/data_fetcher.py:75| global _ALPACA_TOTAL_FAILURE
+   scanner/data_fetcher.py:76| with _ALPACA_FAILURE_LOCK:
+   scanner/data_fetcher.py:77| _ALPACA_TOTAL_FAILURE = False
+   scanner/data_fetcher.py:102| # cagriliyordu. `_bulk_yf_download()` (yf.download ile N sembol tek cagrida)
+   scanner/data_fetcher.py:135| def alpaca_total_failure() -> bool:
+   scanner/data_fetcher.py:136| """Whether the Alpaca bulk path failed completely since the last reset."""
+   scanner/data_fetcher.py:137| with _ALPACA_FAILURE_LOCK:
+   scanner/data_fetcher.py:138| return _ALPACA_TOTAL_FAILURE
+   scanner/data_fetcher.py:148| def _note_alpaca_total_failure() -> None:
+   scanner/data_fetcher.py:149| global _ALPACA_TOTAL_FAILURE
+   scanner/data_fetcher.py:150| with _ALPACA_FAILURE_LOCK:
+   scanner/data_fetcher.py:151| _ALPACA_TOTAL_FAILURE = True
+   scanner/data_fetcher.py:154| # P0.1 (2026-07-31 scanner audit) \u2014 Alpaca-miss visibility. Records, per real
+   scanner/data_fetcher.py:155| # timeframe, how many symbols had INSUFFICIENT Alpaca(IEX) history and thus fell
+   scanner/data_fetcher.py:159| _ALPACA_MISS_BY_TF: dict[str, int] = {}
+   scanner/data_fetcher.py:160| _ALPACA_MISS_LOCK = threading.Lock()
+   scanner/data_fetcher.py:161| _ALPACA_TOTAL_FAILURE = False
+   scanner/data_fetcher.py:162| _ALPACA_FAILURE_LOCK = threading.Lock()
+   scanner/data_fetcher.py:167| def alpaca_miss_by_tf() -> dict[str, int]:
+   scanner/data_fetcher.py:168| """Symbols with insufficient Alpaca history per timeframe, since last reset."""
+   scanner/data_fetcher.py:169| with _ALPACA_MISS_LOCK:
+   scanner/data_fetcher.py:170| return dict(_ALPACA_MISS_BY_TF)
+   scanner/data_fetcher.py:173| def _note_alpaca_miss(missing_by_tf: dict[str, list]) -> None:
+## PAT ENTRY total 151 files 34
+   top files: scripts/backtest.py=17, scanner/labeling.py=15, api/routers/watchlist.py=10, scripts/resolve_open_signals.py=9, scripts/paper_trading.py=8, core/backtest.py=7, core/outcome_reconciler.py=7, core/paper_portfolio.py=7, scripts/universe_backtest.py=7, scripts/profitcore_audit.py=6, scripts/_payload_check.py=6, scanner/edge_report.py=5, core/scheduler.py=5, api/routers/history.py=5
+   scanner/edge_report.py:36| """Label one signal record. Requires ``entry_price`` and ``forward_closes``;
+   scanner/edge_report.py:40| entry_price=float(record["entry_price"]),
+   scanner/edge_report.py:61| records: each a dict with ``entry_price`` + ``forward_closes`` (and
+   scanner/edge_report.py:141| records: dicts with ``entry_price`` + ``forward_closes`` (+ optional
+   scanner/edge_report.py:269| return "entry_price" in r and "forward_closes" in r and bool(r.get("forward_closes"))
+   scanner/labeling.py:25| entry_price: float
+   scanner/labeling.py:35| "entry_price": round(self.entry_price, 6),
+   scanner/labeling.py:46| entry_price: float,
+   scanner/labeling.py:58| entry_price:    fill price at entry.
+   scanner/labeling.py:77| if entry_price <= 0:
+   scanner/labeling.py:78| raise ValueError("entry_price must be positive")
+   scanner/labeling.py:84| return BarrierLabel("time", 0, entry_price, entry_price, 0.0, 0.0, 0.0)
+   scanner/labeling.py:90| tp_price = entry_price * (1.0 + tp_pct)
+   scanner/labeling.py:91| sl_price = entry_price * (1.0 - sl_pct)
+   scanner/labeling.py:93| tp_price = entry_price * (1.0 - tp_pct)
+   scanner/labeling.py:94| sl_price = entry_price * (1.0 + sl_pct)
+   scanner/labeling.py:97| r = (px - entry_price) / entry_price
+   scanner/labeling.py:117| return BarrierLabel("sl", i + 1, entry_price, sl_price, _ret(sl_price), mfe, mae)
+   scanner/labeling.py:119| return BarrierLabel("tp", i + 1, entry_price, tp_price, _ret(tp_price), mfe, mae)
+   scanner/labeling.py:122| return BarrierLabel("time", horizon, entry_price, exit_px, _ret(exit_px), mfe, mae)
+   core/agent_state.py:65| entry = _mem_store.get(key)
+   core/audit.py:234| entry = self._queue.get(timeout=self.flush_interval)
+   core/audit.py:304| entry = self._queue.get_nowait()
+   core/audit.py:345| entry = AuditEntry(
+   core/audit.py:418| entry = json.loads(line.strip())
+   core/audit_log.py:43| entry = {
+   core/backtest.py:85| entry_price: float
+   core/backtest.py:103| gross = (self.exit_price - self.entry_price) * self.shares
+   core/backtest.py:105| gross = (self.entry_price - self.exit_price) * self.shares
+   core/backtest.py:112| cost = self.entry_price * self.shares
+## PAT FLAGS total 314 files 31
+   top files: scanner/score_engine.py=65, scanner/features.py=37, scanner/evaluate.py=36, distribution/snapshot_builder.py=27, scripts/offline_ablation.py=19, scripts/universe_backtest.py=17, api/routers/market_data.py=14, scripts/b2_t_technical_validation.py=12, distribution/glossary.py=11, core/slippage_tracker.py=10, distribution/rationale.py=8, scanner/watch_tier.py=7, scripts/b2_n_diagnostic.py=7, scanner/edge_report.py=6
+   scanner/backtest_metrics.py:253| squeeze_key: str = "squeeze_factor",
+   scanner/backtest_metrics.py:255| squeeze_min: float = 0.5,  # ~short interest >= 15%
+   scanner/backtest_metrics.py:276| if (s := _num(o, squeeze_key)) is not None
+   scanner/backtest_metrics.py:277| and s >= squeeze_min
+   scanner/catalyst.py:11| required by SEC) and converts recent filings into a signed ``catalyst_factor``
+   scanner/catalyst.py:16| from a scheduler job and :func:`compute_catalyst_factor` reads only from cache.
+   scanner/catalyst.py:186| def compute_catalyst_factor(symbol: str) -> float:
+   scanner/config.py:25| "trend_gap_pct": 3.0,  # EMA50-EMA200 gap percentage
+   scanner/config.py:61| "trend_gap_pct": 2.2,
+   scanner/edge_report.py:143| value under ``factor_key`` (e.g. record["squeeze_factor"]).
+   scanner/edge_report.py:194| # factor, e.g. lottery/overnight-gap \u2014 the model SUBTRACTS them, so confirming
+   scanner/edge_report.py:198| ("squeeze_factor", 0.5, +1),
+   scanner/edge_report.py:199| ("catalyst_factor", 0.3, +1),
+   scanner/edge_report.py:205| ("lottery_factor", 0.5, -1),  # fade: HIGH should underperform
+   scanner/edge_report.py:206| ("overnight_gap_factor", 0.5, -1),  # fade: HIGH should underperform
+   scanner/evaluate.py:51| check_volume_spike,
+   scanner/evaluate.py:296| volume_spike = bool(check_volume_spike(df_1d))
+   scanner/evaluate.py:299| filter_score = int(volume_spike) + int(price_momentum) + int(trend_strength)
+   scanner/evaluate.py:341| ema_gap_pct = (((ema50 - ema200) / ema200) * 100) if ema200 else 0.0
+   scanner/evaluate.py:343| ema_gap_pct = 0.0
+   scanner/evaluate.py:455| squeeze_factor = 0.0
+   scanner/evaluate.py:462| squeeze_factor = alpha.get("squeeze_factor", 0.0)
+   scanner/evaluate.py:467| catalyst_factor = 0.0
+   scanner/evaluate.py:469| from scanner.catalyst import compute_catalyst_factor  # noqa: PLC0415
+   scanner/evaluate.py:471| catalyst_factor = compute_catalyst_factor(symbol)
+   scanner/evaluate.py:479| gap_pct = 0.0
+   scanner/evaluate.py:486| compute_gap_pct,
+   scanner/evaluate.py:495| gap_pct = compute_gap_pct(df_1d)
+   scanner/evaluate.py:501| lottery_factor = 0.0
+   scanner/evaluate.py:503| from scanner.features import compute_lottery_factor  # noqa: PLC0415
+## PAT GRADE total 152 files 29
+   top files: distribution/snapshot_builder.py=24, distribution/glossary.py=17, scanner/scan_summary.py=13, distribution/karne.py=12, scanner/features.py=8, scanner/watch_tier.py=7, scanner/execution_policy.py=6, core/scheduler.py=6, api/routers/watchlist.py=6, api/services/watchlist_db.py=6, scanner/edge_report.py=5, distribution/jobs.py=5, distribution/rationale.py=5, distribution/schema.py=5
+   scanner/edge_report.py:4| signal (or a WATCH/SETUP tier) carries *edge* until its outcomes are labeled by
+   scanner/edge_report.py:7| report, sliced overall and by any grouping key (e.g. ``tier`` or an A/B flag).
+   scanner/edge_report.py:56| group_by: str | None = "tier",
+   scanner/edge_report.py:63| grouping key such as ``tier``).
+   scanner/edge_report.py:65| group_by: record key to slice by (e.g. "tier"). None \u2192 overall only.
+   scanner/evaluate.py:82| "data_quality_tier": "Tier 3",
+   scanner/evaluate.py:90| "execution_confidence": "Tier 0",
+   scanner/execution_policy.py:71| "execution_confidence": "Tier 2"
+   scanner/execution_policy.py:76| else "Tier 1"
+   scanner/execution_policy.py:78| else "Tier 0",
+   scanner/execution_policy.py:79| "data_quality_tier": "Tier 2"
+   scanner/execution_policy.py:84| else "Tier 1"
+   scanner/execution_policy.py:86| else "Tier 0",
+   scanner/features.py:175| # --- Konviksiyon tier (env-gated) --------------------------------------------
+   scanner/features.py:178| # yalniz etiketler. conviction_prob = o tier'in gozlemlenen >=%5 isabeti (tahmin).
+   scanner/features.py:212| """(tier, prob) dondur. tier in {A,B,C,''}. Env kapaliyken ('',0.0).
+   scanner/features.py:230| tier = "A"
+   scanner/features.py:232| tier = "B"
+   scanner/features.py:234| tier = "C"
+   scanner/features.py:236| tier = ""
+   scanner/features.py:237| return (tier, _CONV_PROB.get(tier, 0.0))
+   scanner/risk_engine.py:176| Multipliers are chosen by momentum tier:
+   scanner/scan_summary.py:3| <=10 hisseyi secme + her biri icin tez/etiket/risk + kullanici-dostu, tier-gruplu
+   scanner/scan_summary.py:26| _EXECUTION_ORDER = {"Tier 2": 0, "Tier 1": 1, "Tier 0": 2}
+   scanner/scan_summary.py:33| _EXECUTION_ORDER.get(str(r.get("execution_confidence", "Tier 0")), 3),
+   scanner/scan_summary.py:56| "tier": r.get("conviction_tier", ""),
+   scanner/scan_summary.py:115| f"{b['symbol']}: tier={b['tier'] or '-'} guven\u2248%{int(b['conviction_prob'] * 100)} "
+   scanner/scan_summary.py:166| """LLM seciminine tarama verisini (fiyat/stop/tp/rr/tier) ekle."""
+   scanner/scan_summary.py:171| tier = r.get("conviction_tier", "")
+   scanner/scan_summary.py:175| "tier": tier,
+## PAT SPEED total 52 files 11
+   top files: scanner/data_fetcher.py=23, scanner/evaluate.py=6, core/pipeline.py=5, scripts/run_scanner_replay_scaling.py=4, scripts/enrich_market_caps.py=3, core/scan_coordinator.py=2, api/routers/agent.py=2, api/routers/llm.py=2, api/routers/scan.py=2, api/routers/watchlist.py=2, core/scheduler.py=1
+   scanner/data_fetcher.py:7| - Parallel multi-timeframe fetching with ThreadPoolExecutor
+   scanner/data_fetcher.py:16| from concurrent.futures import ThreadPoolExecutor, as_completed
+   scanner/data_fetcher.py:640| max_workers: int = 4,
+   scanner/data_fetcher.py:653| max_workers: Maximum parallel threads
+   scanner/data_fetcher.py:679| with ThreadPoolExecutor(max_workers=max_workers) as executor:
+   scanner/data_fetcher.py:684| for future in as_completed(futures):
+   scanner/data_fetcher.py:707| max_workers: int = 8,
+   scanner/data_fetcher.py:714| parallel yfinance ThreadPoolExecutor when Alpaca credentials are missing.
+   scanner/data_fetcher.py:726| max_workers : int
+   scanner/data_fetcher.py:791| with ThreadPoolExecutor(max_workers=max_workers) as executor:
+   scanner/data_fetcher.py:793| for future in as_completed(futures):
+   scanner/data_fetcher.py:946| (after Alpaca, before per-symbol ThreadPoolExecutor fallback).
+   scanner/data_fetcher.py:1121| max_workers: int = 16,
+   scanner/data_fetcher.py:1134| with ThreadPoolExecutor(max_workers=max_workers) as pool:
+   scanner/data_fetcher.py:1139| for fut in as_completed(futures):
+   scanner/data_fetcher.py:1227| max_workers=min(4, len(timeframes)),
+   scanner/data_fetcher.py:1243| with ThreadPoolExecutor(max_workers=min(4, len(remaining))) as executor:
+   scanner/data_fetcher.py:1261| max_workers: int = 10,
+   scanner/data_fetcher.py:1269| Fallback:    Parallel yfinance ThreadPoolExecutor (original per-symbol implementation).
+   scanner/data_fetcher.py:1311| # ThreadPoolExecutor when yf.download() itself fails.
+   scanner/data_fetcher.py:1363| max_workers=min(4, len(timeframes)),
+   scanner/data_fetcher.py:1368| with ThreadPoolExecutor(max_workers=max_workers) as executor:
+   scanner/data_fetcher.py:1371| for future in as_completed(futures, timeout=180):
+   scanner/evaluate.py:12| from concurrent.futures import ThreadPoolExecutor, as_completed
+   scanner/evaluate.py:245| data = fetch_multi_timeframe(symbol, with_indicators=True, max_workers=4)
+   scanner/evaluate.py:792| max_workers=10,
+   scanner/evaluate.py:808| # so ThreadPoolExecutor gives ~4-8\xd7 speedup for 50+ symbol batches.
+   scanner/evaluate.py:817| with ThreadPoolExecutor(max_workers=_eval_workers) as pool:
+   scanner/evaluate.py:819| for fut in as_completed(future_map):
+   core/pipeline.py:295| from concurrent.futures import ThreadPoolExecutor, as_completed
+## PAT RANKSORT total 123 files 61
+   top files: scripts/b2_1_prepare_lock.py=14, api/routers/watchlist.py=6, api/routers/scan.py=5, scripts/generate_report.py=5, distribution/partial_publication.py=4, distribution/snapshot_builder.py=4, scripts/b2_auth_readonly_audit.py=4, scripts/golden_scan.py=4, scripts/handoff.py=4, scripts/pit_research_pipeline.py=4, scripts/run_fixed_target_research.py=4, core/monitoring.py=3, api/services/finsense_release.py=3, scripts/profitcore_audit.py=3
+   scanner/backtest_metrics.py:109| rows.sort(key=lambda t: t[0])
+   scanner/data_fetcher.py:361| key = f"finpilot:ohlcv:{func.__name__}:{args}:{sorted(kwargs.items())}"
+   scanner/edge_report.py:95| k: summarize_labels(v) for k, v in sorted(grouped.items(), key=lambda kv: str(kv[0]))
+   scanner/scan_summary.py:49| cand.sort(key=_rank)
+   scanner/scan_summary.py:188| enriched.sort(key=lambda x: (_TIER_ORDER.get(x["tier"], 3), -(x.get("confidence") or 0)))
+   core/agent_state.py:60| sym_hash = ",".join(sorted(symbols))
+   core/audit.py:405| log_files = sorted(self.log_dir.glob("audit_*.jsonl"), reverse=True)
+   core/auto_pipeline.py:137| picks.sort(key=lambda p: p["composite_confidence"], reverse=True)
+   core/backtest.py:1002| for signal in sorted(signals, key=lambda s: s.date):
+   core/cache.py:670| for k, v in sorted(kwargs.items()):
+   core/kpi_tracker.py:502| sorted_sigs = sorted(resolved, key=lambda s: s.get("score", 0.0), reverse=True)
+   core/monitoring.py:386| return tuple(sorted(labels.items()))
+   core/monitoring.py:425| return tuple(sorted(labels.items()))
+   core/monitoring.py:480| return tuple(sorted(labels.items()))
+   core/pending_actions.py:72| return sorted(items, key=lambda e: e["created_at"], reverse=True)
+   core/pipeline.py:172| ranked = sorted(
+   core/prometheus_exporter.py:105| for key, value in sorted(labels.items()):
+   core/scan_coordinator.py:289| "symbols": sorted({symbol.strip().upper() for symbol in symbols}),
+   api/middleware/auth.py:86| detail=f"This endpoint requires one of the following roles: {', '.join(sorted(normalized_roles))}",
+   api/routers/history.py:23| for f in sorted(SIGNAL_ARCHIVE_DIR.glob("*.json"), reverse=True):
+   api/routers/scan.py:735| files = sorted(_SHORTLIST_DIR.glob("shortlist_*.csv"))
+   api/routers/scan.py:832| files = sorted(_SHORTLIST_DIR.glob("shortlist_*.csv"))
+   api/routers/scan.py:859| df = df.sort_values(score_col, ascending=False)
+   api/routers/scan.py:928| files = sorted(_REPORTS_DIR.glob("*.json"), reverse=True)[:limit]
+   api/routers/scan.py:1044| sorted(
+   api/routers/watchlist.py:108| for archive_file in sorted(_ARCHIVE_DIR.glob("*.json"), reverse=True):
+   api/routers/watchlist.py:592| for path in sorted(_ARCHIVE_DIR.glob("*.json"), reverse=True):
+   api/routers/watchlist.py:776| status_code=422, detail=f"Invalid status. Must be one of: {sorted(LIFECYCLE_STATES)}"
+   api/routers/watchlist.py:969| out.sort(key=lambda x: x["tp_rate"], reverse=True)
+   api/routers/watchlist.py:1051| by_type.sort(key=lambda x: x["tp_rate"], reverse=True)
+#### DOCS
+audit folder top-level names: ['R0_evidence_inventory.md', 'R10_red_team.md', 'R2_architecture_map.md', 'R3_data_quality_lineage.md', 'R4_formula_feature_registry.md', 'R5_flags_scoring_ranking.md', 'R6_entry_exit_audit.md', 'R7_profitability_risk.md', 'R8_scanner_performance.md', 'R9_interactions_dependencies.md', 'data', 'scripts']
+-- doc files scanned: 456
+WP-11 hits: 0
+LOCK hits: 4
+  docs/audit-2026-06-12/03-yatay-sorunlar.md:44| - SQLite e\u015fzamanl\u0131l\u0131k: scheduler + API + script'ler ayn\u0131 finpilot.db'ye yaz\u0131yor; "database is locked" riski b\xfcy\xfcd\xfck\xe7e artar.
+  reports/net_expectancy_audit_v1_2026-10-14/net_expectancy_evidence_inventory.md:13| - Live database caveat: `data/finpilot.db` was locked by a running process when hashing was attempted, so no snapshot SHA-256 exists. Its modification time at capture was 2026-10-14 16:45 local. Counts below are time-stamped observations and are not reproducible from a frozen sna
+  reports/net_expectancy_audit_v1_2026-10-14/net_expectancy_evidence_inventory.md:141| - Snapshot hash of `data/finpilot.db` (file locked during capture).
+  FinPilot_Tam_Sistem_Audit_2026-07-03.md:101| - **SQLite tek nokta:** scheduler + API + script'ler ayn\u0131 `finpilot.db`'ye yaz\u0131yor; \xf6l\xe7ekle "database is locked" garanti.
+D7 hits: 1
+  docs/governance/decision-log.md:57| Decisions: (1) D4, calibration wording (glossary C1/C2): the sentence "recalibrated as outcomes accumulate" is removed; the "calibrated" label is replaced by "tarihsel s\u0131kl\u0131k (ba\u011f\u0131ms\u0131z do\u011frulanmam\u0131\u015f)". C3 (Grade A "~1/day") is not decided by this receipt and remains open. (2) D6,
+#### DB
+python.exe : C:\Users\meric\Borsa\reports\scanner_intelligence_audit_v1_2026-10
+-19\scripts\INT_discover.py:211: DeprecationWarning: datetime.datetime.utcfromt
+imestamp() is deprecated and scheduled for removal in a future version. Use tim
+ezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimest
+amp(timestamp, datetime.UTC).
+At line:1 char:205
++ ... r_out.txt"; & C:\Users\meric\AppData\Local\Programs\Python\Python312\ ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\meric\... datetime.UTC). 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  out("db_size_bytes", st.st_size, "mtime_utc", datetime.datetime.utcfromtimest
+amp(st.st_mtime).isoformat())
+db_size_bytes 7811072 mtime_utc 2026-10-19T10:08:56.260286
+db_sha256 b64c0c5262e0d685daa1309e6293d27c208f64a6fc213b3c00e3cb896bd5f5f6
+TABLE alembic_version rows=1 cols=version_num
+TABLE alpaca_orders rows=14 cols=id,order_id,buy_signal_id,symbol,side,qty,order_type,limit_price,stop_price,time_in_force,status,filled_price,filled_qty,filled_at,submitted_at,raw_response,created_at
+TABLE buy_signals rows=0 cols=id,date,symbol,entry_price,stop_loss,take_profit,risk_reward,score,strength,regime,sentiment,position_size,kelly_fraction,reason,scan_source,status,exit_price,exit_date,pnl_pct,pnl_dollar,alpaca_order_id,created_at
+TABLE execution_controls rows=0 cols=control_key,enabled,reason,updated_at
+TABLE execution_events rows=0 cols=id,event_type,entity_id,signal_id,payload,occurred_at
+TABLE execution_intents rows=0 cols=intent_id,signal_id,scanner_run_id,idempotency_key,environment,symbol,side,qty,order_type,limit_price,stop_price,take_profit,strategy_id,strategy_version,status,rejection_reason,alpaca_order_id,client_order_id,filled_qty,filled_price,last_error,payload,created_at,updated_at
+TABLE fs_cases rows=5 cols=id,source_signal_id,asset,event_timestamp,snapshot,context,horizon_days,outcome_rule,resolution_method,status,created_at
+TABLE fs_evaluations rows=2 cols=id,prediction_id,direction_correct,binary_outcome,probability_error,evaluation_version,created_at
+TABLE fs_outcomes rows=5 cols=case_id,actual_direction,actual_return_pct,resolution_method,resolved_at
+TABLE fs_predictions rows=2 cols=id,case_id,anonymous_user_id,direction,probability,reason,status,committed_at,created_at
+TABLE outcomes_horizon rows=0 cols=signal_id,horizon_days,pct,status,resolved_at
+TABLE portfolios rows=0 cols=id,user_id,cash,created_at,updated_at
+TABLE positions rows=0 cols=id,portfolio_id,symbol,shares,avg_price,opened_at,updated_at
+TABLE quiz_scores rows=0 cols=id,user_id,score,total,category,played_at
+TABLE scan_results rows=0 cols=id,scan_id,scan_timestamp,symbol,price,stop_loss,take_profit,score,strength,regime,sentiment,entry_ok,summary,source_file,created_at
+TABLE sessions rows=53 cols=id,user_id,access_token,refresh_token,device_info,ip_address,user_agent,created_at,expires_at,last_activity,is_active
+TABLE signal_events rows=0 cols=id,signal_id,symbol,from_state,to_state,agent,payload,ts,success,error
+TABLE signals rows=0 cols=id,timestamp,symbol,price,stop_loss,take_profit,score,strength,regime,sentiment,onchain,entry_ok,summary,reason,status,outcome_price,outcome_date,outcome_pct,created_at
+TABLE signals_archive rows=5748 cols=id,symbol,ts,score,finpilot_score,payload_json,resolved_status,resolved_pct,resolved_pct_t5,resolved_pct_barrier,resolved_status_barrier
+TABLE sqlite_sequence rows=2 cols=name,seq
+TABLE symbol_lists rows=1815 cols=list_name,ticker
+TABLE symbols rows=13852 cols=ticker,name,exchange,asset_class,status,tradable,shortable,marginable,updated_at,market_cap,float_shares
+TABLE trades rows=0 cols=id,portfolio_id,symbol,side,shares,price,total,commission,executed_at,notes
+TABLE user_settings rows=3 cols=user_id,settings_json,updated_at
+TABLE users rows=4 LOCKISH cols=id,email,username,password_hash,salt,display_name,avatar_url,role,is_active,is_verified,created_at,updated_at,last_login,failed_login_attempts,locked_until
+TABLE watchlist_signals rows=1158 cols=id,symbol,signal,entry_price,stop_loss,take_profit,score,regime,sentiment,risk_reward,reason,explanation,source_model,notes,tags,status_lifecycle,signal_date,added_at,tier,tier_score,conviction_tier,conviction_prob
+TABLE watchlists rows=0 cols=id,user_id,name,symbols,created_at,updated_at
+  SA_DDL signals_archive CREATE TABLE signals_archive (     id              TEXT PRIMARY KEY,     symbol          TEXT,     ts              TEXT,     score           REAL,     finpilot_score  REAL,     payload_json    TEXT,     resolved_status TEXT,     resolved_pct    REAL , resolved_pct_t5 REAL, resolved_pct_barrier REAL, resolved_status_barrier TEXT)
+  SA_DDL sqlite_autoindex_signals_archive_1 
+  SA_DDL ix_signals_archive_symbol CREATE INDEX ix_signals_archive_symbol ON signals_archive(symbol)
+  SA_DDL ix_signals_archive_ts CREATE INDEX ix_signals_archive_ts     ON signals_archive(ts)
+  SA id distinct=5748 nulls=0 min=sig_00834536b781 max=ws_20251201_SPY
+  SA symbol distinct=1124 nulls=0 min=AACG max=ZTS
+  SA ts distinct=204 nulls=0 min=2025-09-12T09:00:00+00:00 max=2026-09-09T11:42:18.691721+00:00
+  SA score distinct=94 nulls=0 min=0.0 max=89.0
+  SA finpilot_score distinct=0 nulls=5748 vals=[(None, 5748)]
+  SA resolved_status distinct=8 nulls=0 labelset=['resolved_loss', 'resolved_win', 'open', 'expired_win', 'expired_loss', 'expired', 'watching', 'new'] [outcome column: values not summarized]
+  SA resolved_pct distinct=4373 nulls=532 [outcome column: values not summarized]
+  SA resolved_pct_t5 distinct=4827 nulls=535 [outcome column: values not summarized]
+  SA resolved_pct_barrier distinct=4373 nulls=532 [outcome column: values not summarized]
+  SA resolved_status_barrier distinct=4 nulls=532 labelset=['resolved_loss', 'resolved_win', None, 'expired_win', 'expired_loss'] [outcome column: values not summarized]
+SA rows 5748 ts examples ['2026-03-01T21:45:10.631481', '2026-03-01T21:45:10.631481', '2026-03-01T21:45:10.631481']
+PAYLOAD top-level keys: 37
+  PK entry_price                        n=  5748 types={'float': 5748} ex=1174.12
+  PK signal_date                        n=  5748 types={'str': 5748} ex='2026-02-17'
+  PK stop_loss                          n=  5748 types={'float': 5748} ex=<masked>
+  PK take_profit                        n=  5748 types={'float': 5748} ex=1235.02
+  PK added_at                           n=  5719 types={'str': 5719} ex='2026-03-01T21:45:10.631481'
+  PK explanation                        n=  5719 types={'str': 5719} ex=''
+  PK id                                 n=  5719 types={'str': 5719} ex='sig_900_MPWR'
+  PK reason                             n=  5719 types={'str': 5719} ex=''
+  PK regime                             n=  5719 types={'str': 5719} ex='True'
+  PK risk_reward                        n=  5719 types={'float': 5719} ex=0.0
+  PK score                              n=  5719 types={'float': 5719} ex=1.0
+  PK sentiment                          n=  5719 types={'str': 5719} ex='0.28'
+  PK signal                             n=  5719 types={'str': 5719} ex='WATCH'
+  PK source_model                       n=  5719 types={'str': 5719} ex='scanner_v1'
+  PK status_lifecycle                   n=  5719 types={'str': 5719} ex='open'
+  PK symbol                             n=  5719 types={'str': 5719} ex='MPWR'
+  PK notes                              n=  3654 types={'str': 3654} ex=''
+  PK tags                               n=  3654 types={'list': 3654} ex=[]
+  PK entry_ok                           n=  2065 types={'bool': 2065} ex=False
+  PK badges                             n=    29 types={'list': 29} ex=['rvol', 'momentum', 'regime']
+  PK company                            n=    29 types={'str': 29} ex='The Kraft Heinz Company'
+  PK conviction_tier                    n=    29 types={'str': 29} ex='C'
+  PK date                               n=    29 types={'str': 29} ex='2026-07-29'
+  PK factor_detail                      n=    29 types={'dict': 29} ex={'conviction_prob': 0.52, 'price': 27.31}
+  PK grade                              n=    29 types={'str': 29} ex='C'
+  PK metrics                            n=    29 types={'dict': 29} ex={'price': 27.31, 'risk_reward': 3.33, 'stop_loss': 26.5, 'take_profit'
+  PK premium_only                       n=    29 types={'bool': 29} ex=False
+  PK prob_band                          n=    29 types={'str': 29} ex='~50%'
+  PK rationale                          n=    29 types={'str': 29} ex='KHC izleme listesine yeni eklendi. Para ak\u0131\u015f\u0131 son g\xfcnlere g\xf6re h\u0131zlan
+  PK rationale_i18n                     n=    29 types={'dict': 29} ex={'tr': 'KHC izleme listesine yeni eklendi. Para ak\u0131\u015f\u0131 son g\xfcnlere g\xf6re
+  PK risk_note                          n=    29 types={'str': 29} ex='izleme-a\u015famas\u0131 aday\u0131 \u2014 teyit basamaklar\u0131 hen\xfcz tamamlanmad\u0131'
+  PK risk_note_i18n                     n=    29 types={'dict': 29} ex={'tr': 'izleme-a\u015famas\u0131 aday\u0131 \u2014 teyit basamaklar\u0131 hen\xfcz tamamlanmad\u0131', 
+  PK source                             n=    29 types={'str': 29} ex='publish_archive_bridge'
+  PK ticker                             n=    29 types={'str': 29} ex='KHC'
+  PK exit_date                          n=    25 types={'str': 25} ex='2026-05-20'
+  PK exit_price                         n=    25 types={'float': 25} ex=8.12
+  PK pnl_pct                            n=    25 types={'float': 25} ex=<masked>
+PAYLOAD nested keys: 22
+  NK factor_detail.conviction_prob                n=    29 ex=0.52
+  NK factor_detail.price                          n=    29 ex=27.31
+  NK metrics.conviction_prob                      n=    29 ex=0.52
+  NK metrics.data_quality_tier                    n=    29 ex='Tier 1'
+  NK metrics.ema_gap_pct                          n=    29 ex=1.48
+  NK metrics.execution_confidence                 n=    29 ex='Tier 1'
+  NK metrics.momentum_3d_pct                      n=    29 ex=7.69
+  NK metrics.momentum_bias                        n=    29 ex='bullish'
+  NK metrics.price                                n=    29 ex=27.31
+  NK metrics.ranking_method                       n=    29 ex='legacy_quality'
+  NK metrics.risk_reward                          n=    29 ex=3.33
+  NK metrics.stop_loss                            n=    29 ex=<masked>
+  NK metrics.stop_loss_percent                    n=    29 ex=<masked>
+  NK metrics.take_profit                          n=    29 ex=30
+  NK metrics.volume_multiple                      n=    29 ex=1.79
+  NK rationale_i18n.de                            n=    29 ex='KHC wurde neu zur Beobachtungsliste hinzugef\xfcgt. Der Geldfl
+  NK rationale_i18n.en                            n=    29 ex='KHC was newly added to the watch list. Money flow has quick
+  NK rationale_i18n.tr                            n=    29 ex='KHC izleme listesine yeni eklendi. Para ak\u0131\u015f\u0131 son g\xfcnlere g
+  NK risk_note_i18n.de                            n=    29 ex='ein Kandidat in der Beobachtungsphase \u2014 die Best\xe4tigungsstu
+  NK risk_note_i18n.en                            n=    29 ex='a watch-stage candidate \u2014 confirmation rungs are not comple
+  NK risk_note_i18n.tr                            n=    29 ex='izleme-a\u015famas\u0131 aday\u0131 \u2014 teyit basamaklar\u0131 hen\xfcz tamamlanmad\u0131
+  NK factor_detail.squeeze_factor                 n=    10 ex=0.6612
+ts HH:MM top: [('09:00', 2065), ('21:45', 1970), ('21:54', 256), ('19:45', 173), ('13:59', 171), ('13:57', 147), ('20:04', 137), ('21:30', 95), ('17:56', 95), ('20:51', 75), ('17:45', 56), ('21:59', 55)]
+ts weekday: [('Fri', 375), ('Mon', 831), ('Sat', 197), ('Sun', 2129), ('Thu', 427), ('Tue', 1129), ('Wed', 660)]
+ts distinct days: 47 min 2025-09-12 max 2026-09-09
+  DATECAND sentiment                        {'unparsed_or_null': 5748} days=0 range=None..None ex=[]
+  DATECAND signal_date                      {'ts_later_gt7': 1321, 'same': 3929, 'ts_earlier': 180, 'ts_later_4_7': 318} days=58 range=2025-09-12..2026-09-09 ex=["'2026-02-17'", "'2026-02-17'", "'2026-02-17'"]
+  DATECAND exit_date                        {'unparsed_or_null': 5723, 'ts_earlier': 25} days=1 range=2026-05-20..2026-05-20 ex=["'2026-05-20'", "'2026-05-20'", "'2026-05-20'"]
+  DATECAND date                             {'unparsed_or_null': 5719, 'same': 29} days=7 range=2026-07-29..2026-09-09 ex=["'2026-07-29'", "'2026-07-29'", "'2026-07-29'"]
+DONE_INT

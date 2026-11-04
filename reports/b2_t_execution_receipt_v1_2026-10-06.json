@@ -1,0 +1,26 @@
+{
+  "schema_version": "b2-t-execution-receipt-v1",
+  "study": "B2-T",
+  "date": "2026-10-06",
+  "layer": "Research",
+  "level": "B",
+  "approved_by": "Meric",
+  "approval_basis": "Explicit user instruction: evet baslatalim testi; following the frozen B2-T bundle preparation delivery.",
+  "execution_authorized": true,
+  "freeze_path": "reports/b2_t_freeze_v1_2026-10-05.json",
+  "freeze_sha256": "c3c650181f8d876051653664648bcb0c0ee0548504236fef88b6cd687968a89f",
+  "scope_sha256": "7f50669db4eed7ce91a529f5015b60946e2933d7d7ab6a3a429c247fd48906e7",
+  "operator": "GitHub Copilot",
+  "authoring": "NON_BLIND_ENGINEERING",
+  "verification": "NOT_INDEPENDENT",
+  "isolation": "NOT_VERIFIED",
+  "allowed_execution": "One invocation of the frozen T01-T28 artificial technical suite under the recorded current runtime, stopping on first required-case failure.",
+  "output_path": "reports/b2_t_technical_results_v1_2026-10-05.json",
+  "prohibitions": [
+    "No same-frozen-version patch-and-continue or result overwrite",
+    "No real rows, historical recovery or B2-1 scientific suite execution",
+    "No production imports/actions, network refresh, secrets access, cache/DB mutation or publication",
+    "No B2-1 gate acceptance, independent verification or isolation upgrade from B2-T results"
+  ],
+  "result_status": "NOT_RUN_AT_RECEIPT_CREATION"
+}

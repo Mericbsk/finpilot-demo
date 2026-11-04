@@ -1,0 +1,1816 @@
+symbol,in_export,in_preset_1500,in_iwm_300m,tradable,exchange,name_class,suffix_class,name
+AACG,True,True,False,1,AssetExchange.NASDAQ,adr,,ATA Creativity Global American Depositary Shares
+AAL,True,True,False,1,AssetExchange.NASDAQ,common_other,,American Airlines Group Inc. Common Stock
+AAME,True,True,False,1,AssetExchange.NASDAQ,common_other,,Atlantic American Corporation Common Stock
+AAON,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AAON, Inc. Common Stock"
+AAP,True,True,False,1,AssetExchange.NYSE,common_other,,ADVANCE AUTO PARTS INC
+AAPG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ascentage Pharma Group International American Depository Shares
+AAPL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Apple Inc. Common Stock
+AARD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Aardvark Therapeutics, Inc. Common Stock"
+ABAT,True,True,False,1,AssetExchange.NASDAQ,common_other,,American Battery Technology Company Common Stock
+ABBV,True,True,False,1,AssetExchange.NYSE,common_other,,ABBVIE INC.
+ABCL,True,True,False,1,AssetExchange.NASDAQ,common_other,,AbCellera Biologics Inc. Common Shares
+ABEO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Abeona Therapeutics Inc. Common Stock
+ABNB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Airbnb, Inc. Class A Common Stock"
+ABOS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Acumen Pharmaceuticals, Inc. Common Stock"
+ABSI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Absci Corporation Common Stock
+ABUS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Arbutus Biopharma Corporation Common Stock
+ABVC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ABVC BioPharma, Inc. Common Stock"
+ABVX,True,True,False,1,AssetExchange.NASDAQ,adr,,Abivax SA American Depositary Shares
+ACAD,True,True,False,1,AssetExchange.NASDAQ,common_other,,ACADIA Pharmaceuticals Inc. Common Stock
+ACB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Aurora Cannabis Inc. Common Shares
+ACDC,True,True,False,1,AssetExchange.NASDAQ,common_other,,ProFrac Holding Corp. Class A Common Stock
+ACET,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Adicet Bio, Inc. Common Stock"
+ACFN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Acorn Energy, Inc. Common Stock"
+ACGC,True,False,True,1,AssetExchange.NASDAQ,common_other,,ACP Holdings Acquisition Corp. Class A Ordinary Shares
+ACGL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Arch Capital Group Ltd. Common Stock
+ACGLN,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Arch Capital Group Ltd. Depositary Shares, each Representing a 1/1,000th Interest in a 4.550% Non-Cumulative Preferred S"
+ACGLO,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Arch Capital Group Ltd. Depositary Shares Each Representing 1/1,000th Interest in a Share of 5.45% Non-Cumulative Prefer"
+ACHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Acadia Healthcare Company, Inc. Common Stock"
+ACHV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Achieve Life Sciences, Inc. Common Shares"
+ACIC,True,True,False,1,AssetExchange.NASDAQ,common_other,,American Coastal Insurance Corporation Common Stock
+ACIU,True,True,False,1,AssetExchange.NASDAQ,common_other,,AC Immune SA Common Stock
+ACIW,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ACI Worldwide, Inc. Common Stock"
+ACLS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Axcelis Technologies, Inc. Common Stock"
+ACMR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ACM Research, Inc. Class A Common Stock"
+ACNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ascent Industries Co. Common Stock
+ACOG,True,False,True,1,AssetExchange.NASDAQ,common_other,,Alpha Cognition Inc. Common Stock
+ACR,True,True,False,1,AssetExchange.NYSE,common_other,,ACRES Commercial Realty Corp.
+ACRE,True,True,False,1,AssetExchange.NYSE,common_other,,Ares Commercial Real Estate Corporation
+ACRS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Aclaris Therapeutics, Inc. Common Stock"
+ACRV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Acrivon Therapeutics, Inc. Common Stock"
+ACT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Enact Holdings, Inc. Common Stock"
+ACTG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Acacia Research Corporation (Acacia Tech) Common Stock
+ACTU,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Actuate Therapeutics, Inc. Common stock"
+ACU,True,True,False,1,AssetExchange.AMEX,common_other,,Acme United Corporation
+ADAG,True,False,True,1,AssetExchange.NASDAQ,adr,,Adagene Inc. American Depositary Shares
+ADAM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Adamas Trust, Inc. Common Stock"
+ADAMI,True,True,False,1,AssetExchange.NASDAQ,debt_note,,"Adamas Trust, Inc. 9.125% Senior Notes Due 2029"
+ADAML,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Adamas Trust, Inc. 6.875% Series F Fixed-to-Floating Rate Cumulative Redeemable Preferred Stock, $0.01 par value per sha"
+ADAMM,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Adamas Trust, Inc. 7.875% Series E Fixed-to-Floating Rate Cumulative Redeemable Preferred Stock"
+ADAMN,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Adamas Trust, Inc. 8.00% Series D Fixed-to-Floating Rate Cumulative Redeemable Preferred Stock"
+ADAMZ,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Adamas Trust, Inc. 7.000% Series G Cumulative Redeemable Preferred Stock, $0.01 par value per share"
+ADBE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Adobe Inc. Common Stock
+ADCT,True,False,True,1,AssetExchange.NYSE,common_other,,ADC Therapeutics SA
+ADI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Analog Devices, Inc. Common Stock"
+ADM,True,True,False,1,AssetExchange.NYSE,common_other,,Archer Daniels Midland Company
+ADMA,True,True,False,1,AssetExchange.NASDAQ,common_other,,ADMA Biologics Inc Common Stock
+ADP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Automatic Data Processing, Inc. Common Stock"
+ADPT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Adaptive Biotechnologies Corporation Common Stock
+ADSK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Autodesk, Inc. Common Stock"
+ADTN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ADTRAN Holdings, Inc. Common Stock"
+ADUR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Aduro Clean Technologies Inc. Common Stock
+ADUS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Addus HomeCare Corporation Common Stock
+ADV,True,True,False,1,AssetExchange.NASDAQ,common_other,,Advantage Solutions Inc. Class A Common Stock
+AEBI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Aebi Schmidt Holding AG Common Stock
+AEHL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Antelope Enterprise Holdings Limited Class A Ordinary Shares
+AEHR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Aehr Test Systems Common Stock
+AEI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Alset Inc. Common Stock (TX)
+AEIS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Advanced Energy Industries, Inc. Common Stock"
+AEP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"American Electric Power Company, Inc. Common Stock"
+AES,True,True,False,1,AssetExchange.NYSE,common_other,,AES Corporation
+AEYE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AudioEye, Inc. Common Stock"
+AFBI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Affinity Bancshares, Inc. Common Stock (MD)"
+AFCG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Advanced Flower Capital Inc. Common Stock
+AFL,True,True,False,1,AssetExchange.NYSE,common_other,,Aflac Inc.
+AFRI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Forafric Global PLC Ordinary Shares
+AFRIW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Forafric Global PLC Warrants
+AFRM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Affirm Holdings, Inc. Class A Common Stock"
+AFYA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Afya Limited Class A Common Shares
+AGCC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Agencia Comercial Spirits Ltd Class A Ordinary Shares
+AGEN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Agenus Inc. Common Stock
+AGIO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Agios Pharmaceuticals, Inc. Common Stock"
+AGNC,True,True,False,1,AssetExchange.NASDAQ,common_other,,AGNC Investment Corp. Common Stock
+AGNCL,True,True,False,1,AssetExchange.NASDAQ,preferred,,"AGNC Investment Corp. Depositary Shares Each Representing a 1/1,000th Interest in a Share of 7.75% Series G Fixed-Rate R"
+AGNCM,True,True,False,1,AssetExchange.NASDAQ,preferred,,AGNC Investment Corp. Depositary Shares rep 6.875% Series D Fixed-to-Floating Cumulative Redeemable Preferred Stock
+AGNCN,True,True,False,1,AssetExchange.NASDAQ,preferred,,"AGNC Investment Corp. Depositary Shares Each Representing a 1/1,000th Interest in a Share of 7.00% Series C Fixed-To-Flo"
+AGNCO,True,True,False,1,AssetExchange.NASDAQ,preferred,,"AGNC Investment Corp. Depositary Shares, each representing a 1/1,000th interest in a share of 6.50% Series E Fixed-to-Fl"
+AGNCP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"AGNC Investment Corp. Depositary Shares Each Representing a 1/1,000th Interest in a Share of 6.125% Series F Fixed-to-Fl"
+AGRZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Agroz Inc. Ordinary Shares
+AGYS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Agilysys, Inc. Common Stock (DE)"
+AHG,True,True,False,1,AssetExchange.NASDAQ,adr,,Akso Health Group ADS
+AI,True,True,False,1,AssetExchange.NYSE,common_other,,"C3.ai, Inc."
+AIFC,True,False,True,1,AssetExchange.NASDAQ,common_other,,AI Financial Corporation Common Stock
+AIFU,True,True,False,1,AssetExchange.NASDAQ,common_other,,AIFU Inc. Class A Ordinary Share
+AIG,True,True,False,1,AssetExchange.NYSE,common_other,,"American International Group, Inc."
+AIIA,True,False,True,1,AssetExchange.NYSE,common_other,,AI Infrastructure Acquisition Corp.
+AIIO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Robo.ai Inc. Class B Ordinary Shares
+AIIOW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Robo.ai Inc. Warrant
+AIOS,True,True,False,1,AssetExchange.NASDAQ,common_other,,AIOS Tech Inc. Class A Common Shares
+AIOT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"PowerFleet, Inc. Common Stock"
+AIP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Arteris, Inc. Common Stock"
+AIRE,True,True,False,1,AssetExchange.NASDAQ,common_other,,reAlpha Tech Corp. Common Stock
+AIRG,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Airgain, Inc. Common Stock"
+AIRJ,True,True,False,1,AssetExchange.NASDAQ,common_other,,AirJoule Technologies Corporation Class A Common Stock
+AIRJW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,AirJoule Technologies Corporation Warrant
+AIRO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AIRO Group Holdings, Inc. Common Stock"
+AISP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Airship AI Holdings, Inc. Class A Common Stock"
+AKAM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Akamai Technologies, Inc. Common Stock"
+AKBA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Akebia Therapeutics, Inc. Common Stock"
+AKTX,True,True,False,1,AssetExchange.NASDAQ,adr,,Akari Therapeutics plc ADS
+ALAB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Astera Labs, Inc. Common Stock"
+ALGM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Allegro MicroSystems, Inc. Common Stock"
+ALGN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Align Technology, Inc. Common Stock"
+ALGT,False,True,False,1,AssetExchange.NASDAQ,common_other,,Allegiant Travel Company Common Stock
+ALHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Alignment Healthcare, Inc. Common Stock"
+ALIS,True,False,True,1,AssetExchange.NASDAQ,common_other,,Calisa Acquisition Corp Ordinary shares
+ALKS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Alkermes plc Ordinary Shares
+ALKT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Alkami Technology, Inc. Common Stock"
+ALL,True,True,False,1,AssetExchange.NYSE,common_other,,The Allstate Corporation
+ALLT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Allot Ltd. Ordinary Shares
+ALLY,True,True,False,1,AssetExchange.NYSE,common_other,,Ally Financial Inc.
+ALNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Allient Inc. Common Stock
+ALNY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Alnylam Pharmaceuticals, Inc. Common Stock"
+ALRM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Alarm.com Holdings, Inc. Common Stock"
+ALRS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Alerus Financial Corporation Common Stock
+ALT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Altimmune, Inc. Common Stock"
+ALTO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Alto Ingredients, Inc. Common Stock"
+ALVO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Alvotech Ordinary Shares
+AMAT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Applied Materials, Inc. Common Stock"
+AMBA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ambarella, Inc. Ordinary Shares"
+AMBR,True,False,True,1,AssetExchange.NASDAQ,adr,,Amber International Holding Limited American Depositary Shares
+AMCI,True,False,True,1,AssetExchange.NASDAQ,common_other,,AMC Robotics Corporation Common Stock
+AMCX,True,True,False,1,AssetExchange.NASDAQ,common_other,,AMC Global Media Inc. Class A Common Stock
+AMD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Advanced Micro Devices, Inc. Common Stock"
+AME,True,True,False,1,AssetExchange.NYSE,common_other,,"Ametek, Inc."
+AMGN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Amgen Inc. Common Stock
+AMKR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Amkor Technology, Inc. Common Stock"
+AMOD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Alpha Modus Holdings, Inc. Class A Common Stock"
+AMODW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"Alpha Modus Holdings, Inc. Warrant"
+AMPG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Amplitech Group, Inc. Common Stock"
+AMPGZ,True,True,False,1,AssetExchange.NASDAQ,right,,"Amplitech Group, Inc. Series B Right"
+AMPL,False,True,False,1,AssetExchange.NASDAQ,common_other,,"Amplitude, Inc. Class A Common Stock"
+AMPY,True,False,True,1,AssetExchange.NYSE,common_other,,Amplify Energy Corp.
+AMRX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Amneal Pharmaceuticals, Inc. Class A Common Stock"
+AMSC,True,True,False,1,AssetExchange.NASDAQ,common_other,,American Superconductor Corporation Common Stock
+AMSF,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AMERISAFE, Inc. Common Stock"
+AMTX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Aemetis, Inc. (DE) Common Stock"
+AMWL,True,True,False,1,AssetExchange.NYSE,common_other,,American Well Corporation
+AMZN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Amazon.com, Inc. Common Stock"
+ANDE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Andersons, Inc. (The) Common Stock"
+ANGI,False,True,False,1,AssetExchange.NASDAQ,common_other,,Angi Inc. Class A Common Stock
+ANIP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ANI Pharmaceuticals, Inc."
+ANIX,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Anixa Biosciences, Inc. Common Stock"
+ANNA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AleAnna, Inc. Class A Common Stock"
+ANNAW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"AleAnna, Inc. Warrant"
+ANPA,True,False,True,1,AssetExchange.NASDAQ,common_other,,Rich Sparkle Holdings Limited Ordinary Shares
+ANTA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Antalpha Platform Holding Company Class A Ordinary Shares
+AON,True,True,False,1,AssetExchange.NYSE,common_other,,Aon plc Class A
+AOSL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Alpha and Omega Semiconductor Limited Common Shares
+AP,True,False,True,1,AssetExchange.NYSE,common_other,,Ampco-Pittsburgh Corp.
+APA,True,True,False,1,AssetExchange.NASDAQ,common_other,,APA Corporation Common Stock
+APC,True,True,False,1,AssetExchange.NASDAQ,common_other,,ARKO Petroleum Corp. Class A Common Stock
+APEI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"American Public Education, Inc. Common Stock"
+APGE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Apogee Therapeutics, Inc. Common Stock"
+APLD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Applied Digital Corporation Common Stock
+APP,True,True,False,1,AssetExchange.NASDAQ,common_other,,Applovin Corporation Class A Common Stock
+APPF,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AppFolio, Inc. Class A Common Stock"
+APPS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Digital Turbine, Inc. Common Stock"
+APUR,True,False,True,1,AssetExchange.NASDAQ,common_other,,Aperture AC Class A Ordinary Shares
+APWC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Asia Pacific Wire & Cable Corporation, Ltd. Ordinary Shares (Bermuda)"
+APYX,True,False,True,1,AssetExchange.NASDAQ,common_other,,Apyx Medical Corporation Common Stock
+AQB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AquaBounty Technologies, Inc. Common Stock"
+AQMS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Aqua Metals, Inc. Common Stock"
+AQST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Aquestive Therapeutics, Inc. Common Stock"
+AR,True,True,False,1,AssetExchange.NYSE,common_other,,ANTERO RESOURCES CORPORATION
+ARBK,True,True,False,1,AssetExchange.NASDAQ,adr,,Argo Blockchain plc American Depositary Shares
+ARCB,True,True,False,1,AssetExchange.NASDAQ,common_other,,ArcBest Corporation Common Stock
+ARCC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ares Capital Corporation Common Stock
+ARCT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Arcturus Therapeutics Holdings Inc. Common Stock
+ARDX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ardelyx, Inc. Common Stock"
+AREC,True,True,False,1,AssetExchange.NASDAQ,common_other,,American Resources Corporation Class A Common Stock
+ARGX,True,True,False,1,AssetExchange.NASDAQ,adr,,argenx SE American Depositary Shares
+ARKO,True,True,False,1,AssetExchange.NASDAQ,common_other,,ARKO Corp. Common Stock
+ARLP,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,"Alliance Resource Partners, L.P. Common Units representing Limited Partners Interests"
+ARM,True,True,False,1,AssetExchange.NASDAQ,adr,,Arm Holdings plc American Depositary Shares
+ARQ,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Arq, Inc. Common Stock"
+ARQQ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Arqit Quantum Inc. Ordinary Shares
+ARRY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Array Technologies, Inc. Common Stock"
+ARTNA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Artesian Resources Corporation Class A Common Stock
+ARTV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Artiva Biotherapeutics, Inc. Common Stock"
+ARTW,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Art's-Way Manufacturing Co., Inc. Common Stock"
+ARWR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Arrowhead Pharmaceuticals, Inc. Common Stock"
+ASLE,True,False,True,1,AssetExchange.NASDAQ,common_other,,AerSale Corporation Common Stock
+ASND,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ascendis Pharma A/S Ordinary Share
+ASO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Academy Sports and Outdoors, Inc. Common Stock"
+ASPI,True,True,False,1,AssetExchange.NASDAQ,common_other,,ASP Isotopes Inc. Common Stock
+ASRT,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Assertio Holdings, Inc. Common Stock"
+ASTC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Astrotech Corporation (DE) Common Stock
+ASTE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Astec Industries, Inc. Common Stock"
+ASTI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Ascent Solar Technologies, Inc. Common Stock"
+ASTL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Algoma Steel Group Inc. Common Shares
+ASTLW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Algoma Steel Group Inc. Warrant
+ASTS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AST SpaceMobile, Inc. Class A Common Stock"
+ASUR,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Asure Software, Inc Common Stock"
+ATAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,AtaiBeckley Inc. Common Stock
+ATAT,True,True,False,1,AssetExchange.NASDAQ,adr,,Atour Lifestyle Holdings Limited American Depositary Shares
+ATEX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Anterix Inc. Common Stock
+ATHM,True,True,False,1,AssetExchange.NYSE,adr,,"Autohome Inc. American Depositary Shares, each representing four Class A Ordinary Shares"
+ATLN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Atlantic International Corp. Common Stock
+ATLX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Atlas Lithium Corporation Common Stock
+ATNI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ATN International, Inc. Common Stock"
+ATRA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Atara Biotherapeutics, Inc. Common Stock"
+ATRC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AtriCure, Inc. Common Stock"
+ATRO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Astronics Corporation Common Stock
+AUC,True,False,True,1,AssetExchange.NASDAQ,common_other,,ATIF Holdings Limited Ordinary Shares
+AUDC,True,True,False,1,AssetExchange.NASDAQ,common_other,,AudioCodes Ltd. Common Stock
+AUPH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Aurinia Pharmaceuticals Inc Ordinary Shares
+AUR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Aurora Innovation, Inc. Class A Common Stock"
+AURA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Aura Biosciences, Inc. Common Stock"
+AUTL,True,True,False,1,AssetExchange.NASDAQ,adr,,Autolus Therapeutics plc American Depositary Share
+AVAV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"AeroVironment, Inc. Common Stock"
+AVBP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ArriVent BioPharma, Inc. Common Stock"
+AVD,True,False,True,1,AssetExchange.NYSE,common_other,,American Vanguard Corporation
+AVGO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Broadcom Inc. Common Stock
+AVO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Mission Produce, Inc. Common Stock"
+AVXL,True,False,True,1,AssetExchange.NASDAQ,common_other,,Anavex Life Sciences Corp. Common Stock
+AXON,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Axon Enterprise, Inc. Common Stock"
+AXSM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Axsome Therapeutics, Inc. Common Stock"
+AZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,A2Z Cust2Mate Solutions Corp. Common Shares
+AZN,True,True,False,1,AssetExchange.NYSE,common_other,,AstraZeneca PLC
+AZO,True,True,False,1,AssetExchange.NYSE,common_other,,"AutoZone, Inc."
+BA,True,True,False,1,AssetExchange.NYSE,common_other,,Boeing Company
+BABA,True,True,False,1,AssetExchange.NYSE,adr,,"Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares"
+BAC,True,True,False,1,AssetExchange.NYSE,common_other,,Bank of America Corporation
+BAER,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Bridger Aerospace Group Holdings, Inc. Common Stock"
+BAERW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"Bridger Aerospace Group Holdings, Inc. Warrant"
+BANF,True,True,False,1,AssetExchange.NASDAQ,common_other,,BancFirst Corporation Common Stock
+BANR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Banner Corporation Common Stock
+BAOS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Baosheng Media Group Holdings Limited Ordinary shares
+BATRA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Atlanta Braves Holdings, Inc. Series A Common Stock"
+BATRK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Atlanta Braves Holdings, Inc. Series C Common Stock"
+BBAI,True,True,False,1,AssetExchange.NYSE,common_other,,"BigBear.ai Holdings, Inc."
+BBIO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"BridgeBio Pharma, Inc. Common Stock"
+BCBP,True,False,True,1,AssetExchange.NASDAQ,common_other,,"BCB Bancorp, Inc. (NJ) Common Stock"
+BCPC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Balchem Corporation Common Stock
+BCV,True,False,True,1,AssetExchange.AMEX,etf_fund,,Bancroft Fund Ltd.
+BCYC,True,True,False,1,AssetExchange.NASDAQ,adr,,Bicycle Therapeutics plc American Depositary Shares
+BDRX,True,True,False,1,AssetExchange.NASDAQ,adr,,Biodexa Pharmaceuticals plc American Depositary Shs
+BE,True,True,False,1,AssetExchange.NYSE,common_other,,Bloom Energy Corporation
+BEAM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Beam Therapeutics Inc. Common Stock
+BEP,True,True,False,1,AssetExchange.NYSE,common_other,,Brookfield Renewable Partners L.P.
+BETR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Better Home & Finance Holding Company Class A Common Stock
+BGC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"BGC Group, Inc. Class A Common Stock"
+BGL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Blue Gold Limited Class A Ordinary Shares
+BGSF,True,False,True,1,AssetExchange.NYSE,common_other,,"BGSF, Inc."
+BHAV,True,False,True,1,AssetExchange.NASDAQ,common_other,,BHAV Acquisition Corp Class A Ordinary Shares
+BHF,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Brighthouse Financial, Inc. Common Stock"
+BHR,True,False,True,1,AssetExchange.NYSE,common_other,,Braemar Hotels & Resorts Inc. Common Stock
+BIDU,True,True,False,1,AssetExchange.NASDAQ,adr,,"Baidu, Inc. ADS"
+BIIB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Biogen Inc. Common Stock
+BILI,True,True,False,1,AssetExchange.NASDAQ,adr,,Bilibili Inc. American Depositary Shares
+BILL,True,True,False,1,AssetExchange.NYSE,common_other,,"BILL Holdings, Inc."
+BIOX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Bioceres Crop Solutions Corp. Ordinary Shares
+BKNG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Booking Holdings Inc. Common Stock
+BKR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Baker Hughes Company Class A Common Stock
+BKSY,True,True,False,1,AssetExchange.NYSE,common_other,,BlackSky Technology Inc.
+BL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"BlackLine, Inc. Common Stock"
+BLDP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ballard Power Systems, Inc. Common Shares"
+BLLN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"BillionToOne, Inc. Class A Common Stock"
+BLNK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Blink Charging Co. Common Stock
+BLTE,True,True,False,1,AssetExchange.NASDAQ,adr,,"Belite Bio, Inc American Depositary Shares"
+BMEA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Biomea Fusion, Inc. Common Stock"
+BMHL,True,False,True,1,AssetExchange.NASDAQ,common_other,,Bluemount Holdings Limited Class B Ordinary Shares
+BMRN,True,True,False,1,AssetExchange.NASDAQ,common_other,,BioMarin Pharmaceutical Inc. Common Stock
+BNC,True,True,False,1,AssetExchange.NASDAQ,common_other,,CEA Industries Inc. Common Stock
+BNGO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Bionano Genomics, Inc. Common Stock"
+BNRG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Brenmiller Energy Ltd Ordinary Shares
+BNTX,True,True,False,1,AssetExchange.NASDAQ,adr,,BioNTech SE American Depositary Share
+BOF,True,True,False,1,AssetExchange.NASDAQ,common_other,,BranchOut Food Inc. Common Stock
+BOKF,True,True,False,1,AssetExchange.NASDAQ,common_other,,BOK Financial Corporation Common Stock
+BOOM,True,True,False,1,AssetExchange.NASDAQ,common_other,,DMC Global Inc. Common Stock
+BOOT,True,True,False,1,AssetExchange.NYSE,common_other,,"Boot Barn Holdings, Inc."
+BOSC,True,True,False,1,AssetExchange.NASDAQ,common_other,,B.O.S. Better Online Solutions Common Stock
+BOTJ,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Bank of the James Financial Group, Inc. Common Stock"
+BOXL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Boxlight Corporation Class A Common Stock
+BPOP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Popular, Inc. Common Stock"
+BPYPM,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Brookfield Property Partners L.P. 6.25% Class A Cumulative Redeemable Preferred Units, Series 1"
+BPYPN,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Brookfield Property Partners L.P. 5.750% Class A Cumulative Redeemable Perpetual Preferred Units, Series 3"
+BPYPO,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Brookfield Property Partners L.P. 6.375% Class A Cumulative Redeemable Perpetual Preferred Units, Series 2"
+BPYPP,True,True,False,1,AssetExchange.NASDAQ,preferred,,Brookfield Property Partners L.P. 6.50% Class A Cumulative Redeemable Perpetual Preferred Units
+BRFH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Barfresh Food Group Inc. Common Stock
+BRID,True,True,False,1,AssetExchange.NASDAQ,common_other,,Bridgford Foods Corporation Common Stock
+BRK.B,True,True,False,1,AssetExchange.NYSE,common_other,,BERKSHIRE HATHAWAY Class B
+BRKR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Bruker Corporation Common Stock
+BRKRP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Bruker Corporation 6.375% Mandatory Convertible Preferred Stock, Series A"
+BRLS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Borealis Foods Inc. Class A Common Shares
+BRLSW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Borealis Foods Inc. Warrant
+BRNS,True,True,False,1,AssetExchange.NASDAQ,adr,,Barinthus Biotherapeutics plc American Depositary Shares
+BRO,True,True,False,1,AssetExchange.NYSE,common_other,,"Brown & Brown, Inc."
+BRR,True,False,True,1,AssetExchange.NASDAQ,common_other,,"ProCap Financial, Inc. Common Stock"
+BRT,True,False,True,1,AssetExchange.NYSE,common_other,,BRT Apartments Corp
+BSBK,True,False,True,1,AssetExchange.NASDAQ,common_other,,Bogota Financial Corp. Common Stock
+BSY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Bentley Systems, Incorporated Class B Common Stock"
+BTBT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Bit Digital, Inc. Ordinary Shares"
+BTCS,True,True,False,1,AssetExchange.NASDAQ,common_other,,BTCS Inc. Common Stock
+BTCT,True,True,False,1,AssetExchange.NASDAQ,common_other,,BTC Digital Ltd. Ordinary Shares
+BTDR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Bitdeer Technologies Group Class A Ordinary Shares
+BTMD,True,False,True,1,AssetExchange.NASDAQ,common_other,,Biote Corp. Class A Common Stock
+BTSG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"BrightSpring Health Services, Inc. Common Stock"
+BTSGU,True,True,False,1,AssetExchange.NASDAQ,unit,unit_sfx5,"BrightSpring Health Services, Inc. Tangible Equity Unit"
+BUDA,True,False,True,1,AssetExchange.AMEX,common_other,,"Buda Juice, Inc."
+BULL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Webull Corporation Class A Ordinary Shares
+BUSE,True,True,False,1,AssetExchange.NASDAQ,common_other,,First Busey Corporation Class A Common Stock
+BUUU,True,False,True,1,AssetExchange.NASDAQ,common_other,,BUUU Group Limited Class A Ordinary Share
+BVFL,True,False,True,1,AssetExchange.NASDAQ,common_other,,"BV Financial, Inc. Common Stock"
+BWEN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Broadwind, Inc. Common Stock"
+BWG,True,False,True,1,AssetExchange.NYSE,etf_fund,,BrandywineGLOBAL Global Income Opportunities Fund Inc.
+BWIN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"The Baldwin Insurance Group, Inc. Class A Common Stock"
+BWIV,True,False,True,1,AssetExchange.NYSE,common_other,,Blue Water Acquisition Corp. IV
+BYND,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Beyond Meat, Inc. Common Stock"
+BYRN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Byrna Technologies, Inc. Common Stock"
+BZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,KANZHUN LIMITED American Depository Shares
+BZUN,True,True,False,1,AssetExchange.NASDAQ,adr,,Baozun Inc. American Depositary Shares
+C,True,True,False,1,AssetExchange.NYSE,common_other,,Citigroup Inc.
+CAAS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"China Automotive Systems, Inc. Ordinary Share"
+CACC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Credit Acceptance Corporation Common Stock
+CAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Caris Life Sciences, Inc. Common Stock"
+CAKE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Cheesecake Factory Incorporated (The) Common Stock
+CALM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cal-Maine Foods, Inc. Common Stock"
+CAMT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Camtek Ltd. Ordinary Shares
+CANG,True,True,False,1,AssetExchange.NYSE,common_other,,Cango Inc.
+CAR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Avis Budget Group, Inc. Common Stock"
+CART,True,True,False,1,AssetExchange.NASDAQ,common_other,,Maplebear Inc. Common Stock
+CASS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cass Information Systems, Inc Common Stock"
+CASY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Casey's General Stores, Inc. Common Stock"
+CAT,True,True,False,1,AssetExchange.NYSE,common_other,,Caterpillar Inc.
+CATO,True,False,True,1,AssetExchange.NYSE,common_other,,CATO CORP
+CBAT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"CBAK Energy Technology, Inc. Common Stock"
+CBSH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Commerce Bancshares, Inc. Common Stock"
+CBUS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cibus, Inc. Class A Common Stock"
+CCAQ,True,False,True,1,AssetExchange.NASDAQ,common_other,,Collective Acquisition Corp. Class A Ordinary Shares
+CCEP,True,True,False,1,AssetExchange.NASDAQ,common_other,,Coca-Cola Europacific Partners plc Ordinary Shares
+CCLD,True,False,True,1,AssetExchange.NASDAQ,common_other,,"CareCloud, Inc. Common Stock"
+CDNL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Cardinal Infrastructure Group Inc. Class A Common Stock
+CDNS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cadence Design Systems, Inc. Common Stock"
+CDTG,True,True,False,1,AssetExchange.NASDAQ,common_other,,CDT Environmental Technology Investment Holdings Limited ordinary shares
+CDW,True,True,False,1,AssetExchange.NASDAQ,common_other,,CDW Corporation Common Stock
+CDXS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Codexis, Inc. Common Stock"
+CDZI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"CADIZ, Inc. Common Stock"
+CDZIP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cadiz, Inc. Depositary Shares"
+CECO,True,True,False,1,AssetExchange.NASDAQ,common_other,,CECO Environmental Corp. Common Stock
+CEG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Constellation Energy Corporation Common Stock
+CELC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Celcuity Inc. Common Stock
+CELH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Celsius Holdings, Inc. Common Stock"
+CENN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Cenntro Inc. Common Stock
+CENT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Central Garden & Pet Company Common Stock
+CENX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Century Aluminum Company Common Stock
+CFFI,True,False,True,1,AssetExchange.NASDAQ,common_other,,C&F Financial Corporation Common Stock
+CFG,True,True,False,1,AssetExchange.NYSE,common_other,,"Citizens Financial Group, Inc."
+CG,True,True,False,1,AssetExchange.NASDAQ,common_other,,The Carlyle Group Inc. Common Stock
+CGABL,True,True,False,1,AssetExchange.NASDAQ,debt_note,,The Carlyle Group Inc. 4.625% Subordinated Notes due 2061
+CGNX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Cognex Corporation Common Stock
+CGON,True,True,False,1,AssetExchange.NASDAQ,common_other,,"CG Oncology, Inc. Common stock"
+CHAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Core AI Holdings, Inc. Common Shares"
+CHCI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Comstock Holding Companies, Inc. Class A Common Stock"
+CHDN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Churchill Downs, Incorporated Common Stock"
+CHE,True,True,False,1,AssetExchange.NYSE,common_other,,Chemed Corporation
+CHEF,True,True,False,1,AssetExchange.NASDAQ,common_other,,"The Chefs' Warehouse, Inc. Common Stock"
+CHGG,True,False,True,1,AssetExchange.NYSE,common_other,,"CHEGG, INC."
+CHKP,True,True,False,1,AssetExchange.NASDAQ,common_other,,Check Point Software Technologies Ltd. Ordinary Shares
+CHMI,True,False,True,1,AssetExchange.NYSE,common_other,,CHERRY HILL MORTGAGE INVESTMENT CORPORATION
+CHPT,True,True,False,1,AssetExchange.NYSE,common_other,,"ChargePoint Holdings, Inc."
+CHRD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Chord Energy Corporation Common Stock
+CHRW,True,True,False,1,AssetExchange.NASDAQ,common_other,,"C.H. Robinson Worldwide, Inc. Common Stock"
+CHSCL,True,True,False,1,AssetExchange.NASDAQ,preferred,,"CHS Inc Class B Cumulative Redeemable Preferred Stock, Series 4"
+CHSCM,True,True,False,1,AssetExchange.NASDAQ,preferred,,"CHS Inc Class B Reset Rate Cumulative Redeemable Preferred Stock, Series 3"
+CHSCN,True,True,False,1,AssetExchange.NASDAQ,preferred,,CHS Inc Preferred Class B Series 2 Reset Rate
+CHSCO,True,True,False,1,AssetExchange.NASDAQ,preferred,,CHS Inc. Class B Cumulative Redeemable Preferred Stock
+CHSCP,True,True,False,1,AssetExchange.NASDAQ,preferred,,CHS Inc. 8%  Cumulative Redeemable Preferred Stock
+CHTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Charter Communications, Inc. Class A Common Stock New"
+CHYM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Chime Financial, Inc. Class A Common Stock"
+CI,True,True,False,1,AssetExchange.NYSE,common_other,,The Cigna Group
+CIFR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Cipher Digital Inc. Common Stock
+CIGI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Colliers International Group Inc. Subordinate Voting Shares
+CIIT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Tianci International, Inc. Common Stock"
+CINF,True,True,False,1,AssetExchange.NASDAQ,common_other,,Cincinnati Financial Corporation Common Stock
+CING,True,False,True,1,AssetExchange.NASDAQ,common_other,,Cingulate Inc. Common Stock
+CJMB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Callan JMB Inc. Common Stock
+CLAR,True,False,True,1,AssetExchange.NASDAQ,common_other,,Clarus Corporation Common Stock
+CLFD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Clearfield, Inc. Common Stock"
+CLIR,True,True,False,1,AssetExchange.NASDAQ,common_other,,ClearSign Technologies Corporation Common Stock (DE)
+CLMT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Calumet, Inc. Common Stock"
+CLNE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Clean Energy Fuels Corp. Common Stock
+CLOV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Clover Health Investments, Corp. Class A Common Stock"
+CLRO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ClearOne, Inc. Common Stock"
+CLSK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"CleanSpark, Inc. Common Stock"
+CMCO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Columbus McKinnon Corporation Common Stock
+CMCSA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Comcast Corporation Class A Common Stock
+CMCT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Creative Media & Community Trust Corporation Common stock
+CME,True,True,False,1,AssetExchange.NASDAQ,common_other,,CME Group Inc. Class A Common Stock
+CMG,True,True,False,1,AssetExchange.NYSE,common_other,,"Chipotle Mexican Grill, Inc."
+CMRC,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Commerce.com, Inc. Series 1 Common Stock"
+CNC,True,True,False,1,AssetExchange.NYSE,common_other,,Centene Corporation
+CNCK,True,False,True,1,AssetExchange.NASDAQ,common_other,,Coincheck Group N.V. Ordinary Shares
+CNDT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Conduent Incorporated Common Stock
+CNEY,True,True,False,1,AssetExchange.NASDAQ,common_other,,CN Energy Group Inc. Class A Ordinary Shares
+CNF,True,False,True,1,AssetExchange.NYSE,adr,,"CNFinance Holdings Limited American Depositary Shares, each representing two hundred (200) Ordinary Shares"
+CNTB,True,False,True,1,AssetExchange.NASDAQ,common_other,,Connect Biopharma Holdings Limited Ordinary Shares
+CNTN,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Canton Strategic Holdings, Inc. Common Stock"
+CNVS,True,False,True,1,AssetExchange.NASDAQ,common_other,,Cineverse Corp. Class A Common Stock
+CNX,True,True,False,1,AssetExchange.NYSE,common_other,,CNX Resources Corporation
+COCO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"The Vita Coco Company, Inc. Common Stock"
+CODA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Coda Octopus Group, Inc. Common stock"
+COGT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cogent Biosciences, Inc. Common Stock"
+COHU,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cohu, Inc. Common Stock"
+COIN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Coinbase Global, Inc. Class A Common Stock"
+COKE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Coca-Cola Consolidated, Inc. Common Stock"
+COLB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Columbia Banking System, Inc. Common Stock"
+COLM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Columbia Sportswear Company Common Stock
+COO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"The Cooper Companies, Inc. Common Stock"
+COOK,True,False,True,1,AssetExchange.NYSE,common_other,,"Traeger, Inc."
+COOT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Australian Oilseeds Holdings Limited Ordinary Shares
+COOTW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Australian Oilseeds Holdings Limited Warrant
+COP,True,True,False,1,AssetExchange.NYSE,common_other,,ConocoPhillips
+COPL,True,False,True,1,AssetExchange.NYSE,common_other,,Copley Acquisition Corp
+CORZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Core Scientific, Inc. Common Stock"
+CORZZ,True,True,False,1,AssetExchange.NASDAQ,warrant,,"Core Scientific, Inc. Tranche 2 Warrants"
+COST,True,True,False,1,AssetExchange.NASDAQ,common_other,,Costco Wholesale Corporation Common Stock
+CPB,True,True,False,1,AssetExchange.NASDAQ,common_other,,The Campbell's Company Common Stock
+CPHC,True,False,True,1,AssetExchange.NASDAQ,common_other,,Canterbury Park Holding Corporation 'New' Common Stock
+CPOP,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Pop Culture Group Co., Ltd Class A Ordinary Shares"
+CPRT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Copart, Inc. (DE) Common Stock"
+CRDF,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Cardiff Oncology, Inc. Common Stock"
+CRDO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Credo Technology Group Holding Ltd Ordinary Shares
+CREG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Smart Powerr Corp. Common Stock
+CRGO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Freightos Limited Ordinary shares
+CRGOW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Freightos Limited Warrants
+CRM,True,True,False,1,AssetExchange.NYSE,common_other,,"Salesforce, Inc."
+CRNT,True,False,True,1,AssetExchange.NASDAQ,common_other,,Ceragon Networks Ltd. Ordinary Shares
+CRNX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Crinetics Pharmaceuticals, Inc. Common Stock"
+CROX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Crocs, Inc. Common Stock"
+CRSP,True,True,False,1,AssetExchange.NASDAQ,common_other,,CRISPR Therapeutics AG Common Shares
+CRT,True,False,True,1,AssetExchange.NYSE,common_other,,Cross Timbers Royalty Trust
+CRUS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cirrus Logic, Inc. Common Stock"
+CRWD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"CrowdStrike Holdings, Inc. Class A Common Stock"
+CRWV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"CoreWeave, Inc. Class A Common Stock"
+CSGP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"CoStar Group, Inc. Common Stock"
+CSIQ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Canadian Solar Inc. Common Shares (ON)
+CSTE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Caesarstone Ltd. Ordinary Shares
+CSX,True,True,False,1,AssetExchange.NASDAQ,common_other,,CSX Corporation Common Stock
+CTAS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Cintas Corporation Common Stock
+CTKB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cytek Biosciences, Inc. Common Stock"
+CTSH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Cognizant Technology Solutions Corporation Class A Common Stock
+CTW,True,False,True,1,AssetExchange.NASDAQ,common_other,,CTW Class A Ordinary Shares
+CUB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Lionheart Holdings Class A Ordinary Shares
+CUE,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Cue Biopharma, Inc. Common Stock"
+CURI,True,False,True,1,AssetExchange.NASDAQ,common_other,,CuriosityStream Inc. Class A Common Stock
+CURR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Currenc Group Inc. Ordinary Shares
+CURV,True,False,True,1,AssetExchange.NYSE,common_other,,Torrid Holdings Inc.
+CVCO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cavco Industries, Inc. Common Stock When Issued"
+CVGI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Commercial Vehicle Group, Inc. Common Stock"
+CVS,True,True,False,1,AssetExchange.NYSE,common_other,,CVS HEALTH CORPORATION
+CVX,True,True,False,1,AssetExchange.NYSE,common_other,,Chevron Corporation
+CWCO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Consolidated Water Co. Ltd. Ordinary Shares
+CWEN,True,True,False,1,AssetExchange.NYSE,common_other,,"Clearway Energy, Inc. Class C Common Stock"
+CWST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Casella Waste Systems, Inc. Class A Common Stock"
+CXDO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Crexendo, Inc. Common Stock"
+CYPH,True,False,True,1,AssetExchange.NASDAQ,common_other,,Cypherpunk Technologies Inc. Common Stock
+CYTK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Cytokinetics, Incorporated Common Stock"
+CZR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Caesars Entertainment, Inc. Common Stock"
+CZWI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Citizens Community Bancorp, Inc. Common Stock"
+DAIO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Data I/O Corporation Common Stock
+DAL,True,True,False,1,AssetExchange.NYSE,common_other,,"Delta Air Lines, Inc."
+DASH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"DoorDash, Inc. Class A Common Stock"
+DAVA,True,False,True,1,AssetExchange.NYSE,adr,,Endava plc American Depositary Shares (each representing one Class A Ordinary Share)
+DAVE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Dave Inc. Class A Common Stock
+DBX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Dropbox, Inc. Class A Common Stock"
+DCX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Digital Currency X Technology Inc. Class A Ordinary Shares
+DDOG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Datadog, Inc. Class A Common Stock"
+DE,True,True,False,1,AssetExchange.NYSE,common_other,,Deere & Company
+DECK,True,True,False,1,AssetExchange.NYSE,common_other,,Deckers Outdoor Corp
+DERM,True,False,True,1,AssetExchange.NASDAQ,common_other,,Journey Medical Corporation Common Stock
+DFDV,True,False,True,1,AssetExchange.NASDAQ,common_other,,DeFi Development Corp. Common Stock
+DFLI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Dragonfly Energy Holdings Corp. Common Stock (NV)
+DFLIW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Dragonfly Energy Holdings Corp. Warrant
+DGII,True,True,False,1,AssetExchange.NASDAQ,common_other,,Digi International Inc. Common Stock
+DHC,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,Diversified Healthcare Trust Common Shares of Beneficial Interest
+DHCNI,True,True,False,1,AssetExchange.NASDAQ,debt_note,,Diversified Healthcare Trust 5.625% Senior Notes due 2042
+DHCNL,True,True,False,1,AssetExchange.NASDAQ,debt_note,,Diversified Healthcare Trust 6.25% Senior Notes Due 2046
+DIOD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Diodes Incorporated Common Stock
+DKNG,True,True,False,1,AssetExchange.NASDAQ,common_other,,DraftKings Inc. Class A Common Stock
+DLNG,True,False,True,1,AssetExchange.NYSE,common_other,,DYNAGAS LNG PARNERS LP
+DLO,True,True,False,1,AssetExchange.NASDAQ,common_other,,DLocal Limited Class A Common Shares
+DLTH,True,False,True,1,AssetExchange.NASDAQ,common_other,,Duluth Holdings Inc. Class B Common Stock
+DLTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Dollar Tree Inc. Common Stock
+DLXY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Delixy Holdings Limited Class A Ordinary Shares
+DMAC,True,False,True,1,AssetExchange.NASDAQ,common_other,,DiaMedica Therapeutics Inc. Common Stock
+DMB,True,False,True,1,AssetExchange.NYSE,etf_fund,,"BNY Mellon Municipal Bond Infrastructure Fund, Inc."
+DMLP,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,"Dorchester Minerals, L.P. Common Units Representing Limited Partnership Interests"
+DMRC,True,False,True,1,AssetExchange.NASDAQ,common_other,,Digimarc Corporation Common Stock
+DNUT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Krispy Kreme, Inc. Common Stock"
+DOCN,True,True,False,1,AssetExchange.NYSE,common_other,,"DigitalOcean Holdings, Inc."
+DOCS,True,True,False,1,AssetExchange.NYSE,common_other,,"Doximity, Inc."
+DOCU,True,True,False,1,AssetExchange.NASDAQ,common_other,,"DocuSign, Inc. Common Stock"
+DOO,True,True,False,1,AssetExchange.NASDAQ,common_other,,BRP Inc. Common Subordinate Voting Shares
+DORM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Dorman Products, Inc. Common Stock"
+DOX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Amdocs Limited Ordinary Shares
+DOYU,True,True,False,1,AssetExchange.NASDAQ,adr,,DouYu International Holdings Limited ADS
+DPRO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Draganfly Inc. Common Shares
+DPZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Domino's Pizza Inc Common Stock
+DQ,True,True,False,1,AssetExchange.NYSE,adr,,Daqo New Energy Corp. American Depositary Shares (each representing 5 Ordinary Shares)
+DRH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Diamondrock Hospitality Company Common Stock
+DRI,True,True,False,1,AssetExchange.NYSE,common_other,,"Darden Restaurants, Inc."
+DRIV,True,True,False,1,AssetExchange.NASDAQ,etf_fund,,Global X Funds Global X Autonomous & Electric Vehicles ETF
+DRS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Leonardo DRS, Inc. Common Stock"
+DRVN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Driven Brands Holdings Inc. Common Stock
+DSWL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Deswell Industries, Inc. Common Shares"
+DSX,True,False,True,1,AssetExchange.NYSE,common_other,,"Diana Shipping, Inc."
+DVN,True,True,False,1,AssetExchange.NYSE,common_other,,Devon Energy Corporation
+DWSN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Dawson Geophysical Company Common Stock
+DXCM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"DexCom, Inc. Common Stock"
+DXPE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"DXP Enterprises, Inc. Common Stock"
+DXR,True,False,True,1,AssetExchange.NASDAQ,common_other,,Daxor Corporation Common Stock
+DXST,True,True,False,1,AssetExchange.NASDAQ,common_other,,Decent Holding Inc Class A Ordinary Shares
+DYOR,True,False,True,1,AssetExchange.NASDAQ,common_other,,Insight Digital Partners II Class A Ordinary Shares
+EA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Electronic Arts Inc. Common Stock
+EARN,True,False,True,1,AssetExchange.NYSE,common_other,,Ellington Credit Company
+EBAY,True,True,False,1,AssetExchange.NASDAQ,common_other,,eBay Inc. Common Stock
+EBC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Eastern Bankshares, Inc. Common Stock"
+EBMT,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Eagle Bancorp Montana, Inc. Common Stock"
+ECF,True,False,True,1,AssetExchange.AMEX,etf_fund,,Ellsworth Growth and Income Fund Ltd
+EDBL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Edible Garden AG Incorporated Common Stock
+EDBLW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Edible Garden AG Incorporated Warrant
+EDIT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Editas Medicine, Inc. Common Stock"
+EDTK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Skillful Craftsman Education Technology Limited Ordinary Share
+EDU,True,True,False,1,AssetExchange.NYSE,adr,,"New Oriental Education and Technology Group, Inc. American Depositary Shares (each representing ten (10) Common Shares)"
+EEIQ,True,True,False,1,AssetExchange.NASDAQ,common_other,,EpicQuest Education Group International Limited Common Stock
+EFT,True,False,True,1,AssetExchange.NYSE,common_other,,Eaton Vance Floating-Rate Income Trust
+EGG,True,False,True,1,AssetExchange.AMEX,common_other,,Enigmatig Limited
+EGHA,True,False,True,1,AssetExchange.NASDAQ,common_other,,EGH Acquisition Corp. Class A Ordinary Shares
+EH,True,True,False,1,AssetExchange.NASDAQ,adr,,EHang Holdings Limited ADS
+ELBM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Electra Battery Materials Corporation Common Stock
+ELDN,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Eledon Pharmaceuticals, Inc. Common Stock"
+ELME,True,False,True,1,AssetExchange.NYSE,common_other,,Elme Communities
+ELOG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Eastern International Ltd. Ordinary Shares
+ELPW,True,True,False,1,AssetExchange.NASDAQ,common_other,,Elong Power Holding Limited Class A Ordinary Shares
+ELSE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Electro-Sensors, Inc. Common Stock"
+ELVR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Elevra Lithium Limited American Depository Shares
+EMIS,True,False,True,1,AssetExchange.NASDAQ,common_other,,Emmis Acquisition Corp. Class A Ordinary Shares
+EML,True,False,True,1,AssetExchange.NASDAQ,common_other,,Eastern Company (The) Common Stock
+EMPG,True,False,True,1,AssetExchange.NASDAQ,common_other,,Empro Group Inc. Ordinary shares
+EMR,True,True,False,1,AssetExchange.NYSE,common_other,,Emerson Electric Co.
+ENGN,True,False,True,1,AssetExchange.NASDAQ,common_other,,enGene Therapeutics Inc. Common Stock
+ENGS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Energys Group Limited Ordinary Shares
+ENLT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Enlight Renewable Energy Ltd. Ordinary Shares
+ENPH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Enphase Energy, Inc. Common Stock"
+ENSG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"The Ensign Group, Inc. Common Stock"
+ENTG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Entegris, Inc. Common Stock"
+ENVX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Enovix Corporation Common Stock
+EOD,True,False,True,1,AssetExchange.NYSE,etf_fund,,Allspring Global Dividend Opportunity Fund
+EOG,True,True,False,1,AssetExchange.NYSE,common_other,,"EOG Resources, Inc."
+EOSE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Eos Energy Enterprises, Inc. Class A Common Stock"
+EOT,True,False,True,1,AssetExchange.NYSE,common_other,,EATON VANCE NATIONAL MUNICIPAL OPPORTUNITIES TRUST
+EP,True,False,True,1,AssetExchange.AMEX,common_other,,Empire Petroleum Corporation
+EPM,True,False,True,1,AssetExchange.AMEX,common_other,,Evolution Petroleum Corporation
+EPOW,True,True,False,1,AssetExchange.NASDAQ,common_other,,E-Power Inc. Class A Ordinary Shares
+EPSM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Epsium Enterprise Limited Class A Ordinary Shares
+EPSN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Epsilon Energy Ltd. Common Share
+EQIX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Equinix, Inc. Common Stock REIT"
+EQPT,True,True,False,1,AssetExchange.NASDAQ,common_other,,EquipmentShare.com Inc Class A Common Stock
+EQT,True,True,False,1,AssetExchange.NYSE,common_other,,EQT CORP
+ERAS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Erasca, Inc. Common Stock"
+ERIC,True,True,False,1,AssetExchange.NASDAQ,adr,,Ericsson American Depositary Shares
+ERIE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Erie Indemnity Company Class A Common Stock
+ESCA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Escalade, Incorporated Common Stock"
+ESLT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Elbit Systems Ltd. Ordinary Shares
+ESOA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Energy Services of America Corporation Common Stock
+ESTC,True,True,False,1,AssetExchange.NYSE,common_other,,Elastic N.V.
+ETN,True,True,False,1,AssetExchange.NYSE,common_other,,"Eaton Corporation, plc Ordinary Shares"
+ETS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Elite Express Holding Inc. Class A Common Stock
+ETX,True,False,True,1,AssetExchange.NYSE,common_other,,EATON VANCE MUNICIPAL INCOME 2028 TERM TRUST
+EU,True,False,True,1,AssetExchange.NASDAQ,common_other,,enCore Energy Corp. Common Shares
+EVER,True,True,False,1,AssetExchange.NASDAQ,common_other,,"EverQuote, Inc. Class A Common Stock"
+EVG,True,False,True,1,AssetExchange.NYSE,etf_fund,,Eaton Vance Short Duration Diversified Income Fund
+EVGN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Evogene Ltd Ordinary Shares
+EVGO,True,True,False,1,AssetExchange.NASDAQ,common_other,,EVgo Inc. Class A Common Stock
+EVRG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Evergy, Inc. Common Stock"
+EVTL,True,False,True,1,AssetExchange.NYSE,common_other,,Vertical Aerospace Ltd.
+EWBC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"East West Bancorp, Inc. Common Stock"
+EXC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Exelon Corporation Common Stock
+EXE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Expand Energy Corporation Common Stock
+EXEL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Exelixis, Inc. Common Stock"
+EXFY,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Expensify, Inc. Class A Common Stock"
+EXLS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ExlService Holdings, Inc. Common Stock"
+EXOZ,True,False,True,1,AssetExchange.NASDAQ,common_other,,eXoZymes Inc. Common Stock
+EXPE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Expedia Group, Inc. Common Stock"
+EXPO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Exponent, Inc. Common Stock"
+EXTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Extreme Networks, Inc. Common Stock"
+EYPT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"EyePoint, Inc. Common Stock"
+F,True,True,False,1,AssetExchange.NYSE,common_other,,Ford Motor Company
+FACT,True,False,True,1,AssetExchange.NASDAQ,common_other,,FACT II Acquisition Corp. Class A Ordinary Shares
+FAMI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Farmmi, Inc. Class A Ordinary Shares"
+FANG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Diamondback Energy, Inc. Common Stock"
+FAST,True,True,False,1,AssetExchange.NASDAQ,common_other,,Fastenal Company Common Stock
+FATN,True,False,True,1,AssetExchange.NASDAQ,common_other,,"FatPipe, Inc. Common Stock"
+FBLA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"FB Bancorp, Inc. Common Stock"
+FCEL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"FuelCell Energy, Inc. Common Stock"
+FCFS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"FirstCash Holdings, Inc. Common Stock"
+FCNCA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"First Citizens BancShares, Inc. Class A Common Stock"
+FCT,True,False,True,1,AssetExchange.NYSE,etf_fund,,First Trust Senior Floating Rate Income Fund II
+FCUV,True,True,False,1,AssetExchange.NASDAQ,common_other,,Focus Universal Inc. Common Stock
+FEAM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"5E Advanced Materials, Inc. Common Stock"
+FEIM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Frequency Electronics, Inc. Common Stock"
+FELE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Franklin Electric Co., Inc. Common Stock"
+FER,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ferrovial N.V. Ordinary Shares
+FF,True,False,True,1,AssetExchange.NYSE,common_other,,Future Fuel Corporation
+FFAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Faraday Future Intelligent Electric Inc. Class A Common Stock
+FFAIW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Faraday Future Intelligent Electric Inc. Warrant
+FFIN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"First Financial Bankshares, Inc. Common Stock"
+FFIV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"F5, Inc. Common Stock"
+FGI,True,True,False,1,AssetExchange.NASDAQ,common_other,,FGI Industries Ltd. Ordinary Shares
+FGIWW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,FGI Industries Ltd. Warrant
+FIBK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"First Interstate BancSystem, Inc. Common Stock (DE)"
+FIEE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"FiEE, Inc Common Stock"
+FIGR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Figure Technology Solutions, Inc. Class A Common Stock"
+FIP,True,True,False,1,AssetExchange.NASDAQ,common_other,,FTAI Infrastructure Inc. Common Stock
+FISV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Fiserv, Inc. Common Stock"
+FITB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Fifth Third Bancorp Common Stock
+FITBI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Fifth Third Bancorp Depositary Shares
+FITBM,True,True,False,1,AssetExchange.NASDAQ,preferred,,Fifth Third Bancorp Depositary Shares Representing a 1/40th Ownership Interest in a Share of 6.875% Fixed-Rate Reset Non
+FITBO,True,True,False,1,AssetExchange.NASDAQ,preferred,,Fifth Third Bancorp Depositary Shares each representing a 1/1000th ownership interest in a share of Non-Cumulative Perpe
+FITBP,True,True,False,1,AssetExchange.NASDAQ,preferred,,Fifth Third Bancorp Depositary Shares each representing 1/40th share of Fifth Third 6.00% Non-Cumulative Perpetual Class
+FIVE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Five Below, Inc. Common Stock"
+FIVN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Five9, Inc. Common Stock"
+FIZZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,National Beverage Corp. Common Stock
+FKWL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Franklin Wireless Corp. Common Stock
+FLC,True,False,True,1,AssetExchange.NYSE,etf_fund,,Flaherty & Crumrine Total Return Fund Incorporated
+FLEX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Flex Ltd. Ordinary Shares
+FLNC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Fluence Energy, Inc. Class A Common Stock"
+FLUX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Flux Power Holdings, Inc. Common Stock"
+FLWS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"1-800-FLOWERS.COM, Inc. Common Stock"
+FLX,True,True,False,1,AssetExchange.NASDAQ,adr,,BingEx Limited American Depositary Shares
+FLXS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Flexsteel Industries, Inc. Common Stock"
+FLY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Firefly Aerospace Inc. Common Stock
+FLYE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Fly-E Group, Inc. Common Stock"
+FLYW,True,True,False,1,AssetExchange.NASDAQ,common_other,,Flywire Corporation Voting Common Stock
+FMN,True,False,True,1,AssetExchange.NYSE,etf_fund,,Federated Hermes Premier Municipal Income Fund
+FNKO,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Funko, Inc. Class A Common Stock"
+FNRN,True,False,True,1,AssetExchange.NASDAQ,common_other,,First Northern Community Bancorp Common Stock
+FORM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"FormFactor, Inc. FormFactor, Inc. Common Stock"
+FORR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Forrester Research, Inc. Common Stock"
+FOUR,True,True,False,1,AssetExchange.NYSE,common_other,,"Shift4 Payments, Inc."
+FOX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Fox Corporation Class B Common Stock
+FOXA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Fox Corporation Class A Common Stock
+FOXX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Foxx Development Holdings Inc. Common Stock
+FOXXW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Foxx Development Holdings Inc. Warrant
+FRAF,True,False,True,1,AssetExchange.NASDAQ,common_other,,Franklin Financial Services Corporation Common Stock
+FRD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Friedman Industries Inc. Common Stock
+FRHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Freedom Holding Corp. Common Stock
+FRMI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Fermi Inc. Common Stock
+FRMM,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Forum Markets, Incorporated Common Stock"
+FROG,True,True,False,1,AssetExchange.NASDAQ,common_other,,JFrog Ltd. Ordinary Shares
+FRPT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Freshpet, Inc. Common Stock"
+FSEA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"First Seacoast Bancorp, Inc. Common Stock"
+FSHP,True,False,True,1,AssetExchange.NASDAQ,common_other,,Flag Ship Acquisition Corp. Ordinary Shares
+FSI,True,False,True,1,AssetExchange.AMEX,common_other,,"Flexible Solutions International, Inc."
+FSLR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"First Solar, Inc. Common Stock"
+FSP,True,False,True,1,AssetExchange.AMEX,common_other,,Franklin Street Properties Corp
+FSTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,L.B. Foster Company Common Stock
+FSV,True,True,False,1,AssetExchange.NASDAQ,common_other,,FirstService Corporation Common Shares
+FTAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,FTAI Aviation Ltd. Common Stock
+FTAIM,True,True,False,1,AssetExchange.NASDAQ,preferred,,FTAI Aviation Ltd. 9.500% Fixed-Rate Reset Series D Cumulative Perpetual Redeemable Preferred Shares
+FTAIN,True,True,False,1,AssetExchange.NASDAQ,preferred,,FTAI Aviation Ltd. 8.25% Fixed - Rate Reset Series C Cumulative Perpetual Redeemable Preferred Shares
+FTDR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"frontdoor, inc. Common Stock"
+FTEK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Fuel Tech, Inc. Common Stock"
+FTFT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Future FinTech Group Inc. Common Stock
+FTNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Fortinet, Inc. Common Stock"
+FULT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Fulton Financial Corporation Common Stock
+FUTU,True,True,False,1,AssetExchange.NASDAQ,adr,,Futu Holdings Limited American Depositary Shares
+FWDI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Forward Industries, Inc. Common Stock"
+FWONA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Media Corporation Series A Liberty Formula One Common Stock
+FWONK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Media Corporation Series C Liberty Formula One Common Stock
+FWRD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Forward Air Corporation Common Stock
+GAIA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Gaia, Inc. Class A Common Stock"
+GALT,True,False,True,1,AssetExchange.NASDAQ,common_other,,Galectin Therapeutics Inc. Common Stock
+GAMB,True,False,True,1,AssetExchange.NASDAQ,common_other,,Gambling.com Group Limited Ordinary Shares
+GAUZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Gauzy Ltd. Ordinary Shares
+GBDC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Golub Capital BDC, Inc. Common Stock"
+GCMG,True,True,False,1,AssetExchange.NASDAQ,common_other,,GCM Grosvenor Inc. Class A Common Stock
+GCTS,True,False,True,1,AssetExchange.NYSE,common_other,,"GCT Semiconductor Holding, Inc."
+GD,True,True,False,1,AssetExchange.NYSE,common_other,,General Dynamics Corporation
+GDS,True,True,False,1,AssetExchange.NASDAQ,adr,,GDS Holdings Limited ADS
+GE,True,True,False,1,AssetExchange.NYSE,common_other,,GE Aerospace
+GEHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,GE HealthCare Technologies Inc. Common Stock
+GEN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Gen Digital Inc. Common Stock
+GENC,True,False,True,1,AssetExchange.AMEX,common_other,,"Gencor Industries, Inc."
+GEOS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Geospace Technologies Corporation Common Stock (Texas)
+GEVO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Gevo, Inc. Common Stock"
+GF,True,False,True,1,AssetExchange.NYSE,etf_fund,,NEW GERMANY FUND Inc
+GFAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Guardforce AI Co., Limited Ordinary Shares"
+GFS,True,True,False,1,AssetExchange.NASDAQ,common_other,,GlobalFoundries Inc. Ordinary Shares
+GGAL,True,True,False,1,AssetExchange.NASDAQ,adr,,Grupo Financiero Galicia S.A. American Depositary Shares
+GGR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Gogoro Inc. Ordinary Shares
+GGROW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Gogoro Inc. Warrant
+GGT,True,False,True,1,AssetExchange.NYSE,common_other,,THE GABELLI MULTIMEDIA TRUST INC.
+GH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Guardant Health, Inc. Common Stock"
+GILD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Gilead Sciences, Inc. Common Stock"
+GILT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Gilat Satellite Networks Ltd. Ordinary Shares
+GIPR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Generation Income Properties Inc. Common Stock
+GIPRW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Generation Income Properties Inc Warrant
+GLDG,True,False,True,1,AssetExchange.AMEX,common_other,,GoldMining Inc.
+GLED,True,False,True,1,AssetExchange.NYSE,common_other,,GalaxyEdge Acquisition Corporation
+GLIBA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Capital Corporation Series A GCI Group Common Stock
+GLIBK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Capital Corporation Series C GCI Group Common Stock
+GLNG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Golar Lng Ltd
+GLO,True,False,True,1,AssetExchange.AMEX,etf_fund,,Clough Global Opportunities Fund
+GLPI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Gaming and Leisure Properties, Inc. Common Stock"
+GLQ,True,False,True,1,AssetExchange.AMEX,etf_fund,,Clough Global Equity Fund
+GLXG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Galaxy Payroll Group Limited Class A Ordinary Shares
+GLXY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Galaxy Digital Inc. Class A Common Stock
+GM,True,True,False,1,AssetExchange.NYSE,common_other,,General Motors Company
+GMAB,True,True,False,1,AssetExchange.NASDAQ,adr,,Genmab A/S ADS
+GMHS,True,False,True,1,AssetExchange.NASDAQ,common_other,,Gamehaus Holdings Inc. Class A Ordinary Shares
+GNSS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Genasys Inc. Common Stock
+GNTX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Gentex Corporation Common Stock
+GO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Grocery Outlet Holding Corp. Common Stock
+GOOD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Gladstone Commercial Corporation Real Estate Investment Trust
+GOODN,True,True,False,1,AssetExchange.NASDAQ,preferred,,Gladstone Commercial Corporation 6.625% Series E Cumulative Redeemable Preferred Stock
+GOODO,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Gladstone Commercial Corporation 6.00% Series G Cumulative Redeemable Preferred Stock, par value $0.001 per share"
+GOOG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Alphabet Inc. Class C Capital Stock
+GOOGL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Alphabet Inc. Class A Common Stock
+GOSS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Gossamer Bio, Inc. Common Stock"
+GOTU,True,True,False,1,AssetExchange.NYSE,adr,,"Gaotu Techedu Inc. American Depositary Shares, three of which representing two Class A Ordinary Shares"
+GPC,True,True,False,1,AssetExchange.NYSE,common_other,,Genuine Parts Company
+GPCR,True,True,False,1,AssetExchange.NASDAQ,adr,,Structure Therapeutics Inc. American Depositary Shares
+GPMT,True,False,True,1,AssetExchange.NYSE,common_other,,Granite Point Mortgage Trust Inc. Common Stock
+GPOR,True,True,False,1,AssetExchange.NYSE,common_other,,Gulfport Energy Corporation
+GPRE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Green Plains Inc. Common Stock
+GRAB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Grab Holdings Limited Class A Ordinary Shares
+GRABW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Grab Holdings Limited Warrant
+GREE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Greenidge Generation Holdings Inc. Class A Common Stock
+GRFS,True,True,False,1,AssetExchange.NASDAQ,adr,,"Grifols, S.A. American Depositary Shares"
+GRMN,True,True,False,1,AssetExchange.NYSE,common_other,,Garmin Ltd
+GRVY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"GRAVITY Co., Ltd. American Depository Shares"
+GRWG,True,False,True,1,AssetExchange.NASDAQ,common_other,,GrowGeneration Corp. Common Stock
+GS,True,True,False,1,AssetExchange.NYSE,common_other,,Goldman Sachs Group Inc.
+GSAT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Globalstar, Inc. Common Stock"
+GSHD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Goosehead Insurance, Inc. Class A Common Stock"
+GSRF,True,False,True,1,AssetExchange.NASDAQ,common_other,,GSR IV Acquisition Corp. Class  A ordinary share
+GSRFU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,GSR IV Acquisition Corp. Units
+GSUN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Golden Sun Technology Group Limited Class A Ordinary Shares
+GT,True,True,False,1,AssetExchange.NASDAQ,common_other,,The Goodyear Tire & Rubber Company Common Stock
+GTEC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Greenland Technologies Holding Corporation Class A Ordinary Shares
+GTLB,True,True,False,1,AssetExchange.NASDAQ,common_other,,GitLab Inc. Class A Common Stock
+GTX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Garrett Motion Inc. Common Stock
+GURE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Gulf Resources, Inc. (NV) Common Stock"
+GV,True,True,False,1,AssetExchange.NASDAQ,common_other,,Visionary Holdings Inc. Common Shares
+GVH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Globavend Holdings Limited Ordinary Shares
+GWAV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Greenwave Technology Solutions, Inc. Common Stock"
+GWRS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Global Water Resources, Inc. Common Stock"
+GYRO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Gyrodyne, LLC Common Stock"
+HAIN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Hain Celestial Group, Inc. (The) Common Stock"
+HAL,True,True,False,1,AssetExchange.NYSE,common_other,,Halliburton Company
+HALO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Halozyme Therapeutics, Inc. Common Stock"
+HAS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Hasbro, Inc. Common Stock"
+HASI,True,True,False,1,AssetExchange.NYSE,common_other,,"HA Sustainable Infrastructure Capital, Inc."
+HAVAU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,Harvard Ave Acquisition Corporation Unit
+HBAN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Huntington Bancshares Incorporated Common Stock
+HBANL,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Huntington Bancshares Incorporated Depositary Shares, Each Representing a 1/40th Interest in a Share of 6.875% Series J "
+HBANM,True,True,False,1,AssetExchange.NASDAQ,preferred,,Huntington Bancshares Incorporated Depositary Shares each representing a 1/1000th interest in a share of Huntington Seri
+HBANP,True,True,False,1,AssetExchange.NASDAQ,preferred,,Huntington Bancshares Incorporated Depositary Shares 4.500% Series H Non-Cumulative Perpetual Preferred Stock
+HBANZ,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Huntington Bancshares Incorporated Depositary Shares, Each Representing a 1/1000th Interest in a Share of 5.50% Series L"
+HBB,True,False,True,1,AssetExchange.NYSE,common_other,,Hamilton Beach Brands Holding Company Class A Common Stock
+HBIO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Harvard Bioscience, Inc. Common Stock"
+HCA,True,True,False,1,AssetExchange.NYSE,common_other,,"HCA Healthcare, Inc."
+HCAC,True,False,True,1,AssetExchange.NASDAQ,common_other,,Hall Chadwick Acquisition Corp Class A Ordinary Shares
+HCACU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,Hall Chadwick Acquisition Corp. Unit
+HCHL,True,False,True,1,AssetExchange.NASDAQ,common_other,,Happy City Holdings Limited Class A Ordinary shares
+HD,True,True,False,1,AssetExchange.NYSE,common_other,,"Home Depot, Inc."
+HDRN,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Hadron Energy, Inc. Common Stock"
+HELP,True,False,True,1,AssetExchange.NASDAQ,common_other,,Cybin Inc. Common Stock
+HERE,True,True,False,1,AssetExchange.NASDAQ,adr,,Here Group Limited American Depositary Shares
+HFFG,True,False,True,1,AssetExchange.NASDAQ,common_other,,HF Foods Group Inc. Common Stock
+HGBL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Heritage Global Inc. Common Stock
+HIG,True,True,False,1,AssetExchange.NYSE,common_other,,"The Hartford Insurance Group, Inc."
+HIHO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Highway Holdings Limited Common Stock
+HII,True,True,False,1,AssetExchange.NYSE,common_other,,"Huntington Ingalls Industries, Inc."
+HIMS,True,True,False,1,AssetExchange.NYSE,common_other,,"Hims & Hers Health, Inc."
+HIPO,True,True,False,1,AssetExchange.NYSE,common_other,,Hippo Holdings Inc.
+HIVE,True,True,False,1,AssetExchange.NASDAQ,common_other,,HIVE Digital Technologies Ltd. Common Shares
+HLNE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Hamilton Lane Incorporated Class A Common Stock
+HLP,True,True,False,1,AssetExchange.NASDAQ,common_other,,Hongli Group Inc. Ordinary Shares
+HLT,True,True,False,1,AssetExchange.NYSE,common_other,,Hilton Worldwide Holdings Inc.
+HNNA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Hennessy Advisors, Inc. Common Stock"
+HNRG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Hallador Energy Company Common Stock
+HOFT,True,False,True,1,AssetExchange.NASDAQ,common_other,,Hooker Furnishings Corporation Common Stock
+HON,True,True,False,1,AssetExchange.NASDAQ,common_other,,Honeywell International Inc. Common Stock
+HOOD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Robinhood Markets, Inc. Class A Common Stock"
+HOUR,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Hour Loop, Inc. Common Stock"
+HOVR,True,True,False,1,AssetExchange.NASDAQ,common_other,,New Horizon Aircraft Ltd. Class A Ordinary Share
+HOVRW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,New Horizon Aircraft Ltd. Warrant
+HPK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"HighPeak Energy, Inc. Common Stock"
+HQI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"HireQuest, Inc. Common Stock (DE)"
+HQY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"HealthEquity, Inc. Common Stock"
+HSAI,True,True,False,1,AssetExchange.NASDAQ,adr,,"Hesai Group American Depositary Share, each ADS represents one Class B ordinary share"
+HSIC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Henry Schein, Inc. Common Stock"
+HST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Host Hotels & Resorts, Inc. Common Stock"
+HTGC,True,True,False,1,AssetExchange.NYSE,common_other,,"Hercules Capital, Inc."
+HTHT,True,True,False,1,AssetExchange.NASDAQ,adr,,H World Group Limited American Depositary Shares
+HTLD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Heartland Express, Inc. Common Stock"
+HTO,True,True,False,1,AssetExchange.NASDAQ,common_other,,H2O America Common Stock
+HTOO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Fusion Fuel Green PLC Class A Ordinary Shares
+HUBC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Hub Cyber Security Ltd. Ordinary Shares
+HUBCW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Hub Cyber Security Ltd. Warrant 2/27/28
+HUBG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Hub Group, Inc. Class A Common Stock"
+HUBS,True,True,False,1,AssetExchange.NYSE,common_other,,"HUBSPOT, INC."
+HUHU,True,True,False,1,AssetExchange.NASDAQ,common_other,,HUHUTECH International Group Inc. Ordinary Shares
+HUM,True,True,False,1,AssetExchange.NYSE,common_other,,Humana Inc.
+HURC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Hurco Companies, Inc. Common Stock"
+HURN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Huron Consulting Group Inc. Common Stock
+HUT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Hut 8 Corp. Common Stock
+HUYA,True,True,False,1,AssetExchange.NYSE,common_other,,HUYA Inc.
+HWC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Hancock Whitney Corporation Common Stock
+HWKN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Hawkins, Inc. Common Stock"
+HXHX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Haoxin Holdings Limited Class A Ordinary Shares
+HYFT,True,False,True,1,AssetExchange.NASDAQ,common_other,,MindWalk Holdings Corp. Common Stock
+HYI,True,False,True,1,AssetExchange.NYSE,etf_fund,,Western Asset High Yield Opportunity Fund Inc.
+HYLN,True,True,False,1,AssetExchange.AMEX,common_other,,Hyliion Holdings Corp.
+HYNE,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Hoyne Bancorp, Inc. Common Stock"
+IAF,True,False,True,1,AssetExchange.AMEX,etf_fund,,"abrdn Australia Equity Fund, Inc."
+IBG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Innovation Beverage Group Limited Ordinary Shares
+IBIO,True,False,True,1,AssetExchange.NASDAQ,common_other,,"iBio, Inc. Common Stock"
+IBKR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Interactive Brokers Group, Inc. Class A Common Stock"
+IBM,True,True,False,1,AssetExchange.NYSE,common_other,,International Business Machines Corporation
+IBOC,True,True,False,1,AssetExchange.NASDAQ,common_other,,International Bancshares Corporation Common Stock
+IBRX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ImmunityBio, Inc. Common Stock"
+ICLR,True,True,False,1,AssetExchange.NASDAQ,common_other,,ICON plc Ordinary Shares
+ICUI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ICU Medical, Inc. Common Stock"
+IDCC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"InterDigital, Inc. Common Stock"
+IDXX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"IDEXX Laboratories, Inc. Common Stock"
+IEP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Icahn Enterprises, L.P. Common Stock"
+IESC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"IES Holdings, Inc. Common Stock"
+IGAC,True,False,True,1,AssetExchange.NASDAQ,common_other,,Invest Green Acquisition Corporation Class A Ordinary Shares
+IHD,True,False,True,1,AssetExchange.NYSE,etf_fund,,VOYA EMERGING MARKETS HIGH INCOME DIVIDEND EQUITY FUND
+ILMN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Illumina, Inc. Common Stock"
+ILPT,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,Industrial Logistics Properties Trust Common Shares of Beneficial Interest
+IMDX,True,False,True,1,AssetExchange.NASDAQ,common_other,,Insight Molecular Diagnostics Inc. Common Stock
+IMKTA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ingles Markets, Incorporated Class A Common Stock"
+IMMR,True,False,True,1,AssetExchange.NASDAQ,common_other,,Immersion Corporation Common Stock
+IMTE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Integrated Media Technology Limited Ordinary Shares
+IMVT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Immunovant, Inc. Common Stock"
+IMXI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"International Money Express, Inc. Common Stock"
+INAC,True,False,True,1,AssetExchange.NASDAQ,common_other,,Indigo Acquisition Corp. Ordinary Shares
+INCY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Incyte Corp. Common Stock
+INDB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Independent Bank Corp. Common Stock
+INDV,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Indivior Pharmaceuticals, Inc. Common Stock"
+INHD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Inno Holdings Inc. Common Stock
+INLF,True,True,False,1,AssetExchange.NASDAQ,common_other,,INLIF LIMITED Class A Ordinary Shares
+INOD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Innodata Inc. Common Stock
+INSE,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Inspired Entertainment, Inc. Common Stock"
+INSG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Inseego Corp. Common Stock
+INSM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Insmed Incorporated Common Stock
+INTC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Intel Corporation Common Stock
+INTG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Intergroup Corporation (The) Common Stock
+INTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Inter & Co. Inc. Class A Common Shares
+INTU,True,True,False,1,AssetExchange.NASDAQ,common_other,,Intuit Inc. Common Stock
+INTZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Intrusion Inc. Common Stock
+INVZ,True,False,True,1,AssetExchange.NASDAQ,common_other,,Innoviz Technologies Ltd. Ordinary shares
+IONR,True,True,False,1,AssetExchange.NASDAQ,adr,,ioneer Ltd American Depositary Shares
+IONS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ionis Pharmaceuticals, Inc. Common Stock"
+IOSP,True,True,False,1,AssetExchange.NASDAQ,common_other,,Innospec Inc. Common Stock
+IPAR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Interparfums, Inc. Common Stock"
+IPST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"IP Strategy Holdings, Inc. Common Stock"
+IQ,True,True,False,1,AssetExchange.NASDAQ,adr,,"iQIYI, Inc. American Depositary Shares"
+IRDM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Iridium Communications Inc Common Stock
+IREN,True,True,False,1,AssetExchange.NASDAQ,common_other,,IREN Limited Ordinary Shares
+IRON,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Disc Medicine, Inc. Common Stock"
+IRTC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"iRhythm Holdings, Inc. Common Stock"
+ISRG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Intuitive Surgical, Inc. Common Stock"
+ITRI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Itron, Inc. Common Stock"
+ITW,True,True,False,1,AssetExchange.NYSE,common_other,,Illinois Tool Works Inc.
+IZEA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"IZEA Worldwide, Inc. Common Stock"
+JACK,True,False,True,1,AssetExchange.NASDAQ,common_other,,Jack In The Box Inc. Common Stock
+JAZZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Jazz Pharmaceuticals plc Common Stock (Ireland)
+JBHT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"J.B. Hunt Transport Services, Inc. Common Stock"
+JBSS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"John B. Sanfilippo & Son, Inc. Common Stock"
+JD,True,True,False,1,AssetExchange.NASDAQ,adr,,"JD.com, Inc. American Depositary Shares"
+JDZG,True,True,False,1,AssetExchange.NASDAQ,common_other,,JIADE LIMITED Class A Ordinary Shares
+JENA,True,False,True,1,AssetExchange.NYSE,common_other,,Jena Acquisition Corporation II
+JILL,True,False,True,1,AssetExchange.NYSE,common_other,,"J.Jill, Inc. Common Stock"
+JJSF,True,True,False,1,AssetExchange.NASDAQ,common_other,,J & J Snack Foods Corp. Common Stock
+JKHY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Jack Henry & Associates, Inc. Common Stock"
+JKS,True,True,False,1,AssetExchange.NYSE,common_other,,JINKOSOLAR HOLDINGS CO
+JLS,True,False,True,1,AssetExchange.NYSE,etf_fund,,Nuveen Mortgage and Income Fund
+JMG,True,False,True,1,AssetExchange.AMEX,common_other,,JM Group Limited
+JMM,True,False,True,1,AssetExchange.NYSE,etf_fund,,"NUVEEN MULTI-MARKET INCOME FUND, INC"
+JNJ,True,True,False,1,AssetExchange.NYSE,common_other,,Johnson & Johnson
+JPM,True,True,False,1,AssetExchange.NYSE,common_other,,JPMorgan Chase & Co.
+JRS,True,False,True,1,AssetExchange.NYSE,etf_fund,,Nuveen Real Estate Income Fund
+JVA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Coffee Holding Co., Inc. Common Stock"
+JXG,True,True,False,1,AssetExchange.NASDAQ,common_other,,JX Luxventure Group Inc. Common Stock
+JYD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Jayud Global Logistics Limited Class A Ordinary Shares
+JYNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,The Joint Corp. Common Stock
+KALU,True,True,False,1,AssetExchange.NASDAQ,common_other,,Kaiser Aluminum Corporation Common Stock
+KARO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Karooooo Ltd. Ordinary Shares
+KBSX,True,False,True,1,AssetExchange.NASDAQ,common_other,,FST Corp. Ordinary Shares
+KC,True,True,False,1,AssetExchange.NASDAQ,adr,,Kingsoft Cloud Holdings Limited American Depositary Shares
+KDP,True,True,False,1,AssetExchange.NASDAQ,common_other,,Keurig Dr Pepper Inc. Common Stock
+KEQU,True,True,False,1,AssetExchange.NASDAQ,common_other,,Kewaunee Scientific Corporation Common Stock
+KEY,True,True,False,1,AssetExchange.NYSE,common_other,,KeyCorp
+KG,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Kestrel Group, Ltd."
+KGEI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Kolibri Global Energy Inc. Common stock
+KHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,The Kraft Heinz Company Common Stock
+KIDZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,KIDZ AI Inc. Class B Common Stock
+KIDZW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,KIDZ AI Inc. Warrants
+KITT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Nauticus Robotics, Inc. Common stock"
+KITTW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"Nauticus Robotics, Inc. Warrant"
+KLAC,True,True,False,1,AssetExchange.NASDAQ,common_other,,KLA Corporation Common Stock
+KLRS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Kalaris Therapeutics, Inc. Common Stock"
+KLXE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"KLX Energy Services Holdings, Inc. Common Stock"
+KMB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Kimberly-Clark Corporation Common Stock
+KNDI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Kandi Technologies Group, Inc. Ordinary Shares"
+KNSL,True,True,False,1,AssetExchange.NYSE,common_other,,"Kinsale Capital Group, Inc."
+KO,True,True,False,1,AssetExchange.NYSE,common_other,,Coca-Cola Company
+KORE,True,False,True,1,AssetExchange.NYSE,common_other,,"KORE Group Holdings, Inc."
+KOSS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Koss Corporation Common Stock
+KPET,True,False,True,1,AssetExchange.NYSE,common_other,,KPET Ultra Paceline Corporation
+KRKR,True,True,False,1,AssetExchange.NASDAQ,adr,,36Kr Holdings Inc. American Depositary Shares
+KRNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Kornit Digital Ltd. Ordinary Shares
+KRT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Karat Packaging Inc. Common Stock
+KRYS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Krystal Biotech, Inc. Common Stock"
+KSCP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Knightscope, Inc. Class A Common Stock"
+KTOS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Kratos Defense & Security Solutions, Inc. Common Stock"
+KULR,True,False,True,1,AssetExchange.AMEX,common_other,,"KULR Technology Group, Inc."
+KVHI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"KVH Industries, Inc. Common Stock"
+KYIV,True,True,False,1,AssetExchange.NASDAQ,common_other,,Kyivstar Group Ltd. Common Shares
+KYIVW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Kyivstar Group Ltd. Warrant
+KYMR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Kymera Therapeutics, Inc. Common Stock"
+LAB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Standard BioTools Inc. Common Stock
+LAFA,True,False,True,1,AssetExchange.NASDAQ,common_other,,LaFayette Acquisition Corp. Ordinary Share
+LAKE,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Lakeland Industries, Inc. Common Stock"
+LAMR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Lamar Advertising Company Class A Common Stock
+LAND,True,True,False,1,AssetExchange.NASDAQ,common_other,,Gladstone Land Corporation Common Stock
+LANDO,True,True,False,1,AssetExchange.NASDAQ,preferred,,Gladstone Land Corporation 6.00% Series B Cumulative Redeemable Preferred Stock
+LANDP,True,True,False,1,AssetExchange.NASDAQ,preferred,,Gladstone Land Corporation 6.00% Series C Cumulative Redeemable Preferred Stock
+LARK,True,False,True,1,AssetExchange.NASDAQ,common_other,,Landmark Bancorp Inc. Common Stock
+LASE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Laser Photonics Corporation Common Stock
+LAUR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Laureate Education, Inc. Common Stock"
+LAW,True,False,True,1,AssetExchange.NYSE,common_other,,"CS Disco, Inc."
+LBGJ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Li Bang International Corporation Class A Ordinary Shares
+LBRDA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Broadband Corporation Class A Common Stock
+LBRDK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Broadband Corporation Class C Common Stock
+LBRDP,True,True,False,1,AssetExchange.NASDAQ,preferred,,Liberty Broadband Corporation Series A Cumulative Redeemable Preferred Stock
+LBTYA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Global Ltd. Class A Common Shares
+LBTYB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Global Ltd. Class B Common Shares
+LBTYK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Global Ltd. Class C Common Shares
+LCID,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Lucid Group, Inc. Common Stock"
+LCUT,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Lifetime Brands, Inc. Common Stock"
+LEA,True,True,False,1,AssetExchange.NYSE,common_other,,Lear Corporation
+LECO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Lincoln Electric Holdings, Inc. Common Shares"
+LFCR,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Lifecore Biomedical, Inc. Common Stock"
+LFMD,True,False,True,1,AssetExchange.NASDAQ,common_other,,"LifeMD, Inc. Common Stock"
+LFS,True,False,True,1,AssetExchange.NASDAQ,adr,,"LEIFRAS Co., Ltd. American Depositary Shares"
+LFT,True,False,True,1,AssetExchange.NYSE,common_other,,"Lument Finance Trust, Inc."
+LFUS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Littelfuse, Inc. Common Stock"
+LFVN,True,False,True,1,AssetExchange.NASDAQ,common_other,,Lifevantage Corporation Common Stock (Delaware)
+LGCY,True,False,True,1,AssetExchange.AMEX,common_other,,Legacy Education Inc.
+LGN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Legence Corp. Class A Common stock
+LGND,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ligand Pharmaceuticals Incorporated Common Stock
+LGO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Largo Inc. Common Shares
+LHX,True,True,False,1,AssetExchange.NYSE,common_other,,"L3Harris Technologies, Inc."
+LI,True,True,False,1,AssetExchange.NASDAQ,adr,,Li Auto Inc. American Depositary Shares
+LIDR,True,False,True,1,AssetExchange.NASDAQ,common_other,,"AEye, Inc. Class A Common Stock"
+LIEN,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Chicago Atlantic BDC, Inc. Common Stock"
+LILA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Latin America Ltd. Class A Common Stock
+LILAK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Liberty Latin America Ltd. Class C Common Stock
+LINC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Lincoln Educational Services Corporation Common Stock
+LINE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Lineage, Inc. Common Stock"
+LITB,True,False,True,1,AssetExchange.NYSE,adr,,"LightInTheBox Holding Co., Ltd. American Depositary Shares, each representing twelve ordinary shares"
+LITE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Lumentum Holdings Inc. Common Stock
+LIVN,True,True,False,1,AssetExchange.NASDAQ,common_other,,LivaNova PLC Ordinary Shares
+LKQ,True,True,False,1,AssetExchange.NASDAQ,common_other,,LKQ Corporation Common Stock
+LLYVA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Liberty Live Holdings, Inc. Series A Liberty Live Group Common Stock"
+LLYVK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Liberty Live Holdings, Inc. Series C Liberty Live Group Common Stock"
+LMAT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"LeMaitre Vascular, Inc. Common Stock"
+LMND,True,True,False,1,AssetExchange.NYSE,common_other,,"Lemonade, Inc."
+LMNR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Limoneira Co Common Stock
+LMT,True,True,False,1,AssetExchange.NYSE,common_other,,Lockheed Martin Corp.
+LNC,True,True,False,1,AssetExchange.NYSE,common_other,,Lincoln National Corp.
+LNSR,True,False,True,1,AssetExchange.NASDAQ,common_other,,"LENSAR, Inc. Common Stock"
+LNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Alliant Energy Corporation Common Stock
+LNTH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Lantheus Holdings, Inc. Common Stock"
+LNZA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"LanzaTech Global, Inc. Common Stock"
+LNZAW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"LanzaTech Global, Inc. Warrant"
+LOAN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Manhattan Bridge Capital, Inc"
+LOGI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Logitech International S.A. Ordinary Shares
+LOOP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Loop Industries, Inc. Common Stock"
+LOPE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Grand Canyon Education, Inc. Common Stock"
+LOT,True,True,False,1,AssetExchange.NASDAQ,adr,,Lotus Technology Inc. American Depositary Shares
+LOTWW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Lotus Technology Inc. Warrants
+LOW,True,True,False,1,AssetExchange.NYSE,common_other,,Lowe's Companies Inc.
+LPLA,True,True,False,1,AssetExchange.NASDAQ,common_other,,LPL Financial Holdings Inc. Common Stock
+LQDT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Liquidity Services, Inc. Common Stock"
+LRCX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Lam Research Corporation Common Stock
+LSBK,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Lake Shore Bancorp, Inc. Common Stock"
+LSCC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Lattice Semiconductor Corporation Common Stock
+LSTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Landstar System, Inc. Common Stock"
+LTBR,True,False,True,1,AssetExchange.NASDAQ,common_other,,Lightbridge Corporation Common Stock
+LTRX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Lantronix, Inc. Common Stock"
+LUD,True,False,True,1,AssetExchange.AMEX,common_other,,Luda Technology Group Limited
+LULU,True,True,False,1,AssetExchange.NASDAQ,common_other,,lululemon athletica inc. Common Stock
+LUNR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Intuitive Machines, Inc. Class A Common Stock"
+LUV,True,True,False,1,AssetExchange.NYSE,common_other,,Southwest Airlines Co.
+LVWR,True,False,True,1,AssetExchange.NYSE,common_other,,"LiveWire Group, Inc."
+LWAY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Lifeway Foods, Inc. Common Stock"
+LWLG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Lightwave Logic, Inc. Common Stock"
+LX,True,True,False,1,AssetExchange.NASDAQ,adr,,LexinFintech Holdings Ltd. American Depositary Shares
+LXEH,True,True,False,1,AssetExchange.NASDAQ,adr,,"Lixiang Education Holding Co., Ltd. American Depositary Shares"
+LYFT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Lyft, Inc. Class A Common Stock"
+MA,True,True,False,1,AssetExchange.NYSE,common_other,,Mastercard Incorporated
+MAIA,True,False,True,1,AssetExchange.AMEX,common_other,,"MAIA Biotechnology, Inc."
+MAIN,True,True,False,1,AssetExchange.NYSE,common_other,,Main Street Capital Corporation
+MAMA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Mama's Creations, Inc. Common Stock"
+MAMK,True,False,True,1,AssetExchange.NASDAQ,common_other,,MaxsMaking Inc. Class A Ordinary Shares
+MANH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Manhattan Associates, Inc. Common Stock"
+MAR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Marriott International Class A Common Stock
+MARA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MARA Holdings, Inc. Common Stock"
+MARPS,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,Marine Petroleum Trust Units of Beneficial Interest
+MASI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Masimo Corporation Common Stock
+MASS,True,True,False,1,AssetExchange.NASDAQ,common_other,,908 Devices Inc. Common Stock
+MAT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Mattel, Inc. Common Stock"
+MATW,True,True,False,1,AssetExchange.NASDAQ,common_other,,Matthews International Corporation Class A Common Stock
+MAYS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"J. W. Mays, Inc. Common Stock"
+MBLY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Mobileye Global Inc. Class A Common Stock
+MBOT,True,False,True,1,AssetExchange.NASDAQ,common_other,,Microbot Medical Inc. Common Stock
+MBUU,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Malibu Boats, Inc. Class A Common Stock"
+MCD,True,True,False,1,AssetExchange.NYSE,common_other,,McDonald's Corporation
+MCFT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MasterCraft Boat Holdings, Inc. Common Stock"
+MCHP,True,True,False,1,AssetExchange.NASDAQ,common_other,,Microchip Technology Incorporated Common Stock
+MCHPP,True,True,False,1,AssetExchange.NASDAQ,preferred,,Microchip Technology Incorporated Depositary Shares Each Representing a 1/20th Interest in a Share of 7.50% Series A Man
+MCHX,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Marchex, Inc. Class B Common Stock"
+MDAI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Spectral AI, Inc. Class A Common Stock"
+MDB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MongoDB, Inc. Class A Common Stock"
+MDGL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Madrigal Pharmaceuticals, Inc. Common Stock"
+MDIA,True,False,True,1,AssetExchange.NASDAQ,common_other,,Mediaco Holding Inc. Class A Common Stock
+MDLN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Medline Inc. Class A common stock
+MDLZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Mondelez International, Inc. Class A Common Stock"
+MDRR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Medalist Diversified, Inc. Common Stock"
+MDV,True,False,True,1,AssetExchange.NYSE,common_other,,"Modiv Industrial, Inc."
+MDWD,True,False,True,1,AssetExchange.NASDAQ,common_other,,MediWound Ltd. Ordinary Shares
+MEDP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Medpace Holdings, Inc. Common Stock"
+MELI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MercadoLibre, Inc. Common Stock"
+MEOH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Methanex Corporation Common Stock
+MET,True,True,False,1,AssetExchange.NYSE,common_other,,"MetLife, Inc."
+META,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Meta Platforms, Inc. Class A Common Stock"
+METC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ramaco Resources, Inc. Class A Common Stock"
+METCB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ramaco Resources, Inc. Class B Common Stock"
+MFIN,True,False,True,1,AssetExchange.NASDAQ,common_other,,Medallion Financial Corp. Common Stock
+MGEE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MGE Energy, Inc"
+MGN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Megan Holdings Limited Class A Ordinary Shares
+MGPI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MGP Ingredients, Inc."
+MGRC,True,True,False,1,AssetExchange.NASDAQ,common_other,,McGrath RentCorp Common Stock
+MHH,True,False,True,1,AssetExchange.AMEX,common_other,,"Mastech Digital, Inc."
+MIDD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Middleby Corporation (The) Common Stock
+MIMI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Mint Incorporation Limited Class A Ordinary Shares
+MIND,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MIND Technology, Inc. Common Stock (DE)"
+MIRM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Mirum Pharmaceuticals, Inc. Common Stock"
+MIST,True,False,True,1,AssetExchange.NASDAQ,common_other,,Milestone Pharmaceuticals Inc. Common Shares
+MKLY,True,False,True,1,AssetExchange.NASDAQ,common_other,,McKinley Acquisition Corporation Class A Ordinary Shares
+MKSI,True,True,False,1,AssetExchange.NASDAQ,common_other,,MKS Inc. Common Stock
+MKTX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MarketAxess Holdings, Inc. Common Stock"
+MKZR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MacKenzie Realty Capital, Inc. Common Stock"
+MLAB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Mesa Laboratories, Inc. Common Stock"
+MLACU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,Mountain Lake Acquisition Corp. Units
+MLCO,True,True,False,1,AssetExchange.NASDAQ,adr,,Melco Resorts & Entertainment Limited American Depositary Shares
+MMD,True,False,True,1,AssetExchange.NYSE,etf_fund,,NYLI MacKay DefinedTerm Muni Opportunities Fund
+MMLP,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,Martin Midstream Partners L.P. Limited Partnership
+MMM,True,True,False,1,AssetExchange.NYSE,common_other,,3M Company
+MMSI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Merit Medical Systems, Inc. Common Stock"
+MMT,True,False,True,1,AssetExchange.NYSE,lp_trust_units,,MFS Multimarket Income Trust Shares of Beneficial Interest
+MMTX,True,False,True,1,AssetExchange.NASDAQ,common_other,,Miluna Acquisition Corp Class A Ordinary Share
+MMTXU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,Miluna Acquisition Corp Units
+MMYT,True,True,False,1,AssetExchange.NASDAQ,common_other,,MakeMyTrip Limited Ordinary Shares
+MNOV,True,False,True,1,AssetExchange.NASDAQ,common_other,,Medicinova Inc Common Stock
+MNSB,True,False,True,1,AssetExchange.NASDAQ,common_other,,"MainStreet Bancshares, Inc. Common Stock"
+MNST,True,True,False,1,AssetExchange.NASDAQ,common_other,,Monster Beverage Corporation
+MNTK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Montauk Renewables, Inc. Common Stock"
+MNTS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Momentus Inc. Class A Common Stock
+MNTSW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Momentus Inc. Warrant
+MNY,True,True,False,1,AssetExchange.NASDAQ,common_other,,MoneyHero Limited Class A Ordinary Shares
+MNYWW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,MoneyHero Limited Warrants
+MO,True,True,False,1,AssetExchange.NYSE,common_other,,"Altria Group, Inc."
+MOB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Mobilicom Limited Ordinary Shares
+MOBBW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Mobilicom Limited Warrants
+MOH,True,True,False,1,AssetExchange.NYSE,common_other,,"Molina Healthcare, Inc."
+MORN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Morningstar, Inc. Common Stock"
+MPA,True,False,True,1,AssetExchange.NYSE,etf_fund,,BLACKROCK MUNIYIELD PENNSYLVANIA QUALITY FUND
+MPC,True,True,False,1,AssetExchange.NYSE,common_other,,MARATHON PETROLEUM CORPORATION
+MPWR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Monolithic Power Systems, Inc. Common Stock"
+MRBK,True,False,True,1,AssetExchange.NASDAQ,common_other,,Meridian Corporation Common Stock
+MRCY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Mercury Systems Inc Common Stock
+MRNA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Moderna, Inc. Common Stock"
+MRT,True,False,True,1,AssetExchange.AMEX,common_other,,"Marti Technologies, Inc."
+MRTN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Marten Transport, Ltd. Common Stock"
+MRVL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Marvell Technology, Inc. Common Stock"
+MS,True,True,False,1,AssetExchange.NYSE,common_other,,Morgan Stanley
+MSEX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Middlesex Water Company Common Stock
+MSFT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Microsoft Corporation Common Stock
+MSS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Maison Solutions Inc. Class A Common Stock
+MSTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Strategy Inc Common Stock Class A
+MTB,True,True,False,1,AssetExchange.NYSE,common_other,,M&T Bank Corp.
+MTCH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Match Group, Inc. Common Stock"
+MTDR,True,True,False,1,AssetExchange.NYSE,common_other,,MATADOR RESOURCES COMPANY
+MTEK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Maris-Tech Ltd. Ordinary Shares
+MTEKW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Maris-Tech Ltd. Warrants
+MTEN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Mingteng International Corporation Inc. Class A Ordinary Shares
+MTSI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MACOM Technology Solutions Holdings, Inc. Common Stock"
+MU,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Micron Technology, Inc. Common Stock"
+MUZE,True,False,True,1,AssetExchange.NASDAQ,common_other,,Muzero Acquisition Corp Class A Ordinary Shares
+MVIS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"MicroVision, Inc. Common Stock"
+MVST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Microvast Holdings, Inc. Common Stock"
+MVSTW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"Microvast Holdings, Inc. Warrants"
+MWH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SOLV Energy, Inc. Class A Common Stock"
+MYO,True,False,True,1,AssetExchange.AMEX,common_other,,Myomo Inc.
+MYPS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"PLAYSTUDIOS, Inc. Class A Common Stock"
+MYRG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"MYR Group, Inc. Common Stock"
+MYSE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Myseum.AI, Inc. Common Stock"
+MZTI,True,True,False,1,AssetExchange.NASDAQ,common_other,,The Marzetti Company Common Stock
+NAMI,True,True,False,1,AssetExchange.NASDAQ,adr,,Jinxin Technology Holding Company American Depositary Shares
+NAMS,True,True,False,1,AssetExchange.NASDAQ,common_other,,NewAmsterdam Pharma Company N.V. Ordinary Shares
+NAUT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Nautilus Biotechnology, Inc. Common Stock"
+NBIS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Nebius Group N.V. Class A Ordinary Shares
+NBIX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Neurocrine Biosciences, Inc. Common Stock"
+NBP,True,False,True,1,AssetExchange.NASDAQ,adr,,NovaBridge Biosciences American Depositary Shares
+NBRG,True,False,True,1,AssetExchange.NASDAQ,common_other,,Newbridge Acquisition Limited Class A Ordinary Share
+NCEW,True,True,False,1,AssetExchange.NASDAQ,common_other,,New Century Logistics (BVI) Limited Ordinary Shares
+NCRA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Nocera, Inc. Common Stock"
+NCSM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"NCS Multistage Holdings, Inc. Common Stock"
+NCTY,True,False,True,1,AssetExchange.NASDAQ,common_other,,The9 Limited American Depository Shares
+NDAQ,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Nasdaq, Inc. Common Stock"
+NDSN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Nordson Corporation Common Stock
+NEE,True,True,False,1,AssetExchange.NYSE,common_other,,"NextEra Energy, Inc."
+NEOV,True,True,False,1,AssetExchange.NASDAQ,common_other,,NeoVolta Inc. Common Stock
+NEOVW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,NeoVolta Inc. Warrant
+NERV,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Minerva Neurosciences, Inc Common Stock"
+NESR,True,True,False,1,AssetExchange.NASDAQ,common_other,,National Energy Services Reunited Corp Ordinary Shares
+NET,True,True,False,1,AssetExchange.NYSE,common_other,,"Cloudflare, Inc. Class A common stock, par value $0.001 per share"
+NEXM,True,False,True,1,AssetExchange.NASDAQ,common_other,,NEXMETALS MINING CORP. Common Shares
+NEXT,True,True,False,1,AssetExchange.NASDAQ,common_other,,NextDecade Corporation Common Stock
+NFE,True,True,False,1,AssetExchange.NASDAQ,common_other,,New Fortress Energy Inc. Class A Common Stock
+NHPAP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"National Healthcare Properties, Inc. 7.375% Series A Cumulative Redeemable Perpetual Preferred Stock"
+NHPBP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"National Healthcare Properties, Inc. 7.125% Series B Cumulative Redeemable Perpetual Preferred Stock"
+NHS,True,False,True,1,AssetExchange.AMEX,etf_fund,,Neuberger High Yield Strategies Fund Inc.
+NICE,True,True,False,1,AssetExchange.NASDAQ,adr,,NICE Ltd American Depositary Shares
+NIO,True,True,False,1,AssetExchange.NYSE,adr,,"NIO Inc. American depositary shares, each representing one Class A ordinary share"
+NIU,True,True,False,1,AssetExchange.NASDAQ,adr,,Niu Technologies American Depositary Shares
+NKE,True,True,False,1,AssetExchange.NYSE,common_other,,"Nike, Inc."
+NKLR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Terra Innovatum Global N.V. Ordinary shares
+NKTX,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Nkarta, Inc. Common Stock"
+NLY,True,True,False,1,AssetExchange.NYSE,common_other,,Annaly Capital Management. Inc.
+NMIH,True,True,False,1,AssetExchange.NASDAQ,common_other,,NMI Holdings Inc. Common Stock
+NMT,True,False,True,1,AssetExchange.NYSE,etf_fund,,Nuveen Massachusetts Quality Municipal Income Fund
+NN,True,True,False,1,AssetExchange.NASDAQ,common_other,,NextNav Inc. Common Stock
+NNAVW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,NextNav Inc. Warrant
+NNBR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"NN, Inc. Common Stock"
+NNE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Nano Nuclear Energy Inc. Common Stock
+NNOX,True,False,True,1,AssetExchange.NASDAQ,common_other,,NANO-X IMAGING LTD Ordinary Shares
+NNY,True,False,True,1,AssetExchange.NYSE,etf_fund,,Nuveen New York Municipal Value Fund
+NOC,True,True,False,1,AssetExchange.NYSE,common_other,,Northrop Grumman Corp.
+NOG,True,True,False,1,AssetExchange.NYSE,common_other,,"Northern Oil and Gas, Inc."
+NOVT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Novanta Inc. Common Stock
+NOVTU,True,True,False,1,AssetExchange.NASDAQ,unit,unit_sfx5,Novanta Inc. Tangible Equity Units
+NOW,True,True,False,1,AssetExchange.NYSE,common_other,,"SERVICENOW, INC."
+NPV,True,False,True,1,AssetExchange.NYSE,etf_fund,,Nuveen Virginia Quality Municipal Income Fund
+NPWR,True,False,True,1,AssetExchange.NYSE,common_other,,NET Power Inc.
+NRDY,True,False,True,1,AssetExchange.NYSE,common_other,,Nerdy Inc.
+NRXP,True,False,True,1,AssetExchange.NASDAQ,common_other,,"NRX Pharmaceuticals, Inc. Common Stock"
+NSIT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Insight Enterprises, Inc. Common Stock"
+NSSC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"NAPCO Security Technologies, Inc. Common Stock"
+NTAP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"NetApp, Inc. Common Stock"
+NTES,True,True,False,1,AssetExchange.NASDAQ,adr,,"NetEase, Inc. American Depositary Shares"
+NTGR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"NETGEAR, Inc. Common Stock"
+NTIC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Northern Technologies International Corporation Common Stock
+NTLA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Intellia Therapeutics, Inc. Common Stock"
+NTNX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Nutanix, Inc. Class A Common Stock"
+NTRA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Natera, Inc. Common Stock"
+NTRS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Northern Trust Corporation Common Stock
+NTRSO,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Northern Trust Corporation Depositary Shares Each Representing a 1/1,000th Interest in a Share of Series E Non-Cumulativ"
+NU,True,True,False,1,AssetExchange.NYSE,common_other,,Nu Holdings Ltd.
+NUAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"New Era Energy & Digital, Inc. Common Stock"
+NUAIW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"New Era Energy & Digital, Inc. Warrants"
+NUE,True,True,False,1,AssetExchange.NYSE,common_other,,Nucor Corporation
+NUS,True,False,True,1,AssetExchange.NYSE,common_other,,"NuSkin Enterprises, Inc."
+NUTR,True,False,True,1,AssetExchange.NASDAQ,common_other,,Nusatrip Incorporated Common Stock
+NUTX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Nutex Health Inc. Common Stock
+NUVL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Nuvalent, Inc. Class A Common Stock"
+NVAX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Novavax, Inc. Common Stock"
+NVDA,True,True,False,1,AssetExchange.NASDAQ,common_other,,NVIDIA Corporation Common Stock
+NVMI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Nova Ltd. Ordinary Shares
+NVVE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Nuvve Holding Corp. Common Stock
+NVX,True,True,False,1,AssetExchange.NASDAQ,common_other,,NOVONIX Limited American Depository Shares
+NWE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"NorthWestern Energy Group, Inc. Common Stock"
+NWGL,True,True,False,1,AssetExchange.NASDAQ,adr,,CL Workshop Group Limited American Depositary Shares
+NWL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Newell Brands Inc. Common Stock
+NWPX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"NWPX Infrastructure, Inc. Common Stock"
+NWS,True,True,False,1,AssetExchange.NASDAQ,common_other,,News Corporation Class B Common Stock
+NWSA,True,True,False,1,AssetExchange.NASDAQ,common_other,,News Corporation Class A Common Stock
+NXPI,True,True,False,1,AssetExchange.NASDAQ,common_other,,NXP Semiconductors N.V. Common Stock
+NXPL,True,True,False,1,AssetExchange.NASDAQ,common_other,,NextPlat Corp Common Stock
+NXST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Nexstar Media Group, Inc. Common Stock"
+NXT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Nextpower Inc. Class A Common Stock
+OACC,True,False,True,1,AssetExchange.NASDAQ,common_other,,Oaktree Acquisition Corp. III Life Sciences Class A Ordinary Share
+OCC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Optical Cable Corporation Common Stock
+OCCI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"OFS Credit Company, Inc. Common Stock"
+OCGN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ocugen, Inc. Common Stock"
+OCUL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ocular Therapeutix, Inc. Common Stock"
+ODFL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Old Dominion Freight Line, Inc. Common Stock"
+OFLX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Omega Flex, Inc. Common Stock"
+OKTA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Okta, Inc. Class A Common Stock"
+OLB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"The OLB Group, Inc. Common Stock"
+OLLI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ollie's Bargain Outlet Holdings, Inc. Common Stock"
+OMAB,True,True,False,1,AssetExchange.NASDAQ,adr,,Grupo Aeroportuario del Centro Norte S.A.B. de C.V. ADS
+OMSE,True,False,True,1,AssetExchange.NASDAQ,common_other,,OMS Energy Technologies Inc. Ordinary Shares
+ON,True,True,False,1,AssetExchange.NASDAQ,common_other,,ON Semiconductor Corporation Common Stock
+ONB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Old National Bancorp Common Stock
+ONBPO,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Old National Bancorp Depositary Shares, Each Representing a 1/40th Interest in a Share of Series C Preferred Stock"
+ONBPP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Old National Bancorp Depositary Shares, Each Representing a 1/40th Interest in a Share of Series A Preferred Stock"
+ONC,True,True,False,1,AssetExchange.NASDAQ,adr,,BeOne Medicines Ltd. American Depositary Shares
+ONCY,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Oncolytics Biotech, Inc. Common Stock"
+ONL,True,False,True,1,AssetExchange.NYSE,common_other,,Orion Properties Inc.
+OPAL,True,True,False,1,AssetExchange.NASDAQ,common_other,,OPAL Fuels Inc. Class A Common Stock
+OPCH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Option Care Health, Inc. Common Stock"
+OPEN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Opendoor Technologies Inc Common Stock
+OPFI,True,True,False,1,AssetExchange.NYSE,common_other,,OppFi Inc.
+OPP,True,False,True,1,AssetExchange.NYSE,etf_fund,,"RiverNorth/DoubleLine Strategic Opportunity Fund, Inc."
+OPRX,True,True,False,1,AssetExchange.NASDAQ,common_other,,OptimizeRx Corporation Common Stock
+ORCL,True,True,False,1,AssetExchange.NYSE,common_other,,Oracle Corp
+ORGN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Origin Materials, Inc. Common Stock"
+ORGNW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"Origin Materials, Inc. Warrants"
+ORIS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Oriental Rise Holdings Limited Ordinary Shares
+ORLY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"O'Reilly Automotive, Inc. Common Stock"
+ORMP,True,False,True,1,AssetExchange.NASDAQ,common_other,,Oramed Pharmaceuticals Inc. Common Stock
+OSCR,True,True,False,1,AssetExchange.NYSE,common_other,,"Oscar Health, Inc."
+OSUR,True,False,True,1,AssetExchange.NASDAQ,common_other,,"OraSure Technologies, Inc. Common Stock"
+OSW,True,True,False,1,AssetExchange.NASDAQ,common_other,,OneSpaWorld Holdings Limited Common Shares
+OTLY,True,True,False,1,AssetExchange.NASDAQ,adr,,Oatly Group AB American Depositary Shares
+OTTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Otter Tail Corporation Common Stock
+OUST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ouster, Inc. Common Stock"
+OVBC,True,False,True,1,AssetExchange.NASDAQ,common_other,,Ohio Valley Banc Corp. Common Stock
+OVV,True,True,False,1,AssetExchange.NYSE,common_other,,Ovintiv Inc.
+OXLCL,True,True,False,1,AssetExchange.NASDAQ,debt_note,,Oxford Lane Capital Corp. 6.75% Notes due 2031
+OXLCN,True,True,False,1,AssetExchange.NASDAQ,preferred,,Oxford Lane Capital Corp. 7.125% Series 2029 Term Preferred Stock
+OXLCO,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Oxford Lane Capital Corp. Preferred Stock Shares, 6.00% Series 2029"
+OXLCZ,True,True,False,1,AssetExchange.NASDAQ,debt_note,,Oxford Lane Capital Corp. 5.00% Notes due 2027
+OXSQ,True,False,True,1,AssetExchange.NASDAQ,common_other,,Oxford Square Capital Corp. Common Stock
+OXY,True,True,False,1,AssetExchange.NYSE,common_other,,Occidental Petroleum Corporation
+OZK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Bank OZK Common Stock
+PAA,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,"Plains All American Pipeline, L.P. Common Units representing Limited Partner Interests"
+PACB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Pacific Biosciences of California, Inc. Common Stock"
+PAGP,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,"Plains GP Holdings, L.P. Class A Units representing Limited Partner Interests"
+PAGS,True,True,False,1,AssetExchange.NYSE,common_other,,PagSeguro Digital Ltd.
+PAI,True,False,True,1,AssetExchange.NYSE,etf_fund,,Western Asset Investment Grade Income Fund Inc.
+PALI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Palisade Bio, Inc. Common Stock"
+PAMT,True,True,False,1,AssetExchange.NASDAQ,common_other,,PAMT CORP Common Stock
+PANW,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Palo Alto Networks, Inc. Common Stock"
+PATH,True,True,False,1,AssetExchange.NYSE,common_other,,"UiPath, Inc."
+PATK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Patrick Industries, Inc. Common Stock"
+PAYO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Payoneer Global Inc. Common Stock
+PAYX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Paychex, Inc. Common Stock"
+PCAR,True,True,False,1,AssetExchange.NASDAQ,common_other,,PACCAR Inc. Common Stock
+PCLA,True,False,True,1,AssetExchange.NASDAQ,adr,,PicoCELA Inc. American Depositary Shares
+PCT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"PureCycle Technologies, Inc. Common stock"
+PCTTU,True,True,False,1,AssetExchange.NASDAQ,unit,unit_sfx5,"PureCycle Technologies, Inc. Unit"
+PCTTW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"PureCycle Technologies, Inc. Warrant"
+PCVX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Vaxcyte, Inc. Common Stock"
+PCYO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Pure Cycle Corporation Common Stock
+PDD,True,True,False,1,AssetExchange.NASDAQ,adr,,PDD Holdings Inc. American Depositary Shares
+PDEX,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Pro-Dex, Inc. Common Stock"
+PECO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Phillips Edison & Company, Inc. Common Stock"
+PEGA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Pegasystems Inc. Common Stock
+PEP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"PepsiCo, Inc. Common Stock"
+PESI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Perma-Fix Environmental Services, Inc. Common Stock"
+PETS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"PetMed Express, Inc. Common Stock"
+PETZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,"TDH Holdings, Inc. Common Shares"
+PEW,True,False,True,1,AssetExchange.NYSE,common_other,,GrabAGun Digital Holdings Inc.
+PFAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Pinnacle Food Group Limited Class A Common Shares
+PFD,True,False,True,1,AssetExchange.NYSE,preferred,,Flaherty & Crumrine Preferred and Income Fund Incorporated
+PFG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Principal Financial Group Inc Common Stock
+PG,True,True,False,1,AssetExchange.NYSE,common_other,,Procter & Gamble Company
+PGAC,True,False,True,1,AssetExchange.NASDAQ,common_other,,Pantages Capital Acquisition Corporation Class A Ordinary Shares
+PGNY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Progyny, Inc. Common Stock"
+PGR,True,True,False,1,AssetExchange.NYSE,common_other,,Progressive Corporation
+PH,True,True,False,1,AssetExchange.NYSE,common_other,,Parker-Hannifin Corporation
+PKOH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Park-Ohio Holdings Corp. Common Stock
+PL,True,True,False,1,AssetExchange.NYSE,common_other,,Planet Labs PBC
+PLBL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Polibeli Group Ltd Class A Ordinary Shares
+PLCE,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Children's Place, Inc. (The) Common Stock"
+PLMK,True,False,True,1,AssetExchange.NASDAQ,common_other,,Plum Acquisition Corp. IV Class A Ordinary Shares
+PLMKU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,Plum Acquisition Corp. IV Unit
+PLMR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Palomar Holdings, Inc. Common stock"
+PLPC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Preformed Line Products Company Common Stock
+PLRX,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Pliant Therapeutics, Inc. Common Stock"
+PLTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Palantir Technologies Inc. Class A Common Stock
+PLUG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Plug Power, Inc. Common Stock"
+PLX,True,False,True,1,AssetExchange.AMEX,common_other,,"Protalix BioTherapeutics, Inc. Common Stock"
+PM,True,True,False,1,AssetExchange.NYSE,common_other,,Philip Morris International Inc.
+PMM,True,False,True,1,AssetExchange.NYSE,common_other,,Putnam Managed Municipal Income
+PMTS,True,False,True,1,AssetExchange.NASDAQ,common_other,,CPI Card Group Inc. Common Stock
+PMVP,True,False,True,1,AssetExchange.NASDAQ,common_other,,"PMV Pharmaceuticals, Inc. Common Stock"
+PN,True,False,True,1,AssetExchange.NASDAQ,common_other,,Skycorp Solar Group Limited Class A Ordinary Shares
+PNC,True,True,False,1,AssetExchange.NYSE,common_other,,PNC Financial Services Group
+PNRG,True,True,False,1,AssetExchange.NASDAQ,common_other,,PrimeEnergy Resources Corporation Common Stock
+PODC,True,False,True,1,AssetExchange.NASDAQ,common_other,,"PodcastOne, Inc. Common Stock"
+PODD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Insulet Corporation Common Stock
+POLA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Polar Power, Inc. Common Stock"
+PONO,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Pono Capital Four, Inc. Class A Ordinary Shares"
+POOL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Pool Corporation Common Stock
+POWL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Powell Industries, Inc. Common Stock"
+POWW,True,True,False,1,AssetExchange.NASDAQ,common_other,,Outdoor Holding Company Common Stock
+POWWP,True,True,False,1,AssetExchange.NASDAQ,preferred,,Outdoor Holding Company 8.75% Series A Cumulative Redeemable Perpetual Preferred Stock
+PPC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Pilgrim's Pride Corporation Common Stock
+PPIH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Perma-Pipe International Holdings, Inc. Common Stock"
+PPSI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Pioneer Power Solutions, Inc. Common Stock"
+PRAX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Praxis Precision Medicines, Inc. Common Stock"
+PRCT,True,True,False,1,AssetExchange.NASDAQ,common_other,,PROCEPT BioRobotics Corporation Common Stock
+PRDO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Perdoceo Education Corporation Common Stock
+PROP,True,False,True,1,AssetExchange.NASDAQ,common_other,,Prairie Operating Co. Common Stock
+PRPO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Precipio, Inc. Common Stock"
+PRTH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Priority Technology Holdings, Inc. Common Stock"
+PRU,True,True,False,1,AssetExchange.NYSE,common_other,,"Prudential Financial, Inc."
+PRVA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Privia Health Group, Inc. Common Stock"
+PRZO,True,True,False,1,AssetExchange.NASDAQ,common_other,,ParaZero Technologies Ltd. Ordinary Shares
+PSEC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Prospect Capital Corporation Common Stock
+PSF,True,False,True,1,AssetExchange.NYSE,preferred,,COHEN & STEERS SELECT PREFERRED AND INCOME FUND
+PSIG,True,True,False,1,AssetExchange.NASDAQ,common_other,,PS International Group Ltd. Ordinary Shares
+PSIX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Power Solutions International, Inc. Common Stock"
+PSKY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Paramount Skydance Corporation Class B Common Stock
+PSMT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"PriceSmart, Inc. Common Stock"
+PSNY,True,True,False,1,AssetExchange.NASDAQ,adr,,Polestar Automotive Holding UK PLC Class A ADS
+PSNYW,True,True,False,1,AssetExchange.NASDAQ,adr,warrant_sfx5,Polestar Automotive Holding UK PLC Class C-1 ADS (ADW)
+PSX,True,True,False,1,AssetExchange.NYSE,common_other,,PHILLIPS 66
+PTC,True,True,False,1,AssetExchange.NASDAQ,common_other,,PTC Inc. Common Stock
+PTCT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"PTC Therapeutics, Inc. Common Stock"
+PTEN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Patterson-UTI Energy, Inc. Common Stock"
+PTGX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Protagonist Therapeutics, Inc. Common Stock"
+PTLE,True,True,False,1,AssetExchange.NASDAQ,common_other,,PTL LTD Class A Ordinary Shares
+PYPD,True,False,True,1,AssetExchange.NASDAQ,common_other,,PolyPid Ltd. Ordinary Shares
+PYPL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"PayPal Holdings, Inc. Common Stock"
+QCOM,True,True,False,1,AssetExchange.NASDAQ,common_other,,QUALCOMM Incorporated Common Stock
+QFIN,True,True,False,1,AssetExchange.NASDAQ,adr,,"Qfin Holdings, Inc. American Depositary Shares"
+QH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Quhuo Limited American Depository Shares
+QNST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"QuinStreet, Inc. Common Stock"
+QRHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Quest Resource Holding Corporation Common Stock
+QRVO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Qorvo, Inc. Common Stock"
+QS,True,True,False,1,AssetExchange.NASDAQ,common_other,,QuantumScape Corporation Class A Common Stock
+QSI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Quantum-Si Incorporated Class A Common Stock
+QSIAW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Quantum-Si Incorporated Warrant
+QTRX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Quanterix Corporation Common Stock
+RAAQ,True,False,True,1,AssetExchange.NASDAQ,common_other,,Real Asset Acquisition Corp. Class A Ordinary Share
+RAIL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"FreightCar America, Inc. Common Stock"
+RANG,True,False,True,1,AssetExchange.NASDAQ,common_other,,Range Capital Acquisition Corp. Ordinary Shares
+RARE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ultragenyx Pharmaceutical Inc. Common Stock
+RBLX,True,True,False,1,AssetExchange.NYSE,common_other,,Roblox Corporation
+RC,True,False,True,1,AssetExchange.NYSE,common_other,,Ready Capital Corporation
+RCEL,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Avita Medical, Inc. Common Stock"
+RCMT,True,False,True,1,AssetExchange.NASDAQ,common_other,,"RCM Technologies, Inc. Common Stock"
+RCON,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Recon Technology, Ltd. Class A Ordinary Shares"
+RCS,True,False,True,1,AssetExchange.NYSE,etf_fund,,"PIMCO STRATEGIC INCOME FUND, INC."
+RDGT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ridgetech, Inc. Ordinary Shares"
+RDIB,True,False,True,1,AssetExchange.NASDAQ,common_other,,Reading International Inc Class B Common Stock
+RDNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"RadNet, Inc. Common Stock"
+RDNW,True,False,True,1,AssetExchange.NASDAQ,common_other,,"RideNow Group, Inc. Class B Common Stock"
+RDW,True,True,False,1,AssetExchange.NYSE,common_other,,Redwire Corporation
+RDWR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Radware Ltd. Ordinary Shares
+RDZN,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Roadzen, Inc. Ordinary Shares"
+REE,True,True,False,1,AssetExchange.NASDAQ,common_other,,REE Automotive Ltd. Class A Ordinary Shares
+REFI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Chicago Atlantic Real Estate Finance, Inc. Common Stock"
+REFR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Research Frontiers Incorporated Common Stock
+REG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Regency Centers Corporation Common Stock
+REGCO,True,True,False,1,AssetExchange.NASDAQ,preferred,,Regency Centers Corporation 5.875% Series B Cumulative Redeemable Preferred Stock
+REGCP,True,True,False,1,AssetExchange.NASDAQ,preferred,,Regency Centers Corporation 6.25% Series A Cumulative Redeemable Preferred Stock
+REGN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Regeneron Pharmaceuticals, Inc. Common Stock"
+REKR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Rekor Systems, Inc. Common Stock"
+RELY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Remitly Global, Inc. Common Stock"
+RETO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ReTo Eco-Solutions, Inc. Class A Shares"
+REYN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Reynolds Consumer Products Inc. Common Stock
+RF,True,True,False,1,AssetExchange.NYSE,common_other,,Regions Financial Corp.
+RFAI,True,False,True,1,AssetExchange.NASDAQ,common_other,,RF Acquisition Corp II Ordinary Shares
+RFL,True,False,True,1,AssetExchange.NYSE,common_other,,"Rafael Holdings, Inc. Class B Common Stock"
+RGCO,True,True,False,1,AssetExchange.NASDAQ,common_other,,RGC Resources Inc. Common Stock
+RGEN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Repligen Corporation Common Stock
+RGLD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Royal Gold, Inc. Common Stock"
+RGP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Resources Connection, Inc. Common Stock"
+RGT,True,False,True,1,AssetExchange.NYSE,common_other,,"Royce Global Trust, Inc."
+RIME,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Algorhythm Holdings, Inc. Common Stock"
+RIOT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Riot Platforms, Inc. Common Stock"
+RISE,True,False,True,1,AssetExchange.ARCA,etf_fund,,Pictet Emerging Markets Rising Economies ETF
+RIVN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Rivian Automotive, Inc. Class A Common Stock"
+RKDA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Arcadia Biosciences, Inc. Common Stock"
+RKLB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Rocket Lab Corporation Common Stock
+RMBS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Rambus Inc. Common Stock
+RMCF,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Rocky Mountain Chocolate Factory, Inc. Common Stock"
+RMCO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Royalty Management Holding Corporation Class A Common Stock
+RMCOW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Royalty Management Holding Corporation Warrant
+RMI,True,False,True,1,AssetExchange.NYSE,etf_fund,,"RiverNorth Opportunistic Municipal Income Fund, Inc. Common Stock"
+RMM,True,False,True,1,AssetExchange.NYSE,etf_fund,,"RiverNorth Managed Duration Municipal Income Fund, Inc."
+RMMZ,True,False,True,1,AssetExchange.NYSE,etf_fund,,"RiverNorth Managed Duration Municipal Income Fund II, Inc."
+RMNI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Rimini Street, Inc. (DE) Common Stock"
+RNA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Atrium Therapeutics, Inc. Common Stock"
+RNTX,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Rein Therapeutics, Inc. Common Stock"
+RNW,True,True,False,1,AssetExchange.NASDAQ,common_other,,ReNew Energy Global plc Class A Ordinary Shares
+RNWWW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,ReNew Energy Global plc Warrant
+ROAD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Construction Partners, Inc. Class A Common Stock"
+ROCK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Gibraltar Industries, Inc. Common Stock"
+ROIV,True,True,False,1,AssetExchange.NASDAQ,common_other,,Roivant Sciences Ltd. Common Shares
+ROK,True,True,False,1,AssetExchange.NYSE,common_other,,"Rockwell Automation, Inc."
+ROKU,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Roku, Inc. Class A Common Stock"
+ROOT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Root, Inc. Class A Common Stock"
+ROP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Roper Technologies, Inc. Common Stock"
+ROST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ross Stores, Inc. Common Stock"
+RPAY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Repay Holdings Corporation Class A Common Stock
+RPID,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Rapid Micro Biosystems, Inc. Class A Common Stock"
+RPRX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Royalty Pharma plc Class A Ordinary Shares
+RPT,True,False,True,1,AssetExchange.NYSE,common_other,,Rithm Property Trust Inc.
+RR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Richtech Robotics Inc. Class B Common Stock
+RRC,True,True,False,1,AssetExchange.NYSE,common_other,,Range Resources Corp
+RRR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Red Rock Resorts, Inc. Class A Common Stock"
+RTX,True,True,False,1,AssetExchange.NYSE,common_other,,RTX Corporation
+RUN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Sunrun Inc. Common Stock
+RUSHA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Rush Enterprises, Inc. Common Stock Cl A"
+RUSHB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Rush Enterprises, Inc. Class B"
+RVMD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Revolution Medicines, Inc. Common Stock"
+RVSN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Rail Vision Ltd. Ordinary Share
+RVSNW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Rail Vision Ltd. Warrant
+RYAAY,True,True,False,1,AssetExchange.NASDAQ,adr,,Ryanair Holdings plc American Depositary Shares
+RYAN,True,True,False,1,AssetExchange.NYSE,common_other,,"Ryan Specialty Holdings, Inc."
+RYM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"RYTHM, Inc. Common Stock"
+RYTM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Rhythm Pharmaceuticals, Inc. Common Stock"
+S,True,True,False,1,AssetExchange.NYSE,common_other,,"SentinelOne, Inc."
+SAFX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"XCF Global, Inc. Class A Common Stock"
+SAIA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Saia, Inc. Common Stock"
+SAIL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SailPoint, Inc. Common Stock"
+SAMG,True,False,True,1,AssetExchange.NASDAQ,common_other,,Silvercrest Asset Management Group Inc. Class A Common Stock
+SANM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Sanmina Corporation Common Stock
+SATL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Satellogic Inc. Class A Common Stock
+SATS,True,True,False,1,AssetExchange.NASDAQ,common_other,,EchoStar Corporation Common Stock
+SBAC,True,True,False,1,AssetExchange.NASDAQ,common_other,,SBA Communications Corporation Class A Common Stock
+SBGI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sinclair, Inc. Class A Common Stock"
+SBLK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Star Bulk Carriers Corp. Common Shares
+SBRA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sabra Health Care REIT, Inc. Common Stock"
+SBUX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Starbucks Corporation Common Stock
+SCHW,True,True,False,1,AssetExchange.NYSE,common_other,,The Charles Schwab Corporation
+SCIIU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,SC II Acquisition Corp. Units
+SCLX,True,False,True,1,AssetExchange.NASDAQ,common_other,,Scilex Holding Company Common Stock
+SCOR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"comScore, Inc. Common Stock"
+SDA,True,False,True,1,AssetExchange.NASDAQ,common_other,,SunCar Technology Group Inc. Class A Ordinary Shares
+SDGR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Schrodinger, Inc. Common Stock"
+SDST,True,True,False,1,AssetExchange.NASDAQ,common_other,,Stardust Power Inc. Common Stock
+SDSTW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Stardust Power Inc. Warrant
+SE,True,True,False,1,AssetExchange.NYSE,adr,,"Sea Limited American Depositary Shares, each representing one Class A Ordinary Share"
+SEAT,True,False,True,1,AssetExchange.NASDAQ,common_other,,Vivid Seats Inc. Class A Common Stock
+SEDG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SolarEdge Technologies, Inc. Common Stock"
+SEED,True,True,False,1,AssetExchange.NASDAQ,common_other,,Origin Agritech Limited Common Stock
+SEER,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Seer, Inc. Class A Common Stock"
+SEIC,True,True,False,1,AssetExchange.NASDAQ,common_other,,SEI Investments Company Common Stock
+SELF,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Global Self Storage, Inc. Common Stock"
+SENEA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Seneca Foods Corp. Class A Common Stock
+SENEB,False,True,False,1,AssetExchange.NASDAQ,common_other,,Seneca Foods Corp. Class B Common Stock
+SEV,True,True,False,1,AssetExchange.NASDAQ,common_other,,Aptera Motors Corp. Class B Common Stock
+SEVN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Seven Hills Realty Trust Common Stock
+SFBC,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Sound Financial Bancorp, Inc. Common Stock"
+SFD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Smithfield Foods, Inc. Common Stock"
+SFM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sprouts Farmers Market, Inc. Common Stock"
+SFWL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Shengfeng Development Limited Class A Ordinary Shares
+SGA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Saga Communications, Inc. Class A Common Stock (FL)"
+SGLY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Singularity Future Technology Ltd. Common Stock
+SGRP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SPAR Group, Inc. Common Stock"
+SHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Sotera Health Company Common Stock
+SHEN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Shenandoah Telecommunications Co Common Stock
+SHIM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Shimmick Corporation Common Stock
+SHLS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Shoals Technologies Group, Inc. Class A Common Stock"
+SHMD,True,False,True,1,AssetExchange.NASDAQ,common_other,,SCHMID Group N.V. Class A Ordinary Shares
+SHOO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Steven Madden, Ltd. Common Stock"
+SHOP,True,True,False,1,AssetExchange.NASDAQ,common_other,,Shopify Inc. Class A subordinate voting shares
+SI,True,True,False,1,AssetExchange.NYSE,common_other,,"Shoulder Innovations, Inc."
+SIDU,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sidus Space, Inc. Class A Common Stock"
+SIGI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Selective Insurance Group, Inc. Common Stock"
+SILC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Silicom Ltd Ordinary Shares
+SIMA,True,False,True,1,AssetExchange.NASDAQ,common_other,,SIM Acquisition Corp. I Class A Ordinary Shares
+SIRI,True,True,False,1,AssetExchange.NASDAQ,common_other,,SiriusXM Holdings Inc. Common Stock
+SITC,True,False,True,1,AssetExchange.NYSE,common_other,,SITE Centers Corp. Common Shares
+SITM,True,True,False,1,AssetExchange.NASDAQ,common_other,,SiTime Corporation Common Stock
+SKBL,True,False,True,1,AssetExchange.NASDAQ,common_other,,Skyline Builders Group Holding Limited Class A Ordinary Shares
+SKK,True,True,False,1,AssetExchange.NASDAQ,common_other,,SKK Holdings Limited Class A Ordinary Shares
+SKLZ,True,False,True,1,AssetExchange.NYSE,common_other,,Skillz Inc.
+SKYQ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Sky Quarry Inc. Common Stock
+SKYW,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SkyWest, Inc. Common Stock"
+SKYX,True,False,True,1,AssetExchange.NASDAQ,common_other,,SKYX Platforms Corp. Common Stock
+SLAB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Silicon Laboratories, Inc. Common Stock"
+SLB,True,True,False,1,AssetExchange.NYSE,common_other,,SLB Limited
+SLDP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Solid Power, Inc. Class A Common Stock"
+SLDPW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"Solid Power, Inc. Warrant"
+SLGB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Smart Logistics Global Limited Ordinary Shares
+SLM,True,True,False,1,AssetExchange.NASDAQ,common_other,,SLM Corporation Common Stock
+SLMBP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"SLM Corporation Floating Rate Non-Cumulative Preferred Stock, Series B"
+SLND,True,False,True,1,AssetExchange.AMEX,common_other,,"Southland Holdings, Inc."
+SLNG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Stabilis Solutions, Inc. Common Stock"
+SM,True,True,False,1,AssetExchange.NYSE,common_other,,SM Energy Company
+SMCI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Super Micro Computer, Inc. Common Stock"
+SMID,True,True,False,1,AssetExchange.NASDAQ,common_other,,Smith-Midland Corporation Common Stock
+SMMT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Summit Therapeutics Inc. Common Stock
+SMPL,True,True,False,1,AssetExchange.NASDAQ,common_other,,The Simply Good Foods Company Common Stock
+SMTC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Semtech Corporation Common Stock
+SND,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Smart Sand, Inc. Common Stock"
+SNDK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Sandisk Corporation Common Stock
+SNES,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SenesTech, Inc. Common Stock"
+SNEX,True,True,False,1,AssetExchange.NASDAQ,common_other,,StoneX Group Inc. Common Stock
+SNFCA,True,False,True,1,AssetExchange.NASDAQ,common_other,,Security National Financial Corporation Class A Common Stock
+SNOW,True,True,False,1,AssetExchange.NYSE,common_other,,Snowflake Inc.
+SNPS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Synopsys, Inc. Common Stock"
+SNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Senstar Technologies Corporation Common Shares
+SNY,True,True,False,1,AssetExchange.NASDAQ,adr,,Sanofi ADS
+SOFI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SoFi Technologies, Inc. Common Stock"
+SOLS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Solstice Advanced Materials Inc. Common Stock
+SONM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"DNA X, Inc. Common Stock"
+SONO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sonos, Inc. Common Stock"
+SORA,True,True,False,1,AssetExchange.NASDAQ,common_other,,AsiaStrategy Ordinary Shares
+SOUN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SoundHound AI, Inc Class A Common Stock"
+SOWG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Sow Good Inc. Common Stock
+SPAI,True,False,True,1,AssetExchange.NASDAQ,common_other,,Safe Pro Group Inc. Common Stock
+SPCE,True,True,False,1,AssetExchange.NYSE,common_other,,"Virgin Galactic Holdings, Inc."
+SPKL,True,False,True,1,AssetExchange.NASDAQ,common_other,,Spark I Acquisition Corp. Class A Ordinary Share
+SPMC,True,False,True,1,AssetExchange.NYSE,common_other,,"Sound Point Meridian Capital, Inc."
+SPOK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Spok Holdings, Inc. Common Stock"
+SPWR,True,True,False,1,AssetExchange.NASDAQ,common_other,,SunPower Inc. Common Stock
+SQFT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Presidio Property Trust, Inc. Class A Common Stock"
+SQFTP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Presidio Property Trust, Inc. 9.375% Series D Cumulative Redeemable Perpetual Preferred Stock, $0.01 par value per share"
+SQFTW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"Presidio Property Trust, Inc. Series A Common Stock Purchase Warrants"
+SRFM,True,False,True,1,AssetExchange.NYSE,common_other,,Surf Air Mobility Inc.
+SRI,True,False,True,1,AssetExchange.NYSE,common_other,,"Stoneridge, Inc"
+SRPT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sarepta Therapeutics, Inc. Common Stock (DE)"
+SRRK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Scholar Rock Holding Corporation Common Stock
+SRXH,True,False,True,1,AssetExchange.AMEX,common_other,,"SRX Health Solutions, Inc."
+SSAC,True,False,True,1,AssetExchange.NASDAQ,common_other,,SPACSphere Acquisition Corp. Class A Ordinary Shares
+SSEA,True,False,True,1,AssetExchange.NASDAQ,common_other,,Starry Sea Acquisition Corp Ordinary Shares
+SSNC,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SS&C Technologies Holdings, Inc. Common Stock"
+SSP,True,True,False,1,AssetExchange.NASDAQ,common_other,,E.W. Scripps Company (The) Class A Common Stock
+SSRM,True,True,False,1,AssetExchange.NASDAQ,common_other,,SSR Mining Inc. Common Stock
+SSTI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"SoundThinking, Inc. Common Stock"
+STEP,True,True,False,1,AssetExchange.NASDAQ,common_other,,StepStone Group Inc. Class A Common Stock
+STHO,True,True,False,1,AssetExchange.NASDAQ,lp_trust_units,,Star Holdings Shares of Beneficial Interest
+STI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Solidion Technology, Inc. Common Stock"
+STKH,True,True,False,1,AssetExchange.NASDAQ,adr,,Steakholder Foods Ltd. American Depositary Shares
+STKS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"The ONE Group Hospitality, Inc. Common Stock"
+STLD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Steel Dynamics, Inc."
+STNE,True,True,False,1,AssetExchange.NASDAQ,common_other,,StoneCo Ltd. Class A Common Shares
+STRA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Strategic Education, Inc. Common Stock"
+STRC,True,True,False,1,AssetExchange.NASDAQ,preferred,,Strategy Inc Variable Rate Series A Perpetual Stretch Preferred Stock
+STRD,True,True,False,1,AssetExchange.NASDAQ,preferred,,Strategy Inc 10.00% Series A Perpetual Stride Preferred Stock
+STRF,True,True,False,1,AssetExchange.NASDAQ,preferred,,Strategy Inc 10.00% Series A Perpetual Strife Preferred Stock
+STRK,True,True,False,1,AssetExchange.NASDAQ,preferred,,Strategy Inc 8.00% Series A Perpetual Strike Preferred Stock
+STRL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sterling Infrastructure, Inc. Common Stock"
+STRS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Stratus Properties Inc. Common Stock
+STT,True,True,False,1,AssetExchange.NYSE,common_other,,State Street Corporation
+STX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Seagate Technology Holdings PLC Ordinary Shares (Ireland)
+SUNE,True,True,False,1,AssetExchange.NASDAQ,common_other,,"SUNation Energy, Inc. Common Stock"
+SUNS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sunrise Realty Trust, Inc. Common Stock"
+SVAQ,True,False,True,1,AssetExchange.NASDAQ,common_other,,Silicon Valley Acquisition Corp. Class A Ordinary Shares
+SVC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Service Properties Trust Common Stock
+SVCCU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,Stellar V Capital Corp. Unit
+SWBI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Smith & Wesson Brands, Inc. Common Stock"
+SWIM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Latham Group, Inc. Common Stock"
+SWK,True,True,False,1,AssetExchange.NYSE,common_other,,"Stanley Black & Decker, Inc."
+SWKS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Skyworks Solutions, Inc. Common Stock"
+SWVL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Swvl Holdings Corp Class A Common Shares
+SWVLW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Swvl Holdings Corp Warrant
+SYM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Symbotic Inc. Class A Common Stock
+SYPR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Sypris Solutions, Inc. Common Stock"
+SYY,True,True,False,1,AssetExchange.NYSE,common_other,,Sysco Corporation
+T,True,True,False,1,AssetExchange.NYSE,common_other,,AT&T Inc.
+TACT,True,False,True,1,AssetExchange.NASDAQ,common_other,,TransAct Technologies Incorporated Common Stock
+TAL,True,True,False,1,AssetExchange.NYSE,common_other,,TAL Education Group
+TALK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Talkspace, Inc. Common Stock"
+TANH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Tantech Holdings Ltd. Class A Common Shares
+TARA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Protara Therapeutics, Inc. Common Stock"
+TATT,True,True,False,1,AssetExchange.NASDAQ,common_other,,TAT Technologies Ltd. Ordinary Shares
+TAVI,True,False,True,1,AssetExchange.NASDAQ,common_other,,Tavia Acquisition Corp. Ordinary Shares
+TAYD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Taylor Devices, Inc. Common Stock"
+TBCH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Turtle Beach Corporation Common Stock
+TC,True,True,False,1,AssetExchange.NASDAQ,adr,,Token Cat Limited American Depositary Shares
+TCBI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Texas Capital Bancshares, Inc. Common Stock"
+TCOM,True,True,False,1,AssetExchange.NASDAQ,adr,,Trip.com Group Limited American Depositary Shares
+TCRX,True,False,True,1,AssetExchange.NASDAQ,common_other,,"TScan Therapeutics, Inc. Common Stock"
+TCX,True,False,True,1,AssetExchange.NASDAQ,common_other,,Tucows Inc. Class A Common Stock
+TDOC,True,True,False,1,AssetExchange.NYSE,common_other,,"Teladoc Health, Inc."
+TDTH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Trident Digital Tech Holdings Ltd American Depository Shares
+TDWD,True,False,True,1,AssetExchange.NASDAQ,common_other,,Tailwind 2.0 Acquisition Corp. Class A Ordinary Shares
+TEAM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Atlassian Corporation Class A Common Stock
+TECH,True,True,False,1,AssetExchange.NASDAQ,common_other,,Bio-Techne Corp Common Stock
+TEM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Tempus AI, Inc. Class A Common Stock"
+TER,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Teradyne, Inc. Common Stock"
+TFC,True,True,False,1,AssetExchange.NYSE,common_other,,Truist Financial Corporation
+TFSL,True,True,False,1,AssetExchange.NASDAQ,common_other,,TFS Financial Corporation Common Stock
+TG,True,False,True,1,AssetExchange.NYSE,common_other,,Tredegar Corporation
+TGL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Treasure Global Inc. Common Stock
+TGT,True,True,False,1,AssetExchange.NYSE,common_other,,Target Corporation
+TGTX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"TG Therapeutics, Inc. Common Stock"
+THC,True,True,False,1,AssetExchange.NYSE,common_other,,Tenet Healthcare Corporation New
+TIGO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Millicom International Cellular S.A. Common Stock
+TIGR,True,True,False,1,AssetExchange.NASDAQ,adr,,UP Fintech Holding Ltd American Depositary Share representing fifteen Class A Ordinary Shares
+TII,True,False,True,1,AssetExchange.AMEX,common_other,,Titan Mining Corporation
+TLN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Talen Energy Corporation Common Stock
+TLSA,True,False,True,1,AssetExchange.NASDAQ,common_other,,Tiziana Life Sciences Ltd. Common Shares
+TMDX,True,True,False,1,AssetExchange.NASDAQ,common_other,,"TransMedics Group, Inc. Common Stock"
+TME,True,True,False,1,AssetExchange.NYSE,adr,,"Tencent Music Entertainment Group American Depositary Shares, each representing two Class A Ordinary Shares"
+TNYA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Tenaya Therapeutics, Inc. Common Stock"
+TOMZ,True,True,False,1,AssetExchange.NASDAQ,common_other,,"TOMI Environmental Solutions, Inc. Common Stock"
+TORO,True,False,True,1,AssetExchange.NASDAQ,common_other,,Toro Corp. Common Stock
+TOST,True,True,False,1,AssetExchange.NYSE,common_other,,"Toast, Inc."
+TPCS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Techprecision Corporation Common Stock
+TPG,True,True,False,1,AssetExchange.NASDAQ,common_other,,TPG Inc. Class A Common Stock
+TPVG,True,True,False,1,AssetExchange.NYSE,common_other,,TRIPLEPOINT VENTURE GROWTH BDC CORP.
+TRAK,True,False,True,1,AssetExchange.NYSE,common_other,,"ReposiTrak, Inc."
+TRI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Thomson Reuters Corporation Common Shares
+TRMB,True,True,False,1,AssetExchange.NASDAQ,common_other,,Trimble Inc. Common Stock
+TRMD,True,True,False,1,AssetExchange.NASDAQ,common_other,,TORM plc Class A Common Stock
+TRNS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Transcat, Inc. Common Stock"
+TROO,True,False,True,1,AssetExchange.NASDAQ,common_other,,"TROOPS, Inc. Ordinary Shares"
+TROW,True,True,False,1,AssetExchange.NASDAQ,common_other,,"T. Rowe Price Group, Inc. Common Stock"
+TRS,True,True,False,1,AssetExchange.NASDAQ,common_other,,TriMas Corporation Common Stock
+TRSG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Tungray Technologies Inc Class A Ordinary Shares
+TRT,True,False,True,1,AssetExchange.AMEX,common_other,,Trio-Tech International
+TRV,True,True,False,1,AssetExchange.NYSE,common_other,,"The Travelers Companies, Inc."
+TSAT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Telesat Corporation Class A Common Shares and Class B Variable Voting Shares
+TSCO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Tractor Supply Company Common Stock
+TSEM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Tower Semiconductor Ltd. Ordinary Shares
+TSLA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Tesla, Inc. Common Stock"
+TTD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"The Trade Desk, Inc. Class A Common Stock"
+TTEK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Tetra Tech, Inc. Common Stock"
+TTGT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"TechTarget, Inc. Common Stock"
+TTMI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"TTM Technologies, Inc. Common Stock"
+TTWO,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Take-Two Interactive Software, Inc. Common Stock"
+TULP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Bloomia Holdings, Inc. Common Stock"
+TURB,True,True,False,1,AssetExchange.NASDAQ,adr,,"Turbo Energy, S.A. American Depositary Shares"
+TUSK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Mammoth Energy Services, Inc. Common Stock"
+TW,True,True,False,1,AssetExchange.NASDAQ,common_other,,Tradeweb Markets Inc. Class A Common Stock
+TWFG,True,False,True,1,AssetExchange.NASDAQ,common_other,,"TWFG, Inc. Class A Common Stock"
+TWG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Top Wealth Group Holding Limited Class A Ordinary Shares
+TWIN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Twin Disc, Incorporated Common Stock"
+TWLV,True,False,True,1,AssetExchange.NASDAQ,common_other,,Twelve Seas Investment Company III Class A Ordinary Shares
+TXG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"10x Genomics, Inc. Class A Common Stock"
+TXN,True,True,False,1,AssetExchange.NASDAQ,common_other,,Texas Instruments Incorporated Common Stock
+TXRH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Texas Roadhouse, Inc. Common Stock"
+TXT,True,True,False,1,AssetExchange.NYSE,common_other,,"Textron, Inc."
+UAL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"United Airlines Holdings, Inc. Common Stock"
+UAVS,True,False,True,1,AssetExchange.AMEX,common_other,,"AgEagle Aerial Systems, Inc."
+UBCP,True,False,True,1,AssetExchange.NASDAQ,common_other,,"United Bancorp, Inc. Common Stock"
+UBER,True,True,False,1,AssetExchange.NYSE,common_other,,"Uber Technologies, Inc."
+UBSI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"United Bankshares, Inc. Common Stock"
+UEIC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Universal Electronics Inc. Common Stock
+UFG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Uni-Fuels Holdings Limited Class A Ordinary Shares
+UHS,True,True,False,1,AssetExchange.NYSE,common_other,,"Universal Health Services, Inc. Class B"
+UK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ucommune International Ltd Class A Ordinary Shares
+ULBI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Ultralife Corporation Common Stock
+ULH,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Universal Logistics Holdings, Inc. Common Stock"
+ULTA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ulta Beauty, Inc. Common Stock"
+UMBF,True,True,False,1,AssetExchange.NASDAQ,common_other,,UMB Financial Corporation Common Stock
+UNB,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Union Bankshares, Inc. Common Stock"
+UNCY,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Unicycive Therapeutics, Inc. Common Stock"
+UNH,True,True,False,1,AssetExchange.NYSE,common_other,,UNITEDHEALTH GROUP INCORPORATED (Delaware)
+UNIT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Uniti Group Inc. Common Stock
+UNP,True,True,False,1,AssetExchange.NYSE,common_other,,Union Pacific Corp.
+UP,True,False,True,1,AssetExchange.NYSE,common_other,,Wheels Up Experience Inc.
+UPS,True,True,False,1,AssetExchange.NYSE,common_other,,"United Parcel Service, Inc. Class B"
+UPST,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Upstart Holdings, Inc. Common stock"
+UPWK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Upwork Inc. Common Stock
+UPXI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Upexi, Inc. Common Stock"
+URBN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Urban Outfitters, Inc. Common Stock"
+USB,True,True,False,1,AssetExchange.NYSE,common_other,,U.S. Bancorp
+USBC,True,False,True,1,AssetExchange.AMEX,common_other,,"USBC, Inc."
+USGO,True,False,True,1,AssetExchange.NASDAQ,common_other,,U.S. GoldMining Inc. Common stock
+USLM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"United States Lime & Minerals, Inc. Common Stock"
+UTHR,True,True,False,1,AssetExchange.NASDAQ,common_other,,United Therapeutics Corporation Common Stock
+UTSI,True,True,False,1,AssetExchange.NASDAQ,common_other,,UTStarcom Holdings Corp. Ordinary Shares
+UXIN,True,True,False,1,AssetExchange.NASDAQ,adr,,Uxin Limited ADS
+UYSCU,True,False,True,1,AssetExchange.NASDAQ,unit,unit_sfx5,UY Scuti Acquisition Corp. Units
+V,True,True,False,1,AssetExchange.NYSE,common_other,,VISA Inc.
+VC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Visteon Corporation Common Stock
+VCTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Victory Capital Holdings, Inc. Class A Common Stock"
+VCYT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Veracyte, Inc. Common Stock"
+VEEE,True,True,False,1,AssetExchange.NASDAQ,common_other,,Twin Vee PowerCats Co. Common Stock
+VEEV,True,True,False,1,AssetExchange.NYSE,common_other,,Veeva Systems Inc.
+VENU,True,False,True,1,AssetExchange.AMEX,common_other,,Venu Holding Corporation
+VEON,True,True,False,1,AssetExchange.NASDAQ,adr,,VEON Ltd. ADS
+VERI,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Veritone, Inc. Common Stock"
+VFF,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Village Farms International, Inc. Common Shares"
+VFL,True,False,True,1,AssetExchange.AMEX,etf_fund,,abrdn National Municipal Income Fund
+VFS,True,True,False,1,AssetExchange.NASDAQ,common_other,,VinFast Auto Ltd. Ordinary Shares
+VFSWW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,VinFast Auto Ltd. Warrant
+VGAS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Verde Clean Fuels, Inc. Class A Common Stock"
+VGASW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,"Verde Clean Fuels, Inc. Warrant"
+VGI,True,False,True,1,AssetExchange.NYSE,etf_fund,,VIRTUS GLOBAL MULTI-SECTOR INCOME FUND
+VHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,VirnetX Holding Corp Common Stock
+VIASP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Via Renewables, Inc. 8.75% Series A Fixed-to-Floating Rate Cumulative Redeemable Perpetual Preferred Stock"
+VIAV,True,True,False,1,AssetExchange.NASDAQ,common_other,,Viavi Solutions Inc. Common Stock
+VICR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Vicor Corporation Common Stock
+VITL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Vital Farms, Inc. Common Stock"
+VIVO,True,False,True,1,AssetExchange.NASDAQ,common_other,,VivoPower PLC Ordinary Shares
+VLGEA,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Village Super Market, Inc. Class A Common Stock"
+VLO,True,True,False,1,AssetExchange.NYSE,common_other,,Valero Energy Corporation
+VLY,True,True,False,1,AssetExchange.NASDAQ,common_other,,Valley National Bancorp Common Stock
+VLYPN,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Valley National Bancorp 8.250% Fixed-Rate Reset Non-Cumulative Perpetual Preferred Stock, Series C"
+VLYPO,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Valley National Bancorp 5.50% Fixed-to-Floating Rate Non-Cumulative Perpetual Preferred Stock, Series B"
+VLYPP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Valley National Bancorp 6.25% Fixed-to-Floating Rate Non-Cumulative Perpetual Preferred Stock, Series A"
+VMAR,True,True,False,1,AssetExchange.NASDAQ,common_other,,Vision Marine Technologies Inc. Common Shares
+VNET,True,True,False,1,AssetExchange.NASDAQ,adr,,"VNET Group, Inc. American Depositary Shares"
+VNOM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Viper Energy, Inc. Class A Common Stock"
+VOD,True,True,False,1,AssetExchange.NASDAQ,adr,,Vodafone Group Plc American Depositary Shares
+VRRM,True,True,False,1,AssetExchange.NASDAQ,common_other,,Verra Mobility Corporation Class A Common Stock
+VRSK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Verisk Analytics, Inc. Common Stock"
+VRSN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"VeriSign, Inc. Common Stock"
+VRTX,True,True,False,1,AssetExchange.NASDAQ,common_other,,Vertex Pharmaceuticals Incorporated Common Stock
+VSA,True,True,False,1,AssetExchange.NASDAQ,adr,,VisionSys AI Inc. American Depositary Shares
+VSAT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ViaSat, Inc. Common Stock"
+VSEC,True,True,False,1,AssetExchange.NASDAQ,common_other,,VSE Corporation Common Stock
+VSNT,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Versant Media Group, Inc. Class A Common Stock"
+VTN,True,False,True,1,AssetExchange.NYSE,common_other,,Invesco  Trust for Investment Grade New York Municipals
+VTRS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Viatris Inc. Common Stock
+VYGR,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Voyager Therapeutics, Inc. Common Stock"
+VZ,True,True,False,1,AssetExchange.NYSE,common_other,,Verizon Communications
+WAFU,True,True,False,1,AssetExchange.NASDAQ,common_other,,Wah Fu Education Group Limited Ordinary Shares
+WAI,True,True,False,1,AssetExchange.NASDAQ,common_other,,Top KingWin Ltd Class A Ordinary Shares
+WALD,True,False,True,1,AssetExchange.NASDAQ,common_other,,Waldencast plc Class A Ordinary Share
+WATT,True,False,True,1,AssetExchange.NASDAQ,common_other,,Energous Corporation Common Stock
+WAVE,True,True,False,1,AssetExchange.NASDAQ,adr,,Eco Wave Power Global AB (publ) American Depositary Shares
+WB,True,True,False,1,AssetExchange.NASDAQ,adr,,Weibo Corporation American Depositary Share
+WBD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Warner Bros. Discovery, Inc. Series A Common Stock"
+WDAY,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Workday, Inc. Class A Common Stock"
+WDC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Western Digital Corporation Common Stock
+WDFC,True,True,False,1,AssetExchange.NASDAQ,common_other,,WD-40 Company Common Stock
+WENC,True,False,True,1,AssetExchange.NYSE,common_other,,West Enclave Merger Corp.
+WERN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Werner Enterprises, Inc. Common Stock"
+WEST,True,True,False,1,AssetExchange.NASDAQ,common_other,,Westrock Coffee Company Common Stock
+WETO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Wetour Robotics Limited Ordinary Shares
+WEYS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Weyco Group, Inc. Common Stock"
+WFC,True,True,False,1,AssetExchange.NYSE,common_other,,Wells Fargo & Co.
+WFRD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Weatherford International plc Ordinary Shares
+WHG,True,False,True,1,AssetExchange.NYSE,common_other,,"WESTWOOD HOLDINGS GROUP, INC."
+WHLR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Wheeler Real Estate Investment Trust, Inc. Common Stock"
+WHLRD,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Wheeler Real Estate Investment Trust, Inc. Series D Cumulative Preferred Stock"
+WHLRL,False,True,False,1,AssetExchange.NASDAQ,debt_note,,"Wheeler Real Estate Investment Trust, Inc. 7.00% Senior Subordinated Convertible Notes Due 2031"
+WHLRP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Wheeler Real Estate Investment Trust, Inc. Class B Preferred Stock"
+WING,True,True,False,1,AssetExchange.NASDAQ,common_other,,Wingstop Inc. Common Stock
+WKHS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Workhorse Group, Inc. Common Stock"
+WLDS,True,True,False,1,AssetExchange.NASDAQ,common_other,,Wearable Devices Ltd. Ordinary Share
+WLDSW,False,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Wearable Devices Ltd. Warrant
+WMG,True,True,False,1,AssetExchange.NASDAQ,common_other,,Warner Music Group Corp. Class A Common Stock
+WMT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Walmart Inc. Common Stock
+WPRT,True,True,False,1,AssetExchange.NASDAQ,common_other,,Westport Fuel Systems Inc Common Shares
+WRAP,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Wrap Technologies, Inc. Common Stock"
+WSBK,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Winchester Bancorp, Inc. Common Stock"
+WSC,True,True,False,1,AssetExchange.NASDAQ,common_other,,WillScot Holdings Corporation Class A Common Stock
+WSHP,True,False,True,1,AssetExchange.NASDAQ,common_other,,WeShop Holdings Limited Class A Ordinary Shares
+WTFC,True,True,False,1,AssetExchange.NASDAQ,common_other,,Wintrust Financial Corporation Common Stock
+WTW,True,True,False,1,AssetExchange.NASDAQ,common_other,,Willis Towers Watson Public Limited Company Ordinary Shares
+WULF,True,True,False,1,AssetExchange.NASDAQ,common_other,,TeraWulf Inc. Common Stock
+WVVI,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Willamette Valley Vineyards, Inc. Common Stock"
+WVVIP,True,True,False,1,AssetExchange.NASDAQ,preferred,,"Willamette Valley Vineyards, Inc. Series A Redeemable Preferred Stock"
+WWD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Woodward, Inc. Common Stock"
+WWR,True,False,True,1,AssetExchange.AMEX,common_other,,"Westwater Resources, Inc."
+WYHG,True,True,False,1,AssetExchange.NASDAQ,adr,,Wing Yip Food Holdings Group Limited American Depositary Shares
+WYNN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Wynn Resorts, Limited Common stock"
+WYY,True,False,True,1,AssetExchange.AMEX,common_other,,WidePoint Corporation
+XCBE,True,False,True,1,AssetExchange.NASDAQ,common_other,,X3 Acquisition Corp. Ltd. Class A Ordinary Shares
+XCH,True,True,False,1,AssetExchange.NASDAQ,adr,,XCHG Limited American Depositary Share
+XEL,True,True,False,1,AssetExchange.NASDAQ,common_other,,Xcel Energy Inc. Common Stock
+XELB,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Xcel Brands, Inc. Common Stock"
+XFLT,True,False,True,1,AssetExchange.NYSE,common_other,,XAI Floating Rate & Alternative Income Trust
+XHG,True,False,True,1,AssetExchange.NASDAQ,adr,,XChange TEC.INC American Depositary Shares
+XHLD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"TEN Holdings, Inc. Common Stock"
+XMTR,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Xometry, Inc. Class A Common Stock"
+XNET,True,True,False,1,AssetExchange.NASDAQ,adr,,Xunlei Limited American Depositary Shares
+XOM,True,True,False,1,AssetExchange.NYSE,common_other,,Exxon Mobil Corporation
+XOS,True,False,True,1,AssetExchange.NASDAQ,common_other,,"Xos, Inc. Common Stock"
+XP,True,True,False,1,AssetExchange.NASDAQ,common_other,,XP Inc. Class A Common Stock
+XPEL,True,True,False,1,AssetExchange.NASDAQ,common_other,,"XPEL, Inc. Common Stock"
+XPEV,True,True,False,1,AssetExchange.NYSE,adr,,"XPeng Inc. American depositary shares, each representing two Class A ordinary shares"
+XPL,True,False,True,1,AssetExchange.AMEX,common_other,,Solitario Resources Corp.
+XPOF,True,False,True,1,AssetExchange.NYSE,common_other,,"Xponential Fitness, Inc."
+XPON,True,True,False,1,AssetExchange.NASDAQ,common_other,,Expion360 Inc. Common Stock
+XTIA,True,False,True,1,AssetExchange.NASDAQ,common_other,,"XTI Aerospace, Inc. Common Stock"
+XTNT,True,False,True,1,AssetExchange.AMEX,common_other,,"Xtant Medical Holdings, Inc."
+YHC,True,True,False,1,AssetExchange.NASDAQ,common_other,,LQR House Inc. Common Stock
+YHGJ,True,True,False,1,AssetExchange.NASDAQ,common_other,,Yunhong Green CTI Ltd. Common Stock
+YI,True,True,False,1,AssetExchange.NASDAQ,adr,,"111, Inc. American Depositary Shares"
+YIBO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Planet Image International Limited Class A Ordinary Shares
+YORW,True,True,False,1,AssetExchange.NASDAQ,common_other,,York Water Company (The) Common Stock
+YOUL,True,True,False,1,AssetExchange.NASDAQ,adr,,Youlife Group Inc. American Depositary Shares
+YQ,True,True,False,1,AssetExchange.NASDAQ,adr,,17 Education & Technology Group Inc. American Depositary Shares
+YRD,True,False,True,1,AssetExchange.NYSE,common_other,,Yiren Digital Ltd.
+YUM,True,True,False,1,AssetExchange.NYSE,common_other,,"Yum! Brands, Inc."
+YUMC,True,True,False,1,AssetExchange.NYSE,common_other,,"Yum China Holdings, Inc. Common Stock"
+Z,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Zillow Group, Inc. Class C Capital Stock"
+ZBRA,True,True,False,1,AssetExchange.NASDAQ,common_other,,Zebra Technologies Corporation Class A Common Stock
+ZCMD,True,True,False,1,AssetExchange.NASDAQ,common_other,,Zhongchao Inc. Class A Ordinary Shares
+ZD,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Ziff Davis, Inc. Common Stock"
+ZEO,True,True,False,1,AssetExchange.NASDAQ,common_other,,Zeo Energy Corporation Class A Common Stock
+ZEOWW,True,True,False,1,AssetExchange.NASDAQ,warrant,warrant_sfx5,Zeo Energy Corporation Warrants
+ZG,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Zillow Group, Inc. Class A Common Stock"
+ZH,True,True,False,1,AssetExchange.NYSE,adr,,"Zhihu Inc. American Depositary Shares, each representing three (3) Class A Ordinary Shares"
+ZION,True,True,False,1,AssetExchange.NASDAQ,common_other,,Zions Bancorporation N.A. Common Stock
+ZJK,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ZJK Industrial Co., Ltd. Class A Ordinary Shares"
+ZKIN,True,True,False,1,AssetExchange.NASDAQ,common_other,,"ZK International Group Co., Ltd Ordinary Share"
+ZM,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Zoom Communications, Inc. Class A Common Stock"
+ZS,True,True,False,1,AssetExchange.NASDAQ,common_other,,"Zscaler, Inc. Common Stock"
+ZTEK,True,True,False,1,AssetExchange.NASDAQ,common_other,,Zentek Ltd. Common Stock

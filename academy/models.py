@@ -239,6 +239,11 @@ class ContentJob:
 
 class LessonRepository:
     def save(self, lesson: Lesson) -> None:
+        if lesson.status == "approved":
+            raise ValueError("approved lessons require an explicit human approval operation")
+        if lesson.status == "published":
+            raise ValueError("published lessons require a human-approved release")
+
         with db_cursor() as cur:
             cur.execute(
                 """
@@ -259,7 +264,8 @@ class LessonRepository:
                   related_lessons=excluded.related_lessons,
                   pedagogy_score=excluded.pedagogy_score,
                   version=excluded.version,
-                  next_review_at=excluded.next_review_at
+                                    next_review_at=excluded.next_review_at
+                                WHERE lessons.status NOT IN ('approved', 'pending_review', 'published', 'archived')
             """,
                 (
                     lesson.id,
@@ -282,6 +288,10 @@ class LessonRepository:
                     lesson.next_review_at,
                 ),
             )
+            if cur.rowcount == 0:
+                raise ValueError(
+                    "approved, pending_review, published, and archived lessons are immutable"
+                )
 
     def get(self, lesson_id: str) -> Lesson | None:
         with db_cursor() as cur:

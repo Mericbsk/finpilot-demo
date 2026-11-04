@@ -3,81 +3,72 @@
 /**
  * FinSense Academy — public lessons browser.
  *
- * Data: static /academy_lessons.json produced by the academy exporter
- *   (Finsense: python -m academy.export_lessons --json --status published
- *              --out ../Borsa/web/public/academy_lessons.json)
+ * Data: active FinSense release via the Borsa Academy catalog API.
+ * The API verifies the active manifest and packaged file hashes before serving.
  * Education only — not investment advice. Mirrors the /demo static-JSON pattern.
  */
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Search, GraduationCap } from "lucide-react";
+import {
+  getAcademyCatalog,
+  type AcademyLevel,
+  type AcademyLocale,
+} from "@/lib/finsenseAcademyApi";
 
-interface Lesson {
-  id: string;
-  title: string;
-  domain: string;
-  module: string;
-  format: string;
-  difficulty: string;
-  minutes: number;
-  content: string;
-  key_takeaways: string[];
-  quiz_count: number;
-  flashcard_count: number;
-  sources: unknown[];
-}
-interface Payload {
-  schema: number;
-  generated_at: string;
-  count: number;
-  domains: string[];
-  disclaimer: string;
-  lessons: Lesson[];
-}
-
-const FORMAT_LABEL: Record<string, string> = {
-  guide: "Rehber",
-  card: "Kart",
-  coded: "Kodlu",
-  compare: "Karşılaştırma",
-  checklist: "Kontrol listesi",
+const LOCALE_LABEL: Record<AcademyLocale, string> = {
+  tr: "Türkçe",
+  en: "English",
+  de: "Deutsch",
 };
 
-function fmtChip(f: string): string {
-  return FORMAT_LABEL[f] || (f ? f : "Ders");
-}
+const LEVEL_LABEL: Record<AcademyLevel, string> = {
+  beginner: "Başlangıç",
+  intermediate: "Orta",
+  advanced: "İleri",
+};
 
 export default function AcademyPage() {
-  const [data, setData] = useState<Payload | null>(null);
+  const [data, setData] = useState<Awaited<ReturnType<typeof getAcademyCatalog>> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
-  const [domain, setDomain] = useState<string>("all");
+  const [locale, setLocale] = useState<AcademyLocale>("tr");
+  const [level, setLevel] = useState<"all" | AcademyLevel>("all");
   const [openId, setOpenId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/academy_lessons.json", { cache: "no-store" })
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
+    let cancelled = false;
+    setData(null);
+    setError(null);
+    setOpenId(null);
+    getAcademyCatalog(locale)
+      .then((catalog) => {
+        if (!cancelled) setData(catalog);
       })
-      .then((d: Payload) => setData(d))
-      .catch((e) => setError(String(e)));
-  }, []);
+      .catch(() => {
+        if (!cancelled) setError("Kanonik ders kataloğu şu anda kullanılamıyor.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
 
   const filtered = useMemo(() => {
     if (!data) return [];
     const needle = q.trim().toLowerCase();
-    return data.lessons.filter((l) => {
-      if (domain !== "all" && l.domain !== domain) return false;
+    return data.lessons.filter(({ lesson }) => {
+      if (level !== "all" && lesson.level !== level) return false;
       if (!needle) return true;
-      return (
-        l.title.toLowerCase().includes(needle) ||
-        l.content.toLowerCase().includes(needle) ||
-        l.module.toLowerCase().includes(needle)
-      );
+      const searchable = [
+        lesson.title,
+        lesson.body_md,
+        ...lesson.learning_objectives,
+        ...lesson.claims.map((claim) => claim.text),
+      ];
+      return searchable.some((value) => value.toLowerCase().includes(needle));
     });
-  }, [data, q, domain]);
+  }, [data, q, level]);
 
   return (
     <main className="min-h-screen bg-[var(--ledger-paper,#faf8f3)] text-[var(--ledger-ink,#1a1a1a)]">
@@ -95,15 +86,14 @@ export default function AcademyPage() {
             <h1 className="text-2xl font-semibold">FinSense Academy</h1>
           </div>
           <p className="mt-1 text-sm text-[var(--ledger-ink-soft,#666)]">
-            RAG-temelli, kaynaklı finansal eğitim dersleri. Eğitim içeriğidir —
+            Kaynaklı finansal eğitim dersleri. Eğitim içeriğidir; kişiselleştirilmiş
             yatırım tavsiyesi değildir.
           </p>
         </header>
 
         {error && (
           <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            Dersler yüklenemedi ({error}). academy_lessons.json henüz üretilmemiş
-            olabilir.
+            {error}
           </p>
         )}
 
@@ -120,68 +110,130 @@ export default function AcademyPage() {
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Ders ara…"
+                  aria-label="Ders ara"
                   className="w-full rounded border border-[var(--ledger-rule,#ddd)] bg-white py-1.5 pl-8 pr-2 text-sm outline-none focus:border-[var(--ledger-steel,#4a6)]"
                 />
               </div>
-              <select
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                className="rounded border border-[var(--ledger-rule,#ddd)] bg-white px-2 py-1.5 text-sm"
-              >
-                <option value="all">Tüm alanlar</option>
-                {data.domains.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+              <label className="flex items-center gap-2 text-sm">
+                Dil
+                <select
+                  aria-label="Dil"
+                  value={locale}
+                  onChange={(e) => setLocale(e.target.value as AcademyLocale)}
+                  className="rounded border border-[var(--ledger-rule,#ddd)] bg-white px-2 py-1.5"
+                >
+                  {Object.entries(LOCALE_LABEL).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                Seviye
+                <select
+                  aria-label="Seviye"
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value as "all" | AcademyLevel)}
+                  className="rounded border border-[var(--ledger-rule,#ddd)] bg-white px-2 py-1.5"
+                >
+                  <option value="all">Tümü</option>
+                  {Object.entries(LEVEL_LABEL).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             <p className="mb-3 text-xs text-[var(--ledger-ink-soft,#999)]">
-              {filtered.length} / {data.count} ders · güncelleme{" "}
-              {new Date(data.generated_at).toLocaleDateString("tr-TR")}
+              {filtered.length} / {data.lessons.length} ders · release{" "}
+              {data.manifest.release_id}
             </p>
 
             <ul className="space-y-2">
-              {filtered.map((l) => {
-                const open = openId === l.id;
+              {filtered.map(({ lesson, sources }) => {
+                const lessonId = `${lesson.concept_id}:${lesson.locale}`;
+                const open = openId === lessonId;
                 return (
                   <li
-                    key={l.id}
+                    key={lessonId}
                     className="rounded-lg border border-[var(--ledger-rule,#e5e5e5)] bg-white"
                   >
                     <button
-                      onClick={() => setOpenId(open ? null : l.id)}
+                      type="button"
+                      onClick={() => setOpenId(open ? null : lessonId)}
                       className="flex w-full items-center gap-2 px-3 py-2.5 text-left"
                     >
                       <BookOpen className="h-4 w-4 shrink-0 text-[var(--ledger-steel,#4a6)]" />
-                      <span className="flex-1 font-medium">{l.title}</span>
+                      <span className="flex-1 font-medium">{lesson.title}</span>
                       <span className="rounded bg-[var(--ledger-sage,#4a6)]/15 px-1.5 py-0.5 text-[0.7rem] text-[var(--ledger-sage,#376)]">
-                        {fmtChip(l.format)}
+                        {LEVEL_LABEL[lesson.level]}
                       </span>
                       <span className="hidden text-xs text-[var(--ledger-ink-soft,#999)] sm:inline">
-                        {l.domain} · {l.minutes}dk
+                        {LOCALE_LABEL[lesson.locale]} · v{lesson.version}
                       </span>
                     </button>
                     {open && (
                       <div className="border-t border-[var(--ledger-rule,#eee)] px-3 py-3 text-sm leading-relaxed">
-                        <p className="whitespace-pre-wrap">{l.content}</p>
-                        {l.key_takeaways?.length > 0 && (
+                        <h3 className="mb-1 text-xs font-semibold text-[var(--ledger-ink-soft,#555)]">
+                          Öğrenme hedefleri
+                        </h3>
+                        <ul className="mb-4 list-disc pl-5">
+                          {lesson.learning_objectives.map((objective) => (
+                            <li key={objective}>{objective}</li>
+                          ))}
+                        </ul>
+                        <h3 className="mb-1 text-xs font-semibold text-[var(--ledger-ink-soft,#555)]">
+                          Ders içeriği
+                        </h3>
+                        <p className="mb-4 whitespace-pre-wrap">{lesson.body_md}</p>
+                        {lesson.claims.length > 0 && (
                           <>
-                            <h3 className="mt-3 mb-1 text-xs font-semibold text-[var(--ledger-ink-soft,#555)]">
-                              Ana çıkarımlar
+                            <h3 className="mb-1 text-xs font-semibold text-[var(--ledger-ink-soft,#555)]">
+                              Kaynaklı iddialar
                             </h3>
                             <ul className="list-disc pl-5">
-                              {l.key_takeaways.map((t, i) => (
-                                <li key={i}>{t}</li>
+                              {lesson.claims.map((claim) => (
+                                <li key={claim.id}>
+                                  <p>{claim.text}</p>
+                                  {claim.source_ids.length > 0 && (
+                                    <ul className="mb-2 list-none pl-0 text-xs">
+                                      {claim.source_ids.map((sourceId) => {
+                                        const source = sources.find((item) => item.id === sourceId);
+                                        if (!source) return null;
+                                        return (
+                                          <li key={source.id}>
+                                            <a href={source.url} target="_blank" rel="noreferrer" className="underline">
+                                              {source.title} ({source.publisher})
+                                            </a>
+                                          </li>
+                                        );
+                                      })}
+                                    </ul>
+                                  )}
+                                </li>
                               ))}
                             </ul>
                           </>
                         )}
-                        <p className="mt-3 text-xs text-[var(--ledger-ink-soft,#999)]">
-                          Quiz: {l.quiz_count} · Flashcard: {l.flashcard_count} ·
-                          Kaynak: {l.sources?.length ?? 0}
-                        </p>
+                        {lesson.quiz.length > 0 && (
+                          <section className="mt-4 border-t border-[var(--ledger-rule,#eee)] pt-3">
+                            <h3 className="mb-2 text-xs font-semibold text-[var(--ledger-ink-soft,#555)]">
+                              Sorular ({lesson.quiz.length})
+                            </h3>
+                            {lesson.quiz.map((question) => (
+                              <details key={question.id} className="mb-2 rounded border border-[var(--ledger-rule,#eee)] px-2 py-1.5">
+                                <summary className="cursor-pointer">{question.question}</summary>
+                                <ol className="my-2 list-decimal pl-5">
+                                  {question.options.map((option) => <li key={option}>{option}</li>)}
+                                </ol>
+                                <details className="text-xs">
+                                  <summary className="cursor-pointer">Yanıtı ve açıklamayı göster</summary>
+                                  <p className="mt-1 font-medium">{question.options[question.correct_index]}</p>
+                                  <p>{question.explanation}</p>
+                                </details>
+                              </details>
+                            ))}
+                          </section>
+                        )}
                       </div>
                     )}
                   </li>
@@ -190,7 +242,7 @@ export default function AcademyPage() {
             </ul>
 
             <p className="mt-8 border-t border-[var(--ledger-rule,#eee)] pt-4 text-xs text-[var(--ledger-ink-soft,#999)]">
-              {data.disclaimer}
+              Eğitim içeriğidir; kişiselleştirilmiş yatırım tavsiyesi değildir.
             </p>
           </>
         )}

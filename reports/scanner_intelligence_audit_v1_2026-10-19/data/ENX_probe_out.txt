@@ -1,0 +1,1426 @@
+
+======== A. GREP prod dirs scanner,core,api,distribution (120 py files) ========
+--- RESOLVE total_hits=6 files=2
+  FILECOUNT distribution/karne.py 5
+  FILECOUNT core/scheduler.py 1
+  core/scheduler.py:197: resolved_pct_barrier — first TP/SL/21-trading-day barrier hit
+  distribution/karne.py:13: labels (resolved_pct_barrier). This is the real, positive
+  distribution/karne.py:82: These historical rows carry realized barrier returns (resolved_pct_barrier)
+  distribution/karne.py:87: "SELECT resolved_status_barrier AS s, resolved_pct_barrier AS p "
+  distribution/karne.py:89: "WHERE resolved_status_barrier IN ('resolved_win', 'resolved_loss') "
+  distribution/karne.py:90: "  AND resolved_pct_barrier IS NOT NULL"
+--- ENTRY_OK total_hits=39 files=10
+  FILECOUNT scanner/evaluate.py 12
+  FILECOUNT scanner/watch_tier.py 8
+  FILECOUNT api/routers/scan.py 6
+  FILECOUNT core/scheduler.py 4
+  FILECOUNT scanner/scan_summary.py 3
+  FILECOUNT core/auto_pipeline.py 2
+  FILECOUNT core/session_state.py 1
+  FILECOUNT distribution/prepublish_gate.py 1
+  FILECOUNT scanner/score_engine.py 1
+  FILECOUNT scanner/signals.py 1
+  api/routers/scan.py:169: row.get("selection_eligible", row.get("entry_ok", False))
+  api/routers/scan.py:171: "entry_ok": bool(row.get("entry_ok", False)),
+  api/routers/scan.py:229: """Auto-add BUY signals (entry_ok=True) to the watchlist.
+  api/routers/scan.py:253: if not r.get("selection_eligible", r.get("entry_ok", False)):
+  api/routers/scan.py:641: Kural-tabanli aday havuzundan (entry_ok VEYA conviction_tier A/B/C) LLM ile
+  api/routers/scan.py:844: "entry_ok",
+  core/auto_pipeline.py:111: if composite >= 70 and scan.get("entry_ok")
+  core/auto_pipeline.py:127: "entry_ok": bool(scan.get("entry_ok")),
+  core/scheduler.py:961: "entry_ok": pm_sym.get("status") == "OK",
+  core/scheduler.py:1013: if sig.get("entry_ok") and not was_alert_sent(sym, _cycle_count + 1)
+  core/scheduler.py:1041: "Scheduler: telegram entry_ok send failed for %s: %s", sym, ie
+  core/scheduler.py:1044: logger.warning("Scheduler: telegram entry_ok hook failed: %s", exc)
+  core/session_state.py:107: self.buyable_count = int(df["entry_ok"].sum()) if "entry_ok" in df.columns else 0
+  distribution/prepublish_gate.py:28: "entry_ok",
+  scanner/evaluate.py:88: "entry_ok": False,
+  scanner/evaluate.py:361: entry_ok = bool(score == 3) if core_signal else False
+  scanner/evaluate.py:369: high_quality_signal = entry_ok and _has_full_history
+  scanner/evaluate.py:384: entry_ok = bool(entry_ok and liquidity_ok)
+  scanner/evaluate.py:430: if entry_ok and not CURRENT_MARKET_STATUS["safe"]:
+  scanner/evaluate.py:431: entry_ok = False
+  scanner/evaluate.py:445: if earnings_blackout and entry_ok:
+  scanner/evaluate.py:446: entry_ok = False
+  scanner/evaluate.py:574: if entry_ok
+  scanner/evaluate.py:589: if not entry_ok:
+  scanner/evaluate.py:593: entry_ok and _execution_contract_data["execution_feasible"]
+  scanner/evaluate.py:631: "entry_ok": bool(entry_ok),
+  scanner/scan_summary.py:45: "selection_eligible", r.get("entry_ok") or r.get("conviction_tier") in ("A", "B", "C")
+  scanner/scan_summary.py:267: n_entry = sum(1 for r in out.values() if isinstance(r, dict) and r.get("entry_ok"))
+  scanner/scan_summary.py:271: if isinstance(r, dict) and not r.get("selection_eligible", r.get("entry_ok", False))
+  scanner/score_engine.py:125: # over-scoring while keeping the gate: entry_ok still requires score==3.
+  scanner/signals.py:492: if row.get("entry_ok"):
+  scanner/watch_tier.py:12: CONFIRM  the existing entry_ok gate (full multi-timeframe alignment)
+  scanner/watch_tier.py:16: * Does NOT change entry_ok or the live composite score. It is an additive,
+  scanner/watch_tier.py:73: entry_ok: bool = False,
+  scanner/watch_tier.py:84: entry_ok:           the existing full-confirmation gate.
+  scanner/watch_tier.py:101: if entry_ok:
+  scanner/watch_tier.py:102: reasons.append("entry_ok: tam çok-zaman-dilimi onayı")
+  scanner/watch_tier.py:148: entry_ok: bool = False,
+  scanner/watch_tier.py:192: entry_ok=entry_ok,
+--- PRICE total_hits=93 files=14
+  FILECOUNT core/slippage_tracker.py 20
+  FILECOUNT scanner/labeling.py 15
+  FILECOUNT core/backtest.py 11
+  FILECOUNT api/routers/watchlist.py 8
+  FILECOUNT core/outcome_reconciler.py 7
+  FILECOUNT core/paper_portfolio.py 7
+  FILECOUNT api/routers/history.py 5
+  FILECOUNT core/scheduler.py 5
+  FILECOUNT scanner/edge_report.py 5
+  FILECOUNT distribution/archive_bridge.py 3
+  FILECOUNT scanner/signals.py 3
+  FILECOUNT api/services/watchlist_db.py 2
+  api/routers/history.py:136: entry_price = float(sig["price"])
+  api/routers/history.py:137: if entry_price <= 0:
+  api/routers/history.py:156: _entry_price: float = entry_price,
+  api/routers/history.py:165: return round((price_n - _entry_price) / _entry_price * 100, 2)
+  api/routers/history.py:177: "entry_price": entry_price,
+  api/routers/scan.py:286: "entry_price": float(r.get("price") or 0),
+  api/routers/watchlist.py:68: entry_price: float = Field(0.0)
+  api/routers/watchlist.py:242: entry = item.get("entry_price", 0.0)
+  api/routers/watchlist.py:427: entry = item.get("entry_price", 0.0) or 0.0
+  api/routers/watchlist.py:514: entry_price = item.get("entry_price", 0.0) or 0.0
+  api/routers/watchlist.py:515: pnl_pct = ((current_price - entry_price) / entry_price * 100) if entry_price > 0 else 0.0
+  api/routers/watchlist.py:567: entry_price = item.get("entry_price", 0.0) or 0.0
+  api/routers/watchlist.py:568: pnl_pct = ((current_price - entry_price) / entry_price * 100) if entry_price > 0 else 0.0
+  api/routers/watchlist.py:863: entry = item.get("entry_price", 0.0) or 0.0
+  api/services/watchlist_db.py:25: "entry_price",
+  api/services/watchlist_db.py:61: entry_price  REAL DEFAULT 0.0,
+  core/backtest.py:85: entry_price: float
+  core/backtest.py:103: gross = (self.exit_price - self.entry_price) * self.shares
+  core/backtest.py:105: gross = (self.entry_price - self.exit_price) * self.shares
+  core/backtest.py:112: cost = self.entry_price * self.shares
+  core/backtest.py:131: "entry_price": self.entry_price,
+  core/backtest.py:1056: fill_price = entry["fill_price"]
+  core/backtest.py:1059: total_cost = int(shares) * fill_price + commission
+  core/backtest.py:1062: fill_price = signal.price * (1 + self.config.slippage_rate)
+  core/backtest.py:1082: entry_price=fill_price,
+  core/backtest.py:1096: f"Opened: {trade.id} @ ${fill_price:.2f} "
+  core/backtest.py:1126: exit_price = ex["fill_price"]
+  core/outcome_reconciler.py:84: def _compute_profit_pct(direction: str, entry_price: float, exit_price: float) -> float:
+  core/outcome_reconciler.py:86: return sign * (exit_price - entry_price) / entry_price * 100.0
+  core/outcome_reconciler.py:128: entry_price = float(sig.get("price", 0) or 0)
+  core/outcome_reconciler.py:129: if entry_price <= 0:
+  core/outcome_reconciler.py:139: profit_pct = _compute_profit_pct(direction, entry_price, exit_price)
+  core/outcome_reconciler.py:273: entry_price = float(sig["price"])
+  core/outcome_reconciler.py:281: profit_pct = _compute_profit_pct(direction, entry_price, exit_price)
+  core/paper_portfolio.py:5: open_position(signal_id, symbol, direction, entry_price)
+  ...[58 more hits not shown]
+--- EXIT total_hits=177 files=25
+  FILECOUNT core/backtest.py 30
+  FILECOUNT api/routers/watchlist.py 16
+  FILECOUNT core/outcome_reconciler.py 13
+  FILECOUNT scanner/position_sizer.py 12
+  FILECOUNT scanner/risk_engine.py 12
+  FILECOUNT core/horizon_outcomes_db.py 11
+  FILECOUNT core/scheduler.py 9
+  FILECOUNT distribution/snapshot_builder.py 8
+  FILECOUNT api/routers/trade.py 7
+  FILECOUNT scanner/scan_summary.py 7
+  FILECOUNT api/services/watchlist_db.py 6
+  FILECOUNT distribution/karne.py 6
+  api/routers/backtest.py:27: stop_loss_pct: float = Field(5, ge=0.5, le=50)
+  api/routers/backtest.py:28: take_profit_pct: float = Field(15, ge=1, le=100)
+  api/routers/execution.py:34: stop_loss: float | None = Field(None, gt=0)
+  api/routers/execution.py:35: take_profit: float | None = Field(None, gt=0)
+  api/routers/market_data.py:109: ("trailingPE", "P/E (TTM)", "number"),
+  api/routers/market_data.py:111: ("trailingEps", "EPS (TTM)", "currency"),
+  api/routers/reasoning.py:70: horizon_days: int
+  api/routers/reasoning.py:125: horizon_days=row["horizon_days"],
+  api/routers/reasoning.py:145: "SELECT id, asset, event_timestamp, snapshot, context, horizon_days "
+  api/routers/reasoning.py:171: "SELECT id, asset, event_timestamp, snapshot, context, horizon_days "
+  api/routers/reasoning.py:194: "SELECT id, asset, event_timestamp, snapshot, context, horizon_days "
+  api/routers/scan.py:287: "stop_loss": float(r.get("stop_loss") or 0),
+  api/routers/scan.py:288: "take_profit": float(r.get("take_profit") or 0),
+  api/routers/scan.py:295: "risk_reward": float(r.get("risk_reward") or 0),
+  api/routers/trade.py:25: stop_loss: float | None = Field(None, ge=0)
+  api/routers/trade.py:26: take_profit: float | None = Field(None, ge=0)
+  api/routers/trade.py:97: If stop_loss + take_profit are provided, creates a bracket order.
+  api/routers/trade.py:105: if qty == 0 and req.stop_loss and entry > 0:
+  api/routers/trade.py:106: qty = broker.calculate_position_size(entry, req.stop_loss)
+  api/routers/trade.py:118: stop_loss=req.stop_loss,
+  api/routers/trade.py:119: take_profit=req.take_profit,
+  api/routers/watchlist.py:69: stop_loss: float = Field(0.0)
+  api/routers/watchlist.py:70: take_profit: float = Field(0.0)
+  api/routers/watchlist.py:74: risk_reward: float = Field(0.0)
+  api/routers/watchlist.py:185: tp = item.get("take_profit", 0.0) or 0.0
+  api/routers/watchlist.py:186: sl = item.get("stop_loss", 0.0) or 0.0
+  api/routers/watchlist.py:243: tp = item.get("take_profit", 0.0)
+  api/routers/watchlist.py:244: sl = item.get("stop_loss", 0.0)
+  api/routers/watchlist.py:245: rr = item.get("risk_reward", 0.0)
+  api/routers/watchlist.py:425: stop = item.get("stop_loss", 0.0) or 0.0
+  api/routers/watchlist.py:426: tp = item.get("take_profit", 0.0) or 0.0
+  api/routers/watchlist.py:829: - TP_HIT   : high crossed take_profit (BUY) or low crossed take_profit (SELL)
+  api/routers/watchlist.py:830: - STOP_HIT : low crossed stop_loss (BUY) or high crossed stop_loss (SELL)
+  api/routers/watchlist.py:864: tp = item.get("take_profit", 0.0) or 0.0
+  api/routers/watchlist.py:865: sl = item.get("stop_loss", 0.0) or 0.0
+  api/routers/watchlist.py:877: # Long: TP = price goes UP to take_profit, Stop = price falls to stop_loss
+  api/routers/watchlist.py:897: # Short: TP = price falls to take_profit, Stop = price rises to stop_loss
+  api/services/watchlist_db.py:26: "stop_loss",
+  api/services/watchlist_db.py:27: "take_profit",
+  api/services/watchlist_db.py:31: "risk_reward",
+  api/services/watchlist_db.py:62: stop_loss    REAL DEFAULT 0.0,
+  api/services/watchlist_db.py:63: take_profit  REAL DEFAULT 0.0,
+  api/services/watchlist_db.py:67: risk_reward  REAL DEFAULT 0.0,
+  core/auto_pipeline.py:129: "stop_loss": scan.get("stop_loss"),
+  core/auto_pipeline.py:130: "take_profit": scan.get("take_profit"),
+  ...[132 more hits not shown]
+--- COST total_hits=119 files=9
+  FILECOUNT core/slippage_tracker.py 47
+  FILECOUNT core/backtest.py 31
+  FILECOUNT scanner/evaluate.py 12
+  FILECOUNT core/macro_regime.py 10
+  FILECOUNT distribution/glossary.py 6
+  FILECOUNT core/paper_portfolio.py 4
+  FILECOUNT distribution/snapshot_builder.py 4
+  FILECOUNT scanner/execution_policy.py 3
+  FILECOUNT api/routers/market_data.py 2
+  api/routers/market_data.py:215: macro_spread     — 10Y-2Y treasury spread
+  api/routers/market_data.py:272: macro_spread = _payload.get("spread")
+  core/backtest.py:10: - Slippage and commission modeling
+  core/backtest.py:40: from core.slippage_tracker import RealisticBacktestCosts as _RBC
+  core/backtest.py:49: from core.slippage_tracker import RealisticBacktestCosts as _RBC
+  core/backtest.py:92: commission: float = 0.0
+  core/backtest.py:93: slippage: float = 0.0
+  core/backtest.py:107: return gross - self.commission - self.slippage
+  core/backtest.py:944: from core.slippage_tracker import RealisticBacktestCosts, SlippageTracker
+  core/backtest.py:949: - slippage_rate ve commission_rate flat parametreleri devre dışı kalır
+  core/backtest.py:950: - Dinamik Kyle-lambda slippage + $1.50 komisyon + overnight gap modeli devreye girer
+  core/backtest.py:954: commission_rate: float = 0.001  # 0.1% — realistic_costs set edilince kullanılmaz
+  core/backtest.py:955: slippage_rate: float = 0.0005  # 0.05% — realistic_costs set edilince kullanılmaz
+  core/backtest.py:1054: # Dinamik slippage + Kyle-lambda + komisyon + overnight gap
+  core/backtest.py:1057: slippage = entry["slippage_usd"]
+  core/backtest.py:1058: commission = entry["commission_usd"] + entry["gap_usd"]
+  core/backtest.py:1059: total_cost = int(shares) * fill_price + commission
+  core/backtest.py:1062: fill_price = signal.price * (1 + self.config.slippage_rate)
+  core/backtest.py:1063: commission = position_value * self.config.commission_rate
+  core/backtest.py:1064: slippage = position_value * self.config.slippage_rate
+  core/backtest.py:1065: total_cost = position_value + commission + slippage
+  core/backtest.py:1086: commission=commission,
+  core/backtest.py:1087: slippage=slippage,
+  core/backtest.py:1097: f"(signal={signal.price:.2f}, slip={slippage:.2f})"
+  core/backtest.py:1127: commission = ex["commission_usd"]
+  core/backtest.py:1128: slippage_x = ex["slippage_usd"]
+  core/backtest.py:1130: exit_price = signal.price * (1 - self.config.slippage_rate)
+  core/backtest.py:1131: commission = open_trade.shares * exit_price * self.config.commission_rate
+  core/backtest.py:1132: slippage_x = 0.0
+  core/backtest.py:1139: open_trade.commission += commission
+  core/backtest.py:1140: open_trade.slippage += slippage_x
+  core/backtest.py:1142: self.portfolio.cash += position_value - commission
+  core/backtest.py:1271: # Realistic costs (available if slippage_tracker importable)
+  core/macro_regime.py:14: * ``T10Y2Y``  — 10y minus 2y Treasury spread (negative = inverted curve).
+  core/macro_regime.py:81: def classify_regime(vix: float | None, spread: float | None) -> str:
+  core/macro_regime.py:82: """Classify the macro regime from VIX and the 10y-2y spread."""
+  core/macro_regime.py:85: if vix >= _VIX_HIGH or (vix >= _VIX_ELEVATED and spread is not None and spread < 0):
+  core/macro_regime.py:87: if vix <= _VIX_LOW and (spread is None or spread > 0):
+  core/macro_regime.py:99: return {"regime": "neutral", "vix": None, "spread": None}
+  core/macro_regime.py:102: spread = _fetch_latest("T10Y2Y")
+  ...[79 more hits not shown]
+--- EXEC total_hits=51 files=8
+  FILECOUNT core/scheduler.py 20
+  FILECOUNT api/routers/closed_loop.py 10
+  FILECOUNT core/kpi_tracker.py 10
+  FILECOUNT api/routers/execution.py 3
+  FILECOUNT core/outcome_reconciler.py 3
+  FILECOUNT api/routers/scan.py 2
+  FILECOUNT core/paper_portfolio.py 2
+  FILECOUNT core/slippage_tracker.py 1
+  api/routers/closed_loop.py:51: from core.paper_portfolio import get_equity_curve, get_summary
+  api/routers/closed_loop.py:61: from core.paper_portfolio import get_open_positions
+  api/routers/closed_loop.py:68: from core.paper_portfolio import get_closed_history
+  api/routers/closed_loop.py:211: paper_pnl_total: float | None = None
+  api/routers/closed_loop.py:212: paper_pnl_30d: float | None = None
+  api/routers/closed_loop.py:214: from core.paper_portfolio import get_closed_history, get_summary
+  api/routers/closed_loop.py:217: paper_pnl_total = float(summary.get("total_pnl_pct", 0.0))
+  api/routers/closed_loop.py:232: paper_pnl_30d = round(sum(recent_pnls), 2)
+  api/routers/closed_loop.py:243: "paper_pnl_30d_pct": paper_pnl_30d,
+  api/routers/closed_loop.py:244: "paper_pnl_total_pct": paper_pnl_total,
+  api/routers/execution.py:52: mode = ExecutionMode(os.getenv("FINPILOT_EXECUTION_MODE", "dry_run"))
+  api/routers/execution.py:78: "mode": os.getenv("FINPILOT_EXECUTION_MODE", "dry_run"),
+  api/routers/execution.py:101: raise HTTPException(status_code=409, detail="Reconciliation requires paper_execution mode")
+  api/routers/scan.py:907: paper_trades: list[dict] = Field(default_factory=list)
+  api/routers/scan.py:939: "paper_trades": len(data.get("paper_trades", [])),
+  core/kpi_tracker.py:196: def mark_signal_auto_approved(symbol: str, cycle: int, p_win: float) -> bool:
+  core/kpi_tracker.py:216: and not sig.get("auto_approved")
+  core/kpi_tracker.py:218: sig["auto_approved"] = True
+  core/kpi_tracker.py:219: sig["auto_approve_p_win"] = round(float(p_win), 4)
+  core/kpi_tracker.py:229: logger.debug("KPI mark_signal_auto_approved Redis error: %s", exc)
+  core/kpi_tracker.py:232: if sig["symbol"] == symbol and sig["cycle"] == cycle and not sig.get("auto_approved"):
+  core/kpi_tracker.py:233: sig["auto_approved"] = True
+  core/kpi_tracker.py:234: sig["auto_approve_p_win"] = round(float(p_win), 4)
+  core/kpi_tracker.py:240: "mark_signal_auto_approved: %s cycle=%d p_win=%.4f persisted", symbol, cycle, p_win
+  core/kpi_tracker.py:244: "mark_signal_auto_approved: %s cycle=%d — signal not found or already approved",
+  core/outcome_reconciler.py:145: from core.paper_portfolio import close_position
+  core/outcome_reconciler.py:148: except Exception as paper_exc:
+  core/outcome_reconciler.py:149: logger.debug("paper close failed for %s: %s", sig["id"], paper_exc)
+  core/paper_portfolio.py:14: environments. JSON-on-disk snapshot at ``data/paper_portfolio.json`` is
+  core/paper_portfolio.py:31: _SNAPSHOT = Path("data") / "paper_portfolio.json"
+  core/scheduler.py:202: stats = resolve_run(horizon=5, dry_run=False)
+  core/scheduler.py:371: def _run_auto_approve_job(symbols: list[str]) -> None:
+  core/scheduler.py:379: logger.info("auto_approve: system degraded — skipping auto-approve")
+  core/scheduler.py:394: from core.kpi_tracker import mark_signal_auto_approved
+  core/scheduler.py:396: if mark_signal_auto_approved(sig["symbol"], sig["cycle"], p_win):
+  ...[16 more hits not shown]
+--- DEDUP total_hits=11 files=6
+  FILECOUNT core/scan_coordinator.py 4
+  FILECOUNT api/services/finsense_release.py 3
+  FILECOUNT api/routers/waitlist_signup.py 1
+  FILECOUNT core/agent_state.py 1
+  FILECOUNT distribution/archive_bridge.py 1
+  FILECOUNT distribution/store.py 1
+  api/routers/waitlist_signup.py:108: return {"status": "already_registered", "position": position}
+  api/services/finsense_release.py:237: raise FinSenseReleaseError("release contains a duplicate lesson")
+  api/services/finsense_release.py:250: raise FinSenseReleaseError("release lesson contains duplicate claim IDs")
+  api/services/finsense_release.py:302: raise FinSenseReleaseError("release review identity is duplicate or orphaned")
+  core/agent_state.py:142: # Alert dedupe (Sprint 3 — S3-3)
+  core/scan_coordinator.py:95: dedupe: bool = True,
+  core/scan_coordinator.py:106: self.dedupe = dedupe
+  core/scan_coordinator.py:139: existing = self._by_key.get(key) if self.dedupe else None
+  core/scan_coordinator.py:264: dedupe=os.getenv("FINPILOT_SCAN_DEDUPE", "1") == "1",
+  distribution/archive_bridge.py:10: * idempotent — re-publishing the same day never duplicates rows
+  distribution/store.py:247: """Returns True if newly added, False if duplicate."""
+--- TF total_hits=243 files=17
+  FILECOUNT scanner/data_fetcher.py 118
+  FILECOUNT scanner/evaluate.py 38
+  FILECOUNT scanner/signals.py 32
+  FILECOUNT scanner/features.py 13
+  FILECOUNT api/routers/watchlist.py 8
+  FILECOUNT api/routers/prices.py 6
+  FILECOUNT scanner/__init__.py 6
+  FILECOUNT api/routers/scan.py 4
+  FILECOUNT core/regime_weights.py 4
+  FILECOUNT scanner/performance.py 4
+  FILECOUNT scanner/watch_tier.py 3
+  FILECOUNT api/routers/history.py 2
+  api/main.py:207: "Scheduler autostart: started=%s symbols=%s interval=%dm",
+  api/routers/backtest.py:45: df: pd.DataFrame = fetch(req.symbol, period=req.period, interval="1d")
+  api/routers/history.py:259: interval: str = Query("1d", description="yfinance interval string"),
+  api/routers/history.py:272: df = yf.download(symbol, period=period, interval=interval, progress=False, auto_adjust=True)
+  api/routers/prices.py:152: interval="1d",
+  api/routers/prices.py:170: price = float(sym_df["Close"].iloc[-1])
+  api/routers/prices.py:171: prev = float(sym_df["Close"].iloc[-2]) if len(sym_df) >= 2 else price
+  api/routers/prices.py:172: high = float(sym_df["High"].iloc[-1]) if "High" in sym_df.columns else price
+  api/routers/prices.py:173: low = float(sym_df["Low"].iloc[-1]) if "Low" in sym_df.columns else price
+  api/routers/prices.py:174: volume = int(sym_df["Volume"].iloc[-1]) if "Volume" in sym_df.columns else 0
+  api/routers/scan.py:528: # P0.1: per-timeframe Alpaca(IEX) miss counts — which timeframe drove fallback.
+  api/routers/scan.py:759: interval: str = Query("1d", pattern="^(15m|1h|4h|1d)$"),
+  api/routers/scan.py:770: _INTERVAL_MAX_DAYS = {"15m": 59, "1h": 729, "4h": 729, "1d": 400}
+  api/routers/scan.py:850: "timeframe_aligned",
+  api/routers/watchlist.py:324: interval="1d",
+  api/routers/watchlist.py:341: price = float(series.iloc[-1])
+  api/routers/watchlist.py:342: prev = float(series.iloc[-2]) if len(series) >= 2 else price
+  api/routers/watchlist.py:355: price = float(series.iloc[-1])
+  api/routers/watchlist.py:356: prev = float(series.iloc[-2]) if len(series) >= 2 else price
+  api/routers/watchlist.py:684: df = yf.download(symbols, period="2d", interval="1d", auto_adjust=True, progress=False)
+  api/routers/watchlist.py:690: val = float(col.dropna().iloc[-1])
+  api/routers/watchlist.py:852: hist = ticker.history(start=str(start), end=str(end), interval="1d")
+  core/backtest.py:1006: self._close_all_positions(self.data.iloc[-1])
+  core/outcome_reconciler.py:73: bar = after.iloc[0] if not after.empty else df.iloc[-1]
+  core/regime_weights.py:148: spy = yf.download("SPY", period="1y", interval="1d", progress=False, auto_adjust=True)
+  core/regime_weights.py:153: sma200 = close.rolling(min(200, len(close))).mean().iloc[-1]
+  core/regime_weights.py:154: price = float(close.iloc[-1])
+  core/regime_weights.py:156: float((close.iloc[-1] - close.iloc[-21]) / close.iloc[-21]) if len(close) >= 21 else 0.0
+  scanner/__init__.py:10: fetch_multi_timeframe,
+  scanner/__init__.py:15: prefetch_symbols_multi_timeframe,
+  scanner/__init__.py:36: check_timeframe_alignment,
+  scanner/__init__.py:55: "check_timeframe_alignment",
+  scanner/__init__.py:71: "fetch_multi_timeframe",
+  scanner/__init__.py:73: "prefetch_symbols_multi_timeframe",
+  scanner/data_fetcher.py:7: - Parallel multi-timeframe fetching with ThreadPoolExecutor
+  scanner/data_fetcher.py:71: # P0.1: also clear the per-timeframe Alpaca-miss counter for this scan.
+  scanner/data_fetcher.py:116: #   _YF_BULK_SYMBOLS  — bu isteklerde kac sembol-timeframe yfinance'ten geldi
+  scanner/data_fetcher.py:143: # `prefetch_symbols_multi_timeframe`'in UC donus yolunun hepsinde cagriliyor,
+  scanner/data_fetcher.py:155: # timeframe, how many symbols had INSUFFICIENT Alpaca(IEX) history and thus fell
+  scanner/data_fetcher.py:156: # to the yfinance repair path. This pinpoints WHICH timeframe drives fallback
+  scanner/data_fetcher.py:158: # measurable, per-timeframe cause. Observation only — never changes scan output.
+  scanner/data_fetcher.py:168: """Symbols with insufficient Alpaca history per timeframe, since last reset."""
+  scanner/data_fetcher.py:300: with timer("retry.attempt", count=attempt + 1, timeframe=interval, path="alpaca"):
+  scanner/data_fetcher.py:315: with timer("retry.backoff", timeframe=interval, path="alpaca"):
+  scanner/data_fetcher.py:415: interval: Time interval ('15m', '1h', '4h', '1d')
+  ...[198 more hits not shown]
+
+======== B. FUNCTION INDEX + SOURCE WINDOWS ========
+--- FUNCS core/scheduler.py (1511 lines, 35 funcs)
+  _make_watchdog_job 49-77; _wrapped 57-74; _compose_jobs 80-97; _composite 88-94; _run_eval_job 100-142; _run_reconcile_job 145-156; _run_calibration_job 159-173; _run_weekly_calibration_retrain_job 176-189; _run_resolve_open_signals_job 192-212; _run_edge_report_job 215-240; _run_weekly_report_job 243-252; _run_research_pipeline_job 255-279; _run_drift_job 282-306; _run_ceo_report_job 309-368; _run_auto_approve_job 371-461; run_cycle_once 469-1117; get_scheduler 1125-1127; start_scheduler 1130-1484; _scheduled_job 1156-1160; _eval_job_wrapper 1182-1183; _auto_approve_wrapper 1186-1187; _daily_ops_wrapper 1278-1284; _catalyst_refresh_wrapper 1322-1327; _sentiment_refresh_wrapper 1340-1345; _macro_refresh_wrapper 1357-1362; _dist_draft_wrapper 1375-1379; _dist_publish_wrapper 1381-1385; _dist_weekly_wrapper 1387-1391; _dist_scan_wrapper 1414-1418; _dist_sentinel_wrapper 1420-1424; _dist_backup_wrapper 1440-1445; _dist_archive_check_wrapper 1447-1450; _dist_catchup_thread 1469-1476; stop_scheduler 1487-1500; scheduler_status 1503-1511
+--- FUNCS scanner/evaluate.py (852 lines, 7 funcs)
+  _unavailable_result 73-111; _compute_cost_labels 114-152; _feature_contract 155-225; evaluate_symbol 228-756; evaluate_symbols_parallel 761-852; prefetch_progress 783-786; _eval_one 811-815
+--- FUNCS scanner/features.py (804 lines, 23 funcs)
+  _fetch_returns 46-57; compute_sector_rs 60-78; compute_vol_regime 81-100; compute_squeeze_factor 115-156; _alpha_v2_enabled 171-172; _conviction_enabled 182-183; compute_atr_pct 186-206; compute_conviction 209-237; compute_gap_factor 240-263; compute_dist_52w_high 266-282; compute_gap_pct 285-301; compute_rvol_daily 304-317; compute_rvol_factor 320-339; compute_extension_factor 342-366; compute_vol_regime_from_df 369-390; get_alpha_features 393-429; compute_lottery_factor 446-485; compute_overnight_gap_factor 500-539; _percentile_rank 549-557; compute_contraction_factor 560-594; compute_fundamental_score 602-695; compute_news_catalyst 698-773; compute_rvol_acceleration 776-804
+--- WINDOWS resolver (RESOLVE): 1 hits in 1 files
+  >> core/scheduler.py 177-219 func=('_run_resolve_open_signals_job', 192, 212)
+  177|     """Weekly full calibration retrain (Mondays 02:00 UTC) — heavier than
+  178|     daily refit; rebuilds model from full window without the gate check."""
+  179|     try:
+  180|         from core.calibration import refit_calibration
+  181| 
+  182|         model = refit_calibration()
+  183|         logger.info(
+  184|             "Weekly calibration retrain: n=%s method=%s",
+  185|             (model or {}).get("n_samples"),
+  186|             (model or {}).get("method"),
+  187|         )
+  188|     except Exception as exc:
+  189|         logger.warning("Weekly calibration retrain failed: %s", exc)
+  190| 
+  191| 
+  192| def _run_resolve_open_signals_job() -> None:
+  193|     """Weekly resolution of open signals_archive rows (Mondays 03:00 UTC).
+  194| 
+  195|     Computes dual-label outcomes:
+  196|         resolved_pct_t5      — fixed T+5 close return
+  197|         resolved_pct_barrier — first TP/SL/21-trading-day barrier hit
+  198|     """
+  199|     try:
+  200|         from scripts.resolve_open_signals import run as resolve_run
+  201| 
+  202|         stats = resolve_run(horizon=5, dry_run=False)
+  203|         logger.info(
+  204|             "resolve_open_signals: symbols=%s rows=%s t5=%s barrier=%s unresolvable=%s",
+  205|             stats.get("symbols"),
+  206|             stats.get("rows"),
+  207|             stats.get("t5"),
+  208|             stats.get("barrier"),
+  209|             stats.get("unresolvable"),
+  210|         )
+  211|     except Exception as exc:
+  212|         logger.warning("resolve_open_signals job failed: %s", exc)
+  213| 
+  214| 
+  215| def _run_edge_report_job() -> None:
+  216|     """Weekly Edge Report update (Mondays 04:00 UTC).
+  217| 
+  218|     Runs profitcore_audit + barrier_audit + regime_cross_section then
+  219|     re-generates data/edge_report.html.  Verdict is logged so the
+--- WINDOWS entry (ENTRY_OK): 12 hits in 1 files
+  >> scanner/evaluate.py 78-98 func=('_unavailable_result', 73, 111)
+   78|     }
+   79|     result: dict[str, Any] = {
+   80|         "symbol": symbol,
+   81|         "scan_status": "unavailable",
+   82|         "data_quality_tier": "Tier 3",
+   83|         "data_quality_status": "missing",
+   84|         "data_quality": data_quality,
+   85|         "reject_reason": [reason],
+   86|         "execution_reject_reason": [reason],
+   87|         "selection_eligible": False,
+   88|         "entry_ok": False,
+   89|         "execution_feasible": False,
+   90|         "execution_confidence": "Tier 0",
+   91|         "selected_by_legacy_quality": False,
+   92|         "selected_by_v2": False,
+   93|         "selected_by_both": False,
+   94|         "legacy_only": False,
+   95|         "v2_only": False,
+   96|         "ranking_method": "legacy_quality",
+   97|         "legacy_quality_score": 0.0,
+   98|         "ranking_score": 0.0,
+  >> scanner/evaluate.py 351-394 func=('evaluate_symbol', 228, 756)
+  351| 
+  352|         min_score_threshold = 3
+  353|         reject_reasons: list[str] = []
+  354|         if not regime:
+  355|             reject_reasons.append("regime_gate")
+  356|         if not direction:
+  357|             reject_reasons.append("direction_gate")
+  358|         if score < min_score_threshold:
+  359|             reject_reasons.append("momentum_score_gate")
+  360|         core_signal = bool(regime and direction and (score >= min_score_threshold))
+  361|         entry_ok = bool(score == 3) if core_signal else False
+  362| 
+  363|         # Faz 5: is_premium_symbol removed — subjective hardcoded list had no
+  364|         # measurable lift in scoring (score_engine never read the key; it was
+  365|         # a no-op in the composite calculation). high_quality_signal retained
+  366|         # as a reporting flag for UI display only.
+  367|         is_premium_symbol = False
+  368|         # Downgrade to non-high-quality if we didn't have 200 days of history
+  369|         high_quality_signal = entry_ok and _has_full_history
+  370| 
+  371|         try:
+  372|             price_ok = safe_float(df_1d["Close"].iloc[-1]) >= get_setting("min_price", 2.0)
+  373|         except Exception:
+  374|             price_ok = True
+  375|         try:
+  376|             avg_vol_ok = safe_float(df_1d["vol_avg10"].iloc[-1]) >= get_setting(
+  377|                 "min_avg_vol", 300_000
+  378|             )
+  379|         except Exception:
+  380|             avg_vol_ok = True
+  381|         liquidity_ok = bool(price_ok and avg_vol_ok)
+  382|         if not liquidity_ok:
+  383|             reject_reasons.append("liquidity_gate")
+  384|         entry_ok = bool(entry_ok and liquidity_ok)
+  385| 
+  386|         try:
+  387|             rsi_val = safe_float(df_1d["rsi"].iloc[-1])
+  388|             macd_val = safe_float(df_1d["macd_hist"].iloc[-1])
+  389|             rsi_score = max(0, min(100, (rsi_val - 30) / 70 * 100))
+  390|             macd_score = 100 if macd_val > 0 else 0
+  391|             trend_score = 100 if direction else 0
+  392|             momentum_score = (rsi_score * 0.4) + (macd_score * 0.3) + (trend_score * 0.3)
+  393|         except Exception:
+  394|             momentum_score = 50
+  >> scanner/evaluate.py 420-456 func=('evaluate_symbol', 228, 756)
+  420|         sentiment_score: float | None = None
+  421|         try:
+  422|             from scanner.sentiment import compute_sentiment_factor, sentiment_enabled
+  423| 
+  424|             if sentiment_enabled():
+  425|                 sentiment_score = compute_sentiment_factor(symbol)
+  426|                 sentiment = sentiment_score
+  427|         except Exception:
+  428|             logger.debug("Sentiment factor unavailable", exc_info=True)
+  429| 
+  430|         if entry_ok and not CURRENT_MARKET_STATUS["safe"]:
+  431|             entry_ok = False
+  432|             reject_reasons.append("market_safety_gate")
+  433| 
+  434|         # Sprint 15: Earnings blackout filter
+  435|         earnings_blackout = False
+  436|         earnings_prox = 0.0
+  437|         try:
+  438|             from scanner.earnings_blackout import (  # noqa: PLC0415
+  439|                 earnings_proximity,
+  440|                 is_earnings_blackout,
+  441|             )
+  442| 
+  443|             earnings_blackout = is_earnings_blackout(symbol, days_before=2, days_after=1)
+  444|             earnings_prox = earnings_proximity(symbol)
+  445|             if earnings_blackout and entry_ok:
+  446|                 entry_ok = False
+  447|                 reject_reasons.append("earnings_blackout")
+  448|                 logger.info("[%s] earnings blackout — signal suppressed", symbol)
+  449|         except Exception:
+  450|             pass
+  451| 
+  452|         # Sprint 15: Sector RS + vol regime alpha features
+  453|         sector_rs = 0.0
+  454|         vol_regime_val = 1
+  455|         squeeze_factor = 0.0
+  456|         try:
+  >> scanner/evaluate.py 564-603 func=('evaluate_symbol', 228, 756)
+  564|         )
+  565|         _atr_pct_daily = 0.0
+  566|         try:
+  567|             from scanner.features import compute_atr_pct, compute_conviction
+  568| 
+  569|             _atr_pct_daily = compute_atr_pct(df_1d)
+  570|             _conv_tier, _conv_prob = (
+  571|                 compute_conviction(
+  572|                     float(squeeze_factor), float(alpha_gap), float(alpha_rvol), _atr_pct_daily
+  573|                 )
+  574|                 if entry_ok
+  575|                 else ("", 0.0)
+  576|             )
+  577|         except Exception:
+  578|             _conv_tier, _conv_prob = "", 0.0
+  579|         _signal_timestamp = df_15m.index[-1].strftime("%Y-%m-%d %H:%M")
+  580|         _data_quality = _feature_contract(
+  581|             df_15m=df_15m,
+  582|             df_1h=df_1h,
+  583|             df_4h=df_4h,
+  584|             df_1d=df_1d,
+  585|             signal_timestamp=_signal_timestamp,
+  586|         )
+  587|         _execution_contract_data = execution_contract(_data_quality)
+  588|         _reject_reasons = list(_execution_contract_data.get("execution_reject_reason", []))
+  589|         if not entry_ok:
+  590|             _reject_reasons.append("signal_not_eligible")
+  591|         _execution_contract_data["reject_reason"] = list(dict.fromkeys(_reject_reasons))
+  592|         _execution_contract_data["selection_eligible"] = bool(
+  593|             entry_ok and _execution_contract_data["execution_feasible"]
+  594|         )
+  595|         _legacy_quality_score = compute_legacy_quality_score(
+  596|             regime=regime,
+  597|             direction=bool(direction),
+  598|             raw_score=float(score),
+  599|             atr_pct=_atr_pct_daily,
+  600|             rvol=(1.0 + float(alpha_rvol) * 2.0 if alpha_rvol else None),
+  601|             squeeze_factor=float(squeeze_factor),
+  602|             lottery_factor=float(lottery_factor),
+  603|             overnight_gap_factor=float(overnight_gap_factor),
+  >> scanner/evaluate.py 621-641 func=('evaluate_symbol', 228, 756)
+  621|             else 0
+  622|         )
+  623| 
+  624|         return {
+  625|             "symbol": symbol,
+  626|             "price": round(safe_float(last_price), 4),
+  627|             "score": int(score),
+  628|             "regime": regime,
+  629|             "direction": bool(direction),
+  630|             "atr": round(safe_float(atr_val), 6) if pd.notna(atr_val) else None,
+  631|             "entry_ok": bool(entry_ok),
+  632|             "market_status": CURRENT_MARKET_STATUS["reason"],
+  633|             "timestamp": _signal_timestamp,
+  634|             "spread_bps": _data_quality["spread_bps"],
+  635|             "spread_source": _data_quality["spread_source"],
+  636|             "dollar_adv": _data_quality["dollar_adv"],
+  637|             "adv_source": _data_quality["adv_source"],
+  638|             "short_interest_timestamp": _data_quality["short_interest_timestamp"],
+  639|             "feature_timestamps": _data_quality["feature_timestamps"],
+  640|             "feature_age_minutes": _data_quality["feature_age_minutes"],
+  641|             "data_quality": _data_quality,
+--- WINDOWS exec (EXEC): 20 hits in 1 files
+  >> core/scheduler.py 196-212 func=('_run_resolve_open_signals_job', 192, 212)
+  196|         resolved_pct_t5      — fixed T+5 close return
+  197|         resolved_pct_barrier — first TP/SL/21-trading-day barrier hit
+  198|     """
+  199|     try:
+  200|         from scripts.resolve_open_signals import run as resolve_run
+  201| 
+  202|         stats = resolve_run(horizon=5, dry_run=False)
+  203|         logger.info(
+  204|             "resolve_open_signals: symbols=%s rows=%s t5=%s barrier=%s unresolvable=%s",
+  205|             stats.get("symbols"),
+  206|             stats.get("rows"),
+  207|             stats.get("t5"),
+  208|             stats.get("barrier"),
+  209|             stats.get("unresolvable"),
+  210|         )
+  211|     except Exception as exc:
+  212|         logger.warning("resolve_open_signals job failed: %s", exc)
+  >> core/scheduler.py 365-454 func=('_run_auto_approve_job', 371, 461)
+  365|         TelegramNotifier()._send_message(msg)
+  366|         logger.info("CEO report sent to Telegram")
+  367|     except Exception as exc:
+  368|         logger.warning("CEO report job failed: %s", exc)
+  369| 
+  370| 
+  371| def _run_auto_approve_job(symbols: list[str]) -> None:
+  372|     """Sprint 14: Auto-approve pending signals when p_win > 0.65 and env is normal."""
+  373|     try:
+  374|         from core.calibration import calibrated_probability
+  375|         from core.kpi_tracker import _load_all_signals  # type: ignore
+  376|         from core.quality_gate import is_degraded
+  377| 
+  378|         if is_degraded():
+  379|             logger.info("auto_approve: system degraded — skipping auto-approve")
+  380|             return
+  381| 
+  382|         sigs = _load_all_signals()
+  383|         approved = 0
+  384|         for sig in sigs:
+  385|             if sig.get("outcome") is not None:
+  386|                 continue  # already resolved
+  387|             score = sig.get("score") or sig.get("finpilot_score")
+  388|             if score is None:
+  389|                 continue
+  390|             p_win = calibrated_probability(float(score))
+  391|             if p_win >= 0.65:
+  392|                 # Persist auto-approve decision to Redis / in-memory store
+  393|                 try:
+  394|                     from core.kpi_tracker import mark_signal_auto_approved
+  395| 
+  396|                     if mark_signal_auto_approved(sig["symbol"], sig["cycle"], p_win):
+  397|                         approved += 1
+  398|                         # Faz 3b: open a paper-trade for every auto-approved signal
+  399|                         try:
+  400|                             from core.paper_portfolio import open_position
+  401| 
+  402|                             open_position(
+  403|                                 signal_id=str(sig.get("id", sig.get("cycle", "?"))),
+  404|                                 symbol=sig["symbol"],
+  405|                                 direction="BUY",
+  406|                                 entry_price=float(sig.get("price") or sig.get("close") or 0),
+  407|                                 score=float(sig.get("score") or sig.get("finpilot_score") or 0),
+  408|                                 cycle=int(sig.get("cycle") or _cycle_count + 1),
+  409|                                 p_win=p_win,
+  410|                             )
+  411|                         except Exception as pe:  # noqa: BLE001
+  412|                             logger.debug(
+  413|                                 "auto_approve: paper_portfolio.open_position skipped: %s", pe
+  414|                             )
+  415|                 except Exception:  # noqa: BLE001, S110
+  416|                     pass
+  417| 
+  418|         logger.info("auto_approve: approved %d signals with p_win >= 0.65", approved)
+  419|         if approved > 0:
+  420|             try:
+  421|                 from telegram_alerts import TelegramNotifier
+  422| 
+  423|                 TelegramNotifier()._send_message(
+  424|                     f"✅ *Auto-Approve* — {approved} sinyal otomatik onaylandı\n"
+  425|                     f"p_win ≥ 0.65 eşiği, sistem normal"
+  426|                 )
+  427|             except Exception:  # noqa: BLE001
+  428|                 pass
+  429| 
+  430|         # Faz 3b: alarm for signals that were auto-approved but have no paper trade
+  431|         try:
+  432|             from core.paper_portfolio import get_open_positions
+  433| 
+  434|             open_syms = {p["signal_id"] for p in get_open_positions()}
+  435|             approved_without_trade = [
+  436|                 sig
+  437|                 for sig in sigs
+  438|                 if sig.get("auto_approved")
+  439|                 and sig.get("outcome") is None
+  440|                 and str(sig.get("id", sig.get("cycle", "?"))) not in open_syms
+  441|             ]
+  442|             if approved_without_trade:
+  443|                 logger.warning(
+  444|                     "auto_approve: %d approved signal(s) have no paper trade: %s",
+  445|                     len(approved_without_trade),
+  446|                     [s["symbol"] for s in approved_without_trade],
+  447|                 )
+  448|                 try:
+  449|                     from telegram_alerts import TelegramNotifier
+  450| 
+  451|                     TelegramNotifier()._send_message(
+  452|                         f"⚠️ *Auto-Approve Alarm* — "
+  453|                         f"{len(approved_without_trade)} onaylı sinyal kağıt işlem bekliyor: "
+  454|                         + ", ".join(s["symbol"] for s in approved_without_trade)
+  >> core/scheduler.py 749-778 func=('run_cycle_once', 469, 1117)
+  749|                                 continue
+  750|                         except Exception as drl_exc:  # noqa: BLE001
+  751|                             logger.debug("DRL gate bypass for %s: %s", sym, drl_exc)
+  752|                     try:
+  753|                         import time as _t_paper
+  754| 
+  755|                         from core.paper_portfolio import open_position
+  756| 
+  757|                         sig_id = f"{sym}_{_cycle_count + 1}_{int(_t_paper.time())}"
+  758|                         open_position(
+  759|                             signal_id=sig_id,
+  760|                             symbol=sym,
+  761|                             direction=direction,
+  762|                             entry_price=entry_price,
+  763|                             score=score_val,
+  764|                             cycle=_cycle_count + 1,
+  765|                             p_win=p_win,
+  766|                         )
+  767|                     except Exception as paper_exc:
+  768|                         logger.debug("paper open failed for %s: %s", sym, paper_exc)
+  769|         except Exception as exc:
+  770|             errors.append(f"backtest: {exc}")
+  771|             logger.warning("Scheduler: backtest failed: %s", exc)
+  772| 
+  773|         # --- 4. Strategy Optimizer (optional — every N cycles) ---
+  774|         if run_optimizer:
+  775|             _t = time.perf_counter()
+  776|             try:
+  777|                 from agents.strategy_optimizer import StrategyOptimizerAgent
+  778| 
+  [CAP] skip core/scheduler.py 1180-1197
+  [CAP] skip core/scheduler.py 1237-1267
+--- WINDOWS exit (EXIT): 40 hits in 5 files
+  >> scanner/evaluate.py 554-565 func=('evaluate_symbol', 228, 756)
+  554| 
+  555|         # ── Task 3: Dynamic position sizing ──────────────────────────────
+  556|         _dyn_pos = calculate_dynamic_position(
+  557|             price=safe_float(last_price),
+  558|             stop_loss=risk_data["stop_loss"],
+  559|             composite_score=int(_composite_score),
+  560|             is_bull_regime=bool(regime),
+  561|             risk_reward=float(risk_data["risk_reward_ratio"]),
+  562|             ann_vol_pct=_ann_vol_pct,
+  563|             kelly_fraction=kelly_fraction,
+  564|         )
+  565|         _atr_pct_daily = 0.0
+  >> scanner/evaluate.py 665-677 func=('evaluate_symbol', 228, 756)
+  665|             "momentum_confluence": bool(momentum_confluence),
+  666|             "momentum_ratio": round(momentum_ratio, 2),
+  667|             "is_premium_symbol": bool(is_premium_symbol),
+  668|             "high_quality_signal": bool(high_quality_signal),
+  669|             "stop_loss": risk_data["stop_loss"],
+  670|             "take_profit": risk_data["take_profit"],
+  671|             "position_size": risk_data["position_size"],
+  672|             "risk_reward": risk_data["risk_reward_ratio"],
+  673|             "stop_loss_percent": risk_data["stop_loss_percent"],
+  674|             "kelly_fraction": kelly_fraction,
+  675|             "sentiment": sentiment,
+  676|             # Edge Report bucketing key (build_edge_report(group_by="sentiment_band")):
+  677|             # None when the sentiment feature is off/uncomputed, so shadow-mode
+  >> scanner/position_sizer.py 8-16 func=None
+    8|   - Portfolio heat limit (max concurrent exposure)
+    9| 
+   10| Entry point
+   11| -----------
+   12| calculate_dynamic_position(price, stop_loss, account_equity, ...)
+   13| """
+   14| 
+   15| from __future__ import annotations
+   16| 
+  >> scanner/position_sizer.py 73-85 func=('calculate_dynamic_position', 75, 201)
+   73| 
+   74| 
+   75| def calculate_dynamic_position(
+   76|     price: float,
+   77|     stop_loss: float,
+   78|     account_equity: float = DEFAULT_EQUITY,
+   79|     composite_score: int = 50,
+   80|     is_bull_regime: bool = True,
+   81|     risk_reward: float = 2.0,
+   82|     ann_vol_pct: float = 20.0,
+   83|     kelly_fraction: float = DEFAULT_KELLY_FRAC,
+   84|     portfolio_current_risk_pct: float = 0.0,
+   85| ) -> dict[str, Any]:
+  >> scanner/position_sizer.py 92-113 func=('calculate_dynamic_position', 75, 201)
+   92|     4. Volatility normalisation: wider stop → smaller size
+   93| 
+   94|     Args:
+   95|         price:                      Entry price.
+   96|         stop_loss:                  Stop-loss price.
+   97|         account_equity:             Total account equity (dollars). Defaults to $10k.
+   98|         composite_score:            Scanner composite score (0–100).
+   99|         is_bull_regime:             True if market is in bull regime.
+  100|         risk_reward:                Target risk/reward ratio.
+  101|         ann_vol_pct:                Annualised volatility % from risk_metrics.
+  102|         kelly_fraction:             Fractional Kelly multiplier (default 0.25).
+  103|         portfolio_current_risk_pct: Sum of risk% already committed in open positions.
+  104| 
+  105|     Returns:
+  106|         Dictionary with:
+  107|             shares           – Suggested share count (integer)
+  108|             notional         – Suggested notional value ($)
+  109|             risk_amount      – $ at risk (price - stop_loss) × shares
+  110|             risk_pct         – risk_amount / account_equity as %
+  111|             position_pct     – notional / account_equity as %
+  112|             kelly_pct        – Kelly-only sizing as % of equity
+  113|             regime_scale     – Regime multiplier applied (0.75 / 1.0 / 1.30)
+  >> scanner/position_sizer.py 126-138 func=('calculate_dynamic_position', 75, 201)
+  126|         "sizing_method": "fixed-fractional",
+  127|     }
+  128| 
+  129|     try:
+  130|         if price <= 0 or stop_loss <= 0 or price <= stop_loss:
+  131|             # stop_loss above/equal price: invalid
+  132|             return out
+  133| 
+  134|         risk_per_share = price - stop_loss
+  135|         if risk_per_share <= 0:
+  136|             return out
+  137| 
+  138|         # ── Portfolio heat gate ───────────────────────────────────────────
+  >> scanner/position_sizer.py 148-156 func=('calculate_dynamic_position', 75, 201)
+  148|         # ── Kelly sizing ──────────────────────────────────────────────────
+  149|         # Approximate win_rate and avg_win_r from composite_score and R/R
+  150|         # score 0-100 → win_rate mapped linearly 30-65% (based on historical data)
+  151|         win_rate = _clamp(0.30 + (composite_score / 100.0) * 0.35, 0.30, 0.65)
+  152|         avg_win_r = max(risk_reward, 1.0)
+  153|         kelly_sz = _kelly_size(win_rate, avg_win_r, 1.0, kelly_fraction)
+  154|         out["kelly_pct"] = round(kelly_sz * 100, 2)
+  155| 
+  156|         # ── Blend fixed-fractional + Kelly ───────────────────────────────
+  >> scanner/position_sizer.py 206-214 func=('calculate_portfolio_metrics', 204, 261)
+  206|     account_equity: float = DEFAULT_EQUITY,
+  207| ) -> dict[str, Any]:
+  208|     """Compute aggregate portfolio risk metrics from a list of open positions.
+  209| 
+  210|     Each position dict should have: price, stop_loss, shares (or notional).
+  211| 
+  212|     Returns:
+  213|         total_notional, total_risk_amount, total_risk_pct,
+  214|         avg_risk_per_trade_pct, position_count, heat_remaining_pct,
+  >> scanner/position_sizer.py 229-237 func=('calculate_portfolio_metrics', 204, 261)
+  229|     total_risk = 0.0
+  230| 
+  231|     for p in positions:
+  232|         price = float(p.get("price", 0) or 0)
+  233|         stop = float(p.get("stop_loss", 0) or 0)
+  234|         shares = int(p.get("shares", 0) or 0)
+  235|         notional = float(p.get("notional", 0) or shares * price)
+  236|         risk = max(0.0, (price - stop) * shares) if stop > 0 and shares > 0 else 0.0
+  237|         total_notional += notional
+  >> scanner/risk_engine.py 183-192 func=('calculate_risk_management', 173, 233)
+  183|         atr_val:        Average True Range (same unit as price)
+  184|         momentum_score: 0-100 composite momentum score from evaluate_symbol
+  185| 
+  186|     Returns:
+  187|         Dict with stop_loss, take_profit, tp1/tp2/tp3, risk_reward_ratio,
+  188|         stop_loss_percent, position_size, strategy_tag.
+  189|     """
+  190|     if momentum_score >= 70:
+  191|         stop_mult, tp1_mult, tp2_mult, tp3_mult = 1.5, 3.0, 5.0, 8.0
+  192|         strategy_tag = "Sniper 🎯"
+  >> scanner/risk_engine.py 199-233 func=('calculate_risk_management', 173, 233)
+  199| 
+  200|     # Alpha-v2 (env-gated): 2026-06 backtest — tp2=5.5xATR yalnizca %3.9 vuruluyor
+  201|     # (tipik 5g maks hareket ~%2.5). Take-profit'i tp1 yakinina (~3xATR) cekmek
+  202|     # beklenen yakalamayi ~2x artiriyor. Stop ve tp1/tp3 korunur; sadece
+  203|     # birincil take_profit (tp2) yakinlastirilir.
+  204|     if os.environ.get("FINPILOT_ENABLE_ALPHA_V2", "0") == "1":
+  205|         # 2026-06 intraday stop testi (15-dk bar, gercek MAE): beklenti SIKI stop
+  206|         # + UZAK TP ile maksimum (kazanani kostur). stop=1.5xATR, tp=5xATR ->
+  207|         # beklenti 0.40R, win %52, PF 1.66; genis stop=2.0/yakin tp=3.0'dan (0.29R)
+  208|         # cok daha iyi. Zarari cabuk kes, kazanani birak.
+  209|         stop_mult = min(stop_mult, 1.5)
+  210|         tp2_mult = max(tp2_mult, 5.0)
+  211| 
+  212|     stop_loss = price - (atr_val * stop_mult)
+  213|     tp1 = price + (atr_val * tp1_mult)
+  214|     tp2 = price + (atr_val * tp2_mult)
+  215|     tp3 = price + (atr_val * tp3_mult) if tp3_mult > 0 else 0
+  216|     take_profit = tp2
+  217|     position_size = 1000
+  218|     risk_reward_ratio = (
+  219|         (take_profit - price) / (price - stop_loss) if (price - stop_loss) != 0 else 0
+  220|     )
+  221|     stop_loss_percent = (price - stop_loss) / price * 100 if price != 0 else 0
+  222| 
+  223|     return {
+  224|         "stop_loss": round(stop_loss, 2),
+  225|         "take_profit": round(take_profit, 2),
+  226|         "tp1": round(tp1, 2),
+  227|         "tp2": round(tp2, 2),
+  228|         "tp3": round(tp3, 2) if tp3 > 0 else None,
+  229|         "strategy_tag": strategy_tag,
+  230|         "position_size": position_size,
+  231|         "risk_reward_ratio": round(risk_reward_ratio, 2),
+  232|         "stop_loss_percent": round(stop_loss_percent, 2),
+  233|     }
+  >> scanner/scan_summary.py 56-66 func=('_brief', 53, 69)
+   56|         "tier": r.get("conviction_tier", ""),
+   57|         "conviction_prob": round(float(r.get("conviction_prob", 0.0) or 0.0), 3),
+   58|         "score": r.get("composite_score"),
+   59|         "price": r.get("price"),
+   60|         "stop": r.get("stop_loss"),
+   61|         "tp": r.get("take_profit"),
+   62|         "risk_reward": r.get("risk_reward"),
+   63|         "momentum_3d_pct": r.get("momentum_3d_pct"),
+   64|         "fundamental_score": r.get("fundamental_score"),
+   65|         "news_catalyst_score": r.get("news_catalyst_score"),
+   66|         "news_sentiment": r.get("news_sentiment"),
+  >> scanner/scan_summary.py 112-120 func=('llm_select_top', 98, 162)
+  112|         from llm.base import LLMMessage, LLMRole  # noqa: PLC0415
+  113| 
+  114|         lines = [
+  115|             f"{b['symbol']}: tier={b['tier'] or '-'} guven≈%{int(b['conviction_prob'] * 100)} "
+  116|             f"skor={b['score']} fiyat={b['price']} R/R={b['risk_reward']} "
+  117|             f"3g_momentum={b['momentum_3d_pct']}% squeeze={b['squeeze_factor']} "
+  118|             f"haber_katalizor={b['news_catalyst_score']} sentiment={b['news_sentiment']} "
+  119|             f"fund={b['fundamental_score']} rejim={'Boga' if b['regime'] else 'Diger'}"
+  120|             for b in briefs
+  >> scanner/scan_summary.py 179-189 func=('_enrich_top', 165, 189)
+  179|                 "reason": t.get("thesis") or t.get("reason") or "",  # geriye uyum
+  180|                 "tag": t.get("tag") or "",
+  181|                 "risk": t.get("risk") or "",
+  182|                 "price": r.get("price"),
+  183|                 "stop": r.get("stop_loss"),
+  184|                 "tp": r.get("take_profit"),
+  185|                 "rr": r.get("risk_reward"),
+  186|             }
+  187|         )
+  188|     enriched.sort(key=lambda x: (_TIER_ORDER.get(x["tier"], 3), -(x.get("confidence") or 0)))
+  189|     return enriched
+  >> scanner/signals.py 484-494 func=('build_reason', 477, 511)
+  484|     Returns:
+  485|         Reason string with action guidance
+  486|     """
+  487|     try:
+  488|         rr = row.get("risk_reward") or 0
+  489|         sl = row.get("stop_loss")
+  490|         tp = row.get("take_profit")
+  491| 
+  492|         if row.get("entry_ok"):
+  493|             return f"Alınır: Trend+ Uyum+ | R/R {rr:.1f} | SL ${sl} · TP ${tp}"
+  494| 
+
+======== C. DB metadata (read-only) ========
+db bytes=7811072 sha256=b64c0c5262e0d685daa1309e6293d27c208f64a6fc213b3c00e3cb896bd5f5f6
+  finpilot.db-wal exists=False
+  finpilot.db-shm exists=False
+  finpilot.db-journal exists=False
+  TABLE alembic_version rows=1
+  TABLE alpaca_orders rows=14
+    COLS ['id', 'order_id', 'buy_signal_id', 'symbol', 'side', 'qty', 'order_type', 'limit_price', 'stop_price', 'time_in_force', 'status', 'filled_price', 'filled_qty', 'filled_at', 'submitted_at', 'raw_response', 'created_at']
+    VC alpaca_orders.side [('buy', 14)]
+    VC alpaca_orders.status [('OrderStatus.PENDING_NEW', 13), ('OrderStatus.ACCEPTED', 1)]
+  TABLE buy_signals rows=0
+  TABLE execution_controls rows=0
+    COLS ['control_key', 'enabled', 'reason', 'updated_at']
+  TABLE execution_events rows=0
+    COLS ['id', 'event_type', 'entity_id', 'signal_id', 'payload', 'occurred_at']
+  TABLE execution_intents rows=0
+    COLS ['intent_id', 'signal_id', 'scanner_run_id', 'idempotency_key', 'environment', 'symbol', 'side', 'qty', 'order_type', 'limit_price', 'stop_price', 'take_profit', 'strategy_id', 'strategy_version', 'status', 'rejection_reason', 'alpaca_order_id', 'client_order_id', 'filled_qty', 'filled_price', 'last_error', 'payload', 'created_at', 'updated_at']
+    VC execution_intents.side []
+    VC execution_intents.status []
+  TABLE fs_cases rows=5
+  TABLE fs_evaluations rows=2
+  TABLE fs_outcomes rows=5
+    COLS ['case_id', 'actual_direction', 'actual_return_pct', 'resolution_method', 'resolved_at']
+  TABLE fs_predictions rows=2
+  TABLE outcomes_horizon rows=0
+    COLS ['signal_id', 'horizon_days', 'pct', 'status', 'resolved_at']
+    VC outcomes_horizon.status []
+  TABLE portfolios rows=0
+  TABLE positions rows=0
+    COLS ['id', 'portfolio_id', 'symbol', 'shares', 'avg_price', 'opened_at', 'updated_at']
+  TABLE quiz_scores rows=0
+  TABLE scan_results rows=0
+  TABLE sessions rows=53
+  TABLE signal_events rows=0
+  TABLE signals rows=0
+  TABLE signals_archive rows=5748
+    COLS ['id', 'symbol', 'ts', 'score', 'finpilot_score', 'payload_json', 'resolved_status', 'resolved_pct', 'resolved_pct_t5', 'resolved_pct_barrier', 'resolved_status_barrier']
+  TABLE sqlite_sequence rows=2
+  TABLE symbol_lists rows=1815
+  TABLE symbols rows=13852
+  TABLE trades rows=0
+    COLS ['id', 'portfolio_id', 'symbol', 'side', 'shares', 'price', 'total', 'commission', 'executed_at', 'notes']
+    VC trades.side []
+  TABLE user_settings rows=3
+  TABLE users rows=4
+  TABLE watchlist_signals rows=1158
+    COLS ['id', 'symbol', 'signal', 'entry_price', 'stop_loss', 'take_profit', 'score', 'regime', 'sentiment', 'risk_reward', 'reason', 'explanation', 'source_model', 'notes', 'tags', 'status_lifecycle', 'signal_date', 'added_at', 'tier', 'tier_score', 'conviction_tier', 'conviction_prob']
+  TABLE watchlists rows=0
+    COLS ['id', 'user_id', 'name', 'symbols', 'created_at', 'updated_at']
+signals_archive n_rows=5748 cols=['id', 'symbol', 'ts', 'score', 'finpilot_score', 'payload_json', 'resolved_status', 'resolved_pct', 'resolved_pct_t5', 'resolved_pct_barrier', 'resolved_status_barrier']
+  VC resolved_status [('resolved_loss', 3850), ('resolved_win', 1602), ('expired', 225), ('open', 31), ('new', 29), ('expired_win', 8), ('expired_loss', 2), ('watching', 1)]
+  VC resolved_status_barrier [('resolved_loss', 3641), ('resolved_win', 1565), (None, 532), ('expired_win', 8), ('expired_loss', 2)]
+ts min=2025-09-12T09:00:00+00:00 max=2026-09-09T11:42:18.691721+00:00 samples=['2026-03-01T21:45:10.631481', '2026-03-01T21:45:10.631481', '2026-03-01T21:45:10.631481']
+ts time-of-day top: [('09:00', 2065), ('21:45', 1970), ('21:54', 256), ('19:45', 173), ('13:59', 171), ('13:57', 147), ('20:04', 137), ('21:30', 95)]
+ts weekday (0=Mon,-1=bad): [(0, 831), (1, 1129), (2, 660), (3, 427), (4, 375), (5, 197), (6, 2129)]
+payload dicts=5748
+payload key freq: [('entry_price', 5748), ('stop_loss', 5748), ('take_profit', 5748), ('signal_date', 5748), ('id', 5719), ('symbol', 5719), ('signal', 5719), ('score', 5719), ('regime', 5719), ('sentiment', 5719), ('risk_reward', 5719), ('reason', 5719), ('explanation', 5719), ('source_model', 5719), ('status_lifecycle', 5719), ('added_at', 5719), ('notes', 3654), ('tags', 3654), ('entry_ok', 2065), ('source', 29), ('date', 29), ('conviction_tier', 29), ('ticker', 29), ('company', 29), ('grade', 29), ('prob_band', 29), ('badges', 29), ('rationale', 29), ('premium_only', 29), ('risk_note', 29), ('factor_detail', 29), ('metrics', 29), ('rationale_i18n', 29), ('risk_note_i18n', 29), ('exit_price', 25), ('exit_date', 25), ('pnl_pct', 25)]
+  DATEKEY date eq_ts_date=29 ne=0 ex=[]
+  DATEKEY exit_date eq_ts_date=0 ne=25 ex=[('2026-05-19T13:57:49', '2026-05-20'), ('2026-05-19T13:57:49', '2026-05-20'), ('2026-05-19T13:57:49', '2026-05-20'), ('2026-05-19T13:57:49', '2026-05-20')]
+  DATEKEY sentiment eq_ts_date=0 ne=5719 ex=[('2026-03-01T21:45:10', '0.28'), ('2026-03-01T21:45:10', '-0.41'), ('2026-03-01T21:45:10', '-0.04'), ('2026-03-01T21:45:10', '0.01')]
+  DATEKEY signal_date eq_ts_date=3929 ne=1819 ex=[('2026-03-01T21:45:10', '2026-02-17'), ('2026-03-01T21:45:10', '2026-02-17'), ('2026-03-01T21:45:10', '2026-02-17'), ('2026-03-01T21:45:10', '2026-02-17')]
+  PRICEKEY entry_ok nonnull=2065 sample=['False', 'True', 'True']
+  PRICEKEY entry_price nonnull=5748 sample=['1174.12', '41.305', '94.56']
+  PRICEKEY exit_date nonnull=25 sample=['2026-05-20', '2026-05-20', '2026-05-20']
+  PRICEKEY exit_price nonnull=25 sample=['8.12', '80.04', '91.98']
+  PRICEKEY risk_note nonnull=29 sample=['izleme-aşaması adayı — teyit basamakları henüz tamamlanmadı', 'açılış boşluğu her zaman kalıcı değildir; gün içi geri çekil...[trunc]', 'erken aşama profili: sinyal henüz olgunlaşmamış olabilir']
+  PRICEKEY risk_note_i18n nonnull=29 sample=["{'tr': 'izleme-aşaması adayı — teyit basamakları henüz tamam...[trunc]", "{'tr': 'açılış boşluğu her zaman kalıcı değildir; gün içi ge...[trunc]", "{'tr': 'erken aşama profili: sinyal henüz olgunlaşmamış olab...[trunc]"]
+  PRICEKEY risk_reward nonnull=5719 sample=['0.0', '0.0', '0.0']
+  PRICEKEY stop_loss nonnull=5748 sample=['1150.7', '40.62', '92.77']
+  PRICEKEY take_profit nonnull=5748 sample=['1235.02', '43.58', '100.54']
+symbols=1124 rows-per-symbol dist=[(1, 415), (2, 153), (3, 113), (4, 95), (5, 53), (6, 51), (7, 16), (8, 14), (9, 12), (10, 14), (11, 4), (12, 25), (13, 40), (14, 14), (15, 16)] same-symbol-same-tsdate extra rows=1430
+
+======== D. data/ top-level listing (names only) ========
+  FILE .fuse_hidden0000006600000001 (32768 bytes)
+  FILE .fuse_hidden0000006700000002 (32768 bytes)
+  FILE FinPilot_DRL_Scanner_Analysis_Report.docx (48764 bytes)
+  FILE FinPilot_Scanner_Optimization_Report.docx (47150 bytes)
+  DIR  __pycache__ (3 entries)
+  FILE ab_report_20260419_1345.md (16975 bytes)
+  FILE ab_results_daily_20260419_1345.csv (1920 bytes)
+  FILE ab_results_monthly_20260419_1345.csv (797 bytes)
+  FILE ab_stats_20260419_1345.json (7956 bytes)
+  FILE academy.db (73728 bytes)
+  FILE academy_v2.db-journal (512 bytes)
+  FILE auth.db (0 bytes)
+  DIR  backtest_out (209 entries)
+  FILE barrier_audit.json (10362 bytes)
+  FILE best_params_20260416_1503.json (324 bytes)
+  FILE calibration.json (690 bytes)
+  FILE calibration_brier_history.json (1546 bytes)
+  FILE calibration_rollback_strikes.json (33 bytes)
+  FILE catalyst_cache.json (164 bytes)
+  FILE combined_results_20260416_1907.csv (2240798 bytes)
+  FILE combined_summary_20260416_1907.json (11028 bytes)
+  FILE combined_top50_20260416_1907.csv (8400 bytes)
+  FILE component_ablation.json (2246 bytes)
+  FILE component_correlation.json (2295 bytes)
+  DIR  daily_cache_h (144 entries)
+  DIR  daily_reports (85 entries)
+  FILE dictionary.json (57137 bytes)
+  FILE dictionary_v2.json (281328 bytes)
+  DIR  distribution (345 entries)
+  FILE distribution.db (159744 bytes)
+  FILE drl_research_state.json (1458 bytes)
+  DIR  edgar_cache (1127 entries)
+  FILE edge_report.html (16400 bytes)
+  FILE eodhd_client.py (22978 bytes)
+  FILE executive_summary_20260416_1503.md (1472 bytes)
+  FILE experiments_results_20260416_1503.csv (340041 bytes)
+  FILE finpilot.db (7811072 bytes)
+  FILE finpilot.db.corrupt_20260715 (7884800 bytes)
+  FILE finpilot_recovered_20260703.db (0 bytes)
+  FILE finpilot_weekly_report_20260506_1557.json (2382 bytes)
+  FILE finpilot_weekly_report_20260506_1557.md (1702 bytes)
+  FILE finpilot_weekly_report_20260506_1558.json (2401 bytes)
+  FILE finpilot_weekly_report_20260506_1558.md (1721 bytes)
+  FILE finpilot_weekly_report_20260506_1559.json (991 bytes)
+  FILE finpilot_weekly_report_20260506_1559.md (1723 bytes)
+  FILE finpilot_weekly_report_20260511_1249.json (1842 bytes)
+  FILE finpilot_weekly_report_20260511_1249.md (1870 bytes)
+  DIR  finra_cache (1216 entries)
+  DIR  finsense_cases (5 entries)
+  FILE fundamentals_cache.json (72604 bytes)
+  DIR  golden (1 entries)
+  FILE inference.json (8949 bytes)
+  DIR  intraday_cache (880 entries)
+  DIR  logs (2 entries)
+  FILE macro_regime.json (98 bytes)
+  FILE meta_labeler.json (644 bytes)
+  FILE model_registry.db (12288 bytes)
+  FILE momentum_turnover_sort.json (2510 bytes)
+  DIR  news_cache (1216 entries)
+  FILE offline_ablation.json (975 bytes)
+  FILE onboarding_status.json (110 bytes)
+  FILE openclaw_manifest_20260416_1503.yaml (3834 bytes)
+  FILE optuna_best_weights.json (299 bytes)
+  FILE optuna_conservative_results.json (13735 bytes)
+  FILE optuna_momentum_results.json (18862 bytes)
+  FILE optuna_range_results.json (39746 bytes)
+  FILE optuna_swing_results.json (15974 bytes)
+  DIR  price_cache (2047 entries)
+  FILE profitcore_audit.json (2354 bytes)
+  FILE regime_cross_section.json (3648 bytes)
+  DIR  reports_cache (26 entries)
+  FILE research_experiments.db (2945024 bytes)
+  FILE scanner_config.json (57 bytes)
+  FILE scanner_optimization_report_20260416_1503.md (10451 bytes)
+  FILE sector_cache.json (3442 bytes)
+  DIR  shadow (6 entries)
+  DIR  shortlists (2198 entries)
+  DIR  signal_archive (55 entries)
+  FILE signals_archive_recovered_20260703.csv (557452 bytes)
+  FILE stock_presets.json (31795 bytes)
+  DIR  suggestions (63 entries)
+  FILE test_auth.db (98304 bytes)
+  DIR  tickers (5 entries)
+  FILE waitlist.json (90 bytes)
+  FILE waitlist_signups.json (500 bytes)
+  FILE walkforward_results.json (108 bytes)
+  FILE watchlist.json (284127 bytes)
+  FILE wf_mc_20260505_1816.json (14794 bytes)
+  FILE wf_mc_20260505_1816.md (3297 bytes)
+  FILE wf_mc_20260505_1817.json (14794 bytes)
+  FILE wf_mc_20260505_1817.md (3297 bytes)
+  FILE wf_mc_20260511_1250.json (15316 bytes)
+  FILE wf_mc_20260511_1250.md (3299 bytes)
+  FILE wf_mc_report_20260505_1816.md (3297 bytes)
+
+======== E. lock/holdout discovery (names + decision-log lines) ========
+  n=6
+  LOCKFILE data/backtest_out/fundamentals_sentiment_holdout.json
+  LOCKFILE reports/b2_1_prelock_manifest_candidate_v1_2026-10-05.json
+  LOCKFILE reports/oos_independence_audit_v1_2026-10-14/oos_freeze_history_audit.md
+  LOCKFILE reports/oos_independence_audit_v1_2026-10-14/oos_independence_risk_register.md
+  LOCKFILE reports/oos_independence_audit_v1_2026-10-14/oos_preregistration_and_gate_audit.md
+  LOCKFILE reports/oos_status_c_remediation_v1_2026-10-15/oos_status_c_remediation_plan.md
+  decision-log lines=3884 matches=203
+  DLOG:39: Status: applied - Faz 0 frozen input and Faz 2 offline evidence recorded; Faz 1 live baseline and Faz 3 experiments NOT RUN (blocked by API load and memory); Faz 4 not started.
+  DLOG:53: [2026-10-16] - Human decisions recorded: D4, D6, U4, D2, D7 (approved recommendations; implementation pending)
+  DLOG:56: Context: Meriç approved the recommendations of the 2026-10-16 decision audit (delivered in chat, no file) for D4, D6, U4, D2 and D7.
+  DLOG:57: Decisions: (1) D4, calibration wording (glossary C1/C2): the sentence "recalibrated as outcomes accumulate" is removed; the "calibrated" label is replaced by "tarihsel sıklık (bağımsız doğrulanmamış)". C3 (Grade A "~1/day") is not decided by this receipt and remains open. (2) D6, investor and public...[trunc]
+  DLOG:60: Target: docs/governance/decision-log.md; distribution/glossary.py (D4, pending diff); investor and pitch surfaces (D6, pending); reports/oos_status_c_remediation_v1_2026-10-15/ (D7).
+  DLOG:67: Findings: Question 3: net expectancy per trade not reliably determinable; +0.40 % is gross and cost-free. Question 4 (status C): out-of-sample independence and evaluation gate not established. Question 5 (conclusion 2): results sensitive to outlier removal and execution assumptions; executability no...[trunc]
+  DLOG:68: Change: Added reports/investor_questions_3_4_5_v1_2026-10-15/investor_questions_3_4_5_tr.md. No data, threshold, gate, code, sealed dataset, existing report or investor material was changed.
+  DLOG:80: Change: Added five reports in reports/outlier_dependence_audit_v1_2026-10-14/ (baseline, top 1 % / top 5 % sensitivity, execution feasibility, liquidity and cost sensitivity, German investor answer for question 5). No production code, scanner, strategy parameter, database row, price cache file, seal...[trunc]
+  DLOG:89: Context: Meriç requested the OOS independence and gate audit for investor question 4. No sealed dataset was opened and no out-of-sample evaluation was executed.
+  DLOG:90: Findings: No trading-strategy out-of-sample set has a verifiable freeze before its outcomes were computed. The 2026-05-21 boundary and its locked-OOS results first appear together in common_buy_accuracy.json (generated 2026-07-15T16:52:02Z; locked_oos n = 44). The exit comparison (v2_exit_same_selec...[trunc]
+  DLOG:91: Conflict (CORE-005): August documents state "Locked OOS NOT_OPENED", while July and September artifacts report locked-OOS results. The 2026-09-23 governance audit classifies the V2 path-aware locked-OOS line as "CLOSED / NO EDGE (n=62)".
+  DLOG:92: Change: Added four reports in reports/oos_independence_audit_v1_2026-10-14/ (freeze history audit, preregistration and gate audit, independence risk register, German answer to question 4). No production code, data, threshold, protocol, artifact, sealed dataset or existing decision-log entry was chan...[trunc]
+  DLOG:93: Impact: Investor question 4 must not be answered with a claim of independent or sealed out-of-sample validation. The German answer states that independence and gate are not established and that the evaluation is not ready to run.
+  DLOG:104: Change: Added four reports in reports/net_expectancy_audit_v1_2026-10-14/: evidence inventory, readiness matrix, calculation specification, and the German investor decision for question 3. No production code, scanner, ranking, threshold, database row, publication, investor material or out-of-sample ...[trunc]
+  DLOG:110: [2026-10-14] - OOS usage audit (step 2 of holdout-lock plan): no clean historical holdout found; human choice pending
+  DLOG:114: Findings: At least six out-of-sample boundaries appear across committed reports and artifacts: 2026-01-01 (IS_END in backtest_signals and backtest_results.json; OOS n=1227, lift 0.99); 2026-05-21 (P0 replay, score-formula comparison, common-buy; locked-OOS n=62 for TP5/SL1 at +2.0501% and TP5/SL1.5 ...[trunc]
+  DLOG:115: Conflict (CORE-005): August reports state "Locked OOS NOT_OPENED"; the 2026-07-27 scenario report records locked-OOS results (n=62), and the 2026-09-23 governance audit lists "V2 path-aware locked-OOS -> CLOSED / NO EDGE (n=62)".
+  DLOG:116: Implication: Every post-2026-01-01 window has been evaluated in at least one artifact; no historical window qualifies as an untouched holdout. The fixed-target qualification rule was first committed on 2026-08-06, after the 2026-08-05 fixed-target report.
+  DLOG:118: Impact: Only this receipt was written. No script run, holdout opened, threshold changed, commit or push.
+  DLOG:121: Status: audit applied - no clean historical holdout established; steps 1 and 3 pending human choice; holdout NOT_OPENED.
+  DLOG:148: [2026-10-12] - Daily publication blocked: no full-universe scan export; partial exports fail gates
+  DLOG:157: Status: BLOCKED pending a complete 2026-10-12 full-universe export that passes the existing gates; approval NOT_REQUESTED; no release GO claimed.
+  DLOG:188: Context: Meric's manual publisher returned sent=[40], failed=[], blocked=[], web_pushed=false. Its web hook failed during commit but exposed only the first 160 stderr characters, which were CRLF warnings; actual hook stdout was discarded. Prior pending-state receipts remain valid point-in-time recor...[trunc]
+  DLOG:208: Controlling flow: Existing job_publish updates web only after approved Telegram delivery succeeds without failed/blocked entries. Its web push writes the public projection and invokes configured deployment mechanisms; deployment configuration and credentials were not inspected. The existing manual s...[trunc]
+  DLOG:233: Evidence: Public tag `v1.0.93` exposes documentation/changelog and installer material, not parser/runtime source; the exact npm loader dispatches to a native platform binary. The pinned Windows CLI remains SHA-256 `5DE495FC56F2F6DC47973B606B86A067AE60012C72BD2F546F0E95CD9182AED1`, Authenticode-valid...[trunc]
+  DLOG:234: Impact: Existing records falsify the claim that this Golden attempt executed no tools and show that the CLI-reported tool sandbox was not applied to those calls. They do not establish the complete effective registry or permission semantics, prove the provider-served model, or certify that every CLI ...[trunc]
+  DLOG:245: Impact: The prior tool calls are consistent with, and the empty-filter assumption is contradicted by, the pinned version's code path. Gate 4 remains `EVIDENCE_INSUFFICIENT` / `NOT_PROVEN` as a complete effective-policy gate; the attempt is not a verified tool-free canary. Gate 1 remains blocked pend...[trunc]
+  DLOG:319: Impact: `A1 = BLOCKED — Gate 1 and Gate 4 unresolved.` r5 değişmedi (ZIP SHA-256 `4415AD75291F983C0860E3FC1DFFE3681673C4EC370FD56D6DD4F3364A564EEE`). Yeni canary, inference/retry, token veya imzalı indirme URL'si erişimi, r6, Gate 6 insan incelemesi ve A1 kapanışı yapılmadı. İki gate de geçse bile y...[trunc]
+  DLOG:322: Status: applied - Gate 4 `EVIDENCE_INSUFFICIENT`; Gate 1 yetkili rapor bekliyor; A1 BLOCKED. Sonraki adım yalnızca sanitize edilmiş yönetici raporu ile sürüm 1.0.93'e ait efektif-policy kanıtıdır.
+  DLOG:356: [2026-10-08] - FinSense A1 provider/model and effective-tool evidence remained blocked
+  DLOG:362: Impact: Gates 1 and 4 remain BLOCKED; Gate 5 is not accepted as a verified tool-free canary. No additional call, retry, report/token access, r6 creation, human review, or A1 closure occurred. A future call still requires both evidence gates and fresh explicit human authorization.
+  DLOG:464: Security hold: B2-AUTH report hook flagged 28 quoted hex values. Inspection identifies them as file SHA-256 entries in locked_hashes/source_hashes, not credentials. A bounded patch attempt to the approximately 8.8 MB existing baseline failed with Maximum call stack size exceeded; parsed validation c...[trunc]
+  DLOG:577: [2026-10-06] - Live restart, measurement and activation explicitly requested; execution remains blocked
+  DLOG:583: Impact: No restart/recreate/deploy, live scan, coordinator activation, auth-token generation, secret access, provider request, runtime/artifact mutation or commit. No gate waived or measurement fabricated; no production execution commands supplied while readiness is blocked.
+  DLOG:586: Status: pending - explicit live intent recorded, execution BLOCKED. Restart NOT RUN, live measurement NOT RUN, activation NOT APPLIED by this task. Safe next step is isolated diagnosis/remediation of the open gates, then human-run 0A observation and separate gated 0B activation.
+  DLOG:594: Change: Added core/scan_coordinator.py, opt-in whole-API-job ownership, agent/direct-evaluator integration, per-waiter detach and cooperative phase cancellation. Worker pool owns slots until actual job completion; duplicate API waiters share one calculation/persistence group, not their response/canc...[trunc]
+  DLOG:626: Status: pending - requested actions BLOCKED by unresolved prerequisite/compliance conflict; 0B NOT IMPLEMENTED, live restart NOT RUN, live measurement NOT RUN by this task.
+  DLOG:1245: [2026-09-22] - RESEARCH-X/H4C information-loss preregistration locked (Level A)
+  DLOG:1247: Level: A (read-only research preregistration; production and locked OOS unchanged)
+  DLOG:1250: Impact: Preregistration APPROVED / LOCKED; this approves only execution of the pre-defined test, not any result. Verdict set: INFORMATION_LOSS_SUPPORTED / INFORMATION_LOSS_NOT_SUPPORTED / INSUFFICIENT_DATA / INPUT_MISMATCH. No verdict asserts anything about production ranking; a positive verdict mea...[trunc]
+  DLOG:1251: Status: applied - Level A preregistration locked before runner execution.
+  DLOG:1258: Level: A (read-only forensic research; production and locked OOS unchanged)
+  DLOG:1882: - Flag karari DEFERRED/BLOCKED BY BASELINE FAILURE olarak korundu. Catalyst/attention-map/
+  DLOG:1933: Change: `docs/2026-09-03-arastirma-portfoyu-master-prompt.md` oluşturuldu — decision-log'u tarayıp açık kalemleri (BLOCKED/DATA_REPAIR/CONFIRMATORY_CANDIDATE/HYPOTHESIS_LOCKED) 3 kovaya (Agent-şimdi / Takvim-kilitli / İnsan-zamanı-kilitli) ayıran, Information-Gain×Blocking-count×Production-Relevance...[trunc]
+  DLOG:1948: Change: `docs/2026-09-03-hipotez-uretimi-master-prompt.md` oluşturuldu — Review Board v3.0'ın companion'ı. Zorunlu unsurlar: (1) Arama Bütçesi (m_generation, mevcut global m≈9.754 bütçesine EKLENİR), (2) Veri Karantinası (discovery seti vs. dokunulmayan bağımsız set — "mühürlenmiş keşif" verisi üzer...[trunc]
+
+======== F. PRIOR report extraction (read-only) ========
+--- PRIOR reports/entry_quality_experiment_2026-08-06.md lines=129
+  1: # Entry Quality Research Experiment
+  2: 
+  3: Date: 2026-08-06
+  4: Status: research-only, no production rule change
+  5: Decision level: Level B if a result is later proposed for the live entry gate
+  6: 
+  7: ## Question
+  8: 
+  lock-matches=1
+  L125: protocol, use discovery/validation/locked-OOS time splits, and report signal
+  summary-heading at 54
+  54: ## Canonical 5-day barrier results
+  55: 
+  56: | Profile | N | TP | SL | Time | Gross expectancy % | Cost-adjusted expectancy % | Median return % | PF | Max return loss % | Worst MAE % |
+  57: |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+  58: | `entry_ok` | 799 | 25.91% | 53.19% | 20.90% | 0.107 | -0.443 | -2.144 | 1.042 | -32.997 | -41.409 |
+  59: | `score_3` | 951 | 25.34% | 58.99% | 15.67% | -0.085 | -0.635 | -1.890 | 0.971 | -37.989 | -78.740 |
+  60: | `score_2` | 7,465 | 27.06% | 50.19% | 22.75% | 1.351 | 0.801 | -0.989 | 1.577 | -54.885 | -92.551 |
+  61: | `score_ge_2_regime_direction` | 3,320 | 29.16% | 51.27% | 19.58% | 0.489 | -0.061 | -0.730 | 1.228 | -46.109 | -92.551 |
+  62: 
+  63: These results are descriptive research evidence only. They are not a
+  64: production performance claim and do not prove that score 2 is better. The
+  65: score-2 cohort is much larger, has different selection exposure, and shows
+  66: larger worst-case losses.
+  67: 
+  68: ## Forward movement check
+  69: 
+  70: The artifact's `resolved_pct_t5` is a favorable-movement field, not a realized
+  71: net return. It must not be presented as execution P&L.
+  72: 
+  73: | Profile | N | Hit `resolved_pct_t5 >= 5%` | Mean favorable movement % | Median favorable movement % |
+  74: |---|---:|---:|---:|---:|
+  75: | `entry_ok` | 799 | 41.68% | 7.159 | 4.142 |
+  76: | `score_3` | 951 | 40.48% | 14.074 | 3.624 |
+  77: | `score_2` | 7,465 | 37.91% | 11.358 | 3.368 |
+  78: | `score_ge_2_regime_direction` | 3,320 | 35.78% | 5.870 | 3.176 |
+--- PRIOR reports/c2c_5d_label_entry_basis_2026-09-03.md lines=29
+  1: # c2c_5d DATA_REPAIR Uygulaması — label_entry_basis (Meriç onaylı)
+  2: 
+  3: Tarih: 2026-09-03
+  4: Level: B fix, Meriç onayıyla uygulandı (Araştırma Portföyü Kurulu #1 kalemi)
+  5: Tetikleyici: `reports/data_repair_diagnosis_2026-09-03.md`'nin kök-neden bulgusu (EOD taramaları ρ=0.9829, gün-içi taramalar ρ=0.9173)
+  6: 
+  7: ## Yapılan değişiklikler
+  8: 
+  lock-matches=0
+  summary-heading at 12
+  12: ## Sonuç
+  13: 
+  14: - Toplam 100.496 satır (dedup öncesi) → **79.935 (%79,5) `eod_close`, 20.561 (%20,5) `intraday`**.
+  15: - En yoğun intraday saat dilimleri: 14:30 (3.437), 13:30 (2.889), 14:15 (2.867), 14:00 (2.858), 14:45 (2.626) — diagnostik raporun işaret ettiği 13:30–14:45 bandıyla birebir örtüşüyor.
+  16: - İki yeni dosya üretildi:
+  17:   - `data/backtest_out/full_universe_enriched_labeled.csv` — tüm satırlar + `label_entry_basis`, mevcut değerler değişmedi.
+  18:   - `data/backtest_out/full_universe_enriched_eod_only.csv` — yalnızca `eod_close` satırlar (n=79.935), diagnostik raporun önerdiği "temiz" alt-küme. Bundan sonraki istatistiksel testler bu dosyayı tercih edebilir (ρ=0.9...[trunc]
+  19: 
+  20: ## Kapsam ve sınırlar
+  21: 
+  22: - **Production/canlı scanner'a hiçbir etki yok.** Değişiklik yalnızca araştırma export'unda.
+  23: - `c2c_5d` değerlerinin kendisi **düzeltilmedi** — yalnızca hangi satırların güvenilir sayılması gerektiği işaretlendi (diagnostik raporun önerdiği yaklaşım buydu: "filtrele", "yeniden hesapla" değil).
+  24: - Geriye dönük backfill, `scan_ts` alanına dayanıyor — bu, diagnostik raporun kendi kanıt zincirinde (3.000 eşleşmiş satır + 400 sembol price_cache) doğrulanmış aynı eşik. Bu script o doğrulamayı tekrar üretmedi, sadece ...[trunc]
+  25: - `unknown` etiketli satır sayısı ayrıca kontrol edilmeli (scan_ts formatı bozuk olan nadir satırlar) — bu raporda ayrı gösterilmedi, gerekirse bir sonraki turda eklenir.
+  26: 
+  27: ## Sonraki adım
+  28: 
+  29: Yeni istatistiksel confirmatory koşular (özellikle fade/H3 yeniden testi ve abstention bağımsız doğrulaması) artık `full_universe_enriched_eod_only.csv`'yi tercih edebilir — Kapı A (veri-bütünlüğü) bu kalem için artık da...[trunc]
+--- PRIOR reports/pre_rise_path_battery_2026-08-11.md lines=67
+  1: # Pre-Rise Path Battery — 2026-08-11
+  2: 
+  3: ## Classification
+  4: 
+  5: - Layer: Research / Engineering
+  6: - Level: A, research-only diagnostic
+  7: - Production change: none
+  8: - Status: exploratory; no scanner, score, ranking, entry/exit, portfolio, publication, or live behavior was changed.
+  lock-matches=4
+  L52: These are descriptive associations from a low-coverage, outcome-linked exploratory sample. They are not causal evidence, not a validated predictive rule, and not sufficient for an OOS or production gate. The 5-day close-...[trunc]
+  L54: Open blockers remain:
+  L57: - News cache records are date/value data, not timestamped headlines or event records; event attribution remains blocked.
+  L60: - Locked OOS was not opened. Human approval remains required for any confirmatory or production decision.
+--- PRIOR docs/2026-08-13-winner-anatomy-exp05-real-first-touch-path.md lines=34
+  1: # Winner Anatomy — Gerçek First-Touch Path Backtest (data/price_cache)
+  2: 
+  3: Tarih: 2026-08-13 · Statü: Level A · Veri: `full_universe_enriched.csv` + `data/price_cache/*.json` (2.047 sembol, gerçek günlük OHLCV)
+  4: 
+  5: ## Düzeltme
+  6: 
+  7: Önceki turda "ham price_cache dosyası diskte yok" dedim — **yanlıştı**, yanlış arama yaptım (dosya adı deseni aradım, `data/price_cache/` bir klasör, içinde 2.047 sembol için ayrı `.json` dosyası var, gerçek günlük OHLCV...[trunc]
+  8: 
+  lock-matches=0
+  summary-heading at 15
+  15: ## Sonuçlar
+  16: 
+  17: | Popülasyon | n | medyan MFE | medyan MAE | TP ilk | SL ilk | TIME | ort. pnl (maliyet öncesi) |
+  18: |---|---:|---:|---:|---:|---:|---:|---:|
+  19: | Tüm evren | 58.045 | +4.01% | -3.53% | %43.7 | %51.4 | %4.9 | -0.15% |
+  20: | **entry_ok=True** | 1.847 | +3.58% | **-5.38%** | **%35.2** | **%62.0** | %2.8 | **-0.53%** |
+  21: | entry_ok=False | 56.198 | +4.03% | -3.47% | %44.0 | %51.0 | %5.0 | -0.14% |
+  22: | **ATR3-5+RVOL1-1.5 aday** | 4.829 | +4.27% | -3.40% | **%49.5** | %50.3 | %0.3 | **-0.02%** |
+  23: 
+  24: ## Okuma
+  25: 
+  26: Bu artık "diagnostic simülasyon" değil, gerçek first-touch path backtest — path sırasını biliyoruz. Ve sonuç önceki close-tabanlı yaklaşımı doğruluyor, hatta netleştiriyor:
+  27: 
+  28: `entry_ok=True` gerçek path'te de en kötüsü — TP/SL 2/2 ile SL'e çarpma oranı %62 (evrende %51.4), gerçek MAE -5.38% (evrende -3.53%). Bu artık yaklaşık değil, gerçek bar-bar simülasyonla doğrulanmış.
+  29: 
+  30: ATR3-5+RVOL1-1.5 adayı, gerçek first-touch'ta da en iyisi — TP/SL neredeyse yarı yarıya (%49.5/%50.3), maliyet öncesi ortalama pnl sıfıra çok yakın (-0.02%). Hâlâ 55bps maliyet sonrası negatif olur ama diğer üç popülasyo...[trunc]
+  31: 
+  32: ## Açık iş
+  33: 
+  34: `close5_real` vs `c2c_5d` uyuşmazlığının (ρ=0.845) kaynağını bulmak — muhtemelen giriş noktası tanımı farkı, ama doğrulanmadı. Bu çözülmeden, buradaki mutlak büyüklüklere (sadece yönüne değil) tam güvenmemeliyiz.
+--- PRIOR reports/high_rvol_raw_ohlc_exit_gate_2026-08-12.md lines=76
+  1: # High RVOL Raw-OHLC Exit Gate
+  2: 
+  3: ## Requested gates
+  4: 
+  5: The requested validation was: raw OHLC T+1-T+10 returns, ATR-based stops and
+  6: maximum adverse excursion, observed costs/spread, matched-control lift and an
+  7: independent locked OOS.
+  8: 
+  lock-matches=4
+  L7: independent locked OOS.
+  L15: | Observed cost and spread | BLOCKED | Spread, ADV, slippage, impact, fill ordering and observed execution costs are absent. The 55 bps value remains diagnostic only. |
+  L17: | Independent locked OOS | NOT OPENED | The data-readiness artifact marks P1/P2 BLOCKED and `locked_oos` NOT_OPENED. Opening it is a Level C human-approval action. |
+  L73: jumps. An independent locked OOS must remain closed until the P1/P2 gates pass
+--- PRIOR docs/2026-07-15-p0-execution-replay-full-universe-report.md lines=64
+  1: # P0 Full-Universe Execution Replay
+  2: 
+  3: ## Kapsam
+  4: 
+  5: Bu rapor `--universe all` ile calistirildi. Her kaynak kendi tum canonical symbol-day evreninde replay edildi; kaynak evrenleri ayni olmadigi icin bu sonuc adil A/B karsilastirmasi degil, iki artifact'in tam-kapsamli exe...[trunc]
+  6: 
+  7: - Legacy: 27,386 canonical symbol-day, 66 tarih
+  8: - V2: 4,680 canonical symbol-day, 53 tarih
+  lock-matches=3
+  L12: - Locked OOS: `> 2026-05-21`
+  L18: Tum canonical symbol-day satirlari replay edildi. Yalnizca locked OOS'ta score ve veri kontrollerini gecen sinyaller trade edildi:
+  L20: | Source | Replayed symbol-days | Dates | Discovery | Validation | Locked OOS | Selected trades | Selected dates |
+  summary-heading at 25
+  25: ## Strategy-specific exit sonucu
+  26: 
+  27: Legacy `TP=2x/SL=1x ATR`, V2 `TP=5x/SL=1.5x ATR` kullanir:
+  28: 
+  29: | Source | N | Net expectancy | Net total P&L | Profit factor | Max drawdown |
+  30: | --- | ---: | ---: | ---: | ---: | ---: |
+  31: | Legacy | 901 | 2.0968% | $18,892.11 | 1.7778 | -589.16% |
+  32: | V2 | 62 | -0.0046% | -$2.84 | 0.9993 | -217.45% |
+  33: 
+  34: ## V2 exit sensitivity
+  35: 
+  36: Ayni full V2 evreninde `n=62` trade:
+  37: 
+  38: | TP / SL | Net expectancy | Profit factor | Max drawdown |
+  39: | --- | ---: | ---: | ---: |
+  40: | `2x / 1x` | -0.3535% | 0.9242 | -150.57% |
+  41: | `3x / 1x` | 0.7894% | 1.1669 | -144.68% |
+  42: | `3x / 1.5x` | -1.2652% | 0.8135 | -247.39% |
+  43: | `5x / 1x` | 2.0501% | 1.4284 | -141.95% |
+  44: | `5x / 1.5x` | -0.0046% | 0.9993 | -217.45% |
+  45: | `5x / 2x` | -0.4610% | 0.9368 | -243.56% |
+  46: | `5x / 3x` | -1.1803% | 0.8586 | -284.37% |
+  47: 
+  48: ## Sonuc
+  49: 
+--- PRIOR reports/research_x_capture_1_2026-09-22.md lines=54
+  1: # RESEARCH-X/RX-CAPTURE-1 - Capture & Exit Battery Result
+  2: 
+  3: **Date:** 2026-09-22
+  4: **Level:** A - read-only
+  5: **Input SHA ok:** True | n=34762 | dates=54
+  6: 
+  7: | Candidate | Verdict | Evaluated | Ambiguous excl | Median net (0.55%) | Median net (1.00%) | Holm adj p | Same sign | Temporal min | Conc warn |
+  8: |---|---|---|---|---|---|---|---|---|---|---|
+  lock-matches=5
+  L21: EXACTLY on the locked target net of cost (E1_t3 = 3.0-0.55 = 2.45;
+  L25: collapses onto the target and the block-bootstrap CI becomes
+  L35: the locked EXCLUDE convention; E3's effective n=22,498. E3 also
+  L39: (39.4%) exceed the locked >25% single-day threshold. These block
+  L47: LOCKED and out of scope).
+  summary-heading at 1
+  1: # RESEARCH-X/RX-CAPTURE-1 - Capture & Exit Battery Result
+  2: 
+  3: **Date:** 2026-09-22
+  4: **Level:** A - read-only
+  5: **Input SHA ok:** True | n=34762 | dates=54
+  6: 
+  7: | Candidate | Verdict | Evaluated | Ambiguous excl | Median net (0.55%) | Median net (1.00%) | Holm adj p | Same sign | Temporal min | Conc warn |
+  8: |---|---|---|---|---|---|---|---|---|---|---|
+  9: | E0 | CAPTURE_NOT_SUPPORTED | 34762 | 0 | -0.718244 | -1.168244 | 0.176 | True | True | False |
+  10: | E1_t3 | CAPTURE_SUPPORTED_PENDING_VERIFICATION | 34762 | 0 | 2.45 | 2.0 | 0.0 | True | True | False |
+  11: | E1_t5 | CAPTURE_SUPPORTED_PENDING_VERIFICATION | 34762 | 0 | 1.13587 | 0.68587 | 0.028 | True | True | False |
+  12: | E1_t10 | CAPTURE_NOT_SUPPORTED | 34762 | 0 | -0.369011 | -0.819011 | 0.378 | True | True | False |
+  13: | E2_k1.5 | CAPTURE_NOT_SUPPORTED | 34739 | 0 | -0.986681 | -1.436681 | 0.095 | True | True | True |
+  14: | E2_k2.0 | CAPTURE_NOT_SUPPORTED | 34739 | 0 | -0.785039 | -1.235039 | 0.176 | True | True | True |
+  15: | E2_k3.0 | CAPTURE_NOT_SUPPORTED | 34739 | 0 | -0.72776 | -1.17776 | 0.176 | True | True | False |
+  16: | E3 | CAPTURE_NOT_SUPPORTED | 22498 | 12264 | -0.765001 | -1.215001 | 0.042 | True | True | True |
+  17: 
+  18: ## Interpretation (post-hoc, separated from verdicts)
+  19: 
+  20: **Median degeneracy note (E1_t3, E1_t5):** the primary median lands
+  21: EXACTLY on the locked target net of cost (E1_t3 = 3.0-0.55 = 2.45;
+  22: E1_t5 = 5.0-0.55 = 4.45 gross, but the small gap to the observed
+  23: 1.13587 reflects partial-timing paths). Because more than half of
+  24: valid observations hit the fixed target on first touch, the median
+  25: collapses onto the target and the block-bootstrap CI becomes
+
+======== G. price cache structure ========
+  n_json=2047 other=0
+  bad=0 types={'list': 2047}
+  keysets top=[(('close', 'date', 'high', 'low', 'open', 'volume'), 1851), (('adjusted_close', 'close', 'date', 'high', 'low', 'open', 'volume'), 195)]
+  bars/file min=37 median=477 max=494
+  first-date min=2024-09-03 max=2026-06-05; last-date min=2025-01-17 max=2026-08-21
+  last-date month dist=[('2026-07', 1839), ('2026-08', 113), ('2026-06', 52), ('2026-05', 13), ('2026-04', 9), ('2026-03', 8), ('2026-01', 3), ('2025-10', 3)]
+
+======== H. research exit/cost pattern counts (research/ + root *.py) ========
+--- TRAIL files=2 top=[('research/research_x_capture_1_2026_09_22.py', 4), ('test3_exit.py', 2)]
+--- TIME files=38 top=[('shadow_scorecard.py', 62), ('research/winner_anatomy_2026_08_11.py', 49), ('research/high_rvol_raw_ohlc_exit_battery_2026_08_12.py', 37), ('research/full_universe_pre_rise_hypotheses_2026_08_12.py', 33), ('research/timing_drift_study.py', 30), ('target_return_optimization.py', 22), ('research/full_universe_barrier_backtest.py', 20), ('full_universe_barrier_backtest.py', 20), ('research/pre_rise_path_battery_2026_08_11.py', 19), ('research/strategic_lab_2026_08_10.py', 16), ('research/high_rvol_horizon_battery_2026_08_12.py', 13), ('research/scanner_battery_v2.py', 12)]
+--- COSTR files=33 top=[('p0_execution_replay.py', 15), ('research/protocol.py', 11), ('v2_data_quality_cost_runner.py', 10), ('v2_precision_execution_runner.py', 7), ('research/research_x_h4c_information_loss_2026_09_22.py', 6), ('v2_exit_same_selection_runner.py', 6), ('v2_walk_forward_runner.py', 6), ('research/full_universe_barrier_backtest.py', 5), ('research/scanner_battery_v2.py', 5), ('full_universe_barrier_backtest.py', 5), ('portfolio_target_backtest.py', 5), ('research/full_baseline_reconstruction_compression_forensics_2026_09_09.py', 4)]
+--- research/score_lab_2_exits.py lines=139 matches=0
+--- research/full_universe_barrier_backtest.py lines=431 matches=36
+  research/full_universe_barrier_backtest.py:85: def forward_path(bars, scan_date, horizon):
+  research/full_universe_barrier_backtest.py:92: return bars[index + 1 : index + 1 + horizon]
+  research/full_universe_barrier_backtest.py:164: def resolve_paths(rows, cache_dir, horizon, max_entry_drift):
+  research/full_universe_barrier_backtest.py:175: path = forward_path(bars, row["scan_date"], horizon)
+  research/full_universe_barrier_backtest.py:187: if len(path) < horizon:
+  research/full_universe_barrier_backtest.py:202: def label_rows(rows, tp_mult, sl_mult, horizon):
+  research/full_universe_barrier_backtest.py:209: tp_pct=max(tp_mult * atr_fraction, 0.01),
+  research/full_universe_barrier_backtest.py:210: sl_pct=max(sl_mult * atr_fraction, 0.005),
+  research/full_universe_barrier_backtest.py:211: max_horizon=horizon,
+  research/full_universe_barrier_backtest.py:267: def run_grid(rows, cache_dir, horizons, tp_mults, sl_mults, max_entry_drift):
+  research/full_universe_barrier_backtest.py:273: for horizon in horizons:
+  research/full_universe_barrier_backtest.py:274: resolved, stats = resolve_paths(rows, cache_dir, horizon, max_entry_drift)
+  research/full_universe_barrier_backtest.py:275: inventory[str(horizon)] = {"resolved": len(resolved), **stats}
+  research/full_universe_barrier_backtest.py:276: resolved_dedup, _ = resolve_paths(dedup_rows(rows), cache_dir, horizon, max_entry_drift)
+  research/full_universe_barrier_backtest.py:277: for tp_mult in tp_mults:
+  research/full_universe_barrier_backtest.py:278: for sl_mult in sl_mults:
+  research/full_universe_barrier_backtest.py:279: labeled = label_rows(resolved, tp_mult, sl_mult, horizon)
+  research/full_universe_barrier_backtest.py:280: labeled_dedup = label_rows(resolved_dedup, tp_mult, sl_mult, horizon)
+  research/full_universe_barrier_backtest.py:281: config = f"tp={tp_mult}xATR sl={sl_mult}xATR h={horizon}d"
+  research/full_universe_barrier_backtest.py:287: "tp_mult": tp_mult,
+  research/full_universe_barrier_backtest.py:288: "sl_mult": sl_mult,
+  research/full_universe_barrier_backtest.py:289: "horizon": horizon,
+  research/full_universe_barrier_backtest.py:317: parser.add_argument("--horizons", default="3,5")
+  research/full_universe_barrier_backtest.py:335: "--round-trip-cost-pct",
+  research/full_universe_barrier_backtest.py:352: horizons = [int(value) for value in args.horizons.split(",") if value.strip()]
+  research/full_universe_barrier_backtest.py:353: tp_mults = [float(value) for value in args.tp.split(",") if value.strip()]
+  research/full_universe_barrier_backtest.py:354: sl_mults = [float(value) for value in args.sl.split(",") if value.strip()]
+  research/full_universe_barrier_backtest.py:356: rows, args.cache, horizons, tp_mults, sl_mults, args.max_entry_drift
+  research/full_universe_barrier_backtest.py:366: item["round_trip_cost_pct"] = args.round_trip_cost_pct
+  research/full_universe_barrier_backtest.py:368: round(expectancy - args.round_trip_cost_pct, 4) if expectancy is not None else None
+--- full_universe_barrier_backtest.py lines=431 matches=36
+  full_universe_barrier_backtest.py:85: def forward_path(bars, scan_date, horizon):
+  full_universe_barrier_backtest.py:92: return bars[index + 1 : index + 1 + horizon]
+  full_universe_barrier_backtest.py:164: def resolve_paths(rows, cache_dir, horizon, max_entry_drift):
+  full_universe_barrier_backtest.py:175: path = forward_path(bars, row["scan_date"], horizon)
+  full_universe_barrier_backtest.py:187: if len(path) < horizon:
+  full_universe_barrier_backtest.py:202: def label_rows(rows, tp_mult, sl_mult, horizon):
+  full_universe_barrier_backtest.py:209: tp_pct=max(tp_mult * atr_fraction, 0.01),
+  full_universe_barrier_backtest.py:210: sl_pct=max(sl_mult * atr_fraction, 0.005),
+  full_universe_barrier_backtest.py:211: max_horizon=horizon,
+  full_universe_barrier_backtest.py:267: def run_grid(rows, cache_dir, horizons, tp_mults, sl_mults, max_entry_drift):
+  full_universe_barrier_backtest.py:273: for horizon in horizons:
+  full_universe_barrier_backtest.py:274: resolved, stats = resolve_paths(rows, cache_dir, horizon, max_entry_drift)
+  full_universe_barrier_backtest.py:275: inventory[str(horizon)] = {"resolved": len(resolved), **stats}
+  full_universe_barrier_backtest.py:276: resolved_dedup, _ = resolve_paths(dedup_rows(rows), cache_dir, horizon, max_entry_drift)
+  full_universe_barrier_backtest.py:277: for tp_mult in tp_mults:
+  full_universe_barrier_backtest.py:278: for sl_mult in sl_mults:
+  full_universe_barrier_backtest.py:279: labeled = label_rows(resolved, tp_mult, sl_mult, horizon)
+  full_universe_barrier_backtest.py:280: labeled_dedup = label_rows(resolved_dedup, tp_mult, sl_mult, horizon)
+  full_universe_barrier_backtest.py:281: config = f"tp={tp_mult}xATR sl={sl_mult}xATR h={horizon}d"
+  full_universe_barrier_backtest.py:287: "tp_mult": tp_mult,
+  full_universe_barrier_backtest.py:288: "sl_mult": sl_mult,
+  full_universe_barrier_backtest.py:289: "horizon": horizon,
+  full_universe_barrier_backtest.py:317: parser.add_argument("--horizons", default="3,5")
+  full_universe_barrier_backtest.py:335: "--round-trip-cost-pct",
+  full_universe_barrier_backtest.py:352: horizons = [int(value) for value in args.horizons.split(",") if value.strip()]
+  full_universe_barrier_backtest.py:353: tp_mults = [float(value) for value in args.tp.split(",") if value.strip()]
+  full_universe_barrier_backtest.py:354: sl_mults = [float(value) for value in args.sl.split(",") if value.strip()]
+  full_universe_barrier_backtest.py:356: rows, args.cache, horizons, tp_mults, sl_mults, args.max_entry_drift
+  full_universe_barrier_backtest.py:366: item["round_trip_cost_pct"] = args.round_trip_cost_pct
+  full_universe_barrier_backtest.py:368: round(expectancy - args.round_trip_cost_pct, 4) if expectancy is not None else None
+DONE_ENX

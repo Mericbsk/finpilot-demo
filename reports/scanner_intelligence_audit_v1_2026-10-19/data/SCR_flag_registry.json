@@ -1,0 +1,304 @@
+[
+ {
+  "flag": "FINPILOT_ENABLE_ALPHA_V2",
+  "n_code_refs": 3,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/features.py:162",
+   "scanner/features.py:172",
+   "scanner/risk_engine.py:204"
+  ],
+  "n_test_files": 2,
+  "test_files": [
+   "test_evaluate.py",
+   "test_squeeze_factor.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_CONVICTION_TIERS",
+  "n_code_refs": 3,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/features.py:183",
+   "agents/alert_agent.py:101",
+   "agents/alert_agent.py:111"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_ranking_guard.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_DISTRIBUTION",
+  "n_code_refs": 4,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "core/scheduler.py:1373",
+   "distribution/jobs.py:3",
+   "distribution/jobs.py:49",
+   "distribution/jobs.py:761"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_ops_jobs.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_EARLY_TIER",
+  "n_code_refs": 1,
+  "defaults": [],
+  "locs": [
+   "scanner/watch_tier.py:158"
+  ],
+  "n_test_files": 0,
+  "test_files": []
+ },
+ {
+  "flag": "FINPILOT_ENABLE_EDGAR_CATALYST",
+  "n_code_refs": 4,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/catalyst.py:64",
+   "scanner/score_engine.py:45",
+   "api/routers/market_data.py:240",
+   "core/scheduler.py:1320"
+  ],
+  "n_test_files": 2,
+  "test_files": [
+   "test_catalyst.py",
+   "test_p0_telemetry.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_EODHD_BARS",
+  "n_code_refs": 2,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/data_fetcher.py:1040",
+   "scanner/data_fetcher.py:1050"
+  ],
+  "n_test_files": 0,
+  "test_files": []
+ },
+ {
+  "flag": "FINPILOT_ENABLE_EXECUTION_POLICY",
+  "n_code_refs": 1,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/execution_policy.py:32"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_ranking_guard.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_FRED_MACRO",
+  "n_code_refs": 4,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/score_engine.py:89",
+   "api/routers/market_data.py:259",
+   "core/macro_regime.py:50",
+   "core/scheduler.py:1355"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_macro_regime.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_FUNDAMENTALS",
+  "n_code_refs": 1,
+  "defaults": [],
+  "locs": [
+   "scanner/features.py:598"
+  ],
+  "n_test_files": 0,
+  "test_files": []
+ },
+ {
+  "flag": "FINPILOT_ENABLE_LEGACY_COMPOSITE_RANKING",
+  "n_code_refs": 1,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/score_engine.py:240"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_ranking_guard.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_LEGACY_SIGNAL_ALERTS",
+  "n_code_refs": 1,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "core/scheduler.py:1009"
+  ],
+  "n_test_files": 0,
+  "test_files": []
+ },
+ {
+  "flag": "FINPILOT_ENABLE_LOTTERY_FADE",
+  "n_code_refs": 2,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/evaluate.py:537",
+   "scanner/score_engine.py:62"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_p0_telemetry.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_OVERNIGHT_GAP",
+  "n_code_refs": 2,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/evaluate.py:539",
+   "scanner/score_engine.py:73"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_p0_telemetry.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_PORTFOLIO_ADV_LIMIT",
+  "n_code_refs": 1,
+  "defaults": [
+   "1"
+  ],
+  "locs": [
+   "scanner/execution_policy.py:36"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_ranking_guard.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_PREMIUM_BRIEF",
+  "n_code_refs": 1,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "distribution/jobs.py:262"
+  ],
+  "n_test_files": 0,
+  "test_files": []
+ },
+ {
+  "flag": "FINPILOT_ENABLE_REGIME_WEIGHTS",
+  "n_code_refs": 2,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "core/regime_weights.py:36",
+   "core/regime_weights.py:40"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_feature_flags.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_SCAN_LLM_SUMMARY",
+  "n_code_refs": 2,
+  "defaults": [
+   "1"
+  ],
+  "locs": [
+   "scanner/scan_summary.py:9",
+   "scanner/scan_summary.py:106"
+  ],
+  "n_test_files": 0,
+  "test_files": []
+ },
+ {
+  "flag": "FINPILOT_ENABLE_SCAN_SUMMARY_ALERT",
+  "n_code_refs": 1,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/scan_summary.py:243"
+  ],
+  "n_test_files": 0,
+  "test_files": []
+ },
+ {
+  "flag": "FINPILOT_ENABLE_SENTIMENT",
+  "n_code_refs": 3,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/sentiment.py:14",
+   "scanner/sentiment.py:48",
+   "core/scheduler.py:1337"
+  ],
+  "n_test_files": 1,
+  "test_files": [
+   "test_sentiment.py"
+  ]
+ },
+ {
+  "flag": "FINPILOT_ENABLE_SHADOW_SCORECARD",
+  "n_code_refs": 2,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "distribution/jobs.py:809",
+   "distribution/jobs.py:813"
+  ],
+  "n_test_files": 0,
+  "test_files": []
+ },
+ {
+  "flag": "FINPILOT_ENABLE_SQUEEZE_FACTOR",
+  "n_code_refs": 4,
+  "defaults": [
+   "0"
+  ],
+  "locs": [
+   "scanner/features.py:397",
+   "scanner/features.py:415",
+   "scanner/score_engine.py:34",
+   "api/routers/market_data.py:229"
+  ],
+  "n_test_files": 3,
+  "test_files": [
+   "test_macro_regime.py",
+   "test_p0_telemetry.py",
+   "test_squeeze_factor.py"
+  ]
+ }
+]

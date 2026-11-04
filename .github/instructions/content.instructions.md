@@ -9,8 +9,12 @@ Authority reference: `distribution/glossary.py` is the single source of
 truth for glossary terminology (see `docs/INDEX.md` manifest id
 `content-glossary`, status `active`). `web/public/dictionary.json` is
 LEGACY — dashboard/finsense pages only, the landing page never reads it.
-Academy lesson content is authored under `academy/` and exported to
-`web/public/academy_lessons.json` (manifest id `academy-content`).
+Academy lesson, source, review, and release content is canonical in the
+FinSense repository's immutable `content/releases/` packages. Borsa is a
+read-only consumer through `api/services/finsense_release.py` and the
+Academy catalog API/Classroom (manifest id `academy-content`, status
+`external`). The legacy `web/public/academy_lessons.json` is not an
+authority or a source for regenerated content.
 
 - Never define a financial or product term differently than it's
   defined in `scanner/`, `distribution/` (product) or `research/`,

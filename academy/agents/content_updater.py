@@ -71,6 +71,10 @@ class ContentUpdaterAgent:
 
     def update_lesson(self, lesson: Lesson, update_prompt: str) -> Lesson | None:
         """Actually update a lesson using LLM. Returns updated lesson."""
+        if lesson.status != "draft":
+            logger.info("[%s] Skipping protected lesson %s", AGENT_NAME, lesson.id)
+            return None
+
         try:
             from academy.llm_provider import get_academy_provider
 

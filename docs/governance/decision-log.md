@@ -2,11 +2,161 @@
 
 _CLAUDE.md Bölüm 3 formatı: her önemli karar buraya, dağınık dosyalara gömülmez._
 
+[2026-11-02] - Missing advisory conversations traced to separate expiring Redis history
+Layer: Engineering / authentication and advisory memory (Layer 5); Risk & Compliance unchanged.
+Level: A - bounded read-only diagnosis; no conversation content was read or moved.
+Context: The user asked why prior conversations were absent after the approved account/profile/settings migration.
+Change: No data or application behavior changed. Confirmed the source SQLite database contains no chat/conversation/message tables. The existing advisory feature stores history separately in Redis, keyed to advisor and account ID, retains a sliding window of at most 10 messages and applies a seven-day expiry.
+Evidence: The isolated local Redis contains zero advisory-history keys. The available Redis backup archive is dated 2026-08-27; its AOF base RDB contains zero keys and Redis rejects the incremental AOF as corrupt, so this archive did not provide loadable history. Message values were not inspected.
+Impact: Explains why copying the user and personal settings did not copy advisory history. No messages, secrets, other personal settings, account/session data or external systems were accessed or altered. No claim is made about undiscovered backups outside this workspace.
+Owner: GitHub Copilot for read-only diagnosis; Meriç for any future conversation-data recovery approval.
+Target: Existing advisory-memory implementation in core/advisory_memory.py, current isolated Redis and available local Redis archive; this receipt.
+Status: applied - cause and available-source limitation recorded. Future recovery requires a separate, valid Redis backup; the current local Redis is unchanged.
+
+[2026-11-02] - Human-approved local account/profile/settings migration
+Layer: Engineering / authentication (Layer 5); Risk & Compliance unchanged.
+Level: B - bounded, reversible local data operation approved by the user; no live-system or publication authority.
+Context: The user requested moving the old account into the isolated Mac environment, then explicitly selected "Hesabımı, profilimi ve kişisel uygulama ayarlarımı taşı".
+Scope: One matching users row and its one user_settings row from the existing local data/finpilot.db into the separate finpilot-mac-local_api_data volume. Preserve account identity, existing role, profile and bcrypt password record exactly. Settings contain only name, email and language. No sessions, other users, broker/provider credentials, portfolio/trade records or shared default settings are included.
+Change: Executed ignored .finpilot/mac-local/migrate_account.py in a networkless, read-only-root container with only the source database mounted read-only and the isolated destination volume writable. Stopped only the local API for the operation, backed up the empty-account destination, atomically inserted one users row and one user_settings row, verified exact equality before commit, and restarted the API. Source database, production code and authentication checks were not modified.
+Validation: Six synthetic tests passed: exact copy and backup, no overwrite, credential-setting exclusion, transaction rollback, source-hash mismatch and schema mismatch. A fresh post-restart read confirmed persistent account/profile/password/role equality, identical personal settings, exactly one local user and successful lookup through the existing UserRepository; account is active and unlocked. Source SHA-256 remains eda66767560c68a3e5a4f2d46e445f8c4a9534a63ba1361270edb6c21764177d. /py-api/ready reports all four checks healthy; unauthenticated /py-api/auth/me still returns HTTP 401. No real password or token was used/output during validation.
+Backup: /app/data/migration_backups/before_account_2026-11-02.sqlite inside finpilot-mac-local_api_data; SQLite integrity check passed, pre-migration user count is zero, file permissions are 0600. No backup is committed or exported.
+Impact: Only the approved isolated local account/settings changed. Existing source remains untouched; schedulers, Telegram and execution remain inactive. No old sessions, password reset or permission elevation.
+Owner: The user approves scope; GitHub Copilot performs bounded local execution and verification.
+Target: Ignored .finpilot/mac-local migration helpers; isolated /app/data/finpilot.db and its private pre-migration backup; this receipt.
+Status: applied - approved migration verified and persistent after API restart. User may sign in through Profile > Security with the existing account; successful interactive password login has not been tested by the agent.
+
+[2026-11-02] - Local login diagnosis: isolated database has no accounts
+Layer: Engineering / authentication (Layer 5); Risk & Compliance unchanged.
+Level: A - read-only diagnosis and factual receipt.
+Context: After the first isolated Mac startup, the user reported an unsuccessful login.
+Change: No authentication behavior or account data changed. Checked only aggregate account counts through a read-only SQLite connection and inspected the existing registration UI/API.
+Evidence: Local database has zero users and zero active users; /py-api/ready reports database, cache, memory and Redis healthy. The previous environment's accounts were not imported. The existing local Profile > Security > Create Account flow is available.
+Impact: No password verification/reset, account creation, privilege change, old database access, migration or external request. No submitted credentials are included in this receipt.
+Owner: GitHub Copilot for diagnosis; the user retains control of local account registration and password entry.
+Target: Existing local authentication flow and this receipt; no production source changes.
+Status: applied - missing local account confirmed; registration guidance provided. Successful user login is not yet verified.
+
+[2026-11-02] - First Mac startup: human-approved isolated local Docker environment
+Layer: Engineering / Operations (Layer 5); Risk & Compliance and product rules unchanged.
+Level: B local configuration, explicitly approved by Meriç; this factual receipt is Level A. No production publication or live-operation approval.
+Context: Meriç requested the first Mac startup, then selected "Yerel web + API’yi güvenli şekilde başlat" and "Docker ile izole yerel kuruluma devam et". Host Python is 3.9.6; Node/npm are absent. Docker Desktop was installed but stopped, with no existing containers or images after startup. The unsafe cross-project cleanup in start.sh was disclosed and not executed.
+Change: Before, no local app was listening. Started ignored .finpilot/mac-local/compose.yml using existing API build and web dependency stage, with independent Docker volumes, loopback-only web port 3001, Redis and an internal-only API network. API access is through the existing web /py-api proxy; the ineffective direct port-8000 mapping on the internal network was removed. A networkless initializer sets ownership only on the new volume roots so the API remains non-root. Existing .env files and production data are not mounted. Scheduler, Academy scheduler, distribution and scan coordinator are disabled; API command does not start the Telegram runner.
+Evidence: Docker build succeeded; web, API and Redis remain running and healthy after detached Compose startup. Browser opened http://localhost:3001/ with the FinPilot title; HTTP 200 confirmed. /py-api/health returned status=ok; /py-api/ready returned status=healthy with database, cache, memory and Redis all healthy. Empty distribution snapshot and unconfigured Academy catalog explicitly return HTTP 503, not current content. API network internal=true; /app/.env absent; source mounts read-only. pip check found an inherited Streamlit 1.45.1 / packaging 26.3 incompatibility (requires packaging<25); the API also emitted a RequestsDependencyWarning. These non-blocking dependency findings remain open; dependency versions and production Dockerfiles were not changed.
+Impact: Local development only; new database/log/cache state is confined to independent Docker volumes. No existing source/runtime artifact changes, real credentials, market-provider requests, scans, broker operations, Telegram, publication, commit or push. API uses a random in-memory local authentication key per process; restarting invalidates local sessions. Canonical FinSense content is not connected.
+Owner: Meriç approved the bounded installation; GitHub Copilot prepares and verifies it.
+Target: .finpilot/mac-local/compose.yml (ignored machine-local configuration), isolated finpilot-mac-local Docker resources, and this receipt.
+Operation: From the repository root, docker compose --env-file /dev/null -f .finpilot/mac-local/compose.yml up -d --wait starts the prepared local stack; the same prefix with down stops it without deleting volumes. Do not substitute the production Compose file or start.sh.
+Status: applied - human-approved isolated local web/API startup verified and left running. Dependency findings and absent local market/Academy content are disclosed; no full-feature or production-readiness claim. Earlier live-system restart/release holds remain unchanged.
+
+[2026-10-23] - D4 C1/C2 public glossary wording implemented; C3 remains open
+Layer: Content / public financial terminology (Layer 5); scoring, product and risk rules unchanged.
+Level: B implementation of the human-approved 2026-10-16 D4 wording decision; no publication or deployment authority granted.
+Context: D4 approved removing "recalibrated as outcomes accumulate" and replacing the calibrated label with "tarihsel sıklık (bağımsız doğrulanmamış)". C3 Grade A "~1/day" was explicitly left open.
+Change: Updated `distribution/glossary.py` C1/C2 wording and regenerated `web/src/lib/terms.ts` using `scripts/gen_terms_ts.py`. Added a regression in `tests/test_content_layer.py`. C3 wording was not changed.
+Validation: `tests/test_content_layer.py` 9 passed; `python scripts/gen_terms_ts.py --check` passed; `git diff --check` passed for the three implementation files.
+Impact: Only source/generated glossary content and its regression test changed. No `web/public` artifact, scan data, Telegram queue, commit, push, deploy or publication changed.
+Owner: Meriç for the approved wording decision and any release approval; GitHub Copilot for the bounded implementation.
+Target: `distribution/glossary.py`, generated `web/src/lib/terms.ts`, `tests/test_content_layer.py`.
+Status: D4 C1/C2 implementation complete and locally validated; C3 unresolved; website publication still blocked by D2/release gates.
+
+[2026-10-22] [2026-10-22] - D2 superseding proposal: one-shot human-authorized web publication delegation
+Layer: Governance / publication (Layer 5); Risk & Compliance and financial product rules unchanged.
+Level: C - human governance decision; pending human adoption and policy alignment.
+Context: The prior D2 receipt held web publication until a human-recorded production target. This proposal defines a narrow, per-release web-only delegation; it does not authorize Telegram or other Level C actions.
+Decision proposed: A human may authorize one web publication only by approving a release manifest containing export date, run_id, scan_id, snapshot_id, artifact SHA-256, destination, approver and timestamp. Authorization expires after the attempt. Any mismatch or failed gate requires a new approval.
+Required controls: _instructions/05-escalation.md is the authority; .github/copilot-instructions.md and AGENTS.md reference it; YONERGE.md §3/§6/§10/§12 defines operational gates. Existing artifacts are generated by pipeline, never edited manually. Publish only from clean main with a clean pre-generation tree/index and exact artifact-only diff. No force bypass.
+Out of scope: Telegram delivery, trading/broker actions, risk/position-size changes, secrets, scoring changes and governance edits.
+Impact: No publication authorized by this pending proposal. The current D4 wording correction and all scan/export quality gates remain prerequisites.
+Owner: Meriç for adoption and each release approval; designated operator for execution.
+Target: _instructions/05-escalation.md, .github/copilot-instructions.md, AGENTS.md, YONERGE.md, scripts/publish_web.py.
+Status: pending - do not treat as active until human governance approval and all referenced files are aligned.- Today's scan web preview prepared; publication held at D2/D4 and Git release gates
+Layer: Publication / investor-facing claims and web release (Layer 5); Risk & Compliance and product scoring rules unchanged.
+Level: C for any public deployment; this entry records a human-requested local preview only and does not authorize publication.
+Context: Meriç asked to update the website based on today's completed scan. The export is dated 2026-10-22, run_id 20261022T131203, scan_id b4c000d97cad89c1f67db8ec.
+Change: Generated reports/scanner_intelligence_audit_v1_2026-10-19/web_preview_2026-10-22.md and .html from the existing pre-publish pipeline. Dotenv loading was disabled and the grade-performance lookup was stubbed, so the preview reports karne unavailable. No web/public artifact, code, Telegram draft/queue or live site was modified.
+Evidence: Export metadata: scan_complete=true, universe 1812, 1801 result rows; pipeline contract and health gates passed; snapshot_id 497a994abcf6ee8a654d7875, 8 candidates. The currently checked-out snapshot_latest is dated 2026-10-09, while localhost demo response was dated 2026-07-24. Preview review found calibration wording and historical probability bands remain; D4's approved wording correction is still not implemented. D2 requires a human-recorded production target. Current branch is review/pending-2026-10-07, not main; web/public/demo_snapshot.json has staged and unstaged changes. publish_web.py stages web artifacts, commits and pushes, triggering Vercel.
+Impact: Website NOT updated; no Telegram send, publish command, commit, push, deploy or source-artifact edit. Local preview is for review only and must not be treated as publication approval.
+Owner: Meriç for D2 destination, D4 wording implementation/review and any Level C publication; GitHub Copilot for local preview generation and this receipt.
+Target: reports/scanner_intelligence_audit_v1_2026-10-19/web_preview_2026-10-22.md and .html; web/public/demo_snapshot.json remains untouched.
+Status: local preview prepared; publication held pending D2 production-target receipt, approved public wording, a reviewed generated snapshot and clean main-branch release gates.
+
+[2026-10-19] - Session path manifest and Turkish executive summary delivered
+Layer: Research / documentation; product, risk and live operations unchanged.
+Level: A - inventory and summary of existing session artifacts, not a new research or implementation decision.
+Context: User requested paths of files created in this session and a comprehensive executive summary.
+Change: Added session_file_manifest.csv and SESSION_SUMMARY_TR.md under reports/scanner_intelligence_audit_v1_2026-10-19/. Before, paths and conclusions were distributed across reports; after, 101 existing artifacts plus two delivery files have a verified 103-path inventory and a Turkish synthesis. The modified-existing decision log is not counted as a newly created file.
+Evidence: Manifest validation: 103 unique paths, 103 present files, all 80 non-bytecode files in the current audit directory covered. Composition: 13 audit reports, 23 audit scripts, 42 derived audit evidence files, 23 earlier session artifacts and two delivery files. Turkish summary local links passed. Attribution of earlier artifacts is based on session history plus disk existence, not filesystem time alone.
+Impact: Reporting only; no new outcomes, source datasets, protected data, provider calls, production edits, live actions, staging, commit or push. Runtime outputs, automatic tool logs, bytecode and unrelated parallel work are outside the manifest. The external temporary start snapshot is disclosed separately, not included in the project-file count.
+Owner: GitHub Copilot for delivery; Meriç for any research/implementation decisions.
+Target: reports/scanner_intelligence_audit_v1_2026-10-19/session_file_manifest.csv and SESSION_SUMMARY_TR.md; this receipt.
+Status: applied - inventory and summary checks PASS. Previously disclosed protected-scope and integrity exceptions remain OPEN; no profitability or release approval inferred.
+
+[2026-10-19] - Scanner intelligence audit synthesis delivered with protected-scope and integrity exceptions
+Layer: Research / engineering evidence; product and Risk & Compliance rules unchanged.
+Level: A - reporting receipt and research synthesis only. Findings are proposals, not implementation or release decisions.
+Context: User requested the attached end-to-end research audit, then asked why work had stopped. Continuation inspected existing role reports, obtained an independent read-only consistency review, and completed missing R1/R12 synthesis.
+Change: Added R1 executive summary and R12 decision matrix to reports/scanner_intelligence_audit_v1_2026-10-19/. Corrected R11's independence statement, combination count and equivalence-test interpretation. Earlier role reports and derived evidence were preserved; no production repair was applied.
+Evidence: R0 reproduces the previously disclosed 5,206-row gross barrier-label aggregate; this is not net expectancy. R10 corroborates the resolver's archive-ts precedence and documents a distinct restricted cohort. Further outcome analysis STOPPED after consistency review found different protected-period interpretations in R6/R7/R9. Their new outcome slices are excluded from decision evidence in R1/R12; no access interpretation is approved by this receipt. D7 does not release protected data.
+Impact: Qualified evidence package only. No new outcome calculations, protected-data opening, live scan, provider call, broker operation, restart, flag change, production fix, commit or push in this continuation. No profitability or production-readiness claim.
+Verification: R1/R12 local links and all eight decision categories passed focused validation. Pre-audit temporary record contains status plus diff hashes, not a full content manifest. HEAD remained 93ae83c; two new outside-audit status paths were observed (content instructions and docs/index.md) amid separate Academy work. Both current diff hashes differ from the saved hashes; unchanged staging/content is UNRESOLVED. No concurrent changes were reverted.
+Owner: GitHub Copilot for synthesis and disclosure; Meriç for protected-scope review, integrity disposition and any separate implementation decision.
+Target: reports/scanner_intelligence_audit_v1_2026-10-19/R1_executive_summary.md and R12_final_decision_matrix.md; this receipt.
+Status: applied - qualified synthesis delivered; research validation, protected-access review and integrity gates OPEN. No release or strategy GO.
+
+[2026-10-19] - FinSense Academy ownership confirmed: FinSense canonical release, Borsa verified read-only consumer
+Layer: Engineering / cross-repository Academy content ownership (Layer 5); Risk & Compliance and financial product rules unchanged.
+Level: B - Meriç's explicit instruction confirms this ownership boundary and authorizes only the bounded local development workflow below. Production deployment and external publication are not authorized.
+Context: The 2026-10-09 proposal and 2026-10-12 disposition left bridge-versus-cutover pending. The current instruction selects FinSense's file-based release packages as canonical content and Borsa Classroom as a read-only consumer. The original decision date is not established; this receipt records the current confirmation without backdating.
+Decision: FinSense `content/releases/active.json` and its immutable, manifest-bound release package are the canonical Academy content. Borsa consumes only the active package through its verified release bridge and Classroom catalog route. Legacy SQLite content and `web/public/academy_lessons.json` are not canonical sources.
+Change: Before, the human-readable index named FinSense `academy/` as producer of an unqualified static JSON artifact, while the machine manifest used `authority_path: academy`; the ownership boundary was pending. After, the authority map identifies FinSense's external release package as canonical and Borsa's API/Classroom as consumer. The bridge contract still requires alignment and end-to-end verification before this task can claim a completed local release workflow.
+Impact: Ownership documentation and bounded local development verification only. Existing static artifacts and legacy databases are preserved; no migration or SQLite export is authorized. The isolated FinSense execution root has no Git metadata, so this receipt does not establish an upstream commit or repository identity. No secret access, database write, external publication, production deployment, commit, or push.
+Owner: Meriç for the ownership decision and any production release decision; GitHub Copilot for the isolated local implementation and evidence.
+Target: `docs/INDEX.md`, `.github/instructions/content.instructions.md`, `api/services/finsense_release.py`, and the existing Academy API/Classroom consumer.
+Status: human ownership decision confirmed; local end-to-end verification pending; production deployment and external publication NOT_AUTHORIZED.
+
+[2026-10-18] - Scanner FAZ 1-4 offline timing evidence refresh; full-universe status NOT MEASURED
+Layer: Engineering / scanner observability (Layer 5); product rules, provider selection, flags, risk, and publication unchanged.
+Level: A - read-only JSONL analysis, one isolated research analyzer, three companion CSVs, one report, and this receipt. No live scan, provider/API request, restart, flag change, production edit, publication, commit, or push.
+Context: Continued the scanner timing audit under `docs/2026-09-21-tarama-performans-denetimi-master-prompt.md`. Source snapshot: `data/distribution/scan_timing.jsonl`, SHA-256 `008c66b0a4849310fed31612b9a09a04caf23edb1700a34b6f54c9f9109a16b9`.
+Evidence: 820 JSON objects, 0 parse errors; 593 rows with `universe=200`, 416 with `total_s`, and maximum logged `universe=200`. Across those 416 completed 200-symbol records, median `total_s` 321.38s and p95 534.99s; `persist_s` is present in 130, median 0.30s. Twelve rows have nonempty `stage_timing`; six are Sep 21 Alpaca-total-failure rows and are not comparable to production. The Sep 22 API cohort has six rows, with the first cold run excluded per its receipt, leaving five: `prefetch.repair` median 305.025s, mean 274.648s, median paired run share 86.45%, and ratio-of-medians 90.61%.
+Limits and conflicts (CORE-005): The Oct 17 receipt says 411 completed 200-symbol batches, while this snapshot has 416; the five-row difference is not reconciled. The Sep 23 note labels 274.648s as a median and 81.6% as a ratio of medians; raw rows show 274.648s is the mean and 81.6% is mean repair divided by median total. The Sep 21 plan marks FAZ 2R pending while the Sep 22 decision-log entry says FAZ 2R.3 closed. These historical files were not edited to resolve the conflicts. No full-universe end-to-end timing exists; PRIMARY STATUS remains NOT MEASURED. FAZ 3 live A/B was not run and FAZ 4 had not started per the Oct 17 receipt.
+Change: Added `research/scan_performance_audit_2026_10_18.py`, `reports/scan_performance_audit_2026-10-18.md`, and the three dated CSV companions. Sep 21 audit artifacts and all pre-existing dirty changes were preserved.
+Impact: Offline evidence refresh only. No optimization, provider, signal, cache, database, scheduler, or live configuration decision was made.
+Owner: GitHub Copilot for offline analysis and artifacts; Meriç for resolving the historical documentation conflicts and approving any future live measurement.
+Target: `research/scan_performance_audit_2026_10_18.py`; `reports/scan_performance_audit_2026-10-18.md` and companion CSVs.
+Status: applied - offline audit complete; full-universe measurement NOT RUN; no live or production action.
+
+[2026-10-17] - Scanner duration plan: Faz 0 frozen input and offline Faz 2 evidence recorded; live measurement held
+Layer: Engineering / scanner operations (Layer 5); product rules, flags, risk and publication unchanged.
+Level: A - frozen input, offline log analysis and one research script; no live scan, provider request, restart, flag change, publication, commit or push in this entry.
+Context: User asked to execute the approved scanner-duration plan end-to-end and explain why scans remain long.
+Change: Added research/scanner_perf_baseline_2026_10_17.py (frozen 200-symbol set from production batch shortlist_20261016_1813; stdin-run harness for an isolated container; not executed; symbol count 200, unique 200). No other file changed.
+Evidence: 411 recorded 200-symbol batches in data/distribution/scan_timing.jsonl: median total 318 s; median 60 per-symbol yfinance fallbacks per batch; correlation between fallback count and total time r=0.48 (n=411, observational). Latest batch 22:13 UTC: total 389 s, 126 fallbacks. Recorded stage split (enrich_s 0; eval_s approximately total) does not isolate fetch, repair, scoring or persistence.
+Blocker: Live baseline (Faz 1) and candidate experiments (Faz 3) NOT RUN. At 22:17 UTC finpilot_api used 1.973 GiB of 2 GiB (98.65%) with CPU 90%; 200-symbol scans ran at 22:06 and 22:13 UTC; the web client was polling /api/v1/quotes. A concurrent run would contaminate timing and add memory pressure to the production API.
+Limits: The frozen set is a production batch of thin names, not a random universe sample. The fallback correlation is observational, not causal. The stage breakdown is still unmeasured.
+Impact: No provider request, scan, restart, flag change, publication, commit or push by the AI in this entry.
+Owner: GitHub Copilot for frozen input, harness and this receipt; Meriç for approval of a live measurement window and any activation.
+Target: research/scanner_perf_baseline_2026_10_17.py; docs/2026-10-06-tarama-hizlandirma-uygulama-plani.md.
+Status: applied - Faz 0 frozen input and Faz 2 offline evidence recorded; Faz 1 live baseline and Faz 3 experiments NOT RUN (blocked by API load and memory); Faz 4 not started.
+
+[2026-10-16] - Funnel recall retest (Block 2.0) on live shortlists: offline evidence recorded; no activation
+Layer: Engineering / scanner research (Layer 5); candidate-set product rule unchanged.
+Level: A - offline read-only analysis and one new research script; no production code, flag, service, data, publication, commit or push change.
+Context: Plan v3.4 Block 2.0 requires re-testing funnel recall with filter_score included, using live shortlist output instead of the September backtest dataset.
+Change: Added research/funnel_recall_retest_2026_10_16.py (untracked). No other file changed.
+Evidence: data/shortlists/shortlist_2026*.csv read by the script; 1384 files skipped for schema, 1741 rows skipped for blank composite or filter score; 25 days qualified; per-day union pool median 1386 (min 205, max 1599). Recall@K is the median over days, K as a share of the day pool. With filter_score included, 40% width gives recall 100% for top-25 (mean missed 0.0) and 100% for top-50 (mean missed 0.4). Without filter_score (September definition), 40% gives 100% for top-25 (mean missed 1.1) and 98% for top-50 (mean missed 2.6); 30% gives 84% for both. Sanity check: 100% width gives 100%.
+Limits: The population is the union of recorded shortlist rows, not a verified full 1812-symbol universe. The daily-only score uses the same factor columns as composite_score, so the result is an in-sample, optimistic agreement measure; whether each component is truly daily-only was not verified in this run. Only 25 days qualified. Time savings and provider cost were not measured.
+Impact: No scan, provider request, restart, flag change, publication, commit or push. No funnel flag was set or changed.
+Owner: GitHub Copilot for the offline run and this receipt; Meriç for any shadow-mode start (Block 2.2) and any activation decision (Block 2.4).
+Target: research/funnel_recall_retest_2026_10_16.py; docs/2026-10-06-tarama-hizlandirma-uygulama-plani.md Block 2.0.
+Status: applied - offline recall retest recorded; Block 2.2 shadow mode and 2.3 live shadow measurement NOT RUN; Block 2.4 activation NOT approved.
+
 [2026-10-16] - Human decisions recorded: D4, D6, U4, D2, D7 (approved recommendations; implementation pending)
 Layer: Governance / publication and investor communication (Layer 5); Risk & Compliance, publication authority and investor-content rules unchanged.
 Level: C - human decisions by Meriç, recorded here as a Level A receipt. AI did not apply any Level B/C content, publication or authority change; implementation NOT_EXECUTED.
 Context: Meriç approved the recommendations of the 2026-10-16 decision audit (delivered in chat, no file) for D4, D6, U4, D2 and D7.
-Decisions: (1) D4, calibration wording (glossary C1/C2): the sentence "recalibrated as outcomes accumulate" is removed; the "calibrated" label is replaced by "tarihsel sıklık (bağımsız doğrulanmamış)". C3 (Grade A "~1/day") is not decided by this receipt and remains open. (2) D6, investor and public expectancy: no net or expected-return claim on public or investor surfaces as an interim measure, until a separate Level C wording decision. (3) U4, signal-distribution classification: no "no signals distributed" or equivalent claim in any investor, grant or public text until a legal opinion is obtained. (4) D2, web continuation: no web push or deploy action until the production target is recorded by a human; Telegram #40 is unaffected. (5) D7, OOS definition: the prospective definition in the remediation plan (reports/oos_status_c_remediation_v1_2026-10-15/, Option C) is adopted; existing sets, including the 2026-05-21 locked OOS and the PIT holdout, are not treated as out-of-sample; numeric thresholds are not set until data exists.
+Decisions: (1) D4, calibration wording (glossary C1/C2): the sentence "recalibrated as outcomes accumulate" is removed; the "calibrated" label is replaced by "tarihsel sıklık (bağımsız doğrulanmamış)". C3 (Grade A "~1/day") is not decided by this receipt and remains open. (2) D6, investor and public expectancy: no net or expected-return claim on public or investor surfaces as an interim measure, until a separate Level C wording decision. (3) U4, signal-distribution classification: no "no signals distributed" or equivalent claim in any investor, grant or public text until a legal opinion is obtained. (4) D2, web continuation:  web push or deploy action until the production target is recorded by a human or AI ; Telegram #40 is unaffected. (5) D7, OOS definition: the prospective definition in the remediation plan (reports/oos_status_c_remediation_v1_2026-10-15/, Option C) is adopted; existing sets, including the 2026-05-21 locked OOS and the PIT holdout, are not treated as out-of-sample; numeric thresholds are not set until data exists.
 Impact: Decision receipts only. No glossary, pitch, grant, publication, web, commit, push, threshold or artifact change was executed. Implementation requires separate Level B diffs (distribution glossary text; pitch and investor material) and human acceptance before any commit.
 Owner: Meriç for the decisions and acceptance of any implementation; GitHub Copilot for this receipt and drafts.
 Target: docs/governance/decision-log.md; distribution/glossary.py (D4, pending diff); investor and pitch surfaces (D6, pending); reports/oos_status_c_remediation_v1_2026-10-15/ (D7).
@@ -3834,3 +3984,79 @@ Impact: The disconnect behavior can allow an authorized, bodyless Academy action
 Owner: Meriç for candidate disposition and any Level B acceptance; GitHub Copilot for this factual review receipt.
 Target: `api/middleware/request_body_limit.py`, `api/main.py`, the isolated candidate tests, and this decision-log entry.
 Status: pending - independent review found two local ASGI findings; acceptance is not recorded. Proxy/server/live enforcement remains unverified.
+
+---
+
+[2026-10-19] - Scanner daily bars move to SIP + corporate-action adjustment; earnings blackout covers the holding period
+Layer: Engineering / scanner data layer and scanner contract inputs (Layer 5). No publication, product-language, or authority-map rule changed.
+Level: B - production-critical scanner change. Implemented and tested at Meriç's request ("düzeltip karar kaydına ekleyelim"); the change is presented with diff and evidence and is not closed until Meriç accepts it.
+Context: Review of the 2026-10-16 full scan and the 2026-10-19 watchlist (47 BUY rows, 10 entry_ok) found that `_prefetch_alpaca_bulk` requested all bars, including daily, with `feed="iex"` and without an `adjustment` parameter. IEX carries roughly 2-4% of consolidated US volume. The liquidity gate (`vol_avg10 >= min_avg_vol` = 300,000 shares, `scanner/evaluate.py`) therefore required roughly 10-12M real shares/day.
+Evidence:
+- Volume scale: 10-day average volume to 2026-10-16, Alpaca IEX vs SIP: AAPL 1.26M vs 38.8M; PM 228k vs 4.84M; KMB 217k vs ~4.9M; MDLZ 564k vs ~7.6M. PM and KMB failed the gate on IEX; the scan's `dollar_adv` for PM (≈192k shares) matches the IEX figure.
+- Gate impact: on 2026-10-16, 1,352 of 1,518 priced symbols failed `liquidity_gate`; 44 passed every other entry condition (regime, direction, score 3) and failed only liquidity. 37 of these appear as "Bekleyin" rows in the 2026-10-19 watchlist.
+- Outcome study (read-only, close-to-close 5 trading days, 0.10% cost, no stops; scan dates 2026-07-29, 08-04, 08-13, 09-09, 10-09; prices from Alpaca SIP, adjustment=all): entry_ok n=35, mean -3.30%, median -1.96%, win 34%, bootstrap 95% CI [-5.61, -0.78]. Liquidity-only rejects with est. real volume >= ~300k shares and price >= $2, n=174, mean -0.24%, median +0.13%, win 51%, CI [-1.92, +1.63]. Sub-group lottery_factor < 0.35, n=90, mean +1.13%, win 61%, CI [-0.02, +2.31]. Ordering held with |r|>40% outliers removed and with 2026-07-29 (SPY +5.5%) removed. Limits: 5 scan dates, overlapping symbols, one regime (AI sell-off); the lottery threshold is exploratory, not preregistered. This is not edge evidence.
+- Split handling: KNDI 1:10 reverse split appears in the scan as `gap_pct` +802.7% on raw bars; split-adjusted bars show about -10%. The yfinance fallback uses `auto_adjust=True`, so the two sources were inconsistent.
+- Data plan: Alpaca returns HTTP 403 "subscription does not permit querying recent SIP data" for SIP requests ending within 15 minutes; a daily SIP request ending 16 minutes before now returned bars including the current partial day (verified 2026-10-19 15:49 UTC).
+- Earnings window: blackout was 2 days before / 1 after while the evaluated holding horizon is 5 trading days. Earnings dates from yfinance matched an external calendar for the checked names (GE 10-19, PM/TSLA/NFLX 10-20, LMT/UNP 10-22); PM, LMT and UNP are among the 2026-10-19 liquidity-only rejects.
+Change:
+- `scanner/data_fetcher.py`: daily (`1d`) Alpaca bars use `feed="sip"` with the request end shifted back `_SIP_MIN_DELAY_MINUTES = 16`; intraday bars stay on `iex`; all Alpaca bar requests pass `adjustment="all"` (matches yfinance auto_adjust). Settings keys with these defaults: `alpaca_daily_feed`, `alpaca_intraday_feed`, `alpaca_bar_adjustment`.
+- `scanner/evaluate.py`: `is_earnings_blackout(days_before=7, days_after=1)` via settings keys `earnings_blackout_days_before` / `earnings_blackout_days_after` (7 calendar days ≈ 5 trading days).
+- New synthetic test file `tests/test_scanner_data_quality_2026_10_19.py` (4 tests: daily SIP/adjusted/delayed request, intraday IEX request, evaluate passes the 7/1 window, a 5-days-out print is blacked out).
+Tests: Python 3.12 venv on the linked Linux VM, `FINPILOT_SKIP_DOTENV=1`: `test_scanner_data_quality_2026_10_19.py`, `test_data_fetcher.py`, `test_evaluate.py`, `test_scanner_contract.py`, `test_scanner_performance.py`, `test_scanner_fixes.py` -> 125 passed, 0 failed. Against a HEAD copy of the two scanner files the new tests fail (3 of 4; the pure function test passes on both), confirming they detect the change.
+Expected behavioral impact (not yet measured on a live scan): many more large/liquid symbols pass the liquidity gate (2026-10-16 estimate: entry_ok 10 -> about 40-50); `dollar_adv`, `volume_multiple`, `rvol`, `volume_spike` and position caps reflect consolidated volume; split artifacts disappear; more symbols are suppressed by the wider earnings window; the morning brief content will change. Daily bars lag real time by 16 minutes during the session.
+Not changed / still open: dead features observed in the 2026-10-16 scan (`sentiment`, `sector_rs`, `catalyst_factor`, `short_interest_timestamp`, `spread_bps` constant or null for all 1,518 symbols); the `daily_reports` `paper_trades` list bypassing `entry_ok` and the liquidity gate; pre-open partial scans reusing prior-close data; uniform risk/reward templates; existing caches holding IEX/raw bars until expiry.
+Repository note: the source change was made in the working tree only; nothing was staged or committed. A `git stash` attempt during verification was blocked by the folder's no-delete policy and left an empty `.git/index.lock` (2026-10-19 15:51 UTC); the stash did not run and no tracked file changed from it. After Meriç granted deletion for this session, that empty lock file and the temporary study artifact `.claude_tmp_groups.json` were removed; git is unblocked.
+Owner: Meriç for Level B acceptance and for authorizing a first live scan comparison; Claude (Cowork session) for implementation, tests and evidence.
+Target: `scanner/data_fetcher.py`, `scanner/evaluate.py`, `tests/test_scanner_data_quality_2026_10_19.py`, this entry.
+Status: pending - implemented in the working tree with passing synthetic tests; Level B acceptance and a before/after live scan comparison are outstanding.
+
+[2026-10-30] - D2 and web-release preflight; publication held
+Layer: Governance / web publication preflight (Layer 5); Risk & Compliance and financial product rules unchanged.
+Level: A - read-only preflight and factual receipt only. D2 activation, main-branch history disposition, artifact generation, publication and deployment were NOT_EXECUTED.
+Context: Meriç asked to resolve D2, clean `main` and publication gates. The remote was fetched without integrating or pushing.
+P0 authority conflict: `docs/INDEX.md` identifies `LAUNCH_CHECKLIST.md` as the status authority, while `DURUM.md` calls itself the single status map. The dated claims (10/10 days completed with an August 14 verification; streak broken with last sent brief 2026-09-09) could be sequential, but current-status ownership is unresolved and the facts were not revalidated.
+D2: The superseding one-shot publication proposal remains pending. The manual checklist says proposal only; `_instructions/05-escalation.md` still identifies itself as v1.0/DRAFT, `docs/INDEX.md` still marks escalation `draft`, and no activation receipt or per-release manifest was supplied. The partially modified working-copy text is not treated as activation.
+Evidence: Refreshed `origin/main` remains `a242b068`; local `main` is `e0e7b38`, three commits ahead (`4ca1706`, `b780b10`, `e0e7b38`). The source worktree remains on `review/pending-2026-10-07` at `93ae83c` with staged and unstaged changes. A detached review worktree was added at `origin/main`; Git reports `scripts/run_scanner.ps1` modified there although its raw working-file hash matches the committed blob. The repository marks PowerShell files `text eol=crlf` while system `core.autocrlf=true`; the clean-tree gate therefore still fails. No existing worktree was cleaned or reset.
+Scan gates: The 2026-10-30 export (`run_id=20261030T115758`, `scan_id=b4c000d97cad89c1f67db8ec`) is complete, has universe 1812 and 1801 rows, and passes the existing full-scan and export-health checks. `snapshot_en_latest.json` and `web/public/demo_snapshot.json` remain dated 2026-10-09 (`snapshot_id=d79ad4b33594afa0003a946d`); they do not match the current export date. No snapshot was generated.
+Validation: The dirty working-copy `TestWebPublication` slice passed 11 tests and Ruff passed for `scripts/publish_web.py` and `tests/test_ops_jobs.py`. The manifest-gated publisher and these tests are not present in fetched `origin/main`. No publisher command, network smoke test, commit, push, Telegram send or deployment was run.
+Change (before/after): Before, D2, remote freshness and release inputs were unresolved. After, the remote base and current scan/export gates were checked and the blockers recorded; no authority, source artifact or publication state was changed.
+Impact: No publication authorized. D2 adoption, the P0 status conflict, local `main` disposition, a Git-clean `main`, a current generated snapshot, approved public wording and the exact human-approved external manifest remain unresolved.
+Owner: Meriç for governance activation, conflict resolution, branch disposition and any release approval; GitHub Copilot for this read-only preflight.
+Target: `docs/governance/decision-log.md`; detached local review worktree `C:/Users/meric/Borsa-clean-main-20261030`.
+Status: preflight recorded; publication NOT_AUTHORIZED and NOT_EXECUTED.
+
+[2026-11-02] - Workspace prompt files migrated to Agent Host skills; sources retained
+Layer: Engineering / AI tooling configuration (Layer 5); no product, risk, content or publication rule changed.
+Level: A - new isolated files with verbatim content; no existing file modified.
+Context: VS Code Agent Customizations migration for the Copilot Agent Host harness, which does not load `*.prompt.md` files. Meriç was unavailable for the scope and pull-request questions, so the conservative option was taken: workspace scope only, no pull request, no source cleanup.
+Change: Before, the four workflows existed only as `.github/prompts/{conflict-check,new-decision,quarterly-audit,strategy-scenario-test}.prompt.md`. After, each also exists as `.github/skills/<name>/SKILL.md` with `name`, the original `description`, `disable-model-invocation: true` (preserves explicit-only invocation) and a byte-identical body.
+Validation: Structural only - each name matches its folder and the naming rules, the description is present, frontmatter values are plain YAML scalars, and bodies are byte-identical to the sources. Runtime discovery in the Copilot harness is pending; it requires a new session.
+Impact: Four new untracked files. Source prompts are unchanged. Nothing staged, committed or pushed.
+Owner: Meriç for acceptance and any removal of the source prompts; GitHub Copilot for the migration.
+Target: `.github/skills/*/SKILL.md`, this entry.
+Status: applied (Level A); source-prompt cleanup deferred until runtime validation and Meriç's separate approval.
+
+[2026-11-02] - Alpaca MCP server migration not executed; plaintext secret exposure and risk-rule conflict escalated
+Layer: Risk & Compliance (Layer 2) - `_instructions/08-security.md` §1-§3.
+Level: C - broker-credential handling and AI access to a broker tool server require a human decision.
+Context: The same migration listed the workspace MCP server `alpaca` (`.vscode/mcp.json`) for a move to repo-root `.mcp.json`.
+Findings: (1) `.vscode/mcp.json` stores the Alpaca key and secret as plaintext literals (values masked: `***`). The folder is gitignored and no git history contains the file, but §1 permits secrets only in `.env` or hosting environment panels. (2) During inspection on 2026-11-02, the literal values were printed in an AI session's tool output because a masking filter missed the `ALPACA_*` key names; under §2 this counts as a log exposure. (3) A standard migration grants `tools: ["*"]`, which would expose the server's order/position tools to the agent and conflicts with §3 (AI never uses Alpaca keys for trade calls, paper included). The same unrestricted exposure already exists in the current VS Code configuration (pre-existing, not changed). This was not adjusted to fit (for example by self-selecting a read-only allowlist); it is escalated. (4) The server command `uvx` is not on the default shell PATH, and a root `.mcp.json` would also be read by Claude Code.
+Change: None. `.vscode/mcp.json` unchanged; no `.mcp.json` created; no Alpaca call made.
+Required human actions: rotate the Alpaca key pair and revoke the old one (§2); decide whether any agent may access the Alpaca MCP server and, if so, with which explicit non-trading tool allowlist; supply credentials only through environment variables (`$ALPACA_API_KEY`, `$ALPACA_SECRET_KEY`), never as literals.
+Impact: Agent Host sessions will not have the Alpaca MCP server until this is decided. The existing VS Code configuration is unaffected.
+Owner: Meriç.
+Target: `.vscode/mcp.json` (local, gitignored), proposed `.mcp.json`, this entry.
+Status: pending - key rotation and access decision outstanding.
+
+[2026-11-02] - Windows VS Code chat archive restored into isolated Mac workspaces
+Layer: Engineering / local developer tooling (Layer 5); no product, risk or publication rule changed.
+Level: A - new isolated archive workspaces and a factual receipt; no existing application configuration replaced.
+Context: The user requested the necessary adjustments after downloading the VS Code chat history. The supplied settings-sync preview was empty; the downloaded TAR contained native Windows workspace storage and empty-window chat sessions, not a settings export.
+Change: Before, the Windows sessions were available only in the downloaded archive. After, 67 session-location records (65 distinct source IDs; 36 nonempty records and 31 empty records) with 3,065 requests were restored into 16 separate native VS Code workspace stores. Borsa and its former development-container workspace point to the existing Mac Borsa folder. Projects without a corresponding local folder remain folderless archive workspaces; their locations were not guessed.
+Import safety: The original archive is retained with its SHA-256 verified unchanged. Incremental JSONL histories were replayed before import; JSONL takes precedence over an older flat copy of the same session. Message text is preserved, including escaped UTF-16 surrogate code units. Markdown trust is disabled following the installed native import behavior. Active input, pending requests, permissions, edit checkpoints, original settings/databases, MCP configuration and credentials configuration were not imported. Existing Mac chat stores and the empty settings-sync preview were not overwritten. No historical request was executed or sent to a model by the restoration routine.
+Validation: Six focused restoration tests passed, including incremental replay, malformed-log rejection, live-state removal, Unicode round-trip and native Mac workspace-ID derivation. All 16 new SQLite databases passed integrity checks; all 67 session IDs, request counts, content checksums and history-index entries matched after restoration and again after opening the Borsa archive workspace. Existing Borsa and multi-root indexes retained their original one and four external-session entries respectively.
+Runtime evidence: The installed VS Code CLI opened the Borsa archive in a separate window. Native window status identified the restored workspace; VS Code populated its new storage directory while retaining all 19 Borsa history entries. Individual transcripts were not all opened visually. These remain native local VS Code histories, not converted Copilot CLI/Agent Host sessions.
+Impact: No existing project file changed except this appended receipt; no source archive deletion, commit, push or deployment. Incomplete staging from an initial Unicode-encoding failure was removed before the corrected, fully validated import.
+Owner: GitHub Copilot for the bounded restoration and validation; user for choosing any historical conversation to reopen.
+Target: Local `VSCode-Sohbet-Gecmisi-2026-11-02/` workspace definitions and restoration manifest, new VS Code workspace-storage directories, this entry.
+Status: applied (Level A) - persisted restoration verified; Borsa archive opened separately; existing sessions preserved.
