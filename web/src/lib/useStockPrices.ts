@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 export interface LiveQuote {
   price: number;
@@ -14,27 +14,33 @@ const globalCache: QuoteMap = {};
 
 const REFRESH_MS = 30_000; // 30 seconds
 
-async function fetchQuotes(symbols: string[]): Promise<QuoteMap> {
-  if (symbols.length === 0) return {};
-  const merged: QuoteMap = {};
+async function fetchQuotes(
+  symbols: string[],
+  signal: AbortSignal,
+  onBatch: (quotes: QuoteMap) => void,
+): Promise<void> {
   // Split into batches of 30 to match API hard limit and avoid proxy timeouts
   for (let i = 0; i < symbols.length; i += 30) {
+    if (signal.aborted) return;
     const batch = symbols.slice(i, i + 30);
     try {
-      const resp = await fetch(`/py-api/quotes?symbols=${batch.join(",")}`);
-      if (!resp.ok) continue;
+      const resp = await fetch(`/py-api/quotes?symbols=${batch.join(",")}`, { signal });
+      if (!resp.ok) throw new Error(`Quote request failed (HTTP ${resp.status})`);
       const data: QuoteMap = await resp.json();
+      if (signal.aborted) return;
       for (const [sym, q] of Object.entries(data)) {
         globalCache[sym] = q;
-        merged[sym] = q;
       }
-    } catch { /* skip batch */ }
+      onBatch(data);
+    } catch (error) {
+      if (signal.aborted) return;
+      console.warn("Stock price refresh failed:", error);
+    }
     // Small delay between batches to avoid hammering yfinance
     if (i + 30 < symbols.length) {
       await new Promise((r) => setTimeout(r, 200));
     }
   }
-  return merged;
 }
 
 /**
@@ -49,29 +55,31 @@ export function useStockPrices(symbols: string[]) {
     }
     return init;
   });
-  const [loading, setLoading] = useState(true);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [loadedSymbolsKey, setLoadedSymbolsKey] = useState<string | null>(null);
   // Stable key without mutating the original array
   const symbolsKey = [...symbols].sort().join(",");
 
-  const doFetch = useCallback(async () => {
-    if (symbols.length === 0) { setLoading(false); return; }
-    const result = await fetchQuotes(symbols);
-    if (Object.keys(result).length > 0) {
-      setData((prev) => ({ ...prev, ...result }));
-    }
-    setLoading(false);
-  }, [symbolsKey]); // eslint-disable-line react-hooks/exhaustive-deps
-
   useEffect(() => {
-    setLoading(true);
-    doFetch();
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const requestedSymbols = symbolsKey ? symbolsKey.split(",") : [];
 
-    intervalRef.current = setInterval(doFetch, REFRESH_MS);
+    async function refresh() {
+      await fetchQuotes(requestedSymbols, controller.signal, (quotes) => {
+        setData((prev) => ({ ...prev, ...quotes }));
+      });
+      if (controller.signal.aborted) return;
+      setLoadedSymbolsKey(symbolsKey);
+      // A full universe can take longer than the refresh interval.
+      timer = setTimeout(refresh, REFRESH_MS);
+    }
+
+    if (requestedSymbols.length > 0) void refresh();
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      controller.abort();
+      if (timer !== undefined) clearTimeout(timer);
     };
-  }, [doFetch]);
+  }, [symbolsKey]);
 
-  return { data, loading };
+  return { data, loading: symbolsKey.length > 0 && loadedSymbolsKey !== symbolsKey };
 }
